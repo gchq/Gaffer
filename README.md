@@ -64,8 +64,9 @@ Gaffer is licensed under the Apache 2 license - see the LICENSE file for more in
 Gaffer2
 -------
 
-A project called Gaffer2 is in development. This aims to create a more general framework that offers the best
-of Gaffer but improves it in the following areas:
+The version of Gaffer in this repo is no longer under active development because a project called
+Gaffer2 is in development. This aims to create a more general framework that offers the best of Gaffer
+but improves it in the following areas:
 
 - Gaffer has a fixed idea of what a node and edge is - for example, a node is identified by a type and value and each edge
 has a start and end date. This means that it is not possible to store more general graphs in Gaffer.
@@ -80,4 +81,13 @@ types, but it also imposes some limitations, e.g. on the efficiency of the seria
 
 Gaffer2 is a project that aims to take the best parts of Gaffer, and resolve some of the above flaws, to create a
 more general purpose graph database system. This can be used for both large and small scale graphs,
-for graphs with properties that are summaries, or just static properties, and for many other use cases.
+for graphs with properties that are summaries, or just static properties, and for many other use cases. Note
+that Gaffer2 is a complete rewrite - the API is very different to this version of Gaffer.
+
+Gaffer2 will be released shortly. We chose to release version 1 so that the community could see where version 2
+originated from, and so that we can perform testing to avoid significant performance regressions in version 2. We
+advise interested parties to wait for version 2 rather than investing much time in learning to use version 1 or
+in working on pull requests.
+
+We are currently working on a contributor license agreement which will need to be signed before we can accept
+pull requests to Gaffer2.
