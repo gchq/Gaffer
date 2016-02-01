@@ -12,6 +12,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
+<img src="logos/logoWithText.png" width="300">
+
 Gaffer
 ======
 
