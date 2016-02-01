@@ -1,0 +1,18 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "properties": {
+        "intProperty": "java.lang.Integer",
+        "stringProperty": "java.lang.String"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "properties": {
+        "intProperty": "java.lang.Integer",
+        "stringProperty": "java.lang.String"
+      }
+    }
+  }
+}

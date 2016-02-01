@@ -1,0 +1,27 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "properties": {
+        "stringProperty": {
+          "serialiserClass": "gaffer.serialisation.simple.StringSerialiser",
+          "position": "VALUE"
+        }
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "properties": {
+        "intProperty": {
+          "serialiserClass": "gaffer.serialisation.simple.IntegerSerialiser",
+          "position": "VALUE"
+        },
+        "count": {
+          "serialiserClass": "gaffer.serialisation.simple.LongSerialiser",
+          "position": "VALUE"
+        }
+      }
+    }
+  },
+  "vertexSerialiserClass": "gaffer.serialisation.simple.StringSerialiser"
+}

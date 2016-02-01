@@ -1,229 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-	Copyright 2015 Crown Copyright
+  ~ Copyright 2016 Crown Copyright
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ 	http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-		http://www.apache.org/licenses/LICENSE-2.0
+    <groupId>gaffer2</groupId>
+    <artifactId>gaffer2</artifactId>
+    <packaging>pom</packaging>
+    <version>0.3.0-SNAPSHOT</version>
 
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>gaffer</groupId>
-	<artifactId>gaffer</artifactId>
-	<version>1.3.0</version>
-	<name>Gaffer</name>
+    <modules>
+        <module>accumulo-store</module>
+        <module>array-list-store</module>
+        <module>simple-function-library</module>
+        <module>simple-operation-library</module>
+        <module>simple-serialisation-library</module>
+        <module>rest-api</module>
+        <module>gaffer-core</module>
+        <module>example</module>
+        <module>gaffer-integration-tests</module>
+    </modules>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hadoop.version>2.6.0</hadoop.version>
-		<!-- To avoid losing data when bulk importing, a version of Accumulo in which ACCUMULO-3967 has been
-		fixed should be used (e.g. 1.5.4, 1.6.4, 1.7.1, 1.8.0). -->
-		<accumulo.version>1.6.4</accumulo.version>
-		<additionalparam>-Xdoclint:none</additionalparam>
-	</properties>
+    <properties>
+        <java.version>1.7</java.version>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-client</artifactId>
-			<version>${hadoop.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.accumulo</groupId>
-			<artifactId>accumulo-core</artifactId>
-			<version>${accumulo.version}</version>
-			<exclusions>
-				<!-- This exclusion needs to be made in order for unit tests that run MapReduce
-				jobs over MockAccumulo instances to run. We exclude it here and include guava
-				14.0.1 below (see JIRA ACCUMULO-3100 which applies this patch for Accumulo 1.6.1). -->
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>14.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-			<version>3.3.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.roaringbitmap</groupId>
-			<artifactId>RoaringBitmap</artifactId>
-			<version>0.4.5</version>
-		</dependency>
-		<dependency>
-			<groupId>jline</groupId>
-			<artifactId>jline</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.clearspring.analytics</groupId>
-			<artifactId>stream</artifactId>
-			<version>2.9.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.azavea.geotrellis</groupId>
-			<artifactId>geotrellis-spark_2.10</artifactId>
-			<version>0.10.0-M1</version>
-			<exclusions>
-				<!-- We only need a couple of classes from this package so exclude most of its dependencies. -->
-				<exclusion>
-					<groupId>com.azavea.geotrellis</groupId>
-					<artifactId>geotrellis-raster_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.azavea.geotrellis</groupId>
-					<artifactId>geotrellis-gdal_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.azavea.geotrellis</groupId>
-					<artifactId>geotrellis-index_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.accumulo</groupId>
-					<artifactId>accumulo-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.spark</groupId>
-					<artifactId>spark-core_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.hadoop</groupId>
-					<artifactId>hadoop-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.quantifind</groupId>
-					<artifactId>sumac_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>de.javakaffee</groupId>
-					<artifactId>kryo-serializers</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.google.uzaygezen</groupId>
-					<artifactId>uzaygezen-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.amazonaws</groupId>
-					<artifactId>aws-java-sdk-s3</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.spire-math</groupId>
-					<artifactId>spire_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.github.julien-truffaut</groupId>
-					<artifactId>monocle-core_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.github.julien-truffaut</groupId>
-					<artifactId>monocle-macro_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.github.nscala-time</groupId>
-					<artifactId>nscala-time_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.scalaz.stream</groupId>
-					<artifactId>scalaz-stream_2.10</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.gdal</groupId>
-					<artifactId>gdal</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>full</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<finalName>${project.artifactId}-${project.version}-full-${hadoop.version}-accumulo-${accumulo.version}</finalName>
-							<artifactSet>
-								<excludes>
-									<exclude>org.apache.hadoop:hadoop-client</exclude>
-									<exclude>junit:junit</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-					<execution>
-						<id>iterators</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<finalName>${project.artifactId}-${project.version}-iterators-${hadoop.version}-accumulo-${accumulo.version}</finalName>
-							<artifactSet>
-								<excludes>
-									<exclude>org.apache.accumulo:*</exclude>
-									<exclude>org.apache.hadoop:hadoop-client</exclude>
-									<exclude>junit:junit</exclude>
-								</excludes>
-							</artifactSet>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+        <!-- Dependency version properties -->
+        <junit.version>4.12</junit.version>
+        <mockito.version>1.9.5</mockito.version>
 
+        <slf4j.api.version>1.7.5</slf4j.api.version>
+
+        <hadoop.version>2.6.0</hadoop.version>
+        <accumulo.version>1.6.4</accumulo.version>
+
+        <avro.version>1.7.7</avro.version>
+        <jackson.version>2.6.2</jackson.version>
+
+        <!-- Define SCM properties for use with Release Plugin -->
+        <scm.url>https://github.com/GovernmentCommunicationsHeadquarters/Gaffer</scm.url>
+        <scm.connection>scm:git:ssh://git@github.com:GovernmentCommunicationsHeadquarters/Gaffer.git</scm.connection>
+        <scm.developer.connection>scm:git:ssh://git@github.com:GovernmentCommunicationsHeadquarters/Gaffer.git
+        </scm.developer.connection>
+
+        <!-- Release configuration -->
+        <releases.repository.id>gaffer.releases.repo</releases.repository.id>
+        <releases.repository.name>Gaffer Releases Repository</releases.repository.name>
+        <releases.repository.url>https://repository.somewhere.com/gaffer2-releases</releases.repository.url>
+        <snapshots.repository.id>gaffer.snapshots.repo</snapshots.repository.id>
+        <snapshots.repository.name>Gaffer Snapshots Repository</snapshots.repository.name>
+        <snapshots.repository.url>https://repository.somewhere.com/gaffer2-snapshots</snapshots.repository.url>
+    </properties>
+
+    <scm>
+        <url>${scm.url}</url>
+        <connection>${scm.connection}</connection>
+        <developerConnection>${scm.developer.connection}</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <dependencies>
+        <!-- Common Utilities -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>13.0.1</version>
+        </dependency>
+
+        <!-- Testing Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.4.1</version>
+                    <configuration>
+                        <preparationGoals>clean install</preparationGoals>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <showDeprecation>true</showDeprecation>
+                        <showWarnings>true</showWarnings>
+                        <fork>true</fork>
+                        <meminitial>128m</meminitial>
+                        <maxmem>1024m</maxmem>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-jgitflow-plugin</artifactId>
+                <version>1.0-alpha27</version>
+                <configuration>
+                    <enableSshAgent>true</enableSshAgent>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <pushProperties>true</pushProperties>
+                    <pushReleases>true</pushReleases>
+                    <pushHotfixes>true</pushHotfixes>
+                    <noDeploy>true</noDeploy>
+                    <flowInitContext>
+                        <developBranchName>develop</developBranchName>
+                        <versionTagPrefix>vers</versionTagPrefix>
+                    </flowInitContext>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>perthread</forkMode>
+                    <parallel>classes</parallel>
+                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m -XX:MaxPermSize=256m</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <distributionManagement>
+        <repository>
+            <id>${releases.repository.id}</id>
+            <name>${releases.repository.name}</name>
+            <url>${releases.repository.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${snapshots.repository.id}</id>
+            <uniqueVersion>false</uniqueVersion>
+            <name>${snapshots.repository.name}</name>
+            <url>${snapshots.repository.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

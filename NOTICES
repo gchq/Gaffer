@@ -1,56 +1,121 @@
-Gaffer contains three classes which are modified versions of classes from Apache Accumulo:
+Copyright 2016 Crown Copyright
 
-- gaffer.accumulo.iterators.CombinerOverColumnQualifierAndVisibility is based on Accumulo's Combiner class
-(org.apache.accumulo.core.iterators.Combiner) which is licensed under the Apache 2 license,
-Copyright 2011-2015 The Apache Software Foundation.
+Gaffer2 contains two classes which are modified versions of classes from Apache Accumulo:
 
-- gaffer.accumulo.Shell is based on Accumulo's Shell class (org.apache.accumulo.core.util.shell.Shell) which
-is licensed under the Apache 2 license, Copyright 2011-2015 The Apache Software Foundation.
+- gaffer2.accumulostore.key.core.impl.CoreKeyColumnQualifierColumnVisibilityValueCombiner is based on Accumulo's
+ Combiner class (org.apache.accumulo.core.iterators.Combiner) which is licensed under the Apache 2 license,
+ Copyright 2011-2015 The Apache Software Foundation.
 
-- gaffer.accumulo.bloomfilter.TestBloomFilter is based on Accumulo's BloomFilterLayerLookupTest class
+- gaffer2.accumulostore.integration.BloomFilterIT is based on Accumulo's BloomFilterLayerLookupTest class
 (org.apache.accumulo.core.file.BloomFilterLayerLookupTest) which is licensed under the Apache 2 license,
 Copyright 2011-2015 The Apache Software Foundation.
 
-Gaffer is built using maven. This process will automatically pull in dependencies. We list Gaffer's dependencies,
+
+Gaffer2 is built using maven. This process will automatically pull in dependencies. We list Gaffer2's dependencies,
  and their licenses, below. For information on the dependencies of these dependencies, see the websites of the
  projects below.
 
-Apache Hadoop (org.apache.hadoop:hadoop-client:2.6.0):
+
+
+Apache Hadoop (org.apache.hadoop:hadoop-common:2.5.0-cdh5.2.1):
 
 - Apache License, Version 2.0
 
-Apache Accumulo (org.apache.accumulo:accumulo-core:1.6.4):
+
+Apache Accumulo (org.apache.accumulo:accumulo-core:1.6.2):
 
 - Apache License, Version 2.0
 
-Apache Zookeeper (org.apache.zookeeper:zookeeper:3.3.5):
+
+Apache Avro (org.apache.avro:avro:1.7.7, org.apache.avro:avro-mapred:1.7.7):
 
 - Apache License, Version 2.0
 
-Guava (com.google.guava:guava:14.0.1):
+
+Apache Commons Lang (commons-lang:commons-lang:2.6):
 
 - Apache License, Version 2.0
 
-Junit (junit:junit:4.11):
+
+Clearspring analytics (com.clearspring.analytics:stream:2.8.0):
+
+- Apache License, Version 2.0
+
+
+Commons IO (commons-io:commons-io:2.4)
+
+- Apache License, Version 2.0
+
+
+Json4S (org.json4s:json4s-core_2.10:3.2.4, org.json4s:json4s-ext_2.10:3.2.4,
+org.json4s.jackson:json4s-jackson_2.10:3.2.4, org.json4s:json4s-native_2.10:3.2.4,
+org.json4s:json4s-ast_2.10:3.2.4):
+
+- Apache License, Version 2.0
+
+
+Swagger (swagger:swagger-core:2.10-1.3.2, swagger:swagger-annotations:2.10-1.3.2,
+swagger:swagger-jaxrs:2.10-1.3.2):
+
+- Apache License, Version 2.0
+
+
+FasterXML Jackson (com.fasterxml.jackson.core:jackson-annotations:2.6.2,
+com.fasterxml.jackson.core:jackson-core:2.6.2, com.fasterxml.jackson.core:jackson-databind:2.6.2,
+com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.6.2,
+com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.6.2,
+com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.3.3):
+
+- Apache License, Version 2.0
+
+
+Guava (com.google.guava:guava:13.0.1):
+
+- Apache License, Version 2.0
+
+
+Java Assist (org.javassist:javassist:3.18.0)
+
+- Apache License, Version 2.0
+- Mozilla Public License 1.1
+
+
+Javax Web Api (javax:javaee-web-api:7.0)
+
+- Common Development and Distribution License 1.0
+
+
+Jersey Server (com.sun.jersey:jersey-server:1.9)
+
+- Common Development and Distribution License 1.0
+- GNU General Public License 2.0
+
+
+Junit (junit:junit:4.12):
 
 - Eclipse Public License 1.0
 
-slf4j (org.slf4j:slf4j-api:1.7.4):
+
+Mockito (org.mockito:mockito-all:1.9.5):
 
 - MIT License
 
-Roaring Bit Map (org.roaringbitmap:RoaringBitmap:0.4.5):
+
+Netty (io.netty:netty:jar:3.6.2.Final)
 
 - Apache License, Version 2.0
 
-Jline (jline:jline:1.0):
 
-- BSD License
+Reflections (org.reflections:reflections:RC1:0.9.9)
 
-Clearspring analytics (com.clearspring.analytics:stream:2.9.0):
+- WTFPL
 
-- Apache License, Version 2.0
 
-Geotrellis (com.azavea.geotrellis:geotrellis-spark_2.10:0.10.0-M1):
+Scala (org.scala-lang:scala-library:2.10.2):
 
-- Apache License, Version 2.0
+- BSD 3 Clause Licence ("New" or "Revised")
+
+
+SLF4J (org.slf4j:slf4j-api:1.7.5):
+
+- MIT License

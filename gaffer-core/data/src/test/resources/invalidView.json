@@ -1,0 +1,35 @@
+{
+  "edges": {
+    "BasicEdge": {
+      "properties": {
+        "transientProperty1": "java.lang.String"
+      },
+      "identifiers": {
+        "SOURCE": "java.lang.String",
+        "DESTINATION": "java.lang.String",
+        "DIRECTED": "java.lang.String"
+      },
+      "transformer": {
+        "functions": [
+          {
+            "selection": [
+              {
+                "key": "testProperty",
+                "isId": false
+              }
+            ],
+            "projection": [
+              {
+                "key": "testTransientPropertyInvalidName",
+                "isId": false
+              }
+            ],
+            "function": {
+              "class": "gaffer.function.ExampleTransformFunction"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "entityGroup": {
+      "vertex": "java.lang.String",
+      "properties": {
+        "testProperty2": "java.lang.String"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "java.lang.String",
+      "destination": "java.lang.String",
+      "directed": "java.lang.String",
+      "properties": {
+        "property1": "java.lang.String",
+        "concatProperty": "java.lang.String"
+      },
+      "transformer": {
+        "functions": [
+          {
+            "selection": [
+              {
+                "key": "property1",
+                "isId": false
+              },
+              {
+                "key": "SOURCE",
+                "isId": true
+              }
+            ],
+            "projection": [
+              {
+                "key": "concatProperty",
+                "isId": false
+              }
+            ],
+            "function": {
+              "class": "gaffer.function.ExampleTransformFunction"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

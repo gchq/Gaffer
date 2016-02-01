@@ -1,93 +1,88 @@
+  Copyright 2016 Crown Copyright
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+ 	http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
 Gaffer
 ======
 
-Introduction
-------------
+Gaffer is a framework for building systems that can store and process graphs. It is designed to be as flexible, scalable and extensible as possible,
+allowing for rapid prototyping and transition to production systems or for enterprises where multiple graphs need to work together within a common framework.
 
-Gaffer is a framework that makes it easy to store large-scale graphs in which the nodes and edges have
-statistics such as counts, histograms and sketches. These statistics summarise the properties of the
-   nodes and edges over time windows, and they can be dynamically updated over time.
+Gaffer is different from other graph frameworks because:
 
-Gaffer is a graph database, rather than a graph processing system. It is optimised for retrieving
-data on nodes of interest.
+ - Its data model is very general. It should be possible to store simple graphs where the nodes are just integers as well as complex, directed or undirected multigraphs,
+ property graphs and so on. In fact, Gaffer does not even require there to be any edges so it could be used for machine learning applications where it is necessary to
+ keep feature vectors describing a set of items up to date.
+ - Nodes and edges in the store can have statistics such as counts, histograms and sketches that represent their properties.
+Gaffer provides a pluggable way of using any suitable libraries to serialise, summarise, filter and transform these statistics.
+ - Application developers can turn any database into a Gaffer store by implementing a small number of simple methods. This means that they can easily tailor the store to their particular needs by choosing a suitable underlying database.
+ - A Gaffer graph is managed using simple schemas. The data schema describes the structure of the nodes and edges and the libraries used to summarise, filter,
+ transform and validate them. The store schema describes how nodes and edges are serialised and mapped into the store. These schemas enable new node or edge types to be
+ easily added to the graph and make it extremely simple to update the libraries used for managing existing data. Separation of the schemas also allows the same data
+ to be easily migrated or stored and queried across multiple different stores.
+ - Query and processing of data in the Gaffer store is done using Gaffer Operations. These allow the user to specify flexible views on the data. For example, we may
+ have a graph containing a range of edge types such as red, green and blue. At query time we can choose to view only red edges within a certain time window.
 
-Gaffer is distinguished from other graph storage systems by its ability to update properties within
-the store itself. For example, if the edges in a graph have a count statistic, then when there is a new
+Gaffer On Accumulo
+------------------
+
+Gaffer's Accumulo Store is optimised for:
+
+ - Ingesting large amounts of data efficiently. For example, if the edges in a graph have a count statistic, then when there is a new
 observation of an edge, the edge can simply be inserted into the graph with a count of 1. If this
 edge already exists in the graph then this count of 1 will be added onto the existing edge. The ability to
 do these updates without the need for query-update-put is key to the ability to ingest large volumes
- of data. Many types of statistics are available, including maps, sets, histograms, hyperloglog sketches
- and bitmaps used to store timestamps.
-
-To avoid the problem of the graph continually growing without limit, the properties are stored separately
+of data.
+ - Dealing with data at different security levels - nodes and edges could have a visibility property, and this is used to restrict who can
+see data based on their authorizations.
+ - Summarising data within the store itself using Accumulo's iterator stack for efficient server-side merging of properties and for query time filtering of results.
+Properties are stored separately
 for different time windows, e.g. we may choose to store daily summaries of properties. This allows age-off
 of old properties, or of edges that have not been seen for a given period. It also allows the user
 to specify a time period of interest at query-time, and Gaffer will aggregate the properties over
 that time window before returning the results to the user.
 
-Gaffer allows the user to specify flexible views on the data. For example, we may have a graph
-containing a range of edge types, e.g. red, blue and green, and at query time we may choose to
-view only red edges within a certain time window.
+Relationship to Gaffer1
+-----------------------
 
-Gaffer does not require there to be any edges, and therefore it can be used for machine learning
-applications where it is necessary to keep feature vectors describing a set of items up-to-date.
+Gaffer1 was a large scale graph database built on Accumulo that allowed the properties stored on edges and entities in the graph to be efficiently maintained on ingest
+and dynamically summarised at query time inside the store itself. While it performed extremely well, Gaffer1 had a few drawbacks. For example, the schema for
+representing graph elements was fixed, the serialisation of the elements and the functions used to manage their properties were not easily extended and the implementation
+was quite tightly coupled to Accumulo.
 
-Gaffer uses Accumulo for storing data, although other stores are possible within the framework. It
-exploits the power of Accumulo's iterator stack for efficient server-side merging of properties, and
-for query-time filtering of results. It is designed to be easy to use without needing any knowledge
- of Accumulo.
+One of the guiding principles during development of Gaffer2 has been that it should be possible to use it to completely reproduce the functionality and performance of Gaffer1.
+As a result, Gaffer1 now becomes a specific configuration of Gaffer, namely the 'type-value' graph where the Store is Accumulo.
 
-Gaffer was designed to meet the following requirements:
+The name Gaffer now generally refers to Gaffer2. Gaffer1 and Gaffer2 will only be explicitly referenced where a clear differentiation is needed.
 
-- Allow the creation of graphs with summarised properties within Accumulo with a very minimal amount of coding.
-- Allow flexibility of statistics that describe the entities and edges.
-- Allow easy addition of new types of nodes and edges.
-- Allow quick retrieval of data on nodes of interest.
-- Deal with data of different security levels - all data has a visibility, and this is used to restrict who can
-see data based on their authorizations.
-- Support automatic age-off of data.
+Status
+------
 
-For more details of how to use Gaffer, see the User Guide.
+Gaffer is still under active development. As a result, it shouldn't be considered a finished product. There is still performance testing and bug fixing to do, new features
+to be added and additional documentation to write. Please contribute.
 
-Building
---------
+Building and Deploying
+----------------------
 
-Gaffer is built using maven: after cloning the source run `mvn clean package`. This will produce 3 jars
-in the target directory: one contains just Gaffer, one contains Gaffer and its dependencies, one is to
-be placed on Accumulo's tablet servers' classpath. For more details see the User Guide.
+To build Gaffer run `mvn clean package` in the top-level directory. This will build all of Gaffer's core libraries, the Accumulo store and some examples of how to load and query data and write other stores.
 
-License
--------
+The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. After building the project, the following jars need to be installed on all of Accumulo's tablet servers' classpaths.
 
-Gaffer is licensed under the Apache 2 license - see the LICENSE file for more information.
+ - The Accumulo iterators jar, located at `accumulo-store/target/accumulo-store-iterators-X.jar`
+ - The jar containing the functions used for managing the graph data in Accumulo, located at `simple-function-library/target/simple-function-library-X.jar`
+ - The jar containing the serialisers for the data, located at `simple-serialisation-library/target/simple-serialisation-library-X.jar`
+ - Any jars that contain custom functions or serialisers you want to use to serialise or manage the data in Accumulo.
 
-Gaffer2
--------
+Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
 
-The version of Gaffer in this repo is no longer under active development because a project called
-Gaffer2 is in development. This aims to create a more general framework that offers the best of Gaffer
-but improves it in the following areas:
-
-- Gaffer has a fixed idea of what a node and edge is - for example, a node is identified by a type and value and each edge
-has a start and end date. This means that it is not possible to store more general graphs in Gaffer.
-- It has a built-in library of statistics. These statistics are not tied to Accumulo - they can be used
-for example in MapReduce jobs or streaming summarisation jobs. It is possible for developers to create their
-own statistics, but it is not possible to use new libraries of properties, or to configure the serialisation
-of properties.
-- Nothing in Gaffer limits the implementation options to Accumulo, but it does not contain any implementations
-other than Accumulo.
-- Gaffer has no schema. This allows a great deal of flexibility in the addition of new statistics, and new edge
-types, but it also imposes some limitations, e.g. on the efficiency of the serialisation.
-
-Gaffer2 is a project that aims to take the best parts of Gaffer, and resolve some of the above flaws, to create a
-more general purpose graph database system. This can be used for both large and small scale graphs,
-for graphs with properties that are summaries, or just static properties, and for many other use cases. Note
-that Gaffer2 is a complete rewrite - the API is very different to this version of Gaffer.
-
-Gaffer2 will be released shortly. We chose to release version 1 so that the community could see where version 2
-originated from, and so that we can perform testing to avoid significant performance regressions in version 2. We
-advise interested parties to wait for version 2 rather than investing much time in learning to use version 1 or
-in working on pull requests.
-
-We are currently working on a contributor license agreement which will need to be signed before we can accept
-pull requests to Gaffer2.
+We are working on a more detailed user guide.
