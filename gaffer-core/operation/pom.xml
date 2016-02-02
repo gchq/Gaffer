@@ -17,7 +17,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>gaffer2</groupId>
+        <groupId>gaffer</groupId>
         <artifactId>gaffer-core</artifactId>
         <version>0.3.0-SNAPSHOT</version>
     </parent>
@@ -28,17 +28,17 @@
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
         <dependency>
-            <groupId>gaffer2</groupId>
+            <groupId>gaffer</groupId>
             <artifactId>data</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>gaffer2</groupId>
+            <groupId>gaffer</groupId>
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>gaffer2</groupId>
+            <groupId>gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
