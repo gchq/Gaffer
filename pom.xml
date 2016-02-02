@@ -53,8 +53,8 @@
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>https://github.com/GovernmentCommunicationsHeadquarters/Gaffer</scm.url>
-        <scm.connection>scm:git:ssh://git@github.com:GovernmentCommunicationsHeadquarters/Gaffer.git</scm.connection>
-        <scm.developer.connection>scm:git:ssh://git@github.com:GovernmentCommunicationsHeadquarters/Gaffer.git
+        <scm.connection>scm:git:https://github.com:GovernmentCommunicationsHeadquarters/Gaffer.git</scm.connection>
+        <scm.developer.connection>scm:git:https://github.com:GovernmentCommunicationsHeadquarters/Gaffer.git
         </scm.developer.connection>
 
         <!-- Release configuration -->
