@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serilaisation.simple.raw;
+package gaffer.serialisation.simple.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.simple.raw.RawIntegerSerialiser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawIntegerSerialiserTest {
+public class RawDoubleSerialiserTest {
 
-    private static final RawIntegerSerialiser SERIALISER = new RawIntegerSerialiser();
+    private static final RawDoubleSerialiser SERIALISER = new RawDoubleSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (int i = 0; i < 1000; i++) {
+        for (double i = 0; i < 1000; i+=1.1) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Integer.class, o.getClass());
+            assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseIntegerMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
+    public void canSerialiseDoubleMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Double.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MIN_VALUE, o);
+        assertEquals(Double.class, o.getClass());
+        assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseIntegerMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
+    public void canSerialiseDoubleMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Double.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MAX_VALUE, o);
+        assertEquals(Double.class, o.getClass());
+        assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
@@ -59,8 +58,8 @@ public class RawIntegerSerialiserTest {
     }
 
     @Test
-    public void canSerialiseIntegerClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Integer.class));
+    public void canSerialiseDoubleClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Double.class));
     }
 
 }
