@@ -21,7 +21,7 @@ the `identifiers` and `Properties` that are allowed for that `Element` through a
 GAFFER allows aggregation and transformation of graph elements, which are carried out by Functions. Configurable
 Processors apply Functions to Properties.
 
-The `Aggregator` Processor combines many instances of 'the same' (those with matching identities) Element. Assume a
+The `Aggregator` Processor combines many instances of 'the same' Element (e.g matching identifiers). Assume a
 graph contains an Element that has a 'count' Property that is an Integer. When a new Element with the same group and
 identifiers are added to a Store, that Store may provide the ability to aggregate the existing and new Elements.
 By configuring the Aggregator to combine the 'count' Property using the 'sum' Function, the Store can apply the correct
