@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.serilaisation.json.hyperloglogplus;
+package gaffer.serialisation.json.hyperloglogplus;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonInclude;
