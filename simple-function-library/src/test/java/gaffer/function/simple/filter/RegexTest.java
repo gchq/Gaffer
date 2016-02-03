@@ -24,7 +24,7 @@ public class RegexTest extends FilterFunctionTest {
         // When
         boolean accepted = filter.filter("teaadst");
 
-        // Thens
+        // Then
         assertTrue(accepted);
     }
 
