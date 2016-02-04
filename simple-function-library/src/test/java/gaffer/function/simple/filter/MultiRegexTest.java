@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package gaffer.function.simple.filter;
 
 import static org.junit.Assert.assertEquals;
@@ -5,6 +20,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -19,9 +36,10 @@ public class MultiRegexTest extends FilterFunctionTest {
 	@Test
 	public void shouldAccepValidValue() {
 	    // Given
-	    final MultiRegex filter = new MultiRegex();
-	    filter.addPatternFromString("fail");
-	    filter.addPatternFromString("pass");
+		Pattern[] patterns = new Pattern[2];
+		patterns[0] = Pattern.compile("fail");
+		patterns[1] = Pattern.compile("pass");
+	    final MultiRegex filter = new MultiRegex(patterns);
 	    	
 	    // When
 	    boolean accepted = filter.filter("pass");
@@ -33,9 +51,10 @@ public class MultiRegexTest extends FilterFunctionTest {
 	@Test
 	public void shouldRejectInvalidValue() {
 	    // Given
-	    final MultiRegex filter = new MultiRegex();
-	    filter.addPatternFromString("fail");
-	    filter.addPatternFromString("reallyFail");
+		Pattern[] patterns = new Pattern[2];
+		patterns[0] = Pattern.compile("fail");
+		patterns[1] = Pattern.compile("reallyFail");
+	    final MultiRegex filter = new MultiRegex(patterns);
 	    
 	    // When
 	    boolean accepted = filter.filter("pass");
@@ -59,10 +78,11 @@ public class MultiRegexTest extends FilterFunctionTest {
 	@Test
 	public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
 	    // Given
-	    final MultiRegex filter = new MultiRegex();
-	    filter.addPatternFromString("test");
-	    filter.addPatternFromString("test2");
-	
+		Pattern[] patterns = new Pattern[2];
+		patterns[0] = Pattern.compile("test");
+		patterns[1] = Pattern.compile("test2");
+	    final MultiRegex filter = new MultiRegex(patterns);
+	    
 	    // When
 	    final String json = new String(new JSONSerialiser().serialise(filter, true));
 	
@@ -81,13 +101,16 @@ public class MultiRegexTest extends FilterFunctionTest {
 	
 	    // Then 2
 	    assertNotNull(deserialisedFilter);
+	    assertEquals(patterns[0].pattern(), deserialisedFilter.getPatterns()[0].pattern());
+	    assertEquals(patterns[1].pattern(), deserialisedFilter.getPatterns()[1].pattern());
 	}
 	
 	@Override
 	protected FilterFunction getInstance() {
-		MultiRegex multi = new MultiRegex();
-		multi.addPatternFromString("NOTHING");
-		multi.addPatternFromString("[t,T].*[t,T]");
+		Pattern[] patterns = new Pattern[2];
+		patterns[0] = Pattern.compile("NOTHING");
+		patterns[1] = Pattern.compile("[t,T].*[t,T]");
+		MultiRegex multi = new MultiRegex(patterns);
 		return multi;
 	}
 	
