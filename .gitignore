@@ -22,3 +22,4 @@ target/
 */atlassian-ide*
 */.idea
 .idea/*
+*/.classpath
