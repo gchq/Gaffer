@@ -27,13 +27,8 @@ import java.io.IOException;
  * initialises the provided {@link org.apache.hadoop.mapreduce.Job} to handle text input data.
  */
 public class TextJobInitialiser implements JobInitialiser {
-    private String avroSchemaFilePath;
 
     public TextJobInitialiser() {
-    }
-
-    public TextJobInitialiser(final String avroSchemaFilePath) {
-        this.avroSchemaFilePath = avroSchemaFilePath;
     }
 
     @Override
@@ -45,13 +40,5 @@ public class TextJobInitialiser implements JobInitialiser {
     private void initialiseInput(final Job job, final AddElementsFromHdfs operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.addInputPath(job, operation.getInputPath());
-    }
-
-    public String getAvroSchemaFilePath() {
-        return avroSchemaFilePath;
-    }
-
-    public void setAvroSchemaFilePath(final String avroSchemaFilePath) {
-        this.avroSchemaFilePath = avroSchemaFilePath;
     }
 }
