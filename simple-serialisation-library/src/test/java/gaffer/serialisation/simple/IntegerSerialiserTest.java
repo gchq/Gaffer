@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serilaisation.simple;
+package gaffer.serialisation.simple;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.simple.LongSerialiser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class LongSerialiserTest {
+public class IntegerSerialiserTest {
 
-    private static final LongSerialiser SERIALISER = new LongSerialiser();
+    private static final IntegerSerialiser SERIALISER = new IntegerSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (long i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Long.class, o.getClass());
+            assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseLongMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Long.MIN_VALUE);
+    public void canSerialiseIntegerMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Long.class, o.getClass());
-        assertEquals(Long.MIN_VALUE, o);
+        assertEquals(Integer.class, o.getClass());
+        assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseLongMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Long.MAX_VALUE);
+    public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Long.class, o.getClass());
-        assertEquals(Long.MAX_VALUE, o);
+        assertEquals(Integer.class, o.getClass());
+        assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
@@ -59,7 +58,8 @@ public class LongSerialiserTest {
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Long.class));
+    public void canSerialiseIntegerClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Integer.class));
     }
+
 }

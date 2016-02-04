@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serilaisation.simple.raw;
+package gaffer.serialisation.simple.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.simple.raw.RawLongSerialiser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawLongSerialiserTest {
+public class RawFloatSerialiserTest {
 
-    private static final RawLongSerialiser SERIALISER = new RawLongSerialiser();
+    private static final RawFloatSerialiser SERIALISER = new RawFloatSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (long i = 0; i < 1000; i++) {
+        for (float i = 0; i < 1000; i+=1.1) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Long.class, o.getClass());
+            assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseLongMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Long.MIN_VALUE);
+    public void canSerialiseFloatMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Float.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Long.class, o.getClass());
-        assertEquals(Long.MIN_VALUE, o);
+        assertEquals(Float.class, o.getClass());
+        assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseLongMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Long.MAX_VALUE);
+    public void canSerialiseFloatMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Float.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Long.class, o.getClass());
-        assertEquals(Long.MAX_VALUE, o);
+        assertEquals(Float.class, o.getClass());
+        assertEquals(Float.MAX_VALUE, o);
     }
 
     @Test
@@ -59,7 +58,8 @@ public class RawLongSerialiserTest {
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Long.class));
+    public void canSerialiseFloatClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Float.class));
     }
+
 }
