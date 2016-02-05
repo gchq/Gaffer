@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,7 +59,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
         }
     }
 
-    protected void map(final KEY_IN keyIn, final VALUE_IN valueIn, Context context) throws IOException, InterruptedException {
+    protected void map(final KEY_IN keyIn, final VALUE_IN valueIn, final Context context) throws IOException, InterruptedException {
         for (Element element : mapperGenerator.getElements(keyIn, valueIn, context)) {
             if (!doValidation || isValid(element)) {
                 map(element, context);

@@ -6,7 +6,7 @@
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ 	http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,10 +29,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
-  	<dependency>
-  		<groupId>gaffer</groupId>
+      <dependency>
+          <groupId>gaffer</groupId>
         <artifactId>serialisation</artifactId>
-      	<version>${project.parent.version}</version>
+          <version>${project.parent.version}</version>
     </dependency>
 
     <!-- External libraries -->
@@ -67,7 +67,7 @@
                             <shadedClassifierName>serialisers</shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                	<include>com.clearspring.analytics:stream</include>
+                                    <include>com.clearspring.analytics:stream</include>
                                </includes>
                             </artifactSet>
                         </configuration>

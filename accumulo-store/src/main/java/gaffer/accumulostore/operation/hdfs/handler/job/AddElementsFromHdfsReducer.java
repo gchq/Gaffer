@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,7 +58,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     }
 
     @Override
-    protected void reduce(final Key key, Iterable<Value> values, final Context context)
+    protected void reduce(final Key key, final Iterable<Value> values, final Context context)
             throws IOException, InterruptedException {
         final Iterator<Value> iter = values.iterator();
         final Value firstValue = iter.next();

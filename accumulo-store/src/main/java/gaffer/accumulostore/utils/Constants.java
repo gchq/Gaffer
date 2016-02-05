@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,9 +18,8 @@ package gaffer.accumulostore.utils;
 
 import org.apache.hadoop.io.Text;
 
-public class Constants {
-
-	//Iterator names
+public final class Constants {
+    //Iterator names
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
     public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
@@ -44,18 +43,18 @@ public class Constants {
     public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
 
     // Iterator priorities
-    public final static int AGE_OFF_ITERATOR_PRIORITY = 10; // Applied during major compactions, minor compactions and scans.
-    public final static int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
-    public final static int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only during scans.
-    public final static int EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY = 32; // Applied only during scans.
-    public final static int ELEMENT_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
-    public final static int QUERY_TIME_AGGREGATOR_PRIORITY = 34; // Applied only during scans.
-    public final static int TRANSFORM_PRIORITY = 50; // Applied only during scans.
+    public static final int AGE_OFF_ITERATOR_PRIORITY = 10; // Applied during major compactions, minor compactions and scans.
+    public static final int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
+    public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only during scans.
+    public static final int EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY = 32; // Applied only during scans.
+    public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
+    public static final int QUERY_TIME_AGGREGATOR_PRIORITY = 34; // Applied only during scans.
+    public static final int TRANSFORM_PRIORITY = 50; // Applied only during scans.
 
     //Operations options
-    public final static String OPERATION_AUTHORISATIONS = "authorisations";
-    public final static String SPLITS_FILE_PATH = "Splits_File_Path";
-    public final static String MATCH_AS_SOURCE = "return_matched_id_as_edge_source";
+    public static final String OPERATION_AUTHORISATIONS = "authorisations";
+    public static final String SPLITS_FILE_PATH = "Splits_File_Path";
+    public static final String MATCH_AS_SOURCE = "return_matched_id_as_edge_source";
 
     //Store factory constants
     public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
@@ -66,4 +65,8 @@ public class Constants {
     //General use constants
     public static final String UTF_8_CHARSET = "UTF-8";
     public static final byte[] EMPTY_BYTES = new byte[0];
+
+    private Constants() {
+        // private constructor to prevent users instantiating this class as it only contains constants.
+    }
 }

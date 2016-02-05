@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,16 +35,16 @@ public class RawIntegerSerialiser implements Serialisation {
     public byte[] serialise(final Object o) throws SerialisationException {
         final byte[] out = new byte[4];
         final int value = (Integer) o;
-        out[0] = (byte)((int)(value & 255));
-        out[1] = (byte)((value >> 8) & 255);
-        out[2] = (byte)((value >> 16) & 255);
-        out[3] = (byte)((value >> 24) & 255);
+        out[0] = (byte) ((int) (value & 255));
+        out[1] = (byte) ((value >> 8) & 255);
+        out[2] = (byte) ((value >> 16) & 255);
+        out[3] = (byte) ((value >> 24) & 255);
         return out;
     }
 
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
-        return (int)((int) bytes[0] & 255L
+        return (int) ((int) bytes[0] & 255L
                 | ((int) bytes[1] & 255L) << 8
                 | ((int) bytes[2] & 255L) << 16
                 | ((int) bytes[3] & 255L) << 24);

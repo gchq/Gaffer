@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,16 +56,16 @@ public class Film {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Film)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Film)) {
+            return false;
+        }
 
         final Film film = (Film) o;
-
-        if (certificate != film.certificate) return false;
-        if (!filmId.equals(film.filmId)) return false;
-        if (!name.equals(film.name)) return false;
-
-        return true;
+        return certificate == film.certificate && filmId.equals(film.filmId) && name.equals(film.name);
     }
 
     @Override
@@ -78,10 +78,10 @@ public class Film {
 
     @Override
     public String toString() {
-        return "Film{" +
-                "filmId='" + filmId + '\'' +
-                ", name='" + name + '\'' +
-                ", certificate=" + certificate +
-                '}';
+        return "Film{"
+                + "filmId='" + filmId
+                + "\', name='" + name
+                + "\', certificate=" + certificate
+                + '}';
     }
 }

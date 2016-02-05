@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -124,14 +124,14 @@ public class ByteEntityBloomElementFunctorTest {
         // Create entity
         Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex(1);
-        //		String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
+        //        String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
         Key key1 = elementConverter.getKeyFromEntity(entity);
 
         // Create edge from that entity
         Edge edge = new Edge(TestGroups.EDGE);
         edge.setSource(1);
         edge.setDestination(2);
-        //		String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
+        //        String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
         Key key2 = elementConverter.getKeysFromEdge(edge).getFirst();
 
         // Create range from entity to edge inclusive

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -105,8 +105,13 @@ public class EdgeSeed extends ElementSeed {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EdgeSeed)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof EdgeSeed)) {
+            return false;
+        }
 
         final EdgeSeed that = (EdgeSeed) o;
 
@@ -125,10 +130,10 @@ public class EdgeSeed extends ElementSeed {
 
     @Override
     public String toString() {
-        return "EdgeSeed{" +
-                "source=" + source +
-                ", destination=" + destination +
-                ", directed=" + directed +
-                '}';
+        return "EdgeSeed{"
+                + "source=" + source
+                + ", destination=" + destination
+                + ", directed=" + directed
+                + '}';
     }
 }

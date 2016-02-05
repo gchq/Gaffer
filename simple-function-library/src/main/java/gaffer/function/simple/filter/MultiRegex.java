@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,41 +26,40 @@ import gaffer.function.annotation.Inputs;
 @Inputs(String.class)
 public class MultiRegex extends SingleInputFilterFunction {
     private Pattern[] patterns;
- 
+
     public MultiRegex() {
         // Required for serialisations
     }
-    
+
     public MultiRegex(final Pattern[] patterns) {
         this.patterns = patterns;
     }
-    
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonProperty("value")
     public Pattern[] getPatterns() {
         return patterns;
     }
-    
+
     public void setControlValue(final Pattern[] patterns) {
         this.patterns = patterns;
     }
-        
-	@Override
-	protected boolean filter(Object input) {
-		if (null == input || input.getClass() != String.class) {
+
+    @Override
+    protected boolean filter(final Object input) {
+        if (null == input || input.getClass() != String.class) {
             return false;
         }
-		for(Pattern pattern : patterns) {
-			if(pattern.matcher((CharSequence)input).matches()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public MultiRegex statelessClone() {
-		return new MultiRegex(patterns);
+        for (Pattern pattern : patterns) {
+            if (pattern.matcher((CharSequence) input).matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    @Override
+    public MultiRegex statelessClone() {
+        return new MultiRegex(patterns);
+    }
 }

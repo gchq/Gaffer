@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -78,8 +78,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
     @Test
     public void testAggregatingMultiplePropertySets() throws IteratorSettingException {
-    	testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
-    	testAggregatingMultiplePropertySets(Gaffer1KeyStore, Gaffer1ElementConverter);
+        testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
+        testAggregatingMultiplePropertySets(Gaffer1KeyStore, Gaffer1ElementConverter);
     }
 
     public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
@@ -183,8 +183,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     
     @Test
     public void testAggregatingSinglePropertySet() throws IteratorSettingException {
-    	testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
-    	testAggregatingSinglePropertySet(Gaffer1KeyStore, Gaffer1ElementConverter);
+        testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
+        testAggregatingSinglePropertySet(Gaffer1KeyStore, Gaffer1ElementConverter);
     }
 
     public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
@@ -252,8 +252,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     
     @Test
     public void testAggregatingEmptyColumnQualifier() throws IteratorSettingException {
-    	testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
-    	testAggregatingEmptyColumnQualifier(Gaffer1KeyStore, Gaffer1ElementConverter);
+        testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
+        testAggregatingEmptyColumnQualifier(Gaffer1KeyStore, Gaffer1ElementConverter);
     }
 
     public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +45,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         this.storeSchema = storeSchema;
     }
 
-    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, T operation, final boolean endKey) throws RangeFactoryException {
+    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation, final boolean endKey) throws RangeFactoryException {
         Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
         byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;

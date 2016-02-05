@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,7 +39,7 @@ import java.util.Set;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
     private static final String AUTHORISATIONS_SEPERATOR = ",";
-	protected CloseableIterator<Element> iterator;
+    protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final RangeFactory rangeFactory;

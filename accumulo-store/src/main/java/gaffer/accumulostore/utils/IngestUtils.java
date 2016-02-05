@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,10 +40,13 @@ import org.apache.hadoop.io.Text;
 /**
  * Utility methods for adding data to Accumulo.
  */
-public class IngestUtils {
-
+public final class IngestUtils {
     private static final FsPermission ACC_DIR_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
     private static final FsPermission ACC_FILE_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
+
+    private IngestUtils() {
+        // private to prevent this class being instantiated. All methods are static and should be called directly.
+    }
 
     /**
      * Get the existing splits from a table in Accumulo and write a splits file.

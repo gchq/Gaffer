@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,30 +20,29 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.store.StoreProperties;
 
 import java.nio.file.Path;
-import java.util.Properties;
 
 /**
  * AccumuloProperties contains specific configuration information for the accumulo store, such as database connection strings.
- * It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * It wraps {@link gaffer.data.element.Properties} and lazy loads the all properties from a file when first used.
  */
 public class AccumuloProperties extends StoreProperties {
 
     public static final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
-    public final static String INSTANCE_NAME = "accumulo.instance";
-    public final static String ZOOKEEPERS = "accumulo.zookeepers";
-    public final static String TABLE = "accumulo.table";
-    public final static String USER = "accumulo.user";
-    public final static String PASSWORD = "accumulo.password";
-    public final static String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
-    public final static String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
-    public final static String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
-    public final static String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
-    public final static String FALSE_POSITIVE_RATE = "accumulo.falsePositiveRate";
-    public final static String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR = "accumulo.maxBloomFilterToPassToAnIterator";
-    public final static String MAX_BUFFER_SIZE_FOR_BATCH_WRITER = "accumulo.maxBufferSizeForBatchWriterInBytes";
-    public final static String MAX_TIME_OUT_FOR_BATCH_WRITER = "accumulo.maxTimeOutForBatchWriterInMilliseconds";
-    public final static String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
-    public final static String SPLITS_FILE_PATH = "accumulo.splits.file.path";
+    public static final String INSTANCE_NAME = "accumulo.instance";
+    public static final String ZOOKEEPERS = "accumulo.zookeepers";
+    public static final String TABLE = "accumulo.table";
+    public static final String USER = "accumulo.user";
+    public static final String PASSWORD = "accumulo.password";
+    public static final String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
+    public static final String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
+    public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
+    public static final String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
+    public static final String FALSE_POSITIVE_RATE = "accumulo.falsePositiveRate";
+    public static final String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR = "accumulo.maxBloomFilterToPassToAnIterator";
+    public static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER = "accumulo.maxBufferSizeForBatchWriterInBytes";
+    public static final String MAX_TIME_OUT_FOR_BATCH_WRITER = "accumulo.maxTimeOutForBatchWriterInMilliseconds";
+    public static final String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
+    public static final String SPLITS_FILE_PATH = "accumulo.splits.file.path";
 
     // default values
     private static final String NUM_THREADS_FOR_BATCH_WRITER_DEFAULT = "10";
@@ -69,11 +68,11 @@ public class AccumuloProperties extends StoreProperties {
         set(NUM_THREADS_FOR_BATCH_WRITER, numThreadsForBatchWriter);
     }
 
-    public void setMaxTimeOutForBatchWriterInMilliseconds(String maxTimeOutForBatchWriterInMilliseconds) {
+    public void setMaxTimeOutForBatchWriterInMilliseconds(final String maxTimeOutForBatchWriterInMilliseconds) {
         set(NUM_THREADS_FOR_BATCH_WRITER, MAX_TIME_OUT_FOR_BATCH_WRITER);
     }
 
-    public void setMaxBufferSizeForBatchWriterInBytes(String maxBufferSizeForBatchWriterInBytes) {
+    public void setMaxBufferSizeForBatchWriterInBytes(final String maxBufferSizeForBatchWriterInBytes) {
         set(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, maxBufferSizeForBatchWriterInBytes);
     }
 
