@@ -17,14 +17,23 @@
 package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.graph.Graph;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.store.StoreException;
+import gaffer.store.StoreProperties;
+import gaffer.store.schema.StoreSchema;
+
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 
 public class AddUpdateTableIterator {
@@ -101,6 +110,35 @@ public class AddUpdateTableIterator {
 		} catch (AccumuloSecurityException | AccumuloException| TableNotFoundException e) {
 			throw new StoreException("Add iterator with Name: " + iteratorSetting.getName());
 		}
+	}
+	
+	public static void main(final String args[]) throws StoreException, SchemaException, IOException {
+		if(args.length < 4) {
+			System.err.println("Wrong number of arguments. \nUsage: " 
+					+ "<data_schema_path> <store_schema_path> <store_properties> <option add update>");
+			System.exit(1);
+		}
+		AccumuloStore store = new AccumuloStore();
+		store.initialise(DataSchema.fromJson(getDataSchemaPath(args)), StoreSchema.fromJson(getStoreSchemaPath(args)), StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
+		if(args[4] == "update") {
+			updateIterator(store);
+		} else if(args[4] == "add") {
+			addAggregatorIterator(store);
+		} else {
+			throw new IllegalArgumentException("Supplied option must either be add or update");
+		}
+	}
+
+	private static Path getAccumuloPropertiesPath(String[] args) {
+		return Paths.get(args[2]);
+	}
+
+	private static Path getStoreSchemaPath(String[] args) {
+		return Paths.get(args[1]);
+	}
+
+	private static Path getDataSchemaPath(String[] args) {
+		return Paths.get(args[0]);
 	}
 
 }
