@@ -75,7 +75,7 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.OPERATION_AUTHORISATIONS, "authorisation");
-        options.put(Constants.MATCH_AS_SOURCE, "true");
+        options.put(Constants.OPERATION_MATCH_AS_SOURCE, "true");
         given(operation.getOptions()).willReturn(options);
 
         return operation;
