@@ -23,25 +23,22 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
 
-public class GetOperationWithPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+public abstract class AbstractGetOperationWithPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends AbstractGetOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
 
-    public GetOperationWithPair() {
-    }
-
-    public GetOperationWithPair(final Iterable<Pair<SEED_TYPE>> seeds) {
+    public AbstractGetOperationWithPair(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
     }
 
-    public GetOperationWithPair(final View view) {
+    public AbstractGetOperationWithPair(final View view) {
         super(view);
     }
 
-    public GetOperationWithPair(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+    public AbstractGetOperationWithPair(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
         super(view, seeds);
     }
 
-    public GetOperationWithPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
+    public AbstractGetOperationWithPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
         super(operation);
     }
 }

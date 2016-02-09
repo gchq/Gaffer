@@ -19,7 +19,7 @@ package gaffer.accumulostore.retriever.impl;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.operation.GetOperationWithPair;
+import gaffer.accumulostore.operation.AbstractGetOperationWithPair;
 import gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.data.ElementSeed;
@@ -30,9 +30,13 @@ import java.util.Set;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
 
-public class AccumuloRangeIDRetriever extends AccumuloItemRetriever<GetOperationWithPair<ElementSeed, ?>, Pair<ElementSeed>> {
+/**
+ * This allows queries for all data from between the provided {@link gaffer.operation.data.ElementSeed} pairs. 
+ * 
+ */
+public class AccumuloRangeIDRetriever extends AccumuloItemRetriever<AbstractGetOperationWithPair<ElementSeed, ?>, Pair<ElementSeed>> {
 
-	public AccumuloRangeIDRetriever(final AccumuloStore store, final GetOperationWithPair<ElementSeed, ?> operation) throws IteratorSettingException, StoreException {
+	public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetOperationWithPair<ElementSeed, ?> operation) throws IteratorSettingException, StoreException {
         this(store, operation,
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
@@ -46,7 +50,7 @@ public class AccumuloRangeIDRetriever extends AccumuloItemRetriever<GetOperation
 	 * @param iteratorSettings
 	 * @throws StoreException
 	 */
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final GetOperationWithPair<ElementSeed, ?> operation,
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetOperationWithPair<ElementSeed, ?> operation,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
     }

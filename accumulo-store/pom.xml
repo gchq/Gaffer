@@ -86,7 +86,6 @@
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>
             <version>${accumulo.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

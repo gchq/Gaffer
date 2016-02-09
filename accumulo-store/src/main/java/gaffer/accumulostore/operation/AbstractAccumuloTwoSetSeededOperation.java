@@ -17,21 +17,21 @@
 package gaffer.accumulostore.operation;
 
 import gaffer.data.element.Element;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.impl.get.GetElements;
 
-public class AccumuloTwoSetSeededOperation<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
+public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+        extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
 
     private Iterable<SEED_TYPE> seedsB;
 
-    public AccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
+    public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
         super(seedsA);
         this.setSeedsB(seedsB);
     }
 
-    public AccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB, final View view) {
+    public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB, final View view) {
         super(view, seedsA);
         this.setSeedsB(seedsB);
     }

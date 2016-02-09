@@ -16,28 +16,49 @@
 
 package gaffer.accumulostore.retriever.impl;
 
+import java.util.Set;
+
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.hadoop.util.bloom.BloomFilter;
+
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.AccumuloTwoSetSeededOperation;
+import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import gaffer.accumulostore.retriever.RetrieverException;
 import gaffer.accumulostore.utils.BloomFilterUtils;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.hadoop.util.bloom.BloomFilter;
 
-import java.util.Set;
-
+/**
+ * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B, this retrieves all {@link gaffer.data.element.Edge}s where one end is in set A
+ * and the other is in set B and also returns {@link gaffer.data.element.Entity}s for {@link gaffer.operation.data.EntitySeed}s in either set A or B.
+ *
+ * This is done by querying for set A, and uses a {@link org.apache.hadoop.util.bloom.BloomFilter}s in a filtering iterator to identify edges
+ * that are likely to be between a member of set A and a member of set B. Only these edges are returned to the client,
+ * and this reduces the amount of data sent to the client.
+ *
+ * This operates in two modes. In the first mode the seeds from both sets A and B are loaded into memory (client-side).
+ * The seeds from set B are loaded into a {@link org.apache.hadoop.util.bloom.BloomFilter}. This is passed to the iterators to filter out all edges
+ * for which the non-query end is definitely not in set B. A secondary check is done within this class to check that
+ * the edge is definitely between elements of the set (this defeats any false positives, i.e. edges that passed the
+ * {@link org.apache.hadoop.util.bloom.BloomFilter} check in the iterators). This secondary check uses the in memory set of seeds (and hence there
+ * are guaranteed to be no false positives returned to the user).
+ *
+ * In the second mode, where there are too many seeds to be loaded into memory, the seeds in set A are queried for in
+ * batches. The seeds in set B are loaded into two {@link org.apache.hadoop.util.bloom.BloomFilter}s. The first of these is relatively small and is
+ * passed to the filtering iterator to filter out edges that are definitely not to set B. The second, larger, {@link
+ * org.apache.hadoop.util.bloom.BloomFilter} is used client-side to further reduce the chances of false positives making it to the user.
+ */
 public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seedSetA;
     private Iterable<EntitySeed> seedSetB;
 
-    public AccumuloIDBetweenSetsRetriever(final AccumuloStore store, final AccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
+    public AccumuloIDBetweenSetsRetriever(final AccumuloStore store, final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, false, iteratorSettings);
     }
 
-    public AccumuloIDBetweenSetsRetriever(final AccumuloStore store, final AccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
+    public AccumuloIDBetweenSetsRetriever(final AccumuloStore store, final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
                                           final boolean readEntriesIntoMemory,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, readEntriesIntoMemory, iteratorSettings);
@@ -77,7 +98,6 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
                     store.getProperties().getMaxBloomFilterToPassToAnIterator());
             addToBloomFilter(verticesB, filter);
             addToBloomFilter(verticesA, filter);
-
             initialise(filter);
         }
 
@@ -95,7 +115,6 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
         ElementIteratorFromBatches() throws RetrieverException {
             addToBloomFilter(seedSetB, filter, clientSideFilter);
             addToBloomFilter(seedSetA, filter, clientSideFilter);
-
             idsAIterator = seedSetA.iterator();
             updateScanner();
         }

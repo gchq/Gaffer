@@ -16,12 +16,43 @@
 
 package gaffer.accumulostore;
 
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.VALIDATION;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.ColumnVisibility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.handler.AddElementsHandler;
 import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
+import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsHandler;
+import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
+import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
+import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
+import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
+import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
+import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import gaffer.accumulostore.operation.impl.GetElementsInRanges;
+import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtilException;
@@ -42,26 +73,6 @@ import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.security.ColumnVisibility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -140,6 +151,13 @@ public class AccumuloStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        addOperationHandler(GetEdgesBetweenSets.class, new GetElementsBetweenSetsHandler());
+        addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+        addOperationHandler(GetEdgesInRanges.class, new GetElementsInRangesHandler());
+        addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+        addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
+        addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
+        addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
     }
 
     @Override

@@ -29,6 +29,10 @@ import java.util.Set;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
 
+/**
+ * This allows queries for all data related to the provided {@link gaffer.operation.data.ElementSeed}s.
+ * 
+ */
 public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
 
 	public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation)
@@ -47,7 +51,7 @@ public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperatio
 	 */
     public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation,
                                      final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+    	super(store, operation, iteratorSettings);
     }
 
     @Override

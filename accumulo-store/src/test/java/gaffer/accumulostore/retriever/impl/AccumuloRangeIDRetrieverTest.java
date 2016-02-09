@@ -16,12 +16,25 @@
 
 package gaffer.accumulostore.retriever.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.operation.GetOperationWithPair;
+import gaffer.accumulostore.operation.AbstractGetOperationWithPair;
+import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
@@ -36,18 +49,6 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class AccumuloRangeIDRetrieverTest {
 
@@ -81,7 +82,7 @@ public class AccumuloRangeIDRetrieverTest {
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         AccumuloRangeIDRetriever retriever = null;
-        GetOperationWithPair<ElementSeed, Element> operation = new GetOperationWithPair<>(defaultView, simpleEntityRanges);
+        AbstractGetOperationWithPair<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             retriever = new AccumuloRangeIDRetriever(store, operation);
