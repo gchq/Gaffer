@@ -160,8 +160,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
             // Edge is directed and the second identifier is the source of the edge
             int src = 1;
             int dst = 0;
-            if (options != null && options.containsKey(Constants.MATCH_AS_SOURCE)
-                    && "true".equalsIgnoreCase(options.get(Constants.MATCH_AS_SOURCE))) {
+            if (options != null && options.containsKey(Constants.OPERATION_MATCH_AS_SOURCE)
+                    && "true".equalsIgnoreCase(options.get(Constants.OPERATION_MATCH_AS_SOURCE))) {
                 src = 0;
                 dst = 1;
             }
