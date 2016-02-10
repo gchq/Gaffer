@@ -29,21 +29,22 @@ import java.util.Properties;
 public class AccumuloProperties extends StoreProperties {
 
     public static final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
-    public final static String INSTANCE_NAME = "accumulo.instance";
-    public final static String ZOOKEEPERS = "accumulo.zookeepers";
-    public final static String TABLE = "accumulo.table";
-    public final static String USER = "accumulo.user";
-    public final static String PASSWORD = "accumulo.password";
-    public final static String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
-    public final static String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
-    public final static String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
-    public final static String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
-    public final static String FALSE_POSITIVE_RATE = "accumulo.falsePositiveRate";
-    public final static String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR = "accumulo.maxBloomFilterToPassToAnIterator";
-    public final static String MAX_BUFFER_SIZE_FOR_BATCH_WRITER = "accumulo.maxBufferSizeForBatchWriterInBytes";
-    public final static String MAX_TIME_OUT_FOR_BATCH_WRITER = "accumulo.maxTimeOutForBatchWriterInMilliseconds";
-    public final static String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
-    public final static String SPLITS_FILE_PATH = "accumulo.splits.file.path";
+    public static final String INSTANCE_NAME = "accumulo.instance";
+    public static final String ZOOKEEPERS = "accumulo.zookeepers";
+    public static final String TABLE = "accumulo.table";
+    public static final String USER = "accumulo.user";
+    public static final String PASSWORD = "accumulo.password";
+    public static final String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
+    public static final String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
+    public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
+    public static final String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
+    public static final String FALSE_POSITIVE_RATE = "accumulo.falsePositiveRate";
+    public static final String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR = "accumulo.maxBloomFilterToPassToAnIterator";
+    public static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER = "accumulo.maxBufferSizeForBatchWriterInBytes";
+    public static final String MAX_TIME_OUT_FOR_BATCH_WRITER = "accumulo.maxTimeOutForBatchWriterInMilliseconds";
+    public static final String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
+    public static final String SPLITS_FILE_PATH = "accumulo.splits.file.path";
+    public static final String TABLE_REPLICATION_FACTOR = "accumulo.file.replication";
 
     // default values
     private static final String NUM_THREADS_FOR_BATCH_WRITER_DEFAULT = "10";
@@ -302,19 +303,55 @@ public class AccumuloProperties extends StoreProperties {
         set(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, maxBloomFilterToPassToAnIterator);
     }
 
+    /**
+     * Get the key package that should be used in conjunction with this table
+     * @return An implementation of {@link gaffer.accumulostore.key.AccumuloKeyPackage} to be used for this accumulo table
+     */
     public String getKeyPackageClass() {
         return get(KEY_PACKAGE_CLASS, ByteEntityKeyPackage.class.getName());
     }
 
+    /**
+     * Set the key package that should be used in conjunction with this table
+     * @param keyPackageClass
+     */
     public void setKeyPackageClass(final String keyPackageClass) {
         set(KEY_PACKAGE_CLASS, keyPackageClass);
     }
 
+    /**
+     * Get the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
+     * 
+     * @return
+     */
     public String getSplitsFilePath() {
         return get(SPLITS_FILE_PATH, SPLITS_FILE_PATH_DEFAULT);
     }
 
+    /**
+     * Set the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
+     * 
+     * @param splitsFilePath
+     */
     public void setSplitsFilePath(final String splitsFilePath) {
         set(SPLITS_FILE_PATH, splitsFilePath);
+    }
+    
+    /**
+     * Get the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
+     *
+     * @return The replication factor to be applied to tables created by gaffer
+     */
+    public String getTableFileReplicationFactor() {
+        return get(TABLE_REPLICATION_FACTOR, null);
+    }
+
+    /**
+     * Set the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
+     * 
+     * @param replicationFactor
+     */
+    public void setTableFileReplicationFactor(final String replicationFactor) {
+        set(TABLE_REPLICATION_FACTOR, replicationFactor);
     }
 }
