@@ -57,8 +57,8 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
         return new ExtractDestinationEntitySeed(edgeRetriever);
     }
 
-    private static class ExtractDestinationEntitySeed extends TransformIterable<Element, EntitySeed> {
-        public ExtractDestinationEntitySeed(final Iterable<Element> input) {
+    private static final class ExtractDestinationEntitySeed extends TransformIterable<Element, EntitySeed> {
+        private ExtractDestinationEntitySeed(final Iterable<Element> input) {
             super(input, new IsEdgeValidator());
         }
 
