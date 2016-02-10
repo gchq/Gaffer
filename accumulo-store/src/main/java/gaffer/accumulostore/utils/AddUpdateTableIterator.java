@@ -16,14 +16,10 @@
 
 package gaffer.accumulostore.utils;
 
-import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.graph.Graph;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.store.StoreException;
-import gaffer.store.StoreProperties;
-import gaffer.store.schema.StoreSchema;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.EnumSet;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -31,11 +27,27 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.EnumSet;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.store.StoreException;
+import gaffer.store.StoreProperties;
+import gaffer.store.schema.StoreSchema;
 
+/**
+ * This class is designed to update iterator settings for iterators set on a table.
+ * 
+ * This class also has an executable main method that can be used to either re-add or update the aggregator iterator that is set on a table
+ * The main method takes 4 arguments, a path to a data schema, a path to a store schema and path to a store properties file.
+ *  In addition the main method takes one other argument one word either  
+ *  add or update
+ *  
+ *  The add option will set a new aggregator iterator on the table given in the store properties file (For example if the iterator was removed in the accumulo shell)
+ *	The update option will update the existing aggregator iterator with options for the store and data schemas provided previously to the main method.
+ *
+ *  This is useful if you wish to change the way data is aggregated after you have put some data in a table.
+ */
 public class AddUpdateTableIterator {
 
 	/**
@@ -115,7 +127,7 @@ public class AddUpdateTableIterator {
 	public static void main(final String args[]) throws StoreException, SchemaException, IOException {
 		if(args.length < 4) {
 			System.err.println("Wrong number of arguments. \nUsage: " 
-					+ "<data_schema_path> <store_schema_path> <store_properties> <option add update>");
+					+ "<data_schema_path> <store_schema_path> <store_properties_path> <option add update>");
 			System.exit(1);
 		}
 		AccumuloStore store = new AccumuloStore();
