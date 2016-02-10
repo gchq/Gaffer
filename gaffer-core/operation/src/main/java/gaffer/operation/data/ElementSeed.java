@@ -53,7 +53,7 @@ public abstract class ElementSeed {
         return new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
     }
 
-    public static enum Matches {
+    public enum Matches {
         BOTH,
         VERTEX,
         SOURCE,

@@ -102,7 +102,7 @@ public final class AddUpdateTableIterator {
     public static void addIteratorSetting(final AccumuloStore store, final IteratorSetting iteratorSetting) throws StoreException {
         try {
             store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
-        } catch (AccumuloSecurityException | AccumuloException| TableNotFoundException e) {
+        } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
             throw new StoreException("Add iterator with Name: " + iteratorSetting.getName());
         }
     }
