@@ -28,10 +28,10 @@ public class Constants {
     public static final String QUERY_TIME_AGGREGATION_ITERATOR_NAME = "Query_Time_Aggregator";
 
     //Converter class to be used in iterators must be on classpath of all iterators
-    public static final String ACCUMULO_KEY_CONVERTER = "Converter";
+    public static final String ACCUMULO_ELEMENT_CONVERTER_CLASS = "accumulostore.key.element_converter";
 
     //Iterator options
-    public static final String VIEW = "view";
+    public static final String VIEW = "View";
     public static final String DATA_SCHEMA = "Data_Schema";
     public static final String STORE_SCHEMA = "Store_Schema";
     public static final String ENTITY_ONLY = "Entity_Only";
@@ -53,10 +53,12 @@ public class Constants {
     public final static int TRANSFORM_PRIORITY = 50; // Applied only during scans.
 
     //Operations options
-    public final static String OPERATION_AUTHORISATIONS = "authorisations";
-    public final static String SPLITS_FILE_PATH = "Splits_File_Path";
-    public final static String MATCH_AS_SOURCE = "return_matched_id_as_edge_source";
-
+    public final static String OPERATION_USE_ACCUMULO_PARTIONER = "accumulostore.operation.hdfs.use_accumulo_partioner";
+    public final static String OPERATION_USE_PROVIDED_SPLITS = "accumulostore.operation.hdfs.use_provided_splits";
+    public final static String OPERATION_AUTHORISATIONS = "accumulostore.operation.authorisations";
+    public final static String OPERATION_SPLITS_FILE_PATH = "accumulostore.operation.splits_file_path";
+    public final static String OPERATION_MATCH_AS_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
+    
     //Store factory constants
     public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
     public static final Text DATA_SCHEMA_KEY = new Text("dataSchema");

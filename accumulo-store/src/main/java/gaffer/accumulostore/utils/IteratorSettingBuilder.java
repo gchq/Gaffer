@@ -119,7 +119,7 @@ public class IteratorSettingBuilder {
     }
 
     public IteratorSettingBuilder keyConverter(final Class<? extends AccumuloElementConverter> converter) {
-        setting.addOption(Constants.ACCUMULO_KEY_CONVERTER, converter.getName());
+        setting.addOption(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS, converter.getName());
         return this;
     }
 
