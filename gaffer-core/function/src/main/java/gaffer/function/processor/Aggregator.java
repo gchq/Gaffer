@@ -16,6 +16,7 @@
 
 package gaffer.function.processor;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.AggregateFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.PassThroughFunctionContext;
@@ -84,6 +85,8 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
      * @return Deep copy of this <code>Aggregator</code>.
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Does not required any fields from the parent class")
+    @Override
     public Aggregator<R> clone() {
         final Aggregator<R> clone = new Aggregator<>();
         if (null != functions) {

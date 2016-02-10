@@ -45,7 +45,7 @@ public class IsIn extends SingleInputFilterFunction {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonProperty("values")
     public Object[] getAllowedValuesArray() {
-        return null != allowedValues ? allowedValues.toArray() : null;
+        return null != allowedValues ? allowedValues.toArray() : new Object[0];
     }
 
     @JsonProperty("values")

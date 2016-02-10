@@ -52,10 +52,8 @@ public class StoreProperties {
     private void readProperties() {
         if (null != propFileLocation) {
             try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
-                if (accIs != null) {
-                    props = new Properties();
-                    props.load(accIs);
-                }
+                props = new Properties();
+                props.load(accIs);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -67,10 +65,8 @@ public class StoreProperties {
      * @return a property properties file with the given key.
      */
     public String get(final String key) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         return props.getProperty(key);
     }
@@ -83,10 +79,8 @@ public class StoreProperties {
      * @return a property properties file with the given key or the default value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         return props.getProperty(key, defaultValue);
     }
@@ -98,10 +92,8 @@ public class StoreProperties {
      * @param value
      */
     public void set(final String key, final String value) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         props.setProperty(key, value);
     }

@@ -16,6 +16,7 @@
 
 package gaffer.function.processor;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.TransformFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerProducerFunctionContext;
@@ -53,6 +54,8 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
      * @return Deep copy of this <code>Transformer</code>.
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Does not required any fields from the parent class")
+    @Override
     public Transformer<R> clone() {
         Transformer<R> clone = new Transformer<>();
         if (null != functions) {

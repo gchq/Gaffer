@@ -31,6 +31,8 @@ import java.util.List;
  * @param <F> The type of {@link gaffer.function.ConsumerProducerFunction} wrapped by the context.
  */
 public class PassThroughFunctionContext<R, F extends ConsumerProducerFunction> extends ConsumerFunctionContext<R, F> {
+    private static final long serialVersionUID = -823429611092360995L;
+
     /**
      * Default constructor - used for serialisation.
      */

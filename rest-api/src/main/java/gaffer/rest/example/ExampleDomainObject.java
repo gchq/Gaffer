@@ -16,6 +16,8 @@
 
 package gaffer.rest.example;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class ExampleDomainObject {
     private Object[] ids;
     private String type;
@@ -28,10 +30,12 @@ public class ExampleDomainObject {
         this.type = type;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Just an example object")
     public Object[] getIds() {
         return ids;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Just an example object")
     public void setIds(final Object[] ids) {
         this.ids = ids;
     }

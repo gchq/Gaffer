@@ -15,14 +15,13 @@
  */
 package gaffer.function.simple.types;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * <code>FreqMap</code> simply extends {@link java.util.HashMap} with String keys and Integer values.
  */
-public class FreqMap extends HashMap<String, Integer> implements Serializable {
+public class FreqMap extends HashMap<String, Integer> {
     private static final long serialVersionUID = -6178586775831730274L;
 
     public FreqMap(final Map<? extends String, ? extends Integer> m) {

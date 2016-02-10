@@ -54,11 +54,17 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
             throw new OperationException(e.getMessage(), e);
         }
 
-        return new TransformIterable<Element, EntitySeed>(edgeRetriever, new IsEdgeValidator()) {
-            @Override
-            protected EntitySeed transform(final Element element) {
-                return new EntitySeed(((Edge) element).getDestination());
-            }
-        };
+        return new ExtractDestinationEntitySeed(edgeRetriever);
+    }
+
+    private static class ExtractDestinationEntitySeed extends TransformIterable<Element, EntitySeed> {
+        public ExtractDestinationEntitySeed(final Iterable<Element> input) {
+            super(input, new IsEdgeValidator());
+        }
+
+        @Override
+        protected EntitySeed transform(final Element element) {
+            return new EntitySeed(((Edge) element).getDestination());
+        }
     }
 }

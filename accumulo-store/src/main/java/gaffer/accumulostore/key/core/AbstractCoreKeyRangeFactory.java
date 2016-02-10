@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.key.core;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
@@ -32,9 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation) throws RangeFactoryException {
-        if (elementSeed.getClass().equals(EntitySeed.class)) {
+        if (elementSeed instanceof EntitySeed) {
             if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && !operation.isIncludeEntities()) {
                 throw new IllegalArgumentException("When doing querying by ID, you should only provide an EntitySeed seed if you also set includeEntities flag to true");
             }

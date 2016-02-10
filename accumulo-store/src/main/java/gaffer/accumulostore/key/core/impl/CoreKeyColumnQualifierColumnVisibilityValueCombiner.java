@@ -15,9 +15,11 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
@@ -31,6 +33,7 @@ import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +46,9 @@ import java.util.NoSuchElementException;
  */
 public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extends WrappingIterator implements OptionDescriber {
     protected StoreSchema storeSchema;
+
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+            justification = "elementConverter is initialised in init method, which is always called prior to this method")
     protected AccumuloElementConverter elementConverter;
 
     /**
@@ -247,7 +253,11 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
         if (!options.containsKey(Constants.STORE_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
         }
-        storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes());
+        try {
+            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the store schema", e);
+        }
         return true;
     }
 }

@@ -30,6 +30,7 @@ import java.util.List;
  * @param <F> The type of {@link gaffer.function.ConsumerProducerFunction} wrapped by the context.
  */
 public class ConsumerProducerFunctionContext<R, F extends ConsumerProducerFunction> extends ConsumerFunctionContext<R, F> {
+    private static final long serialVersionUID = 1587227291326202052L;
     private List<R> projection;
 
     /**

@@ -29,6 +29,7 @@ import java.util.List;
  * @param <F> The type of {@link gaffer.function.ProducerFunction} wrapped by the context.
  */
 public class ProducerFunctionContext<R, F extends ProducerFunction> extends FunctionContext<F> {
+    private static final long serialVersionUID = 3569894349639432082L;
     private List<R> projection;
 
     /**

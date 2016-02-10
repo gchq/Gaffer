@@ -23,6 +23,8 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -34,7 +36,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.Text;
 
 /**
@@ -69,22 +70,19 @@ public final class IngestUtils {
             throw new IOException(e.getMessage(), e);
         }
 
-        PrintStream out;
-        try {
-            out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)));
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
+            // Write the splits to file
+            if (splits.isEmpty()) {
+                out.close();
+                return 0;
+            }
+
+            for (Text split : splits) {
+                out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
+            }
         } catch (IOException e) {
             throw new IOException(e.getMessage(), e);
         }
-        // Write the splits to file
-        if (splits.isEmpty()) {
-            out.close();
-            return 0;
-        }
-
-        for (Text split : splits) {
-            out.println(new String(Base64.encodeBase64(split.getBytes())));
-        }
-        out.close();
 
         return splits.size();
     }
@@ -98,14 +96,10 @@ public final class IngestUtils {
      * @throws java.io.IOException
      */
     public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile) throws IOException {
-        PrintStream out = null;
-        try {
-            out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)));
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
             for (Text split : splits) {
-                out.println(new String(Base64.encodeBase64(split.getBytes())));
+                out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
             }
-        } finally {
-            IOUtils.closeStream(out);
         }
     }
 
@@ -117,14 +111,16 @@ public final class IngestUtils {
      * @return An integer representing the number of entries in the file.
      * @throws java.io.IOException
      */
+    @SuppressFBWarnings(value = "RV_DONT_JUST_NULL_CHECK_READLINE", justification = "Simply counts the number of lines in the file")
     public static int getNumSplits(final FileSystem fs, final Path splitsFile) throws IOException {
-        FSDataInputStream fis = fs.open(splitsFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
         int numSplits = 0;
-        while (reader.readLine() != null) {
-            ++numSplits;
+        try (final FSDataInputStream fis = fs.open(splitsFile);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+            while (reader.readLine() != null) {
+                ++numSplits;
+            }
         }
-        reader.close();
+
         return numSplits;
     }
 
@@ -137,14 +133,16 @@ public final class IngestUtils {
      * @throws java.io.IOException
      */
     public static SortedSet<Text> getSplitsFromFile(final FileSystem fs, final Path splitsFile) throws IOException {
-        FSDataInputStream fis = fs.open(splitsFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
-        SortedSet<Text> splits = new TreeSet<>();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            splits.add(new Text(Base64.decodeBase64(line)));
+        final SortedSet<Text> splits = new TreeSet<>();
+
+        try (final FSDataInputStream fis = fs.open(splitsFile);
+             final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                splits.add(new Text(Base64.decodeBase64(line)));
+            }
         }
-        reader.close();
+
         return splits;
     }
 

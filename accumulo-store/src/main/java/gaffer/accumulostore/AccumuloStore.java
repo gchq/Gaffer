@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.handler.AddElementsHandler;
@@ -132,6 +133,7 @@ public class AccumuloStore extends Store {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
     @Override
     public AccumuloProperties getProperties() {
         return (AccumuloProperties) super.getProperties();

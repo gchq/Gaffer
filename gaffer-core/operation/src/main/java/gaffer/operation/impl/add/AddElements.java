@@ -19,7 +19,6 @@ package gaffer.operation.impl.add;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractValidatable;
-import gaffer.operation.Validatable;
 import gaffer.operation.VoidOutput;
 
 /**
@@ -31,7 +30,7 @@ import gaffer.operation.VoidOutput;
  *
  * @see gaffer.operation.impl.add.AddElements.Builder
  */
-public class AddElements extends AbstractValidatable<Void> implements Validatable<Void>, VoidOutput<Iterable<Element>> {
+public class AddElements extends AbstractValidatable<Void> implements VoidOutput<Iterable<Element>> {
     /**
      * Constructs an <code>AddElements</code> with no {@link gaffer.data.element.Element}s to add. This could be used
      * in an operation chain where the elements are provided by the previous operation.

@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.utils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
 
@@ -36,6 +37,7 @@ public final class BloomFilterUtils {
      * @param maximumSize
      * @return An Integer representing the size of the bloom filter needed.
      */
+    @SuppressFBWarnings(value = "ICAST_IDIV_CAST_TO_DOUBLE", justification = "the value is cast to an int after the division")
     public static int calculateBloomFilterSize(final double falsePositiveRate, final int numItemsToBeAdded, final int maximumSize) {
         int size = (int) (-numItemsToBeAdded * Math.log(falsePositiveRate) / (Math.pow(Math.log(2.0), 2.0)));
         return Math.min(size, maximumSize);
@@ -49,6 +51,7 @@ public final class BloomFilterUtils {
      * @param numItemsToBeAdded
      * @return An integer representing the optimal number of hashes to use
      */
+    @SuppressFBWarnings(value = "ICAST_IDIV_CAST_TO_DOUBLE", justification = "the value is cast to an int after the division")
     public static int calculateNumHashes(final int bloomFilterSize, final int numItemsToBeAdded) {
         return Math.max(1, (int) ((bloomFilterSize / numItemsToBeAdded) * Math.log(2.0)));
     }

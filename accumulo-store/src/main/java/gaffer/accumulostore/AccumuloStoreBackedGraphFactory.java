@@ -28,6 +28,7 @@ import org.apache.hadoop.io.MapWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 
 /**
@@ -59,7 +60,12 @@ public final class AccumuloStoreBackedGraphFactory {
 
         final DataSchema dataSchema = DataSchema.fromJson(((BytesWritable) map.get(Constants.DATA_SCHEMA_KEY)).getBytes());
         final StoreSchema storeSchema = StoreSchema.fromJson(((BytesWritable) map.get(Constants.STORE_SCHEMA_KEY)).getBytes());
-        final String keyPackageClass = new String(((BytesWritable) map.get(Constants.KEY_PACKAGE_KEY)).getBytes());
+        final String keyPackageClass;
+        try {
+            keyPackageClass = new String(((BytesWritable) map.get(Constants.KEY_PACKAGE_KEY)).getBytes(), Constants.UTF_8_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
 
         if (!props.getKeyPackageClass().equals(keyPackageClass)) {
             LOGGER.warn("Key package class " + props.getKeyPackageClass()

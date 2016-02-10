@@ -17,14 +17,17 @@ package gaffer.accumulostore.operation.hdfs.handler.job;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
@@ -34,8 +37,14 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElem
     protected void setup(final Context context) {
         super.setup(context);
 
-        final StoreSchema storeSchema = StoreSchema.fromJson(context.getConfiguration().get(
-                AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes());
+        final StoreSchema storeSchema;
+        try {
+            storeSchema = StoreSchema.fromJson(context.getConfiguration().get(
+                    AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise Store Schema from JSON");
+        }
+
         final String converterClass = context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.ELEMENT_CONVERTER);
         try {
             Class<?> elementConverterClass = Class.forName(converterClass);

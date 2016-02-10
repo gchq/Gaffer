@@ -16,6 +16,8 @@
 
 package gaffer.data.element;
 
+import java.io.Serializable;
+
 /**
  * This interface is used by the lazy loader classes to load {@link gaffer.data.element.Element}'s identifiers and
  * properties.
@@ -24,7 +26,7 @@ package gaffer.data.element;
  * @see gaffer.data.element.LazyEdge
  * @see LazyProperties
  */
-public interface ElementValueLoader {
+public interface ElementValueLoader extends Serializable {
     /**
      * @param name the property name to extract
      * @return the property value with the given name

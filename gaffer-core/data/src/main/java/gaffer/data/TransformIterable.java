@@ -94,7 +94,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
                     }
                 }
 
-                return hasNext;
+                return Boolean.TRUE.equals(hasNext);
             }
 
             @Override

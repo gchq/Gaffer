@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -334,7 +335,7 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     protected boolean isAnEdgeDirected() {
-        return !getDataSchema().getEdge(getAnEdgeGroup()).getDirected().toLowerCase().contains("false");
+        return !getDataSchema().getEdge(getAnEdgeGroup()).getDirected().toLowerCase(Locale.getDefault()).contains("false");
     }
 
     protected String getAnEntityPropertyName() {
@@ -414,7 +415,7 @@ public class SimpleExamplesService implements IExamplesService {
         } else if (Float.class.equals(clazz)) {
             value = (float) uniqueId;
         } else if (Date.class.equals(clazz)) {
-            value = new Date(uniqueId);
+            value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
         } else {
             try {
                 value = clazz.newInstance();

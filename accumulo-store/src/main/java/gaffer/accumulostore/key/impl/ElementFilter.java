@@ -22,6 +22,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.data.ElementValidator;
 import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
@@ -31,6 +32,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,9 +69,20 @@ public class ElementFilter extends Filter {
         if (!options.containsKey(Constants.VIEW)) {
             throw new IllegalArgumentException("Must specify the " + Constants.VIEW);
         }
-        validator = new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes()));
+        try {
+            validator = new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise view from JSON", e);
 
-        final StoreSchema storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes());
+        }
+
+        final StoreSchema storeSchema;
+        try {
+            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new ElementFilterException(e.getMessage(), e);
+        }
+
         try {
             Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_KEY_CONVERTER));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);

@@ -21,6 +21,8 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 
 public class ViewEntityDefinition extends ViewElementDefinition {
+    private static final long serialVersionUID = -2620877248554434905L;
+
     public void setVertex(final String className) {
         getIdentifierMap().put(IdentifierType.VERTEX, className);
     }

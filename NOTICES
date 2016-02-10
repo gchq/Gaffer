@@ -119,3 +119,13 @@ Scala (org.scala-lang:scala-library:2.10.2):
 SLF4J (org.slf4j:slf4j-api:1.7.5):
 
 - MIT License
+
+
+FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.3):
+
+- Apache License, Version 2.0
+
+
+FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
+
+- GNU Lesser Public License

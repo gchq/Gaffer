@@ -182,14 +182,14 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * Sets an {@link java.lang.Iterable} of SEED_TYPE on the operation.
          * It should not be used in conjunction with addSeed(SEED_TYPE).
          *
-         * @param seeds an {@link java.lang.Iterable} of SEED_TYPE to set on the operation.
+         * @param newSeeds an {@link java.lang.Iterable} of SEED_TYPE to set on the operation.
          * @return this Builder
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
             if (null != seeds) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
-            op.setSeeds(seeds);
+            op.setSeeds(newSeeds);
             return this;
         }
 

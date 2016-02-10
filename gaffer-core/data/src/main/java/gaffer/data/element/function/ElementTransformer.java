@@ -16,6 +16,7 @@
 
 package gaffer.data.element.function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.ElementTuple;
@@ -40,6 +41,7 @@ public class ElementTransformer extends Transformer<ElementComponentKey> {
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
     @Override
     public ElementTransformer clone() {
         final ElementTransformer clone = new ElementTransformer();

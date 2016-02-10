@@ -19,6 +19,7 @@ package gaffer.accumulostore.utils;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.store.schema.StoreSchema;
@@ -104,17 +105,29 @@ public class IteratorSettingBuilder {
     }
 
     public IteratorSettingBuilder dataSchema(final DataSchema dataSchema) {
-        setting.addOption(Constants.DATA_SCHEMA, new String(dataSchema.toJson(false)));
+        try {
+            setting.addOption(Constants.DATA_SCHEMA, new String(dataSchema.toJson(false), Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise data schema from JSON", e);
+        }
         return this;
     }
 
     public IteratorSettingBuilder storeSchema(final StoreSchema storeSchema) {
-        setting.addOption(Constants.STORE_SCHEMA, new String(storeSchema.toJson(false)));
+        try {
+            setting.addOption(Constants.STORE_SCHEMA, new String(storeSchema.toJson(false), Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise store schema from JSON", e);
+        }
         return this;
     }
 
     public IteratorSettingBuilder view(final View view) {
-        setting.addOption(Constants.VIEW, new String(view.toJson(false)));
+        try {
+            setting.addOption(Constants.VIEW, new String(view.toJson(false), Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise view from JSON", e);
+        }
         return this;
     }
 

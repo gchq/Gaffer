@@ -21,6 +21,8 @@ import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 
 public class DataEdgeDefinition extends DataElementDefinition {
+    private static final long serialVersionUID = -4073040352812001484L;
+
     public void setSource(final String className) {
         getIdentifierMap().put(IdentifierType.SOURCE, className);
     }

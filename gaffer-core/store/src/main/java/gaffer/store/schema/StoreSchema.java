@@ -40,6 +40,7 @@ import java.util.Map;
  * @see gaffer.store.schema.StorePropertyDefinition
  */
 public class StoreSchema extends ElementDefinitions<StoreElementDefinition, StoreElementDefinition> {
+    private static final long serialVersionUID = 2377712298631263987L;
     private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
 
     /**

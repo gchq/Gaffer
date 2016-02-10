@@ -15,6 +15,7 @@
  */
 package gaffer.function.simple.filter;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,21 +29,25 @@ public class MultiRegex extends SingleInputFilterFunction {
     private Pattern[] patterns;
 
     public MultiRegex() {
-        // Required for serialisations
+        this(null);
     }
 
     public MultiRegex(final Pattern[] patterns) {
-        this.patterns = patterns;
+        setPatterns(patterns);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonProperty("value")
     public Pattern[] getPatterns() {
-        return patterns;
+        return Arrays.copyOf(patterns, patterns.length);
     }
 
-    public void setControlValue(final Pattern[] patterns) {
-        this.patterns = patterns;
+    public void setPatterns(final Pattern[] patterns) {
+        if (null != patterns) {
+            this.patterns = Arrays.copyOf(patterns, patterns.length);
+        } else {
+            this.patterns = new Pattern[0];
+        }
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package gaffer.operation.data;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -37,6 +38,7 @@ public abstract class ElementSeed {
      */
     public abstract Matches isRelated(ElementSeed that);
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     public static ElementSeed createSeed(final Element element) {
         if (element instanceof Entity) {
             return createSeed((Entity) element);

@@ -17,6 +17,7 @@
 package gaffer.store;
 
 import com.google.common.collect.Sets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.operation.data.EntitySeed;
@@ -171,6 +172,8 @@ public abstract class Store {
      * @param lazyElement the lazy element
      * @return the fully populated unwrapped element
      */
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
         final DataElementDefinition elementDefinition = getDataSchema().getElement(lazyElement.getGroup());
         if (null != elementDefinition) {

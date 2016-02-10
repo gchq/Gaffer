@@ -17,6 +17,7 @@
 package gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -72,6 +73,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         return (OUTPUT) result;
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
     @Override
     public boolean validate(final Element element) {
         return null != element
