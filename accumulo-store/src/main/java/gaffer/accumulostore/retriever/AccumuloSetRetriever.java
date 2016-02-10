@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperation<EntitySeed, ?>> {
@@ -95,7 +96,6 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         }
         return iterator;
     }
-
 
     protected abstract boolean hasSeeds();
 
@@ -166,7 +166,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             }
             iterator = parentRetriever.iterator();
         }
-
+        
         @Override
         public boolean hasNext() {
             while (iterator.hasNext()) {
@@ -180,7 +180,18 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public Element next() {
-            return nextElm;
+        	if(null == nextElm) {
+        		if(hasNext()) {
+        			return nextElm;
+        		} else {
+        			throw new NoSuchElementException();
+        		}
+        	} else {
+        		Element nextReturn = nextElm;
+        		nextElm = null;
+                doTransformation(nextReturn);
+        		return nextReturn;
+        	}
         }
 
         @Override
@@ -260,8 +271,18 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public Element next() {
-            doTransformation(nextElm);
-            return nextElm;
+        	if(null == nextElm) {
+        		if(hasNext()) {
+        			return nextElm;
+        		} else {
+        			throw new NoSuchElementException();
+        		}
+        	} else {
+        		Element nextReturn = nextElm;
+        		nextElm = null;
+                doTransformation(nextReturn);
+        		return nextReturn;
+        	}
         }
 
         @Override
