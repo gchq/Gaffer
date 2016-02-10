@@ -41,7 +41,8 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
     private Path inputPath;
     private Path outputPath;
     private Path failurePath;
-    private int numReduceTasks = 1;
+    private Integer numReduceTasks = null;
+    private Integer numMapTasks = null;
     private boolean validate = true;
 
     /**
@@ -114,11 +115,19 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
         this.jobInitialiser = jobInitialiser;
     }
 
-    public int getNumReduceTasks() {
+    public Integer getNumMapTasks() {
+        return numMapTasks;
+    }
+
+    public void setNumMapTasks(final Integer numMapTasks) {
+        this.numMapTasks = numMapTasks;
+    }
+
+    public Integer getNumReduceTasks() {
         return numReduceTasks;
     }
 
-    public void setNumReduceTasks(final int numReduceTasks) {
+    public void setNumReduceTasks(final Integer numReduceTasks) {
         this.numReduceTasks = numReduceTasks;
     }
 
@@ -157,8 +166,13 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
             return this;
         }
 
-        public Builder reducers(final int numReduceTasks) {
+        public Builder reducers(final Integer numReduceTasks) {
             op.setNumReduceTasks(numReduceTasks);
+            return this;
+        }
+
+        public Builder mappers(final Integer numMapTasks) {
+            op.setNumMapTasks(numMapTasks);
             return this;
         }
 

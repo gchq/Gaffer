@@ -101,12 +101,12 @@ public class AggregatorIterator extends Combiner {
 
         final StoreSchema storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes());
         try {
-            Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_KEY_CONVERTER));
+            Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : " + options.get(Constants.ACCUMULO_KEY_CONVERTER));
+            throw new AggregationException("Failed to load element converter from class name provided : " + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }

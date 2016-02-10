@@ -15,12 +15,8 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.utils.IngestUtils;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
-import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
-import gaffer.store.Store;
-import gaffer.store.StoreException;
+import java.io.IOException;
+
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.KeyRangePartitioner;
 import org.apache.accumulo.core.data.Key;
@@ -30,15 +26,20 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 
-import java.io.IOException;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IngestUtils;
+import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
+import gaffer.store.Store;
+import gaffer.store.StoreException;
 
 public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
-    public static final String ELEMENT_CONVERTER = "elementConverter";
 
     @Override
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
         super.setupJobConf(jobConf, operation, store);
-        jobConf.set(ELEMENT_CONVERTER, ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
+        jobConf.set(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS, ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
     }
 
     @Override
@@ -48,7 +49,10 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         setupMapper(job, operation, store);
         setupReducer(job, operation, store);
         setupOutput(job, operation, store);
-        setupSplits(job, operation, (AccumuloStore) store);
+
+        if (operation.getOption(Constants.OPERATION_USE_ACCUMULO_PARTIONER).equalsIgnoreCase("true")) {
+            setupPartioner(job, operation, (AccumuloStore) store);
+        }
     }
 
     private void setupMapper(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
@@ -68,14 +72,19 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         AccumuloFileOutputFormat.setOutputPath(job, operation.getOutputPath());
     }
 
-    private void setupSplits(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
-        final String splitsFilePath = store.getProperties().getSplitsFilePath();
-        final int numReduceTasks;
-        try {
-            numReduceTasks = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
-                    FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
-        } catch (StoreException e) {
-            throw new RuntimeException(e.getMessage(), e);
+    private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+        String splitsFilePath = operation.getOption(Constants.OPERATION_USE_PROVIDED_SPLITS);
+        int numReduceTasks;
+        if (null != splitsFilePath && !splitsFilePath.equals("")) {
+            splitsFilePath = store.getProperties().getSplitsFilePath();
+            try {
+                numReduceTasks = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+            } catch (StoreException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        } else {
+            numReduceTasks = IngestUtils.getNumSplits(FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
         }
         job.setNumReduceTasks(numReduceTasks + 1);
         job.setPartitionerClass(KeyRangePartitioner.class);

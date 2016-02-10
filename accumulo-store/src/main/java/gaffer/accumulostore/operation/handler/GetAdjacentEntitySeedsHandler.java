@@ -41,7 +41,7 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
     }
 
     public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final AccumuloStore store) throws OperationException {
-        operation.addOption(Constants.MATCH_AS_SOURCE, "true");
+        operation.addOption(Constants.OPERATION_MATCH_AS_SOURCE, "true");
 
         final AccumuloRetriever<?> edgeRetriever;
         try {
