@@ -105,7 +105,10 @@ public class TableUtils {
         String tableName = store.getProperties().getTable();
         try {
             connector.tableOperations().create(tableName);
-            connector.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), store.getProperties().getTableFileReplicationFactor());
+            String repFactor = store.getProperties().getTableFileReplicationFactor();
+            if(null !=repFactor) {
+            	connector.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), repFactor);
+        	}
             // Enable Bloom filters using ElementFunctor
             LOGGER.info("Enabling Bloom filter on table");
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_ENABLED.getKey(), "true");

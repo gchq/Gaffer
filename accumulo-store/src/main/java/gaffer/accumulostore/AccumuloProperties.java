@@ -57,7 +57,6 @@ public class AccumuloProperties extends StoreProperties {
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
     private static final String SPLITS_FILE_PATH_DEFAULT = "/data/splits.txt";
-    private static final String TABLE_REPLICATION_FACTOR_DEFAULT = "0";
 
     public AccumuloProperties() {
         super();
@@ -339,16 +338,16 @@ public class AccumuloProperties extends StoreProperties {
     }
     
     /**
-     * Get the replication factor to be applied to tables created by gaffer, the default if not set is 0, which should use your HDFS settings.
+     * Get the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
      *
      * @return The replication factor to be applied to tables created by gaffer
      */
     public String getTableFileReplicationFactor() {
-        return get(TABLE_REPLICATION_FACTOR, TABLE_REPLICATION_FACTOR_DEFAULT);
+        return get(TABLE_REPLICATION_FACTOR, null);
     }
 
     /**
-     * Set the replication factor to be applied to tables created by gaffer, the default if not set is 0, which should use your HDFS settings.
+     * Set the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
      * 
      * @param replicationFactor
      */
