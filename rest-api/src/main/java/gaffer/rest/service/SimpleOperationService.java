@@ -16,15 +16,22 @@
 
 package gaffer.rest.service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
 import gaffer.graph.Graph;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
@@ -36,8 +43,6 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -79,39 +84,51 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation) {
+    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation, Integer n) {
+    	Iterable<Element> elements = execute(operation);
+    	if(null == n) {
+        	return elements;
+        } else {
+	        Iterator<Element> elms = elements.iterator();
+	        List<Element> elList = new ArrayList<>();
+	        int i = 0;
+	        while(elms.hasNext() && i < n) {
+	        	elList.add(elms.next());
+	        	++i;
+	        }
+	        return elList;
+        }
+    }
+
+    @Override
+    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, Integer n)  {
         return execute(operation);
     }
 
     @Override
-    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
+    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, Integer n) {
         return execute(operation);
     }
 
     @Override
-    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
-        return execute(operation);
-    }
-
-    @Override
-    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation) {
+    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation, Integer n) {
         return execute(operation);
     }
 
 
     @Override
-    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
+    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, Integer n) {
         return execute(operation);
     }
 
 
     @Override
-    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation) {
+    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation, Integer n) {
         return execute(operation);
     }
 
     @Override
-    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
+    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, Integer n) {
         return execute(operation);
     }
 
@@ -156,6 +173,22 @@ public class SimpleOperationService implements IOperationService {
             } finally {
                 postOperationHook(opChain);
             }
+        }
+    }
+    
+    protected Iterable<Element> executeGet(Operation<?, Iterable<Element>> operation, Integer n) {
+		Iterable<Element> results = execute(operation);
+    	if(null == n) {
+        	return results;
+        } else {
+	        Iterator<Element> resultsIterator = results.iterator();
+	        List<Element> limitedResults = new ArrayList<>();
+	        int i = 0;
+	        while(resultsIterator.hasNext() && i < n) {
+	        	limitedResults.add(resultsIterator.next());
+	        	++i;
+	        }
+	        return limitedResults;
         }
     }
 }
