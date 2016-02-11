@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Entity extends Element {
     private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);
+    private static final long serialVersionUID = 2863628004463113755L;
     private Object vertex;
 
     Entity() {

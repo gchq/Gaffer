@@ -25,7 +25,6 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -133,14 +132,6 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
     public byte[] toJson(final boolean prettyPrint) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint);
-        } catch (SerialisationException e) {
-            throw new SchemaException(e.getMessage(), e);
-        }
-    }
-
-    public void toJson(final File file, final boolean prettyPrint) throws SchemaException {
-        try {
-            JSON_SERIALISER.serialise(this, file, prettyPrint);
         } catch (SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }

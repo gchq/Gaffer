@@ -37,7 +37,7 @@ public class GraphFactory {
     public Graph getGraph() {
         if (singletonGraph) {
             if (null == graph) {
-                graph = createGraph();
+                setGraph(createGraph());
             }
             return graph;
         }
@@ -65,5 +65,9 @@ public class GraphFactory {
         final Path typesPath = null != typesPathStr ? Paths.get(typesPathStr) : null;
 
         return new Graph(dataSchemaPath, storeSchemaPath, storePropertiesPath, typesPath);
+    }
+
+    private static void setGraph(final Graph graph) {
+        GraphFactory.graph = graph;
     }
 }

@@ -19,6 +19,7 @@ package gaffer.function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Outputs;
 import java.lang.annotation.AnnotationFormatError;
+import java.util.Arrays;
 
 /**
  * A <code>ProducerFunction</code> is a {@link gaffer.function.Function} that produces output records.
@@ -40,7 +41,7 @@ public abstract class ProducerFunction implements Function {
             processOutputAnnotation();
         }
 
-        return outputs;
+        return Arrays.copyOf(outputs, outputs.length);
     }
 
     /**

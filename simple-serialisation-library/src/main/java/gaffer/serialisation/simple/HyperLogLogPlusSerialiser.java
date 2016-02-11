@@ -21,6 +21,8 @@ import gaffer.serialisation.Serialisation;
 import java.io.IOException;
 
 public class HyperLogLogPlusSerialiser implements Serialisation {
+    private static final long serialVersionUID = 2782098698280905174L;
+
     @Override
     public boolean canHandle(final Class clazz) {
         return HyperLogLogPlus.class.equals(clazz);

@@ -64,7 +64,7 @@ public class OperationChain<OUT> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("operations")
     Operation[] getOperationArray() {
-        return null != operations ? operations.toArray(new Operation[operations.size()]) : null;
+        return null != operations ? operations.toArray(new Operation[operations.size()]) : new Operation[0];
     }
 
     @JsonSetter("operations")

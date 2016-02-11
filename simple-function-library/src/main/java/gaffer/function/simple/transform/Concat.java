@@ -33,7 +33,7 @@ public class Concat extends TransformFunction {
 
     @Override
     public Object[] execute(final Object[] input) {
-        return null != input ? new Object[]{StringUtils.join(input, separator)} : null;
+        return new Object[]{StringUtils.join(input, separator)};
     }
 
     public String getSeparator() {

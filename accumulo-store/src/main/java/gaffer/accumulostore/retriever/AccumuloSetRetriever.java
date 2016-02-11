@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.retriever;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -169,6 +170,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public boolean hasNext() {
+            if (null == iterator) {
+                throw new IllegalStateException("This iterator has not been initialised. Call initialise before using it.");
+            }
             while (iterator.hasNext()) {
                 nextElm = iterator.next();
                 if (checkIfBothEndsInSet(nextElm)) {
@@ -178,8 +182,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
+        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
+            // TODO: If this is called multiple times it should return the next element - not just the same element.
             return nextElm;
         }
 
@@ -258,8 +264,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
+        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
+            // TODO: If this is called multiple times it should return the next element - not just the same element.
             doTransformation(nextElm);
             return nextElm;
         }

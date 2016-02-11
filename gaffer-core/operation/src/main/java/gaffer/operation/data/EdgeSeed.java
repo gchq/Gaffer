@@ -16,6 +16,8 @@
 
 package gaffer.operation.data;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
  * {@link gaffer.data.element.Edge}.
@@ -67,6 +69,7 @@ public class EdgeSeed extends ElementSeed {
      * @param that the {@link ElementSeed} to compare
      * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
      */
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
     @Override
     public Matches isRelated(final ElementSeed that) {
         if (that instanceof EdgeSeed) {

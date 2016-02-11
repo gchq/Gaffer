@@ -16,6 +16,7 @@
 
 package gaffer.data.element.function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Properties;
@@ -76,6 +77,7 @@ public class ElementAggregator extends Aggregator<ElementComponentKey> {
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
     @Override
     public ElementAggregator clone() {
         final ElementAggregator clone = new ElementAggregator();

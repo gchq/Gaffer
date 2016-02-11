@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Edge extends Element {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
+    private static final long serialVersionUID = -5596452468277807842L;
     private Object source;
     private Object destination;
     private boolean directed;

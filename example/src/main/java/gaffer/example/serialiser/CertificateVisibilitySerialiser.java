@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 
 public class CertificateVisibilitySerialiser implements Serialisation {
     public static final String BYTE_ENCODING = "UTF-8";
+    private static final long serialVersionUID = -1726585921080420988L;
 
     @Override
     public boolean canHandle(final Class clazz) {

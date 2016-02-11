@@ -16,6 +16,7 @@
 
 package gaffer.rest.example;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -40,6 +41,7 @@ public class ExampleDomainObjectGenerator extends OneToOneElementGenerator<Examp
         return entity;
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public ExampleDomainObject getObject(final Element element) {
         if (element instanceof Entity) {

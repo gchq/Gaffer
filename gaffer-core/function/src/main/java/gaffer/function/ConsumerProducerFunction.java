@@ -19,6 +19,7 @@ package gaffer.function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Outputs;
 import java.lang.annotation.AnnotationFormatError;
+import java.util.Arrays;
 
 /**
  * A <code>ConsumerProducerFunction</code> is a {@link gaffer.function.Function} that consumes input records and
@@ -42,7 +43,7 @@ public abstract class ConsumerProducerFunction extends ConsumerFunction {
             processOutputAnnotation();
         }
 
-        return outputs;
+        return Arrays.copyOf(outputs, outputs.length);
     }
 
     /**

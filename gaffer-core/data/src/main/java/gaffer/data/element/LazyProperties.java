@@ -16,6 +16,8 @@
 
 package gaffer.data.element;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +29,7 @@ import java.util.Set;
  * requested using a provided {@link gaffer.data.element.ElementValueLoader}.
  */
 public class LazyProperties extends Properties {
+    private static final long serialVersionUID = 9009552236887934877L;
     private final ElementValueLoader valueLoader;
     private final Set<String> loadedProperties;
     private final Properties properties;
@@ -63,6 +66,7 @@ public class LazyProperties extends Properties {
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Doesn't use any properties in super class")
     @Override
     public LazyProperties clone() {
         return new LazyProperties(properties.clone(), valueLoader);
@@ -149,7 +153,7 @@ public class LazyProperties extends Properties {
         return properties.entrySet();
     }
 
-    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @SuppressWarnings(value = "EqualsWhichDoesntCheckParameterClass")
     @Override
     public boolean equals(final Object o) {
         return properties.equals(o);

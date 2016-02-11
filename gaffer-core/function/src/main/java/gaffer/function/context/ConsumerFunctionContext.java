@@ -29,6 +29,7 @@ import java.util.List;
  * @param <F> The type of {@link gaffer.function.ConsumerFunction} wrapped by the context.
  */
 public class ConsumerFunctionContext<R, F extends ConsumerFunction> extends FunctionContext<F> {
+    private static final long serialVersionUID = -4572706365436487862L;
     private List<R> selection;
     private Object[] selected;
 

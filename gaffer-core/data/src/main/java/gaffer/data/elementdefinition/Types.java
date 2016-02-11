@@ -23,4 +23,5 @@ import java.util.HashMap;
  * This is required for serialising to JSON.
  */
 public class Types extends HashMap<String, Type> {
+    private static final long serialVersionUID = -4289118603357719559L;
 }

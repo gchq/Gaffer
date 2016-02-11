@@ -24,6 +24,7 @@ import gaffer.accumulostore.utils.IteratorUtils;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -31,6 +32,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
@@ -82,7 +84,11 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         if (!options.containsKey(Constants.DATA_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
         }
-        dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes());
+        try {
+            dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the store schema", e);
+        }
         try {
             Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
@@ -92,13 +98,6 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
             throw new AggregationException("Failed to load element converter from class name provided : " + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
-    }
-
-    @Override
-    public IteratorOptions describeOptions() {
-        return IteratorUtils.describeOptions("ColumnQualifierVisibilityAggregatorIterator",
-                "Combines properties over elements which differ only in column qualifier and visibility",
-                super.describeOptions());
     }
 
     private void aggregateProperties(final String group, final ColumnQualifierColumnVisibilityValueTriple triple) {
@@ -111,5 +110,12 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
             throw new RuntimeException(e);
         }
         aggregator.aggregate(properties);
+    }
+
+    @Override
+    public IteratorOptions describeOptions() {
+        return IteratorUtils.describeOptions("ColumnQualifierVisibilityAggregatorIterator",
+                "Combines properties over elements which differ only in column qualifier and visibility",
+                super.describeOptions());
     }
 }

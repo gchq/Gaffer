@@ -25,6 +25,7 @@ import java.util.Map;
  * <code>Properties</code> simply extends {@link java.util.HashMap} with property names (String) as keys and property value (Object) as values.
  */
 public class Properties extends HashMap<String, Object> {
+    private static final long serialVersionUID = -5412533432398907359L;
 
     public Properties() {
         super();

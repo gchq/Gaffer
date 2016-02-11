@@ -24,6 +24,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -32,6 +33,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
@@ -52,7 +54,13 @@ public class AggregatorIterator extends Combiner {
         if (!iter.hasNext()) {
             return value;
         }
-        final String group = new String(key.getColumnFamilyData().getBackingArray());
+        final String group;
+        try {
+            group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new AggregationException("Failed to recreate a graph element from a gaffer.accumulostore.key and value", e);
+        }
+
         Properties properties;
         final ElementAggregator aggregator;
         try {
@@ -97,9 +105,15 @@ public class AggregatorIterator extends Combiner {
         if (!options.containsKey(Constants.DATA_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
         }
-        dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes());
 
-        final StoreSchema storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes());
+        final StoreSchema storeSchema;
+        try {
+            dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the data/store schema", e);
+        }
+
         try {
             Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);

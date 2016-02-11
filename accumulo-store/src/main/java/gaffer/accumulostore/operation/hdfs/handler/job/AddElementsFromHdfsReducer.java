@@ -21,12 +21,14 @@ import gaffer.accumulostore.utils.Constants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
@@ -45,9 +47,14 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
 
     @Override
     protected void setup(final Context context) {
-        dataSchema = DataSchema.fromJson(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes());
+        final StoreSchema storeSchema;
+        try {
+            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
+        }
 
-        StoreSchema storeSchema = StoreSchema.fromJson(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes());
         try {
             Class<?> elementConverterClass = Class.forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
@@ -74,7 +81,12 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     }
 
     private Value reduceMultiValue(final Key key, final Iterator<Value> iter, final Value firstValue) {
-        String group = new String(key.getColumnFamilyData().getBackingArray());
+        final String group;
+        try {
+            group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
         ElementAggregator aggregator;
         Properties firstPropertySet;
         try {

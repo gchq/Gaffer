@@ -60,7 +60,7 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public Object execute(final OperationChain opChain) {
-        return execute(opChain);
+        return execute(opChain, false);
     }
 
     @Override

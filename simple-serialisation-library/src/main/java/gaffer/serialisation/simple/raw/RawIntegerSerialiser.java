@@ -25,6 +25,7 @@ import gaffer.serialisation.Serialisation;
  * uses much more space.
  */
 public class RawIntegerSerialiser implements Serialisation {
+    private static final long serialVersionUID = -8344193425875811395L;
 
     @Override
     public boolean canHandle(final Class clazz) {

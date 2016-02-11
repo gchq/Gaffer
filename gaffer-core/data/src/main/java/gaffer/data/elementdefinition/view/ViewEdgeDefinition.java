@@ -21,6 +21,8 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 
 public class ViewEdgeDefinition extends ViewElementDefinition {
+    private static final long serialVersionUID = -7418280514323572835L;
+
     public void setSource(final String className) {
         getIdentifierMap().put(IdentifierType.SOURCE, className);
     }

@@ -19,6 +19,7 @@ package gaffer.function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Inputs;
 import java.lang.annotation.AnnotationFormatError;
+import java.util.Arrays;
 
 /**
  * A <code>ConsumerFunction</code> is a {@link gaffer.function.Function} that consumes input records. Implementations
@@ -40,7 +41,7 @@ public abstract class ConsumerFunction implements Function {
             processInputAnnotation();
         }
 
-        return inputs;
+        return Arrays.copyOf(inputs, inputs.length);
     }
 
     /**

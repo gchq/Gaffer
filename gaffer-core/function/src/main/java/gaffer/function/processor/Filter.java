@@ -16,6 +16,7 @@
 
 package gaffer.function.processor;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.FilterFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
@@ -69,6 +70,8 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
      * @return Deep copy of this <code>Filter</code>.
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Does not required any fields from the parent class")
+    @Override
     public Filter<R> clone() {
         Filter<R> clone = new Filter<>();
         if (null != functions) {

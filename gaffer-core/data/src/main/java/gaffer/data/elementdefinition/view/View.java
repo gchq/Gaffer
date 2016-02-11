@@ -40,6 +40,8 @@ import java.util.Collection;
  * @see gaffer.data.element.function.ElementTransformer
  */
 public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefinition> {
+    private static final long serialVersionUID = 3056841284342147461L;
+
     public View() {
         super();
     }

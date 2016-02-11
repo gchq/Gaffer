@@ -30,7 +30,9 @@ import java.io.Serializable;
  * @see gaffer.store.schema.StorePropertyDefinition.Builder
  */
 public class StorePropertyDefinition implements Serializable {
+    private static final long serialVersionUID = -6545159644647966605L;
     private static final Serialisation DEFAULT_SERIALISER = new JavaSerialiser();
+
     private Serialisation serialiser = DEFAULT_SERIALISER;
     private String position;
 

@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -140,7 +141,7 @@ public final class TableUtils {
 
             // Add age off iterator to table for all scopes
             LOGGER.info("Adding age off iterator to table for all scopes");
-            final Long ageOfTimeInMils = store.getProperties().getAgeOffTimeInDays() * 24 * 60 * 60 * 1000L;
+            final Long ageOfTimeInMils = 24L * 60L * 60L * 1000L * store.getProperties().getAgeOffTimeInDays();
             connector.tableOperations().attachIterator(tableName, getAgeOffIteratorSetting(ageOfTimeInMils));
         } catch (AccumuloSecurityException | TableNotFoundException e) {
             throw new AccumuloException(e);
@@ -244,7 +245,12 @@ public final class TableUtils {
     public static void addUpdateUtilsTable(final AccumuloStore store) throws TableUtilException {
         ensureUtilsTableExists(store);
         final BatchWriter writer = createBatchWriter(store, Constants.GAFFER_UTILS_TABLE);
-        final Key key = new Key(store.getProperties().getTable().getBytes(), Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key key;
+        try {
+            key = new Key(store.getProperties().getTable().getBytes(Constants.UTF_8_CHARSET), Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        } catch (UnsupportedEncodingException e) {
+            throw new TableUtilException(e.getMessage(), e);
+        }
         final Mutation m = new Mutation(key.getRow());
         m.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()), key.getTimestamp(), getValueFromSchemas(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage()));
         try {
@@ -290,7 +296,12 @@ public final class TableUtils {
     }
 
     private static Range getTableSetupRange(final String table) {
-        return new Range(getTableSetupKey(table.getBytes(), false), getTableSetupKey(table.getBytes(), true));
+        try {
+            return new Range(getTableSetupKey(table.getBytes(Constants.UTF_8_CHARSET), false),
+                    getTableSetupKey(table.getBytes(Constants.UTF_8_CHARSET), true));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private static Key getTableSetupKey(final byte[] serialisedVertex, final boolean endKey) {
@@ -308,7 +319,11 @@ public final class TableUtils {
         final MapWritable map = new MapWritable();
         map.put(Constants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
         map.put(Constants.STORE_SCHEMA_KEY, new BytesWritable(storeSchema.toJson(false)));
-        map.put(Constants.KEY_PACKAGE_KEY, new BytesWritable(keyPackage.getClass().getName().getBytes()));
+        try {
+            map.put(Constants.KEY_PACKAGE_KEY, new BytesWritable(keyPackage.getClass().getName().getBytes(Constants.UTF_8_CHARSET)));
+        } catch (UnsupportedEncodingException e) {
+            throw new TableUtilException(e.getMessage(), e);
+        }
         return new Value(WritableUtils.toByteArray(map));
     }
 
