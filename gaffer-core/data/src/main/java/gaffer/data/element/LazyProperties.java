@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,7 @@ import java.util.Set;
  * requested using a provided {@link gaffer.data.element.ElementValueLoader}.
  */
 public class LazyProperties extends Properties {
-
-    protected final ElementValueLoader valueLoader;
+    private final ElementValueLoader valueLoader;
     private final Set<String> loadedProperties;
     private final Properties properties;
 

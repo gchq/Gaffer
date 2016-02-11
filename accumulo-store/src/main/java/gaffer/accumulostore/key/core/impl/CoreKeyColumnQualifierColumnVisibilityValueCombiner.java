@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -92,8 +92,9 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
          */
         @Override
         public ColumnQualifierColumnVisibilityValueTriple next() {
-            if (!hasNext)
+            if (!hasNext) {
                 throw new NoSuchElementException();
+            }
 
             byte[] topColumnQualifier = source.getTopKey().getColumnQualifierData().getBackingArray();
             byte[] topColumnVisibility = source.getTopKey().getColumnVisibilityData().getBackingArray();
@@ -127,15 +128,19 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public Key getTopKey() {
-        if (topKey == null)
+        if (topKey == null) {
             return super.getTopKey();
+        }
+
         return topKey;
     }
 
     @Override
     public Value getTopValue() {
-        if (topKey == null)
+        if (topKey == null) {
             return super.getTopValue();
+        }
+
         return topValue;
     }
 
@@ -165,16 +170,19 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
         // check if aggregation is needed
         if (super.hasTop()) {
             workKey.set(super.getTopKey());
-            if (workKey.isDeleted())
+            if (workKey.isDeleted()) {
                 return;
+            }
+
             Iterator<ColumnQualifierColumnVisibilityValueTriple> iter = new ColumnQualifierColumnVisibilityValueTripleIterator(getSource());
             topVisValPair = reduce(workKey, iter);
             topValue = topVisValPair.getValue();
             topKey = new Key(workKey.getRowData().getBackingArray(), workKey.getColumnFamilyData().getBackingArray(), topVisValPair.getColumnQualifier(),
                     topVisValPair.getColumnVisibility(), workKey.getTimestamp());
 
-            while (iter.hasNext())
+            while (iter.hasNext()) {
                 iter.next();
+            }
         }
     }
 

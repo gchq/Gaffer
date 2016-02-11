@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,7 +67,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     }
 
     private boolean checkDirection(final byte flag) {
-    	if (incomingEdges) {
+        if (incomingEdges) {
             if (flag == DIRECTED_SOURCE_FIRST) {
                 return false;
             }
@@ -86,7 +86,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     }
 
     @Override
-    public boolean validateOptions(Map<String, String> options) {
+    public boolean validateOptions(final Map<String, String> options) {
         if (options.containsKey(Constants.DIRECTED_EDGE_ONLY) && options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
             throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.DIRECTED_EDGE_ONLY
                     + " or " + Constants.UNDIRECTED_EDGE_ONLY);

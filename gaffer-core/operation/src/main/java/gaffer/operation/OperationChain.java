@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -102,10 +102,10 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(op);
         }
 
-        public static class TypelessBuilder {
+        public static final class TypelessBuilder {
             private final List<Operation> ops;
 
-            private TypelessBuilder(Operation op) {
+            private TypelessBuilder(final Operation op) {
                 this(new ArrayList<Operation>());
                 ops.add(op);
             }
@@ -114,17 +114,17 @@ public class OperationChain<OUT> {
                 this.ops = ops;
             }
 
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(Operation<?, NEXT_OUT> op) {
+            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<?, NEXT_OUT> op) {
                 ops.add(op);
                 return new TypedBuilder<>(ops);
             }
 
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(VoidInput<NEXT_OUT> op) {
+            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
                 ops.add(op);
                 return new TypedBuilder<>(ops);
             }
 
-            public TypelessBuilder then(VoidOutput<?> op) {
+            public TypelessBuilder then(final VoidOutput<?> op) {
                 ops.add(op);
                 return new TypelessBuilder(ops);
             }
@@ -134,7 +134,7 @@ public class OperationChain<OUT> {
             }
         }
 
-        public static class TypedBuilder<OUT> {
+        public static final class TypedBuilder<OUT> {
             private final List<Operation> ops;
 
             private TypedBuilder(final Operation<?, OUT> op) {

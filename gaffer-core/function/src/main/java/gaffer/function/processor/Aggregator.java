@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,31 +31,31 @@ import java.util.List;
  * @param <R> The type of reference used by tuples.
  */
 public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, AggregateFunction>> {
-	
-	private boolean initialised = false;
-	
+
+    private boolean initialised = false;
+
     /**
      * Initialise the {@link gaffer.function.AggregateFunction}s used by this <code>Aggregator</code>.
      */
-	public void initFunctions() {
-	    if (functions == null) {
-	        return;
-	    }
-	    safeInitFunctions();
+    public void initFunctions() {
+        if (functions == null) {
+            return;
+        }
+        safeInitFunctions();
     }
     /**
      * Aggregate an input {@link gaffer.function.Tuple} using {@link gaffer.function.AggregateFunction}s.
      *
      * @param tuple {@link gaffer.function.Tuple} to be aggregated.
      */
-	public void aggregate(final Tuple<R> tuple) {
-		if (functions == null) {
-			return;
-		} 
-		if(!initialised) {
-			safeInitFunctions();
-         	initialised = true;
-		}
+    public void aggregate(final Tuple<R> tuple) {
+        if (functions == null) {
+            return;
+        }
+        if (!initialised) {
+            safeInitFunctions();
+             initialised = true;
+        }
         for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             Object[] selection = functionContext.select(tuple);
             if (selection != null) {
@@ -115,9 +115,9 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
 
         return functionClones;
     }
-    
+
     private void safeInitFunctions() {
-    	for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
+        for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             functionContext.getFunction().init();
         }
     }

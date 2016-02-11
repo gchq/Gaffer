@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,6 @@
 
 package gaffer.graph;
 
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -33,6 +28,11 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.StoreSchema;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
@@ -321,7 +321,7 @@ public final class Graph {
      * @param storeTrait the store trait to check
      * @return true if the store has the given trait.
      */
-    public boolean hasTrait(StoreTrait storeTrait) {
+    public boolean hasTrait(final StoreTrait storeTrait) {
         return store.hasTrait(storeTrait);
     }
 
@@ -382,7 +382,7 @@ public final class Graph {
 
         return storeSchema;
     }
-    
+
     private static InputStream createInputStream(final Path path) {
         try {
             return null != path ? Files.newInputStream(path) : null;
@@ -390,5 +390,4 @@ public final class Graph {
             throw new IllegalArgumentException("Failed to create input stream from path: " + path, e);
         }
     }
-
 }

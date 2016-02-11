@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,25 @@
 
 package gaffer.accumulostore.utils;
 
-import gaffer.accumulostore.key.AccumuloKeyPackage;
-import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.store.StoreException;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.client.*;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchScanner;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.BatchWriterConfig;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.Instance;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.data.Key;
@@ -53,7 +64,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Static utilities used in the creation and maintenance of accumulo tables.
  */
-public class TableUtils {
+public final class TableUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
 
@@ -106,9 +117,10 @@ public class TableUtils {
         try {
             connector.tableOperations().create(tableName);
             String repFactor = store.getProperties().getTableFileReplicationFactor();
-            if(null !=repFactor) {
-            	connector.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), repFactor);
-        	}
+            if (null != repFactor) {
+                connector.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), repFactor);
+            }
+
             // Enable Bloom filters using ElementFunctor
             LOGGER.info("Enabling Bloom filter on table");
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_ENABLED.getKey(), "true");
@@ -309,5 +321,4 @@ public class TableUtils {
         }
         return map;
     }
-
 }

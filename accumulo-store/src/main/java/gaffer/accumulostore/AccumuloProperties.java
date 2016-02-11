@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,11 +20,10 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.store.StoreProperties;
 
 import java.nio.file.Path;
-import java.util.Properties;
 
 /**
  * AccumuloProperties contains specific configuration information for the accumulo store, such as database connection strings.
- * It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * It wraps {@link gaffer.data.element.Properties} and lazy loads the all properties from a file when first used.
  */
 public class AccumuloProperties extends StoreProperties {
 
@@ -70,11 +69,11 @@ public class AccumuloProperties extends StoreProperties {
         set(NUM_THREADS_FOR_BATCH_WRITER, numThreadsForBatchWriter);
     }
 
-    public void setMaxTimeOutForBatchWriterInMilliseconds(String maxTimeOutForBatchWriterInMilliseconds) {
+    public void setMaxTimeOutForBatchWriterInMilliseconds(final String maxTimeOutForBatchWriterInMilliseconds) {
         set(NUM_THREADS_FOR_BATCH_WRITER, MAX_TIME_OUT_FOR_BATCH_WRITER);
     }
 
-    public void setMaxBufferSizeForBatchWriterInBytes(String maxBufferSizeForBatchWriterInBytes) {
+    public void setMaxBufferSizeForBatchWriterInBytes(final String maxBufferSizeForBatchWriterInBytes) {
         set(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, maxBufferSizeForBatchWriterInBytes);
     }
 
@@ -321,7 +320,7 @@ public class AccumuloProperties extends StoreProperties {
 
     /**
      * Get the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
-     * 
+     *
      * @return
      */
     public String getSplitsFilePath() {
@@ -330,13 +329,13 @@ public class AccumuloProperties extends StoreProperties {
 
     /**
      * Set the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
-     * 
+     *
      * @param splitsFilePath
      */
     public void setSplitsFilePath(final String splitsFilePath) {
         set(SPLITS_FILE_PATH, splitsFilePath);
     }
-    
+
     /**
      * Get the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
      *
@@ -348,7 +347,7 @@ public class AccumuloProperties extends StoreProperties {
 
     /**
      * Set the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
-     * 
+     *
      * @param replicationFactor
      */
     public void setTableFileReplicationFactor(final String replicationFactor) {
