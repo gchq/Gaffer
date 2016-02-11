@@ -56,7 +56,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
         }
 
         try {
-            Class<?> elementConverterClass = Class.forName(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.ELEMENT_CONVERTER));
+            Class<?> elementConverterClass = Class.forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException

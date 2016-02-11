@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -55,18 +56,29 @@
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
-        <scm.url>https://github.com/GovernmentCommunicationsHeadquarters/Gaffer</scm.url>
-        <scm.connection>scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git</scm.connection>
-        <scm.developer.connection>scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
+        <scm.url>
+            https://github.com/GovernmentCommunicationsHeadquarters/Gaffer
+        </scm.url>
+        <scm.connection>
+            scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
+        </scm.connection>
+        <scm.developer.connection>
+            scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
         </scm.developer.connection>
 
         <!-- Release configuration -->
         <releases.repository.id>gaffer.releases.repo</releases.repository.id>
-        <releases.repository.name>Gaffer Releases Repository</releases.repository.name>
-        <releases.repository.url>https://repository.somewhere.com/gaffer2-releases</releases.repository.url>
+        <releases.repository.name>Gaffer Releases Repository
+        </releases.repository.name>
+        <releases.repository.url>
+            https://repository.somewhere.com/gaffer2-releases
+        </releases.repository.url>
         <snapshots.repository.id>gaffer.snapshots.repo</snapshots.repository.id>
-        <snapshots.repository.name>Gaffer Snapshots Repository</snapshots.repository.name>
-        <snapshots.repository.url>https://repository.somewhere.com/gaffer2-snapshots</snapshots.repository.url>
+        <snapshots.repository.name>Gaffer Snapshots Repository
+        </snapshots.repository.name>
+        <snapshots.repository.url>
+            https://repository.somewhere.com/gaffer2-snapshots
+        </snapshots.repository.url>
     </properties>
 
     <scm>
@@ -208,7 +220,8 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <headerLocation>docs/licenseHeader.txt</headerLocation>
+                            <headerLocation>docs/licenseHeader.txt
+                            </headerLocation>
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -221,18 +234,12 @@
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>${findbugs.plugin.version}</version>
                 <configuration>
-                    <!--
-                        Enables analysis which takes more memory but finds more bugs.
-                        If you run out of memory, changes the value of the effort element
-                        to 'Low'.
-                    -->
                     <effort>Low</effort>
-                    <!-- Reports all bugs (other values are medium and max) -->
                     <threshold>Low</threshold>
-                    <!-- Produces XML report -->
                     <xmlOutput>true</xmlOutput>
-                    <!-- Configures the directory in which the XML report is created -->
-                    <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                    <findbugsXmlOutputDirectory>
+                        ${project.build.directory}/findbugs
+                    </findbugsXmlOutputDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -259,7 +266,9 @@
                 <configuration>
                     <forkMode>perthread</forkMode>
                     <parallel>classes</parallel>
-                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m -XX:MaxPermSize=256m</argLine>
+                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m
+                        -XX:MaxPermSize=256m
+                    </argLine>
                 </configuration>
             </plugin>
             <plugin>

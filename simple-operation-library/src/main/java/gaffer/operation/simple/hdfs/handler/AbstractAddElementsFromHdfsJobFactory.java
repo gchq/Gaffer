@@ -59,7 +59,14 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
         jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
-        jobConf.setNumReduceTasks(operation.getNumReduceTasks());
+        Integer numTasks = operation.getNumMapTasks();
+        if (null != numTasks) {
+            jobConf.setNumMapTasks(numTasks);
+        }
+        numTasks = operation.getNumReduceTasks();
+        if (null != numTasks) {
+            jobConf.setNumReduceTasks(numTasks);
+        }
     }
 
     protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {

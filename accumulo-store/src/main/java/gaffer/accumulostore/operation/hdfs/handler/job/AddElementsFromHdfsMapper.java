@@ -45,7 +45,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElem
             throw new SchemaException("Unable to deserialise Store Schema from JSON");
         }
 
-        final String converterClass = context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.ELEMENT_CONVERTER);
+        final String converterClass = context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             Class<?> elementConverterClass = Class.forName(converterClass);
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);

@@ -131,6 +131,11 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         this.options.put(name, value);
     }
 
+    @Override
+    public String getOption(final String name) {
+        return this.options.get(name);
+    }
+
     @JsonGetter("options")
     Map<String, String> getJsonOptions() {
         return options.isEmpty() ? null : options;
