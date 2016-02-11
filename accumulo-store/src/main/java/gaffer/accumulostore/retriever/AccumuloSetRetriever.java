@@ -182,7 +182,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
-        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-xx")
+        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
             // TODO: If this is called multiple times it should return the next element - not just the same element.
@@ -264,7 +264,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
-        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-xx")
+        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
             // TODO: If this is called multiple times it should return the next element - not just the same element.
