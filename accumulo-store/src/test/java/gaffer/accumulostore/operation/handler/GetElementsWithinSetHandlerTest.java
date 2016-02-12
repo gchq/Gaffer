@@ -67,7 +67,7 @@ public class GetElementsWithinSetHandlerTest {
 	private static Element EXPECTED_EDGE_3 = new Edge(TestGroups.EDGE, "A0", "A23", true);  
     private static Element EXPECTED_ENTITY_1 = new Entity(TestGroups.ENTITY, "A0");
     private static Element EXPECTED_ENTITY_2 = new Entity(TestGroups.ENTITY, "A23");
-    private static Element EXPECTED_SUMMARAISED_EDGE = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static Element EXPECTED_SUMMARISED_EDGE = new Edge(TestGroups.EDGE, "A0", "A23", true);
     Set<EntitySeed> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
     
     static {
@@ -84,9 +84,9 @@ public class GetElementsWithinSetHandlerTest {
     	 EXPECTED_ENTITY_1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
     	 EXPECTED_ENTITY_2.putProperty(AccumuloPropertyNames.COUNT, 23);
     	 EXPECTED_ENTITY_2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-    	 EXPECTED_SUMMARAISED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
-    	 EXPECTED_SUMMARAISED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
-    	 EXPECTED_SUMMARAISED_EDGE.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);   
+    	 EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
+    	 EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
+    	 EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);   
     }
 	
 	
@@ -159,7 +159,7 @@ public class GetElementsWithinSetHandlerTest {
         }
 	    
 	    Set<Element> expectedResults = new HashSet<>();
-	    expectedResults.add(EXPECTED_SUMMARAISED_EDGE);
+	    expectedResults.add(EXPECTED_SUMMARISED_EDGE);
         expectedResults.add(EXPECTED_ENTITY_1);
         expectedResults.add(EXPECTED_ENTITY_2);
         
@@ -196,7 +196,7 @@ public class GetElementsWithinSetHandlerTest {
         }
 	    
 	    Set<Element> expectedResults = new HashSet<>();
-	    expectedResults.add(EXPECTED_SUMMARAISED_EDGE);
+	    expectedResults.add(EXPECTED_SUMMARISED_EDGE);
         
         for (Element expectedResult : expectedResults) {
             assertTrue(results.contains(expectedResult));

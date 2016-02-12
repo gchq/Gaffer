@@ -65,7 +65,7 @@ public class GetElementsBetweenSetsHandlerTest {
 	private static Element EXPECTED_EDGE_2 = new Edge(TestGroups.EDGE, "A0", "A23", true);    
 	private static Element EXPECTED_EDGE_3 = new Edge(TestGroups.EDGE, "A0", "A23", true);  
     private static Element EXPECTED_ENTITY_1 = new Entity(TestGroups.ENTITY, "A0");
-    private static Element EXPECTED_SUMMARAISED_EDGE = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static Element EXPECTED_SUMMARISED_EDGE = new Edge(TestGroups.EDGE, "A0", "A23", true);
 
     static {
     	 EXPECTED_EDGE_1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
@@ -79,9 +79,9 @@ public class GetElementsBetweenSetsHandlerTest {
     	 EXPECTED_EDGE_3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
     	 EXPECTED_ENTITY_1.putProperty(AccumuloPropertyNames.COUNT, 10000);
     	 EXPECTED_ENTITY_1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-    	 EXPECTED_SUMMARAISED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
-    	 EXPECTED_SUMMARAISED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
-    	 EXPECTED_SUMMARAISED_EDGE.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);   
+    	 EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
+    	 EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
+    	 EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);   
     }
 	
 	
@@ -149,7 +149,7 @@ public class GetElementsBetweenSetsHandlerTest {
             results.add(elm);
         }
         List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_SUMMARAISED_EDGE);
+        expectedResults.add(EXPECTED_SUMMARISED_EDGE);
         expectedResults.add(EXPECTED_ENTITY_1);
 
         
@@ -185,7 +185,7 @@ public class GetElementsBetweenSetsHandlerTest {
             results.add(elm);
         }
         List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_SUMMARAISED_EDGE);
+        expectedResults.add(EXPECTED_SUMMARISED_EDGE);
         
         for (Element expectedResult : expectedResults) {
             assertTrue(results.contains(expectedResult));
@@ -251,7 +251,7 @@ public class GetElementsBetweenSetsHandlerTest {
             results.add(elm);
         }
         List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_SUMMARAISED_EDGE);
+        expectedResults.add(EXPECTED_SUMMARISED_EDGE);
         expectedResults.add(EXPECTED_ENTITY_1);
         
         for (Element expectedResult : expectedResults) {
