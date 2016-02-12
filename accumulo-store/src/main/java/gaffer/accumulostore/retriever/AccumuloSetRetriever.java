@@ -169,6 +169,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         
         @Override
         public boolean hasNext() {
+        	if(null != nextElm) {
+        		return true;
+        	}
             while (iterator.hasNext()) {
                 nextElm = iterator.next();
                 if (checkIfBothEndsInSet(nextElm)) {
@@ -248,6 +251,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public boolean hasNext() {
+        	if(null != nextElm) {
+        		return true;
+        	}
             try {
                 while (_hasNext()) {
                     Map.Entry<Key, Value> entry = scannerIterator.next();
