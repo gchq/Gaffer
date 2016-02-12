@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,10 @@
 
 package gaffer.store;
 
+import gaffer.store.schema.StoreSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,18 +27,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gaffer.store.schema.StoreSchema;
-
 /**
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  */
 public class StoreProperties {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
-	public static final String STORE_CLASS = "gaffer.store.class";
+    public static final String STORE_CLASS = "gaffer.store.class";
     public static final String STORE_SCHEMA_CLASS = "gaffer.store.schema.class";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
 
@@ -58,10 +57,8 @@ public class StoreProperties {
      * @return a property properties file with the given key.
      */
     public String get(final String key) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         return props.getProperty(key);
     }
@@ -74,10 +71,8 @@ public class StoreProperties {
      * @return a property properties file with the given key or the default value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         return props.getProperty(key, defaultValue);
     }
@@ -89,10 +84,8 @@ public class StoreProperties {
      * @param value
      */
     public void set(final String key, final String value) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         props.setProperty(key, value);
     }
@@ -129,13 +122,13 @@ public class StoreProperties {
     public Properties getProperties() {
         return props;
     }
-    
+
     public static StoreProperties loadStoreProperties(final Path storePropertiesPath) throws IOException {
         return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
     }
-    
+
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
-		if (null == storePropertiesStream) {
+        if (null == storePropertiesStream) {
             return new StoreProperties();
         }
         final Properties props = new Properties();
@@ -162,16 +155,14 @@ public class StoreProperties {
             }
         }
         storeProperties.setProperties(props);
-        return storeProperties;		
+        return storeProperties;
     }
-    
+
     private void readProperties() {
         if (null != propFileLocation) {
             try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
-                if (accIs != null) {
-                    props = new Properties();
-                    props.load(accIs);
-                }
+                props = new Properties();
+                props.load(accIs);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

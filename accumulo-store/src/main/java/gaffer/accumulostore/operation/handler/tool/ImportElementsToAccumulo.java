@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,8 +46,8 @@ public class ImportElementsToAccumulo extends Configured implements Tool {
     @Override
     public int run(final String[] strings) throws Exception {
         // Hadoop configuration
-        Configuration conf = getConf();
-        FileSystem fs = FileSystem.get(conf);
+        final Configuration conf = getConf();
+        final FileSystem fs = FileSystem.get(conf);
 
         // Make the failure directory
         fs.mkdirs(operation.getFailurePath());

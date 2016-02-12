@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
-    public ClassicAccumuloElementConverter(StoreSchema storeSchema) {
+    public ClassicAccumuloElementConverter(final StoreSchema storeSchema) {
         super(storeSchema);
     }
 
@@ -41,7 +41,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         //No Delimiters but need to escape bytes because later we check how many delimiter characters there are
         try {
             return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Entity Identifier", e);
         }
     }
@@ -66,16 +66,16 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         }
 
         // Serialise source and destination to byte arrays, escaping if necessary
-        byte[] source = getSerialisedSource(edge);
-        byte[] destination = getSerialisedDestination(edge);
+        final byte[] source = getSerialisedSource(edge);
+        final byte[] destination = getSerialisedDestination(edge);
 
         // Length of row gaffer.accumulostore.key is the length of the source plus the length of the destination
         // plus one for the delimiter in between the source and destination plus one for the
         // delimiter in between the destination and the direction flag plus one for
         // the direction flag at the end.
-        int length = source.length + destination.length + 3;
-        byte[] rowKey1 = new byte[length];
-        byte[] rowKey2 = new byte[length];
+        final int length = source.length + destination.length + 3;
+        final byte[] rowKey1 = new byte[length];
+        final byte[] rowKey2 = new byte[length];
 
         // Create first gaffer.accumulostore.key: source DELIMITER destination DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
         System.arraycopy(source, 0, rowKey1, 0, source.length);
@@ -118,18 +118,19 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     @Override
     protected Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException {
         try {
-            Entity entity = new Entity(getGroupFromKey((key)), getVertexSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
+            final Entity entity = new Entity(getGroupFromKey((key)), getVertexSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
             addPropertiesToElement(entity, key);
             return entity;
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to re-create Entity from key", e);
         }
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue, Map<String, String> options) throws AccumuloElementConversionException {
+    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
+            final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
-        int[] positionsOfDelimiters = new int[2]; // Expect to find 2 delimiters (3 fields)
+        final int[] positionsOfDelimiters = new int[2]; // Expect to find 2 delimiters (3 fields)
         short numDelims = 0;
         for (int i = 0; i < rowKey.length; i++) {
             if (rowKey[i] == ByteArrayEscapeUtils.DELIMITER) {
@@ -145,7 +146,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // If edge is undirected then create edge (no need to worry about which direction the vertices
         // should go in).
         // If the edge is directed then need to decide which way round the vertices should go.
-        int directionFlag = rowKey[rowKey.length - 1];
+        final int directionFlag = rowKey[rowKey.length - 1];
         if (directionFlag == ClassicBytePositions.UNDIRECTED_EDGE) {
             // Edge is undirected
             sourceValueDestinationValue[0] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));

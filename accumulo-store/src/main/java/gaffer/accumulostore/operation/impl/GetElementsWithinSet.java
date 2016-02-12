@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,36 +23,36 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 
 /**
- * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given set and/or 
+ * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given set and/or
  * {@link gaffer.data.element.Entity}s where the vertex is in the set.
  *
  **/
 public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetOperation<EntitySeed, ELEMENT_TYPE> {
 
-	public GetElementsWithinSet(final Iterable<EntitySeed> seeds) {
-		super(seeds);
-	}
+    public GetElementsWithinSet(final Iterable<EntitySeed> seeds) {
+        super(seeds);
+    }
 
-	public GetElementsWithinSet(final View view) {
-		super(view);
-	}
+    public GetElementsWithinSet(final View view) {
+        super(view);
+    }
 
-	public GetElementsWithinSet(final View view, final Iterable<EntitySeed> seeds) {
-		super(view, seeds);
-	}
+    public GetElementsWithinSet(final View view, final Iterable<EntitySeed> seeds) {
+        super(view, seeds);
+    }
 
-	public GetElementsWithinSet(final GetOperation<EntitySeed, ?> operation) {
-		super(operation);	   
-	}
-	
-	@Override
+    public GetElementsWithinSet(final GetOperation<EntitySeed, ?> operation) {
+        super(operation);
+    }
+
+    @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
         return IncludeIncomingOutgoingType.OUTGOING;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
+        throw new IllegalArgumentException(getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
     }
-	
+
 }

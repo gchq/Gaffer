@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package gaffer.function.simple.filter;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,41 +27,44 @@ import gaffer.function.annotation.Inputs;
 @Inputs(String.class)
 public class MultiRegex extends SingleInputFilterFunction {
     private Pattern[] patterns;
- 
+
     public MultiRegex() {
-        // Required for serialisations
+        this(null);
     }
-    
+
     public MultiRegex(final Pattern[] patterns) {
-        this.patterns = patterns;
+        setPatterns(patterns);
     }
-    
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonProperty("value")
     public Pattern[] getPatterns() {
-        return patterns;
+        return Arrays.copyOf(patterns, patterns.length);
     }
-    
-    public void setControlValue(final Pattern[] patterns) {
-        this.patterns = patterns;
+
+    public void setPatterns(final Pattern[] patterns) {
+        if (null != patterns) {
+            this.patterns = Arrays.copyOf(patterns, patterns.length);
+        } else {
+            this.patterns = new Pattern[0];
+        }
     }
-        
-	@Override
-	protected boolean filter(Object input) {
-		if (null == input || input.getClass() != String.class) {
+
+    @Override
+    protected boolean filter(final Object input) {
+        if (null == input || input.getClass() != String.class) {
             return false;
         }
-		for(Pattern pattern : patterns) {
-			if(pattern.matcher((CharSequence)input).matches()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public MultiRegex statelessClone() {
-		return new MultiRegex(patterns);
+        for (Pattern pattern : patterns) {
+            if (pattern.matcher((CharSequence) input).matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    @Override
+    public MultiRegex statelessClone() {
+        return new MultiRegex(patterns);
+    }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package gaffer.function.processor;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.FilterFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
@@ -69,6 +70,8 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
      * @return Deep copy of this <code>Filter</code>.
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Does not required any fields from the parent class")
+    @Override
     public Filter<R> clone() {
         Filter<R> clone = new Filter<>();
         if (null != functions) {
@@ -109,7 +112,9 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
      * @return Logical AND of filter function results.
      */
     public boolean filter(final Tuple<R> tuple) {
-        if (functions == null) return true;
+        if (functions == null) {
+            return true;
+        }
 
         for (ConsumerFunctionContext<R, FilterFunction> functionContext : functions) {
             FilterFunction function = functionContext.getFunction();

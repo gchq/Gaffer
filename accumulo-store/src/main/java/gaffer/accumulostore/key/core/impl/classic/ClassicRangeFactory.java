@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,6 +43,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         this.storeSchema = storeSchema;
     }
 
+    @Override
     protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation, final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeEdgeType includeEdges;
         final boolean includeEntities;
@@ -57,10 +58,10 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         byte[] serialisedVertex;
         try {
             serialisedVertex = ByteArrayEscapeUtils.escape(storeSchema.getVertexSerialiser().serialise(vertex));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
-        boolean returnEdges = includeEdges != IncludeEdgeType.NONE;
+        final boolean returnEdges = includeEdges != IncludeEdgeType.NONE;
         if (!includeEntities && !returnEdges) {
             throw new IllegalArgumentException("Need to include either Entities or Edges or both when getting Range from a type and value");
         }
@@ -73,23 +74,24 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         }
     }
 
+    @Override
     protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation, final boolean endKey) throws RangeFactoryException {
-        byte directionFlag1 = seed.isDirected() ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) : ClassicBytePositions.UNDIRECTED_EDGE;
+        final byte directionFlag1 = seed.isDirected() ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) : ClassicBytePositions.UNDIRECTED_EDGE;
 
-        Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
+        final Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
 
         // Serialise source and destination to byte arrays, escaping if necessary
         byte[] source;
         try {
             source = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getSource()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Source", e);
         }
 
         byte[] destination;
         try {
             destination = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getDestination()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }
 
@@ -128,33 +130,31 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     private Range getRange(final byte[] serialisedVertex) {
-        byte[] endRowKey = new byte[serialisedVertex.length + 1];
+        final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
 
     private Range getEntityRangeFromVertex(final byte[] serialisedVertex) {
-        byte[] key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 1);
+        final byte[] key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 1);
         key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER;
-        Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        Key endKey = new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
 
     private Range getEdgeRangeFromVertex(final byte[] serialisedVertex) {
-        byte[] startRowKey = new byte[serialisedVertex.length + 1];
+        final byte[] startRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, startRowKey, 0, serialisedVertex.length);
         startRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER; // Add delimiter to ensure that we don't get any Entities.
-        byte[] endRowKey = new byte[serialisedVertex.length + 1];
+        final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        Key startKey = new Key(startRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key startKey = new Key(startRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
-
-
 }

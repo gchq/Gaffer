@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,7 @@ import java.util.Set;
  * aggregator functions or all properties have aggregator functions defined.
  */
 public class DataElementDefinitionValidator extends TypedElementDefinitionValidator<DataElementDefinition> {
-    private final Logger LOGGER = LoggerFactory.getLogger(DataElementDefinitionValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataElementDefinitionValidator.class);
 
     /**
      * Carries out the validation as per {@link gaffer.data.elementdefinition.TypedElementDefinitionValidator} and then

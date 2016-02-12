@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,8 @@ import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 
 public class DataEntityDefinition extends DataElementDefinition {
+    private static final long serialVersionUID = 2307022506203200871L;
+
     public void setVertex(final String className) {
         getIdentifierMap().put(IdentifierType.VERTEX, className);
     }

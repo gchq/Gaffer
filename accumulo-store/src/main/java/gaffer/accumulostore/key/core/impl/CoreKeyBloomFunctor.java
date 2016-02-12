@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,8 +36,8 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
         if (range.getStartKey() == null || range.getEndKey() == null) {
             return null;
         }
-        byte[] startKeyFirstIdentifier = getVertexFromRangeKey(range.getStartKey().getRowData().getBackingArray());
-        byte[] endKeyFirstIdentifier = getVertexFromRangeKey(range.getEndKey().getRowData().getBackingArray());
+        final byte[] startKeyFirstIdentifier = getVertexFromRangeKey(range.getStartKey().getRowData().getBackingArray());
+        final byte[] endKeyFirstIdentifier = getVertexFromRangeKey(range.getEndKey().getRowData().getBackingArray());
         if (Arrays.equals(startKeyFirstIdentifier, endKeyFirstIdentifier)) {
             return new org.apache.hadoop.util.bloom.Key(startKeyFirstIdentifier);
         }
@@ -72,7 +72,7 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
             if (getNumTrailingDelimPlusOne(key) % 2 == 0) {
                 return key;
             }
-            byte[] bloomKey = new byte[key.length - 1];
+            final byte[] bloomKey = new byte[key.length - 1];
             System.arraycopy(key, 0, bloomKey, 0, key.length - 1);
             return bloomKey;
         }
@@ -89,5 +89,4 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
         }
         return num;
     }
-
 }

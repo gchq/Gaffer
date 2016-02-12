@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.data.ElementValidator;
 import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
@@ -31,6 +32,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +49,7 @@ public class ElementFilter extends Filter {
         final Element element;
         try {
             element = elementConverter.getFullElement(key, value);
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new ElementFilterException("Element filter iterator failed to crete an element from an accumulo gaffer.accumulostore.key value pair", e);
         }
         return validator.validate(element);
@@ -67,11 +69,22 @@ public class ElementFilter extends Filter {
         if (!options.containsKey(Constants.VIEW)) {
             throw new IllegalArgumentException("Must specify the " + Constants.VIEW);
         }
-        validator = new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes()));
-
-        final StoreSchema storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes());
         try {
-            Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            validator = new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise view from JSON", e);
+
+        }
+
+        final StoreSchema storeSchema;
+        try {
+            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (final UnsupportedEncodingException e) {
+            throw new ElementFilterException(e.getMessage(), e);
+        }
+
+        try {
+            final Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException
@@ -90,5 +103,4 @@ public class ElementFilter extends Filter {
                 "Only returns elements that match the supplied predicates",
                 namedOptions, null);
     }
-
 }

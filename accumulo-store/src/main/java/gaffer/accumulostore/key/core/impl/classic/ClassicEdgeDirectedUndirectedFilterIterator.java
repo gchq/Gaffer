@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
     @Override
     public boolean accept(final Key key, final Value value) {
-        byte[] rowID = key.getRowData().getBackingArray();
+        final byte[] rowID = key.getRowData().getBackingArray();
         if (!entities) {
             return checkEdge(rowID);
         } else {
@@ -56,18 +56,18 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     }
 
     private boolean checkEdge(final byte[] rowID) {
-        byte flag = rowID[rowID.length - 1];
+        final byte flag = rowID[rowID.length - 1];
         if (unDirectedEdges) {
             return flag == UNDIRECTED;
         } else if (directedEdges) {
             return flag != UNDIRECTED && checkDirection(flag);
         } else {
-           return checkDirection(flag);
+            return checkDirection(flag);
         }
     }
 
     private boolean checkDirection(final byte flag) {
-    	if (incomingEdges) {
+        if (incomingEdges) {
             if (flag == DIRECTED_SOURCE_FIRST) {
                 return false;
             }
@@ -86,7 +86,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     }
 
     @Override
-    public boolean validateOptions(Map<String, String> options) {
+    public boolean validateOptions(final Map<String, String> options) {
         if (options.containsKey(Constants.DIRECTED_EDGE_ONLY) && options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
             throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.DIRECTED_EDGE_ONLY
                     + " or " + Constants.UNDIRECTED_EDGE_ONLY);
@@ -97,17 +97,15 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
         }
         if (options.containsKey(Constants.INCOMING_EDGE_ONLY)) {
             incomingEdges = true;
-        }
-        if (options.containsKey(Constants.OUTGOING_EDGE_ONLY)) {
+        } else if (options.containsKey(Constants.OUTGOING_EDGE_ONLY)) {
             outgoingEdges = true;
         }
         if (options.containsKey(Constants.DIRECTED_EDGE_ONLY)) {
             directedEdges = true;
-        }
-        if (options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
+        } else if (options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
             unDirectedEdges = true;
         }
-        if (options.containsKey(Constants.ENTITY_ONLY)) {
+        if (options.containsKey(Constants.INCLUDE_ENTITIES)) {
             entities = true;
         }
         return true;
@@ -115,7 +113,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        Map<String, String> namedOptions = new HashMap<>();
+        final Map<String, String> namedOptions = new HashMap<>();
         namedOptions.put(Constants.DIRECTED_EDGE_ONLY, "set if only want directed edges (value is ignored)");
         namedOptions.put(Constants.UNDIRECTED_EDGE_ONLY, "set if only want undirected edges (value is ignored)");
         return new IteratorOptions("EntityOrEdgeOnlyFilterIterator", "Only returns Entities or Edges as specified by the user's options",

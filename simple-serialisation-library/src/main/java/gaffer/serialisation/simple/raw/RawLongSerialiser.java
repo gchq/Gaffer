@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import gaffer.serialisation.Serialisation;
  * uses much more space.
  */
 public class RawLongSerialiser implements Serialisation {
+    private static final long serialVersionUID = 369129707952407270L;
 
     @Override
     public boolean canHandle(final Class clazz) {
@@ -35,14 +36,14 @@ public class RawLongSerialiser implements Serialisation {
     public byte[] serialise(final Object o) throws SerialisationException {
         final byte[] out = new byte[8];
         final long value = (Long) o;
-        out[0] = (byte)((int)(value & 255));
-        out[1] = (byte)((int)(value >> 8) & 255);
-        out[2] = (byte)((int)(value >> 16) & 255);
-        out[3] = (byte)((int)(value >> 24) & 255);
-        out[4] = (byte)((int)(value >> 32) & 255);
-        out[5] = (byte)((int)(value >> 40) & 255);
-        out[6] = (byte)((int)(value >> 48) & 255);
-        out[7] = (byte)((int)(value >> 56) & 255);
+        out[0] = (byte) ((int) (value & 255));
+        out[1] = (byte) ((int) (value >> 8) & 255);
+        out[2] = (byte) ((int) (value >> 16) & 255);
+        out[3] = (byte) ((int) (value >> 24) & 255);
+        out[4] = (byte) ((int) (value >> 32) & 255);
+        out[5] = (byte) ((int) (value >> 40) & 255);
+        out[6] = (byte) ((int) (value >> 48) & 255);
+        out[7] = (byte) ((int) (value >> 56) & 255);
         return out;
     }
 

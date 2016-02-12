@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,6 +39,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -81,14 +82,14 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         if (readEntriesIntoMemory) {
             try {
                 iterator = createElementIteratorReadIntoMemory();
-            } catch (RetrieverException e) {
+            } catch (final RetrieverException e) {
                 LOGGER.error(e.getMessage() + " returning empty iterator");
                 return Collections.emptyIterator();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
-            } catch (RetrieverException e) {
+            } catch (final RetrieverException e) {
                 LOGGER.error(e.getMessage() + " returning empty iterator");
                 return Collections.emptyIterator();
             }
@@ -104,8 +105,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
     protected abstract AbstractElementIteratorFromBatches createElementIteratorFromBatches() throws RetrieverException;
 
     protected Set<Object> extractVertices(final Iterable<EntitySeed> seeds) {
-        Set<Object> vertices = new HashSet<>();
-        for (EntitySeed seed : seeds) {
+        final Set<Object> vertices = new HashSet<>();
+        for (final EntitySeed seed : seeds) {
             vertices.add(seed.getVertex());
         }
 
@@ -113,13 +114,13 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
     }
 
     protected void addToBloomFilter(final Iterable<Object> vertices, final BloomFilter filter) throws RetrieverException {
-        for (Object vertex : vertices) {
+        for (final Object vertex : vertices) {
             addToBloomFilter(vertex, filter);
         }
     }
 
     protected void addToBloomFilter(final Iterable<EntitySeed> seeds, final BloomFilter filter1, final BloomFilter filter2) throws RetrieverException {
-        for (EntitySeed seed : seeds) {
+        for (final EntitySeed seed : seeds) {
             addToBloomFilter(seed, filter1, filter2);
         }
     }
@@ -132,7 +133,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
     private void addToBloomFilter(final Object vertex, final BloomFilter filter) throws RetrieverException {
         try {
             filter.add(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(vertex)));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new RetrieverException("Failed to add identifier to the bloom key", e);
         }
     }
@@ -147,13 +148,13 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             IteratorSetting bloomFilter = null;
             try {
                 elementFilter = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(), store);
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 LOGGER.error("Failed to apply the element filter to the retriever, creating the gaffer.accumulostore.retriever without the element filter", e);
             }
 
             try {
                 bloomFilter = iteratorSettingFactory.getBloomFilterIteratorSetting(filter);
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 LOGGER.error("Failed to apply the bloom filter to the retriever, creating the gaffer.accumulostore.retriever without bloom filter", e);
             }
             try {
@@ -161,7 +162,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
                         iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                         elementFilter,
                         bloomFilter);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RetrieverException(e.getMessage(), e);
             }
             iterator = parentRetriever.iterator();
@@ -169,6 +170,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public boolean hasNext() {
+            if (null == iterator) {
+                throw new IllegalStateException("This iterator has not been initialised. Call initialise before using it.");
+            }
             while (iterator.hasNext()) {
                 nextElm = iterator.next();
                 if (checkIfBothEndsInSet(nextElm)) {
@@ -178,8 +182,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
+        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
+            // TODO: If this is called multiple times it should return the next element - not just the same element.
             return nextElm;
         }
 
@@ -208,9 +214,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             if (Entity.class.isInstance(elm)) {
                 return true;
             }
-            Edge edge = (Edge) elm;
-            Object source = edge.getSource();
-            Object destination = edge.getDestination();
+            final Edge edge = (Edge) elm;
+            final Object source = edge.getSource();
+            final Object destination = edge.getDestination();
             return checkIfBothEndsInSet(source, destination);
         }
 
@@ -239,10 +245,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         public boolean hasNext() {
             try {
                 while (_hasNext()) {
-                    Map.Entry<Key, Value> entry = scannerIterator.next();
+                    final Map.Entry<Key, Value> entry = scannerIterator.next();
                     try {
                         nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), operation.getOptions());
-                    } catch (AccumuloElementConversionException e) {
+                    } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to create next element from gaffer.accumulostore.key and value entry set", e);
                         continue;
                     }
@@ -250,7 +256,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
                         return true;
                     }
                 }
-            } catch (RetrieverException e) {
+            } catch (final RetrieverException e) {
                 LOGGER.debug("Failed to retrieve elements into iterator : " + e.getMessage() + " returning iterator has no more elements", e);
                 return false;
             }
@@ -258,8 +264,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
+        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
+            // TODO: If this is called multiple times it should return the next element - not just the same element.
             doTransformation(nextElm);
             return nextElm;
         }
@@ -269,6 +277,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             throw new UnsupportedOperationException("Can't remove elements from a " + this.getClass().getCanonicalName());
         }
 
+        @Override
         public void close() {
             if (scanner != null) {
                 scanner.close();
@@ -281,14 +290,14 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             // Read through the first N entities (where N = maxEntriesForBatchScanner), create the associated ranges
             // and add them to a set.
             count = 0;
-            Set<Range> ranges = new HashSet<>();
+            final Set<Range> ranges = new HashSet<>();
             while (idsAIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
-                EntitySeed seed = idsAIterator.next();
+                final EntitySeed seed = idsAIterator.next();
                 currentSeeds.add(seed.getVertex());
                 count++;
                 try {
                     ranges.addAll(rangeFactory.getRange(seed, operation));
-                } catch (RangeFactoryException e) {
+                } catch (final RangeFactoryException e) {
                     LOGGER.error("Failed to create a range from given seed", e);
                 }
                 updateBloomFilterIfRequired(seed);
@@ -301,17 +310,17 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             }
             try {
                 scanner.addScanIterator(iteratorSettingFactory.getBloomFilterIteratorSetting(filter));
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 LOGGER.error("Failed to apply the bloom filter iterator setting continuing without bloom filter", e);
             }
-            IteratorSetting edgeEntitySetting = iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation);
+            final IteratorSetting edgeEntitySetting = iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation);
             if (edgeEntitySetting != null) {
                 scanner.addScanIterator(edgeEntitySetting);
             }
             IteratorSetting elementFilterSetting = null;
             try {
                 elementFilterSetting = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(), store);
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 LOGGER.error("Error creating filter iterator continuing query without filter");
             }
             if (elementFilterSetting != null) {
@@ -329,21 +338,21 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             if (Entity.class.isInstance(elm)) {
                 return true;
             }
-            Edge edge = (Edge) elm;
-            Object source = edge.getSource();
-            Object destination = edge.getDestination();
-            boolean sourceIsInCurrent = currentSeeds.contains(source);
-            boolean destIsInCurrent = currentSeeds.contains(destination);
+            final Edge edge = (Edge) elm;
+            final Object source = edge.getSource();
+            final Object destination = edge.getDestination();
+            final boolean sourceIsInCurrent = currentSeeds.contains(source);
+            final boolean destIsInCurrent = currentSeeds.contains(destination);
             boolean sourceMatchesClientFilter;
             try {
                 sourceMatchesClientFilter = clientSideFilter.membershipTest(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 return false;
             }
             boolean destMatchesClientFilter;
             try {
                 destMatchesClientFilter = clientSideFilter.membershipTest(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 return false;
             }
             return (sourceIsInCurrent && destMatchesClientFilter)

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,19 +45,20 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         this.storeSchema = storeSchema;
     }
 
-    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, T operation, final boolean endKey) throws RangeFactoryException {
-        Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
-        byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE : ByteEntityPositions.UNDIRECTED_EDGE;
+    @Override
+    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation, final boolean endKey) throws RangeFactoryException {
+        final Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
+        final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
             sourceValue = ByteArrayEscapeUtils.escape((vertexSerialiser.serialise(seed.getSource())));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Source", e);
         }
         byte[] destinationValue;
         try {
             destinationValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getDestination()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }
         int length;
@@ -82,6 +83,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
+    @Override
     protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation, final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
         final IncludeEdgeType includeEdges;
@@ -98,7 +100,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         byte[] serialisedVertex;
         try {
             serialisedVertex = ByteArrayEscapeUtils.escape(storeSchema.getVertexSerialiser().serialise(vertex));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
 
@@ -151,7 +153,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                 } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
                     return Arrays.asList(new Range(getDirectedEdgeKeySourceFirst(serialisedVertex, false), true, getDirectedEdgeKeySourceFirst(serialisedVertex, true), true), new Range(getUnDirectedEdgeKey(serialisedVertex, false), true, getUnDirectedEdgeKey(serialisedVertex, true), true));
                 } else {
-                    Pair<Key> keys = getAllEdgeOnlyKeys(serialisedVertex);
+                    final Pair<Key> keys = getAllEdgeOnlyKeys(serialisedVertex);
                     return Collections.singletonList(new Range(keys.getFirst(), false, keys.getSecond(), false));
                 }
             }
@@ -211,11 +213,11 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     private Pair<Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
-        byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
+        final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
         endKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        byte[] startKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
+        final byte[] startKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         startKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         startKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
         startKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER;

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,16 +56,17 @@ public class Person {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Person)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Person)) {
+            return false;
+        }
 
         final Person person = (Person) o;
-
-        if (age != null ? !age.equals(person.age) : person.age != null) return false;
-        if (!name.equals(person.name)) return false;
-        if (!userId.equals(person.userId)) return false;
-
-        return true;
+        return !(age != null ? !age.equals(person.age) : person.age != null)
+                && name.equals(person.name) && userId.equals(person.userId);
     }
 
     @Override
@@ -78,10 +79,10 @@ public class Person {
 
     @Override
     public String toString() {
-        return "Person{" +
-                "userId='" + userId + '\'' +
-                ", name='" + name + '\'' +
-                ", age=" + age +
-                '}';
+        return "Person{"
+                + "userId='" + userId
+                + "\', name='" + name
+                + "\', age=" + age
+                + '}';
     }
 }

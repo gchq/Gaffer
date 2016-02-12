@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,27 +31,27 @@ import org.apache.accumulo.core.data.Range;
 
 /**
  * This allows queries for all data related to the provided {@link gaffer.operation.data.ElementSeed}s.
- * 
+ *
  */
 public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
 
-	public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation)
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation)
             throws IteratorSettingException, StoreException {
         this(store, operation,
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
-	/**
-	 * Use of the varargs parameter here will mean the usual default iterators wont be applied, (Edge Direction,Edge/Entity Type and View Filtering)
-	 * To apply them pass them directly to the varargs via calling your keyPackage.getIteratorFactory() and either  getElementFilterIteratorSetting and/Or getEdgeEntityDirectionFilterIteratorSetting
-	 * @param store
-	 * @param operation
-	 * @param iteratorSettings
-	 * @throws StoreException
-	 */
+    /**
+     * Use of the varargs parameter here will mean the usual default iterators wont be applied, (Edge Direction,Edge/Entity Type and View Filtering)
+     * To apply them pass them directly to the varargs via calling your keyPackage.getIteratorFactory() and either  getElementFilterIteratorSetting and/Or getEdgeEntityDirectionFilterIteratorSetting
+     * @param store
+     * @param operation
+     * @param iteratorSettings
+     * @throws StoreException
+     */
     public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation,
-                                     final IteratorSetting... iteratorSettings) throws StoreException {
-    	super(store, operation, iteratorSettings);
+            final IteratorSetting... iteratorSettings) throws StoreException {
+        super(store, operation, iteratorSettings);
     }
 
     @Override

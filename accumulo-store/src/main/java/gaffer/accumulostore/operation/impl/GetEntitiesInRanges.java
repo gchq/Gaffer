@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,28 +24,28 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
- * This returns all {@link gaffer.data.element.Entity}'s between the provided {@link gaffer.operation.data.ElementSeed}s. 
- * 
+ * This returns all {@link gaffer.data.element.Entity}'s between the provided {@link gaffer.operation.data.ElementSeed}s.
+ *
  */
 public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetRangeFromPair<SEED_TYPE, Entity> {
 
-	public GetEntitiesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
-		super(seeds);
-	}
+    public GetEntitiesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
+        super(seeds);
+    }
 
-	public GetEntitiesInRanges(final View view) {
-		super(view);
-	}
+    public GetEntitiesInRanges(final View view) {
+        super(view);
+    }
 
-	public GetEntitiesInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
-		super(view, seeds);
-	}
+    public GetEntitiesInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+        super(view, seeds);
+    }
 
-	public GetEntitiesInRanges(final GetOperation<Pair<SEED_TYPE>, Entity> operation) {
-		super(operation);	   
-	}
-	
-	@Override
+    public GetEntitiesInRanges(final GetOperation<Pair<SEED_TYPE>, Entity> operation) {
+        super(operation);
+    }
+
+    @Override
     public boolean isIncludeEntities() {
         return true;
     }
@@ -68,5 +68,5 @@ public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends Abstract
             throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including edges");
         }
     }
-	
+
 }

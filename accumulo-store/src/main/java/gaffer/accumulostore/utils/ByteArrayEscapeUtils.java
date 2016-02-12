@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,12 +19,16 @@ package gaffer.accumulostore.utils;
 /**
  * Removes the 0 byte from a byte array. Preserves ordering.
  */
-public class ByteArrayEscapeUtils {
+public final class ByteArrayEscapeUtils {
 
-    public final static byte DELIMITER = (byte) 0;
-    public final static byte DELIMITER_PLUS_ONE = (byte) 1;
-    private final static byte ESCAPE_CHAR = (byte) 1;
-    private final static byte REPLACEMENT_CHAR = (byte) 2;
+    public static final byte DELIMITER = (byte) 0;
+    public static final byte DELIMITER_PLUS_ONE = (byte) 1;
+    private static final byte ESCAPE_CHAR = (byte) 1;
+    private static final byte REPLACEMENT_CHAR = (byte) 2;
+
+    private ByteArrayEscapeUtils() {
+        // private to prevent this class being instantiated. All methods are static and should be called directly.
+    }
 
     /**
      * Escapes the provided string so that it no longer contains the
@@ -36,7 +40,7 @@ public class ByteArrayEscapeUtils {
     public static byte[] escape(final byte[] bytes) {
         final byte[] temp = new byte[2 * bytes.length];
         int currentPosition = 0;
-        for (byte b : bytes) {
+        for (final byte b : bytes) {
             if (b == ESCAPE_CHAR) {
                 temp[currentPosition++] = ESCAPE_CHAR;
                 temp[currentPosition++] = REPLACEMENT_CHAR;
@@ -63,7 +67,7 @@ public class ByteArrayEscapeUtils {
         final byte[] temp = new byte[bytes.length];
         int currentPosition = 0;
         boolean isEscaped = false;
-        for (byte b : bytes) {
+        for (final byte b : bytes) {
             if (isEscaped) {
                 if (b == REPLACEMENT_CHAR) {
                     temp[currentPosition++] = ESCAPE_CHAR;

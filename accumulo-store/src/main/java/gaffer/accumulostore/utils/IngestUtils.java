@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,8 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -34,16 +36,18 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.Text;
 
 /**
  * Utility methods for adding data to Accumulo.
  */
-public class IngestUtils {
-
+public final class IngestUtils {
     private static final FsPermission ACC_DIR_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
     private static final FsPermission ACC_FILE_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
+
+    private IngestUtils() {
+        // private to prevent this class being instantiated. All methods are static and should be called directly.
+    }
 
     /**
      * Get the existing splits from a table in Accumulo and write a splits file.
@@ -66,22 +70,19 @@ public class IngestUtils {
             throw new IOException(e.getMessage(), e);
         }
 
-        PrintStream out;
-        try {
-            out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)));
-        } catch (IOException e) {
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
+            // Write the splits to file
+            if (splits.isEmpty()) {
+                out.close();
+                return 0;
+            }
+
+            for (final Text split : splits) {
+                out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
+            }
+        } catch (final IOException e) {
             throw new IOException(e.getMessage(), e);
         }
-        // Write the splits to file
-        if (splits.isEmpty()) {
-            out.close();
-            return 0;
-        }
-
-        for (Text split : splits) {
-            out.println(new String(Base64.encodeBase64(split.getBytes())));
-        }
-        out.close();
 
         return splits.size();
     }
@@ -95,14 +96,10 @@ public class IngestUtils {
      * @throws java.io.IOException
      */
     public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile) throws IOException {
-        PrintStream out = null;
-        try {
-            out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)));
-            for (Text split : splits) {
-                out.println(new String(Base64.encodeBase64(split.getBytes())));
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
+            for (final Text split : splits) {
+                out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
             }
-        } finally {
-            IOUtils.closeStream(out);
         }
     }
 
@@ -114,14 +111,16 @@ public class IngestUtils {
      * @return An integer representing the number of entries in the file.
      * @throws java.io.IOException
      */
+    @SuppressFBWarnings(value = "RV_DONT_JUST_NULL_CHECK_READLINE", justification = "Simply counts the number of lines in the file")
     public static int getNumSplits(final FileSystem fs, final Path splitsFile) throws IOException {
-        FSDataInputStream fis = fs.open(splitsFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
         int numSplits = 0;
-        while (reader.readLine() != null) {
-            ++numSplits;
+        try (final FSDataInputStream fis = fs.open(splitsFile);
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+            while (reader.readLine() != null) {
+                ++numSplits;
+            }
         }
-        reader.close();
+
         return numSplits;
     }
 
@@ -134,14 +133,16 @@ public class IngestUtils {
      * @throws java.io.IOException
      */
     public static SortedSet<Text> getSplitsFromFile(final FileSystem fs, final Path splitsFile) throws IOException {
-        FSDataInputStream fis = fs.open(splitsFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
-        SortedSet<Text> splits = new TreeSet<>();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            splits.add(new Text(Base64.decodeBase64(line)));
+        final SortedSet<Text> splits = new TreeSet<>();
+
+        try (final FSDataInputStream fis = fs.open(splitsFile);
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                splits.add(new Text(Base64.decodeBase64(line)));
+            }
         }
-        reader.close();
+
         return splits;
     }
 
@@ -158,7 +159,7 @@ public class IngestUtils {
             throw new RuntimeException(dirPath + " is not a directory");
         }
         fs.setPermission(dirPath, ACC_DIR_PERMS);
-        for (FileStatus file : fs.listStatus(dirPath)) {
+        for (final FileStatus file : fs.listStatus(dirPath)) {
             fs.setPermission(file.getPath(), ACC_FILE_PERMS);
         }
     }

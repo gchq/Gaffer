@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import java.util.Set;
 
 /**
- * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given set of {@link gaffer.operation.data.EntitySeed}'s and 
+ * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given set of {@link gaffer.operation.data.EntitySeed}'s and
  * {@link gaffer.data.element.Entity}s where the vertex is in the set.
  *
  * {@link org.apache.hadoop.util.bloom.BloomFilter}s are used to identify on the server edges that are likely to be between members of the set and
@@ -55,12 +55,12 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seeds;
 
     public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
-                                        final IteratorSetting... iteratorSettings) throws StoreException {
+            final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, false, iteratorSettings);
     }
 
     public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation, final boolean readEntriesIntoMemory,
-                                        final IteratorSetting... iteratorSettings) throws StoreException {
+            final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, readEntriesIntoMemory, iteratorSettings);
         setSeeds(operation.getSeeds());
     }
@@ -103,6 +103,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
          * @param destination
          * @return True if the source and destination contained in the provided seed sets
          */
+        @Override
         protected boolean checkIfBothEndsInSet(final Object source, final Object destination) {
             return vertices.contains(source) && vertices.contains(destination);
         }
@@ -114,6 +115,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             updateScanner();
         }
 
+        @Override
         protected void updateBloomFilterIfRequired(final EntitySeed seed) throws RetrieverException {
             // NB: Do not reset either of the Bloom filters here - when we query for the first batch of seeds
             // the Bloom filters contain that first set (and so we find edges within that first batch); we next

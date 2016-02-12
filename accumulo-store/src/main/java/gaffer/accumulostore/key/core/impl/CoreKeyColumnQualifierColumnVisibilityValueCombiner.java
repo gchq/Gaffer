@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package gaffer.accumulostore.key.core.impl;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
@@ -30,7 +31,9 @@ import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +46,9 @@ import java.util.NoSuchElementException;
  */
 public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extends WrappingIterator implements OptionDescriber {
     protected StoreSchema storeSchema;
+
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+            justification = "elementConverter is initialised in init method, which is always called prior to this method")
     protected AccumuloElementConverter elementConverter;
 
     /**
@@ -62,7 +68,7 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
          */
         public ColumnQualifierColumnVisibilityValueTripleIterator(final SortedKeyValueIterator<Key, Value> source) {
             this.source = source;
-            Key unsafeRef = source.getTopKey();
+            final Key unsafeRef = source.getTopKey();
             columnQualifierColumnVisibilityValueTripleIteratorTopKey = new Key(unsafeRef.getRow().getBytes(),
                     unsafeRef.getColumnFamily().getBytes(),
                     unsafeRef.getColumnQualifier().getBytes(),
@@ -92,20 +98,21 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
          */
         @Override
         public ColumnQualifierColumnVisibilityValueTriple next() {
-            if (!hasNext)
+            if (!hasNext) {
                 throw new NoSuchElementException();
+            }
 
-            byte[] topColumnQualifier = source.getTopKey().getColumnQualifierData().getBackingArray();
-            byte[] topColumnVisibility = source.getTopKey().getColumnVisibilityData().getBackingArray();
-            Value topValue = new Value(source.getTopValue());
+            final byte[] topColumnQualifier = source.getTopKey().getColumnQualifierData().getBackingArray();
+            final byte[] topColumnVisibility = source.getTopKey().getColumnVisibilityData().getBackingArray();
+            final Value topValue = new Value(source.getTopValue());
 
             try {
                 source.next();
                 hasNext = _hasNext();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e); // Looks like a bad idea, but this is what the in-built Combiner iterator does
             }
-            ColumnQualifierColumnVisibilityValueTriple topVisValPair = new ColumnQualifierColumnVisibilityValueTriple(topColumnQualifier,
+            final ColumnQualifierColumnVisibilityValueTriple topVisValPair = new ColumnQualifierColumnVisibilityValueTriple(topColumnQualifier,
                     topColumnVisibility, topValue);
             return topVisValPair;
         }
@@ -127,15 +134,19 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public Key getTopKey() {
-        if (topKey == null)
+        if (topKey == null) {
             return super.getTopKey();
+        }
+
         return topKey;
     }
 
     @Override
     public Value getTopValue() {
-        if (topKey == null)
+        if (topKey == null) {
             return super.getTopValue();
+        }
+
         return topValue;
     }
 
@@ -165,16 +176,19 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
         // check if aggregation is needed
         if (super.hasTop()) {
             workKey.set(super.getTopKey());
-            if (workKey.isDeleted())
+            if (workKey.isDeleted()) {
                 return;
-            Iterator<ColumnQualifierColumnVisibilityValueTriple> iter = new ColumnQualifierColumnVisibilityValueTripleIterator(getSource());
+            }
+
+            final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter = new ColumnQualifierColumnVisibilityValueTripleIterator(getSource());
             topVisValPair = reduce(workKey, iter);
             topValue = topVisValPair.getValue();
             topKey = new Key(workKey.getRowData().getBackingArray(), workKey.getColumnFamilyData().getBackingArray(), topVisValPair.getColumnQualifier(),
                     topVisValPair.getColumnVisibility(), workKey.getTimestamp());
 
-            while (iter.hasNext())
+            while (iter.hasNext()) {
                 iter.next();
+            }
         }
     }
 
@@ -220,7 +234,7 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
         CoreKeyColumnQualifierColumnVisibilityValueCombiner newInstance;
         try {
             newInstance = this.getClass().newInstance();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         newInstance.setSource(getSource().deepCopy(env));
@@ -239,7 +253,11 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
         if (!options.containsKey(Constants.STORE_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
         }
-        storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes());
+        try {
+            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the store schema", e);
+        }
         return true;
     }
 }

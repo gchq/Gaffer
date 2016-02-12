@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,11 +66,11 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         byte[] value;
         try {
             value = ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
-            byte[] returnVal = Arrays.copyOf(value, value.length + 2);
+            final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
             returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
             returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
             return returnVal;
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Entity Identifier", e);
         }
     }
@@ -86,11 +86,11 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
             directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
             directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
         }
-        byte[] source = getSerialisedSource(edge);
-        byte[] destination = getSerialisedDestination(edge);
+        final byte[] source = getSerialisedSource(edge);
+        final byte[] destination = getSerialisedDestination(edge);
 
-        int length = source.length + destination.length + 5;
-        byte[] rowKey1 = new byte[length];
+        final int length = source.length + destination.length + 5;
+        final byte[] rowKey1 = new byte[length];
         System.arraycopy(source, 0, rowKey1, 0, source.length);
         rowKey1[source.length] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[source.length + 1] = directionFlag1;
@@ -98,7 +98,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         System.arraycopy(destination, 0, rowKey1, source.length + 3, destination.length);
         rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[rowKey1.length - 1] = directionFlag1;
-        byte[] rowKey2 = new byte[length];
+        final byte[] rowKey2 = new byte[length];
         System.arraycopy(destination, 0, rowKey2, 0, destination.length);
         rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
         rowKey2[destination.length + 1] = directionFlag2;
@@ -120,19 +120,19 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     @Override
     protected Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException {
         try {
-            Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0, (key.getRowData().getBackingArray().length) - 2))));
+            final Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0, (key.getRowData().getBackingArray().length) - 2))));
             addPropertiesToElement(entity, key);
             return entity;
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to re-create Entity from key", e);
         }
     }
 
     @Override
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
-                                                        final Map<String, String> options) throws AccumuloElementConversionException {
+            final Map<String, String> options) throws AccumuloElementConversionException {
         // Get element class, sourceValue, destinationValue and directed flag from row key
-        int[] positionsOfDelimiters = new int[3]; // Expect to find 3 delimiters (4 fields)
+        final int[] positionsOfDelimiters = new int[3]; // Expect to find 3 delimiters (4 fields)
         short numDelims = 0;
         //Last byte will be directional flag so don't count it
         for (int i = 0; i < rowKey.length - 1; ++i) {
@@ -152,7 +152,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         byte directionFlag;
         try {
             directionFlag = rowKey[rowKey.length - 1];
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
         }
         if (directionFlag == ByteEntityPositions.UNDIRECTED_EDGE) {

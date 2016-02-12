@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,13 +54,13 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seedSetB;
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store, final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
-                                          final IteratorSetting... iteratorSettings) throws StoreException {
+            final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, false, iteratorSettings);
     }
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store, final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
-                                          final boolean readEntriesIntoMemory,
-                                          final IteratorSetting... iteratorSettings) throws StoreException {
+            final boolean readEntriesIntoMemory,
+            final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, readEntriesIntoMemory, iteratorSettings);
         setSeeds(operation.getSeeds(), operation.getSeedsB());
     }
@@ -106,6 +106,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
          * @param destination
          * @return True if the source and destination contained in the provided seed sets
          */
+        @Override
         protected boolean checkIfBothEndsInSet(final Object source, final Object destination) {
             return verticesA.contains(source) && verticesB.contains(destination) || verticesB.contains(source) && verticesA.contains(destination);
         }
@@ -119,6 +120,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
             updateScanner();
         }
 
+        @Override
         protected void updateBloomFilterIfRequired(final EntitySeed seed) throws RetrieverException {
             // no action required.
         }

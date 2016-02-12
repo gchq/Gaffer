@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,23 +36,23 @@ public abstract class CoreKeyRangeElementPropertyFilterIterator extends Filter {
 
     @Override
     public boolean accept(final Key key, final Value value) {
-    	return doAccept(key, value);   
+        return doAccept(key, value);
     }
-    
-    protected boolean IsDelimiter(final Key key) {
-    	 byte[] rowID = key.getRowData().getBackingArray();
-         boolean foundDelimiter = false;
-         for (final byte aRowID : rowID) {
-             if (aRowID == ByteArrayEscapeUtils.DELIMITER) {
-                 foundDelimiter = true;
-                 break;
-             }
-         }
-		return foundDelimiter; 
+
+    protected boolean isDelimiter(final Key key) {
+        final byte[] rowID = key.getRowData().getBackingArray();
+        boolean foundDelimiter = false;
+        for (final byte aRowID : rowID) {
+            if (aRowID == ByteArrayEscapeUtils.DELIMITER) {
+                foundDelimiter = true;
+                break;
+            }
+        }
+        return foundDelimiter;
     }
-    
+
     protected abstract boolean doAccept(final Key key, final Value value);
-    
+
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
         validateOptions(options);
@@ -60,19 +60,19 @@ public abstract class CoreKeyRangeElementPropertyFilterIterator extends Filter {
     }
 
     @Override
-    public boolean validateOptions(Map<String, String> options) { 
-        if (options.containsKey(Constants.ENTITY_ONLY)) {
+    public boolean validateOptions(final Map<String, String> options) {
+        if (options.containsKey(Constants.INCLUDE_ENTITIES)) {
             entities = true;
         }
-        if(!options.containsKey(Constants.NO_EDGES)) {
-        	edges = true;
+        if (!options.containsKey(Constants.NO_EDGES)) {
+            edges = true;
         }
         return true;
     }
 
     @Override
     public IteratorOptions describeOptions() {
-        Map<String, String> namedOptions = new HashMap<>();
+        final Map<String, String> namedOptions = new HashMap<>();
         namedOptions.put(Constants.DIRECTED_EDGE_ONLY, "set if only want directed edges (value is ignored)");
         namedOptions.put(Constants.UNDIRECTED_EDGE_ONLY, "set if only want undirected edges (value is ignored)");
         return new IteratorOptions("EntityOrEdgeOnlyFilterIterator", "Only returns Entities or Edges as specified by the user's options",

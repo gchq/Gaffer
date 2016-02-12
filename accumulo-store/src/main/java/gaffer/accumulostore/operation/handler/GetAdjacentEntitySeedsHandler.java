@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,11 +54,17 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
             throw new OperationException(e.getMessage(), e);
         }
 
-        return new TransformIterable<Element, EntitySeed>(edgeRetriever, new IsEdgeValidator()) {
-            @Override
-            protected EntitySeed transform(final Element element) {
-                return new EntitySeed(((Edge) element).getDestination());
-            }
-        };
+        return new ExtractDestinationEntitySeed(edgeRetriever);
+    }
+
+    private static final class ExtractDestinationEntitySeed extends TransformIterable<Element, EntitySeed> {
+        private ExtractDestinationEntitySeed(final Iterable<Element> input) {
+            super(input, new IsEdgeValidator());
+        }
+
+        @Override
+        protected EntitySeed transform(final Element element) {
+            return new EntitySeed(((Edge) element).getDestination());
+        }
     }
 }

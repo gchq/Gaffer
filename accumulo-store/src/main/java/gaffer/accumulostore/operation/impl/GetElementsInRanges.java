@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,25 +24,25 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
- * This returns all data between the provided {@link gaffer.operation.data.ElementSeed}s. 
- * 
+ * This returns all data between the provided {@link gaffer.operation.data.ElementSeed}s.
+ *
  */
 public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE> {
 
-	public GetElementsInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
-		super(seeds);
-	}
+    public GetElementsInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
+        super(seeds);
+    }
 
-	public GetElementsInRanges(final View view) {
-		super(view);
-	}
+    public GetElementsInRanges(final View view) {
+        super(view);
+    }
 
-	public GetElementsInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
-		super(view, seeds);
-	}
+    public GetElementsInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+        super(view, seeds);
+    }
 
-	public GetElementsInRanges(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
-		super(operation);	   
-	}
-	
+    public GetElementsInRanges(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
+        super(operation);
+    }
+
 }

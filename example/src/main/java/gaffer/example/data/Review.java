@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,16 +56,17 @@ public class Review {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Review)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Review)) {
+            return false;
+        }
 
         final Review review = (Review) o;
+        return rating == review.rating && filmId.equals(review.filmId) && userId.equals(review.userId);
 
-        if (rating != review.rating) return false;
-        if (!filmId.equals(review.filmId)) return false;
-        if (!userId.equals(review.userId)) return false;
-
-        return true;
     }
 
     @Override
@@ -78,10 +79,10 @@ public class Review {
 
     @Override
     public String toString() {
-        return "Review{" +
-                "filmId='" + filmId + '\'' +
-                ", userId='" + userId + '\'' +
-                ", rating=" + rating +
-                '}';
+        return "Review{"
+                + "filmId='" + filmId
+                + "\', userId='" + userId
+                + "\', rating=" + rating
+                + '}';
     }
 }

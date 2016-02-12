@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import gaffer.accumulostore.utils.IteratorUtils;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -31,6 +32,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
@@ -45,26 +47,26 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         final String group;
         try {
             group = elementConverter.getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new RuntimeException(e);
         }
         aggregator = dataSchema.getElement(group).getAggregator();
         triple = iter.next();
-        if(!iter.hasNext()) {
-        	return triple;
+        if (!iter.hasNext()) {
+            return triple;
         }
         while (iter.hasNext()) {
-        	aggregateProperties(group, triple);
+            aggregateProperties(group, triple);
             triple = iter.next();
         }
-    	aggregateProperties(group, triple);
-        Properties properties = new Properties();
+        aggregateProperties(group, triple);
+        final Properties properties = new Properties();
         aggregator.state(properties);
         final ColumnQualifierColumnVisibilityValueTriple result;
         try {
             result = new ColumnQualifierColumnVisibilityValueTriple(elementConverter.buildColumnQualifier(group, properties),
                     elementConverter.buildColumnVisibility(group, properties), elementConverter.getValueFromProperties(properties, group));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("ColumnQualifierVisibilityAggregatorIterator failed to re-create an element", e);
         }
         return result;
@@ -82,9 +84,13 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         if (!options.containsKey(Constants.DATA_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
         }
-        dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes());
         try {
-            Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the store schema", e);
+        }
+        try {
+            final Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException
@@ -94,22 +100,22 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         return true;
     }
 
+    private void aggregateProperties(final String group, final ColumnQualifierColumnVisibilityValueTriple triple) {
+        final Properties properties = new Properties();
+        try {
+            properties.putAll(elementConverter.getPropertiesFromColumnQualifier(group, triple.getColumnQualifier()));
+            properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, triple.getColumnVisibility()));
+            properties.putAll(elementConverter.getPropertiesFromValue(group, triple.getValue()));
+        } catch (final AccumuloElementConversionException e) {
+            throw new RuntimeException(e);
+        }
+        aggregator.aggregate(properties);
+    }
+
     @Override
     public IteratorOptions describeOptions() {
         return IteratorUtils.describeOptions("ColumnQualifierVisibilityAggregatorIterator",
                 "Combines properties over elements which differ only in column qualifier and visibility",
                 super.describeOptions());
-    }
-
-    private void aggregateProperties(final String group, final ColumnQualifierColumnVisibilityValueTriple triple) {
-        Properties properties = new Properties();
-        try {
-            properties.putAll(elementConverter.getPropertiesFromColumnQualifier(group, triple.getColumnQualifier()));
-            properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, triple.getColumnVisibility()));
-            properties.putAll(elementConverter.getPropertiesFromValue(group, triple.getValue()));
-        } catch (AccumuloElementConversionException e) {
-            throw new RuntimeException(e);
-        }
-        aggregator.aggregate(properties);
     }
 }

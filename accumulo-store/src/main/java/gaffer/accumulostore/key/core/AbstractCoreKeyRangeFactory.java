@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,13 +28,15 @@ import gaffer.operation.data.EntitySeed;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation) throws RangeFactoryException {
-        if (elementSeed.getClass().equals(EntitySeed.class)) {
+        if (elementSeed instanceof EntitySeed) {
             if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && !operation.isIncludeEntities()) {
                 throw new IllegalArgumentException("When doing querying by ID, you should only provide an EntitySeed seed if you also set includeEntities flag to true");
             }
@@ -65,12 +67,12 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 
     @Override
     public <T extends GetOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation) throws RangeFactoryException {
-        ArrayList<Range> ran = new ArrayList<>();
+        final ArrayList<Range> ran = new ArrayList<>();
         ran.addAll(getRange(pairRange.getFirst(), operation));
         ran.addAll(getRange(pairRange.getSecond(), operation));
         Range min = null;
         Range max = null;
-        for (Range range : ran) {
+        for (final Range range : ran) {
             if (min == null) {
                 min = range;
                 max = range;

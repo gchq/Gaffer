@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,12 +28,12 @@ import gaffer.operation.data.EntitySeed;
  */
 public class GetElementsBetweenSets<ELEMENT_TYPE extends Element> extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, ELEMENT_TYPE> {
 
-	public GetElementsBetweenSets(Iterable<EntitySeed> seedsA, Iterable<EntitySeed> seedsB) {
-		super(seedsA, seedsB);
-	}
-	
-	public GetElementsBetweenSets(Iterable<EntitySeed> seedsA, Iterable<EntitySeed> seedsB, View view) {
-		super(seedsA, seedsB, view);
-	}
-	
+    public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
+        super(seedsA, seedsB);
+    }
+
+    public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB, final View view) {
+        super(seedsA, seedsB, view);
+    }
+
 }

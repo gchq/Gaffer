@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
@@ -132,8 +133,8 @@ public class AccumuloStore extends Store {
                     getProperties().getZookeepers(),
                     getProperties().getUserName(),
                     getProperties().getPassword()
-            );
-        } catch (TableUtilException e) {
+                    );
+        } catch (final TableUtilException e) {
             throw new StoreException("Failed to create accumulo connection", e);
         }
     }
@@ -143,6 +144,7 @@ public class AccumuloStore extends Store {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
     @Override
     public AccumuloProperties getProperties() {
         return (AccumuloProperties) super.getProperties();
@@ -188,7 +190,7 @@ public class AccumuloStore extends Store {
     public void addElements(final Iterable<Element> elements) throws StoreException {
         try {
             TableUtils.ensureTableExists(this);
-        } catch (AccumuloException e) {
+        } catch (final AccumuloException e) {
             LOGGER.error(e.getMessage(), e);
         }
         insertGraphElements(elements);
@@ -199,23 +201,23 @@ public class AccumuloStore extends Store {
         final BatchWriter writer;
         try {
             writer = TableUtils.createBatchWriter(this);
-        } catch (TableUtilException e) {
+        } catch (final TableUtilException e) {
             throw new StoreException(e);
         }
         // Loop through elements, convert to mutations, and add to BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without too high a latency, etc.
-        for (Element element : elements) {
+        for (final Element element : elements) {
             final Pair<Key> keys;
             try {
                 keys = keyPackage.getKeyConverter().getKeysFromElement(element);
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 LOGGER.error("Failed to create an accumulo gaffer.accumulostore.key from element of type " + element.getGroup() + " when trying to insert elements");
                 continue;
             }
             final Value value;
             try {
                 value = keyPackage.getKeyConverter().getValueFromElement(element);
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup() + " when trying to insert elements");
                 continue;
             }
@@ -224,7 +226,7 @@ public class AccumuloStore extends Store {
                     new ColumnVisibility(keys.getFirst().getColumnVisibility()), keys.getFirst().getTimestamp(), value);
             try {
                 writer.addMutation(m);
-            } catch (MutationsRejectedException e) {
+            } catch (final MutationsRejectedException e) {
                 LOGGER.error("Failed to create an accumulo gaffer.accumulostore.key mutation");
                 continue;
             }
@@ -237,17 +239,17 @@ public class AccumuloStore extends Store {
                         new ColumnVisibility(keys.getSecond().getColumnVisibility()),
                         keys.getSecond().getTimestamp(),
                         value
-                );
+                        );
                 try {
                     writer.addMutation(m2);
-                } catch (MutationsRejectedException e) {
+                } catch (final MutationsRejectedException e) {
                     LOGGER.error("Failed to create an accumulo gaffer.accumulostore.key mutation");
                 }
             }
         }
         try {
             writer.close();
-        } catch (MutationsRejectedException e) {
+        } catch (final MutationsRejectedException e) {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }
     }
@@ -261,6 +263,7 @@ public class AccumuloStore extends Store {
         return keyPackage;
     }
 
+    @Override
     protected void validateSchemas() {
         super.validateSchemas();
         final Map<String, String> positions = this.getStoreSchema().getPositions();

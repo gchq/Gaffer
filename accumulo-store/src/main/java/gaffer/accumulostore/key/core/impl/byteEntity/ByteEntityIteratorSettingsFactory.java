@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,24 +23,32 @@ import gaffer.accumulostore.operation.AbstractRangeOperation;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.operation.GetOperation;
+import gaffer.operation.GetOperation.IncludeEdgeType;
+import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
     private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ByteEntityRangeElementPropertyFilterIterator.class.getName();
-    
+
     @Override
     public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
-    	return null;
+        return null;
     }
-    
+
     @Override
-   	public IteratorSetting getElementPropertyRangeQueryFilter(AbstractRangeOperation<?, ?> operation) {
-       	return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
-                   Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
-                   .all()
-                   .includeIncomingOutgoing(operation.getIncludeIncomingOutGoing())
-                   .includeEdges(operation.getIncludeEdges())
-                   .includeEntities(operation.isIncludeEntities())
-                   .build();
-   	}
+    public IteratorSetting getElementPropertyRangeQueryFilter(final AbstractRangeOperation<?, ?> operation) {
+        boolean includeEntities = operation.isIncludeEntities();
+        IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
+        IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+        if (includeEdgeType == IncludeEdgeType.ALL && includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH && includeEntities) {
+            return null;
+        }
+        return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
+                .all()
+                .includeIncomingOutgoing(includeIncomingOutgoingType)
+                .includeEdges(includeEdgeType)
+                .includeEntities(includeEntities)
+                .build();
+    }
 
 }
