@@ -76,7 +76,7 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EntitySeed(i));
+            ids.add(new EntitySeed(""+i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
 
@@ -110,7 +110,7 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EdgeSeed(i, "B", false));
+            ids.add(new EdgeSeed("" +i, "B", false));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
 
@@ -145,7 +145,7 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EdgeSeed(i, "B", true));
+            ids.add(new EdgeSeed("" +i, "B", true));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
 
@@ -169,7 +169,7 @@ public class AccumuloSingleIDRetrieverTest {
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource(i);
+            edge.setSource(""+i);
             edge.setDestination("B");
             edge.setDirected(directed);
             elements.add(edge);

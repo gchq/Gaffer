@@ -42,6 +42,7 @@ public class GetElementsInRangesHandler implements OperationHandler<GetElementsI
                 ret = new AccumuloRangeIDRetriever(store, operation,
                         store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                         store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
+                        store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
                 ret = new AccumuloRangeIDRetriever(store, operation);

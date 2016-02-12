@@ -19,7 +19,7 @@ package gaffer.accumulostore.retriever.impl;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.operation.AbstractGetOperationWithPair;
+import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.data.ElementSeed;
@@ -34,12 +34,13 @@ import org.apache.accumulo.core.data.Range;
  * This allows queries for all data from between the provided {@link gaffer.operation.data.ElementSeed} pairs. 
  * 
  */
-public class AccumuloRangeIDRetriever extends AccumuloItemRetriever<AbstractGetOperationWithPair<ElementSeed, ?>, Pair<ElementSeed>> {
+public class AccumuloRangeIDRetriever extends AccumuloItemRetriever<AbstractGetRangeFromPair<ElementSeed, ?>, Pair<ElementSeed>> {
 
-	public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetOperationWithPair<ElementSeed, ?> operation) throws IteratorSettingException, StoreException {
+	public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetRangeFromPair<ElementSeed, ?> operation) throws IteratorSettingException, StoreException {
         this(store, operation,
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
+                store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation));
     }
 
 	/**
@@ -50,7 +51,7 @@ public class AccumuloRangeIDRetriever extends AccumuloItemRetriever<AbstractGetO
 	 * @param iteratorSettings
 	 * @throws StoreException
 	 */
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetOperationWithPair<ElementSeed, ?> operation,
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetRangeFromPair<ElementSeed, ?> operation,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
     }

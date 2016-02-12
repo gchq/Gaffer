@@ -87,7 +87,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
     static void testGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        // Query for all edges between the set {customer|A0} and the set {customer|A23}
+        // Query for all edges between the set {A0} and the set {A23}
         Set<EntitySeed> seedsA = new HashSet<>();
         seedsA.add(new EntitySeed("A0"));
         Set<EntitySeed> seedsB = new HashSet<>();
@@ -109,7 +109,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         expectedResults.add(expectedElement2);
         assertEquals(expectedResults, results);
 
-        // Query for all edges between set {customer|A1} and the set {customer|notpresent} - there shouldn't be any, but
+        // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
         seedsA.clear();
         seedsA.add(new EntitySeed("A1"));
@@ -131,7 +131,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         assertEquals(1, count);
         assertEquals(expectedResults, results);
 
-        // Query for all edges between set {customer|A1} and the set {customer|A2} - there shouldn't be any edges but will
+        // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
         seedsA.clear();
         seedsA.add(new EntitySeed("A1"));
@@ -169,7 +169,6 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
             // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
 
-            // Create set of GraphElementWithStatistics to gaffer.accumulostore data before adding it to the graph.
             Set<Element> data = new HashSet<>();
 
             // Create edge A -> B
@@ -257,7 +256,6 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     static void testDealWithDirectedEdgesOnlyOption(boolean loadIntoMemory, AccumuloStore store) {
         try {
 
-            // Create set of GraphElementWithStatistics to gaffer.accumulostore data before adding it to the graph.
             Set<Element> data = new HashSet<>();
 
             // Create directed edge A -> B and undirected edge A - B
@@ -431,7 +429,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
     static void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        // Query for all edges between the set {customer|A0} and the set {customer|A23}
+        // Query for all edges between the set {A0} and the set {A23}
         Set<EntitySeed> seedsA = new HashSet<>();
         seedsA.add(new EntitySeed("A0"));
         Set<EntitySeed> seedsB = new HashSet<>();
@@ -459,7 +457,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         op.setIncludeEdges(IncludeEdgeType.NONE);
         op.setIncludeEntities(true);
 
-        // Query for all edges in set {customer|A0, customer|A23}, should get the entity for A0
+        // Query for all edges in set {A0, A23}, should get the entity for A0
         retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         results.clear();
         for (Element elm : retriever) {
@@ -509,7 +507,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     static void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
-        // Query for all edges between the set {customer|A0} and the set {customer|A23}
+        // Query for all edges between the set {A0} and the set {A23}
         Set<EntitySeed> seedsA = new HashSet<>();
         seedsA.add(new EntitySeed("A0"));
         Set<EntitySeed> seedsB = new HashSet<>();
@@ -531,7 +529,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         expectedResults.add(expectedElement2);
         assertEquals(expectedResults, results);
 
-        // Query for all edges between set {customer|A1} and the set {customer|notpresent} - there shouldn't be any, but
+        // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
         seedsA.clear();
         seedsA.add(new EntitySeed("A1"));
@@ -553,7 +551,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         assertEquals(1, count);
         assertEquals(expectedResults, results);
 
-        // Query for all edges between set {customer|A1} and the set {customer|A2} - there shouldn't be any edges but will
+        // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
         seedsA.clear();
         seedsA.add(new EntitySeed("A1"));
@@ -576,7 +574,6 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
     private static void setupGraph(final AccumuloStore store) {
-        // Create set of GraphElementWithStatistics to gaffer.accumulostore data before adding it to the graph.
         Set<Element> data = new HashSet<>();
 
         // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.

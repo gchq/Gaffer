@@ -16,7 +16,7 @@
 
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.operation.AbstractGetOperationWithPair;
+import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
@@ -27,7 +27,7 @@ import gaffer.operation.data.ElementSeed;
  * Returns all {@link gaffer.data.element.Edge}'s between the provided {@link gaffer.operation.data.ElementSeed}s. 
  * 
  */
-public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetOperationWithPair<SEED_TYPE, Edge> {
+public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetRangeFromPair<SEED_TYPE, Edge> {
 
 	public GetEdgesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
 		super(seeds);

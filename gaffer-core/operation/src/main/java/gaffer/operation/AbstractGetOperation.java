@@ -16,18 +16,20 @@
 
 package gaffer.operation;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import gaffer.operation.GetOperation.SeedMatchingType;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractOperation<Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
@@ -62,8 +64,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         setSeedMatching(operation.getSeedMatching());
     }
 
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
+    /**
+     * @param seedMatching a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
+     *                     matched to the identifiers in the graph.
+     * @see gaffer.operation.GetOperation.SeedMatchingType
+     */
+    protected void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 

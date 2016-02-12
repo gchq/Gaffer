@@ -16,7 +16,7 @@
 
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.operation.AbstractGetOperationWithPair;
+import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
@@ -27,7 +27,7 @@ import gaffer.operation.data.ElementSeed;
  * This returns all {@link gaffer.data.element.Entity}'s between the provided {@link gaffer.operation.data.ElementSeed}s. 
  * 
  */
-public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetOperationWithPair<SEED_TYPE, Entity> {
+public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetRangeFromPair<SEED_TYPE, Entity> {
 
 	public GetEntitiesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
 		super(seeds);

@@ -17,6 +17,7 @@
 package gaffer.accumulostore.key;
 
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.accumulostore.operation.AbstractRangeOperation;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
@@ -74,4 +75,14 @@ public interface IteratorSettingFactory {
      * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.data.elementdefinition.schema.DataSchema}
      */
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
+    
+    /**
+     * Returns an Iterator to be applied when doing {@link AbstractRangeOperation} operations that will do any filtering of Element properties that may have otherwise been done elsewhere e.g via key creation
+     * An example of something that may not work correctly on {@link AbstractRangeOperation} operations without this iterator is Edges/Entities/Undirected/Directed Edges filtering
+     * May return null if this type of iterator is not required for example if all needed filtering is applied elsewhere.
+     * 
+     * @param operation
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link gaffer.data.element.Element}s based on the options defined in the gaffer.accumulostore.operation
+     */
+    IteratorSetting getElementPropertyRangeQueryFilter(AbstractRangeOperation<?, ?> operation);
 }

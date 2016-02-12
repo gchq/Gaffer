@@ -16,29 +16,26 @@
 
 package gaffer.accumulostore.operation;
 
-import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
 
-public abstract class AbstractGetOperationWithPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
+public class AbstractRangeOperation<SEED_TYPE, ELEMENT_TYPE extends Element>  extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE>{
 
-    public AbstractGetOperationWithPair(final Iterable<Pair<SEED_TYPE>> seeds) {
+	public AbstractRangeOperation(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
-    public AbstractGetOperationWithPair(final View view) {
+    public AbstractRangeOperation(final View view) {
         super(view);
     }
 
-    public AbstractGetOperationWithPair(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+    public AbstractRangeOperation(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
-    public AbstractGetOperationWithPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
+    public AbstractRangeOperation(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 }

@@ -33,7 +33,7 @@ import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.operation.AbstractGetOperationWithPair;
+import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
@@ -82,7 +82,7 @@ public class AccumuloRangeIDRetrieverTest {
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         AccumuloRangeIDRetriever retriever = null;
-        AbstractGetOperationWithPair<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        AbstractGetRangeFromPair<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             retriever = new AccumuloRangeIDRetriever(store, operation);

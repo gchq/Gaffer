@@ -26,6 +26,7 @@ public class Constants {
     public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
     public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Filter";
     public static final String QUERY_TIME_AGGREGATION_ITERATOR_NAME = "Query_Time_Aggregator";
+    public static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME = "Range_Element_Property_Filter";
 
     //Converter class to be used in iterators must be on classpath of all iterators
     public static final String ACCUMULO_KEY_CONVERTER = "Converter";
@@ -36,6 +37,7 @@ public class Constants {
     public static final String STORE_SCHEMA = "Store_Schema";
     public static final String ENTITY_ONLY = "Entity_Only";
     public static final String ALL_EDGE_ONLY = "All_Edges_Only";
+    public static final String NO_EDGES = "All_Edges_Only";
     public static final String DIRECTED_EDGE_ONLY = "Directed_Edges_Only";
     public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
     public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";
@@ -47,9 +49,10 @@ public class Constants {
     public final static int AGE_OFF_ITERATOR_PRIORITY = 10; // Applied during major compactions, minor compactions and scans.
     public final static int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
     public final static int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only during scans.
-    public final static int EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY = 32; // Applied only during scans.
-    public final static int ELEMENT_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
-    public final static int QUERY_TIME_AGGREGATOR_PRIORITY = 34; // Applied only during scans.
+    public final static int RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY = 32; //Applied only during scans.
+    public final static int EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
+    public final static int ELEMENT_FILTER_ITERATOR_PRIORITY = 34; // Applied only during scans.
+    public final static int QUERY_TIME_AGGREGATOR_PRIORITY = 35; // Applied only during scans.
     public final static int TRANSFORM_PRIORITY = 50; // Applied only during scans.
 
     //Operations options

@@ -39,9 +39,7 @@ public class GetElementsBetweenSetsHandler implements OperationHandler<GetElemen
         try {
             if (operation.isSummarise()) {
                 ret = new AccumuloIDBetweenSetsRetriever(store, operation,
-                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
-                        store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
-                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
+                			store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
                 ret = new AccumuloIDBetweenSetsRetriever(store, operation);
             }

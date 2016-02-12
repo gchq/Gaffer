@@ -14,35 +14,30 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.operation.impl;
+package gaffer.accumulostore.operation;
 
-import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
-/**
- * This returns all data between the provided {@link gaffer.operation.data.ElementSeed}s. 
- * 
- */
-public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE> {
+public abstract class AbstractGetRangeFromPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+        extends AbstractRangeOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
 
-	public GetElementsInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
-		super(seeds);
-	}
+    public AbstractGetRangeFromPair(final Iterable<Pair<SEED_TYPE>> seeds) {
+        super(seeds);
+    }
 
-	public GetElementsInRanges(final View view) {
-		super(view);
-	}
+    public AbstractGetRangeFromPair(final View view) {
+        super(view);
+    }
 
-	public GetElementsInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
-		super(view, seeds);
-	}
+    public AbstractGetRangeFromPair(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+        super(view, seeds);
+    }
 
-	public GetElementsInRanges(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
-		super(operation);	   
-	}
-	
+    public AbstractGetRangeFromPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
+        super(operation);
+    }
 }

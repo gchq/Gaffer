@@ -82,8 +82,11 @@ public class IteratorSettingBuilder {
             setting.addOption(Constants.DIRECTED_EDGE_ONLY, "true");
         } else if (GetOperation.IncludeEdgeType.UNDIRECTED == includeEdgeType) {
             setting.addOption(Constants.UNDIRECTED_EDGE_ONLY, "true");
-        }
-
+        } else if (GetOperation.IncludeEdgeType.NONE == includeEdgeType) {
+            setting.addOption(Constants.NO_EDGES, "true");
+    	} else {
+            setting.addOption(Constants.ALL_EDGE_ONLY, "true");
+    	}
         return this;
     }
 

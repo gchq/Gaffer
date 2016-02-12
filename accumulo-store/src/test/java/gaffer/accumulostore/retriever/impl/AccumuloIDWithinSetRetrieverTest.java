@@ -92,7 +92,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testGetCorrectEdges(final AccumuloStore store, final boolean loadIntoMemory) throws StoreException {
-        // Query for all edges in set {customer|A0, customer|A23}
+        // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
@@ -120,7 +120,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             assertTrue(results.contains(expectedResult));
         }
 
-        // Query for all edges in set {customer|A1} - there shouldn't be any, but we will get the entity for A1
+        // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
         seeds.clear();
         seeds.add(new EntitySeed("A1"));
         op = new GetRelatedElements<>(defaultView, seeds);
@@ -141,7 +141,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             assertTrue(results.contains(expectedResult));
         }
 
-        // Query for all edges in set {customer|A1, customer|A2} - there shouldn't be any edges but will
+        // Query for all edges in set {A1, A2} - there shouldn't be any edges but will
         // get the two entities
         seeds.clear();
         seeds.add(new EntitySeed("A1"));
@@ -192,7 +192,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     public void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
-            // Create set of GraphElementWithStatistics to gaffer.accumulostore data before adding it to the graph.
+
             Set<Element> data = new HashSet<>();
 
             // Create edge A -> B
@@ -258,7 +258,6 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        // Create set of GraphElementWithStatistics to gaffer.accumulostore data before adding it to the graph.
         Set<Element> data = new HashSet<>();
 
         // Create directed edge A -> B and undirected edge A - B
@@ -343,7 +342,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
-        // Query for all edges in set {customer|A0, customer|A23}
+        // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
@@ -438,7 +437,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        // Query for all edges in set {customer|A0, customer|A23}
+        // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
@@ -463,7 +462,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         op.setIncludeEntities(true);
         op.setIncludeEdges(IncludeEdgeType.NONE);
-        // Query for all edges in set {customer|A0, customer|A23}
+        // Query for all edges in set {A0, A23}
         retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         for (Element elm : retriever) {
@@ -511,7 +510,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     static void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
-        // Query for all edges in set {customer|A0, customer|A23}
+        // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
@@ -535,7 +534,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         expectedResults.add(expectedElement3);
         assertEquals(expectedResults, results);
 
-        // Query for all edges in set {customer|A1} - there shouldn't be any, but we will get the entity for A1
+        // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
         seeds.clear();
         seeds.add(new EntitySeed("A1"));
         op = new GetRelatedElements<>(defaultView, seeds);
@@ -554,7 +553,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertEquals(1, count);
         assertEquals(expectedResults, results);
 
-        // Query for all edges in set {customer|A1, customer|A2} - there shouldn't be any edges but will
+        // Query for all edges in set {A1, A2} - there shouldn't be any edges but will
         // get the two entities
         seeds.clear();
         seeds.add(new EntitySeed("A1"));
@@ -585,7 +584,6 @@ public class AccumuloIDWithinSetRetrieverTest {
             // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
             TableUtils.createTable(store);
 
-            // Create set of GraphElementWithStatistics to gaffer.accumulostore data before adding it to the graph.
             Set<Element> data = new HashSet<>();
             // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
             Entity entity = new Entity(TestGroups.ENTITY);

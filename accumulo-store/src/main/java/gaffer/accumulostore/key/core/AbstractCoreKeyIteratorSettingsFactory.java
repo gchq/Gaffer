@@ -16,19 +16,19 @@
 
 package gaffer.accumulostore.key.core;
 
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.hadoop.util.bloom.BloomFilter;
+
+import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
 import gaffer.accumulostore.key.core.impl.CoreKeyColumnQualifierVisibilityValueAggregatorIterator;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ElementFilter;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.data.elementdefinition.view.View;
-
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.hadoop.util.bloom.BloomFilter;
 
 public abstract class AbstractCoreKeyIteratorSettingsFactory implements IteratorSettingFactory {
     private static final String ELEMENT_FILTER_CLASS_NAME = ElementFilter.class.getName();
@@ -77,5 +77,5 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }
-
+    
 }

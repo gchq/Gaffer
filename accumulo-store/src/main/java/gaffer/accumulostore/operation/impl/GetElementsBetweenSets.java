@@ -23,7 +23,7 @@ import gaffer.operation.data.EntitySeed;
 
 /**
  * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B, this retrieves all {@link gaffer.data.element.Edge}s where one end is in set A
- * and the other is in set B and also returns {@link gaffer.data.element.Entity}s for {@link gaffer.operation.data.EntitySeed}s in either set A or B.
+ * and the other is in set B and also returns {@link gaffer.data.element.Entity}s for {@link gaffer.operation.data.EntitySeed}s in set A.
  *
  */
 public class GetElementsBetweenSets<ELEMENT_TYPE extends Element> extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, ELEMENT_TYPE> {

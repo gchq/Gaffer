@@ -31,7 +31,7 @@ import gaffer.store.StoreException;
 
 /**
  * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B, this retrieves all {@link gaffer.data.element.Edge}s where one end is in set A
- * and the other is in set B and also returns {@link gaffer.data.element.Entity}s for {@link gaffer.operation.data.EntitySeed}s in either set A or B.
+ * and the other is in set B and also returns {@link gaffer.data.element.Entity}s for {@link gaffer.operation.data.EntitySeed}s in set A.
  *
  * This is done by querying for set A, and uses a {@link org.apache.hadoop.util.bloom.BloomFilter}s in a filtering iterator to identify edges
  * that are likely to be between a member of set A and a member of set B. Only these edges are returned to the client,

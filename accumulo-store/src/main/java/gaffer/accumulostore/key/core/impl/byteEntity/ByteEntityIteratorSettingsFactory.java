@@ -16,14 +16,31 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
-import gaffer.operation.GetOperation;
-
 import org.apache.accumulo.core.client.IteratorSetting;
 
+import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
+import gaffer.accumulostore.operation.AbstractRangeOperation;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorSettingBuilder;
+import gaffer.operation.GetOperation;
+
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
+    private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ByteEntityRangeElementPropertyFilterIterator.class.getName();
+    
     @Override
     public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
-        return null;
+    	return null;
     }
+    
+    @Override
+   	public IteratorSetting getElementPropertyRangeQueryFilter(AbstractRangeOperation<?, ?> operation) {
+       	return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                   Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
+                   .all()
+                   .includeIncomingOutgoing(operation.getIncludeIncomingOutGoing())
+                   .includeEdges(operation.getIncludeEdges())
+                   .includeEntities(operation.isIncludeEntities())
+                   .build();
+   	}
+
 }

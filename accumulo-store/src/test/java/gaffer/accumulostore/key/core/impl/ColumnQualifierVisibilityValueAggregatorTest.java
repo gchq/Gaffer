@@ -91,21 +91,21 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
             // Create edge
             Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource(1);
-            edge.setDestination(2);
+            edge.setSource("1");
+            edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
 
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its gaffer.accumulostore.key is equal.
             Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource(1);
-            edge2.setDestination(2);
+            edge2.setSource("1");
+            edge2.setDestination("2");
             edge2.setDirected(true);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
 
             Edge edge3 = new Edge(TestGroups.EDGE);
-            edge3.setSource(1);
-            edge3.setDestination(2);
+            edge3.setSource("1");
+            edge3.setDestination("2");
             edge3.setDirected(true);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
 
@@ -196,8 +196,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
             // Create edge
             Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource(1);
-            edge.setDestination(2);
+            edge.setSource("1");
+            edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
             
@@ -265,20 +265,20 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
             // Create edge
             Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource(1);
-            edge.setDestination(2);
+            edge.setSource("1");
+            edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
 
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its gaffer.accumulostore.key is equal.
             Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource(1);
-            edge2.setDestination(2);
+            edge2.setSource("1");
+            edge2.setDestination("2");
             edge2.setDirected(true);
 
             Edge edge3 = new Edge(TestGroups.EDGE);
-            edge3.setSource(1);
-            edge3.setDestination(2);
+            edge3.setSource("1");
+            edge3.setDestination("2");
             edge3.setDirected(true);
 
             Properties properties1 = new Properties();

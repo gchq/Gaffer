@@ -44,4 +44,15 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
 	public GetElementsWithinSet(final GetOperation<EntitySeed, ?> operation) {
 		super(operation);	   
 	}
+	
+	@Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return IncludeIncomingOutgoingType.OUTGOING;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
+    }
+	
 }
