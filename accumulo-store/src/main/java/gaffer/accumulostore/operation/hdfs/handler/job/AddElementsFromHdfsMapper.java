@@ -17,6 +17,7 @@ package gaffer.accumulostore.operation.hdfs.handler.job;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
@@ -36,7 +37,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElem
 
         final StoreSchema storeSchema = StoreSchema.fromJson(context.getConfiguration().get(
                 AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes());
-        final String converterClass = context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.ELEMENT_CONVERTER);
+        final String converterClass = context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             Class<?> elementConverterClass = Class.forName(converterClass);
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);

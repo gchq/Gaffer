@@ -128,6 +128,11 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     public void addOption(final String name, final String value) {
         this.options.put(name, value);
     }
+    
+    @Override
+    public String getOption(final String name) {
+        return this.options.get(name);
+    }
 
     @JsonGetter("options")
     Map<String, String> getJsonOptions() {

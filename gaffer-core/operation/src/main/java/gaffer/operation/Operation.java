@@ -119,5 +119,13 @@ public interface Operation<INPUT, OUTPUT> {
      * @param value the value of the option
      */
     void addOption(final String name, final String value);
+    
+    /**
+     * Gets an operation option by its given name. 
+     *
+     * @param name  the name of the option
+     * @return the value of the option
+     */
+    String getOption(final String name);
 }
 
