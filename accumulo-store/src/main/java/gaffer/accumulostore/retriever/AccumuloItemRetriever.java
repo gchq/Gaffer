@@ -16,10 +16,10 @@
 
 package gaffer.accumulostore.retriever;
 
+import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;

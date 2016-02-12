@@ -80,8 +80,8 @@ public class StoreProperties {
     /**
      * Set a parameter from the schema file.
      *
-     * @param key
-     * @param value
+     * @param key   the key
+     * @param value the value
      */
     public void set(final String key, final String value) {
         if (props == null) {

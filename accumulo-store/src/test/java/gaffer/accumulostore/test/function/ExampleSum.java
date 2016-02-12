@@ -31,7 +31,7 @@ public class ExampleSum extends SingleInputAggregateFunction {
     }
 
     @Override
-    public void execute(final Object input) {
+    protected void execute(final Object input) {
         if (aggregate == null) {
             init();
         }

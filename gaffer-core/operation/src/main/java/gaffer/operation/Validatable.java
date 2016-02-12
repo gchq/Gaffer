@@ -21,7 +21,7 @@ import gaffer.data.element.Element;
 /**
  * A <code>Validatable</code> operation defines an operation with an iterable of {@link gaffer.data.element.Element}s
  * that can optionally be validated before being processed.
- * <p/>
+ * <p>
  *
  * @param <OUTPUT> the output type
  */

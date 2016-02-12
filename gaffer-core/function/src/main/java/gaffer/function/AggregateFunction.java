@@ -20,10 +20,10 @@ package gaffer.function;
  * An <code>AggregateFunction</code> is a {@link gaffer.function.ConsumerProducerFunction} that reduces a number of
  * input records to a single output of the same record type. The function will update it's internal state in response
  * to new input records, and return the current state on request.
- * <p/>
- * For example:<br/>
- * <code>AggregateFunction sum = new Sum();</code><br/>
- * <code>sum.execute({1}); sum.execute({2}); sum.execute({3});</code><br/>
+ * <p>
+ * For example:<br>
+ * <code>AggregateFunction sum = new Sum();</code><br>
+ * <code>sum.execute({1}); sum.execute({2}); sum.execute({3});</code><br>
  * <code>Object[] state = sum.state() // state = {6}</code>
  */
 public abstract class AggregateFunction extends ConsumerProducerFunction implements Cloneable {

@@ -23,7 +23,7 @@ import gaffer.operation.data.ElementSeed;
 
 /**
  * Restricts {@link gaffer.operation.impl.get.GetElements} to match seeds that are related.
- * <p/>
+ * <p>
  * At a basic level RELATED is defined as:
  * <ul>
  * <li>An Entity is RELATED to an EntitySeed if the Entity's seed is equal to the EntitySeed.</li>

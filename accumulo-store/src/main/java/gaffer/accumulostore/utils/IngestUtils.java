@@ -15,15 +15,6 @@
  */
 package gaffer.accumulostore.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -37,6 +28,15 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Utility methods for adding data to Accumulo.
@@ -58,7 +58,7 @@ public final class IngestUtils {
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
      * @return The number of splits in the table
-     * @throws java.io.IOException
+     * @throws IOException for any IO issues reading from the file system. Other accumulo exceptions are caught and wrapped in an IOException.
      */
     public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs, final Path splitsFile)
             throws IOException {
@@ -80,8 +80,6 @@ public final class IngestUtils {
             for (Text split : splits) {
                 out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
             }
-        } catch (IOException e) {
-            throw new IOException(e.getMessage(), e);
         }
 
         return splits.size();
@@ -93,7 +91,7 @@ public final class IngestUtils {
      * @param splits     - A Collection of splits
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
-     * @throws java.io.IOException
+     * @throws IOException for any IO issues writing to the file system.
      */
     public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile) throws IOException {
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
@@ -109,13 +107,13 @@ public final class IngestUtils {
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
      * @return An integer representing the number of entries in the file.
-     * @throws java.io.IOException
+     * @throws IOException for any IO issues reading from the file system.
      */
     @SuppressFBWarnings(value = "RV_DONT_JUST_NULL_CHECK_READLINE", justification = "Simply counts the number of lines in the file")
     public static int getNumSplits(final FileSystem fs, final Path splitsFile) throws IOException {
         int numSplits = 0;
         try (final FSDataInputStream fis = fs.open(splitsFile);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+             final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
             while (reader.readLine() != null) {
                 ++numSplits;
             }
@@ -130,7 +128,7 @@ public final class IngestUtils {
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
      * @return A set of Text objects representing the locations of split points in HDFS
-     * @throws java.io.IOException
+     * @throws IOException for any IO issues reading from the file system.
      */
     public static SortedSet<Text> getSplitsFromFile(final FileSystem fs, final Path splitsFile) throws IOException {
         final SortedSet<Text> splits = new TreeSet<>();
@@ -152,7 +150,7 @@ public final class IngestUtils {
      *
      * @param fs      - The FileSystem in which to create the splits file
      * @param dirPath - The Path to the directory
-     * @throws java.io.IOException
+     * @throws IOException for any IO issues interacting with the file system.
      */
     public static void setDirectoryPermsForAccumulo(final FileSystem fs, final Path dirPath) throws IOException {
         if (!fs.getFileStatus(dirPath).isDirectory()) {

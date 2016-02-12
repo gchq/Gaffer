@@ -71,8 +71,8 @@ public abstract class TypedElementDefinitionValidator<ELEMENT_DEF extends TypedE
     /**
      * Checks all function inputs are compatible with the property and identifier types specified.
      *
-     * @param processor
-     * @param elementDef
+     * @param processor  the processor to validate against the element definition types
+     * @param elementDef the element definition
      * @return boolean - true if function argument types are valid. Otherwise false and the reason is logged.
      */
     protected boolean validateFunctionArgumentTypes(

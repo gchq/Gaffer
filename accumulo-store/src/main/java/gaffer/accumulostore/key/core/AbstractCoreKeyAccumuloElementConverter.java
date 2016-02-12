@@ -364,7 +364,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
      * Accumulo timestamp column.
      *
      * @param group     The {@link Element} type to be queried
-     * @param timestamp
+     * @param timestamp the element timestamp property
      * @return The Properties stored within the Timestamp part of the {@link Key}
      * @throws AccumuloElementConversionException If the supplied group has not been defined
      */

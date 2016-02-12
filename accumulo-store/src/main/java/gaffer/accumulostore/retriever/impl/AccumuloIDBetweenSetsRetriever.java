@@ -82,8 +82,8 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
         }
 
         /**
-         * @param source
-         * @param destination
+         * @param source      the element source identifier
+         * @param destination the element destination identifier
          * @return True if the source and destination contained in the provided seed sets
          */
         protected boolean checkIfBothEndsInSet(final Object source, final Object destination) {

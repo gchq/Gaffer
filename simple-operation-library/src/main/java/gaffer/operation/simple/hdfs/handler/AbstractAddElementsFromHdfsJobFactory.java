@@ -30,10 +30,10 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
      * Creates a job with the store specific job initialisation and then applies the operation specific
      * {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser}.
      *
-     * @param operation
-     * @param store
+     * @param operation the add elements from hdfs operation
+     * @param store     the store executing the operation
      * @return the created job
-     * @throws IOException
+     * @throws IOException for IO issues
      */
     public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
         final JobConf jobConf = createJobConf(operation, store);

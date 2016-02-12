@@ -66,7 +66,7 @@ import static gaffer.store.StoreTrait.VALIDATION;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
- * <p/>
+ * <p>
  * The gaffer.accumulostore.key detail of the Accumulo implementation is that any Edge inserted by a user is inserted
  * into the accumulo table twice, once with the source object being put first in the gaffer.accumulostore.key
  * and once with the destination bring put first in the gaffer.accumulostore.key.
@@ -97,7 +97,7 @@ public class AccumuloStore extends Store {
      * @param operation the operation to execute.
      * @param <OUTPUT>  the output type of the operation.
      * @return the result of executing the operation.
-     * @throws gaffer.operation.OperationException
+     * @throws OperationException if an operation handler fails to handle the given operation
      */
     @Override
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
@@ -113,7 +113,7 @@ public class AccumuloStore extends Store {
      * file associated with the AccumuloStore
      *
      * @return A new {@link Connector}
-     * @throws gaffer.store.StoreException
+     * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
         try {
@@ -167,7 +167,8 @@ public class AccumuloStore extends Store {
     /**
      * Method to add {@link Element}s into Accumulo
      *
-     * @param elements
+     * @param elements the elements to be added
+     * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
         try {

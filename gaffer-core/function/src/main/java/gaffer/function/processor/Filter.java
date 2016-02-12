@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.FilterFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
  * order and the overall filter result for a given tuple is a logical AND of each filter function result. Tuples only
  * pass the filter if <b>all</b> functions return a positive (<code>true</code>) result, and they fail as soon as any
  * function returns a negative (<code>false</code>) result.
- * <p/>
+ * <p>
  * If performance is a concern then simple, faster filters or those with a higher probability of failure should be
  * configured to run first.
  *
@@ -54,8 +55,7 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
     }
 
     /**
-     * Create a <code>Filter</code> that executes the given {@link gaffer.function.context.FunctionContext}s. Varargs
-     * equivalent of <code>Filter(List<ConsumerFunctionContext<R, FilterFunction>>>)</code>.
+     * Create a <code>Filter</code> that executes the given {@link gaffer.function.context.FunctionContext}s.
      *
      * @param functions {@link gaffer.function.context.FunctionContext}s to execute.
      */

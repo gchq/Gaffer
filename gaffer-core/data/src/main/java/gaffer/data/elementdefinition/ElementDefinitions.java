@@ -38,10 +38,13 @@ import java.util.Set;
 
 /**
  * Contains the full list of groups in the graph.
- * <p/>
+ * <p>
  * This class must be JSON serialisable.
  * A data schema should normally be written in JSON and then deserialised at runtime.
  * Examples of JSON data schemas can be found in the example projects.
+ *
+ * @param <EntityDef> the type of {@link ElementDefinition} for the entities
+ * @param <EdgeDef>   the type of {@link ElementDefinition} for the edges
  */
 public abstract class ElementDefinitions<EntityDef extends ElementDefinition, EdgeDef extends ElementDefinition> implements Serializable {
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
@@ -94,7 +97,8 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
      * Validates the schema to ensure all element definitions are valid.
      * Throws a SchemaException if it is not valid.
      *
-     * @throws gaffer.data.elementdefinition.schema.exception.SchemaException if validation fails then a SchemaException is thrown.
+     * @return true if valid, otherwise false.
+     * @throws SchemaException if validation fails then a SchemaException is thrown.
      */
     public boolean validate() throws SchemaException {
         for (String edgeGroup : edges.keySet()) {

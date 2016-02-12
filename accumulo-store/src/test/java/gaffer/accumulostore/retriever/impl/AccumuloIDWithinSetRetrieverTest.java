@@ -179,7 +179,7 @@ public class AccumuloIDWithinSetRetrieverTest {
      * returned. When the next batch is queried for, the Bloom filter will consist of A and B, so normally the
      * edge A->B will be returned. But if the outgoing edges only option is turned on then the edge will not be
      * returned, as it is not an edge out of B.
-     * <p/>
+     * <p>
      * This unit tests creates that situation and tests that the edge is still returned. Effectively this is
      * testing that the outgoing edges only (and incoming edges only) option is ignored when the
      * <code>getGraphElementsWithStatisticsWithinSet</code> method is used.

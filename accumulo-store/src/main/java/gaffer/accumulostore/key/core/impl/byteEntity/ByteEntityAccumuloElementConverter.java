@@ -33,15 +33,15 @@ import java.util.Map;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo Keys And Values
- * <p/>
+ * <p>
  * The way keys are created can be summarised as the following.
  * For Edges the resulting gaffer.accumulostore.key will be:
  * Source Value + Delimiter + Flag + Delimiter + Destination Value + Delimiter + Flag
  * (And a second edge of  Destination Value + Delimiter + Flag + Delimiter + Source Value + Delimiter + Flag for searching)
- * <p/>
+ * <p>
  * For entities the resulting gaffer.accumulostore.key will be:
  * Identifier Value + Delimiter + Flag
- * <p/>
+ * <p>
  * Note that the Delimiter referenced in the above example is the byte representation of the number 0 for this implementation and the values are appropriately escaped.
  * And the Flag is a byte value that changes depending on whether it being used on an entity, an undirected edge and a directed edge input as the user specified or as the one input inverted for searching.
  * The flag values are as follows:
@@ -49,10 +49,10 @@ import java.util.Map;
  * Undirected Edge = 4
  * Directed Edge = 2
  * Inverted Directed Edge = 3
- * <p/>
+ * <p>
  * Values are constructed by placing all the properties in a map of
  * Property Name : Byte Value
- * <p/>
+ * <p>
  * And then serialising the entire map to bytes.
  */
 public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {

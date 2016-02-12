@@ -20,12 +20,11 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,10 +33,10 @@ import org.slf4j.LoggerFactory;
  * {@link gaffer.data.element.Element}s and then delegates the elements to an abstract map method to serialise them
  * and add them to the job map context.
  *
- * @param <KEY_IN>
- * @param <VALUE_IN>
- * @param <KEY_OUT>
- * @param <VALUE_OUT>
+ * @param <KEY_IN>    type of input key
+ * @param <VALUE_IN>  type of input value
+ * @param <KEY_OUT>   type of output key
+ * @param <VALUE_OUT> type of output value
  */
 public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends Mapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAddElementsFromHdfsMapper.class);

@@ -25,7 +25,7 @@ import java.util.Map;
  * An <code>IsShorterThan</code> is a {@link gaffer.function.SingleInputFilterFunction} that checks that the input
  * object has a length less than a maximum length. There is also an orEqualTo flag that can be set to allow
  * the input object length to be less than or equal to the maximum length.
- * <p/>
+ * <p>
  * Allowed object types are {@link java.lang.String}s, arrays, {@link java.util.Collection}s and {@link java.util.Map}s.
  * Additional object types can easily be added by modifying the getLength(Object) method.
  */

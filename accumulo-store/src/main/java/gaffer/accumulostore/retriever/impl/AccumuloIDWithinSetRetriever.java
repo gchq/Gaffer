@@ -17,11 +17,11 @@
 package gaffer.accumulostore.retriever.impl;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import gaffer.accumulostore.retriever.RetrieverException;
 import gaffer.accumulostore.utils.BloomFilterUtils;
-import gaffer.accumulostore.retriever.AccumuloSetRetriever;
-import gaffer.operation.data.EntitySeed;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
@@ -76,8 +76,8 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
         }
 
         /**
-         * @param source
-         * @param destination
+         * @param source      the element source identifier
+         * @param destination the element destination identifier
          * @return True if the source and destination contained in the provided seed sets
          */
         protected boolean checkIfBothEndsInSet(final Object source, final Object destination) {

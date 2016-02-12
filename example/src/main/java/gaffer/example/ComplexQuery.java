@@ -89,7 +89,7 @@ public class ComplexQuery {
      * resources/addData.json
      *
      * @return the review entities
-     * @throws OperationException
+     * @throws OperationException if operation chain fails to be executed on the graph
      */
     public Iterable<Entity> run() throws OperationException {
         // Setup graph

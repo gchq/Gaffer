@@ -21,10 +21,9 @@ import java.io.Serializable;
 /**
  * A simple class to contain a pair of items.
  *
- * @param <T>
+ * @param <T> type of items in the pair
  */
 public class Pair<T> implements Serializable {
-
     private static final long serialVersionUID = 4769405415756562347L;
     private T first;
     private T second;

@@ -75,8 +75,8 @@ public final class TableUtils {
     /**
      * Ensures that the table exists, otherwise it creates it and sets it up to receive Gaffer data
      *
-     * @param store
-     * @throws org.apache.accumulo.core.client.AccumuloException
+     * @param store the accumulo store
+     * @throws AccumuloException if a connection to accumulo could not be created or a failure to create a table
      */
     public static void ensureTableExists(final AccumuloStore store) throws AccumuloException {
         final Connector conn;
@@ -100,10 +100,10 @@ public final class TableUtils {
      * Creates a table for Gaffer data and enables the correct Bloom filter; removes the versioning
      * iterator and adds an aggregator Iterator the {@link org.apache.accumulo.core.iterators.user.AgeOffFilter} for the specified time period.
      *
-     * @param store
-     * @throws org.apache.accumulo.core.client.AccumuloException
-     * @throws gaffer.accumulostore.key.exception.IteratorSettingException
-     * @throws org.apache.accumulo.core.client.TableExistsException
+     * @param store the accumulo store
+     * @throws AccumuloException        failure to create accumulo connection
+     * @throws IteratorSettingException failure to add iterator settings
+     * @throws TableExistsException     failure to create table
      */
     public static void createTable(final AccumuloStore store)
             throws AccumuloException, IteratorSettingException, TableExistsException {
@@ -158,9 +158,9 @@ public final class TableUtils {
     /**
      * Creates a {@link BatchWriter}
      *
-     * @param store
+     * @param store the accumulo store
      * @return A new BatchWriter with the settings defined in the gaffer.accumulostore properties
-     * @throws TableUtilException
+     * @throws TableUtilException if the table could not be found or other table issues
      */
     public static BatchWriter createBatchWriter(final AccumuloStore store) throws TableUtilException {
         return createBatchWriter(store, store.getProperties().getTable());
@@ -169,9 +169,9 @@ public final class TableUtils {
     /**
      * Returns the map containing all the information needed to create a new instance of the accumulo gaffer.accumulostore
      *
-     * @param properties
+     * @param properties the accumulo properties
      * @return A MapWritable containing all the required information to construct an accumulo gaffer.accumulostore instance
-     * @throws TableUtilException
+     * @throws TableUtilException if a table could not be found or other table issues
      */
     public static MapWritable getStoreConstructorInfo(final AccumuloProperties properties) throws TableUtilException {
         Connector connection = getConnector(properties.getInstanceName(), properties.getZookeepers(), properties.getUserName(), properties.getPassword());
@@ -193,12 +193,12 @@ public final class TableUtils {
     /**
      * Creates a connection to an accumulo instance using the provided parameters
      *
-     * @param instanceName
-     * @param zookeepers
-     * @param userName
-     * @param password
+     * @param instanceName the instance name
+     * @param zookeepers   the zoo keepers
+     * @param userName     the user name
+     * @param password     the password
      * @return A connection to an accumulo instance
-     * @throws TableUtilException
+     * @throws TableUtilException failure to create an accumulo connection
      */
     public static Connector getConnector(final String instanceName, final String zookeepers, final String userName, final String password) throws TableUtilException {
         final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
@@ -212,9 +212,9 @@ public final class TableUtils {
     /**
      * Returns the {@link org.apache.accumulo.core.security.Authorizations} of the current user
      *
-     * @param connection
+     * @param connection the connection to an accumulo instance
      * @return The accumulo Authorisations of the current user specified in the properties file
-     * @throws TableUtilException
+     * @throws TableUtilException if the table could not be found or other table/security issues
      */
     public static Authorizations getCurrentAuthorizations(final Connector connection) throws TableUtilException {
         try {
@@ -263,10 +263,10 @@ public final class TableUtils {
     /**
      * Creates a {@link org.apache.accumulo.core.client.BatchWriter} for the specified table
      *
-     * @param store
-     * @param tableName
+     * @param store     the accumulo store
+     * @param tableName the table name
      * @return A new BatchWriter with the settings defined in the gaffer.accumulostore properties
-     * @throws TableUtilException
+     * @throws TableUtilException if the table could not be found or other table issues
      */
 
     private static BatchWriter createBatchWriter(final AccumuloStore store, final String tableName) throws TableUtilException {
@@ -286,7 +286,7 @@ public final class TableUtils {
     /**
      * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that specifies the age off iterator.
      *
-     * @param ageOffTimeInMilliseconds
+     * @param ageOffTimeInMilliseconds the age off time in milliseconds
      * @return An iterator setting describing an age off iterator
      */
     private static IteratorSetting getAgeOffIteratorSetting(final long ageOffTimeInMilliseconds) {

@@ -207,7 +207,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
          * Returns <code>true</code> if either an {@link gaffer.data.element.Entity} or if an {@link gaffer.data.element.Edge} then need both ends
          * to be in the set.
          *
-         * @param elm
+         * @param elm the element to check
          * @return True if the provided element is an edge and Both ends are contained in the provided seed sets or if the element is an entity
          */
         private boolean checkIfBothEndsInSet(final Element elm) {
@@ -332,6 +332,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
          * Check whether this is valid, i.e. one end is in the current set of seeds that are being queried for and the
          * other matches the Bloom filter (i.e. the client side Bloom filter that is being used as a secondary defeat
          * of false positives).
+         *
+         * @param elm the element to check
+         * @return true if the element matches the seeds, otherwise false
          */
         protected boolean secondaryCheck(final Element elm) {
             if (Entity.class.isInstance(elm)) {

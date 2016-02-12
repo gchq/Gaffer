@@ -36,7 +36,7 @@ import java.util.Iterator;
  * Reducer for use in bulk import of data into Accumulo. It merges all values associated
  * to the gaffer.accumulostore.key by converting them into {@link gaffer.data.element.Properties} and then merges
  * those, and then converts them back to an Accumulo value.
- * <p/>
+ * <p>
  * It contains an optimisation so that if there is only one value, we simply
  * output it rather than incurring the cost of deserialising them and then
  * reserialising them.

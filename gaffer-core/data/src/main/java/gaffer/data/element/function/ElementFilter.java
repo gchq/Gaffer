@@ -26,7 +26,7 @@ import gaffer.function.processor.Filter;
 
 /**
  * Element Filter - for filtering {@link gaffer.data.element.Element}s.
- * <p/>
+ * <p>
  * Use {@link gaffer.data.element.function.ElementAggregator.Builder} to build an ElementFilter.
  *
  * @see gaffer.data.element.function.ElementFilter.Builder
@@ -50,6 +50,9 @@ public class ElementFilter extends Filter<ElementComponentKey> {
         return clone;
     }
 
+    /**
+     * Builder for {@link ElementFilter}.
+     */
     public static class Builder extends Filter.Builder<ElementComponentKey> {
         public Builder() {
             this(new ElementFilter());

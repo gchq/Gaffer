@@ -33,10 +33,11 @@ public interface RangeFactory {
     /**
      * Returns a Range representing a query for the given ID
      *
-     * @param elementSeed
-     * @param operation
+     * @param elementSeed the element seed to get the range for
+     * @param operation   the operation
+     * @param <T>         the type of operation
      * @return A List of Ranges that are required to return all elements that match the parameters of the query.
-     * @throws gaffer.accumulostore.key.exception.RangeFactoryException
+     * @throws RangeFactoryException if a range could not be created
      */
     <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation) throws RangeFactoryException;
 
@@ -50,13 +51,14 @@ public interface RangeFactory {
      * 1
      * 2
      * 3
-     * <p/>
+     * <p>
      * So that a provided pair of 1 and 3 will return entities 1, 2 and 3.
      *
-     * @param pairRange
-     * @param operation
+     * @param pairRange the pair of element seeds to get the range for
+     * @param operation the operation
+     * @param <T>       the type of operation
      * @return A List of Ranges that are required to return all elements that match the parameters of the query.
-     * @throws gaffer.accumulostore.key.exception.RangeFactoryException
+     * @throws RangeFactoryException if a range could not be created
      */
     <T extends GetOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation) throws RangeFactoryException;
 }

@@ -116,7 +116,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the list of Zookeeper servers.
      *
-     * @param zookeepers
+     * @param zookeepers the list of Zookeeper servers
      */
     public void setZookeepers(final String zookeepers) {
         set(ZOOKEEPERS, zookeepers);
@@ -134,7 +134,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the Accumulo instance name.
      *
-     * @param instanceName
+     * @param instanceName the Accumulo instance name
      */
     public void setInstanceName(final String instanceName) {
         set(INSTANCE_NAME, instanceName);
@@ -152,7 +152,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the table name.
      *
-     * @param tableName
+     * @param tableName the table name
      */
     public void setTable(final String tableName) {
         set(TABLE, tableName);
@@ -170,7 +170,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the configured Accumulo user.
      *
-     * @param userName
+     * @param userName the configured Accumulo user
      */
     public void setUserName(final String userName) {
         set(USER, userName);
@@ -188,7 +188,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the password to use for the Accumulo user.
      *
-     * @param password
+     * @param password the password to use for the Accumulo user
      */
     public void setPassword(final String password) {
         set(PASSWORD, password);
@@ -206,7 +206,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the number of days data should be retained
      *
-     * @param ageOffTimeInDays
+     * @param ageOffTimeInDays the number of days data should be retained
      */
     public void setAgeOffTimeInDays(final String ageOffTimeInDays) {
         set(AGE_OFF_TIME_IN_DAYS, ageOffTimeInDays);
@@ -224,7 +224,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the number of threads to use in the batch scanner
      *
-     * @param threadsForBatchScanner
+     * @param threadsForBatchScanner the number of threads to use in the batch scanner
      */
     public void setThreadsForBatchScanner(final String threadsForBatchScanner) {
         set(THREADS_FOR_BATCH_SCANNER, threadsForBatchScanner);
@@ -242,7 +242,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the max number of items that should be read into the scanner at any one time
      *
-     * @param maxEntriesForBatchScanner
+     * @param maxEntriesForBatchScanner the max number of items that should be read into the scanner at any one time
      */
     public void setMaxEntriesForBatchScanner(final String maxEntriesForBatchScanner) {
         set(MAX_ENTRIES_FOR_BATCH_SCANNER, maxEntriesForBatchScanner);
@@ -260,7 +260,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the size that should be used for the creation of bloom filters on the client side
      *
-     * @param clientSideBloomFilterSize
+     * @param clientSideBloomFilterSize the size that should be used for the creation of bloom filters on the client side
      */
     public void setClientSideBloomFilterSize(final String clientSideBloomFilterSize) {
         set(CLIENT_SIDE_BLOOM_FILTER_SIZE, clientSideBloomFilterSize);
@@ -278,7 +278,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the allowable rate of false positives for bloom filters (Generally the higher the value the faster the filter)
      *
-     * @param falsePositiveRate
+     * @param falsePositiveRate the allowable rate of false positives for bloom filters (Generally the higher the value the faster the filter)
      */
     public void setFalsePositiveRate(final String falsePositiveRate) {
         set(FALSE_POSITIVE_RATE, falsePositiveRate);
@@ -296,7 +296,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the size that should be used for the creation of bloom filters on the server side
      *
-     * @param maxBloomFilterToPassToAnIterator
+     * @param maxBloomFilterToPassToAnIterator the size that should be used for the creation of bloom filters on the server side
      */
     public void setMaxBloomFilterToPassToAnIterator(final String maxBloomFilterToPassToAnIterator) {
         set(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, maxBloomFilterToPassToAnIterator);
@@ -304,6 +304,7 @@ public class AccumuloProperties extends StoreProperties {
 
     /**
      * Get the key package that should be used in conjunction with this table
+     *
      * @return An implementation of {@link gaffer.accumulostore.key.AccumuloKeyPackage} to be used for this accumulo table
      */
     public String getKeyPackageClass() {
@@ -312,7 +313,8 @@ public class AccumuloProperties extends StoreProperties {
 
     /**
      * Set the key package that should be used in conjunction with this table
-     * @param keyPackageClass
+     *
+     * @param keyPackageClass the key package that should be used in conjunction with this table
      */
     public void setKeyPackageClass(final String keyPackageClass) {
         set(KEY_PACKAGE_CLASS, keyPackageClass);
@@ -321,7 +323,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Get the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
      *
-     * @return
+     * @return the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
      */
     public String getSplitsFilePath() {
         return get(SPLITS_FILE_PATH, SPLITS_FILE_PATH_DEFAULT);
@@ -330,7 +332,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
      *
-     * @param splitsFilePath
+     * @param splitsFilePath the path of a splits file to be automatically when using the accumulo-stores built in partitioner strategy
      */
     public void setSplitsFilePath(final String splitsFilePath) {
         set(SPLITS_FILE_PATH, splitsFilePath);
@@ -348,7 +350,7 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Set the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
      *
-     * @param replicationFactor
+     * @param replicationFactor the replication factor to be applied to tables created by gaffer, if not set then the table will use your general accumulo settings default value.
      */
     public void setTableFileReplicationFactor(final String replicationFactor) {
         set(TABLE_REPLICATION_FACTOR, replicationFactor);

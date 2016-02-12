@@ -32,9 +32,9 @@ public final class BloomFilterUtils {
      * Calculates the size of the {@link org.apache.hadoop.util.bloom.BloomFilter} needed to achieve the desired false positive rate given that the
      * specified number of items will be added to the set, but with the maximum size limited as specified.
      *
-     * @param falsePositiveRate
-     * @param numItemsToBeAdded
-     * @param maximumSize
+     * @param falsePositiveRate the false positive rate
+     * @param numItemsToBeAdded the number of items to be added
+     * @param maximumSize       the maximum size
      * @return An Integer representing the size of the bloom filter needed.
      */
     @SuppressFBWarnings(value = "ICAST_IDIV_CAST_TO_DOUBLE", justification = "the value is cast to an int after the division")
@@ -47,8 +47,8 @@ public final class BloomFilterUtils {
      * Calculates the optimal number of hash functions to use in a {@link org.apache.hadoop.util.bloom.BloomFilter} of the given size, to which the
      * given number of items will be added.
      *
-     * @param bloomFilterSize
-     * @param numItemsToBeAdded
+     * @param bloomFilterSize   the size of the bloom filter
+     * @param numItemsToBeAdded the number of items to be added
      * @return An integer representing the optimal number of hashes to use
      */
     @SuppressFBWarnings(value = "ICAST_IDIV_CAST_TO_DOUBLE", justification = "the value is cast to an int after the division")
@@ -60,9 +60,9 @@ public final class BloomFilterUtils {
      * Returns a {@link org.apache.hadoop.util.bloom.BloomFilter} of the necessary size to achieve the given false positive rate (subject
      * to the given maximum size), configured with the optimal number of hash functions.
      *
-     * @param falsePositiveRate
-     * @param numItemsToBeAdded
-     * @param maximumSize
+     * @param falsePositiveRate the false positive rate
+     * @param numItemsToBeAdded the number of items to be added
+     * @param maximumSize       the maximum size
      * @return A new BloomFilter with the desired Settings
      */
     public static BloomFilter getBloomFilter(final double falsePositiveRate, final int numItemsToBeAdded, final int maximumSize) {
@@ -74,7 +74,7 @@ public final class BloomFilterUtils {
     /**
      * Returns a {@link org.apache.hadoop.util.bloom.BloomFilter} of the given size.
      *
-     * @param size
+     * @param size the size of the bloom filter to create
      * @return A new BloomFilter of the desired size
      */
     public static BloomFilter getBloomFilter(final int size) {

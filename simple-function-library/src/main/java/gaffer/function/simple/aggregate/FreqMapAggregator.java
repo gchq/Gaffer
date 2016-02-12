@@ -53,6 +53,7 @@ public class FreqMapAggregator extends SingleInputAggregateFunction {
         frequencyMap = null;
     }
 
+    @Override
     public Object[] state() {
         return new Object[]{frequencyMap != null ? frequencyMap : new FreqMap()};
     }
