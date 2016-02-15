@@ -35,7 +35,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
             return null;
         }
 
-        return new IteratorSettingBuilder(Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_PRIORITY,
+        return new IteratorSettingBuilder(Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
                 Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME, EDGE_DIRECTED_UNDIRECTED_FILTER)
                 .includeIncomingOutgoing(operation.getIncludeIncomingOutGoing())
                 .includeEdges(operation.getIncludeEdges())

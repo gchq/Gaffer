@@ -35,5 +35,14 @@ public class GetElementsBetweenSets<ELEMENT_TYPE extends Element> extends Abstra
     public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB, final View view) {
         super(seedsA, seedsB, view);
     }
+    
+    public static class Builder<OP_TYPE extends GetElementsBetweenSets<ELEMENT_TYPE>, ELEMENT_TYPE extends Element>
+        extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
+        
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+    
+    }
 
 }

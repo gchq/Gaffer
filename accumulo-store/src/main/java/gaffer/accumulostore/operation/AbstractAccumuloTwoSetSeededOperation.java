@@ -16,6 +16,9 @@
 
 package gaffer.accumulostore.operation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
@@ -43,5 +46,38 @@ extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
     public void setSeedsB(final Iterable<SEED_TYPE> seedsB) {
         this.seedsB = seedsB;
     }
-
+ 
+    public static class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+    extends GetElements.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
+        List<SEED_TYPE> seedsB = new ArrayList<>();
+        
+        protected Builder(final OP_TYPE op) {
+           super(op);
+        } 
+        
+        public Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> seedsB(final Iterable<SEED_TYPE> seedsB) {
+            this.op.setSeedsB(seedsB);
+            return this;
+        }
+        
+        public Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> addSeedB(final SEED_TYPE seed) {
+            this.seedsB.add(seed);
+            return this;
+        }
+        
+        public OP_TYPE build() {
+            if(!this.seedsB.isEmpty()) {
+                Iterable<SEED_TYPE> seeds = this.op.getSeedsB();
+                if(null != seeds) {
+                    for(SEED_TYPE seed : seeds) {
+                        this.seedsB.add(seed);
+                    }
+                }
+                this.op.setSeedsB(this.seedsB);
+            }
+            return this.op;
+        }
+      
+    }
+   
 }

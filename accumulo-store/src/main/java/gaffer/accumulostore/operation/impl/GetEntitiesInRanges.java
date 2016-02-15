@@ -69,4 +69,13 @@ public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends Abstract
         }
     }
 
+    public static class Builder<OP_TYPE extends GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
+        extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Entity> {
+    
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+    }
+    
 }

@@ -54,5 +54,13 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
         throw new IllegalArgumentException(getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
     }
+    
+    public static class Builder<OP_TYPE extends GetElementsWithinSet<ELEMENT_TYPE>, ELEMENT_TYPE extends Element> extends AbstractGetOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
+        
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+    }
 
 }

@@ -40,4 +40,13 @@ extends AbstractRangeOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
     public AbstractGetRangeFromPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
         super(operation);
     }
+    
+    public static class Builder<OP_TYPE extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+        extends AbstractRangeOperation.Builder<OP_TYPE, Pair<SEED_TYPE>, ELEMENT_TYPE> {
+        
+        protected Builder(final OP_TYPE op) {
+           super(op);
+        } 
+        
+    }
 }

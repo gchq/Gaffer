@@ -44,5 +44,14 @@ public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ext
     public GetElementsInRanges(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
         super(operation);
     }
+    
+    public static class Builder<OP_TYPE extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+        extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
+    
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+    
+    }
 
 }

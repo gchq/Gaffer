@@ -49,7 +49,7 @@ public final class Constants {
     public static final int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
     public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only during scans.
     public static final int RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY = 32; //Applied only during scans.
-    public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
+    public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
     public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 34; // Applied only during scans.
     public static final int QUERY_TIME_AGGREGATOR_PRIORITY = 35; // Applied only during scans.
     public static final int TRANSFORM_PRIORITY = 50; // Applied only during scans.

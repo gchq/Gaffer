@@ -42,5 +42,13 @@ public class GetEdgesWithinSet extends GetEdges<EntitySeed> {
     public GetEdgesWithinSet(final GetOperation<EntitySeed, ?> operation) {
         super(operation);
     }
+    
+    public static class Builder<OP_TYPE extends GetEdgesWithinSet> extends GetEdges.Builder<OP_TYPE, EntitySeed> {
+    
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+    }
 
 }
