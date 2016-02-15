@@ -57,10 +57,10 @@ public class GetEdgesBetweenSets extends AbstractAccumuloTwoSetSeededOperation<E
         }
         super.setIncludeEdges(includeEdges);
     }
-    
+
     public static class Builder<OP_TYPE extends GetEdgesBetweenSets>
         extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, Edge> {
-        
+
         protected Builder(final OP_TYPE op) {
             super(op);
         }

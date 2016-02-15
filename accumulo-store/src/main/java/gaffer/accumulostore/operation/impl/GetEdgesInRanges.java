@@ -69,7 +69,7 @@ public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGet
 
         super.setIncludeEdges(includeEdges);
     }
-    
+
     public static class Builder<OP_TYPE extends GetEdgesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
         extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Edge> {
 

@@ -38,13 +38,13 @@ public class AbstractRangeOperation<SEED_TYPE, ELEMENT_TYPE extends Element> ext
     public AbstractRangeOperation(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
-    
+
     public static class Builder<OP_TYPE extends AbstractRangeOperation<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE extends Element>
     extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
-        
+
         protected Builder(final OP_TYPE op) {
            super(op);
-        } 
-        
+        }
+
     }
 }
