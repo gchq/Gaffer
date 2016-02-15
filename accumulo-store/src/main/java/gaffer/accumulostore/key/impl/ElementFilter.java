@@ -16,10 +16,10 @@
 
 package gaffer.accumulostore.key.impl;
 
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
+import gaffer.accumulostore.utils.Constants;
 import gaffer.data.ElementValidator;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -30,7 +30,6 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -66,11 +65,13 @@ public class ElementFilter extends Filter {
         if (!options.containsKey(Constants.STORE_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
         }
-        if (!options.containsKey(Constants.VIEW)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.VIEW);
+
+        if (!options.containsKey(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
+            throw new IllegalArgumentException("Must specify the " + Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
+
         try {
-            validator = new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
+            validator = getElementValidator(options);
         } catch (UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise view from JSON", e);
 
@@ -80,7 +81,7 @@ public class ElementFilter extends Filter {
         try {
             storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
         } catch (UnsupportedEncodingException e) {
-            throw new ElementFilterException(e.getMessage(), e);
+            throw new SchemaException("Unable to deserialise store schema from JSON", e);
         }
 
         try {
@@ -102,5 +103,13 @@ public class ElementFilter extends Filter {
         return new IteratorOptions(Constants.VIEW,
                 "Only returns elements that match the supplied predicates",
                 namedOptions, null);
+    }
+
+    protected ElementValidator getElementValidator(final Map<String, String> options) throws UnsupportedEncodingException {
+        if (!options.containsKey(Constants.VIEW)) {
+            throw new IllegalArgumentException("Must specify the " + Constants.VIEW);
+        }
+
+        return new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
     }
 }
