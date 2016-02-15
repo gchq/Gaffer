@@ -123,7 +123,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
                 .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(Constants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(Constants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
-                .setIteratorName(Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_NAME)
+                .setIteratorName(Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME)
                 .setIteratorDescription("Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
                 .build();
     }

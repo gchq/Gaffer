@@ -23,7 +23,7 @@ public final class Constants {
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
     public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
-    public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Incoming_Outgoing_Filter";
+    public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Incoming_Outgoing_Filter";
     public static final String QUERY_TIME_AGGREGATION_ITERATOR_NAME = "Query_Time_Aggregator";
     public static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME = "Range_Element_Property_Filter";
 
