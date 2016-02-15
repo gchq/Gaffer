@@ -17,18 +17,31 @@
 package gaffer.function;
 
 /**
- * An <code>SingleInputFilterFunction</code> is a {@link FilterFunction} that
- * only takes a single input object.
+ * An <code>SimpleAggregateFunction</code> is an {@link AggregateFunction}
+ * that takes a single input and returns a single output when state is called.
+ *
+ * @param <T> the type of input and output
  */
-public abstract class SingleInputFilterFunction extends FilterFunction {
+public abstract class SimpleAggregateFunction<T> extends AggregateFunction {
     @Override
-    protected boolean filter(final Object[] input) {
+    public void aggregate(final Object[] input) {
         if (null == input || 1 != input.length) {
             throw new IllegalArgumentException("Expected an input array of length 1");
         }
 
-        return filter(input[0]);
+        try {
+            _aggregate((T) input[0]);
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException("Input does not match parametrised type");
+        }
     }
 
-    protected abstract boolean filter(final Object input);
+    @Override
+    public Object[] state() {
+        return new Object[]{_state()};
+    }
+
+    protected abstract void _aggregate(final T input);
+
+    protected abstract T _state();
 }

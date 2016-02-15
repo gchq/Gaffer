@@ -19,7 +19,7 @@ import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 /**
- * An <code>Max</code> is a {@link gaffer.function.SingleInputAggregateFunction} that takes in
+ * An <code>Max</code> is a {@link gaffer.function.SimpleAggregateFunction} that takes in
  * {@link java.lang.Number}s of the same type and calculates the maximum.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
  * otherwise it will be automatically set for you using the class of the first number passed in.
@@ -45,21 +45,21 @@ public class Max extends NumericAggregateFunction {
     }
 
     @Override
-    protected void executeInt(final Integer input) {
+    protected void aggregateInt(final Integer input) {
         if (input > (Integer) aggregate) {
             aggregate = input;
         }
     }
 
     @Override
-    protected void executeLong(final Long input) {
+    protected void aggregateLong(final Long input) {
         if (input > (Long) aggregate) {
             aggregate = input;
         }
     }
 
     @Override
-    protected void executeDouble(final Double input) {
+    protected void aggregateDouble(final Double input) {
         if (input > (Double) aggregate) {
             aggregate = input;
         }

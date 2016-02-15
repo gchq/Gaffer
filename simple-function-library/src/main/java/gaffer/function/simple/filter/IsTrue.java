@@ -15,15 +15,15 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.function.SingleInputFilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 /**
- * An <code>IsTrue</code> is a {@link gaffer.function.SingleInputFilterFunction} that checks that the input boolean is
+ * An <code>IsTrue</code> is a {@link SimpleFilterFunction} that checks that the input boolean is
  * true.
  */
 @Inputs(Boolean.class)
-public class IsTrue extends SingleInputFilterFunction {
+public class IsTrue extends SimpleFilterFunction<Boolean> {
 
     public IsTrue() {
         // Required for serialisation
@@ -34,7 +34,7 @@ public class IsTrue extends SingleInputFilterFunction {
     }
 
     @Override
-    protected boolean filter(final Object input) {
+    protected boolean _isValid(final Boolean input) {
         return Boolean.TRUE.equals(input);
     }
 }

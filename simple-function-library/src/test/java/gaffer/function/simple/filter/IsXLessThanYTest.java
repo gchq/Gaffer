@@ -18,7 +18,7 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final IsXLessThanY filter = new IsXLessThanY();
 
         // When
-        boolean accepted = filter.filter(new Object[]{1, 2});
+        boolean accepted = filter._isValid(new Object[]{1, 2});
 
         // Then
         assertTrue(accepted);
@@ -30,7 +30,7 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final IsXLessThanY filter = new IsXLessThanY();
 
         // When
-        boolean accepted = filter.filter(new Object[]{6, 5});
+        boolean accepted = filter._isValid(new Object[]{6, 5});
 
         // Then
         assertFalse(accepted);
@@ -43,7 +43,7 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final IsXLessThanY filter = new IsXLessThanY();
 
         // When
-        boolean accepted = filter.filter(new Object[]{5, 5});
+        boolean accepted = filter._isValid(new Object[]{5, 5});
 
         // Then
         assertFalse(accepted);

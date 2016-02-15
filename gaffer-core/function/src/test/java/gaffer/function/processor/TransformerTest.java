@@ -74,7 +74,7 @@ public class TransformerTest {
         verify(functionContext1).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor.capture());
+        verify(function1).transform(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
     }
 
@@ -111,12 +111,12 @@ public class TransformerTest {
         verify(functionContext2).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor1 = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor1.capture());
+        verify(function1).transform(argumentCaptor1.capture());
         assertEquals(value1, argumentCaptor1.getValue()[0]);
         assertEquals(value2, argumentCaptor1.getValue()[1]);
 
         final ArgumentCaptor<Object[]> argumentCaptor3 = ArgumentCaptor.forClass(Object[].class);
-        verify(function2).execute(argumentCaptor3.capture());
+        verify(function2).transform(argumentCaptor3.capture());
         assertEquals(value2, argumentCaptor3.getValue()[0]);
     }
 

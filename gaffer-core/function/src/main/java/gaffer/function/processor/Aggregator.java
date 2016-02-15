@@ -62,7 +62,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             Object[] selection = functionContext.select(tuple);
             if (selection != null) {
-                functionContext.getFunction().execute(selection);
+                functionContext.getFunction().aggregate(selection);
             }
         }
     }

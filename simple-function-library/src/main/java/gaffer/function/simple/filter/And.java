@@ -46,7 +46,7 @@ public class And extends MultiFilterFunction {
      * @return true if all of the contained filter functions returns true, otherwise false.
      */
     @Override
-    protected boolean filter(final Object[] input) {
+    protected boolean _isValid(final Object[] input) {
         for (Boolean result : executeFilters(input)) {
             if (!result) {
                 return false;

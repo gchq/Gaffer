@@ -24,7 +24,7 @@ import gaffer.function.annotation.Outputs;
 @Outputs(String.class)
 public class ExampleTransformFunction extends TransformFunction {
     @Override
-    public Object[] execute(final Object[] input) {
+    public Object[] transform(final Object[] input) {
         return new Object[]{input[0] + " transformed"};
     }
 

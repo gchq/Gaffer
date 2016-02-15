@@ -33,7 +33,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.filter(false);
+        boolean accepted = filter._isValid(false);
 
         // Then
         assertTrue(accepted);
@@ -45,7 +45,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.filter(Boolean.FALSE);
+        boolean accepted = filter._isValid(Boolean.FALSE);
 
         // Then
         assertTrue(accepted);
@@ -57,7 +57,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.filter(null);
+        boolean accepted = filter._isValid(null);
 
         // Then
         assertFalse(accepted);
@@ -69,7 +69,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.filter(new Object[]{null});
+        boolean accepted = filter._isValid(null);
 
         // Then
         assertFalse(accepted);
@@ -81,7 +81,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.filter(new Object[]{true});
+        boolean accepted = filter._isValid(true);
 
         // Then
         assertFalse(accepted);
