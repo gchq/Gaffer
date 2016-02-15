@@ -15,17 +15,18 @@
  */
 package gaffer.accumulostore.key.core.impl.classic;
 
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import java.io.IOException;
+import java.util.Map;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 
 public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
@@ -81,12 +82,15 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
-        validateOptions(options);
         super.init(source, options, env);
+        validateOptions(options);
     }
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
+        if (!super.validateOptions(options)) {
+            return false;
+        }
         if (options.containsKey(Constants.DIRECTED_EDGE_ONLY) && options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
             throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.DIRECTED_EDGE_ONLY
                     + " or " + Constants.UNDIRECTED_EDGE_ONLY);
@@ -113,10 +117,14 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        final Map<String, String> namedOptions = new HashMap<>();
-        namedOptions.put(Constants.DIRECTED_EDGE_ONLY, "set if only want directed edges (value is ignored)");
-        namedOptions.put(Constants.UNDIRECTED_EDGE_ONLY, "set if only want undirected edges (value is ignored)");
-        return new IteratorOptions("EntityOrEdgeOnlyFilterIterator", "Only returns Entities or Edges as specified by the user's options",
-                namedOptions, null);
+        return new IteratorOptionsBuilder(super.describeOptions())
+                .addNamedOption(Constants.DIRECTED_EDGE_ONLY, "Optional : Set if only directed edges should be returned")
+                .addNamedOption(Constants.UNDIRECTED_EDGE_ONLY, "Optional: Set if only undirected edges should be returned")
+                .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
+                .addNamedOption(Constants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
+                .addNamedOption(Constants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
+                .setIteratorName(Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_NAME)
+                .setIteratorDescription("Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
+                .build();
     }
 }

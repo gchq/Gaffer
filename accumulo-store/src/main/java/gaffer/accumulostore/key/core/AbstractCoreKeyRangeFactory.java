@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
+
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation) throws RangeFactoryException {

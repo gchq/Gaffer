@@ -16,9 +16,12 @@
 
 package gaffer.accumulostore.key.core.impl;
 
-import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -26,12 +29,10 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 
 /**
  * The BloomFilterIterator should filter out elements based on their membership of the provided bloomFilter.
@@ -46,14 +47,32 @@ public class CoreKeyBloomFilterIterator extends Filter {
         return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(getVertexFromKey(key.getRowData().getBackingArray())));
     }
 
+    protected byte[] getVertexFromKey(final byte[] key) {
+        int pos = -1;
+        for (int i = 0; i < key.length; ++i) {
+            if (key[i] == ByteArrayEscapeUtils.DELIMITER) {
+                pos = i;
+                break;
+            }
+        }
+        if (pos != -1) {
+            return Arrays.copyOf(key, pos);
+        } else {
+            return key;
+        }
+    }
+
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
-        validateOptions(options);
         super.init(source, options, env);
+        validateOptions(options);
     }
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
+        if (!super.validateOptions(options)) {
+            return false;
+        }
         if (!options.containsKey(Constants.BLOOM_FILTER)) {
             throw new BloomFilterIteratorException("Must set the " + Constants.BLOOM_FILTER + " option");
         }
@@ -69,24 +88,11 @@ public class CoreKeyBloomFilterIterator extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        final Map<String, String> namedOptions = new HashMap<>();
-        return new IteratorOptions(Constants.BLOOM_FILTER,
-                "Required The serialised form of the bloom filter that keys will be tested against ",
-                namedOptions, null);
+         return new IteratorOptionsBuilder(Constants.BLOOM_FILTER_ITERATOR_NAME,
+                "Bloom Filter")
+                .addNamedOption(Constants.BLOOM_FILTER,
+                "Required: The serialised form of the bloom filter that keys will be tested against")
+                .build();
     }
 
-    public byte[] getVertexFromKey(final byte[] key) {
-        int pos = -1;
-        for (int i = 0; i < key.length; ++i) {
-            if (key[i] == ByteArrayEscapeUtils.DELIMITER) {
-                pos = i;
-                break;
-            }
-        }
-        if (pos != -1) {
-            return Arrays.copyOf(key, pos);
-        } else {
-            return key;
-        }
-    }
 }

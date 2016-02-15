@@ -16,30 +16,31 @@
 
 package gaffer.accumulostore.key.impl;
 
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.key.exception.AggregationException;
-import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.utils.IteratorUtils;
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.data.element.Properties;
-import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.iterators.Combiner;
-import org.apache.accumulo.core.iterators.IteratorEnvironment;
-import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.Combiner;
+import org.apache.accumulo.core.iterators.IteratorEnvironment;
+import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.key.exception.AggregationException;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.data.element.Properties;
+import gaffer.data.element.function.ElementAggregator;
+import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.store.schema.StoreSchema;
+
 /**
- * The aggregator iterator is used to combine {@link Value}s where the {@link Key} is the same.
+ * The aggregator iterator is used to combine {@link Value}s where the {@link Key} is the same (Except for the Timestamp column).
  * The instructions provided in the data schema define how the aggregation takes place and therefore what the resulting {@link Value}
  * will be.
  */
@@ -90,14 +91,17 @@ public class AggregatorIterator extends Combiner {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
-        validateOptions(options);
         super.init(source, options, env);
+        validateOptions(options);
     }
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
         if (!super.validateOptions(options)) {
             return false;
+        }
+        if (!options.containsKey(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
+            throw new IllegalArgumentException("Must specify the " + Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
         if (!options.containsKey(Constants.STORE_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
@@ -127,8 +131,13 @@ public class AggregatorIterator extends Combiner {
 
     @Override
     public IteratorOptions describeOptions() {
-        return IteratorUtils.describeOptions("AggregatorIterator",
-                "Combines properties over elements which have the same key",
-                super.describeOptions());
+        return new IteratorOptionsBuilder(super.describeOptions())
+                .addDataSchemaNamedOption()
+                .addStoreSchemaNamedOption()
+                .addElementConverterClassNamedOption()
+                .setIteratorName(Constants.AGGREGATOR_ITERATOR_NAME)
+                .setIteratorDescription("Applies a reduce function to elements with identical (rowKey, column family, column qualifier, visibility)")
+                .build();
     }
+
 }

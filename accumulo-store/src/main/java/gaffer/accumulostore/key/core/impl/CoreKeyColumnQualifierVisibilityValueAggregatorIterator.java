@@ -20,7 +20,7 @@ import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityV
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
 import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.utils.IteratorUtils;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -72,6 +72,18 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         return result;
     }
 
+    private void aggregateProperties(final String group, final ColumnQualifierColumnVisibilityValueTriple triple) {
+        final Properties properties = new Properties();
+        try {
+            properties.putAll(elementConverter.getPropertiesFromColumnQualifier(group, triple.getColumnQualifier()));
+            properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, triple.getColumnVisibility()));
+            properties.putAll(elementConverter.getPropertiesFromValue(group, triple.getValue()));
+        } catch (final AccumuloElementConversionException e) {
+            throw new RuntimeException(e);
+        }
+        aggregator.aggregate(properties);
+    }
+
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
@@ -80,7 +92,9 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
-        super.validateOptions(options);
+        if (!super.validateOptions(options)) {
+            return false;
+        }
         if (!options.containsKey(Constants.DATA_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
         }
@@ -100,22 +114,12 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         return true;
     }
 
-    private void aggregateProperties(final String group, final ColumnQualifierColumnVisibilityValueTriple triple) {
-        final Properties properties = new Properties();
-        try {
-            properties.putAll(elementConverter.getPropertiesFromColumnQualifier(group, triple.getColumnQualifier()));
-            properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, triple.getColumnVisibility()));
-            properties.putAll(elementConverter.getPropertiesFromValue(group, triple.getValue()));
-        } catch (final AccumuloElementConversionException e) {
-            throw new RuntimeException(e);
-        }
-        aggregator.aggregate(properties);
-    }
-
     @Override
     public IteratorOptions describeOptions() {
-        return IteratorUtils.describeOptions("ColumnQualifierVisibilityAggregatorIterator",
-                "Combines properties over elements which differ only in column qualifier and visibility",
-                super.describeOptions());
+        return new IteratorOptionsBuilder(super.describeOptions())
+                .addDataSchemaNamedOption()
+                .addElementConverterClassNamedOption()
+                .build();
     }
+
 }

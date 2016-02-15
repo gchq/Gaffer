@@ -17,23 +17,26 @@
 package gaffer.accumulostore.key.core.impl.classic;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
-import gaffer.accumulostore.key.core.impl.CoreKeyRangeElementPropertyFilterIterator;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 
-public class ClassicRangeElementPropertyFilterIterator extends CoreKeyRangeElementPropertyFilterIterator {
+public class ClassicRangeElementPropertyFilterIterator extends Filter {
 
+    protected boolean edges = false;
+    protected boolean entities = false;
 
     @Override
-    public boolean doAccept(final Key key, final Value value) {
-        final boolean foundDelimiter = isDelimiter(key);
+    public boolean accept(final Key key, final Value value) {
+        final boolean foundDelimiter = hasDelimiter(key);
         if (!edges && foundDelimiter) {
             return false;
         } else if (!entities && !foundDelimiter) {
@@ -42,14 +45,30 @@ public class ClassicRangeElementPropertyFilterIterator extends CoreKeyRangeEleme
         return true;
     }
 
+    protected boolean hasDelimiter(final Key key) {
+        final byte[] rowID = key.getRowData().getBackingArray();
+        boolean foundDelimiter = false;
+        for (final byte aRowID : rowID) {
+            if (aRowID == ByteArrayEscapeUtils.DELIMITER) {
+                foundDelimiter = true;
+                break;
+            }
+        }
+        return foundDelimiter;
+    }
+
+
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
-        validateOptions(options);
         super.init(source, options, env);
+        validateOptions(options);
     }
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
+        if (!super.validateOptions(options)) {
+            return false;
+        }
         if (options.containsKey(Constants.INCLUDE_ENTITIES)) {
             entities = true;
         }
@@ -61,11 +80,12 @@ public class ClassicRangeElementPropertyFilterIterator extends CoreKeyRangeEleme
 
     @Override
     public IteratorOptions describeOptions() {
-        final Map<String, String> namedOptions = new HashMap<>();
-        namedOptions.put(Constants.DIRECTED_EDGE_ONLY, "set if only want directed edges (value is ignored)");
-        namedOptions.put(Constants.UNDIRECTED_EDGE_ONLY, "set if only want undirected edges (value is ignored)");
-        return new IteratorOptions("EntityOrEdgeOnlyFilterIterator", "Only returns Entities or Edges as specified by the user's options",
-                namedOptions, null);
+        return new IteratorOptionsBuilder(super.describeOptions())
+                .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
+                .addNamedOption(Constants.NO_EDGES, "Optional: Set if no edges should be returned")
+                .setIteratorName(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
+                .setIteratorDescription("Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
+                .build();
     }
 
 }

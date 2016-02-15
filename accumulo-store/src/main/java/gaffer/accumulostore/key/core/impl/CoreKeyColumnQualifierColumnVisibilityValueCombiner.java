@@ -16,6 +16,7 @@
 package gaffer.accumulostore.key.core.impl;
 
 import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -30,6 +31,7 @@ import org.apache.accumulo.core.iterators.IteratorUtil;
 import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
+import org.apache.accumulo.core.iterators.OptionDescriber.IteratorOptions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
@@ -225,11 +227,6 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
     public abstract ColumnQualifierColumnVisibilityValueTriple reduce(final Key key, final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter);
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
-        super.init(source, options, env);
-    }
-
-    @Override
     public SortedKeyValueIterator<Key, Value> deepCopy(final IteratorEnvironment env) {
         CoreKeyColumnQualifierColumnVisibilityValueCombiner newInstance;
         try {
@@ -242,10 +239,8 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
     }
 
     @Override
-    public IteratorOptions describeOptions() {
-        return new IteratorOptions("comb_rk_cf",
-                "Applies a reduce function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)",
-                null, null);
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+        super.init(source, options, env);
     }
 
     @Override
@@ -259,5 +254,12 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
             throw new SchemaException("Unable to deserialise the store schema", e);
         }
         return true;
+    }
+
+    @Override
+    public IteratorOptions describeOptions() {
+        return new IteratorOptionsBuilder(Constants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, "Applies a reduce function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)")
+                .addStoreSchemaNamedOption()
+                .build();
     }
 }

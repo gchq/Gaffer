@@ -16,26 +16,27 @@
 
 package gaffer.accumulostore.key.impl;
 
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.exception.ElementFilterException;
-import gaffer.data.ElementValidator;
-import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.data.elementdefinition.view.View;
-import gaffer.store.schema.StoreSchema;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.key.exception.ElementFilterException;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.data.ElementValidator;
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.store.schema.StoreSchema;
 
 /**
  * The ElementFilter will filter out {@link Element}s based on the filtering instructions given in the {@link View} that is passed to this iterator
@@ -57,12 +58,18 @@ public class ElementFilter extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
-        validateOptions(options);
         super.init(source, options, env);
+        validateOptions(options);
     }
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
+        if (!super.validateOptions(options)) {
+            return false;
+        }
+        if (!options.containsKey(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
+            throw new IllegalArgumentException("Must specify the " + Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
+        }
         if (!options.containsKey(Constants.STORE_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
         }
@@ -96,11 +103,12 @@ public class ElementFilter extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        final Map<String, String> namedOptions = new HashMap<>();
-        namedOptions.put(Constants.VIEW, "A serialised gaffer.accumulostore.operation schema");
-        namedOptions.put(Constants.STORE_SCHEMA, "A serialised gaffer.accumulostore schema");
-        return new IteratorOptions(Constants.VIEW,
-                "Only returns elements that match the supplied predicates",
-                namedOptions, null);
+        return new IteratorOptionsBuilder(super.describeOptions())
+                .addViewNamedOption()
+                .addStoreSchemaNamedOption()
+                .addElementConverterClassNamedOption()
+                .setIteratorName(Constants.ELEMENT_FILTER_ITERATOR_NAME)
+                .setIteratorDescription("Only returns elements that pass validation against the given view")
+                .build();
     }
 }

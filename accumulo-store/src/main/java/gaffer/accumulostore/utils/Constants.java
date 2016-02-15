@@ -23,7 +23,7 @@ public final class Constants {
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
     public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
-    public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Filter";
+    public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Incoming_Outgoing_Filter";
     public static final String QUERY_TIME_AGGREGATION_ITERATOR_NAME = "Query_Time_Aggregator";
     public static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME = "Range_Element_Property_Filter";
 
@@ -49,11 +49,10 @@ public final class Constants {
     public static final int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
     public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only during scans.
     public static final int RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY = 32; //Applied only during scans.
-    public static final int EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
+    public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTOING_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.
     public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 34; // Applied only during scans.
     public static final int QUERY_TIME_AGGREGATOR_PRIORITY = 35; // Applied only during scans.
     public static final int TRANSFORM_PRIORITY = 50; // Applied only during scans.
-
 
     //Operations options
     public static final String OPERATION_USE_ACCUMULO_PARTIONER = "accumulostore.operation.hdfs.use_accumulo_partioner";
