@@ -23,7 +23,7 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
-import gaffer.accumulostore.key.impl.ElementValidatorFilter;
+import gaffer.accumulostore.key.impl.ExpiratorFilter;
 import gaffer.commonutil.PathUtil;
 import gaffer.data.elementdefinition.schema.DataEdgeDefinition;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -32,7 +32,6 @@ import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
-import org.apache.accumulo.core.iterators.user.AgeOffFilter;
 import org.junit.Test;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -66,25 +65,17 @@ public class TableUtilsTest {
 
         // Then
         final Map<String, EnumSet<IteratorScope>> itrs = store.getConnection().tableOperations().listIterators(TABLE_NAME);
-        assertEquals(3, itrs.size());
+        assertEquals(2, itrs.size());
 
-        final EnumSet<IteratorScope> ageOff = itrs.get(Constants.AGE_OFF_ITERATOR_NAME);
-        assertEquals(EnumSet.allOf(IteratorScope.class), ageOff);
-        final IteratorSetting ageOffSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.AGE_OFF_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(Constants.AGE_OFF_ITERATOR_PRIORITY, ageOffSetting.getPriority());
-        assertEquals(AgeOffFilter.class.getName(), ageOffSetting.getIteratorClass());
-        final Map<String, String> ageOffOptions = ageOffSetting.getOptions();
-        assertEquals(31536000000L, Long.parseLong(ageOffOptions.get("ttl")));
-
-        final EnumSet<IteratorScope> validator = itrs.get(Constants.VALIDATOR_ITERATOR_NAME);
-        assertEquals(EnumSet.allOf(IteratorScope.class), validator);
-        final IteratorSetting validatorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.VALIDATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(Constants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
-        assertEquals(ElementValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
-        final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(DataSchema.fromJson(validatorOptions.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertNotNull(StoreSchema.fromJson(validatorOptions.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+        final EnumSet<IteratorScope> expirator = itrs.get(Constants.EXPIRATOR_ITERATOR_NAME);
+        assertEquals(EnumSet.allOf(IteratorScope.class), expirator);
+        final IteratorSetting expiratorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.EXPIRATOR_ITERATOR_NAME, IteratorScope.majc);
+        assertEquals(Constants.EXPIRATOR_ITERATOR_PRIORITY, expiratorSetting.getPriority());
+        assertEquals(ExpiratorFilter.class.getName(), expiratorSetting.getIteratorClass());
+        final Map<String, String> expiratorOptions = expiratorSetting.getOptions();
+        assertNotNull(DataSchema.fromJson(expiratorOptions.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(StoreSchema.fromJson(expiratorOptions.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), expiratorOptions.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
         final EnumSet<IteratorScope> aggregator = itrs.get(Constants.AGGREGATOR_ITERATOR_NAME);
         assertEquals(EnumSet.allOf(IteratorScope.class), aggregator);

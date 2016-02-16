@@ -4,7 +4,7 @@
   },
   "true": {
     "class": "java.lang.Boolean",
-    "validator": {
+    "inputValidator": {
       "functions": [
         {
           "function": {
@@ -16,7 +16,7 @@
   },
   "false": {
     "class": "java.lang.Boolean",
-    "validator": {
+    "inputValidator": {
       "functions": [
         {
           "function": {
@@ -28,7 +28,7 @@
   },
   "simpleProperty": {
     "class": "java.lang.Object",
-    "validator": {
+    "inputValidator": {
       "functions": [
         {
           "function": {

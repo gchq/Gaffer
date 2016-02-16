@@ -16,6 +16,13 @@
 
 package gaffer.data.elementdefinition.schema;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import gaffer.commonutil.PathUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -34,7 +41,6 @@ import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -43,13 +49,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class DataSchemaTest {
     private DataSchema dataSchema;
@@ -118,7 +117,7 @@ public class DataSchemaTest {
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
 
         // Check validator
-        ElementFilter validator = edgeDefinition.getValidator();
+        ElementFilter validator = edgeDefinition.getInputValidator();
         final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> valContexts = validator.getFunctions();
         int index = 0;
         ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
@@ -180,7 +179,7 @@ public class DataSchemaTest {
                 .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
                         .property(TestPropertyNames.F1, String.class)
                         .property(TestPropertyNames.F2, Integer.class)
-                        .validator(new ElementFilter.Builder()
+                        .inputValidator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.F1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
@@ -202,7 +201,7 @@ public class DataSchemaTest {
                 "        \"property1\" : \"java.lang.String\",\n" +
                 "        \"property2\" : \"java.lang.Integer\"\n" +
                 "      },\n" +
-                "      \"validator\" : {\n" +
+                "      \"inputValidator\" : {\n" +
                 "        \"functions\" : [ {\n" +
                 "          \"function\" : {\n" +
                 "            \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +

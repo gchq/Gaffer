@@ -21,7 +21,7 @@ import org.apache.hadoop.io.Text;
 public final class Constants {
     //Iterator names
     public static final String AGE_OFF_ITERATOR_NAME = "ageoff";
-    public static final String VALIDATOR_ITERATOR_NAME = "Validator";
+    public static final String EXPIRATOR_ITERATOR_NAME = "Expirator";
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
     public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
@@ -45,9 +45,8 @@ public final class Constants {
     public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
 
     // Iterator priorities
-    public static final int AGE_OFF_ITERATOR_PRIORITY = 10; // Applied during major compactions, minor compactions and scans.
-    public static final int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
-    public static final int VALIDATOR_ITERATOR_PRIORITY = 30; // Applied during major compactions, minor compactions and scans.
+    public static final int AGGREGATOR_ITERATOR_PRIORITY = 10; // Applied during major compactions, minor compactions and scans.
+    public static final int EXPIRATOR_ITERATOR_PRIORITY = 20; // Applied during major compactions, minor compactions and scans.
     public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only during scans.
     public static final int EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY = 32; // Applied only during scans.
     public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 33; // Applied only during scans.

@@ -21,7 +21,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.key.impl.ElementValidatorFilter;
+import gaffer.accumulostore.key.impl.ExpiratorFilter;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.store.StoreException;
 import gaffer.store.schema.StoreSchema;
@@ -44,7 +44,6 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
-import org.apache.accumulo.core.iterators.user.AgeOffFilter;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.io.BytesWritable;
@@ -139,18 +138,11 @@ public final class TableUtils {
             connector.tableOperations().attachIterator(tableName, store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
             LOGGER.info("Combiner iterator to table for all scopes");
 
-            // Add age off iterator to table for all scopes
-            LOGGER.info("Adding age off iterator to table for all scopes");
-            final Long ageOfTimeInMils = 24L * 60L * 60L * 1000L * store.getProperties().getAgeOffTimeInDays();
-            connector.tableOperations().attachIterator(tableName,
-                    getAgeOffIteratorSetting(ageOfTimeInMils));
-            LOGGER.info("Added age off iterator to table for all scopes");
-
-            // Add validator iterator to table for all scopes
-            LOGGER.info("Adding validator iterator to table for all scopes");
+            // Add expirator iterator to table for all scopes
+            LOGGER.info("Adding expirator iterator to table for all scopes");
             connector.tableOperations().attachIterator(tableName,
                     getValidatorIterator(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage().getKeyConverter()));
-            LOGGER.info("Added validator iterator to table for all scopes");
+            LOGGER.info("Added expirator iterator to table for all scopes");
 
         } catch (AccumuloSecurityException | TableNotFoundException e) {
             throw new AccumuloException(e);
@@ -291,21 +283,9 @@ public final class TableUtils {
         }
     }
 
-    /**
-     * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that specifies the age off iterator.
-     *
-     * @param ageOffTimeInMilliseconds the age off time in milliseconds
-     * @return An iterator setting describing an age off iterator
-     */
-    private static IteratorSetting getAgeOffIteratorSetting(final long ageOffTimeInMilliseconds) {
-        return new IteratorSettingBuilder(Constants.AGE_OFF_ITERATOR_PRIORITY, Constants.AGE_OFF_ITERATOR_NAME, AgeOffFilter.class)
-                .option("ttl", "" + ageOffTimeInMilliseconds)
-                .build();
-    }
-
     private static IteratorSetting getValidatorIterator(final DataSchema dataSchema, final StoreSchema storeSchema, final AccumuloElementConverter keyConverter) {
-        return new IteratorSettingBuilder(Constants.VALIDATOR_ITERATOR_PRIORITY,
-                Constants.VALIDATOR_ITERATOR_NAME, ElementValidatorFilter.class)
+        return new IteratorSettingBuilder(Constants.EXPIRATOR_ITERATOR_PRIORITY,
+                Constants.EXPIRATOR_ITERATOR_NAME, ExpiratorFilter.class)
                 .dataSchema(dataSchema)
                 .storeSchema(storeSchema)
                 .keyConverter(keyConverter)

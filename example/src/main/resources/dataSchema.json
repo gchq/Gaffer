@@ -37,51 +37,79 @@
   "types": {
     "filmId.string": {
       "class": "java.lang.String",
-      "validator": {
+      "inputValidator": {
         "functions": [
-          {"function": {"class": "gaffer.function.simple.filter.Exists"}}
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.Exists"
+            }
+          }
         ]
       }
     },
     "userId.string": {
       "class": "java.lang.String",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.StringConcat"},
-      "validator": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
+      },
+      "inputValidator": {
         "functions": [
-          {"function": {"class": "gaffer.function.simple.filter.Exists"}}
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.Exists"
+            }
+          }
         ]
       }
     },
     "true": {
       "class": "java.lang.Boolean",
-      "validator": {
+      "inputValidator": {
         "functions": [
-          {"function": {"class": "gaffer.function.simple.filter.IsTrue"}}
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.IsTrue"
+            }
+          }
         ]
       }
     },
     "name.string": {
       "class": "java.lang.String",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.StringConcat"},
-      "validator": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
+      },
+      "inputValidator": {
         "functions": [
-          {"function": {"class": "gaffer.function.simple.filter.Exists"}}
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.Exists"
+            }
+          }
         ]
       }
     },
     "certificate": {
       "class": "gaffer.example.data.Certificate",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.ComparableMax"},
-      "validator": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.ComparableMax"
+      },
+      "inputValidator": {
         "functions": [
-          {"function": {"class": "gaffer.function.simple.filter.Exists"}}
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.Exists"
+            }
+          }
         ]
       }
     },
     "rating.int": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Max"},
-      "validator": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Max"
+      },
+      "inputValidator": {
         "functions": [
           {
             "function": {
@@ -102,8 +130,10 @@
     },
     "count.int": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Sum"},
-      "validator": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      },
+      "inputValidator": {
         "functions": [
           {
             "function": {
@@ -117,7 +147,9 @@
     },
     "total.long": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Sum"}
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
     },
     "timestamp.long": {
       "class": "java.lang.Long",
@@ -128,7 +160,9 @@
     },
     "max.integer": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Max"}
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Max"
+      }
     }
   }
 }

@@ -28,7 +28,7 @@ import gaffer.function.AggregateFunction;
  */
 public class Type {
     private Class<?> clazz;
-    private ElementFilter validator;
+    private ElementFilter inputValidator;
     private AggregateFunction aggregatorFunction;
 
     Type() {
@@ -38,9 +38,9 @@ public class Type {
         this.clazz = clazz;
     }
 
-    public Type(final Class<?> clazz, final ElementFilter validator, final AggregateFunction aggregator) {
+    public Type(final Class<?> clazz, final ElementFilter inputValidator, final AggregateFunction aggregator) {
         this.clazz = clazz;
-        this.validator = validator;
+        this.inputValidator = inputValidator;
         this.aggregatorFunction = aggregator;
     }
 
@@ -63,12 +63,12 @@ public class Type {
         this.clazz = null != classType ? Class.forName(classType) : null;
     }
 
-    public ElementFilter getValidator() {
-        return validator;
+    public ElementFilter getInputValidator() {
+        return inputValidator;
     }
 
-    public void setValidator(final ElementFilter validator) {
-        this.validator = validator;
+    public void setInputValidator(final ElementFilter inputValidator) {
+        this.inputValidator = inputValidator;
     }
 
     public AggregateFunction getAggregatorFunction() {

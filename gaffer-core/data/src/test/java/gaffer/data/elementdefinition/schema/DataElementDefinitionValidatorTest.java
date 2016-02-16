@@ -48,7 +48,7 @@ public class DataElementDefinitionValidatorTest extends TypedElementDefinitionVa
         final DataElementDefinitionValidator validator = new DataElementDefinitionValidator();
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<String>());
-        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getInputValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getAggregator()).willReturn(mock(ElementAggregator.class));
 
         // When
@@ -73,7 +73,7 @@ public class DataElementDefinitionValidatorTest extends TypedElementDefinitionVa
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<>(Arrays.asList(TestPropertyNames.F1, TestPropertyNames.F2)));
-        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getInputValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getAggregator()).willReturn(aggregator);
         given(context1.getSelection()).willReturn(Arrays.asList(key1, key2));
         given(function.getInputClasses()).willReturn(new Class[]{String.class, Integer.class});
@@ -108,7 +108,7 @@ public class DataElementDefinitionValidatorTest extends TypedElementDefinitionVa
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<>(Arrays.asList(TestPropertyNames.F1, TestPropertyNames.F2)));
-        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getInputValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getAggregator()).willReturn(aggregator);
         given(context1.getSelection()).willReturn(Collections.singletonList(key1));
         given(function.getInputClasses()).willReturn(new Class[]{String.class, Integer.class});

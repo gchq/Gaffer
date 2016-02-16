@@ -29,7 +29,6 @@ import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +42,9 @@ import java.util.Map;
  * @see gaffer.data.elementdefinition.TypedElementDefinition
  */
 public abstract class DataElementDefinition extends TypedElementDefinition {
-    private ElementFilter validator;
+    private ElementFilter inputValidator;
     private ElementAggregator aggregator;
+    private ElementFilter expirator;
 
     /**
      * The <code>TypeStore</code> provides the different element identifier value types and property value types.
@@ -94,8 +94,8 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      * If the <code>FilterFunction</code> does not contain any functions a null <code>FilterFunction</code> is
      * returned.
      */
-    public ElementFilter getValidator() {
-        final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
+    public ElementFilter getInputValidator() {
+        final ElementFilter fullValidator = null != inputValidator ? inputValidator.clone() : new ElementFilter();
         for (Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
             addIsAFunction(fullValidator, key, entry.getValue());
@@ -110,18 +110,31 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         return null != fullValidator.getFunctions() ? fullValidator : null;
     }
 
-    public void setValidator(final ElementFilter validator) {
-        this.validator = validator;
+    public ElementFilter getExpirator() {
+        return null != expirator ? expirator.clone() : new ElementFilter();
     }
 
-    @JsonProperty("validator")
-    ElementFilter getOriginalValidator() {
-        return validator;
+    private void setExpirator(final ElementFilter expirator) {
+        this.expirator = expirator;
+    }
+
+    public void setInputValidator(final ElementFilter inputValidator) {
+        this.inputValidator = inputValidator;
+    }
+
+    @JsonProperty("inputValidator")
+    ElementFilter getOriginalInputValidator() {
+        return inputValidator;
     }
 
     @JsonProperty("aggregator")
     ElementAggregator getOriginalAggregator() {
         return aggregator;
+    }
+
+    @JsonProperty("expirator")
+    ElementFilter getOriginalExpirator() {
+        return expirator;
     }
 
     @JsonIgnore
@@ -158,8 +171,8 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
         final Type type = getType(classOrTypeName);
-        if (null != type && null != type.getValidator()) {
-            for (ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getValidator().clone().getFunctions()) {
+        if (null != type && null != type.getInputValidator()) {
+            for (ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getInputValidator().clone().getFunctions()) {
                 final List<ElementComponentKey> selection = function.getSelection();
                 if (null == selection || selection.isEmpty()) {
                     function.setSelection(Collections.singletonList(key));
@@ -189,8 +202,8 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             super(elDef);
         }
 
-        public Builder validator(final ElementFilter validator) {
-            getElementDef().setValidator(validator);
+        public Builder inputValidator(final ElementFilter validator) {
+            getElementDef().setInputValidator(validator);
             return this;
         }
 
@@ -198,6 +211,12 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             getElementDef().setAggregator(aggregator);
             return this;
         }
+
+        public Builder expirator(final ElementFilter expirator) {
+            getElementDef().setExpirator(expirator);
+            return this;
+        }
+
 
         @Override
         protected DataElementDefinition getElementDef() {

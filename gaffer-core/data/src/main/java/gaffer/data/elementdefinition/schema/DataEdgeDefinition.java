@@ -60,12 +60,16 @@ public class DataEdgeDefinition extends DataElementDefinition {
             return (Builder) super.property(propertyName, clazz);
         }
 
-        public Builder validator(final ElementFilter validator) {
-            return (Builder) super.validator(validator);
+        public Builder inputValidator(final ElementFilter validator) {
+            return (Builder) super.inputValidator(validator);
         }
 
         public Builder aggregator(final ElementAggregator aggregator) {
             return (Builder) super.aggregator(aggregator);
+        }
+
+        public Builder expirator(final ElementFilter expirator) {
+            return (Builder) super.expirator(expirator);
         }
 
         public Builder source(final Class<?> clazz) {

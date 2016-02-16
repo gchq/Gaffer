@@ -69,7 +69,7 @@ public class ValidateHandlerTest {
         final DataElementDefinition elementDef = mock(DataElementDefinition.class);
         final ElementFilter validator = mock(ElementFilter.class);
         given(validator.filter(elm1)).willReturn(true);
-        given(elementDef.getValidator()).willReturn(validator);
+        given(elementDef.getInputValidator()).willReturn(validator);
         given(dataSchema.getElement(group)).willReturn(elementDef);
 
         // When

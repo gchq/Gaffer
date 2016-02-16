@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The ElementValidatorFilter will filter out {@link gaffer.data.element.Element}s
- * based on the filtering instructions given in the {@link DataSchema} that is passed to this iterator
+ * The ExpiratorFilter will filter out {@link gaffer.data.element.Element}s
+ * based on the expiration instructions given in the {@link DataSchema} that is passed to this iterator
  */
-public class ElementValidatorFilter extends ElementFilter {
+public class ExpiratorFilter extends ElementFilter {
     @Override
     public IteratorOptions describeOptions() {
         final Map<String, String> namedOptions = new HashMap<>();
