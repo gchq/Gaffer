@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.integration.operation.handler;
+package gaffer.accumulostore.operation.handler;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static org.mockito.BDDMockito.given;
 
-public class GetAdjacentEntitySeedsHandlerIT extends AbstractGetAdjacentEntitySeedsHandlerTest {
+public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntitySeedsHandlerTest {
     @Override
     protected MockAccumuloStore createMockStore() {
         return new MockAccumuloStoreForTest();

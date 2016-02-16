@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.integration.operation.handler;
+package gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
@@ -53,7 +53,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
-public class GetElementsHandlerIT extends AbstractGetElementsHandlerTest {
+public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
     @Test
     public void shouldSummariseData() throws IOException, OperationException {
         // Given

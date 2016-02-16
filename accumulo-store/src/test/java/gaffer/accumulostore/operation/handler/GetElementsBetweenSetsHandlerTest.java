@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.integration.operation.handler;
+package gaffer.accumulostore.operation.handler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -51,7 +51,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 
-public class GetElementsBetweenSetsHandlerIT {
+public class GetElementsBetweenSetsHandlerTest {
 	
 	private static final String AUTHS = "Test";
 	private static final long TIMESTAMP = System.currentTimeMillis();

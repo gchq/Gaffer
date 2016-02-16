@@ -1,4 +1,4 @@
 language: java
 script:
-    - "mvn clean package"
+    - "mvn verify -DskipITs=true"
     - "mvn failsafe:integration-test -DskipITs=false"
