@@ -106,7 +106,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         // Length of row key is the length of the source
         // plus the length of the destination
         // plus one for the delimiter in between the source and destination
-        // plus one for the delimiter in between the destination and the direction flag 
+        // plus one for the delimiter in between the destination and the direction flag
         // plus one for the direction flag at the end.
         byte[] key;
         if (endKey) {
@@ -165,16 +165,8 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     private Range getEdgeRangeFromVertex(final byte[] serialisedVertex) {
         final byte[] startRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, startRowKey, 0, serialisedVertex.length);
-        startRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER; // Add
-                                                                               // delimiter
-                                                                               // to
-                                                                               // ensure
-                                                                               // that
-                                                                               // we
-                                                                               // don't
-                                                                               // get
-                                                                               // any
-                                                                               // Entities.
+        startRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
+        // Add delimiter to ensure that we don't get Entities.
         final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;

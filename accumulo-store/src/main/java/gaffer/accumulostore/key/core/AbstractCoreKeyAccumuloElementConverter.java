@@ -52,7 +52,7 @@ import gaffer.store.schema.StorePropertyDefinition;
 import gaffer.store.schema.StoreSchema;
 
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
-    static final byte[] DELIMITER_ARRAY = new byte[] { 0 };
+    static final byte[] DELIMITER_ARRAY = new byte[] {0};
     protected final StoreSchema storeSchema;
 
     public AbstractCoreKeyAccumuloElementConverter(final StoreSchema storeSchema) {
