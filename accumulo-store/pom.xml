@@ -15,7 +15,9 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -89,12 +91,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.api.version}</version>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>gaffer</groupId>
@@ -124,9 +120,13 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>accumulo-store-iterators-${project.parent.version}</finalName>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>iterators</shadedClassifierName>
+                            <finalName>
+                                accumulo-store-iterators-${project.parent.version}
+                            </finalName>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>iterators
+                            </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>gaffer2:serialisation</include>
@@ -141,31 +141,35 @@
                 </executions>
             </plugin>
             <plugin>
-            	<groupId>org.apache.maven.plugins</groupId>
-            	<artifactId>maven-assembly-plugin</artifactId>
-            	<executions>
-            		<execution>
-            			<id>aggregator-maintenance-utility</id>
-            			<phase>package</phase>
-            			<goals>
-            				<goal>assembly</goal>
-            			</goals>
-            			<inherited>false</inherited>
-            			<configuration>
-            				<descriptorRefs>
-            					<descriptorRef>jar-with-dependencies</descriptorRef>
-            				</descriptorRefs>
-            				<finalName>Aggregator-Maintenance-Utility</finalName>
-            				<appendAssemblyId>false</appendAssemblyId>
-            				<archive>
-            					<manifest>
-            						<addClasspath>true</addClasspath>
-            						<mainClass>gaffer.accumulostore.utils.AddUpdateTableIterator</mainClass>
-            					</manifest>
-            				</archive>
-            			</configuration>
-            		</execution>
-            	</executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>aggregator-maintenance-utility</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies
+                                </descriptorRef>
+                            </descriptorRefs>
+                            <finalName>Aggregator-Maintenance-Utility
+                            </finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>
+                                        gaffer.accumulostore.utils.AddUpdateTableIterator
+                                    </mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
