@@ -1,2 +1,4 @@
 language: java
-script: mvn clean package
+script:
+    - "mvn clean package"
+    - "mvn failsafe:integration-test -DskipITs=false"

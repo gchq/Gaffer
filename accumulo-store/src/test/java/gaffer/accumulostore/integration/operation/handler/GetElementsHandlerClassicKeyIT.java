@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.operation.handler;
+package gaffer.accumulostore.integration.operation.handler;
 
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 
-public class GetAdjacentEntitySeedsHandlerClassicKeyTest extends GetAdjacentEntitySeedsHandlerTest {
-
-	@Override
+public class GetElementsHandlerClassicKeyIT extends GetElementsHandlerIT {
+    @Override
     protected MockAccumuloStore createMockStore() {
         return new MockAccumuloStoreForTest(ClassicKeyPackage.class);
     }

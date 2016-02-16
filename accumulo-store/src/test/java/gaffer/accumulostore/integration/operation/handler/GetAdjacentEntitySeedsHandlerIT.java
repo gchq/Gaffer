@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.operation.handler;
+package gaffer.accumulostore.integration.operation.handler;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
@@ -39,7 +40,7 @@ import java.util.Map;
 
 import static org.mockito.BDDMockito.given;
 
-public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntitySeedsHandlerTest {
+public class GetAdjacentEntitySeedsHandlerIT extends AbstractGetAdjacentEntitySeedsHandlerTest {
     @Override
     protected MockAccumuloStore createMockStore() {
         return new MockAccumuloStoreForTest();

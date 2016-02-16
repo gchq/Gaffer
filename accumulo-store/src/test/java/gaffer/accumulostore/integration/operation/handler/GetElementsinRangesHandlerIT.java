@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.operation.handler;
+package gaffer.accumulostore.integration.operation.handler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -51,7 +52,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 
-public class GetElementsinRangesHandlerTest {
+public class GetElementsinRangesHandlerIT {
 
     private static final String AUTHS = "Test";
     private static View defaultView;
