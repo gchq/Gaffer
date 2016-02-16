@@ -20,6 +20,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.FilterFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,13 +33,15 @@ import java.util.List;
  * order and the overall filter result for a given tuple is a logical AND of each filter function result. Tuples only
  * pass the filter if <b>all</b> functions return a positive (<code>true</code>) result, and they fail as soon as any
  * function returns a negative (<code>false</code>) result.
- * <p/>
+ * <p>
  * If performance is a concern then simple, faster filters or those with a higher probability of failure should be
  * configured to run first.
  *
  * @param <R> The type of reference used by tuples.
  */
 public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFunction>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Filter.class);
+
     /**
      * Default constructor - used for serialisation.
      */
@@ -122,6 +127,8 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
             boolean result = function.execute(selection);
 
             if (!result) {
+                LOGGER.debug(function.getClass().getName() + " filtered out "
+                        + Arrays.toString(selection) + " from input: " + tuple);
                 return false;
             }
         }
