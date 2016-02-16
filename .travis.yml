@@ -1,4 +1,2 @@
 language: java
-script:
-    - "mvn verify -DskipITs=true"
-    - "mvn failsafe:integration-test -DskipITs=false"
+script: mvn verify -DskipITs=true
