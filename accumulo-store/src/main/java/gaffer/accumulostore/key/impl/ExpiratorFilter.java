@@ -25,7 +25,9 @@ import java.util.Map;
 
 /**
  * The ExpiratorFilter will filter out {@link gaffer.data.element.Element}s
- * based on the expiration instructions given in the {@link DataSchema} that is passed to this iterator
+ * based on the expiration functions given in the {@link DataSchema} that is passed to this iterator.
+ * <p>
+ * If a {@link gaffer.function.FilterFunction} returns false then the Element is removed.
  */
 public class ExpiratorFilter extends ElementFilter {
     @Override
@@ -44,6 +46,6 @@ public class ExpiratorFilter extends ElementFilter {
             throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
         }
 
-        return new ElementValidator(DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)));
+        return new ElementValidator(DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)), true);
     }
 }

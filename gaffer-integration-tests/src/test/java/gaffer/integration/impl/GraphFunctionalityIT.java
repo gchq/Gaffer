@@ -15,6 +15,10 @@
  */
 package gaffer.integration.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import com.google.common.collect.Lists;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
@@ -41,14 +45,9 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 public class GraphFunctionalityIT extends GafferIntegrationTests {
 
@@ -64,7 +63,9 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
                 new EdgeDomainObject("B", "C", true, 4),
                 new EdgeDomainObject("B", "C", true, 5),
                 new EdgeDomainObject("C", "B", true, 6),
-                new EdgeDomainObject("C", "B", false, 7)
+                new EdgeDomainObject("C", "B", false, 7),
+                new EdgeDomainObject("E", "G", true, 9),
+                new EdgeDomainObject("E", "F", true, 15)
         ), new BasicEdgeGenerator());
 
         generateEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
@@ -222,6 +223,26 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         assertThat(results, IsCollectionContaining.hasItems(
                 new Edge(TestGroups.EDGE, "B", "D", true),
                 new Edge(TestGroups.EDGE, "B", "C", true)
+        ));
+    }
+
+    @Test
+    @TraitRequirement(StoreTrait.EXPIRATION)
+    public void testExpirationBasedOnProperty() throws OperationException {
+        // BUILD
+        final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()
+                .addSeed(new EntitySeed("E"))
+                .option(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS)
+                .build();
+
+        // OPERATE
+        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
+
+        //CHECK
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertThat(results, IsCollectionContaining.hasItems(
+                new Edge(TestGroups.EDGE, "E", "G", true)
         ));
     }
 }

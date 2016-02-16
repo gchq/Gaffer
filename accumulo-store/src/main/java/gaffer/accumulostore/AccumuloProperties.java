@@ -18,7 +18,6 @@ package gaffer.accumulostore;
 
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.store.StoreProperties;
-
 import java.nio.file.Path;
 
 /**
@@ -33,7 +32,6 @@ public class AccumuloProperties extends StoreProperties {
     public static final String TABLE = "accumulo.table";
     public static final String USER = "accumulo.user";
     public static final String PASSWORD = "accumulo.password";
-    public static final String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
     public static final String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
     public static final String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
@@ -51,7 +49,6 @@ public class AccumuloProperties extends StoreProperties {
     private static final String CLIENT_SIDE_BLOOM_FILTER_SIZE_DEFAULT = "838860800";
     private static final String FALSE_POSITIVE_RATE_DEFAULT = "0.0002";
     private static final String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR_DEFAULT = "8388608";
-    private static final String AGE_OFF_TIME_IN_DAYS_DEFAULT = "365";
     private static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER_DEFAULT = "1000000";
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
@@ -192,24 +189,6 @@ public class AccumuloProperties extends StoreProperties {
      */
     public void setPassword(final String password) {
         set(PASSWORD, password);
-    }
-
-    /**
-     * Get the number of days data should be retained
-     *
-     * @return AN integer representing the number of days data should be retained
-     */
-    public int getAgeOffTimeInDays() {
-        return Integer.parseInt(get(AGE_OFF_TIME_IN_DAYS, AGE_OFF_TIME_IN_DAYS_DEFAULT));
-    }
-
-    /**
-     * Set the number of days data should be retained
-     *
-     * @param ageOffTimeInDays the number of days data should be retained
-     */
-    public void setAgeOffTimeInDays(final String ageOffTimeInDays) {
-        set(AGE_OFF_TIME_IN_DAYS, ageOffTimeInDays);
     }
 
     /**

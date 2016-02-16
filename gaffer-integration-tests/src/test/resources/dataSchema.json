@@ -15,17 +15,36 @@
       "properties": {
         "intProperty": "intProperty",
         "count": "count"
+      },
+      "expirator": {
+        "functions": [
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.IsLessThan",
+              "value": 10
+            },
+            "selection": [
+              {
+                "key": "intProperty"
+              }
+            ]
+          }
+        ]
       }
     }
   },
   "types": {
     "intProperty": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Sum"}
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
     },
     "count": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Sum"}
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
     }
   }
 }

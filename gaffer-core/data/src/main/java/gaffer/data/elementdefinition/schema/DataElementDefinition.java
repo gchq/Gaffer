@@ -212,6 +212,11 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             return this;
         }
 
+        /**
+         * @param expirator the expirator filter to set. Note that if a
+         *                  {@link gaffer.function.FilterFunction} returns false then the Element is removed.
+         * @return this Builder
+         */
         public Builder expirator(final ElementFilter expirator) {
             getElementDef().setExpirator(expirator);
             return this;
