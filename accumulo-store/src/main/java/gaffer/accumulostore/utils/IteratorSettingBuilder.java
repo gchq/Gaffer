@@ -16,23 +16,24 @@
 
 package gaffer.accumulostore.utils;
 
-import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
-import gaffer.store.schema.StoreSchema;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.GetOperation;
+import gaffer.store.schema.StoreSchema;
 
 public class IteratorSettingBuilder {
     private final IteratorSetting setting;
@@ -41,14 +42,14 @@ public class IteratorSettingBuilder {
         this.setting = setting;
     }
 
-    public IteratorSettingBuilder(final int priority, final String name, final Class<? extends SortedKeyValueIterator<Key, Value>> iteratorClass) {
+    public IteratorSettingBuilder(final int priority, final String name,
+            final Class<? extends SortedKeyValueIterator<Key, Value>> iteratorClass) {
         setting = new IteratorSetting(priority, name, iteratorClass);
     }
 
     public IteratorSettingBuilder(final int priority, final String name, final String iteratorClass) {
         setting = new IteratorSetting(priority, name, iteratorClass);
     }
-
 
     public IteratorSettingBuilder option(final String option, final String value) {
         setting.addOption(option, value);
@@ -77,7 +78,6 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-
     public IteratorSettingBuilder includeEdges(final GetOperation.IncludeEdgeType includeEdgeType) {
         if (GetOperation.IncludeEdgeType.DIRECTED == includeEdgeType) {
             setting.addOption(Constants.DIRECTED_EDGE_ONLY, "true");
@@ -91,7 +91,8 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder includeIncomingOutgoing(final GetOperation.IncludeIncomingOutgoingType includeIncomingOutGoing) {
+    public IteratorSettingBuilder includeIncomingOutgoing(
+            final GetOperation.IncludeIncomingOutgoingType includeIncomingOutGoing) {
         if (GetOperation.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
             setting.addOption(Constants.INCOMING_EDGE_ONLY, "true");
         } else if (GetOperation.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {

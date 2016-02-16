@@ -20,7 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * These positions are used to determine where to store {@link gaffer.data.element.Element} properties in Accumulo.
+ * These positions are used to determine where to store
+ * {@link gaffer.data.element.Element} properties in Accumulo.
  * <p/>
  * These positions relate to accumulo key parts as follows:
  * <ul>
@@ -30,20 +31,24 @@ import java.util.Set;
  * </ul>
  * VALUE simply maps to Accumulo's Value
  * <p/>
- * The positions should be assigned to properties in the {@link gaffer.store.schema.StoreSchema} as follows:
+ * The positions should be assigned to properties in the
+ * {@link gaffer.store.schema.StoreSchema} as follows:
  * <ul>
- * <li>VISIBILITY is optional and if used you will need to supply a custom serialiser to convert the property value into a value Accumulo understands.</li>
- * <li>TIMESTAMP is optional. If it is not specified accumulo will add the time at which an element is stored, this is then used for age of.</li>
- * <li>COLUMN_QUALIFIER is optional and multiple Element properties can be assigned to it - this allows properties to be included
- * in the key and can then optionally be aggregated at query time using the summarise flag on {@link gaffer.operation.GetOperation}.</li>
- * <li>All remaining Element properties should be assigned to the VALUE position.</li>
+ * <li>VISIBILITY is optional and if used you will need to supply a custom
+ * serialiser to convert the property value into a value Accumulo understands.
+ * </li>
+ * <li>TIMESTAMP is optional. If it is not specified accumulo will add the time
+ * at which an element is stored, this is then used for age of.</li>
+ * <li>COLUMN_QUALIFIER is optional and multiple Element properties can be
+ * assigned to it - this allows properties to be included in the key and can
+ * then optionally be aggregated at query time using the summarise flag on
+ * {@link gaffer.operation.GetOperation}.</li>
+ * <li>All remaining Element properties should be assigned to the VALUE
+ * position.</li>
  * </ul>
  */
 public enum StorePositions {
-    COLUMN_QUALIFIER,
-    VISIBILITY,
-    TIMESTAMP,
-    VALUE;
+    COLUMN_QUALIFIER, VISIBILITY, TIMESTAMP, VALUE;
 
     public static final Set<String> NAMES = getNames();
 

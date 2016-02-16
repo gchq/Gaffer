@@ -23,7 +23,7 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
 public abstract class AbstractGetRangeFromPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-extends AbstractRangeOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
+        extends AbstractRangeOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
 
     public AbstractGetRangeFromPair(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
@@ -42,10 +42,10 @@ extends AbstractRangeOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
     }
 
     public static class Builder<OP_TYPE extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractRangeOperation.Builder<OP_TYPE, Pair<SEED_TYPE>, ELEMENT_TYPE> {
+            extends AbstractRangeOperation.Builder<OP_TYPE, Pair<SEED_TYPE>, ELEMENT_TYPE> {
 
         protected Builder(final OP_TYPE op) {
-           super(op);
+            super(op);
         }
 
     }

@@ -15,6 +15,15 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
+
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.mapreduce.Reducer;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.Constants;
@@ -24,19 +33,12 @@ import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import org.apache.hadoop.mapreduce.Reducer;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 
 /**
- * Reducer for use in bulk import of data into Accumulo. It merges all values associated
- * to the gaffer.accumulostore.key by converting them into {@link gaffer.data.element.Properties} and then merges
- * those, and then converts them back to an Accumulo value.
+ * Reducer for use in bulk import of data into Accumulo. It merges all values
+ * associated to the gaffer.accumulostore.key by converting them into
+ * {@link gaffer.data.element.Properties} and then merges those, and then
+ * converts them back to an Accumulo value.
  * <p/>
  * It contains an optimisation so that if there is only one value, we simply
  * output it rather than incurring the cost of deserialising them and then
@@ -50,18 +52,21 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     protected void setup(final Context context) {
         final StoreSchema storeSchema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA)
+                    .getBytes(Constants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
         }
 
         try {
-            final Class<?> elementConverterClass = Class.forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
+            final Class<?> elementConverterClass = Class
+                    .forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
         }
     }
@@ -77,7 +82,8 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
         context.getCounter("Bulk import", getCounterId(isMulti)).increment(1L);
     }
 
-    private Value reduceValue(final Key key, final boolean isMulti, final Iterator<Value> iter, final Value firstValue) {
+    private Value reduceValue(final Key key, final boolean isMulti, final Iterator<Value> iter,
+            final Value firstValue) {
         return isMulti ? reduceMultiValue(key, iter, firstValue) : firstValue;
     }
 

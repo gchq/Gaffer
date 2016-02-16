@@ -24,7 +24,8 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
- * This returns all {@link gaffer.data.element.Entity}'s between the provided {@link gaffer.operation.data.ElementSeed}s.
+ * This returns all {@link gaffer.data.element.Entity}'s between the provided
+ * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
 public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetRangeFromPair<SEED_TYPE, Entity> {
@@ -70,7 +71,7 @@ public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends Abstract
     }
 
     public static class Builder<OP_TYPE extends GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
-        extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Entity> {
+            extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Entity> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

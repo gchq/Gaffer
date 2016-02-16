@@ -38,9 +38,11 @@ import gaffer.store.StoreException;
 public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
 
     @Override
-    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store)
+            throws IOException {
         super.setupJobConf(jobConf, operation, store);
-        jobConf.set(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS, ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
+        jobConf.set(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
     }
 
     @Override
@@ -62,7 +64,8 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupReducer(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    private void setupReducer(final Job job, final AddElementsFromHdfs operation, final Store store)
+            throws IOException {
         job.setReducerClass(AddElementsFromHdfsReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
@@ -73,7 +76,8 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         FileOutputFormat.setOutputPath(job, operation.getOutputPath());
     }
 
-    private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+    private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
+            throws IOException {
         String splitsFilePath = operation.getOption(Constants.OPERATION_USE_PROVIDED_SPLITS);
         int numReduceTasks;
         if (null != splitsFilePath && !splitsFilePath.equals("")) {

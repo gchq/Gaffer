@@ -15,6 +15,13 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.Constants;
@@ -24,14 +31,9 @@ import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-
-public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
+public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
+        extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
     private AccumuloElementConverter elementConverter;
 
     @Override
@@ -40,8 +42,8 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElem
 
         final StoreSchema storeSchema;
         try {
-            storeSchema = StoreSchema.fromJson(context.getConfiguration().get(
-                    AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Store Schema from JSON");
         }
@@ -49,10 +51,10 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElem
         final String converterClass = context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             final Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);
         }
     }

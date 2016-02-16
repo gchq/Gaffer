@@ -16,6 +16,23 @@
 
 package gaffer.accumulostore.retriever;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.accumulo.core.client.BatchScanner;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Range;
+import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.util.bloom.BloomFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -29,22 +46,6 @@ import gaffer.data.element.Entity;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
-import org.apache.accumulo.core.client.BatchScanner;
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Range;
-import org.apache.accumulo.core.data.Value;
-import org.apache.hadoop.util.bloom.BloomFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperation<EntitySeed, ?>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
@@ -55,17 +56,19 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         this(store, operation, false);
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation, final boolean readEntriesIntoMemory)
-            throws StoreException {
+    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+            final boolean readEntriesIntoMemory) throws StoreException {
         super(store, operation);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation, final IteratorSetting... iteratorSettings) throws StoreException {
+    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+            final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, false, iteratorSettings);
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation, final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
+    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+            final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
@@ -97,10 +100,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         return iterator;
     }
 
-
     protected abstract boolean hasSeeds();
 
-    protected abstract AbstractElementIteratorReadIntoMemory createElementIteratorReadIntoMemory() throws RetrieverException;
+    protected abstract AbstractElementIteratorReadIntoMemory createElementIteratorReadIntoMemory()
+            throws RetrieverException;
 
     protected abstract AbstractElementIteratorFromBatches createElementIteratorFromBatches() throws RetrieverException;
 
@@ -113,19 +116,22 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         return vertices;
     }
 
-    protected void addToBloomFilter(final Iterable<Object> vertices, final BloomFilter filter) throws RetrieverException {
+    protected void addToBloomFilter(final Iterable<Object> vertices, final BloomFilter filter)
+            throws RetrieverException {
         for (final Object vertex : vertices) {
             addToBloomFilter(vertex, filter);
         }
     }
 
-    protected void addToBloomFilter(final Iterable<EntitySeed> seeds, final BloomFilter filter1, final BloomFilter filter2) throws RetrieverException {
+    protected void addToBloomFilter(final Iterable<EntitySeed> seeds, final BloomFilter filter1,
+            final BloomFilter filter2) throws RetrieverException {
         for (final EntitySeed seed : seeds) {
             addToBloomFilter(seed, filter1, filter2);
         }
     }
 
-    protected void addToBloomFilter(final EntitySeed seed, final BloomFilter filter1, final BloomFilter filter2) throws RetrieverException {
+    protected void addToBloomFilter(final EntitySeed seed, final BloomFilter filter1, final BloomFilter filter2)
+            throws RetrieverException {
         addToBloomFilter(seed.getVertex(), filter1);
         addToBloomFilter(seed.getVertex(), filter2);
     }
@@ -149,18 +155,21 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             try {
                 elementFilter = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(), store);
             } catch (final IteratorSettingException e) {
-                LOGGER.error("Failed to apply the element filter to the retriever, creating the gaffer.accumulostore.retriever without the element filter", e);
+                LOGGER.error(
+                        "Failed to apply the element filter to the retriever, creating the gaffer.accumulostore.retriever without the element filter",
+                        e);
             }
 
             try {
                 bloomFilter = iteratorSettingFactory.getBloomFilterIteratorSetting(filter);
             } catch (final IteratorSettingException e) {
-                LOGGER.error("Failed to apply the bloom filter to the retriever, creating the gaffer.accumulostore.retriever without bloom filter", e);
+                LOGGER.error(
+                        "Failed to apply the bloom filter to the retriever, creating the gaffer.accumulostore.retriever without bloom filter",
+                        e);
             }
             try {
                 parentRetriever = new AccumuloSingleIDRetriever(store, operation,
-                        iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                        elementFilter,
+                        iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation), elementFilter,
                         bloomFilter);
             } catch (final StoreException e) {
                 throw new RetrieverException(e.getMessage(), e);
@@ -171,7 +180,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         @Override
         public boolean hasNext() {
             if (null == iterator) {
-                throw new IllegalStateException("This iterator has not been initialised. Call initialise before using it.");
+                throw new IllegalStateException(
+                        "This iterator has not been initialised. Call initialise before using it.");
             }
             while (iterator.hasNext()) {
                 nextElm = iterator.next();
@@ -185,7 +195,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
-            // TODO: If this is called multiple times it should return the next element - not just the same element.
+            // TODO: If this is called multiple times it should return the next
+            // element - not just the same element.
             return nextElm;
         }
 
@@ -204,11 +215,15 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         protected abstract boolean checkIfBothEndsInSet(final Object source, final Object destination);
 
         /**
-         * Returns <code>true</code> if either an {@link gaffer.data.element.Entity} or if an {@link gaffer.data.element.Edge} then need both ends
-         * to be in the set.
+         * Returns <code>true</code> if either an
+         * {@link gaffer.data.element.Entity} or if an
+         * {@link gaffer.data.element.Edge} then need both ends to be in the
+         * set.
          *
          * @param elm
-         * @return True if the provided element is an edge and Both ends are contained in the provided seed sets or if the element is an entity
+         * @return True if the provided element is an edge and Both ends are
+         *         contained in the provided seed sets or if the element is an
+         *         entity
          */
         private boolean checkIfBothEndsInSet(final Element elm) {
             if (Entity.class.isInstance(elm)) {
@@ -224,9 +239,13 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
     protected abstract class AbstractElementIteratorFromBatches implements CloseableIterator<Element> {
         protected Iterator<EntitySeed> idsAIterator;
-        protected BloomFilter clientSideFilter; // The Bloom filter that is maintained client-side as a secondary defeat
+        protected BloomFilter clientSideFilter; // The Bloom filter that is
+                                                // maintained client-side as a
+                                                // secondary defeat
         // of false positives.
-        protected Set<Object> currentSeeds; // Store the set of seeds that are currently being queried for to enable
+        protected Set<Object> currentSeeds; // Store the set of seeds that are
+                                            // currently being queried for to
+                                            // enable
         protected BatchScanner scanner;
         protected BloomFilter filter;
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
@@ -237,7 +256,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             // Set up client side filter
             clientSideFilter = BloomFilterUtils.getBloomFilter(store.getProperties().getClientSideBloomFilterSize());
             // Create Bloom filter to be passed to iterators.
-            filter = BloomFilterUtils.getBloomFilter(store.getProperties().getFalsePositiveRate(), store.getProperties().getMaxEntriesForBatchScanner(), store.getProperties().getMaxBloomFilterToPassToAnIterator());
+            filter = BloomFilterUtils.getBloomFilter(store.getProperties().getFalsePositiveRate(),
+                    store.getProperties().getMaxEntriesForBatchScanner(),
+                    store.getProperties().getMaxBloomFilterToPassToAnIterator());
             currentSeeds = new HashSet<>();
         }
 
@@ -247,9 +268,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
                 while (_hasNext()) {
                     final Map.Entry<Key, Value> entry = scannerIterator.next();
                     try {
-                        nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), operation.getOptions());
+                        nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
+                                operation.getOptions());
                     } catch (final AccumuloElementConversionException e) {
-                        LOGGER.error("Failed to create next element from gaffer.accumulostore.key and value entry set", e);
+                        LOGGER.error("Failed to create next element from key and value entry set", e);
                         continue;
                     }
                     if (secondaryCheck(nextElm)) {
@@ -257,7 +279,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
                     }
                 }
             } catch (final RetrieverException e) {
-                LOGGER.debug("Failed to retrieve elements into iterator : " + e.getMessage() + " returning iterator has no more elements", e);
+                LOGGER.debug("Failed to retrieve elements into iterator : " + e.getMessage()
+                        + " returning iterator has no more elements", e);
                 return false;
             }
 
@@ -267,14 +290,16 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
-            // TODO: If this is called multiple times it should return the next element - not just the same element.
+            // TODO: If this is called multiple times it should return the next
+            // element - not just the same element.
             doTransformation(nextElm);
             return nextElm;
         }
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException("Can't remove elements from a " + this.getClass().getCanonicalName());
+            throw new UnsupportedOperationException(
+                    "Can't remove elements from a " + this.getClass().getCanonicalName());
         }
 
         @Override
@@ -287,7 +312,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         protected abstract void updateBloomFilterIfRequired(final EntitySeed seed) throws RetrieverException;
 
         protected void updateScanner() throws RetrieverException {
-            // Read through the first N entities (where N = maxEntriesForBatchScanner), create the associated ranges
+            // Read through the first N entities (where N =
+            // maxEntriesForBatchScanner), create the associated ranges
             // and add them to a set.
             count = 0;
             final Set<Range> ranges = new HashSet<>();
@@ -313,13 +339,15 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             } catch (final IteratorSettingException e) {
                 LOGGER.error("Failed to apply the bloom filter iterator setting continuing without bloom filter", e);
             }
-            final IteratorSetting edgeEntitySetting = iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation);
+            final IteratorSetting edgeEntitySetting = iteratorSettingFactory
+                    .getEdgeEntityDirectionFilterIteratorSetting(operation);
             if (edgeEntitySetting != null) {
                 scanner.addScanIterator(edgeEntitySetting);
             }
             IteratorSetting elementFilterSetting = null;
             try {
-                elementFilterSetting = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(), store);
+                elementFilterSetting = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(),
+                        store);
             } catch (final IteratorSettingException e) {
                 LOGGER.error("Error creating filter iterator continuing query without filter");
             }
@@ -330,9 +358,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         }
 
         /**
-         * Check whether this is valid, i.e. one end is in the current set of seeds that are being queried for and the
-         * other matches the Bloom filter (i.e. the client side Bloom filter that is being used as a secondary defeat
-         * of false positives).
+         * Check whether this is valid, i.e. one end is in the current set of
+         * seeds that are being queried for and the other matches the Bloom
+         * filter (i.e. the client side Bloom filter that is being used as a
+         * secondary defeat of false positives).
          */
         protected boolean secondaryCheck(final Element elm) {
             if (Entity.class.isInstance(elm)) {
@@ -345,18 +374,19 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             final boolean destIsInCurrent = currentSeeds.contains(destination);
             boolean sourceMatchesClientFilter;
             try {
-                sourceMatchesClientFilter = clientSideFilter.membershipTest(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
+                sourceMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
             boolean destMatchesClientFilter;
             try {
-                destMatchesClientFilter = clientSideFilter.membershipTest(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
+                destMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
-            return (sourceIsInCurrent && destMatchesClientFilter)
-                    || (destIsInCurrent && sourceMatchesClientFilter)
+            return (sourceIsInCurrent && destMatchesClientFilter) || (destIsInCurrent && sourceMatchesClientFilter)
                     || (sourceIsInCurrent && destIsInCurrent);
         }
 

@@ -30,7 +30,8 @@ import gaffer.store.operation.handler.OperationHandler;
 public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet<Element>, Iterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation, final Store store) throws OperationException {
+    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation, final Store store)
+            throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }
 

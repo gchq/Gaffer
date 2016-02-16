@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -38,6 +37,8 @@ import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Utility methods for adding data to Accumulo.
  */
@@ -46,22 +47,27 @@ public final class IngestUtils {
     private static final FsPermission ACC_FILE_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
 
     private IngestUtils() {
-        // private to prevent this class being instantiated. All methods are static and should be called directly.
+        // private to prevent this class being instantiated. All methods are
+        // static and should be called directly.
     }
 
     /**
      * Get the existing splits from a table in Accumulo and write a splits file.
      * The number of splits is returned.
      *
-     * @param conn       - An existing connection to an Accumulo instance
-     * @param table      - The table name
-     * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
+     * @param conn
+     *            - An existing connection to an Accumulo instance
+     * @param table
+     *            - The table name
+     * @param fs
+     *            - The FileSystem in which to create the splits file
+     * @param splitsFile
+     *            - A Path for the output splits file
      * @return The number of splits in the table
      * @throws java.io.IOException
      */
-    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs, final Path splitsFile)
-            throws IOException {
+    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
+            final Path splitsFile) throws IOException {
         // Get the splits from the table
         Collection<Text> splits;
         try {
@@ -70,7 +76,8 @@ public final class IngestUtils {
             throw new IOException(e.getMessage(), e);
         }
 
-        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
+                Constants.UTF_8_CHARSET)) {
             // Write the splits to file
             if (splits.isEmpty()) {
                 out.close();
@@ -90,13 +97,18 @@ public final class IngestUtils {
     /**
      * Given some split points, write a Base64 encoded splits file
      *
-     * @param splits     - A Collection of splits
-     * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
+     * @param splits
+     *            - A Collection of splits
+     * @param fs
+     *            - The FileSystem in which to create the splits file
+     * @param splitsFile
+     *            - A Path for the output splits file
      * @throws java.io.IOException
      */
-    public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile) throws IOException {
-        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
+    public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile)
+            throws IOException {
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
+                Constants.UTF_8_CHARSET)) {
             for (final Text split : splits) {
                 out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
             }
@@ -106,8 +118,10 @@ public final class IngestUtils {
     /**
      * Read a splits file and get the number of split points within
      *
-     * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
+     * @param fs
+     *            - The FileSystem in which to create the splits file
+     * @param splitsFile
+     *            - A Path for the output splits file
      * @return An integer representing the number of entries in the file.
      * @throws java.io.IOException
      */
@@ -127,9 +141,12 @@ public final class IngestUtils {
     /**
      * Read a Base64 encoded splits file and return the splits as Text objects
      *
-     * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
-     * @return A set of Text objects representing the locations of split points in HDFS
+     * @param fs
+     *            - The FileSystem in which to create the splits file
+     * @param splitsFile
+     *            - A Path for the output splits file
+     * @return A set of Text objects representing the locations of split points
+     *         in HDFS
      * @throws java.io.IOException
      */
     public static SortedSet<Text> getSplitsFromFile(final FileSystem fs, final Path splitsFile) throws IOException {
@@ -150,8 +167,10 @@ public final class IngestUtils {
      * Modify the permissions on a directory and its contents to allow Accumulo
      * access.
      *
-     * @param fs      - The FileSystem in which to create the splits file
-     * @param dirPath - The Path to the directory
+     * @param fs
+     *            - The FileSystem in which to create the splits file
+     * @param dirPath
+     *            - The Path to the directory
      * @throws java.io.IOException
      */
     public static void setDirectoryPermsForAccumulo(final FileSystem fs, final Path dirPath) throws IOException {

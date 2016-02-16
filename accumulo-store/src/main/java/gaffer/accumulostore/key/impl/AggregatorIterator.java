@@ -40,9 +40,10 @@ import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
 
 /**
- * The aggregator iterator is used to combine {@link Value}s where the {@link Key} is the same (Except for the Timestamp column).
- * The instructions provided in the data schema define how the aggregation takes place and therefore what the resulting {@link Value}
- * will be.
+ * The aggregator iterator is used to combine {@link Value}s where the
+ * {@link Key} is the same (Except for the Timestamp column). The instructions
+ * provided in the data schema define how the aggregation takes place and
+ * therefore what the resulting {@link Value} will be.
  */
 public class AggregatorIterator extends Combiner {
     private DataSchema dataSchema;
@@ -50,7 +51,8 @@ public class AggregatorIterator extends Combiner {
 
     @Override
     public Value reduce(final Key key, final Iterator<Value> iter) {
-        // Get first Value. If this is the only Value then return it straight away;
+        // Get first Value. If this is the only Value then return it straight
+        // away;
         Value value = iter.next();
         if (!iter.hasNext()) {
             return value;
@@ -59,7 +61,7 @@ public class AggregatorIterator extends Combiner {
         try {
             group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
         } catch (final UnsupportedEncodingException e) {
-            throw new AggregationException("Failed to recreate a graph element from a gaffer.accumulostore.key and value", e);
+            throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
 
         Properties properties;
@@ -67,7 +69,7 @@ public class AggregatorIterator extends Combiner {
         try {
             properties = elementConverter.getPropertiesFromValue(group, value);
         } catch (final AccumuloElementConversionException e) {
-            throw new AggregationException("Failed to recreate a graph element from a gaffer.accumulostore.key and value", e);
+            throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
         aggregator = dataSchema.getElement(group).getAggregator();
         aggregator.aggregate(properties);
@@ -76,7 +78,7 @@ public class AggregatorIterator extends Combiner {
             try {
                 properties = elementConverter.getPropertiesFromValue(group, value);
             } catch (final AccumuloElementConversionException e) {
-                throw new AggregationException("Failed to recreate a graph element from a gaffer.accumulostore.key and value", e);
+                throw new AggregationException("Failed to recreate a graph element from a key and value", e);
             }
             aggregator.aggregate(properties);
         }
@@ -90,7 +92,8 @@ public class AggregatorIterator extends Combiner {
     }
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -119,24 +122,25 @@ public class AggregatorIterator extends Combiner {
         }
 
         try {
-            final Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : " + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            final Class<?> elementConverterClass = Class
+                    .forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new AggregationException("Failed to load element converter from class name provided : "
+                    + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions())
-                .addDataSchemaNamedOption()
-                .addStoreSchemaNamedOption()
-                .addElementConverterClassNamedOption()
+        return new IteratorOptionsBuilder(super.describeOptions()).addDataSchemaNamedOption()
+                .addStoreSchemaNamedOption().addElementConverterClassNamedOption()
                 .setIteratorName(Constants.AGGREGATOR_ITERATOR_NAME)
-                .setIteratorDescription("Applies a reduce function to elements with identical (rowKey, column family, column qualifier, visibility)")
+                .setIteratorDescription(
+                        "Applies a reduce function to elements with identical (rowKey, column family, column qualifier, visibility)")
                 .build();
     }
 

@@ -16,18 +16,8 @@
 
 package gaffer.accumulostore.retriever;
 
-import gaffer.accumulostore.key.IteratorSettingFactory;
-import gaffer.accumulostore.utils.CloseableIterable;
-import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.RangeFactory;
-import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.data.element.Element;
-import gaffer.data.element.function.ElementTransformer;
-import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.operation.GetOperation;
-import gaffer.store.StoreException;
+import java.util.Set;
+
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -35,7 +25,18 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
 
-import java.util.Set;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.IteratorSettingFactory;
+import gaffer.accumulostore.key.RangeFactory;
+import gaffer.accumulostore.utils.CloseableIterable;
+import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.data.element.Element;
+import gaffer.data.element.function.ElementTransformer;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.operation.GetOperation;
+import gaffer.store.StoreException;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
     private static final String AUTHORISATIONS_SEPERATOR = ",";
@@ -48,14 +49,16 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
     protected final AccumuloElementConverter elementConverter;
     protected final IteratorSetting[] iteratorSettings;
 
-    protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation, final IteratorSetting... iteratorSettings) throws StoreException {
+    protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation,
+            final IteratorSetting... iteratorSettings) throws StoreException {
         this.store = store;
         this.rangeFactory = store.getKeyPackage().getRangeFactory();
         this.iteratorSettingFactory = store.getKeyPackage().getIteratorFactory();
         this.elementConverter = store.getKeyPackage().getKeyConverter();
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
-        this.authorisations = new Authorizations(this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+        this.authorisations = new Authorizations(
+                this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
     }
 
     /**
@@ -81,12 +84,14 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
      * Create a scanner to use used in your query.
      *
      * @param ranges
-     * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the table specified in the properties with the ranges provided.
+     * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the
+     *         table specified in the properties with the ranges provided.
      * @throws org.apache.accumulo.core.client.TableNotFoundException
      * @throws gaffer.store.StoreException
      */
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
-        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorisations, store.getProperties().getThreadsForBatchScanner());
+        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(),
+                authorisations, store.getProperties().getThreadsForBatchScanner());
         if (iteratorSettings != null) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
                 if (iteratorSetting != null) {
@@ -95,7 +100,7 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
             }
         }
         scanner.setRanges(Range.mergeOverlapping(ranges));
-        //Currently hard links element class to column family position.
+        // Currently hard links element class to column family position.
         for (final String col : operation.getView().getEdgeGroups()) {
             scanner.fetchColumnFamily(new Text(col));
         }

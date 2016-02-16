@@ -27,10 +27,12 @@ import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 
-public class GetElementsBetweenSetsHandler implements OperationHandler<GetElementsBetweenSets<Element>, Iterable<? extends Element>> {
+public class GetElementsBetweenSetsHandler
+        implements OperationHandler<GetElementsBetweenSets<Element>, Iterable<? extends Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation, final Store store) throws OperationException {
+    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation, final Store store)
+            throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }
 

@@ -39,7 +39,8 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.store.schema.StoreSchema;
 
 /**
- * The ElementFilter will filter out {@link Element}s based on the filtering instructions given in the {@link View} that is passed to this iterator
+ * The ElementFilter will filter out {@link Element}s based on the filtering
+ * instructions given in the {@link View} that is passed to this iterator
  */
 public class ElementFilter extends Filter {
     private ElementValidator validator;
@@ -51,13 +52,15 @@ public class ElementFilter extends Filter {
         try {
             element = elementConverter.getFullElement(key, value);
         } catch (final AccumuloElementConversionException e) {
-            throw new ElementFilterException("Element filter iterator failed to crete an element from an accumulo gaffer.accumulostore.key value pair", e);
+            throw new ElementFilterException(
+                    "Element filter iterator failed to crete an element from an accumulo key value pair", e);
         }
         return validator.validate(element);
     }
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -77,7 +80,8 @@ public class ElementFilter extends Filter {
             throw new IllegalArgumentException("Must specify the " + Constants.VIEW);
         }
         try {
-            validator = new ElementValidator(View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
+            validator = new ElementValidator(
+                    View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise view from JSON", e);
 
@@ -91,24 +95,22 @@ public class ElementFilter extends Filter {
         }
 
         try {
-            final Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new ElementFilterException("Failed to load element converter from class name provided : " + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            final Class<?> elementConverterClass = Class
+                    .forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new ElementFilterException("Failed to load element converter from class name provided : "
+                    + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions())
-                .addViewNamedOption()
-                .addStoreSchemaNamedOption()
-                .addElementConverterClassNamedOption()
-                .setIteratorName(Constants.ELEMENT_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns elements that pass validation against the given view")
-                .build();
+        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addStoreSchemaNamedOption()
+                .addElementConverterClassNamedOption().setIteratorName(Constants.ELEMENT_FILTER_ITERATOR_NAME)
+                .setIteratorDescription("Only returns elements that pass validation against the given view").build();
     }
 }

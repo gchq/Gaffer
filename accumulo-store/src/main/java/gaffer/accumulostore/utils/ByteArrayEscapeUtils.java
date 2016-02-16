@@ -27,14 +27,16 @@ public final class ByteArrayEscapeUtils {
     private static final byte REPLACEMENT_CHAR = (byte) 2;
 
     private ByteArrayEscapeUtils() {
-        // private to prevent this class being instantiated. All methods are static and should be called directly.
+        // private to prevent this class being instantiated. All methods are
+        // static and should be called directly.
     }
 
     /**
      * Escapes the provided string so that it no longer contains the
      * Constants.DELIMITER character.
      *
-     * @param bytes the byte array to escape
+     * @param bytes
+     *            the byte array to escape
      * @return the escaped byte array
      */
     public static byte[] escape(final byte[] bytes) {
@@ -57,10 +59,11 @@ public final class ByteArrayEscapeUtils {
     }
 
     /**
-     * Unescapes the provided byte array - this should only be called on
-     * byte arrays that have been through the <code>escape</code> method.
+     * Unescapes the provided byte array - this should only be called on byte
+     * arrays that have been through the <code>escape</code> method.
      *
-     * @param bytes the byte array to unescape
+     * @param bytes
+     *            the byte array to unescape
      * @return the unescaped byte array
      */
     public static byte[] unEscape(final byte[] bytes) {

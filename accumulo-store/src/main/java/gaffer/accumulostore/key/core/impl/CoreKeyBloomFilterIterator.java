@@ -35,8 +35,10 @@ import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 
 /**
- * The BloomFilterIterator should filter out elements based on their membership of the provided bloomFilter.
- * This implementation may not work as desired depending on your gaffer.accumulostore.key implementation.
+ * The BloomFilterIterator should filter out elements based on their membership
+ * of the provided bloomFilter. This implementation may not work as desired
+ * depending on your {@link gaffer.accumulostore.AccumuloKeyPackage}
+ * implementation.
  */
 public class CoreKeyBloomFilterIterator extends Filter {
 
@@ -44,7 +46,8 @@ public class CoreKeyBloomFilterIterator extends Filter {
 
     @Override
     public boolean accept(final Key key, final Value value) {
-        return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(getVertexFromKey(key.getRowData().getBackingArray())));
+        return filter.membershipTest(
+                new org.apache.hadoop.util.bloom.Key(getVertexFromKey(key.getRowData().getBackingArray())));
     }
 
     protected byte[] getVertexFromKey(final byte[] key) {
@@ -63,7 +66,8 @@ public class CoreKeyBloomFilterIterator extends Filter {
     }
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -88,10 +92,9 @@ public class CoreKeyBloomFilterIterator extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-         return new IteratorOptionsBuilder(Constants.BLOOM_FILTER_ITERATOR_NAME,
-                "Bloom Filter")
+        return new IteratorOptionsBuilder(Constants.BLOOM_FILTER_ITERATOR_NAME, "Bloom Filter")
                 .addNamedOption(Constants.BLOOM_FILTER,
-                "Required: The serialised form of the bloom filter that keys will be tested against")
+                        "Required: The serialised form of the bloom filter that keys will be tested against")
                 .build();
     }
 

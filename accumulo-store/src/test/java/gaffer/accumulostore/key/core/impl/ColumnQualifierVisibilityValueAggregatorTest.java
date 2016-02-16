@@ -96,7 +96,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
 
-            //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its gaffer.accumulostore.key is equal.
+            //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
             Edge edge2 = new Edge(TestGroups.EDGE);
             edge2.setSource("1");
             edge2.setDestination("2");
@@ -118,7 +118,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             Properties properties3 = new Properties();
             properties3.put(AccumuloPropertyNames.COUNT, 10);
 
-            // Accumulo gaffer.accumulostore.key
+            // Accumulo key
             Key key = elementConverter.getKeysFromEdge(edge).getFirst();
             Key key2 = elementConverter.getKeysFromEdge(edge2).getFirst();
             Key key3 = elementConverter.getKeysFromEdge(edge3).getFirst();
@@ -204,7 +204,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             Properties properties1 = new Properties();
             properties1.put(AccumuloPropertyNames.COUNT, 1);
 
-            // Accumulo gaffer.accumulostore.key
+            // Accumulo key
             Key key = elementConverter.getKeysFromEdge(edge).getFirst();
 
             // Accumulo values
@@ -270,7 +270,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
 
-            //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its gaffer.accumulostore.key is equal.
+            //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
             Edge edge2 = new Edge(TestGroups.EDGE);
             edge2.setSource("1");
             edge2.setDestination("2");
@@ -290,7 +290,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             Properties properties3 = new Properties();
             properties3.put(AccumuloPropertyNames.COUNT, 10);
 
-            // Accumulo gaffer.accumulostore.key
+            // Accumulo key
             Key key = elementConverter.getKeysFromEdge(edge).getFirst();
             Key key2 = elementConverter.getKeysFromEdge(edge2).getFirst();
             Key key3 = elementConverter.getKeysFromEdge(edge3).getFirst();

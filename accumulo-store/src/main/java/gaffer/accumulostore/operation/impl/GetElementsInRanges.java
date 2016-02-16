@@ -24,10 +24,12 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
- * This returns all data between the provided {@link gaffer.operation.data.ElementSeed}s.
+ * This returns all data between the provided
+ * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
-public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE> {
+public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+        extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE> {
 
     public GetElementsInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
@@ -46,7 +48,7 @@ public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ext
     }
 
     public static class Builder<OP_TYPE extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
+            extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

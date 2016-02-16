@@ -25,7 +25,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.impl.get.GetElements;
 
 public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
+        extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
 
     private Iterable<SEED_TYPE> seedsB;
 
@@ -34,7 +34,8 @@ extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
         this.setSeedsB(seedsB);
     }
 
-    public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB, final View view) {
+    public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB,
+            final View view) {
         super(view, seedsA);
         this.setSeedsB(seedsB);
     }
@@ -48,11 +49,11 @@ extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
     }
 
     public static class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-    extends GetElements.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
+            extends GetElements.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
         List<SEED_TYPE> seedsB = new ArrayList<>();
 
         protected Builder(final OP_TYPE op) {
-           super(op);
+            super(op);
         }
 
         public Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> seedsB(final Iterable<SEED_TYPE> seedsB) {
@@ -65,11 +66,12 @@ extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
             return this;
         }
 
+        @Override
         public OP_TYPE build() {
             if (!this.seedsB.isEmpty()) {
-                Iterable<SEED_TYPE> seeds = this.op.getSeedsB();
+                final Iterable<SEED_TYPE> seeds = this.op.getSeedsB();
                 if (null != seeds) {
-                    for (SEED_TYPE seed : seeds) {
+                    for (final SEED_TYPE seed : seeds) {
                         this.seedsB.add(seed);
                     }
                 }

@@ -24,7 +24,8 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
- * Returns all {@link gaffer.data.element.Edge}'s between the provided {@link gaffer.operation.data.ElementSeed}s.
+ * Returns all {@link gaffer.data.element.Edge}'s between the provided
+ * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
 public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetRangeFromPair<SEED_TYPE, Edge> {
@@ -71,7 +72,7 @@ public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGet
     }
 
     public static class Builder<OP_TYPE extends GetEdgesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
-        extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Edge> {
+            extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Edge> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

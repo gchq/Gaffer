@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
@@ -38,6 +37,7 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.handler.AddElementsHandler;
@@ -78,10 +78,11 @@ import gaffer.store.schema.StoreSchema;
 /**
  * An Accumulo Implementation of the Gaffer Framework
  * <p/>
- * The gaffer.accumulostore.key detail of the Accumulo implementation is that any Edge inserted by a user is inserted
- * into the accumulo table twice, once with the source object being put first in the gaffer.accumulostore.key
- * and once with the destination bring put first in the gaffer.accumulostore.key.
- * This is to enable an edge to be found in a Range scan when providing only one end of the edge.
+ * The key detail of the Accumulo implementation is that any Edge inserted by a
+ * user is inserted into the accumulo table twice, once with the source object
+ * being put first in the key and once with the destination bring put first in
+ * the key This is to enable an edge to be found in a Range scan when providing
+ * only one end of the edge.
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
@@ -105,13 +106,16 @@ public class AccumuloStore extends Store {
     /**
      * Executes a given gaffer.accumulostore.operation and returns the result.
      *
-     * @param operation the operation to execute.
-     * @param <OUTPUT>  the output type of the operation.
+     * @param operation
+     *            the operation to execute.
+     * @param <OUTPUT>
+     *            the output type of the operation.
      * @return the result of executing the operation.
      * @throws gaffer.operation.OperationException
      */
     @Override
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
+    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation)
+            throws OperationException {
         if (operation.getOptions().containsKey(Constants.OPERATION_AUTHORISATIONS)) {
             return super.handleOperation(operation);
         } else {
@@ -120,20 +124,17 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Creates an Accumulo {@link org.apache.accumulo.core.client.Connector} using the properties found in properties
-     * file associated with the AccumuloStore
+     * Creates an Accumulo {@link org.apache.accumulo.core.client.Connector}
+     * using the properties found in properties file associated with the
+     * AccumuloStore
      *
      * @return A new {@link Connector}
      * @throws gaffer.store.StoreException
      */
     public Connector getConnection() throws StoreException {
         try {
-            return TableUtils.getConnector(
-                    getProperties().getInstanceName(),
-                    getProperties().getZookeepers(),
-                    getProperties().getUserName(),
-                    getProperties().getPassword()
-                    );
+            return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
+                    getProperties().getUserName(), getProperties().getPassword());
         } catch (final TableUtilException e) {
             throw new StoreException("Failed to create accumulo connection", e);
         }
@@ -204,21 +205,25 @@ public class AccumuloStore extends Store {
         } catch (final TableUtilException e) {
             throw new StoreException(e);
         }
-        // Loop through elements, convert to mutations, and add to BatchWriter.as
-        // The BatchWriter takes care of batching them up, sending them without too high a latency, etc.
+        // Loop through elements, convert to mutations, and add to
+        // BatchWriter.as
+        // The BatchWriter takes care of batching them up, sending them without
+        // too high a latency, etc.
         for (final Element element : elements) {
             final Pair<Key> keys;
             try {
                 keys = keyPackage.getKeyConverter().getKeysFromElement(element);
             } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo gaffer.accumulostore.key from element of type " + element.getGroup() + " when trying to insert elements");
+                LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
+                        + " when trying to insert elements");
                 continue;
             }
             final Value value;
             try {
                 value = keyPackage.getKeyConverter().getValueFromElement(element);
             } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup() + " when trying to insert elements");
+                LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
+                        + " when trying to insert elements");
                 continue;
             }
             final Mutation m = new Mutation(keys.getFirst().getRow());
@@ -227,23 +232,21 @@ public class AccumuloStore extends Store {
             try {
                 writer.addMutation(m);
             } catch (final MutationsRejectedException e) {
-                LOGGER.error("Failed to create an accumulo gaffer.accumulostore.key mutation");
+                LOGGER.error("Failed to create an accumulo key mutation");
                 continue;
             }
-            // If the GraphElement is a Vertex then there will only be 1 key, and the second will be null.
+            // If the GraphElement is a Vertex then there will only be 1 key,
+            // and the second will be null.
             // If the GraphElement is an Edge then there will be 2 keys.
             if (keys.getSecond() != null) {
                 final Mutation m2 = new Mutation(keys.getSecond().getRow());
-                m2.put(keys.getSecond().getColumnFamily(),
-                        keys.getSecond().getColumnQualifier(),
-                        new ColumnVisibility(keys.getSecond().getColumnVisibility()),
-                        keys.getSecond().getTimestamp(),
-                        value
-                        );
+                m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
+                        new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
+                        value);
                 try {
                     writer.addMutation(m2);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo gaffer.accumulostore.key mutation");
+                    LOGGER.error("Failed to create an accumulo key mutation");
                 }
             }
         }
@@ -255,7 +258,8 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Returns the {@link gaffer.accumulostore.key.AccumuloKeyPackage} in use by this AccumuloStore.
+     * Returns the {@link gaffer.accumulostore.key.AccumuloKeyPackage} in use by
+     * this AccumuloStore.
      *
      * @return {@link gaffer.accumulostore.key.AccumuloKeyPackage}
      */

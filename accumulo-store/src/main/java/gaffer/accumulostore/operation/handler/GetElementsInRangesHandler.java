@@ -28,20 +28,25 @@ import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 
-public class GetElementsInRangesHandler implements OperationHandler<GetElementsInRanges<ElementSeed, Element>, Iterable<Element>> {
+public class GetElementsInRangesHandler
+        implements OperationHandler<GetElementsInRanges<ElementSeed, Element>, Iterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation, final Store store) throws OperationException {
+    public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation, final Store store)
+            throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation, final AccumuloStore store) {
+    public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation,
+            final AccumuloStore store) {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
                 ret = new AccumuloRangeIDRetriever(store, operation,
-                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
-                        store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
+                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
+                                store),
+                        store.getKeyPackage().getIteratorFactory()
+                                .getEdgeEntityDirectionFilterIteratorSetting(operation),
                         store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {

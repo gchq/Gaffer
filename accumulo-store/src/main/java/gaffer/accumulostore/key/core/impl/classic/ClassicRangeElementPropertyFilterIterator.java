@@ -57,9 +57,9 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
         return foundDelimiter;
     }
 
-
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -84,7 +84,8 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
                 .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(Constants.NO_EDGES, "Optional: Set if no edges should be returned")
                 .setIteratorName(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
+                .setIteratorDescription(
+                        "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
                 .build();
     }
 

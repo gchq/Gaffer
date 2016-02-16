@@ -23,8 +23,9 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 
 /**
- * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given set and/or
- * {@link gaffer.data.element.Entity}s where the vertex is in the set.
+ * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given
+ * set and/or {@link gaffer.data.element.Entity}s where the vertex is in the
+ * set.
  *
  **/
 public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetOperation<EntitySeed, ELEMENT_TYPE> {
@@ -52,10 +53,12 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        throw new IllegalArgumentException(getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
+        throw new IllegalArgumentException(
+                getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
     }
 
-    public static class Builder<OP_TYPE extends GetElementsWithinSet<ELEMENT_TYPE>, ELEMENT_TYPE extends Element> extends AbstractGetOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
+    public static class Builder<OP_TYPE extends GetElementsWithinSet<ELEMENT_TYPE>, ELEMENT_TYPE extends Element>
+            extends AbstractGetOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

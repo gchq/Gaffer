@@ -15,6 +15,17 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.IteratorEnvironment;
+import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -26,23 +37,15 @@ import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.iterators.IteratorEnvironment;
-import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-import java.util.Map;
-
-public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends CoreKeyColumnQualifierColumnVisibilityValueCombiner {
+public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
+        extends CoreKeyColumnQualifierColumnVisibilityValueCombiner {
     private DataSchema dataSchema;
     private ElementAggregator aggregator;
 
     @Override
-    public ColumnQualifierColumnVisibilityValueTriple reduce(final Key key, final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter) {
+    public ColumnQualifierColumnVisibilityValueTriple reduce(final Key key,
+            final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter) {
         ColumnQualifierColumnVisibilityValueTriple triple;
         final String group;
         try {
@@ -64,10 +67,13 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
         aggregator.state(properties);
         final ColumnQualifierColumnVisibilityValueTriple result;
         try {
-            result = new ColumnQualifierColumnVisibilityValueTriple(elementConverter.buildColumnQualifier(group, properties),
-                    elementConverter.buildColumnVisibility(group, properties), elementConverter.getValueFromProperties(properties, group));
+            result = new ColumnQualifierColumnVisibilityValueTriple(
+                    elementConverter.buildColumnQualifier(group, properties),
+                    elementConverter.buildColumnVisibility(group, properties),
+                    elementConverter.getValueFromProperties(properties, group));
         } catch (final AccumuloElementConversionException e) {
-            throw new AggregationException("ColumnQualifierVisibilityAggregatorIterator failed to re-create an element", e);
+            throw new AggregationException("ColumnQualifierVisibilityAggregatorIterator failed to re-create an element",
+                    e);
         }
         return result;
     }
@@ -85,7 +91,8 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
     }
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -104,22 +111,22 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator extends Cor
             throw new SchemaException("Unable to deserialise the store schema", e);
         }
         try {
-            final Class<?> elementConverterClass = Class.forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : " + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            final Class<?> elementConverterClass = Class
+                    .forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new AggregationException("Failed to load element converter from class name provided : "
+                    + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions())
-                .addDataSchemaNamedOption()
-                .addElementConverterClassNamedOption()
-                .build();
+        return new IteratorOptionsBuilder(super.describeOptions()).addDataSchemaNamedOption()
+                .addElementConverterClassNamedOption().build();
     }
 
 }

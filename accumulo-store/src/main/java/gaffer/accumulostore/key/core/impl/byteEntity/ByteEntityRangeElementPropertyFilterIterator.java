@@ -38,7 +38,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     private boolean outgoingEdges = false;
 
     @Override
-    public  boolean accept(final Key key, final Value value) {
+    public boolean accept(final Key key, final Value value) {
         final byte flag = getFlag(key);
         final boolean isEdge = flag != ByteEntityPositions.ENTITY;
         if (!edges && isEdge) {
@@ -78,7 +78,8 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     }
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -89,12 +90,12 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
             return false;
         }
         if (options.containsKey(Constants.DIRECTED_EDGE_ONLY) && options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
-            throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.DIRECTED_EDGE_ONLY
-                    + " or " + Constants.UNDIRECTED_EDGE_ONLY);
+            throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.DIRECTED_EDGE_ONLY + " or "
+                    + Constants.UNDIRECTED_EDGE_ONLY);
         }
         if (options.containsKey(Constants.INCOMING_EDGE_ONLY) && options.containsKey(Constants.OUTGOING_EDGE_ONLY)) {
-            throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.INCOMING_EDGE_ONLY
-                    + " or " + Constants.OUTGOING_EDGE_ONLY);
+            throw new IllegalArgumentException(
+                    "Must specify ONLY ONE of " + Constants.INCOMING_EDGE_ONLY + " or " + Constants.OUTGOING_EDGE_ONLY);
         }
         if (options.containsKey(Constants.INCOMING_EDGE_ONLY)) {
             incomingEdges = true;
@@ -118,14 +119,17 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     @Override
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions())
-                .addNamedOption(Constants.DIRECTED_EDGE_ONLY, "Optional : Set if only directed edges should be returned")
-                .addNamedOption(Constants.UNDIRECTED_EDGE_ONLY, "Optional: Set if only undirected edges should be returned")
+                .addNamedOption(Constants.DIRECTED_EDGE_ONLY,
+                        "Optional : Set if only directed edges should be returned")
+                .addNamedOption(Constants.UNDIRECTED_EDGE_ONLY,
+                        "Optional: Set if only undirected edges should be returned")
                 .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(Constants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(Constants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
                 .addNamedOption(Constants.NO_EDGES, "Optional: Set if no edges should be returned")
                 .setIteratorName(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
+                .setIteratorDescription(
+                        "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
                 .build();
     }
 

@@ -22,6 +22,7 @@ public final class ClassicBytePositions {
     public static final byte INCORRECT_WAY_DIRECTED_EDGE = (byte) 3;
 
     private ClassicBytePositions() {
-        // private constructor to prevent users instantiating this class as it only contains constants.
+        // private constructor to prevent users instantiating this class as it
+        // only contains constants.
     }
 }

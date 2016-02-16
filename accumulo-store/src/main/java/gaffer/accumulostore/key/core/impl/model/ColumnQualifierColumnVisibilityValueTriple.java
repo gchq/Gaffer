@@ -16,6 +16,7 @@
 package gaffer.accumulostore.key.core.impl.model;
 
 import org.apache.accumulo.core.data.Value;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class ColumnQualifierColumnVisibilityValueTriple {
@@ -27,7 +28,8 @@ public class ColumnQualifierColumnVisibilityValueTriple {
     }
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "required for performance")
-    public ColumnQualifierColumnVisibilityValueTriple(final byte[] columnQualifier, final byte[] columnVisibility, final Value value) {
+    public ColumnQualifierColumnVisibilityValueTriple(final byte[] columnQualifier, final byte[] columnVisibility,
+            final Value value) {
         this.columnQualifier = columnQualifier;
         this.columnVisibility = columnVisibility;
         this.value = value;

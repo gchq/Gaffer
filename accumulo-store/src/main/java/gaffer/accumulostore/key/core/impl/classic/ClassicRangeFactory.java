@@ -15,6 +15,13 @@
  */
 package gaffer.accumulostore.key.core.impl.classic;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Range;
+
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
@@ -28,13 +35,6 @@ import gaffer.operation.data.EdgeSeed;
 import gaffer.serialisation.Serialisation;
 import gaffer.store.schema.StoreSchema;
 
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Range;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
     private final StoreSchema storeSchema;
@@ -44,7 +44,8 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation, final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
+    protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
+            final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeEdgeType includeEdges;
         final boolean includeEntities;
         if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching())) {
@@ -63,7 +64,8 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         }
         final boolean returnEdges = includeEdges != IncludeEdgeType.NONE;
         if (!includeEntities && !returnEdges) {
-            throw new IllegalArgumentException("Need to include either Entities or Edges or both when getting Range from a type and value");
+            throw new IllegalArgumentException(
+                    "Need to include either Entities or Edges or both when getting Range from a type and value");
         }
         if (includeEntities && returnEdges) {
             return Collections.singletonList(getRange(serialisedVertex));
@@ -75,12 +77,18 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation, final boolean endKey) throws RangeFactoryException {
-        final byte directionFlag1 = seed.isDirected() ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) : ClassicBytePositions.UNDIRECTED_EDGE;
+    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
+            final boolean endKey) throws RangeFactoryException {
+        final byte directionFlag1 = seed.isDirected()
+                ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING
+                        ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
+                        : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE)
+                : ClassicBytePositions.UNDIRECTED_EDGE;
 
         final Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
 
-        // Serialise source and destination to byte arrays, escaping if necessary
+        // Serialise source and destination to byte arrays, escaping if
+        // necessary
         byte[] source;
         try {
             source = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getSource()));
@@ -95,10 +103,11 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }
 
-        // Length of row gaffer.accumulostore.key is the length of the source plus the length of the destination
-        // plus one for the delimiter in between the source and destination plus one for the
-        // delimiter in between the destination and the direction flag plus one for
-        // the direction flag at the end.
+        // Length of row key is the length of the source
+        // plus the length of the destination
+        // plus one for the delimiter in between the source and destination
+        // plus one for the delimiter in between the destination and the direction flag 
+        // plus one for the direction flag at the end.
         byte[] key;
         if (endKey) {
             key = new byte[source.length + destination.length + 4];
@@ -110,10 +119,13 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
             key[key.length - 2] = ByteArrayEscapeUtils.DELIMITER;
             key[key.length - 1] = directionFlag1;
         }
-        // Create first gaffer.accumulostore.key: source DELIMITER destination DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-        // Here if we desire an EdgeID we and the user has asked for incoming edges only for related items, we put the destination first so we find the flipped edge's key,
-        // this key will pass the filter iterators check for incoming edges, but the result will be flipped back to the correct edge on the client end conversion
-        // Simply put when looking up an EDGE ID that ID counts as both incoming and outgoing so we use the reversed key when looking up incoming.
+        // Create first key: source DELIMITER destination DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
+        // Here if we desire an EdgeID we and the user has asked for incoming
+        // edges only for related items, we put the destination first so we find the flipped edge's key,
+        // this key will pass the filter iterators check for incoming edges, but
+        // the result will be flipped back to the correct edge on the client end conversion
+        // Simply put when looking up an EDGE ID that ID counts as both incoming
+        // and outgoing so we use the reversed key when looking up incoming.
         byte[] firstValue;
         byte[] secondValue;
         if (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING) {
@@ -133,28 +145,43 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
 
     private Range getEntityRangeFromVertex(final byte[] serialisedVertex) {
         final byte[] key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 1);
         key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER;
-        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        final Key endKey = new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
 
     private Range getEdgeRangeFromVertex(final byte[] serialisedVertex) {
         final byte[] startRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, startRowKey, 0, serialisedVertex.length);
-        startRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER; // Add delimiter to ensure that we don't get any Entities.
+        startRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER; // Add
+                                                                               // delimiter
+                                                                               // to
+                                                                               // ensure
+                                                                               // that
+                                                                               // we
+                                                                               // don't
+                                                                               // get
+                                                                               // any
+                                                                               // Entities.
         final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        final Key startKey = new Key(startRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key startKey = new Key(startRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                Long.MAX_VALUE);
+        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
 }

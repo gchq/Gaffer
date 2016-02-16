@@ -22,8 +22,9 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
 
 /**
- * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B, this retrieves all {@link gaffer.data.element.Edge}s where one end is in set A
- * and the other is in set B.
+ * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B,
+ * this retrieves all {@link gaffer.data.element.Edge}s where one end is in set
+ * A and the other is in set B.
  *
  */
 public class GetEdgesBetweenSets extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, Edge> {
@@ -59,7 +60,7 @@ public class GetEdgesBetweenSets extends AbstractAccumuloTwoSetSeededOperation<E
     }
 
     public static class Builder<OP_TYPE extends GetEdgesBetweenSets>
-        extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, Edge> {
+            extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, Edge> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

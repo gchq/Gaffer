@@ -22,22 +22,27 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
 
 /**
- * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B, this retrieves all {@link gaffer.data.element.Edge}s where one end is in set A
- * and the other is in set B and also returns {@link gaffer.data.element.Entity}s for {@link gaffer.operation.data.EntitySeed}s in set A.
+ * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B,
+ * this retrieves all {@link gaffer.data.element.Edge}s where one end is in set
+ * A and the other is in set B and also returns
+ * {@link gaffer.data.element.Entity}s for
+ * {@link gaffer.operation.data.EntitySeed}s in set A.
  *
  */
-public class GetElementsBetweenSets<ELEMENT_TYPE extends Element> extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, ELEMENT_TYPE> {
+public class GetElementsBetweenSets<ELEMENT_TYPE extends Element>
+        extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, ELEMENT_TYPE> {
 
     public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
         super(seedsA, seedsB);
     }
 
-    public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB, final View view) {
+    public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB,
+            final View view) {
         super(seedsA, seedsB, view);
     }
 
     public static class Builder<OP_TYPE extends GetElementsBetweenSets<ELEMENT_TYPE>, ELEMENT_TYPE extends Element>
-        extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
+            extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

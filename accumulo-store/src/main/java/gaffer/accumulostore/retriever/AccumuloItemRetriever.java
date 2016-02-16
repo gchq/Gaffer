@@ -16,13 +16,12 @@
 
 package gaffer.accumulostore.retriever;
 
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.data.element.Element;
-import gaffer.operation.GetOperation;
-import gaffer.store.StoreException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -32,18 +31,22 @@ import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.key.exception.RangeFactoryException;
+import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.data.element.Element;
+import gaffer.operation.GetOperation;
+import gaffer.store.StoreException;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE> extends AccumuloRetriever<OP_TYPE> {
+public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
+        extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
     private final Iterable<? extends SEED_TYPE> ids;
 
-    protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation, final IteratorSetting... iteratorSettings) throws StoreException {
+    protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
+            final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
         this.ids = operation.getSeeds();
     }
@@ -85,7 +88,8 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
                 }
             }
 
-            // Create BatchScanner, appropriately configured (i.e. ranges, iterators, etc).
+            // Create BatchScanner, appropriately configured (i.e. ranges,
+            // iterators, etc).
             try {
                 scanner = getScanner(ranges);
             } catch (TableNotFoundException | StoreException e) {
@@ -134,11 +138,13 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         public Element next() {
             final Map.Entry<Key, Value> entry = scannerIterator.next();
             try {
-                final Element elm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), operation.getOptions());
+                final Element elm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
+                        operation.getOptions());
                 doTransformation(elm);
                 return elm;
             } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null", e);
+                LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
+                        e);
                 return null;
             }
         }

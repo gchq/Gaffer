@@ -16,24 +16,26 @@
 
 package gaffer.accumulostore.retriever.impl;
 
-import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.GetOperation;
-import gaffer.store.StoreException;
-
 import java.util.Set;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
 
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.accumulostore.key.exception.RangeFactoryException;
+import gaffer.accumulostore.retriever.AccumuloItemRetriever;
+import gaffer.operation.GetOperation;
+import gaffer.operation.data.ElementSeed;
+import gaffer.store.StoreException;
+
 /**
- * This allows queries for all data related to the provided {@link gaffer.operation.data.ElementSeed}s.
+ * This allows queries for all data related to the provided
+ * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
-public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
+public class AccumuloSingleIDRetriever
+        extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
 
     public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation)
             throws IteratorSettingException, StoreException {
@@ -41,9 +43,15 @@ public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperatio
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
+
     /**
-     * Use of the varargs parameter here will mean the usual default iterators wont be applied, (Edge Direction,Edge/Entity Type and View Filtering)
-     * To apply them pass them directly to the varargs via calling your keyPackage.getIteratorFactory() and either  getElementFilterIteratorSetting and/Or getEdgeEntityDirectionFilterIteratorSetting
+     * Use of the varargs parameter here will mean the usual default iterators
+     * wont be applied, (Edge Direction,Edge/Entity Type and View Filtering) To
+     * apply them pass them directly to the varargs via calling your
+     * keyPackage.getIteratorFactory() and either
+     * getElementFilterIteratorSetting and/Or
+     * getEdgeEntityDirectionFilterIteratorSetting
+     *
      * @param store
      * @param operation
      * @param iteratorSettings
