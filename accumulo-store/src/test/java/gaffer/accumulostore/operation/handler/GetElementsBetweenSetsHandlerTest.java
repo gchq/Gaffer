@@ -89,8 +89,9 @@ public class GetElementsBetweenSetsHandlerTest {
 	public void setup() throws StoreException, IOException {
 	    byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
 	    Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-	
 	    defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+	    setupGraph(byteEntityStore);
+        setupGraph(Gaffer1KeyStore);
 	}
 	
 	@Test
@@ -99,11 +100,7 @@ public class GetElementsBetweenSetsHandlerTest {
 		testNoSummarisation(Gaffer1KeyStore);
 	}
 	
-	private void testNoSummarisation(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    setupGraph(store);
-		
+	private void testNoSummarisation(final AccumuloStore store) throws StoreException {		
 		GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
@@ -135,10 +132,6 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	public void testShouldSummarise(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    setupGraph(store);
-		
 	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
@@ -169,10 +162,6 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    setupGraph(store);
-
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
@@ -204,10 +193,6 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    setupGraph(store);
-		
 	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
@@ -235,12 +220,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
     
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws StoreException {
-    	// Create mock Accumulo instance and table
-	    // Populate graph
-	    setupGraph(store);
-	
-	    
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
@@ -271,11 +251,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
     
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws StoreException {
-    	// Create mock Accumulo instance and table
-	    // Populate graph
-	    setupGraph(store);
-		
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);

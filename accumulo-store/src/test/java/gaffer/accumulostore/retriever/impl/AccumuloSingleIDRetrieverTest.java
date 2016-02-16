@@ -56,6 +56,7 @@ import static org.junit.Assert.fail;
 
 public class AccumuloSingleIDRetrieverTest {
 
+    private static final int numEntries = 1000;
     private static final String AUTHS = "Test";
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
@@ -64,6 +65,8 @@ public class AccumuloSingleIDRetrieverTest {
     public void setup() throws IOException, StoreException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+        setupGraph(byteEntityStore, numEntries);
+        setupGraph(gaffer1KeyStore, numEntries);
     }
     
     @Test
@@ -73,9 +76,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
     
     public void testEntitySeedQueryEdgesAndEntities(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
@@ -109,9 +109,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     public void testEntitySeedQueryEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
@@ -145,9 +142,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
     
     public void testEntitySeedQueryEntitiesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
@@ -182,9 +176,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     public void testUndirectedEdgeSeedQueries(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
@@ -220,9 +211,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     public void testDirectedEdgeSeedQueries(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
@@ -259,9 +247,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     public void testEntitySeedQueryIncomingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
@@ -297,9 +282,6 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     public void testEntitySeedQueryOutgoingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();

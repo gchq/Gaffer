@@ -52,30 +52,28 @@ import gaffer.store.StoreException;
 
 public class AccumuloRangeIDRetrieverTest {
 
+    private static final int numEntries = 1000;
     private static final String AUTHS = "Test";
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
-    private static AccumuloStore Gaffer1KeyStore;
+    private static AccumuloStore gaffer1KeyStore;
 
     @Before
     public void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-
+        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        setupGraph(byteEntityStore, numEntries);
+        setupGraph(gaffer1KeyStore, numEntries);
     }
 
     @Test
     public void test() throws StoreException {
         test(byteEntityStore);
-        test(Gaffer1KeyStore);
+        test(gaffer1KeyStore);
     }
 
     public void test(final AccumuloStore store) throws StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
-        setupGraph(store, numEntries);
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0000"), new EntitySeed("0999")));

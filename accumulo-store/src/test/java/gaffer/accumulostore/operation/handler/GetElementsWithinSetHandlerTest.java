@@ -57,6 +57,7 @@ import gaffer.store.StoreException;
 
 public class GetElementsWithinSetHandlerTest {
 
+    private static final int numEntries = 1000;
 	private static final String AUTHS = "Test";
 	private static final long TIMESTAMP = System.currentTimeMillis();
 	private static View defaultView;
@@ -94,8 +95,9 @@ public class GetElementsWithinSetHandlerTest {
 	public void setup() throws StoreException, IOException {
 	    byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
 	    Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-	
 	    defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+	    setupGraph(byteEntityStore, numEntries);
+        setupGraph(Gaffer1KeyStore, numEntries);
 	}
 	
 	@Test
@@ -105,10 +107,6 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	public void testNoSummarisation(final AccumuloStore store) throws StoreException {
-	    // Create mock Accumulo instance and table
-	    // Populate graph
-	    int numEntries = 1000;
-	    setupGraph(store, numEntries);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setSummarise(false);
@@ -143,10 +141,6 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	public void testShouldSummarise(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    int numEntries = 1000;
-	    setupGraph(store, numEntries);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setSummarise(true);
@@ -178,11 +172,7 @@ public class GetElementsWithinSetHandlerTest {
 		testShouldReturnOnlyEdgesWhenOptionSet(Gaffer1KeyStore);
 	}
 	
-	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    int numEntries = 1000;
-	    setupGraph(store, numEntries);	 
+	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws StoreException {	 
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setIncludeEntities(false);
@@ -214,10 +204,6 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws StoreException {
-		// Create mock Accumulo instance and table
-	    // Populate graph
-	    int numEntries = 1000;
-	    setupGraph(store, numEntries);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setIncludeEdges(IncludeEdgeType.NONE);

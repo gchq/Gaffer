@@ -63,6 +63,8 @@ public class GetElementsinRangesHandlerTest {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        setupGraph(byteEntityStore, 1000);
+        setupGraph(Gaffer1KeyStore, 1000);
     }
 
     @Test
@@ -72,10 +74,6 @@ public class GetElementsinRangesHandlerTest {
     }
 
     public void testNoSummarisation(final AccumuloStore store) throws StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
-        setupGraph(store, numEntries);
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -90,7 +88,7 @@ public class GetElementsinRangesHandlerTest {
             count++;
         }
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
-        assertEquals(numEntries * 3, count);
+        assertEquals(1000 * 3, count);
         
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
@@ -112,10 +110,6 @@ public class GetElementsinRangesHandlerTest {
     }
     
     public void testShouldSummarise(final AccumuloStore store) throws StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
-        setupGraph(store, numEntries);
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -133,7 +127,7 @@ public class GetElementsinRangesHandlerTest {
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             count++;
         }
-        assertEquals(numEntries, count);
+        assertEquals(1000, count);
         
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
@@ -157,10 +151,6 @@ public class GetElementsinRangesHandlerTest {
     }
     
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
-        setupGraph(store, numEntries);
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -180,7 +170,7 @@ public class GetElementsinRangesHandlerTest {
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));   
             count++;
         }
-        assertEquals(numEntries, count);
+        assertEquals(1000, count);
         
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
@@ -204,10 +194,6 @@ public class GetElementsinRangesHandlerTest {
     }
     
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
-        setupGraph(store, numEntries);
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -235,10 +221,6 @@ public class GetElementsinRangesHandlerTest {
     }
     
     public void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws StoreException {
-        // Create mock Accumulo instance and table
-        // Populate graph
-        int numEntries = 1000;
-        setupGraph(store, numEntries);
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         

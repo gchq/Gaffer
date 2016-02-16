@@ -60,6 +60,7 @@ import gaffer.store.StoreException;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
+    private static final long TIMESTAMP = System.currentTimeMillis();
     private static final String AUTHS = "Test";
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
@@ -69,14 +70,13 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     public void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-
         defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        setupGraph(byteEntityStore);
+        setupGraph(gaffer1KeyStore);
     }
 
     @Test
     public void testGetCorrectEdges() throws StoreException {
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
         testGetCorrectEdges(byteEntityStore);
         testGetCorrectEdges(gaffer1KeyStore);
     }
@@ -177,6 +177,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             Edge edge1 = new Edge(TestGroups.EDGE, "A1", "B1", true);
             Edge edge2 = new Edge(TestGroups.EDGE, "B2", "A2", true);
             edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
+            edge1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             edge2.putProperty(AccumuloPropertyNames.COUNT, 100);
             data.add(edge1);
             data.add(edge2);
@@ -189,6 +190,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             // Query for edges between {A1} and {B1}, with outgoing edges only. Should get the edge A1>B1.
             Set<Element> expectedResults = new HashSet<>();
             AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+            op.setIncludeEntities(false);
             op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
             op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
             AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, false);
@@ -325,8 +327,6 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void testDealWithFalsePositives() throws IteratorSettingException, StoreException, AccumuloException {
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
         testDealWithFalsePositives(byteEntityStore);
         testDealWithFalsePositives(gaffer1KeyStore);
     }
@@ -418,8 +418,6 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void testOtherFilteringStillApplied() throws StoreException {
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
         testOtherFilteringStillApplied(byteEntityStore);
         testOtherFilteringStillApplied(gaffer1KeyStore);
     }
@@ -494,8 +492,6 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     @Test
     public void testWhenMoreElementsThanFitInBatchScanner() throws StoreException {
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
         testWhenMoreElementsThanFitInBatchScanner(byteEntityStore);
         testWhenMoreElementsThanFitInBatchScanner(gaffer1KeyStore);
     }
@@ -587,9 +583,11 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         for (int i = 1; i < 100; i++) {
             Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
             edge.putProperty(AccumuloPropertyNames.COUNT, 1);
+            edge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(edge);
             entity = new Entity(TestGroups.ENTITY, "A" + i);
             entity.putProperty(AccumuloPropertyNames.COUNT, i);
+            entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(entity);
         }
         addElements(data, store);
