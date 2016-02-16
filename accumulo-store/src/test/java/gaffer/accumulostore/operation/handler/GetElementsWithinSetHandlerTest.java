@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.TableExistsException;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gaffer.accumulostore.AccumuloStore;
@@ -91,8 +91,8 @@ public class GetElementsWithinSetHandlerTest {
     }
 	
 	
-	@Before
-	public void setup() throws StoreException, IOException {
+	@BeforeClass
+	public static void setup() throws StoreException, IOException {
 	    byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
 	    Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
 	    defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
@@ -229,7 +229,7 @@ public class GetElementsWithinSetHandlerTest {
         
 	}
 
-	private void setupGraph(final AccumuloStore store, int numEntries) {
+	private static void setupGraph(final AccumuloStore store, int numEntries) {
 		try {
 	        // Create table
 	        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,

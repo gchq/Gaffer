@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gaffer.accumulostore.AccumuloStore;
@@ -85,8 +85,8 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 	
 	
-	@Before
-	public void setup() throws StoreException, IOException {
+	@BeforeClass
+	public static void setup() throws StoreException, IOException {
 	    byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
 	    Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
 	    defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();

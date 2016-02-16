@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gaffer.accumulostore.AccumuloStore;
@@ -58,8 +58,8 @@ public class GetElementsinRangesHandlerTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore Gaffer1KeyStore;
 
-    @Before
-    public void setup() throws StoreException, IOException {
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
@@ -242,7 +242,7 @@ public class GetElementsinRangesHandlerTest {
 
     }
 
-    private void setupGraph(final AccumuloStore store, int numEntries) {
+    private static void setupGraph(final AccumuloStore store, int numEntries) {
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             Edge edge = new Edge(TestGroups.EDGE);

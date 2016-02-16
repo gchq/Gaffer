@@ -16,6 +16,19 @@
 
 package gaffer.accumulostore.retriever.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -41,19 +54,6 @@ import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
 
-import org.apache.accumulo.core.client.AccumuloException;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 public class AccumuloSingleIDRetrieverTest {
 
     private static final int numEntries = 1000;
@@ -61,8 +61,8 @@ public class AccumuloSingleIDRetrieverTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
-    @Before
-    public void setup() throws IOException, StoreException {
+    @BeforeClass
+    public static void setup() throws IOException, StoreException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         setupGraph(byteEntityStore, numEntries);
@@ -309,7 +309,7 @@ public class AccumuloSingleIDRetrieverTest {
         assertEquals(numEntries * 2, count);
     }
 
-    private void setupGraph(final AccumuloStore store, final int numEntries) {
+    private static void setupGraph(final AccumuloStore store, final int numEntries) {
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             Entity entity = new Entity(TestGroups.ENTITY);

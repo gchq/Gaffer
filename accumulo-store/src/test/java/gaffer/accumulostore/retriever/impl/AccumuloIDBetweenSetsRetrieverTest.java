@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gaffer.accumulostore.AccumuloStore;
@@ -66,8 +66,8 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
-    @Before
-    public void setup() throws StoreException, IOException {
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
