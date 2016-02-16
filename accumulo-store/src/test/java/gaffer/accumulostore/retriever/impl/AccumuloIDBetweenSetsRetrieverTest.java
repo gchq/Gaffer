@@ -124,6 +124,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             count++;
             results.add(elm);
         }
+        retriever.close();
         expectedResults.clear();
         expectedElement1 = new Entity(TestGroups.ENTITY, "A1");
         expectedElement1.putProperty(AccumuloPropertyNames.COUNT, 1);
@@ -146,6 +147,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             count++;
             results.add(element);
         }
+        retriever.close();
         expectedResults.clear();
         expectedElement1 = new Entity(TestGroups.ENTITY, "A1");
         expectedElement1.putProperty(AccumuloPropertyNames.COUNT, 1);
@@ -544,6 +546,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             count++;
             results.add(elm);
         }
+        retriever.close();
         expectedResults.clear();
         expectedElement1 = new Entity(TestGroups.ENTITY, "A1");
         expectedElement1.putProperty(AccumuloPropertyNames.COUNT, 1);
@@ -566,6 +569,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             count++;
             results.add(elm);
         }
+        retriever.close();
         expectedElement1 = new Entity(TestGroups.ENTITY, "A1");
         expectedElement1.putProperty(AccumuloPropertyNames.COUNT, 1);
         expectedResults.add(expectedElement1);
