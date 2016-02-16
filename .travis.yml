@@ -1,5 +1,2 @@
 language: java
-script:
-    - "mvn clean package -Dcheckstyle-skip=true -Dfindbugs.skip=true"
-    - "mvn checkstyle:check"
-    - "mvn findbugs:findbugs"
+script: mvn clean package

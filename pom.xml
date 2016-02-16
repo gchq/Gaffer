@@ -266,7 +266,7 @@
                 <configuration>
                     <forkMode>perthread</forkMode>
                     <parallel>classes</parallel>
-                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m
+                    <argLine>-Xmx1024m -XX:MaxDirectMemorySize=1G -Xmx1900m
                         -XX:MaxPermSize=256m
                     </argLine>
                 </configuration>
