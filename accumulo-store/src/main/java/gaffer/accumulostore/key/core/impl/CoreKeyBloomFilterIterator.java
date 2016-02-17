@@ -16,28 +16,26 @@
 
 package gaffer.accumulostore.key.core.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-
+import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
-
-import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * The BloomFilterIterator should filter out elements based on their membership
  * of the provided bloomFilter. This implementation may not work as desired
- * depending on your {@link gaffer.accumulostore.AccumuloKeyPackage}
+ * depending on your {@link gaffer.accumulostore.key.AccumuloKeyPackage}
  * implementation.
  */
 public class CoreKeyBloomFilterIterator extends Filter {
@@ -67,7 +65,7 @@ public class CoreKeyBloomFilterIterator extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }

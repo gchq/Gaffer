@@ -40,10 +40,17 @@
 
         <module name="SuppressWarningsHolder"/>
 
-        <!--<module name="JavadocMethod"/>-->
+        <module name="AtclauseOrder"/>
+        <module name="JavadocMethod">
+            <property name="allowMissingJavadoc" value="true"/>
+        </module>
         <!--<module name="JavadocType"/>-->
         <!--<module name="JavadocVariable"/>-->
-        <!--<module name="JavadocStyle"/>-->
+        <module name="JavadocStyle">
+            <property name="checkFirstSentence" value="false"/>
+        </module>
+        <module name="SingleLineJavadoc"/>
+        <module name="NonEmptyAtclauseDescription"/>
 
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
@@ -88,7 +95,6 @@
         <module name="IllegalInstantiation"/>
         <!--<module name="MagicNumber"/>-->
         <module name="MissingSwitchDefault"/>
-        <!--<module name="RedundantThrows"/>-->
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
 

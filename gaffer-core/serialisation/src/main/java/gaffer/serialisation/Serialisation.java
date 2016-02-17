@@ -17,17 +17,18 @@
 package gaffer.serialisation;
 
 import gaffer.exception.SerialisationException;
+
 import java.io.Serializable;
 
 /**
  * Definition of what is required from a serialisation mechanism used by the Graph Store.
- * <p/>
- * As a minimum, any Serialisation mechanism must be able to serialise and deserialise any given Property
+ * <p>
+ * As a minimum, any Serialisation mechanism must be able to serialise and deserialise any given Property.
  */
 public interface Serialisation extends Serializable {
 
     /**
-     * Enables checking whether the serialiser can serialise a particular class
+     * Enables checking whether the serialiser can serialise a particular class.
      *
      * @param clazz the object class to serialise
      * @return boolean true if it can be handled
@@ -39,16 +40,16 @@ public interface Serialisation extends Serializable {
      *
      * @param object the object to be serialised
      * @return byte[] the serialised bytes
-     * @throws SerialisationException
+     * @throws SerialisationException if the object fails to serialise
      */
     byte[] serialise(final Object object) throws SerialisationException;
 
     /**
-     * From a byte array representing the Serialised form of a Property we should reconstruct the Object
+     * From a byte array representing the Serialised form of a Property we should reconstruct the Object.
      *
      * @param bytes the serialised bytes to deserialise
      * @return Object the deserialised object
-     * @throws SerialisationException
+     * @throws SerialisationException if the object fails to deserialise
      */
     Object deserialise(final byte[] bytes) throws SerialisationException;
 

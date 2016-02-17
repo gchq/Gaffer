@@ -16,17 +16,13 @@
 
 package gaffer.accumulostore.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
+import gaffer.accumulostore.AccumuloProperties;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.store.StoreException;
+import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchScanner;
@@ -54,14 +50,16 @@ import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.WritableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gaffer.accumulostore.AccumuloProperties;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.key.AccumuloKeyPackage;
-import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.store.StoreException;
-import gaffer.store.schema.StoreSchema;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static utilities used in the creation and maintenance of accumulo tables.
@@ -77,8 +75,8 @@ public final class TableUtils {
      * Ensures that the table exists, otherwise it creates it and sets it up to
      * receive Gaffer data
      *
-     * @param store
-     * @throws org.apache.accumulo.core.client.AccumuloException
+     * @param store the accumulo store
+     * @throws AccumuloException if a connection to accumulo could not be created or a failure to create a table
      */
     public static void ensureTableExists(final AccumuloStore store) throws AccumuloException {
         final Connector conn;
@@ -104,10 +102,10 @@ public final class TableUtils {
      * {@link org.apache.accumulo.core.iterators.user.AgeOffFilter} for the
      * specified time period.
      *
-     * @param store
-     * @throws org.apache.accumulo.core.client.AccumuloException
-     * @throws gaffer.accumulostore.key.exception.IteratorSettingException
-     * @throws org.apache.accumulo.core.client.TableExistsException
+     * @param store the accumulo store
+     * @throws AccumuloException        failure to create accumulo connection
+     * @throws IteratorSettingException failure to add iterator settings
+     * @throws TableExistsException     failure to create table
      */
     public static void createTable(final AccumuloStore store)
             throws AccumuloException, IteratorSettingException, TableExistsException {
@@ -163,11 +161,12 @@ public final class TableUtils {
 
     /**
      * Creates a {@link BatchWriter}
+     * <p>
      *
-     * @param store
+     * @param store the accumulo store
      * @return A new BatchWriter with the settings defined in the
-     *         gaffer.accumulostore properties
-     * @throws TableUtilException
+     * gaffer.accumulostore properties
+     * @throws TableUtilException if the table could not be found or other table issues
      */
     public static BatchWriter createBatchWriter(final AccumuloStore store) throws TableUtilException {
         return createBatchWriter(store, store.getProperties().getTable());
@@ -176,11 +175,12 @@ public final class TableUtils {
     /**
      * Returns the map containing all the information needed to create a new
      * instance of the accumulo gaffer.accumulostore
+     * <p>
      *
-     * @param properties
+     * @param properties the accumulo properties
      * @return A MapWritable containing all the required information to
-     *         construct an accumulo gaffer.accumulostore instance
-     * @throws TableUtilException
+     * construct an accumulo gaffer.accumulostore instance
+     * @throws TableUtilException if a table could not be found or other table issues
      */
     public static MapWritable getStoreConstructorInfo(final AccumuloProperties properties) throws TableUtilException {
         final Connector connection = getConnector(properties.getInstanceName(), properties.getZookeepers(),
@@ -205,15 +205,15 @@ public final class TableUtils {
      * Creates a connection to an accumulo instance using the provided
      * parameters
      *
-     * @param instanceName
-     * @param zookeepers
-     * @param userName
-     * @param password
+     * @param instanceName the instance name
+     * @param zookeepers   the zoo keepers
+     * @param userName     the user name
+     * @param password     the password
      * @return A connection to an accumulo instance
-     * @throws TableUtilException
+     * @throws TableUtilException failure to create an accumulo connection
      */
     public static Connector getConnector(final String instanceName, final String zookeepers, final String userName,
-            final String password) throws TableUtilException {
+                                         final String password) throws TableUtilException {
         final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
         try {
             return instance.getConnector(userName, new PasswordToken(password));
@@ -226,10 +226,9 @@ public final class TableUtils {
      * Returns the {@link org.apache.accumulo.core.security.Authorizations} of
      * the current user
      *
-     * @param connection
-     * @return The accumulo Authorisations of the current user specified in the
-     *         properties file
-     * @throws TableUtilException
+     * @param connection the connection to an accumulo instance
+     * @return The accumulo Authorisations of the current user specified in the properties file
+     * @throws TableUtilException if the table could not be found or other table/security issues
      */
     public static Authorizations getCurrentAuthorizations(final Connector connection) throws TableUtilException {
         try {
@@ -281,12 +280,13 @@ public final class TableUtils {
     /**
      * Creates a {@link org.apache.accumulo.core.client.BatchWriter} for the
      * specified table
+     * <p>
      *
-     * @param store
-     * @param tableName
+     * @param store     the accumulo store
+     * @param tableName the table name
      * @return A new BatchWriter with the settings defined in the
-     *         gaffer.accumulostore properties
-     * @throws TableUtilException
+     * gaffer.accumulostore properties
+     * @throws TableUtilException if the table could not be found or other table issues
      */
 
     private static BatchWriter createBatchWriter(final AccumuloStore store, final String tableName)
@@ -310,7 +310,7 @@ public final class TableUtils {
      * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that
      * specifies the age off iterator.
      *
-     * @param ageOffTimeInMilliseconds
+     * @param ageOffTimeInMilliseconds the age off time in milliseconds
      * @return An iterator setting describing an age off iterator
      */
     private static IteratorSetting getAgeOffIteratorSetting(final long ageOffTimeInMilliseconds) {
@@ -339,7 +339,7 @@ public final class TableUtils {
     }
 
     private static Value getValueFromSchemas(final DataSchema dataSchema, final StoreSchema storeSchema,
-            final AccumuloKeyPackage keyPackage) throws TableUtilException {
+                                             final AccumuloKeyPackage keyPackage) throws TableUtilException {
         final MapWritable map = new MapWritable();
         map.put(Constants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
         map.put(Constants.STORE_SCHEMA_KEY, new BytesWritable(storeSchema.toJson(false)));

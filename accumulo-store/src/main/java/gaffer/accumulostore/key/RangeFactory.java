@@ -16,14 +16,12 @@
 
 package gaffer.accumulostore.key;
 
-import java.util.List;
-
-import org.apache.accumulo.core.data.Range;
-
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
+import org.apache.accumulo.core.data.Range;
+import java.util.List;
 
 /**
  * The range factory is designed so that a List of Accumulo
@@ -39,11 +37,12 @@ public interface RangeFactory {
     /**
      * Returns a Range representing a query for the given ID
      *
-     * @param elementSeed
-     * @param operation
+     * @param elementSeed the element seed to get the range for
+     * @param operation   the operation
+     * @param <T>         the type of operation
      * @return A List of Ranges that are required to return all elements that
-     *         match the parameters of the query.
-     * @throws gaffer.accumulostore.key.exception.RangeFactoryException
+     * match the parameters of the query.
+     * @throws RangeFactoryException if a range could not be created
      */
     <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
             throws RangeFactoryException;
@@ -57,14 +56,15 @@ public interface RangeFactory {
      * is that values in your gaffer.accumulostore instance should be ordered
      * within the table so that Entities with an Integer Identifier occur in the
      * order 1 2 3
-     * <p/>
+     * <p>
      * So that a provided pair of 1 and 3 will return entities 1, 2 and 3.
      *
-     * @param pairRange
-     * @param operation
+     * @param pairRange the pair of element seeds to get the range for
+     * @param operation the operation
+     * @param <T>       the type of operation
      * @return A List of Ranges that are required to return all elements that
-     *         match the parameters of the query.
-     * @throws gaffer.accumulostore.key.exception.RangeFactoryException
+     * match the parameters of the query.
+     * @throws RangeFactoryException if a range could not be created
      */
     <T extends GetOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
             throws RangeFactoryException;

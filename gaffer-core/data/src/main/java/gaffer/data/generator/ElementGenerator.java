@@ -23,7 +23,7 @@ import gaffer.data.element.Element;
 
 /**
  * An <code>ElementGenerator</code> converts domain objects to {@link gaffer.data.element.Element}s and vice versa.
- * <p/>
+ * <p>
  * Implementations should be JSON serialisable.
  *
  * @param <OBJ> the type of domain object

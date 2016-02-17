@@ -37,7 +37,8 @@ import java.util.Map;
  * <li>The identifier(s) along with the group should uniquely identify an element.</li>
  * <li>The properties are any other properties of the element. Properties should be split out as much as possible into
  * simple properties, enabling validation, aggregation, transformation and filtering to be done more precisely.</li>
- * <p/>
+ * </ul>
+ * <p>
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")

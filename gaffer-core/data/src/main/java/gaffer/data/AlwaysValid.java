@@ -18,6 +18,8 @@ package gaffer.data;
 
 /**
  * An <code>AlwaysValid</code> is an {@link gaffer.data.Validator} in which it always returns true.
+ *
+ * @param <T> the type of object to validate
  */
 public class AlwaysValid<T> implements Validator<T> {
     @Override

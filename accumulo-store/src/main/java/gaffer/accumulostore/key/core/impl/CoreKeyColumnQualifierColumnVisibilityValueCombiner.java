@@ -15,13 +15,13 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.PartialKey;
@@ -32,19 +32,17 @@ import org.apache.accumulo.core.iterators.IteratorUtil;
 import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
-import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * A copy of Accumulo {@link org.apache.accumulo.core.iterators.Combiner} but
  * combining values with identical rowKey and column family.
- * <p/>
+ * <p>
  * Users extending this class must specify a reduce() method.
  */
 public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extends WrappingIterator
@@ -70,9 +68,8 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
          * versions of the current topKey of the source
          * {@link SortedKeyValueIterator}.
          *
-         * @param source
-         *            The {@link SortedKeyValueIterator} of {@link Key},
-         *            {@link Value} pairs from which to read data.
+         * @param source The {@link SortedKeyValueIterator} of {@link Key},
+         *               {@link Value} pairs from which to read data.
          */
         public ColumnQualifierColumnVisibilityValueTripleIterator(final SortedKeyValueIterator<Key, Value> source) {
             this.source = source;
@@ -86,7 +83,7 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
         private boolean _hasNext() {
             return source.hasTop() && !source.getTopKey().isDeleted()
                     && columnQualifierColumnVisibilityValueTripleIteratorTopKey.equals(source.getTopKey(),
-                            PartialKey.ROW_COLFAM);
+                    PartialKey.ROW_COLFAM);
         }
 
         /**
@@ -117,8 +114,8 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
                 hasNext = _hasNext();
             } catch (final IOException e) {
                 throw new RuntimeException(e); // Looks like a bad idea, but
-                                               // this is what the in-built
-                                               // Combiner iterator does
+                // this is what the in-built
+                // Combiner iterator does
             }
             final ColumnQualifierColumnVisibilityValueTriple topVisValPair = new ColumnQualifierColumnVisibilityValueTriple(
                     topColumnQualifier, topColumnVisibility, topValue);
@@ -229,14 +226,12 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
      * Reduces a list of triples of (column qualifier, column visibility, Value)
      * into a single triple.
      *
-     * @param key
-     *            The most recent version of the Key being reduced.
-     * @param iter
-     *            An iterator over the Values for different versions of the key.
+     * @param key  The most recent version of the Key being reduced.
+     * @param iter An iterator over the Values for different versions of the key.
      * @return The combined Value.
      */
     public abstract ColumnQualifierColumnVisibilityValueTriple reduce(final Key key,
-            final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter);
+                                                                      final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter);
 
     @Override
     public SortedKeyValueIterator<Key, Value> deepCopy(final IteratorEnvironment env) {
@@ -252,7 +247,7 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
     }
 
@@ -273,6 +268,6 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(Constants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
                 "Applies a reduce function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)")
-                        .addStoreSchemaNamedOption().build();
+                .addStoreSchemaNamedOption().build();
     }
 }

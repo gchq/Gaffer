@@ -16,10 +16,10 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.operation.data.EntitySeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.EntitySeed;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
@@ -58,12 +58,6 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
     public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
         public Builder() {
             super(new GetAdjacentEntitySeeds());
-        }
-
-        @Override
-        public Builder seedMatching(final SeedMatchingType seedMatching) {
-            super.seedMatching(seedMatching);
-            return this;
         }
 
         @Override

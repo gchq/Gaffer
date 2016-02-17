@@ -16,11 +16,6 @@
 
 package gaffer.accumulostore.key.core.impl.classic;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.apache.accumulo.core.data.Key;
-
 import gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
@@ -30,6 +25,9 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.data.Key;
+import java.util.Arrays;
+import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
     public ClassicAccumuloElementConverter(final StoreSchema storeSchema) {

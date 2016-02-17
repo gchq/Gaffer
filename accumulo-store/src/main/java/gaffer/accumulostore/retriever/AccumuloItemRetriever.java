@@ -16,12 +16,13 @@
 
 package gaffer.accumulostore.retriever;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.key.exception.RangeFactoryException;
+import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.data.element.Element;
+import gaffer.operation.GetOperation;
+import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -30,14 +31,11 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.data.element.Element;
-import gaffer.operation.GetOperation;
-import gaffer.store.StoreException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
         extends AccumuloRetriever<OP_TYPE> {
@@ -46,7 +44,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
     private final Iterable<? extends SEED_TYPE> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                    final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
         this.ids = operation.getSeeds();
     }

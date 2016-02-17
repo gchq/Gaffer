@@ -20,13 +20,13 @@ package gaffer.function;
  * A <code>FilterFunction</code> is a {@link gaffer.function.ConsumerFunction} that tests input records against some
  * criteria, returning a <code>boolean</code> result to indicate whether the input passes or fails the test. The result
  * of any filter can be reversed by setting the <code>not</code> option.
- * <p/>
- * For example:<br/>
- * <code>FilterFunction isA = new IsA(Integer.class);</code><br/>
- * <code>boolean result = isA.execute({1}); //result = true</code><br/>
- * <code>result = isA.execute({"a"}); //result = false</code><br/>
+ * <p>
+ * For example:<br>
+ * <code>FilterFunction isA = new IsA(Integer.class);</code><br>
+ * <code>boolean result = isA.execute({1}); //result = true</code><br>
+ * <code>result = isA.execute({"a"}); //result = false</code><br>
  * <code>isA.setNot(true); // flip results</code>
- * <code>result = isA.execute({1}); //result = false</code><br/>
+ * <code>result = isA.execute({1}); //result = false</code><br>
  * <code>result = isA.execute({"a"}) // result = true</code>
  */
 public abstract class FilterFunction extends ConsumerFunction {

@@ -108,7 +108,7 @@ public abstract class Store {
 
     /**
      * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support VALIDATION and FILTERING.
-     * <p/>
+     * <p>
      * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
      *
@@ -127,6 +127,7 @@ public abstract class Store {
      * @param operationChain the operation chain to execute.
      * @param <OUTPUT>       the output type of the operation.
      * @return the result of executing the operation.
+     * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
         final Iterator<Operation> opsItr;

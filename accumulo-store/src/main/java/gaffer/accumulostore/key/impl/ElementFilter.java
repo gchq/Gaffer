@@ -16,17 +16,6 @@
 
 package gaffer.accumulostore.key.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.iterators.Filter;
-import org.apache.accumulo.core.iterators.IteratorEnvironment;
-import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
@@ -37,6 +26,15 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.Filter;
+import org.apache.accumulo.core.iterators.IteratorEnvironment;
+import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 /**
  * The ElementFilter will filter out {@link Element}s based on the filtering

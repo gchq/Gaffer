@@ -41,7 +41,7 @@ import javax.ws.rs.core.MediaType;
  * Each example method path should be equal to the corresponding IOperationService method with /example as a prefix.
  * Each example method should return a populated {@link gaffer.operation.Operation} which can be used to call the
  * corresponding IOperationService method.
- * <p/>
+ * <p>
  * Ideally the example should work against any {@link gaffer.store.Store} with any set of schemas
  * and properties, however this may not be possible in all cases - but it should at least give a starting point for
  * constructing a valid {@link gaffer.operation.Operation}.

@@ -16,20 +16,17 @@
 
 package gaffer.operation;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
-
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation.SeedMatchingType;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractOperation<Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
@@ -218,16 +215,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
             }
 
             seeds.add(seed);
-            return this;
-        }
-
-        /**
-         * @param seedMatching sets the seedMatching option on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setSeedMatching(SeedMatchingType)
-         */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seedMatching(final SeedMatchingType seedMatching) {
-            op.setSeedMatching(seedMatching);
             return this;
         }
 

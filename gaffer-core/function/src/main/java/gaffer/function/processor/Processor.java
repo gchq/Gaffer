@@ -17,6 +17,7 @@
 package gaffer.function.processor;
 
 import gaffer.function.context.FunctionContext;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +25,9 @@ import java.util.List;
 /**
  * A <code>Processor</code> executes {@link gaffer.function.Function}s against {@link gaffer.function.Tuple}s. It
  * uses {@link gaffer.function.context.FunctionContext}s to bind functions to data in tuples.
+ *
+ * @param <R> The type of reference used by tuples.
+ * @param <C> The type of {@link FunctionContext} to use.
  */
 public abstract class Processor<R, C extends FunctionContext<?>> implements Cloneable {
     protected List<C> functions;

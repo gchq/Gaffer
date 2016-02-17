@@ -34,7 +34,7 @@ public interface JobInitialiser {
      * @param job       the {@link org.apache.hadoop.mapreduce.Job} to be initialised
      * @param operation the {@link gaffer.operation.simple.hdfs.AddElementsFromHdfs} containing configuration.
      * @param store     the {@link gaffer.store.Store} that will handle the {@link gaffer.operation.Operation}
-     * @throws IOException
+     * @throws IOException if IO issues occur
      */
     void initialiseJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException;
 }

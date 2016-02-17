@@ -26,7 +26,7 @@ import gaffer.function.processor.Transformer;
 
 /**
  * Element Transformer - for transforming {@link gaffer.data.element.Element}s.
- * <p/>
+ * <p>
  * Use {@link gaffer.data.element.function.ElementTransformer.Builder} to build an ElementTransformer.
  *
  * @see gaffer.data.element.function.ElementTransformer.Builder
@@ -50,6 +50,9 @@ public class ElementTransformer extends Transformer<ElementComponentKey> {
         return clone;
     }
 
+    /**
+     * Builder for {@link ElementTransformer}.
+     */
     public static class Builder extends Transformer.Builder<ElementComponentKey> {
         public Builder() {
             this(new ElementTransformer());

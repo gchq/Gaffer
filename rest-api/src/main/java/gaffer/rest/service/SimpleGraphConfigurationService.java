@@ -40,7 +40,7 @@ import java.util.Set;
 /**
  * An implementation of {@link gaffer.rest.service.IGraphConfigurationService}. By default it will use a singleton
  * {@link gaffer.graph.Graph} generated using the {@link gaffer.rest.GraphFactory}.
- * <p/>
+ * <p>
  * Currently the {@link gaffer.operation.Operation}s, {@link gaffer.function.FilterFunction}s,
  * {@link gaffer.function.TransformFunction}s and {@link gaffer.data.generator.ElementGenerator}s available
  * are only returned if they are in a package prefixed with 'gaffer'.

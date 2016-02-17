@@ -23,7 +23,7 @@ import gaffer.operation.GetOperation;
 /**
  * Restricts {@link gaffer.operation.impl.get.GetEntities} to match seeds that are equal.
  * This operation only takes seeds of type {@link gaffer.operation.data.EntitySeed}.
- * <p/>
+ * <p>
  * An Entity is EQUAL to an EntitySeed if the Entity's seed is equal to the EntitySeed.
  *
  * @see GetEntitiesBySeed.Builder

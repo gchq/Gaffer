@@ -16,11 +16,6 @@
 
 package gaffer.accumulostore.retriever.impl;
 
-import java.util.Set;
-
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.hadoop.util.bloom.BloomFilter;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import gaffer.accumulostore.retriever.RetrieverException;
@@ -28,16 +23,19 @@ import gaffer.accumulostore.utils.BloomFilterUtils;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.hadoop.util.bloom.BloomFilter;
+import java.util.Set;
 
 /**
  * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given
  * set of {@link gaffer.operation.data.EntitySeed}'s and
  * {@link gaffer.data.element.Entity}s where the vertex is in the set.
- *
+ * <p>
  * {@link org.apache.hadoop.util.bloom.BloomFilter}s are used to identify on the
  * server edges that are likely to be between members of the set and to send
  * only these to the client. This reduces the amount of data sent to the client.
- *
+ * <p>
  * This operates in two modes. In the first mode the seeds are loaded into
  * memory (client-side). They are also loaded into a
  * {@link org.apache.hadoop.util.bloom.BloomFilter}. This is passed to the
@@ -48,7 +46,7 @@ import gaffer.store.StoreException;
  * check in the iterators). This secondary check uses the in memory set of seeds
  * (and hence there are guaranteed to be no false positives returned to the
  * user).
- *
+ * <p>
  * In the second mode, where there are too many seeds to be loaded into memory,
  * the seeds are queried one batch at a time. When the first batch is queried
  * for, a {@link org.apache.hadoop.util.bloom.BloomFilter} of the first batch is
@@ -68,12 +66,12 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seeds;
 
     public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                        final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, false, iteratorSettings);
     }
 
     public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
-            final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
+                                        final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, readEntriesIntoMemory, iteratorSettings);
         setSeeds(operation.getSeeds());
     }
@@ -113,10 +111,9 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
         }
 
         /**
-         * @param source
-         * @param destination
-         * @return True if the source and destination contained in the provided
-         *         seed sets
+         * @param source      the element source identifier
+         * @param destination the element destination identifier
+         * @return True if the source and destination contained in the provided seed sets
          */
         @Override
         protected boolean checkIfBothEndsInSet(final Object source, final Object destination) {
