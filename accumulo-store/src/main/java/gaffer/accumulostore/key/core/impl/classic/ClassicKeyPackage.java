@@ -30,6 +30,7 @@ public class ClassicKeyPackage extends AbstractCoreKeyPackage {
         setStoreSchema(schema);
     }
 
+    @Override
     public void setStoreSchema(final StoreSchema schema) {
         setRangeFactory(new ClassicRangeFactory(schema));
         setKeyConverter(new ClassicAccumuloElementConverter(schema));

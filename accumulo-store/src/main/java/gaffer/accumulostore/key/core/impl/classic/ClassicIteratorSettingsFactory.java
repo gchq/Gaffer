@@ -15,29 +15,47 @@
  */
 package gaffer.accumulostore.key.core.impl.classic;
 
+import org.apache.accumulo.core.client.IteratorSetting;
+
+import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
+import gaffer.accumulostore.operation.AbstractRangeOperation;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 
-import org.apache.accumulo.core.client.IteratorSetting;
-
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
-    private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class.getName();
+    private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class
+            .getName();
+    private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ClassicRangeElementPropertyFilterIterator.class
+            .getName();
 
     @Override
     public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
-        if (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.BOTH && operation.getIncludeEdges() == IncludeEdgeType.ALL) {
+        if (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.BOTH
+                && operation.getIncludeEdges() == IncludeEdgeType.ALL) {
             return null;
         }
 
-        return new IteratorSettingBuilder(Constants.EDGE_ENTITY_DIRECTED_FILTER_ITERATOR_PRIORITY,
-                Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_FILTER_ITERATOR_NAME, EDGE_DIRECTED_UNDIRECTED_FILTER)
-                .includeEdges(operation.getIncludeEdges())
-                .includeIncomingOutgoing(operation.getIncludeIncomingOutGoing())
-                .includeEntities(operation.isIncludeEntities())
-                .build();
+        return new IteratorSettingBuilder(
+                Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
+                Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME,
+                EDGE_DIRECTED_UNDIRECTED_FILTER).includeIncomingOutgoing(operation.getIncludeIncomingOutGoing())
+                        .includeEdges(operation.getIncludeEdges()).includeEntities(operation.isIncludeEntities())
+                        .build();
     }
+
+    @Override
+    public IteratorSetting getElementPropertyRangeQueryFilter(final AbstractRangeOperation<?, ?> operation) {
+        final boolean includeEntities = operation.isIncludeEntities();
+        final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
+        if (includeEdgeType != IncludeEdgeType.NONE && includeEntities) {
+            return null;
+        }
+        return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
+                        .includeEdges(includeEdgeType).includeEntities(includeEntities).build();
+    }
+
 }

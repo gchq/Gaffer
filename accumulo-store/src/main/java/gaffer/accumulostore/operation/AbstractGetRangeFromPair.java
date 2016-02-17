@@ -18,30 +18,35 @@ package gaffer.accumulostore.operation;
 
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.ElementSeed;
 
-public class GetOperationWithPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
+public abstract class AbstractGetRangeFromPair<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+        extends AbstractRangeOperation<Pair<SEED_TYPE>, ELEMENT_TYPE> {
 
-    public GetOperationWithPair() {
-    }
-
-    public GetOperationWithPair(final Iterable<Pair<SEED_TYPE>> seeds) {
+    public AbstractGetRangeFromPair(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
     }
 
-    public GetOperationWithPair(final View view) {
+    public AbstractGetRangeFromPair(final View view) {
         super(view);
     }
 
-    public GetOperationWithPair(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+    public AbstractGetRangeFromPair(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
         super(view, seeds);
     }
 
-    public GetOperationWithPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
+    public AbstractGetRangeFromPair(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
         super(operation);
+    }
+
+    public static class Builder<OP_TYPE extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+            extends AbstractRangeOperation.Builder<OP_TYPE, Pair<SEED_TYPE>, ELEMENT_TYPE> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
     }
 }

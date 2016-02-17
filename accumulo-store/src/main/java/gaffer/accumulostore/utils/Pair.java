@@ -95,9 +95,6 @@ public class Pair<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Pair{"
-                + "first=" + first
-                + ", second=" + second
-                + '}';
+        return "Pair{" + "first=" + first + ", second=" + second + '}';
     }
 }

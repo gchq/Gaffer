@@ -137,10 +137,10 @@ public class ByteEntityBloomElementFunctorTest {
         // Create range from entity to edge inclusive
         Range range = new Range(key1.getRow(), true, key2.getRow(), true);
 
-        // Check don't get null Bloom gaffer.accumulostore.key
+        // Check don't get null Bloom key
         assertNotNull(elementFunctor.transform(range));
 
-        // Check get correct Bloom gaffer.accumulostore.key
+        // Check get correct Bloom key
         org.apache.hadoop.util.bloom.Key expectedBloomKey = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
         assertEquals(expectedBloomKey, elementFunctor.transform(range));
     }
@@ -164,7 +164,7 @@ public class ByteEntityBloomElementFunctorTest {
     @Test
     public void testTransformRangeWhenRangeHasUnspecifiedStartOrEndKey() {
         try {
-            // Create Range with unspecified start gaffer.accumulostore.key and test - should get null
+            // Create Range with unspecified start key and test - should get null
             Edge edge1 = new Edge(TestGroups.EDGE);
             edge1.setSource("3");
             edge1.setDestination("4");
@@ -172,7 +172,7 @@ public class ByteEntityBloomElementFunctorTest {
             Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
             assertNull(elementFunctor.transform(range1));
 
-            // Create Range with unspecified end gaffer.accumulostore.key and test - should get null
+            // Create Range with unspecified end key and test - should get null
             Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
             assertNull(elementFunctor.transform(range2));
         } catch (AccumuloElementConversionException e) {
