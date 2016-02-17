@@ -48,7 +48,6 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -57,11 +56,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class ColumnQualifierVisibilityValueAggregatorTest {
-
-    private static MockAccumuloStore byteEntityStore;
-    private static MockAccumuloStore gaffer1KeyStore;
-    private static AccumuloElementConverter byteEntityElementConverter;
-    private static AccumuloElementConverter gaffer1ElementConverter;
+    private MockAccumuloStore byteEntityStore;
+    private MockAccumuloStore gaffer1KeyStore;
+    private AccumuloElementConverter byteEntityElementConverter;
+    private AccumuloElementConverter gaffer1ElementConverter;
 
     @Before
     public void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
@@ -73,14 +71,6 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
         gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getStoreSchema());
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getStoreSchema());
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        byteEntityElementConverter = null;
-        gaffer1ElementConverter = null;
     }
 
     @Test
