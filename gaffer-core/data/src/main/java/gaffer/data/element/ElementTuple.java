@@ -25,7 +25,6 @@ import gaffer.function.Tuple;
  * This class allows Elements to be used with the function module whilst minimising dependencies.
  */
 public class ElementTuple implements Tuple<ElementComponentKey> {
-
     private Element element;
 
     public ElementTuple() {
@@ -59,5 +58,12 @@ public class ElementTuple implements Tuple<ElementComponentKey> {
         } else {
             element.putProperty(reference.getPropertyName(), value);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ElementTuple{"
+                + "element=" + element
+                + '}';
     }
 }

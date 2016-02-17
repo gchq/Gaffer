@@ -16,15 +16,17 @@
 
 package gaffer.accumulostore;
 
-import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 
+import gaffer.store.StoreException;
+
 /**
- * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to provide a {@link Connector}.
+ * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
+ * provide a {@link Connector}.
  */
 public class MockAccumuloStore extends AccumuloStore {
     private final MockInstance mockAccumulo = new MockInstance();

@@ -19,6 +19,7 @@ package gaffer.accumulostore.operation.handler;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;

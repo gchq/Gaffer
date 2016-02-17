@@ -16,17 +16,19 @@
 
 package gaffer.accumulostore.operation.hdfs.handler;
 
-import gaffer.accumulostore.operation.handler.tool.ImportElementsToAccumulo;
+import org.apache.hadoop.util.ToolRunner;
+
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.operation.handler.tool.ImportElementsToAccumulo;
 import gaffer.accumulostore.operation.hdfs.handler.tool.FetchElementsFromHdfs;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import org.apache.hadoop.util.ToolRunner;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs, Void> {
+    @Override
     public Void doOperation(final AddElementsFromHdfs operation, final Store store) throws OperationException {
         doOperation(operation, (AccumuloStore) store);
         return null;
@@ -37,13 +39,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         importElements(operation, store);
     }
 
-    private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store) throws OperationException {
+    private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)
+            throws OperationException {
         final FetchElementsFromHdfs fetchTool = new FetchElementsFromHdfs(operation, store);
 
         final int response;
         try {
             response = ToolRunner.run(fetchTool, new String[0]);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new OperationException("Failed to fetch elements from HDFS", e);
         }
 
@@ -52,18 +55,19 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
     }
 
-    private void importElements(final AddElementsFromHdfs operation, final AccumuloStore store) throws OperationException {
+    private void importElements(final AddElementsFromHdfs operation, final AccumuloStore store)
+            throws OperationException {
         final ImportElementsToAccumulo importTool;
         try {
             importTool = new ImportElementsToAccumulo(operation, store);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("Failed to import elements into Accumulo.", e);
         }
 
         final int response;
         try {
             response = ToolRunner.run(importTool, new String[0]);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new OperationException("Failed to import elements into Accumulo.", e);
         }
 

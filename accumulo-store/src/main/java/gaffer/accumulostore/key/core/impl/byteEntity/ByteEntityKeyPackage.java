@@ -31,6 +31,7 @@ public class ByteEntityKeyPackage extends AbstractCoreKeyPackage {
         setStoreSchema(schema);
     }
 
+    @Override
     public void setStoreSchema(final StoreSchema schema) {
         setRangeFactory(new ByteEntityRangeFactory(schema));
         setKeyConverter(new ByteEntityAccumuloElementConverter(schema));

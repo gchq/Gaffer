@@ -34,46 +34,43 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     @Override
     public IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException {
-        return new IteratorSettingBuilder(Constants.BLOOM_FILTER_ITERATOR_PRIORITY, Constants.BLOOM_FILTER_ITERATOR_NAME, CoreKeyBloomFilterIterator.class)
-                .bloomFilter(filter)
-                .build();
+        return new IteratorSettingBuilder(Constants.BLOOM_FILTER_ITERATOR_PRIORITY,
+                Constants.BLOOM_FILTER_ITERATOR_NAME, CoreKeyBloomFilterIterator.class).bloomFilter(filter).build();
     }
 
     @Override
-    public IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store) throws IteratorSettingException {
+    public IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store)
+            throws IteratorSettingException {
         return new IteratorSettingBuilder(Constants.ELEMENT_FILTER_ITERATOR_PRIORITY,
-                Constants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME)
-                .storeSchema(store.getStoreSchema())
-                .view(view)
-                .keyConverter(store.getKeyPackage().getKeyConverter())
-                .build();
+                Constants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME).storeSchema(store.getStoreSchema())
+                .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
     }
 
     /**
-     * Returns an Iterator that will aggregate values in the accumulo table, this iterator  will be applied to the table on creation
+     * Returns an Iterator that will aggregate values in the accumulo table,
+     * this iterator will be applied to the table on creation
+     * <p>
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate
+     * elements where they have the same key based on the
+     * {@link gaffer.data.elementdefinition.schema.DataSchema}
      */
     @Override
     public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
-        return new IteratorSettingBuilder(Constants.AGGREGATOR_ITERATOR_PRIORITY,
-                Constants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
-                .all()
-                .dataSchema(store.getDataSchema())
-                .storeSchema(store.getStoreSchema())
-                .keyConverter(store.getKeyPackage().getKeyConverter())
-                .build();
+        return new IteratorSettingBuilder(Constants.AGGREGATOR_ITERATOR_PRIORITY, Constants.AGGREGATOR_ITERATOR_NAME,
+                AggregatorIterator.class).all().dataSchema(store.getDataSchema()).storeSchema(store.getStoreSchema())
+                .keyConverter(store.getKeyPackage().getKeyConverter()).build();
     }
 
     @Override
-    public IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
+    public IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store)
+            throws IteratorSettingException {
         return new IteratorSettingBuilder(Constants.QUERY_TIME_AGGREGATOR_PRIORITY,
-                Constants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
-                .all()
-                .dataSchema(store.getDataSchema())
-                .storeSchema(store.getStoreSchema())
-                .keyConverter(store.getKeyPackage().getKeyConverter())
+                Constants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
+                CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class).all().dataSchema(store.getDataSchema())
+                .storeSchema(store.getStoreSchema()).keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }
+
 }

@@ -18,12 +18,24 @@ package gaffer.accumulostore;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
+import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.commonutil.PathUtil;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.store.StoreException;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.mock.MockInstance;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 
 public class MockAccumuloStoreForTest extends MockAccumuloStore {
+    private static final MockInstance BYTE_ENTITY_MOCK_INSTANCE = new MockInstance();
+    private static final MockInstance CLASSIC_MOCK_INSTANCE = new MockInstance();
+
+    private Connector byteEntityMockConnector;
+    private Connector classicMockConnector;
+
     public MockAccumuloStoreForTest() {
         this(ByteEntityKeyPackage.class);
     }
@@ -37,6 +49,52 @@ public class MockAccumuloStoreForTest extends MockAccumuloStore {
         try {
             initialise(dataSchema, storeSchema, properties);
         } catch (StoreException e) {
+            throw new RuntimeException(e);
+        }
+
+        clearTables();
+    }
+
+    @Override
+    public Connector getConnection() throws StoreException {
+        try {
+            if (ByteEntityKeyPackage.class.getName().equals(getProperties().getKeyPackageClass())) {
+                if (null == byteEntityMockConnector) {
+                    byteEntityMockConnector = BYTE_ENTITY_MOCK_INSTANCE.getConnector("user", new PasswordToken("password"));
+                }
+                return byteEntityMockConnector;
+            }
+            if (ClassicKeyPackage.class.getName().equals(getProperties().getKeyPackageClass())) {
+                if (null == classicMockConnector) {
+                    classicMockConnector = CLASSIC_MOCK_INSTANCE.getConnector("user", new PasswordToken("password"));
+                }
+                return classicMockConnector;
+            }
+            throw new StoreException("Invalid key package class");
+        } catch (AccumuloException | AccumuloSecurityException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Connector getMockConnector() {
+        if (ByteEntityKeyPackage.class.getName().equals(getProperties().getKeyPackageClass())) {
+            return byteEntityMockConnector;
+        }
+        if (ClassicKeyPackage.class.getName().equals(getProperties().getKeyPackageClass())) {
+            return classicMockConnector;
+        }
+
+        throw new RuntimeException("Invalid key package class");
+    }
+
+    private void clearTables() {
+        try {
+            final Connector connection = getConnection();
+            for (String tableName : connection.tableOperations().list()) {
+                connection.tableOperations().delete(tableName);
+            }
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

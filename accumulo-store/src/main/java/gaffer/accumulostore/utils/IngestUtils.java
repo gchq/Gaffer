@@ -28,7 +28,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +45,8 @@ public final class IngestUtils {
     private static final FsPermission ACC_FILE_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
 
     private IngestUtils() {
-        // private to prevent this class being instantiated. All methods are static and should be called directly.
+        // private to prevent this class being instantiated.
+        // All methods are static and should be called directly.
     }
 
     /**
@@ -60,8 +60,8 @@ public final class IngestUtils {
      * @return The number of splits in the table
      * @throws IOException for any IO issues reading from the file system. Other accumulo exceptions are caught and wrapped in an IOException.
      */
-    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs, final Path splitsFile)
-            throws IOException {
+    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
+                                       final Path splitsFile) throws IOException {
         // Get the splits from the table
         Collection<Text> splits;
         try {
@@ -70,32 +70,35 @@ public final class IngestUtils {
             throw new IOException(e.getMessage(), e);
         }
 
-        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
+                Constants.UTF_8_CHARSET)) {
             // Write the splits to file
             if (splits.isEmpty()) {
                 out.close();
                 return 0;
             }
 
-            for (Text split : splits) {
+            for (final Text split : splits) {
                 out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
             }
         }
-
         return splits.size();
     }
 
     /**
      * Given some split points, write a Base64 encoded splits file
+     * <p>
      *
      * @param splits     - A Collection of splits
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
      * @throws IOException for any IO issues writing to the file system.
      */
-    public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile) throws IOException {
-        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false, Constants.UTF_8_CHARSET)) {
-            for (Text split : splits) {
+    public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile)
+            throws IOException {
+        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
+                Constants.UTF_8_CHARSET)) {
+            for (final Text split : splits) {
                 out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
             }
         }
@@ -124,13 +127,16 @@ public final class IngestUtils {
 
     /**
      * Read a Base64 encoded splits file and return the splits as Text objects
+     * <p>
      *
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
-     * @return A set of Text objects representing the locations of split points in HDFS
+     * @return A set of Text objects representing the locations of split points
+     * in HDFS
      * @throws IOException for any IO issues reading from the file system.
      */
-    public static SortedSet<Text> getSplitsFromFile(final FileSystem fs, final Path splitsFile) throws IOException {
+    public static SortedSet<Text> getSplitsFromFile(final FileSystem fs,
+                                                    final Path splitsFile) throws IOException {
         final SortedSet<Text> splits = new TreeSet<>();
 
         try (final FSDataInputStream fis = fs.open(splitsFile);
@@ -147,17 +153,19 @@ public final class IngestUtils {
     /**
      * Modify the permissions on a directory and its contents to allow Accumulo
      * access.
+     * <p>
      *
      * @param fs      - The FileSystem in which to create the splits file
      * @param dirPath - The Path to the directory
      * @throws IOException for any IO issues interacting with the file system.
      */
+
     public static void setDirectoryPermsForAccumulo(final FileSystem fs, final Path dirPath) throws IOException {
         if (!fs.getFileStatus(dirPath).isDirectory()) {
             throw new RuntimeException(dirPath + " is not a directory");
         }
         fs.setPermission(dirPath, ACC_DIR_PERMS);
-        for (FileStatus file : fs.listStatus(dirPath)) {
+        for (final FileStatus file : fs.listStatus(dirPath)) {
             fs.setPermission(file.getPath(), ACC_FILE_PERMS);
         }
     }
