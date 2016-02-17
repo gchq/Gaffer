@@ -154,6 +154,7 @@
                         <target>${java.version}</target>
                         <showDeprecation>true</showDeprecation>
                         <showWarnings>true</showWarnings>
+                        <fork>true</fork>
                         <meminitial>128m</meminitial>
                         <maxmem>1024m</maxmem>
                     </configuration>
@@ -162,12 +163,6 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <forkCount>0</forkCount>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -253,7 +248,8 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <forkCount>0</forkCount>
+                    <forkMode>perthread</forkMode>
+                    <parallel>classes</parallel>
                     <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m
                         -XX:MaxPermSize=256m
                     </argLine>
