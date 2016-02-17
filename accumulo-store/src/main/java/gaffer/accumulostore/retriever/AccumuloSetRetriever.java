@@ -198,17 +198,14 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         @Override
         public Element next() {
             if (null == nextElm) {
-                if (hasNext()) {
-                    return nextElm;
-                } else {
+                if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-            } else {
-                Element nextReturn = nextElm;
-                nextElm = null;
-                doTransformation(nextReturn);
-                return nextReturn;
             }
+            Element nextReturn = nextElm;
+            nextElm = null;
+            doTransformation(nextReturn);
+            return nextReturn;
 
         }
 
@@ -302,17 +299,14 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
         @Override
         public Element next() {
             if (null == nextElm) {
-                if (hasNext()) {
-                    return nextElm;
-                } else {
+                if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-            } else {
-                Element nextReturn = nextElm;
-                nextElm = null;
-                doTransformation(nextReturn);
-                return nextReturn;
             }
+            Element nextReturn = nextElm;
+            nextElm = null;
+            doTransformation(nextReturn);
+            return nextReturn;
         }
 
         @Override
