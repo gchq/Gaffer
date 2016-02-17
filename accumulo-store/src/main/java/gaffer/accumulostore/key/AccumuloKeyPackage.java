@@ -22,8 +22,8 @@ import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
 /**
  * The AccumuloKeyPackage provides access to Factories and utility methods
  * needed for an Instance of the AccumuloStore to run, The idea of the
- * gaffer.accumulostore.key package is to isolate all things which are dependent
- * upon any one key design, with the intent that new gaffer.accumulostore.key
+ * key package is to isolate all things which are dependent
+ * upon any one key design, with the intent that new key
  * package can be implemented later to optimise certain queries, depending on
  * the users use case.
  */
@@ -70,7 +70,7 @@ public abstract class AccumuloKeyPackage {
 
     /**
      * This method is here so that users schemas can be checked for
-     * compatibility against current gaffer.accumulostore.key implementation. A
+     * compatibility against current key implementation. A
      * runtime Exception of
      * {@link gaffer.data.elementdefinition.schema.exception.SchemaException}
      * should be thrown if incompatibilities are found.
