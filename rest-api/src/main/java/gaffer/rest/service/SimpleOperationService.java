@@ -85,51 +85,37 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation, final Integer n) {
-        Iterable<Element> elements = execute(operation);
-        if (null == n) {
-            return elements;
-        } else {
-            Iterator<Element> elms = elements.iterator();
-            List<Element> elList = new ArrayList<>();
-            int i = 0;
-            while (elms.hasNext() && i < n) {
-                elList.add(elms.next());
-                ++i;
-            }
-            return elList;
-        }
+        return executeGet(operation, n);
     }
 
     @Override
     public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, final Integer n) {
-        return execute(operation);
+        return executeGet(operation, n);
     }
 
     @Override
     public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, final Integer n) {
-        return execute(operation);
+        return executeGet(operation, n);
     }
 
     @Override
     public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation, final Integer n) {
-        return execute(operation);
+        return executeGet(operation, n);
     }
-
 
     @Override
     public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, final Integer n) {
-        return execute(operation);
+        return executeGet(operation, n);
     }
-
 
     @Override
     public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation, final Integer n) {
-        return execute(operation);
+        return executeGet(operation, n);
     }
 
     @Override
     public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
-        return execute(operation);
+        return executeGet(operation, n);
     }
 
     protected void preOperationHook(final OperationChain<?> opChain) {
@@ -176,7 +162,7 @@ public class SimpleOperationService implements IOperationService {
         }
     }
     
-    protected Iterable<Element> executeGet(Operation<?, Iterable<Element>> operation, Integer n) {
+    protected <OUTPUT> Iterable<OUTPUT> executeGet(Operation<?, Iterable<OUTPUT>> operation, Integer n) {
         return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
     }
 
