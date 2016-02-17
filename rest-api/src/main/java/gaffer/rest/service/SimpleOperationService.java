@@ -16,6 +16,9 @@
 
 package gaffer.rest.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Iterables;
 
 import gaffer.data.element.Edge;
@@ -38,11 +41,6 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * An implementation of {@link gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -161,8 +159,8 @@ public class SimpleOperationService implements IOperationService {
             }
         }
     }
-    
-    protected <OUTPUT> Iterable<OUTPUT> executeGet(Operation<?, Iterable<OUTPUT>> operation, Integer n) {
+
+    protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
         return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
     }
 
