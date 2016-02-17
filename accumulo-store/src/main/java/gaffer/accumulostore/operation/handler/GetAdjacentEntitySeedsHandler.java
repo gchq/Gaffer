@@ -16,18 +16,18 @@
 
 package gaffer.accumulostore.operation.handler;
 
-import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
+import gaffer.accumulostore.utils.Constants;
 import gaffer.data.IsEdgeValidator;
 import gaffer.data.TransformIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.operation.data.EntitySeed;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -36,11 +36,13 @@ import gaffer.store.operation.handler.OperationHandler;
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
 
     @Override
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final Store store) throws OperationException {
+    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final Store store)
+            throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final AccumuloStore store) throws OperationException {
+    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final AccumuloStore store)
+            throws OperationException {
         operation.addOption(Constants.OPERATION_MATCH_AS_SOURCE, "true");
 
         final AccumuloRetriever<?> edgeRetriever;

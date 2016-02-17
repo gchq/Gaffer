@@ -55,13 +55,6 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         return SeedMatchingType.RELATED;
     }
 
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        if (!getSeedMatching().equals(seedMatching)) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " only supports seed matching when set to " + getSeedMatching().name());
-        }
-    }
-
     public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
         public Builder() {
             super(new GetAdjacentEntitySeeds());

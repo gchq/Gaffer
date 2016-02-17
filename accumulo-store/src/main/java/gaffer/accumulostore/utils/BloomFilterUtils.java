@@ -16,21 +16,25 @@
 
 package gaffer.accumulostore.utils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Utilities for the creation of Bloom Filters
  */
 public final class BloomFilterUtils {
     private BloomFilterUtils() {
-        // private to prevent this class being instantiated. All methods are static and should be called directly.
+        // private to prevent this class being instantiated.
+        // All methods are static and should be called directly.
     }
 
     /**
-     * Calculates the size of the {@link org.apache.hadoop.util.bloom.BloomFilter} needed to achieve the desired false positive rate given that the
-     * specified number of items will be added to the set, but with the maximum size limited as specified.
+     * Calculates the size of the
+     * {@link org.apache.hadoop.util.bloom.BloomFilter} needed to achieve the
+     * desired false positive rate given that the specified number of items will
+     * be added to the set, but with the maximum size limited as specified.
      *
      * @param falsePositiveRate
      * @param numItemsToBeAdded
@@ -38,14 +42,16 @@ public final class BloomFilterUtils {
      * @return An Integer representing the size of the bloom filter needed.
      */
     @SuppressFBWarnings(value = "ICAST_IDIV_CAST_TO_DOUBLE", justification = "the value is cast to an int after the division")
-    public static int calculateBloomFilterSize(final double falsePositiveRate, final int numItemsToBeAdded, final int maximumSize) {
-        int size = (int) (-numItemsToBeAdded * Math.log(falsePositiveRate) / (Math.pow(Math.log(2.0), 2.0)));
+    public static int calculateBloomFilterSize(final double falsePositiveRate, final int numItemsToBeAdded,
+            final int maximumSize) {
+        final int size = (int) (-numItemsToBeAdded * Math.log(falsePositiveRate) / (Math.pow(Math.log(2.0), 2.0)));
         return Math.min(size, maximumSize);
     }
 
     /**
-     * Calculates the optimal number of hash functions to use in a {@link org.apache.hadoop.util.bloom.BloomFilter} of the given size, to which the
-     * given number of items will be added.
+     * Calculates the optimal number of hash functions to use in a
+     * {@link org.apache.hadoop.util.bloom.BloomFilter} of the given size, to
+     * which the given number of items will be added.
      *
      * @param bloomFilterSize
      * @param numItemsToBeAdded
@@ -57,22 +63,26 @@ public final class BloomFilterUtils {
     }
 
     /**
-     * Returns a {@link org.apache.hadoop.util.bloom.BloomFilter} of the necessary size to achieve the given false positive rate (subject
-     * to the given maximum size), configured with the optimal number of hash functions.
+     * Returns a {@link org.apache.hadoop.util.bloom.BloomFilter} of the
+     * necessary size to achieve the given false positive rate (subject to the
+     * given maximum size), configured with the optimal number of hash
+     * functions.
      *
      * @param falsePositiveRate
      * @param numItemsToBeAdded
      * @param maximumSize
      * @return A new BloomFilter with the desired Settings
      */
-    public static BloomFilter getBloomFilter(final double falsePositiveRate, final int numItemsToBeAdded, final int maximumSize) {
+    public static BloomFilter getBloomFilter(final double falsePositiveRate, final int numItemsToBeAdded,
+            final int maximumSize) {
         final int size = calculateBloomFilterSize(falsePositiveRate, numItemsToBeAdded, maximumSize);
         final int numHashes = calculateNumHashes(size, numItemsToBeAdded);
         return new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
     }
 
     /**
-     * Returns a {@link org.apache.hadoop.util.bloom.BloomFilter} of the given size.
+     * Returns a {@link org.apache.hadoop.util.bloom.BloomFilter} of the given
+     * size.
      *
      * @param size
      * @return A new BloomFilter of the desired size

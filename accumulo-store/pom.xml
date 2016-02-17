@@ -88,7 +88,6 @@
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>
             <version>${accumulo.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Testing dependencies -->
@@ -97,6 +96,12 @@
             <artifactId>store</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+         <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>simple-serialisation-library</artifactId>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

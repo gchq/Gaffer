@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;

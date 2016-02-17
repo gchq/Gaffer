@@ -15,14 +15,15 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.tool;
 
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.util.Tool;
+
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.handler.job.AccumuloAddElementsFromHdfsJobFactory;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.util.Tool;
 
 public class FetchElementsFromHdfs extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 1;
@@ -39,7 +40,7 @@ public class FetchElementsFromHdfs extends Configured implements Tool {
     public int run(final String[] strings) throws Exception {
         TableUtils.ensureTableExists(store);
 
-        Job job = new AccumuloAddElementsFromHdfsJobFactory().createJob(operation, store);
+        final Job job = new AccumuloAddElementsFromHdfsJobFactory().createJob(operation, store);
         job.waitForCompletion(true);
 
         if (!job.isSuccessful()) {

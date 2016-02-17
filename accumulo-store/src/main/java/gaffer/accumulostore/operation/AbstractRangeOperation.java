@@ -17,30 +17,35 @@
 package gaffer.accumulostore.operation;
 
 import gaffer.data.element.Element;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.GetOperation;
 
-public class AccumuloTwoSetSeededOperation<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+public class AbstractRangeOperation<SEED_TYPE, ELEMENT_TYPE extends Element>
         extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
 
-    private Iterable<SEED_TYPE> seedsB;
-
-    public AccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
-        super(seedsA);
-        this.setSeedsB(seedsB);
+    public AbstractRangeOperation(final Iterable<SEED_TYPE> seeds) {
+        super(seeds);
     }
 
-    public AccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB, final View view) {
-        super(view, seedsA);
-        this.setSeedsB(seedsB);
+    public AbstractRangeOperation(final View view) {
+        super(view);
     }
 
-    public Iterable<SEED_TYPE> getSeedsB() {
-        return seedsB;
+    public AbstractRangeOperation(final View view, final Iterable<SEED_TYPE> seeds) {
+        super(view, seeds);
     }
 
-    public void setSeedsB(final Iterable<SEED_TYPE> seedsB) {
-        this.seedsB = seedsB;
+    public AbstractRangeOperation(final GetOperation<SEED_TYPE, ?> operation) {
+        super(operation);
+    }
+
+    public static class Builder<OP_TYPE extends AbstractRangeOperation<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE extends Element>
+            extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
     }
 }
