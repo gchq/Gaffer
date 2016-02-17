@@ -23,6 +23,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -177,18 +179,6 @@ public class SimpleOperationService implements IOperationService {
     }
     
     protected Iterable<Element> executeGet(Operation<?, Iterable<Element>> operation, Integer n) {
-		Iterable<Element> results = execute(operation);
-    	if(null == n) {
-        	return results;
-        } else {
-	        Iterator<Element> resultsIterator = results.iterator();
-	        List<Element> limitedResults = new ArrayList<>();
-	        int i = 0;
-	        while(resultsIterator.hasNext() && i < n) {
-	        	limitedResults.add(resultsIterator.next());
-	        	++i;
-	        }
-	        return limitedResults;
-        }
+        return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
     }
 }
