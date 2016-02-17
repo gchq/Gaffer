@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * A <code>StoreSchema</code> contains all the {@link gaffer.data.element.Element}s to be stored and specifically
  * the information needed to store them - i.e positions and serialisers.
- * <p/>
+ * <p>
  * This class must be JSON serialisable.
  * A store schema should normally be written in JSON and then deserialised at runtime.
  * Examples of JSON data schemas can be found in the example projects.
@@ -98,7 +98,7 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
 
     /**
      * Returns the vertex serialiser for this store schema.
-     * <p/>
+     * <p>
      * There can be only one vertex serialiser per store schema because in order for searches to work correctly,
      * the byte representation of the search term's (seeds) must match the byte representation stored,
      * i.e you need to know how your results have been serialised which effectively means all vertices must be serialised the same way within a table.

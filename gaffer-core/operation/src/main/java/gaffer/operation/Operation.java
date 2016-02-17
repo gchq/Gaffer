@@ -29,10 +29,10 @@ import java.util.Map;
  * Operations should be written to be as generic as possible to allow them to be applied to different graph/stores.
  * NOTE - operations should not contain the operation logic. The logic should be separated out into a operation handler.
  * This will allow you to execute the same operation on different stores with different handlers.
- * <p/>
+ * <p>
  * This interface enforces all operations have the ability to supply a {@link View}, chain operations together
  * and provide an input for the operation.
- * <p/>
+ * <p>
  * Operations must be JSON serialisable in order to make REST API calls.
  *
  * @param <INPUT>  the input type of the operation. This must be JSON serialisable.
@@ -42,7 +42,7 @@ public interface Operation<INPUT, OUTPUT> {
     /**
      * @param element the {@link gaffer.data.element.Element} to be validated.
      * @return true if the {@link gaffer.data.element.Element} is valid. Otherwise false and a reason should be logged.
-     * <p/>
+     * <p>
      * If the element class is known then validate(Entity) or validate(Edge) should be called instead to avoid
      * unnecessary use of <code>instanceof</code>.
      * @see Operation#validate(Entity)

@@ -29,7 +29,7 @@ public class ExampleAggregatorFunction extends SingleInputAggregateFunction {
     }
 
     @Override
-    public void execute(Object input) {
+    protected void execute(Object input) {
         this.input = input;
     }
 

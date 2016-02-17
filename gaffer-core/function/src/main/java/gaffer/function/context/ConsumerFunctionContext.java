@@ -69,7 +69,7 @@ public class ConsumerFunctionContext<R, F extends ConsumerFunction> extends Func
 
     /**
      * Select data from an input {@link gaffer.function.Tuple}.
-     * <p/>
+     * <p>
      * <b>Note</b>: due to re-use of the container used to return input data, this method is not thread safe.
      *
      * @param tuple Input tuple to select from.

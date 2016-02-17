@@ -15,13 +15,11 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
-import java.util.Arrays;
-
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
-
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import java.util.Arrays;
 
 public class CoreKeyBloomFunctor implements KeyFunctor {
 

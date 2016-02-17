@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An ElementDefinition that has maps of property name -> property value type and
- * {@link gaffer.data.element.IdentifierType} -> identifier value type.
+ * An ElementDefinition that has maps of property name to property value type and
+ * {@link gaffer.data.element.IdentifierType} to identifier value type.
  *
  * @see gaffer.data.elementdefinition.TypedElementDefinition.Builder
  */

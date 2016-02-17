@@ -28,9 +28,9 @@ import gaffer.function.processor.Aggregator;
  * Element Aggregator - for aggregating {@link gaffer.data.element.Element}s.
  * When Elements are aggregated it is only the Element {@link gaffer.data.element.Properties} that are aggregated.
  * Aggregation requires elements to have the same identifiers and group.
- * <p/>
+ * <p>
  * Use {@link gaffer.data.element.function.ElementAggregator.Builder} to build an ElementAggregator.
- * <p/>
+ * <p>
  * To use this aggregator:
  * <ul>
  * <li>Use {@link gaffer.data.element.function.ElementAggregator.Builder} to build an ElementAggregator</li>
@@ -86,6 +86,9 @@ public class ElementAggregator extends Aggregator<ElementComponentKey> {
         return clone;
     }
 
+    /**
+     * Builder for {@link ElementAggregator}.
+     */
     public static class Builder extends Aggregator.Builder<ElementComponentKey> {
         public Builder() {
             this(new ElementAggregator());

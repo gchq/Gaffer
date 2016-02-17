@@ -15,25 +15,6 @@
  */
 package gaffer.accumulostore.key.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.MapWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableUtils;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -50,9 +31,26 @@ import gaffer.serialisation.Serialisation;
 import gaffer.store.schema.StoreElementDefinition;
 import gaffer.store.schema.StorePropertyDefinition;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableUtils;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
-    static final byte[] DELIMITER_ARRAY = new byte[] {0};
+    static final byte[] DELIMITER_ARRAY = new byte[]{0};
     protected final StoreSchema storeSchema;
 
     public AbstractCoreKeyAccumuloElementConverter(final StoreSchema storeSchema) {
@@ -386,13 +384,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
      * Get the properties for a given group defined in the StoreSchema as being
      * stored in the Accumulo timestamp column.
      *
-     * @param group
-     *            The {@link Element} type to be queried
-     * @param timestamp
+     * @param group     The {@link Element} type to be queried
+     * @param timestamp the element timestamp property
      * @return The Properties stored within the Timestamp part of the
-     *         {@link Key}
-     * @throws AccumuloElementConversionException
-     *             If the supplied group has not been defined
+     * {@link Key}
+     * @throws AccumuloElementConversionException If the supplied group has not been defined
      */
     public Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException {
@@ -430,8 +426,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected abstract Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException;
 
     protected abstract boolean getSourceAndDestinationFromRowKey(final byte[] rowKey,
-            final byte[][] sourceValueDestinationValue, final Map<String, String> options)
-                    throws AccumuloElementConversionException;
+                                                                 final byte[][] sourceValueDestinationValue, final Map<String, String> options)
+            throws AccumuloElementConversionException;
 
     protected boolean selfEdge(final Edge edge) {
         return edge.getSource().equals(edge.getDestination());

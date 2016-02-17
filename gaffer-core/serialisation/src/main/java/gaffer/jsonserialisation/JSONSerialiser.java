@@ -72,6 +72,8 @@ public class JSONSerialiser {
     }
 
     /**
+     * Serialises an object.
+     *
      * @param object the object to be serialised
      * @return the provided object serialised into bytes
      * @throws SerialisationException if the object fails to be serialised
@@ -81,10 +83,12 @@ public class JSONSerialiser {
     }
 
     /**
+     * Serialises an object.
+     *
      * @param object      the object to be serialised
      * @param prettyPrint true if the object should be serialised with pretty printing
      * @return the provided object serialised (with pretty printing) into bytes
-     * @throws SerialisationException
+     * @throws SerialisationException if the object fails to serialise
      */
     public byte[] serialise(final Object object, final boolean prettyPrint) throws SerialisationException {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
@@ -98,10 +102,12 @@ public class JSONSerialiser {
     }
 
     /**
+     * Serialises an object using the provided json generator.
+     *
      * @param object        the object to be serialised and written to file
      * @param jsonGenerator the {@link com.fasterxml.jackson.core.JsonGenerator} to use to write the object to
      * @param prettyPrint   true if the object should be serialised with pretty printing
-     * @throws SerialisationException
+     * @throws SerialisationException if the object fails to serialise
      */
     public void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint)
             throws SerialisationException {

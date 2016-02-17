@@ -16,11 +16,6 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.apache.accumulo.core.data.Key;
-
 import gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
@@ -30,19 +25,22 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.data.Key;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo
  * Keys And Values
- * <p/>
+ * <p>
  * The way keys are created can be summarised as the following. For Edges the
  * resulting key will be: Source Value + Delimiter + Flag + Delimiter +
  * Destination Value + Delimiter + Flag (And a second edge of Destination Value
  * + Delimiter + Flag + Delimiter + Source Value + Delimiter + Flag for
  * searching)
- * <p/>
+ * <p>
  * For entities the resulting key will be: Identifier Value + Delimiter + Flag
- * <p/>
+ * <p>
  * Note that the Delimiter referenced in the above example is the byte
  * representation of the number 0 for this implementation and the values are
  * appropriately escaped. And the Flag is a byte value that changes depending on
@@ -50,10 +48,10 @@ import gaffer.store.schema.StoreSchema;
  * input as the user specified or as the one input inverted for searching. The
  * flag values are as follows: Entity = 1 Undirected Edge = 4 Directed Edge = 2
  * Inverted Directed Edge = 3
- * <p/>
+ * <p>
  * Values are constructed by placing all the properties in a map of Property
  * Name : Byte Value
- * <p/>
+ * <p>
  * And then serialising the entire map to bytes.
  */
 public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
@@ -133,7 +131,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
 
     @Override
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
-            final Map<String, String> options) throws AccumuloElementConversionException {
+                                                        final Map<String, String> options) throws AccumuloElementConversionException {
         // Get element class, sourceValue, destinationValue and directed flag from row key
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];

@@ -16,11 +16,6 @@
 
 package gaffer.accumulostore.retriever.impl;
 
-import java.util.Set;
-
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.accumulo.core.data.Range;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -29,11 +24,13 @@ import gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.data.Range;
+import java.util.Set;
 
 /**
  * This allows queries for all data from between the provided
  * {@link gaffer.operation.data.ElementSeed} pairs.
- *
  */
 public class AccumuloRangeIDRetriever
         extends AccumuloItemRetriever<AbstractGetRangeFromPair<ElementSeed, ?>, Pair<ElementSeed>> {
@@ -54,13 +51,13 @@ public class AccumuloRangeIDRetriever
      * getElementFilterIteratorSetting and/Or
      * getEdgeEntityDirectionFilterIteratorSetting
      *
-     * @param store
-     * @param operation
-     * @param iteratorSettings
-     * @throws StoreException
+     * @param store            the accumulo store
+     * @param operation        the operation
+     * @param iteratorSettings the iterator settings
+     * @throws StoreException if any store issues occur
      */
     public AccumuloRangeIDRetriever(final AccumuloStore store, final AbstractGetRangeFromPair<ElementSeed, ?> operation,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                    final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
     }
 

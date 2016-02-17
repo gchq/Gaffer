@@ -16,12 +16,6 @@
 
 package gaffer.accumulostore.key.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Range;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -32,6 +26,10 @@ import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Range;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 

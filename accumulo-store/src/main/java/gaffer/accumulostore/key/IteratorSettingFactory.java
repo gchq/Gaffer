@@ -16,14 +16,13 @@
 
 package gaffer.accumulostore.key;
 
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.hadoop.util.bloom.BloomFilter;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.AbstractRangeOperation;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.hadoop.util.bloom.BloomFilter;
 
 /**
  * The iterator settings factory is designed to enable the AccumuloStore to
@@ -41,11 +40,9 @@ public interface IteratorSettingFactory {
      * {@link org.apache.hadoop.util.bloom.BloomFilter} to a
      * {@link org.apache.accumulo.core.client.Scanner}.
      *
-     * @param filter
-     * @return A new {@link IteratorSetting} for an Iterator capable of
-     *         filtering elements based on checking its serialised form for
-     *         membership in a {@link BloomFilter}
-     * @throws gaffer.accumulostore.key.exception.IteratorSettingException
+     * @param filter the bloom filter
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering elements based on checking its serialised form for membership in a {@link BloomFilter}
+     * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException;
 
@@ -54,12 +51,10 @@ public interface IteratorSettingFactory {
      * can be used to apply an iterator that will filter elements based on
      * predicates to a {@link org.apache.accumulo.core.client.Scanner}.
      *
-     * @param view
-     * @param store
-     * @return A new {@link IteratorSetting} for an Iterator capable of
-     *         filtering {@link gaffer.data.element.Element}s based on a
-     *         {@link View}
-     * @throws gaffer.accumulostore.key.exception.IteratorSettingException
+     * @param view  the operation view
+     * @param store the accumulo store
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link gaffer.data.element.Element}s based on a {@link View}
+     * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException;
@@ -71,10 +66,8 @@ public interface IteratorSettingFactory {
      * is not required for example if Key are constructed to enable this
      * filtering via the Accumulo Key
      *
-     * @param operation
-     * @return A new {@link IteratorSetting} for an Iterator capable of
-     *         filtering {@link gaffer.data.element.Element}s based on the
-     *         options defined in the gaffer.accumulostore.operation
+     * @param operation the operation
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link gaffer.data.element.Element}s based on the options defined in the gaffer.accumulostore.operation
      */
     IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(GetOperation<?, ?> operation);
 
@@ -82,10 +75,9 @@ public interface IteratorSettingFactory {
      * Returns an Iterator that will aggregate values in the accumulo table,
      * this iterator will be applied to the table on creation
      *
-     * @param store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate
-     *         elements where they have the same key based on the
-     *         {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @param store the accumulo store
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
 
@@ -93,10 +85,9 @@ public interface IteratorSettingFactory {
      * Returns an Iterator that will aggregate values at query time this is to
      * be used for the summarise option on getElement queries.
      *
-     * @param store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate
-     *         elements at query time on the
-     *         {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @param store the accumulo store
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
 
@@ -110,10 +101,10 @@ public interface IteratorSettingFactory {
      * this type of iterator is not required for example if all needed filtering
      * is applied elsewhere.
      *
-     * @param operation
+     * @param operation the operation to get the IteratorSetting for
      * @return A new {@link IteratorSetting} for an Iterator capable of
-     *         filtering {@link gaffer.data.element.Element}s based on the
-     *         options defined in the gaffer.accumulostore.operation
+     * filtering {@link gaffer.data.element.Element}s based on the
+     * options defined in the gaffer.accumulostore.operation
      */
     IteratorSetting getElementPropertyRangeQueryFilter(AbstractRangeOperation<?, ?> operation);
 

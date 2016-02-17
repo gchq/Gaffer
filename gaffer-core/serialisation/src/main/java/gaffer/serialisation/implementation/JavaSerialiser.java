@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * This class is used to serialise and deserialise objects in java
+ * This class is used to serialise and deserialise objects in java.
  */
 public class JavaSerialiser implements Serialisation {
     private static final long serialVersionUID = 2073581763875104361L;

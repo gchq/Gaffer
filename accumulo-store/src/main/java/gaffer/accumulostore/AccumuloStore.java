@@ -21,22 +21,6 @@ import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static gaffer.store.StoreTrait.VALIDATION;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.security.ColumnVisibility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -74,10 +58,24 @@ import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.ColumnVisibility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
- * <p/>
+ * <p>
  * The key detail of the Accumulo implementation is that any Edge inserted by a
  * user is inserted into the accumulo table twice, once with the source object
  * being put first in the key and once with the destination bring put first in
@@ -106,12 +104,10 @@ public class AccumuloStore extends Store {
     /**
      * Executes a given gaffer.accumulostore.operation and returns the result.
      *
-     * @param operation
-     *            the operation to execute.
-     * @param <OUTPUT>
-     *            the output type of the operation.
+     * @param operation the operation to execute.
+     * @param <OUTPUT>  the output type of the operation.
      * @return the result of executing the operation.
-     * @throws gaffer.operation.OperationException
+     * @throws OperationException if an operation handler fails to handle the given operation
      */
     @Override
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation)
@@ -129,7 +125,7 @@ public class AccumuloStore extends Store {
      * AccumuloStore
      *
      * @return A new {@link Connector}
-     * @throws gaffer.store.StoreException
+     * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
         try {
@@ -186,7 +182,8 @@ public class AccumuloStore extends Store {
     /**
      * Method to add {@link Element}s into Accumulo
      *
-     * @param elements
+     * @param elements the elements to be added
+     * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
         try {

@@ -16,6 +16,10 @@
 
 package gaffer.function;
 
+/**
+ * An <code>SingleInputAggregateFunction</code> is an {@link AggregateFunction}
+ * that only takes a single input.
+ */
 public abstract class SingleInputAggregateFunction extends AggregateFunction {
     @Override
     public void execute(final Object[] input) {

@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.AggregateFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.PassThroughFunctionContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         }
         safeInitFunctions();
     }
+
     /**
      * Aggregate an input {@link gaffer.function.Tuple} using {@link gaffer.function.AggregateFunction}s.
      *
@@ -55,7 +57,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         }
         if (!initialised) {
             safeInitFunctions();
-             initialised = true;
+            initialised = true;
         }
         for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             Object[] selection = functionContext.select(tuple);
@@ -126,7 +128,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
     }
 
     /**
-     * Implementation of the Builder pattern for <{@link gaffer.function.processor.Aggregator}.
+     * Implementation of the Builder pattern for {@link gaffer.function.processor.Aggregator}.
      *
      * @param <R> The type of reference used by tuples.
      */

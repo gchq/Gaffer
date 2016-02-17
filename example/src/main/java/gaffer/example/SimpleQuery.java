@@ -82,7 +82,7 @@ public class SimpleQuery {
      * resources/addData.json
      *
      * @return the viewing domain objects
-     * @throws gaffer.operation.OperationException
+     * @throws OperationException if operation chain fails to be executed on the graph
      */
     public Iterable<Viewing> run() throws OperationException {
         // Create Graph

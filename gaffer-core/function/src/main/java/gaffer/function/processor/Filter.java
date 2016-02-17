@@ -22,7 +22,6 @@ import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,8 +58,7 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
     }
 
     /**
-     * Create a <code>Filter</code> that executes the given {@link gaffer.function.context.FunctionContext}s. Varargs
-     * equivalent of <code>Filter(List<ConsumerFunctionContext<R, FilterFunction>>>)</code>.
+     * Create a <code>Filter</code> that executes the given {@link gaffer.function.context.FunctionContext}s.
      *
      * @param functions {@link gaffer.function.context.FunctionContext}s to execute.
      */

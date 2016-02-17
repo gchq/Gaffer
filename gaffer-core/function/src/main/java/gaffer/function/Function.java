@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 /**
  * A <code>Function</code> is a (potentially configurable) logical operation. Function interfaces are loosely defined
  * (intentionally) to enable functions to be invoked generically without introspection.
- * <p/>
+ * <p>
  * Functions may consume input and/or produce output records.
  *
  * @see gaffer.function.ConsumerFunction

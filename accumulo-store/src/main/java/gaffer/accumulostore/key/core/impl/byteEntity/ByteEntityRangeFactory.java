@@ -16,13 +16,6 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Range;
-
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
@@ -36,6 +29,11 @@ import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.serialisation.Serialisation;
 import gaffer.store.schema.StoreSchema;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Range;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 

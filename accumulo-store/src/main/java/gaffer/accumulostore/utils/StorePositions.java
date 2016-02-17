@@ -20,19 +20,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * These positions are used to determine where to store
- * {@link gaffer.data.element.Element} properties in Accumulo.
- * <p/>
+ * These positions are used to determine where to store {@link gaffer.data.element.Element} properties in Accumulo.
+ * <p>
  * These positions relate to accumulo key parts as follows:
  * <ul>
- * <li>COLUMN_QUALIFIER -> column qualifier</li>
- * <li>VISIBILITY -> column visibility</li>
- * <li>TIMESTAMP -> timestamp</li>
+ * <li>COLUMN_QUALIFIER - column qualifier</li>
+ * <li>VISIBILITY - column visibility</li>
+ * <li>TIMESTAMP - timestamp</li>
  * </ul>
  * VALUE simply maps to Accumulo's Value
- * <p/>
- * The positions should be assigned to properties in the
- * {@link gaffer.store.schema.StoreSchema} as follows:
+ * <p>
+ * The positions should be assigned to properties in the {@link gaffer.store.schema.StoreSchema} as follows:
  * <ul>
  * <li>VISIBILITY is optional and if used you will need to supply a custom
  * serialiser to convert the property value into a value Accumulo understands.

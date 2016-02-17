@@ -24,7 +24,7 @@ import gaffer.operation.GetOperation;
  * Restricts {@link gaffer.operation.impl.get.GetEntities} to match seeds that are related.
  * This operation takes seeds of type {@link gaffer.operation.data.EntitySeed} and
  * {@link gaffer.operation.data.EdgeSeed}.
- * <p/>
+ * <p>
  * At a basic level RELATED is defined as:
  * <ul>
  * <li>An Entity is RELATED to an EntitySeed if the Entity's seed is equal to the EntitySeed.</li>

@@ -19,9 +19,9 @@ package gaffer.function;
 /**
  * A <code>TransformFunction</code> is a {@link gaffer.function.Function} that produces a new output record based on
  * the data in an input record.
- * <p/>
- * For example:<br/>
- * <code>TransformFunction concat = new Concat("|");</code><br/>
+ * <p>
+ * For example:<br>
+ * <code>TransformFunction concat = new Concat("|");</code><br>
  * <code>Object[] result = concat.execute({"a", "b"}); // result = {"a|b"}</code>
  */
 public abstract class TransformFunction extends ConsumerProducerFunction {

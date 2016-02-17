@@ -37,13 +37,13 @@ import java.nio.file.Path;
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
- * <p/>
+ * <p>
  * The Graph provides users with a single point of entry for executing operations on a store.
  * This allows the underlying store to be swapped and the same operations can still be applied.
- * <p/>
+ * <p>
  * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
  * and can transform {@link gaffer.data.element.Properties} into transient properties such as averages.
- * <p/>
+ * <p>
  * When executing operations on a graph, an operation view would override the graph view.
  */
 public final class Graph {
@@ -63,7 +63,7 @@ public final class Graph {
     /**
      * Constructs a <code>Graph</code> with the {@link java.nio.file.Path}s to the various JSON schemas and
      * the store property file.
-     * <p/>
+     * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
@@ -82,7 +82,7 @@ public final class Graph {
     /**
      * Constructs a <code>Graph</code> with the {@link java.nio.file.Path}s to the various JSON schemas and
      * the store property file.
-     * <p/>
+     * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
@@ -138,7 +138,7 @@ public final class Graph {
     /**
      * Constructs a <code>Graph</code> with the {@link java.io.InputStream}s for the various JSON schemas and
      * the store property file.
-     * <p/>
+     * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
@@ -157,7 +157,7 @@ public final class Graph {
     /**
      * Constructs a <code>Graph</code> with the {@link java.io.InputStream}s for the various JSON schemas and
      * the store property file.
-     * <p/>
+     * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
@@ -211,7 +211,7 @@ public final class Graph {
 
     /**
      * Constructs a <code>Graph</code> with the various schemas and the store property file.
-     * <p/>
+     * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
@@ -245,7 +245,7 @@ public final class Graph {
 
     /**
      * Constructs a <code>Graph</code> with the given {@link gaffer.store.Store}.
-     * <p/>
+     * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
@@ -278,6 +278,7 @@ public final class Graph {
      * @param operation the operation to be executed.
      * @param <OUTPUT>  the operation output type.
      * @return the operation result.
+     * @throws OperationException if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation) throws OperationException {
         return execute(new OperationChain<>(operation));
@@ -290,6 +291,7 @@ public final class Graph {
      * @param operationChain the operation chain to be executed.
      * @param <OUTPUT>       the operation chain output type.
      * @return the operation result.
+     * @throws OperationException if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {

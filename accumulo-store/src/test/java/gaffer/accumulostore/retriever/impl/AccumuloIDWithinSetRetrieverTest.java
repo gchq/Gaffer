@@ -20,19 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.TableExistsException;
-import org.apache.hadoop.util.bloom.BloomFilter;
-import org.apache.hadoop.util.hash.Hash;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -59,6 +46,17 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.hadoop.util.bloom.BloomFilter;
+import org.apache.hadoop.util.hash.Hash;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AccumuloIDWithinSetRetrieverTest {
 
@@ -68,7 +66,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     private static AccumuloStore gaffer1KeyStore;
     private static Edge UNDIRECTED_EDGE;
     private static Edge DIRECTED_EDGE;
-    
+
     static {
         UNDIRECTED_EDGE = new Edge(TestGroups.EDGE);
         UNDIRECTED_EDGE.setSource("C");
@@ -83,7 +81,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         DIRECTED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
         DIRECTED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 1);
     }
-    
+
     @BeforeClass
     public static void setup() throws IOException, StoreException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
@@ -196,7 +194,7 @@ public class AccumuloIDWithinSetRetrieverTest {
      * what happens using the batching mechanism, with A in the first batch and B in the second batch. When the
      * first batch is queried for, the Bloom filter will consist solely of {A}. Thus the edge A->B will not be
      * returned. When the next batch is queried for, the Bloom filter will consist of A and B, so normally the
-     * edge A->B will be returned. But if the outgoing edges only option is turned on then the edge will not be
+     * edge A to B will be returned. But if the outgoing edges only option is turned on then the edge will not be
      * returned, as it is not an edge out of B.
      */
     @Test
@@ -259,7 +257,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         testDealWithDirectedEdgesOnlyOption(false, store);
     }
 
-    static void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {      
+    static void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
         seeds.add(new EntitySeed("D"));
@@ -583,7 +581,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                 edge.setDirected(true);
                 edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
                 edge.putProperty(AccumuloPropertyNames.COUNT, i);
-                data.add(edge);;
+                data.add(edge);
+                ;
                 entity = new Entity(TestGroups.ENTITY);
                 entity.setVertex("A" + i);
                 entity.putProperty(AccumuloPropertyNames.COUNT, i);
@@ -606,5 +605,5 @@ public class AccumuloIDWithinSetRetrieverTest {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
-    
+
 }

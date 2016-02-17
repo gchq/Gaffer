@@ -16,6 +16,10 @@
 
 package gaffer.function;
 
+/**
+ * An <code>SingleInputFilterFunction</code> is a {@link FilterFunction} that
+ * only takes a single input object.
+ */
 public abstract class SingleInputFilterFunction extends FilterFunction {
     @Override
     protected boolean filter(final Object[] input) {

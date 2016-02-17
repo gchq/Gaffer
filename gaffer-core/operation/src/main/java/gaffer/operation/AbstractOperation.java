@@ -160,7 +160,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         /**
          * @param input the input to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setInput(INPUT)
+         * @see gaffer.operation.Operation#setInput(Object)
          */
         protected Builder<OP_TYPE, INPUT, OUTPUT> input(final INPUT input) {
             op.setInput(input);

@@ -23,7 +23,7 @@ import gaffer.operation.GetOperation;
 /**
  * Restricts {@link gaffer.operation.impl.get.GetEdges} to match seeds that are equal.
  * This operation only takes seeds of type {@link gaffer.operation.data.EdgeSeed}.
- * <p/>
+ * <p>
  * At a basic level an Edge is EQUAL to an EdgeSeed if the Edge's seed is equal to the EdgeSeed.
  * However adjusting the includeEdge property allows for some Edges to be filtered out.
  *

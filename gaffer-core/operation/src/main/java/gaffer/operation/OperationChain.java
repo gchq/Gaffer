@@ -29,7 +29,7 @@ import java.util.List;
  * ie. the output of one operation is passed to the input of the next. For the chaining to be successful the operations
  * must be ordered correctly so the OUTPUT and INPUT types are compatible. The safest way to ensure they will be
  * compatible is to use the OperationChain.Builder to construct the chain.
- * <p/>
+ * <p>
  * A couple of special cases:
  * <ul>
  * <li>A {@link gaffer.operation.VoidOutput} can come before any operation - as long as the following operation doesn't
@@ -79,18 +79,18 @@ public class OperationChain<OUT> {
     /**
      * A <code>Builder</code> is a type safe way of building an {@link gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
-     * Usage:<br/>
-     * new Builder()<br/>
-     * &nbsp;.first(new SomeOperation.Builder()<br/>
-     * &nbsp;&nbsp;.addSomething()<br/>
-     * &nbsp;&nbsp;.build()<br/>
-     * &nbsp;)<br/>
-     * &nbsp;.then(new SomeOtherOperation.Builder()<br/>
-     * &nbsp;&nbsp;.addSomethingElse()<br/>
-     * &nbsp;&nbsp;.build()<br/>
-     * &nbsp;)<br/>
+     * Usage:<br>
+     * new Builder()<br>
+     * &nbsp;.first(new SomeOperation.Builder()<br>
+     * &nbsp;&nbsp;.addSomething()<br>
+     * &nbsp;&nbsp;.build()<br>
+     * &nbsp;)<br>
+     * &nbsp;.then(new SomeOtherOperation.Builder()<br>
+     * &nbsp;&nbsp;.addSomethingElse()<br>
+     * &nbsp;&nbsp;.build()<br>
+     * &nbsp;)<br>
      * &nbsp;.build();
-     * <p/>
+     * <p>
      * For a full example see the Example module.
      */
     public static class Builder {

@@ -1,3 +1,2 @@
 language: java
-before_install: echo "MAVEN_OPTS='-Xmx2048m -XX:MaxPermSize=2048m'" > ~/.mavenrc 
-script: mvn test -DskipITs=true && mvn checkstyle:check && mvn findbugs:findbugs
+script: mvn test && mvn javadoc:javadoc
