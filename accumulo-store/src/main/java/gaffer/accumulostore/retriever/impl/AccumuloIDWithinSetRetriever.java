@@ -133,10 +133,10 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
         @Override
         protected void updateBloomFilterIfRequired(final EntitySeed seed) throws RetrieverException {
             // NB: Do not reset either of the Bloom filters here - when we query
-            // for the first batch of seeds the Bloom filters contain that first set 
-            // (and so we find edges within that first batch); 
+            // for the first batch of seeds the Bloom filters contain that first set
+            // (and so we find edges within that first batch);
             // we next query for the second batch of seeds and the Bloom filters
-            // contain both the first batch and the second batch 
+            // contain both the first batch and the second batch
             // (and so we find edges from the second batch to either the first or second batches).
             addToBloomFilter(seed, filter, clientSideFilter);
         }

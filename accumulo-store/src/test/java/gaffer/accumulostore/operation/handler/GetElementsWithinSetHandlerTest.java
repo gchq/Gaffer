@@ -102,12 +102,12 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	@Test
-	public void testNoSummarisation() throws StoreException {
+	public void testNoSummarisation() throws OperationException {
 		testNoSummarisation(byteEntityStore);
 		testNoSummarisation(Gaffer1KeyStore);
 	}
 	
-	public void testNoSummarisation(final AccumuloStore store) throws StoreException {
+	public void testNoSummarisation(final AccumuloStore store) throws OperationException {
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setSummarise(false);
@@ -136,12 +136,12 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	@Test
-	public void testShouldSummarise() throws StoreException {
+	public void testShouldSummarise() throws OperationException {
 		testShouldSummarise(byteEntityStore);
 		testShouldSummarise(Gaffer1KeyStore);
 	}
 	
-	public void testShouldSummarise(final AccumuloStore store) throws StoreException {
+	public void testShouldSummarise(final AccumuloStore store) throws OperationException {
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setSummarise(true);
@@ -168,12 +168,12 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	@Test
-	public void testShouldReturnOnlyEdgesWhenOptionSet() throws StoreException {
+	public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
 		testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
 		testShouldReturnOnlyEdgesWhenOptionSet(Gaffer1KeyStore);
 	}
 	
-	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws StoreException {	 
+	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {	 
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setIncludeEntities(false);
@@ -199,12 +199,12 @@ public class GetElementsWithinSetHandlerTest {
 	}
 	
 	@Test
-	public void testShouldReturnOnlyEntitiesWhenOptionSet() throws StoreException {
+	public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
 		testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
 		testShouldReturnOnlyEntitiesWhenOptionSet(Gaffer1KeyStore);
 	}
 	
-	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws StoreException {
+	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 	    operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
 	    operation.setIncludeEdges(IncludeEdgeType.NONE);

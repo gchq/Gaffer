@@ -26,7 +26,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public final class BloomFilterUtils {
     private BloomFilterUtils() {
-        // private to prevent this class being instantiated. 
+        // private to prevent this class being instantiated.
         // All methods are static and should be called directly.
     }
 

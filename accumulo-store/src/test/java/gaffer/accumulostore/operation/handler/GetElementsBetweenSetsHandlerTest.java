@@ -96,12 +96,12 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	@Test
-	public void testNoSummarisation() throws StoreException {
+	public void testNoSummarisation() throws OperationException {
 		testNoSummarisation(byteEntityStore);
 		testNoSummarisation(Gaffer1KeyStore);
 	}
 	
-	private void testNoSummarisation(final AccumuloStore store) throws StoreException {		
+	private void testNoSummarisation(final AccumuloStore store) throws OperationException {		
 		GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
@@ -127,12 +127,12 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	@Test
-	public void testShouldSummarise() throws StoreException {
+	public void testShouldSummarise() throws OperationException {
 		testShouldSummarise(byteEntityStore);
 		testShouldSummarise(Gaffer1KeyStore);
 	}
 	
-	public void testShouldSummarise(final AccumuloStore store) throws StoreException {
+	public void testShouldSummarise(final AccumuloStore store) throws OperationException {
 	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
@@ -157,12 +157,12 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	@Test
-	public void testShouldReturnOnlyEdgesWhenOptionSet() throws StoreException {
+	public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
 		testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
 		testShouldReturnOnlyEdgesWhenOptionSet(Gaffer1KeyStore);
 	}
 	
-	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws StoreException {
+	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
@@ -188,12 +188,12 @@ public class GetElementsBetweenSetsHandlerTest {
 	}
 	
 	@Test
-	public void testShouldReturnOnlyEntitiesWhenOptionSet() throws StoreException {
+	public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
 		testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
 		testShouldReturnOnlyEntitiesWhenOptionSet(Gaffer1KeyStore);
 	}
 	
-	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws StoreException {
+	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
 	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
@@ -215,12 +215,12 @@ public class GetElementsBetweenSetsHandlerTest {
         assertEquals(expectedResults, results);
 	}
 	
-	 public void testShouldSummariseOutGoingEdgesOnly() throws StoreException {
+	 public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
     	testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
     	testShouldSummariseOutGoingEdgesOnly(Gaffer1KeyStore);
     }
     
-    public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws StoreException {
+    public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
     	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
@@ -246,12 +246,12 @@ public class GetElementsBetweenSetsHandlerTest {
     }
     
     @Test
-    public void testShouldHaveNoIncomingEdges() throws StoreException {
+    public void testShouldHaveNoIncomingEdges() throws OperationException {
     	testShouldHaveNoIncomingEdges(byteEntityStore);
     	testShouldHaveNoIncomingEdges(Gaffer1KeyStore);
     }
     
-    public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws StoreException {
+    public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
     	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);

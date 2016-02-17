@@ -38,7 +38,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
 
     @Override
     protected byte[] getRowKeyFromEntity(final Entity entity) throws AccumuloElementConversionException {
-        // No Delimiters but need to escape bytes 
+        // No Delimiters but need to escape bytes
         // because later we check how many delimiter characters there are
         try {
             return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
@@ -71,7 +71,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         final byte[] destination = getSerialisedDestination(edge);
 
         // Length of row key is the length of the source plus the length of the destination
-        // plus one for the delimiter in between the source and destination 
+        // plus one for the delimiter in between the source and destination
         // plus one for the delimiter in between the destination and the direction flag
         // plus one for the direction flag at the end.
         final int length = source.length + destination.length + 3;
@@ -135,7 +135,6 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
             final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
-        
         // Expect to find 2 delimiters (3 fields)
         final int[] positionsOfDelimiters = new int[2];
         short numDelims = 0;
@@ -152,7 +151,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
             throw new AccumuloElementConversionException(
                     "Wrong number of delimiters found in row key - found " + numDelims + ", expected 2.");
         }
-        // If edge is undirected then create edge 
+        // If edge is undirected then create edge
         // (no need to worry about which direction the vertices should go in).
         // If the edge is directed then need to decide which way round the vertices should go.
         final int directionFlag = rowKey[rowKey.length - 1];

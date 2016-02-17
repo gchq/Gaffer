@@ -69,12 +69,12 @@ public class GetElementsinRangesHandlerTest {
     }
 
     @Test
-    public void testNoSummarisation() throws StoreException {
+    public void testNoSummarisation() throws OperationException {
     	testNoSummarisation(byteEntityStore);
     	testNoSummarisation(Gaffer1KeyStore);
     }
 
-    public void testNoSummarisation(final AccumuloStore store) throws StoreException {
+    public void testNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -105,12 +105,12 @@ public class GetElementsinRangesHandlerTest {
     }
     
     @Test
-    public void testShouldSummarise() throws StoreException {
+    public void testShouldSummarise() throws OperationException {
     	testShouldSummarise(byteEntityStore);
     	testShouldSummarise(Gaffer1KeyStore);
     }
     
-    public void testShouldSummarise(final AccumuloStore store) throws StoreException {
+    public void testShouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -146,12 +146,12 @@ public class GetElementsinRangesHandlerTest {
     }
     
     @Test
-    public void testShouldSummariseOutGoingEdgesOnly() throws StoreException {
+    public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
     	testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
     	testShouldSummariseOutGoingEdgesOnly(Gaffer1KeyStore);
     }
     
-    public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws StoreException {
+    public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -189,12 +189,12 @@ public class GetElementsinRangesHandlerTest {
     }
     
     @Test
-    public void testShouldHaveNoIncomingEdges() throws StoreException {
+    public void testShouldHaveNoIncomingEdges() throws OperationException {
     	testShouldHaveNoIncomingEdges(byteEntityStore);
     	testShouldHaveNoIncomingEdges(Gaffer1KeyStore);
     }
     
-    public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws StoreException {
+    public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         
@@ -216,12 +216,12 @@ public class GetElementsinRangesHandlerTest {
     }
     
     @Test
-    public void testShouldReturnNothingWhenNoEdgesSet() throws StoreException {
+    public void testShouldReturnNothingWhenNoEdgesSet() throws OperationException {
     	testShouldReturnNothingWhenNoEdgesSet(byteEntityStore);
     	testShouldReturnNothingWhenNoEdgesSet(Gaffer1KeyStore);
     }
     
-    public void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws StoreException {
+    public void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         

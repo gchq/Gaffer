@@ -27,7 +27,7 @@ public final class ByteArrayEscapeUtils {
     private static final byte REPLACEMENT_CHAR = (byte) 2;
 
     private ByteArrayEscapeUtils() {
-        // private to prevent this class being instantiated. 
+        // private to prevent this class being instantiated.
         // All methods are static and should be called directly.
     }
 
