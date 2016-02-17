@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,8 @@
  */
 
 package gaffer.operation.data;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * An <code>EntitySeed</code> contains a single vertex for an {@link gaffer.data.element.Entity}.
@@ -46,6 +48,7 @@ public class EntitySeed extends ElementSeed {
      * @param that the {@link ElementSeed} to compare
      * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
      */
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Edge")
     @Override
     public Matches isRelated(final ElementSeed that) {
         if (that instanceof EntitySeed) {
@@ -85,8 +88,12 @@ public class EntitySeed extends ElementSeed {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntitySeed)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntitySeed)) {
+            return false;
+        }
 
         final EntitySeed that = (EntitySeed) o;
         return !(vertex != null ? !vertex.equals(that.vertex) : that.vertex != null);
@@ -99,8 +106,8 @@ public class EntitySeed extends ElementSeed {
 
     @Override
     public String toString() {
-        return "EntitySeed{" +
-                "vertex=" + vertex +
-                '}';
+        return "EntitySeed{"
+                + "vertex=" + vertex
+                + '}';
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,8 @@ import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,12 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     protected void setup(final Context context) {
         doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
 
-        final DataSchema dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes());
+        final DataSchema dataSchema;
+        try {
+            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(AddElementsFromHdfsJobFactory.UTF_8_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
         elementValidator = new ElementValidator(dataSchema);
 
         final String generatorClass = context.getConfiguration().get(AddElementsFromHdfsJobFactory.MAPPER_GENERATOR);
@@ -59,7 +66,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
         }
     }
 
-    protected void map(final KEY_IN keyIn, final VALUE_IN valueIn, Context context) throws IOException, InterruptedException {
+    protected void map(final KEY_IN keyIn, final VALUE_IN valueIn, final Context context) throws IOException, InterruptedException {
         for (Element element : mapperGenerator.getElements(keyIn, valueIn, context)) {
             if (!doValidation || isValid(element)) {
                 map(element, context);

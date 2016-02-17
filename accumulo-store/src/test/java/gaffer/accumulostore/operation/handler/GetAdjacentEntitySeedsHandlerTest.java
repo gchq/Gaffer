@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package gaffer.accumulostore.operation.handler;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
@@ -75,7 +76,7 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.OPERATION_AUTHORISATIONS, "authorisation");
-        options.put(Constants.MATCH_AS_SOURCE, "true");
+        options.put(Constants.OPERATION_MATCH_AS_SOURCE, "true");
         given(operation.getOptions()).willReturn(options);
 
         return operation;

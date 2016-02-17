@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,8 @@
  */
 
 package gaffer.operation.data;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
@@ -67,6 +69,7 @@ public class EdgeSeed extends ElementSeed {
      * @param that the {@link ElementSeed} to compare
      * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
      */
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
     @Override
     public Matches isRelated(final ElementSeed that) {
         if (that instanceof EdgeSeed) {
@@ -105,8 +108,13 @@ public class EdgeSeed extends ElementSeed {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EdgeSeed)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof EdgeSeed)) {
+            return false;
+        }
 
         final EdgeSeed that = (EdgeSeed) o;
 
@@ -125,10 +133,10 @@ public class EdgeSeed extends ElementSeed {
 
     @Override
     public String toString() {
-        return "EdgeSeed{" +
-                "source=" + source +
-                ", destination=" + destination +
-                ", directed=" + directed +
-                '}';
+        return "EdgeSeed{"
+                + "source=" + source
+                + ", destination=" + destination
+                + ", directed=" + directed
+                + '}';
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,8 +50,8 @@ public class DataGenerator extends OneToOneElementGenerator<Object> {
             return filmGenerator.getElement(((Film) obj));
         }
 
-        throw new IllegalArgumentException("Element could not be generated from " + obj.getClass().getName() +
-                " as an applicable generator could not be found.");
+        throw new IllegalArgumentException("Element could not be generated from " + obj.getClass().getName()
+                + " as an applicable generator could not be found.");
     }
 
     @Override
@@ -73,7 +73,7 @@ public class DataGenerator extends OneToOneElementGenerator<Object> {
             }
         }
 
-        throw new IllegalArgumentException("Domain object could not be generated from an element of type " + group +
-                " as an applicable generator could not be found.");
+        throw new IllegalArgumentException("Domain object could not be generated from an element of type " + group
+                + " as an applicable generator could not be found.");
     }
 }

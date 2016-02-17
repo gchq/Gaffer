@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,17 @@
 
 package gaffer.accumulostore;
 
-import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 
+import gaffer.store.StoreException;
+
 /**
- * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to provide a {@link Connector}.
+ * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
+ * provide a {@link Connector}.
  */
 public class MockAccumuloStore extends AccumuloStore {
     private final MockInstance mockAccumulo = new MockInstance();
