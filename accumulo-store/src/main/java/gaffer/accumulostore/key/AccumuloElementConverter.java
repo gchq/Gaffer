@@ -40,7 +40,7 @@ public interface AccumuloElementConverter {
      * one key will be created and the second item in the pair will be null.
      *
      * @param element the element to be converted
-     * @return The gaffer.accumulostore.key(s) that represent the given element.
+     * @return The key(s) that represent the given element.
      * @throws AccumuloElementConversionException If conversion fails
      */
     Pair<Key> getKeysFromElement(final Element element) throws AccumuloElementConversionException;
