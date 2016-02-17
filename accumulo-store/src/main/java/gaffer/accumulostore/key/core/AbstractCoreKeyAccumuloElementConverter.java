@@ -38,7 +38,6 @@ import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -72,15 +71,17 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public Pair<Key> getKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
         // Get pair of row keys
-        Pair<byte[]> rowKeys = getRowKeysFromEdge(edge);
-        byte[] columnFamily = buildColumnFamily(edge.getGroup());
-        byte[] columnQualifier = buildColumnQualifier(edge.getGroup(), edge.getProperties());
-        byte[] columnVisibility = buildColumnVisibility(edge.getGroup(), edge.getProperties());
-        long timeStamp = buildTimestamp(edge);
-        // Create Accumulo keys - note that second row key may be null (if it's a self-edge) and
+        final Pair<byte[]> rowKeys = getRowKeysFromEdge(edge);
+        final byte[] columnFamily = buildColumnFamily(edge.getGroup());
+        final byte[] columnQualifier = buildColumnQualifier(edge.getGroup(), edge.getProperties());
+        final byte[] columnVisibility = buildColumnVisibility(edge.getGroup(), edge.getProperties());
+        final long timeStamp = buildTimestamp(edge);
+        // Create Accumulo keys - note that second row key may be null (if it's
+        // a self-edge) and
         // in that case we should return null second key
-        Key key1 = new Key(rowKeys.getFirst(), columnFamily, columnQualifier, columnVisibility, timeStamp);
-        Key key2 = rowKeys.getSecond() != null ? new Key(rowKeys.getSecond(), columnFamily, columnQualifier, columnVisibility, timeStamp) : null;
+        final Key key1 = new Key(rowKeys.getFirst(), columnFamily, columnQualifier, columnVisibility, timeStamp);
+        final Key key2 = rowKeys.getSecond() != null
+                ? new Key(rowKeys.getSecond(), columnFamily, columnQualifier, columnVisibility, timeStamp) : null;
         // Return pair of keys
         return new Pair<>(key1, key2);
     }
@@ -88,30 +89,32 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public Key getKeyFromEntity(final Entity entity) throws AccumuloElementConversionException {
         // Row key is formed from identifier and group
-        byte[] rowKey = getRowKeyFromEntity(entity);
-        byte[] columnFamily = buildColumnFamily(entity.getGroup());
-        byte[] columnQualifier = buildColumnQualifier(entity.getGroup(), entity.getProperties());
+        final byte[] rowKey = getRowKeyFromEntity(entity);
+        final byte[] columnFamily = buildColumnFamily(entity.getGroup());
+        final byte[] columnQualifier = buildColumnQualifier(entity.getGroup(), entity.getProperties());
 
         // Column visibility is formed from the visibility
-        byte[] columnVisibility = buildColumnVisibility(entity.getGroup(), entity.getProperties());
+        final byte[] columnVisibility = buildColumnVisibility(entity.getGroup(), entity.getProperties());
 
-        long timeStamp = buildTimestamp(entity);
+        final long timeStamp = buildTimestamp(entity);
 
         // Create and return key
         return new Key(rowKey, columnFamily, columnQualifier, columnVisibility, timeStamp);
     }
 
     @Override
-    public Value getValueFromProperties(final Properties properties, final String group) throws AccumuloElementConversionException {
-        MapWritable map = new MapWritable();
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+    public Value getValueFromProperties(final Properties properties, final String group)
+            throws AccumuloElementConversionException {
+        final MapWritable map = new MapWritable();
+        for (final Map.Entry<String, Object> entry : properties.entrySet()) {
             final String propertyName = entry.getKey();
-            StorePropertyDefinition propertyDefinition = storeSchema.getElement(group).getProperty(propertyName);
+            final StorePropertyDefinition propertyDefinition = storeSchema.getElement(group).getProperty(propertyName);
             if (propertyDefinition != null) {
                 if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
                     try {
-                        map.put(new Text(propertyName), new BytesWritable(propertyDefinition.getSerialiser().serialise(entry.getValue())));
-                    } catch (SerialisationException e) {
+                        map.put(new Text(propertyName),
+                                new BytesWritable(propertyDefinition.getSerialiser().serialise(entry.getValue())));
+                    } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
                     }
                 }
@@ -129,24 +132,26 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Properties getPropertiesFromValue(final String group, final Value value) throws AccumuloElementConversionException {
-        Properties properties = new Properties();
+    public Properties getPropertiesFromValue(final String group, final Value value)
+            throws AccumuloElementConversionException {
+        final Properties properties = new Properties();
         if (value == null || value.getSize() == 0) {
             return properties;
         }
-        MapWritable map = new MapWritable();
+        final MapWritable map = new MapWritable();
         try {
             map.readFields(new DataInputStream(new ByteArrayInputStream(value.get())));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new AccumuloElementConversionException("Failed to read map writable from value", e);
         }
-        StoreElementDefinition elementDefinition = storeSchema.getElement(group);
-        for (Writable writeableKey : map.keySet()) {
-            String propertyName = writeableKey.toString();
-            BytesWritable propertyValueBytes = (BytesWritable) map.get(writeableKey);
+        final StoreElementDefinition elementDefinition = storeSchema.getElement(group);
+        for (final Writable writeableKey : map.keySet()) {
+            final String propertyName = writeableKey.toString();
+            final BytesWritable propertyValueBytes = (BytesWritable) map.get(writeableKey);
             try {
-                properties.put(propertyName, elementDefinition.getProperty(propertyName).getSerialiser().deserialise(propertyValueBytes.getBytes()));
-            } catch (SerialisationException e) {
+                properties.put(propertyName, elementDefinition.getProperty(propertyName).getSerialiser()
+                        .deserialise(propertyValueBytes.getBytes()));
+            } catch (final SerialisationException e) {
                 throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
             }
         }
@@ -159,8 +164,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Element getElementFromKey(final Key key, final Map<String, String> options) throws AccumuloElementConversionException {
-        boolean keyRepresentsEntity = doesKeyRepresentEntity(key.getRowData().getBackingArray());
+    public Element getElementFromKey(final Key key, final Map<String, String> options)
+            throws AccumuloElementConversionException {
+        final boolean keyRepresentsEntity = doesKeyRepresentEntity(key.getRowData().getBackingArray());
         if (keyRepresentsEntity) {
             return getEntityFromKey(key);
         }
@@ -173,7 +179,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Element getFullElement(final Key key, final Value value, final Map<String, String> options) throws AccumuloElementConversionException {
+    public Element getFullElement(final Key key, final Value value, final Map<String, String> options)
+            throws AccumuloElementConversionException {
         final Element element = getElementFromKey(key, options);
         element.copyProperties(getPropertiesFromValue(element.getGroup(), value));
         return element;
@@ -183,7 +190,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     public byte[] buildColumnFamily(final String group) throws AccumuloElementConversionException {
         try {
             return group.getBytes(Constants.UTF_8_CHARSET);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
     }
@@ -192,25 +199,26 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     public String getGroupFromColumnFamily(final byte[] columnFamily) throws AccumuloElementConversionException {
         try {
             return new String(columnFamily, Constants.UTF_8_CHARSET);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
     }
 
     @Override
-    public byte[] buildColumnVisibility(final String group, final Properties properties) throws AccumuloElementConversionException {
-        StoreElementDefinition elDef = storeSchema.getElement(group);
+    public byte[] buildColumnVisibility(final String group, final Properties properties)
+            throws AccumuloElementConversionException {
+        final StoreElementDefinition elDef = storeSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
-        for (String propertyName : elDef.getProperties()) {
-            Object property = properties.get(propertyName);
+        for (final String propertyName : elDef.getProperties()) {
+            final Object property = properties.get(propertyName);
             if (property != null) {
-                StorePropertyDefinition propertyDef = elDef.getProperty(propertyName);
+                final StorePropertyDefinition propertyDef = elDef.getProperty(propertyName);
                 if (StorePositions.VISIBILITY.isEqual(propertyDef.getPosition())) {
                     try {
                         return ByteArrayEscapeUtils.escape(propertyDef.getSerialiser().serialise(property));
-                    } catch (SerialisationException e) {
+                    } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException(e.getMessage(), e);
                     }
                 }
@@ -220,22 +228,24 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility) throws AccumuloElementConversionException {
-        Properties properties = new Properties();
+    public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
+            throws AccumuloElementConversionException {
+        final Properties properties = new Properties();
         if (columnVisibility == null || columnVisibility.length == 0) {
             return properties;
         }
-        StoreElementDefinition elDef = storeSchema.getElement(group);
+        final StoreElementDefinition elDef = storeSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
-        for (String propertyName : elDef.getProperties()) {
-            StorePropertyDefinition property = elDef.getProperty(propertyName);
+        for (final String propertyName : elDef.getProperties()) {
+            final StorePropertyDefinition property = elDef.getProperty(propertyName);
             if (StorePositions.VISIBILITY.isEqual(property.getPosition())) {
-                Serialisation serialiser = property.getSerialiser();
+                final Serialisation serialiser = property.getSerialiser();
                 try {
-                    properties.put(propertyName, serialiser.deserialise(ByteArrayEscapeUtils.unEscape(columnVisibility)));
-                } catch (SerialisationException e) {
+                    properties.put(propertyName,
+                            serialiser.deserialise(ByteArrayEscapeUtils.unEscape(columnVisibility)));
+                } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException(e.getMessage(), e);
                 }
                 return properties;
@@ -245,17 +255,18 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public byte[] buildColumnQualifier(final String group, final Properties properties) throws AccumuloElementConversionException {
-        StoreElementDefinition elDef = storeSchema.getElement(group);
+    public byte[] buildColumnQualifier(final String group, final Properties properties)
+            throws AccumuloElementConversionException {
+        final StoreElementDefinition elDef = storeSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
         Boolean first = true;
-        List<byte[]> bytes = new ArrayList<>();
+        final List<byte[]> bytes = new ArrayList<>();
         int totalLength = 0;
         byte[] byteHolder;
-        for (String propertyName : elDef.getProperties()) {
-            StorePropertyDefinition property = elDef.getProperty(propertyName);
+        for (final String propertyName : elDef.getProperties()) {
+            final StorePropertyDefinition property = elDef.getProperty(propertyName);
             if (StorePositions.COLUMN_QUALIFIER.isEqual(property.getPosition())) {
                 final Object value = properties.get(propertyName);
                 if (value != null) {
@@ -265,8 +276,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     }
                     try {
                         byteHolder = ByteArrayEscapeUtils.escape(propertyName.getBytes(Constants.UTF_8_CHARSET));
-                    } catch (UnsupportedEncodingException e) {
-                        throw new AccumuloElementConversionException("Failed to serialise Value for property " + propertyName, e);
+                    } catch (final UnsupportedEncodingException e) {
+                        throw new AccumuloElementConversionException(
+                                "Failed to serialise Value for property " + propertyName, e);
                     }
                     bytes.add(byteHolder);
                     totalLength += byteHolder.length + 1;
@@ -275,25 +287,27 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     if (serialiser == null) {
                         try {
                             bytes.add(value.toString().getBytes(Constants.UTF_8_CHARSET));
-                        } catch (UnsupportedEncodingException e) {
-                            throw new AccumuloElementConversionException("Failed to serialise Value for property " + propertyName, e);
+                        } catch (final UnsupportedEncodingException e) {
+                            throw new AccumuloElementConversionException(
+                                    "Failed to serialise Value for property " + propertyName, e);
                         }
                     } else {
                         try {
                             byteHolder = ByteArrayEscapeUtils.escape(property.getSerialiser().serialise(value));
                             bytes.add(byteHolder);
                             totalLength += byteHolder.length;
-                        } catch (SerialisationException e) {
-                            throw new AccumuloElementConversionException("Failed to serialise Value for property " + propertyName, e);
+                        } catch (final SerialisationException e) {
+                            throw new AccumuloElementConversionException(
+                                    "Failed to serialise Value for property " + propertyName, e);
                         }
                     }
                     first = false;
                 }
             }
         }
-        byte[] returnArr = new byte[totalLength];
+        final byte[] returnArr = new byte[totalLength];
         int currentLength = 0;
-        for (byte[] byteArr : bytes) {
+        for (final byte[] byteArr : bytes) {
             System.arraycopy(byteArr, 0, returnArr, currentLength, byteArr.length);
             currentLength += byteArr.length;
         }
@@ -301,26 +315,28 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Properties getPropertiesFromColumnQualifier(final String group, final byte[] keyPortion) throws AccumuloElementConversionException {
-        Properties result = new Properties();
+    public Properties getPropertiesFromColumnQualifier(final String group, final byte[] keyPortion)
+            throws AccumuloElementConversionException {
+        final Properties result = new Properties();
         if (keyPortion == null || keyPortion.length == 0) {
             return result;
         }
-        StoreElementDefinition elDef = storeSchema.getElement(group);
-        List<Integer> positionsOfDelimiters = new ArrayList<>();
+        final StoreElementDefinition elDef = storeSchema.getElement(group);
+        final List<Integer> positionsOfDelimiters = new ArrayList<>();
         for (int i = 0; i < keyPortion.length; i++) {
             if (keyPortion[i] == ByteArrayEscapeUtils.DELIMITER) {
                 positionsOfDelimiters.add(i);
             }
         }
-        Iterator<Integer> delimiters = positionsOfDelimiters.iterator();
+        final Iterator<Integer> delimiters = positionsOfDelimiters.iterator();
         String propertyName;
         Object propertyValue;
         if (delimiters.hasNext()) {
             Integer last = delimiters.next();
             try {
-                propertyName = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, 0, last)), Constants.UTF_8_CHARSET);
-            } catch (UnsupportedEncodingException e) {
+                propertyName = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, 0, last)),
+                        Constants.UTF_8_CHARSET);
+            } catch (final UnsupportedEncodingException e) {
                 throw new AccumuloElementConversionException("Failed to get properties from column qualifier", e);
             }
             int nextPos;
@@ -330,16 +346,20 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 nextPos = keyPortion.length;
             }
             try {
-                propertyValue = elDef.getProperty(propertyName).getSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
-            } catch (SerialisationException e) {
+                propertyValue = elDef.getProperty(propertyName).getSerialiser()
+                        .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
+            } catch (final SerialisationException e) {
                 throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
             }
             last = nextPos;
             result.put(propertyName, propertyValue);
             while (delimiters.hasNext()) {
                 try {
-                    propertyName = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, last = delimiters.next())), Constants.UTF_8_CHARSET);
-                } catch (UnsupportedEncodingException e) {
+                    propertyName = new String(
+                            ByteArrayEscapeUtils
+                                    .unEscape(Arrays.copyOfRange(keyPortion, last + 1, last = delimiters.next())),
+                            Constants.UTF_8_CHARSET);
+                } catch (final UnsupportedEncodingException e) {
                     throw new AccumuloElementConversionException(e.getMessage(), e);
                 }
                 if (delimiters.hasNext()) {
@@ -348,8 +368,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     nextPos = keyPortion.length;
                 }
                 try {
-                    propertyValue = elDef.getProperty(propertyName).getSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
-                } catch (SerialisationException e) {
+                    propertyValue = elDef.getProperty(propertyName).getSerialiser().deserialise(
+                            ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
+                } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
                 }
                 result.put(propertyName, propertyValue);
@@ -360,22 +381,24 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     /**
-     * Get the properties for a given group defined in the StoreSchema as being stored in the
-     * Accumulo timestamp column.
+     * Get the properties for a given group defined in the StoreSchema as being
+     * stored in the Accumulo timestamp column.
      *
      * @param group     The {@link Element} type to be queried
      * @param timestamp the element timestamp property
-     * @return The Properties stored within the Timestamp part of the {@link Key}
+     * @return The Properties stored within the Timestamp part of the
+     * {@link Key}
      * @throws AccumuloElementConversionException If the supplied group has not been defined
      */
-    public Properties getPropertiesFromTimestamp(final String group, final long timestamp) throws AccumuloElementConversionException {
-        StoreElementDefinition elDef = storeSchema.getElement(group);
+    public Properties getPropertiesFromTimestamp(final String group, final long timestamp)
+            throws AccumuloElementConversionException {
+        final StoreElementDefinition elDef = storeSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
         final Properties properties = new Properties();
-        for (String propertyName : elDef.getProperties()) {
-            StorePropertyDefinition property = elDef.getProperty(propertyName);
+        for (final String propertyName : elDef.getProperties()) {
+            final StorePropertyDefinition property = elDef.getProperty(propertyName);
             if (StorePositions.TIMESTAMP.isEqual(property.getPosition())) {
                 properties.put(propertyName, timestamp);
                 return properties;
@@ -388,8 +411,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     public byte[] serialiseVertexForBloomKey(final Object vertex) throws AccumuloElementConversionException {
         try {
             return ByteArrayEscapeUtils.escape(this.storeSchema.getVertexSerialiser().serialise(vertex));
-        } catch (SerialisationException e) {
-            throw new AccumuloElementConversionException("Failed to serialise given identifier object for use in the bloom filter", e);
+        } catch (final SerialisationException e) {
+            throw new AccumuloElementConversionException(
+                    "Failed to serialise given identifier object for use in the bloom filter", e);
         }
     }
 
@@ -401,16 +425,20 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected abstract Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException;
 
-    protected abstract boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
-                                                                 final Map<String, String> options) throws AccumuloElementConversionException;
+    protected abstract boolean getSourceAndDestinationFromRowKey(final byte[] rowKey,
+                                                                 final byte[][] sourceValueDestinationValue, final Map<String, String> options)
+            throws AccumuloElementConversionException;
 
     protected boolean selfEdge(final Edge edge) {
         return edge.getSource().equals(edge.getDestination());
     }
 
-    protected void addPropertiesToElement(final Element element, final Key key) throws AccumuloElementConversionException {
-        element.copyProperties(getPropertiesFromColumnQualifier(element.getGroup(), key.getColumnQualifierData().getBackingArray()));
-        element.copyProperties(getPropertiesFromColumnVisibility(element.getGroup(), key.getColumnVisibilityData().getBackingArray()));
+    protected void addPropertiesToElement(final Element element, final Key key)
+            throws AccumuloElementConversionException {
+        element.copyProperties(
+                getPropertiesFromColumnQualifier(element.getGroup(), key.getColumnQualifierData().getBackingArray()));
+        element.copyProperties(
+                getPropertiesFromColumnVisibility(element.getGroup(), key.getColumnVisibilityData().getBackingArray()));
         element.copyProperties(getPropertiesFromTimestamp(element.getGroup(), key.getTimestamp()));
     }
 
@@ -418,20 +446,22 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return storeSchema.getVertexSerialiser();
     }
 
-    protected Edge getEdgeFromKey(final Key key, final Map<String, String> options) throws AccumuloElementConversionException {
-        byte[][] result = new byte[3][];
-        boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
+    protected Edge getEdgeFromKey(final Key key, final Map<String, String> options)
+            throws AccumuloElementConversionException {
+        final byte[][] result = new byte[3][];
+        final boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
         String group;
         try {
             group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
         try {
-            Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]), getVertexSerialiser().deserialise(result[1]), directed);
+            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
+                    getVertexSerialiser().deserialise(result[1]), directed);
             addPropertiesToElement(edge, key);
             return edge;
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to re-create Edge from key", e);
         }
     }
@@ -439,7 +469,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected byte[] getSerialisedSource(final Edge edge) throws AccumuloElementConversionException {
         try {
             return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(edge.getSource()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Edge Source", e);
         }
     }
@@ -447,7 +477,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected byte[] getSerialisedDestination(final Edge edge) throws AccumuloElementConversionException {
         try {
             return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(edge.getDestination()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Edge Destination", e);
         }
     }
@@ -455,20 +485,21 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected String getGroupFromKey(final Key key) throws AccumuloElementConversionException {
         try {
             return new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException("Failed to get element group from key", e);
         }
     }
 
     private long buildTimestamp(final Element element) throws AccumuloElementConversionException {
-        StoreElementDefinition elDef = storeSchema.getElement(element.getGroup());
+        final StoreElementDefinition elDef = storeSchema.getElement(element.getGroup());
         if (elDef == null) {
-            throw new AccumuloElementConversionException("No element definition found for element class: " + element.getGroup());
+            throw new AccumuloElementConversionException(
+                    "No element definition found for element class: " + element.getGroup());
         }
-        for (String propertyName : elDef.getProperties()) {
-            Object property = element.getProperty(propertyName);
+        for (final String propertyName : elDef.getProperties()) {
+            final Object property = element.getProperty(propertyName);
             if (property != null) {
-                StorePropertyDefinition propertyDef = elDef.getProperty(propertyName);
+                final StorePropertyDefinition propertyDef = elDef.getProperty(propertyName);
                 if (StorePositions.TIMESTAMP.isEqual(propertyDef.getPosition())) {
                     return (Long) property;
                 }

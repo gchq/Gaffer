@@ -25,10 +25,14 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
-
 import java.util.Set;
 
-public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
+/**
+ * This allows queries for all data related to the provided
+ * {@link gaffer.operation.data.ElementSeed}s.
+ */
+public class AccumuloSingleIDRetriever
+        extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
 
     public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation)
             throws IteratorSettingException, StoreException {
@@ -38,8 +42,12 @@ public class AccumuloSingleIDRetriever extends AccumuloItemRetriever<GetOperatio
     }
 
     /**
-     * Use of the varargs parameter here will mean the usual default iterators wont be applied, (Edge Direction,Edge/Entity Type and View Filtering)
-     * To apply them pass them directly to the varargs via calling your keyPackage.getIteratorFactory() and either  getElementFilterIteratorSetting and/Or getEdgeEntityDirectionFilterIteratorSetting
+     * Use of the varargs parameter here will mean the usual default iterators
+     * wont be applied, (Edge Direction,Edge/Entity Type and View Filtering) To
+     * apply them pass them directly to the varargs via calling your
+     * keyPackage.getIteratorFactory() and either
+     * getElementFilterIteratorSetting and/Or
+     * getEdgeEntityDirectionFilterIteratorSetting
      *
      * @param store            the accumulo store
      * @param operation        the get operation

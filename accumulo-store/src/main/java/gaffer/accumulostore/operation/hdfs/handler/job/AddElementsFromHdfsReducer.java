@@ -22,20 +22,21 @@ import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 /**
- * Reducer for use in bulk import of data into Accumulo. It merges all values associated
- * to the gaffer.accumulostore.key by converting them into {@link gaffer.data.element.Properties} and then merges
- * those, and then converts them back to an Accumulo value.
+ * Reducer for use in bulk import of data into Accumulo. It merges all values
+ * associated to the gaffer.accumulostore.key by converting them into
+ * {@link gaffer.data.element.Properties} and then merges those, and then
+ * converts them back to an Accumulo value.
  * <p>
  * It contains an optimisation so that if there is only one value, we simply
  * output it rather than incurring the cost of deserialising them and then
@@ -49,18 +50,21 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     protected void setup(final Context context) {
         final StoreSchema storeSchema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
-        } catch (UnsupportedEncodingException e) {
+            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA)
+                    .getBytes(Constants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
         }
 
         try {
-            Class<?> elementConverterClass = Class.forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
+            final Class<?> elementConverterClass = Class
+                    .forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
         }
     }
@@ -76,7 +80,8 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
         context.getCounter("Bulk import", getCounterId(isMulti)).increment(1L);
     }
 
-    private Value reduceValue(final Key key, final boolean isMulti, final Iterator<Value> iter, final Value firstValue) {
+    private Value reduceValue(final Key key, final boolean isMulti, final Iterator<Value> iter,
+                              final Value firstValue) {
         return isMulti ? reduceMultiValue(key, iter, firstValue) : firstValue;
     }
 
@@ -84,7 +89,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
         final String group;
         try {
             group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         ElementAggregator aggregator;
@@ -96,14 +101,14 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
             while (iter.hasNext()) {
                 aggregator.aggregate(elementConverter.getPropertiesFromValue(group, iter.next()));
             }
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);
         }
-        Properties properties = new Properties();
+        final Properties properties = new Properties();
         aggregator.state(properties);
         try {
             return elementConverter.getValueFromProperties(properties, group);
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);
         }
     }

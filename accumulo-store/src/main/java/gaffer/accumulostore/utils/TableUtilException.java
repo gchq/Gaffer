@@ -16,7 +16,6 @@
 
 package gaffer.accumulostore.utils;
 
-
 public class TableUtilException extends Exception {
 
     private static final long serialVersionUID = 8342071269747219282L;

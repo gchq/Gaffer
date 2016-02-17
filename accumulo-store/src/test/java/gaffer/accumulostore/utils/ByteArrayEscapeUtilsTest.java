@@ -106,7 +106,7 @@ public class ByteArrayEscapeUtilsTest {
 
     @Test
     public void testOrdering() {
-        // Generate some keys with row gaffer.accumulostore.key formed from random bytes, and add to ordered set
+        // Generate some keys with row key formed from random bytes, and add to ordered set
         SortedSet<Key> original = new TreeSet<>();
         for (int i = 0; i < 100000; i++) {
             int length = RandomUtils.nextInt(100) + 1;

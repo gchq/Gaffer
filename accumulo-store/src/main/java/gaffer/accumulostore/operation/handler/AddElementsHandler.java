@@ -30,10 +30,11 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         return null;
     }
 
-    private void addElements(final AddElements addElementsOperation, final AccumuloStore store) throws OperationException {
+    private void addElements(final AddElements addElementsOperation, final AccumuloStore store)
+            throws OperationException {
         try {
             store.addElements(addElementsOperation.getElements());
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("Failed to add elements", e);
         }
     }

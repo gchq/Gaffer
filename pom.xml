@@ -107,6 +107,16 @@
             <artifactId>annotations</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.api.version}</version>
+        </dependency>
 
         <!-- Testing Dependencies -->
         <dependency>
@@ -214,7 +224,7 @@
                 <executions>
                     <execution>
                         <id>validate</id>
-                        <phase>validate</phase>
+                        <phase>test</phase>
                         <configuration>
                             <configLocation>docs/checkstyle.xml</configLocation>
                             <encoding>UTF-8</encoding>
@@ -244,7 +254,7 @@
                 <executions>
                     <execution>
                         <id>analyze-compile</id>
-                        <phase>compile</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
