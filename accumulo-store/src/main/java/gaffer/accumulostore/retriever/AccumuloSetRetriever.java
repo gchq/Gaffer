@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.accumulo.core.client.BatchScanner;
@@ -32,7 +33,6 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -179,6 +179,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public boolean hasNext() {
+            if (null != nextElm) {
+                return true;
+            }
             if (null == iterator) {
                 throw new IllegalStateException(
                         "This iterator has not been initialised. Call initialise before using it.");
@@ -192,12 +195,18 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
-        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
-            // TODO: If this is called multiple times it should return the next
-            // element - not just the same element.
-            return nextElm;
+            if (null == nextElm) {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+            }
+            Element nextReturn = nextElm;
+            nextElm = null;
+            doTransformation(nextReturn);
+            return nextReturn;
+
         }
 
         @Override
@@ -239,13 +248,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
     protected abstract class AbstractElementIteratorFromBatches implements CloseableIterator<Element> {
         protected Iterator<EntitySeed> idsAIterator;
-        protected BloomFilter clientSideFilter; // The Bloom filter that is
-                                                // maintained client-side as a
-                                                // secondary defeat
-        // of false positives.
-        protected Set<Object> currentSeeds; // Store the set of seeds that are
-                                            // currently being queried for to
-                                            // enable
+        // The Bloom filter that is maintained client-side
+        // as a secondary defeat of false positives.
+        protected BloomFilter clientSideFilter;
+        protected Set<Object> currentSeeds;
         protected BatchScanner scanner;
         protected BloomFilter filter;
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
@@ -264,6 +270,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
         @Override
         public boolean hasNext() {
+            if (null != nextElm) {
+                return true;
+            }
             try {
                 while (_hasNext()) {
                     final Map.Entry<Key, Value> entry = scannerIterator.next();
@@ -287,13 +296,17 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             return false;
         }
 
-        @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT", justification = "See issue gh-38")
         @Override
         public Element next() {
-            // TODO: If this is called multiple times it should return the next
-            // element - not just the same element.
-            doTransformation(nextElm);
-            return nextElm;
+            if (null == nextElm) {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+            }
+            Element nextReturn = nextElm;
+            nextElm = null;
+            doTransformation(nextReturn);
+            return nextReturn;
         }
 
         @Override
