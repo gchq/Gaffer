@@ -24,7 +24,6 @@ import gaffer.function.AggregateFunction;
 import gaffer.function.context.PassThroughFunctionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,12 +59,12 @@ public class DataElementDefinitionValidator extends TypedElementDefinitionValida
     }
 
     private boolean validateAggregator(final ElementAggregator aggregator, final DataElementDefinition elementDef) {
-        if (aggregator == null) {
-            // if aggregator IS NOT defined, then aggregator is valid
+        if (null == aggregator || null == aggregator.getFunctions()) {
+            // if aggregate functions are not defined then it is valid
             return true;
         }
 
-        // if aggregator IS defined, check all properties are aggregated
+        // if aggregate functions are defined then check all properties are aggregated
         final Set<String> aggregatedProperties = new HashSet<>();
         if (aggregator.getFunctions() != null) {
             for (PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context : aggregator.getFunctions()) {
