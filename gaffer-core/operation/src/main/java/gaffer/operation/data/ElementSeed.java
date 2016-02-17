@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package gaffer.operation.data;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -37,6 +38,7 @@ public abstract class ElementSeed {
      */
     public abstract Matches isRelated(ElementSeed that);
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     public static ElementSeed createSeed(final Element element) {
         if (element instanceof Entity) {
             return createSeed((Entity) element);
@@ -53,7 +55,7 @@ public abstract class ElementSeed {
         return new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
     }
 
-    public static enum Matches {
+    public enum Matches {
         BOTH,
         VERTEX,
         SOURCE,

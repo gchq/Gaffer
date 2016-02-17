@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,13 +53,6 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
     @Override
     public SeedMatchingType getSeedMatching() {
         return SeedMatchingType.RELATED;
-    }
-
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        if (!getSeedMatching().equals(seedMatching)) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " only supports seed matching when set to " + getSeedMatching().name());
-        }
     }
 
     public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {

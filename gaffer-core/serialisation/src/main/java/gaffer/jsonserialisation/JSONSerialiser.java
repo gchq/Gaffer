@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -97,21 +95,6 @@ public class JSONSerialiser {
         }
 
         return byteArrayBuilder.toByteArray();
-    }
-
-    /**
-     * @param object      the object to be serialised and written to file
-     * @param file        the {@link java.io.File} to write the serialised bytes to
-     * @param prettyPrint true if the object should be serialised with pretty printing
-     * @throws SerialisationException
-     */
-
-    public void serialise(final Object object, final File file, final boolean prettyPrint) throws SerialisationException {
-        try (FileWriter fileWriter = new FileWriter(file)) {
-            serialise(object, JSON_FACTORY.createGenerator(fileWriter), prettyPrint);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write schema to json file: " + e.getMessage(), e);
-        }
     }
 
     /**

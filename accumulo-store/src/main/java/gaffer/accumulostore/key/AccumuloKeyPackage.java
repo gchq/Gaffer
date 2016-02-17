@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,17 @@
 
 package gaffer.accumulostore.key;
 
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
 
+import gaffer.store.schema.StoreSchema;
+
 /**
- * The AccumuloKeyPackage provides access to Factories and utility methods needed for an Instance of the AccumuloStore to run,
- * The idea of the gaffer.accumulostore.key package is to isolate all things which are dependent upon any one gaffer.accumulostore.key design, with the intent that new gaffer.accumulostore.key package can be
- * implemented later to optimise certain queries, depending on the users use case.
+ * The AccumuloKeyPackage provides access to Factories and utility methods
+ * needed for an Instance of the AccumuloStore to run, The idea of the
+ * gaffer.accumulostore.key package is to isolate all things which are dependent
+ * upon any one key design, with the intent that new gaffer.accumulostore.key
+ * package can be implemented later to optimise certain queries, depending on
+ * the users use case.
  */
 public abstract class AccumuloKeyPackage {
 
@@ -66,9 +70,11 @@ public abstract class AccumuloKeyPackage {
     public abstract void setStoreSchema(final StoreSchema storeSchema);
 
     /**
-     * This method is here so that users schemas can be checked for compatibility against current gaffer.accumulostore.key implementation.
-     * A runtime Exception of {@link gaffer.data.elementdefinition.schema.exception.SchemaException} should be thrown if incompatibilities are found.
+     * This method is here so that users schemas can be checked for
+     * compatibility against current gaffer.accumulostore.key implementation. A
+     * runtime Exception of
+     * {@link gaffer.data.elementdefinition.schema.exception.SchemaException}
+     * should be thrown if incompatibilities are found.
      */
     public abstract void validateSchema(final StoreSchema storeSchema);
-
 }

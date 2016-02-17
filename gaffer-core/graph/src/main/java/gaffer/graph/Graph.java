@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,14 +28,11 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.StoreSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Properties;
 
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
@@ -50,7 +47,6 @@ import java.util.Properties;
  * When executing operations on a graph, an operation view would override the graph view.
  */
 public final class Graph {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
 
     /**
      * The instance of the store.
@@ -325,12 +321,12 @@ public final class Graph {
      * @param storeTrait the store trait to check
      * @return true if the store has the given trait.
      */
-    public boolean hasTrait(StoreTrait storeTrait) {
+    public boolean hasTrait(final StoreTrait storeTrait) {
         return store.hasTrait(storeTrait);
     }
 
     private static Store createStore(final InputStream dataSchemaStream, final InputStream storeSchemaStream, final InputStream storePropertiesStream, final InputStream schemaTypesStream) {
-        final StoreProperties storeProperties = loadStoreProperties(storePropertiesStream);
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesStream);
         DataSchema dataSchema = loadDataSchema(dataSchemaStream, schemaTypesStream);
         StoreSchema storeSchema = loadStoreSchema(storeSchemaStream, storeProperties.getStoreSchemaClass());
         return createStore(dataSchema, storeSchema, storeProperties);
@@ -385,40 +381,6 @@ public final class Graph {
         }
 
         return storeSchema;
-    }
-
-    private static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        if (null == storePropertiesStream) {
-            return new StoreProperties();
-        }
-
-        final Properties props = new Properties();
-        try {
-            props.load(storePropertiesStream);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
-        } finally {
-            try {
-                storePropertiesStream.close();
-            } catch (IOException e) {
-                LOGGER.error("Failed to close store properties stream: " + e.getMessage(), e);
-            }
-        }
-
-        final String storePropertiesClass = props.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
-        final StoreProperties storeProperties;
-        if (null == storePropertiesClass) {
-            storeProperties = new StoreProperties();
-        } else {
-            try {
-                storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
-            }
-        }
-
-        storeProperties.setProperties(props);
-        return storeProperties;
     }
 
     private static InputStream createInputStream(final Path path) {

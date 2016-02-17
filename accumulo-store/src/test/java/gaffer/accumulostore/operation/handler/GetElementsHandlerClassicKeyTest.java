@@ -20,9 +20,8 @@ import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 
-public class GetAdjacentEntitySeedsHandlerGaffer1Test extends GetAdjacentEntitySeedsHandlerTest {
-
-	@Override
+public class GetElementsHandlerClassicKeyTest extends GetElementsHandlerTest {
+    @Override
     protected MockAccumuloStore createMockStore() {
         return new MockAccumuloStoreForTest(ClassicKeyPackage.class);
     }

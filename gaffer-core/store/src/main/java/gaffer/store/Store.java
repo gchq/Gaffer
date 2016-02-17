@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package gaffer.store;
 
 import com.google.common.collect.Sets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.operation.data.EntitySeed;
@@ -171,6 +172,8 @@ public abstract class Store {
      * @param lazyElement the lazy element
      * @return the fully populated unwrapped element
      */
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
         final DataElementDefinition elementDefinition = getDataSchema().getElement(lazyElement.getGroup());
         if (null != elementDefinition) {
@@ -308,7 +311,7 @@ public abstract class Store {
      */
     protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation);
 
-    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler<? extends OPERATION, OUTPUT> handler) {
+    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler handler) {
         operationHandlers.put(opClass, handler);
     }
 
@@ -389,8 +392,8 @@ public abstract class Store {
             }
 
             if (isValidationRequired()) {
-                throw new UnsupportedOperationException("Validation is required by the store for all validatable " +
-                        "operations so it cannot be disabled");
+                throw new UnsupportedOperationException("Validation is required by the store for all validatable "
+                        + "operations so it cannot be disabled");
             }
         }
 

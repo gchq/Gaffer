@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,19 +33,25 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     }
 
     private void addElements(final AddElements operation, final ArrayListStore store) {
-        final Iterable<Element> cleanElements = new TransformIterable<Element, Element>(operation.getElements()) {
-            @Override
-            protected Element transform(final Element element) {
-                final Element cleanElement = element.emptyClone();
-                final StoreElementDefinition elementDefinition = store.getStoreSchema().getElement(element.getGroup());
-                for (String property : elementDefinition.getProperties()) {
-                    cleanElement.putProperty(property, element.getProperty(property));
-                }
+        store.addElements(new ElementCleaner(operation.getElements(), store));
+    }
 
-                return cleanElement;
+    private static final class ElementCleaner extends TransformIterable<Element, Element> {
+        private final Store store;
+        private ElementCleaner(final Iterable<Element> input, final Store store) {
+            super(input);
+            this.store = store;
+        }
+
+        @Override
+        protected Element transform(final Element element) {
+            final Element cleanElement = element.emptyClone();
+            final StoreElementDefinition elementDefinition = store.getStoreSchema().getElement(element.getGroup());
+            for (String property : elementDefinition.getProperties()) {
+                cleanElement.putProperty(property, element.getProperty(property));
             }
-        };
 
-        store.addElements(cleanElements);
+            return cleanElement;
+        }
     }
 }

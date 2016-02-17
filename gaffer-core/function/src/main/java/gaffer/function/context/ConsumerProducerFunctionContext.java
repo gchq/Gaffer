@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,7 @@ import java.util.List;
  * @param <F> The type of {@link gaffer.function.ConsumerProducerFunction} wrapped by the context.
  */
 public class ConsumerProducerFunctionContext<R, F extends ConsumerProducerFunction> extends ConsumerFunctionContext<R, F> {
+    private static final long serialVersionUID = 1587227291326202052L;
     private List<R> projection;
 
     /**

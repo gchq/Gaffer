@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -106,7 +106,7 @@ public class ByteArrayEscapeUtilsTest {
 
     @Test
     public void testOrdering() {
-        // Generate some keys with row gaffer.accumulostore.key formed from random bytes, and add to ordered set
+        // Generate some keys with row key formed from random bytes, and add to ordered set
         SortedSet<Key> original = new TreeSet<>();
         for (int i = 0; i < 100000; i++) {
             int length = RandomUtils.nextInt(100) + 1;

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import java.util.Set;
  * entity's properties just for it to be filtered out by a filter function.
  */
 public class LazyEntity extends Entity {
+    private static final long serialVersionUID = 8067424362415322354L;
     private final Entity entity;
     private final ElementValueLoader valueLoader;
     private final Set<IdentifierType> loadedIdentifiers;
@@ -84,6 +85,16 @@ public class LazyEntity extends Entity {
     @Override
     public LazyProperties getProperties() {
         return lazyProperties;
+    }
+
+    @Override
+    public boolean equals(final Object element) {
+        return entity.equals(element);
+    }
+
+    @Override
+    public int hashCode() {
+        return entity.hashCode();
     }
 
     private Object lazyLoadIdentifier(final Object currentValue, final IdentifierType name) {

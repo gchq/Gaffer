@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,17 +55,17 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     }
 
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
-        jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false)));
-        jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false)));
+        jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         Integer numTasks = operation.getNumMapTasks();
-        if(null != numTasks) {
-        	jobConf.setNumMapTasks(numTasks);
+        if (null != numTasks) {
+            jobConf.setNumMapTasks(numTasks);
         }
         numTasks = operation.getNumReduceTasks();
-        if(null != numTasks) {
-        	jobConf.setNumReduceTasks(numTasks);
+        if (null != numTasks) {
+            jobConf.setNumReduceTasks(numTasks);
         }
     }
 

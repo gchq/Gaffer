@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -119,9 +119,9 @@ public interface Operation<INPUT, OUTPUT> {
      * @param value the value of the option
      */
     void addOption(final String name, final String value);
-    
+
     /**
-     * Gets an operation option by its given name. 
+     * Gets an operation option by its given name.
      *
      * @param name  the name of the option
      * @return the value of the option

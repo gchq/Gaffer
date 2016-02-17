@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,20 @@
 
 package gaffer.operation;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import gaffer.operation.GetOperation.SeedMatchingType;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractOperation<Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
@@ -50,7 +52,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         super(view);
     }
 
-    protected AbstractGetOperation(final View view, Iterable<SEED_TYPE> seeds) {
+    protected AbstractGetOperation(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
@@ -62,8 +64,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         setSeedMatching(operation.getSeedMatching());
     }
 
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
+    /**
+     * @param seedMatching a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
+     *                     matched to the identifiers in the graph.
+     * @see gaffer.operation.GetOperation.SeedMatchingType
+     */
+    protected void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 
@@ -182,14 +188,14 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * Sets an {@link java.lang.Iterable} of SEED_TYPE on the operation.
          * It should not be used in conjunction with addSeed(SEED_TYPE).
          *
-         * @param seeds an {@link java.lang.Iterable} of SEED_TYPE to set on the operation.
+         * @param newSeeds an {@link java.lang.Iterable} of SEED_TYPE to set on the operation.
          * @return this Builder
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
             if (null != seeds) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
-            op.setSeeds(seeds);
+            op.setSeeds(newSeeds);
             return this;
         }
 

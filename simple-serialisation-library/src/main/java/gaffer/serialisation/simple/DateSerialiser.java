@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,21 +36,20 @@ public class DateSerialiser implements Serialisation {
     public byte[] serialise(final Object object) throws SerialisationException {
         Date value = (Date) object;
         try {
-			return ((Long) value.getTime()).toString().getBytes(Constants.ISO_8859_1_ENCODING);
-		} catch (UnsupportedEncodingException e) {
+            return ((Long) value.getTime()).toString().getBytes(Constants.ISO_8859_1_ENCODING);
+        } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
-		}
+        }
     }
 
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
-    	Long longR;
-    	try {
+        Long longR;
+        try {
              longR = Long.parseLong(new String(bytes, Constants.ISO_8859_1_ENCODING).trim());
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return new Date(longR);
     }
-
 }

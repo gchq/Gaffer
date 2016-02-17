@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -91,19 +91,19 @@ public class RegexTest extends FilterFunctionTest {
         assertNotNull(deserialisedFilter);
     }
 
-	@Override
-	protected FilterFunction getInstance() {
-		return new Regex("[a-zA-Z]{1,12}");
-	}
+    @Override
+    protected FilterFunction getInstance() {
+        return new Regex("[a-zA-Z]{1,12}");
+    }
 
-	@Override
-	protected Object[] getSomeAcceptedInput() {
+    @Override
+    protected Object[] getSomeAcceptedInput() {
         return new Object[]{"suCCeSs"};
-	}
+    }
 
-	@Override
-	protected Class<? extends Function> getFunctionClass() {
-		return Regex.class;
-	}
+    @Override
+    protected Class<? extends Function> getFunctionClass() {
+        return Regex.class;
+    }
 
 }
