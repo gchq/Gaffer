@@ -1,2 +1,2 @@
 language: java
-script: mvn verify -DskipITs=true
+script: mvn test -DskipITs=true && mvn checkstyle:check && mvn findbugs:findbugs

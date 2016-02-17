@@ -15,6 +15,9 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.AccumuloElementConverter;
@@ -32,7 +35,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
 import gaffer.store.StoreException;
-
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
@@ -48,38 +50,33 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 public class ColumnQualifierVisibilityValueAggregatorTest {
-
-    private static MockAccumuloStore byteEntityStore;
-    private static MockAccumuloStore Gaffer1KeyStore;
-    private static AccumuloElementConverter byteEntityElementConverter;
-    private static AccumuloElementConverter Gaffer1ElementConverter;
+    private MockAccumuloStore byteEntityStore;
+    private MockAccumuloStore gaffer1KeyStore;
+    private AccumuloElementConverter byteEntityElementConverter;
+    private AccumuloElementConverter gaffer1ElementConverter;
 
     @Before
     public void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
 
         byteEntityStore.getProperties().setTable("Test");
-        Gaffer1KeyStore.getProperties().setTable("Test2");
+        gaffer1KeyStore.getProperties().setTable("Test2");
 
-        Gaffer1ElementConverter = new ClassicAccumuloElementConverter(Gaffer1KeyStore.getStoreSchema());
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getStoreSchema());
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getStoreSchema());
     }
 
     @Test
     public void testAggregatingMultiplePropertySets() throws IteratorSettingException {
         testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
-        testAggregatingMultiplePropertySets(Gaffer1KeyStore, Gaffer1ElementConverter);
+        testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
     public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
@@ -179,12 +176,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
-    
-    
+
+
     @Test
     public void testAggregatingSinglePropertySet() throws IteratorSettingException {
         testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
-        testAggregatingSinglePropertySet(Gaffer1KeyStore, Gaffer1ElementConverter);
+        testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
     public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
@@ -200,7 +197,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
-            
+
             Properties properties1 = new Properties();
             properties1.put(AccumuloPropertyNames.COUNT, 1);
 
@@ -213,7 +210,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Create mutation
             Mutation m1 = new Mutation(key.getRow());
             m1.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()), key.getTimestamp(), value1);
-          
+
             // Write mutation
             BatchWriterConfig writerConfig = new BatchWriterConfig();
             writerConfig.setMaxMemory(1000000L);
@@ -249,11 +246,11 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
-    
+
     @Test
     public void testAggregatingEmptyColumnQualifier() throws IteratorSettingException {
         testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
-        testAggregatingEmptyColumnQualifier(Gaffer1KeyStore, Gaffer1ElementConverter);
+        testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
     public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
@@ -351,6 +348,6 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
-    
-    
+
+
 }
