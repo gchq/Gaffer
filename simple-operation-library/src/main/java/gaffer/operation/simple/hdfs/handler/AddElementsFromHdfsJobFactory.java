@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,10 +23,11 @@ import org.apache.hadoop.mapreduce.Job;
 import java.io.IOException;
 
 public interface AddElementsFromHdfsJobFactory {
-    static final String DATA_SCHEMA = "dataSchema";
-    static final String STORE_SCHEMA = "storeSchema";
-    static final String MAPPER_GENERATOR = "mapperGenerator";
-    static final String VALIDATE = "validate";
+    String UTF_8_CHARSET = "UTF-8";
+    String DATA_SCHEMA = "dataSchema";
+    String STORE_SCHEMA = "storeSchema";
+    String MAPPER_GENERATOR = "mapperGenerator";
+    String VALIDATE = "validate";
 
     Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException;
 }

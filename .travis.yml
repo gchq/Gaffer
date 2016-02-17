@@ -1,2 +1,2 @@
 language: java
-script: mvn clean package
+script: mvn test

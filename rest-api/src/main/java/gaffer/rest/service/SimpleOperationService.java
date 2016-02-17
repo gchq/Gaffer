@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,6 @@
  */
 
 package gaffer.rest.service;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 
@@ -45,6 +38,11 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * An implementation of {@link gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -67,7 +65,7 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public Object execute(final OperationChain opChain) {
-        return execute(opChain);
+        return execute(opChain, false);
     }
 
     @Override
@@ -86,51 +84,51 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation, Integer n) {
-    	Iterable<Element> elements = execute(operation);
-    	if(null == n) {
-        	return elements;
+    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation, final Integer n) {
+        Iterable<Element> elements = execute(operation);
+        if (null == n) {
+            return elements;
         } else {
-	        Iterator<Element> elms = elements.iterator();
-	        List<Element> elList = new ArrayList<>();
-	        int i = 0;
-	        while(elms.hasNext() && i < n) {
-	        	elList.add(elms.next());
-	        	++i;
-	        }
-	        return elList;
+            Iterator<Element> elms = elements.iterator();
+            List<Element> elList = new ArrayList<>();
+            int i = 0;
+            while (elms.hasNext() && i < n) {
+                elList.add(elms.next());
+                ++i;
+            }
+            return elList;
         }
     }
 
     @Override
-    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, Integer n)  {
+    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, final Integer n) {
         return execute(operation);
     }
 
     @Override
-    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, Integer n) {
+    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, final Integer n) {
         return execute(operation);
     }
 
     @Override
-    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation, Integer n) {
-        return execute(operation);
-    }
-
-
-    @Override
-    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, Integer n) {
+    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation, final Integer n) {
         return execute(operation);
     }
 
 
     @Override
-    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation, Integer n) {
+    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, final Integer n) {
+        return execute(operation);
+    }
+
+
+    @Override
+    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation, final Integer n) {
         return execute(operation);
     }
 
     @Override
-    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, Integer n) {
+    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
         return execute(operation);
     }
 
@@ -181,4 +179,5 @@ public class SimpleOperationService implements IOperationService {
     protected Iterable<Element> executeGet(Operation<?, Iterable<Element>> operation, Integer n) {
         return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
     }
+
 }

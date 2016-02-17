@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,34 +16,36 @@
 
 package gaffer.accumulostore;
 
+import java.nio.file.Path;
+
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.store.StoreProperties;
 
-import java.nio.file.Path;
-import java.util.Properties;
-
 /**
- * AccumuloProperties contains specific configuration information for the accumulo store, such as database connection strings.
- * It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * AccumuloProperties contains specific configuration information for the
+ * accumulo store, such as database connection strings. It wraps
+ * {@link gaffer.data.element.Properties} and lazy loads the all properties from
+ * a file when first used.
  */
 public class AccumuloProperties extends StoreProperties {
 
     public static final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
-    public final static String INSTANCE_NAME = "accumulo.instance";
-    public final static String ZOOKEEPERS = "accumulo.zookeepers";
-    public final static String TABLE = "accumulo.table";
-    public final static String USER = "accumulo.user";
-    public final static String PASSWORD = "accumulo.password";
-    public final static String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
-    public final static String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
-    public final static String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
-    public final static String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
-    public final static String FALSE_POSITIVE_RATE = "accumulo.falsePositiveRate";
-    public final static String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR = "accumulo.maxBloomFilterToPassToAnIterator";
-    public final static String MAX_BUFFER_SIZE_FOR_BATCH_WRITER = "accumulo.maxBufferSizeForBatchWriterInBytes";
-    public final static String MAX_TIME_OUT_FOR_BATCH_WRITER = "accumulo.maxTimeOutForBatchWriterInMilliseconds";
-    public final static String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
-    public final static String SPLITS_FILE_PATH = "accumulo.splits.file.path";
+    public static final String INSTANCE_NAME = "accumulo.instance";
+    public static final String ZOOKEEPERS = "accumulo.zookeepers";
+    public static final String TABLE = "accumulo.table";
+    public static final String USER = "accumulo.user";
+    public static final String PASSWORD = "accumulo.password";
+    public static final String AGE_OFF_TIME_IN_DAYS = "accumulo.ageOffTimeInDays";
+    public static final String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
+    public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
+    public static final String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
+    public static final String FALSE_POSITIVE_RATE = "accumulo.falsePositiveRate";
+    public static final String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR = "accumulo.maxBloomFilterToPassToAnIterator";
+    public static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER = "accumulo.maxBufferSizeForBatchWriterInBytes";
+    public static final String MAX_TIME_OUT_FOR_BATCH_WRITER = "accumulo.maxTimeOutForBatchWriterInMilliseconds";
+    public static final String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
+    public static final String SPLITS_FILE_PATH = "accumulo.splits.file.path";
+    public static final String TABLE_REPLICATION_FACTOR = "accumulo.file.replication";
 
     // default values
     private static final String NUM_THREADS_FOR_BATCH_WRITER_DEFAULT = "10";
@@ -69,16 +71,17 @@ public class AccumuloProperties extends StoreProperties {
         set(NUM_THREADS_FOR_BATCH_WRITER, numThreadsForBatchWriter);
     }
 
-    public void setMaxTimeOutForBatchWriterInMilliseconds(String maxTimeOutForBatchWriterInMilliseconds) {
+    public void setMaxTimeOutForBatchWriterInMilliseconds(final String maxTimeOutForBatchWriterInMilliseconds) {
         set(NUM_THREADS_FOR_BATCH_WRITER, MAX_TIME_OUT_FOR_BATCH_WRITER);
     }
 
-    public void setMaxBufferSizeForBatchWriterInBytes(String maxBufferSizeForBatchWriterInBytes) {
+    public void setMaxBufferSizeForBatchWriterInBytes(final String maxBufferSizeForBatchWriterInBytes) {
         set(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, maxBufferSizeForBatchWriterInBytes);
     }
 
     /**
-     * Gets the number of threads that should be used for the accumulo batch writers
+     * Gets the number of threads that should be used for the accumulo batch
+     * writers
      *
      * @return The number of concurrent threads to use in the batch writer
      */
@@ -87,7 +90,8 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Gets the time out/latency that should be used for the accumulo batch writers
+     * Gets the time out/latency that should be used for the accumulo batch
+     * writers
      *
      * @return The timeout to use on the batch writer
      */
@@ -96,7 +100,8 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Gets the memory buffer size that should be used for the accumulo batch writers
+     * Gets the memory buffer size that should be used for the accumulo batch
+     * writers
      *
      * @return The buffer size in bytes to use in the batch writer
      */
@@ -197,7 +202,8 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Get the number of days data should be retained
      *
-     * @return AN integer representing the number of days data should be retained
+     * @return AN integer representing the number of days data should be
+     *         retained
      */
     public int getAgeOffTimeInDays() {
         return Integer.parseInt(get(AGE_OFF_TIME_IN_DAYS, AGE_OFF_TIME_IN_DAYS_DEFAULT));
@@ -215,7 +221,8 @@ public class AccumuloProperties extends StoreProperties {
     /**
      * Get the number of threads to use in the batch scanner
      *
-     * @return An integer representing the number of threads to use in the batch scanner
+     * @return An integer representing the number of threads to use in the batch
+     *         scanner
      */
     public int getThreadsForBatchScanner() {
         return Integer.parseInt(get(THREADS_FOR_BATCH_SCANNER, THREADS_FOR_BATCH_SCANNER_DEFAULT));
@@ -231,16 +238,19 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Get the max number of items that should be read into the scanner at any one time
+     * Get the max number of items that should be read into the scanner at any
+     * one time
      *
-     * @return An integer representing the max number of items that should be read into the scanner at any one time
+     * @return An integer representing the max number of items that should be
+     *         read into the scanner at any one time
      */
     public int getMaxEntriesForBatchScanner() {
         return Integer.parseInt(get(MAX_ENTRIES_FOR_BATCH_SCANNER, MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT));
     }
 
     /**
-     * Set the max number of items that should be read into the scanner at any one time
+     * Set the max number of items that should be read into the scanner at any
+     * one time
      *
      * @param maxEntriesForBatchScanner
      */
@@ -249,16 +259,19 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Get the size that should be used for the creation of bloom filters on the client side
+     * Get the size that should be used for the creation of bloom filters on the
+     * client side
      *
-     * @return An integer representing the size that should be used for the creation of bloom filters on the client side
+     * @return An integer representing the size that should be used for the
+     *         creation of bloom filters on the client side
      */
     public int getClientSideBloomFilterSize() {
         return Integer.parseInt(get(CLIENT_SIDE_BLOOM_FILTER_SIZE, CLIENT_SIDE_BLOOM_FILTER_SIZE_DEFAULT));
     }
 
     /**
-     * Set the size that should be used for the creation of bloom filters on the client side
+     * Set the size that should be used for the creation of bloom filters on the
+     * client side
      *
      * @param clientSideBloomFilterSize
      */
@@ -267,16 +280,19 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Get the allowable rate of false positives for bloom filters (Generally the higher the value the faster the filter)
+     * Get the allowable rate of false positives for bloom filters (Generally
+     * the higher the value the faster the filter)
      *
-     * @return A number representing the rate of false positives for bloom filters (Generally the higher the value the faster the filter)
+     * @return A number representing the rate of false positives for bloom
+     *         filters (Generally the higher the value the faster the filter)
      */
     public double getFalsePositiveRate() {
         return Double.parseDouble(get(FALSE_POSITIVE_RATE, FALSE_POSITIVE_RATE_DEFAULT));
     }
 
     /**
-     * Set the allowable rate of false positives for bloom filters (Generally the higher the value the faster the filter)
+     * Set the allowable rate of false positives for bloom filters (Generally
+     * the higher the value the faster the filter)
      *
      * @param falsePositiveRate
      */
@@ -285,16 +301,20 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Get the size that should be used for the creation of bloom filters on the server side
+     * Get the size that should be used for the creation of bloom filters on the
+     * server side
      *
-     * @return An integer representing the size that should be used for the creation of bloom filters on the server side
+     * @return An integer representing the size that should be used for the
+     *         creation of bloom filters on the server side
      */
     public int getMaxBloomFilterToPassToAnIterator() {
-        return Integer.parseInt(get(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR_DEFAULT));
+        return Integer.parseInt(
+                get(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR_DEFAULT));
     }
 
     /**
-     * Set the size that should be used for the creation of bloom filters on the server side
+     * Set the size that should be used for the creation of bloom filters on the
+     * server side
      *
      * @param maxBloomFilterToPassToAnIterator
      */
@@ -302,19 +322,65 @@ public class AccumuloProperties extends StoreProperties {
         set(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, maxBloomFilterToPassToAnIterator);
     }
 
+    /**
+     * Get the key package that should be used in conjunction with this table
+     *
+     * @return An implementation of
+     *         {@link gaffer.accumulostore.key.AccumuloKeyPackage} to be used
+     *         for this accumulo table
+     */
     public String getKeyPackageClass() {
         return get(KEY_PACKAGE_CLASS, ByteEntityKeyPackage.class.getName());
     }
 
+    /**
+     * Set the key package that should be used in conjunction with this table
+     *
+     * @param keyPackageClass
+     */
     public void setKeyPackageClass(final String keyPackageClass) {
         set(KEY_PACKAGE_CLASS, keyPackageClass);
     }
 
+    /**
+     * Get the path of a splits file to be automatically when using the
+     * accumulo-stores built in partitioner strategy
+     *
+     * @return
+     */
     public String getSplitsFilePath() {
         return get(SPLITS_FILE_PATH, SPLITS_FILE_PATH_DEFAULT);
     }
 
+    /**
+     * Set the path of a splits file to be automatically when using the
+     * accumulo-stores built in partitioner strategy
+     *
+     * @param splitsFilePath
+     */
     public void setSplitsFilePath(final String splitsFilePath) {
         set(SPLITS_FILE_PATH, splitsFilePath);
+    }
+
+    /**
+     * Get the replication factor to be applied to tables created by gaffer, if
+     * not set then the table will use your general accumulo settings default
+     * value.
+     *
+     * @return The replication factor to be applied to tables created by gaffer
+     */
+    public String getTableFileReplicationFactor() {
+        return get(TABLE_REPLICATION_FACTOR, null);
+    }
+
+    /**
+     * Set the replication factor to be applied to tables created by gaffer, if
+     * not set then the table will use your general accumulo settings default
+     * value.
+     *
+     * @param replicationFactor
+     */
+    public void setTableFileReplicationFactor(final String replicationFactor) {
+        set(TABLE_REPLICATION_FACTOR, replicationFactor);
     }
 }

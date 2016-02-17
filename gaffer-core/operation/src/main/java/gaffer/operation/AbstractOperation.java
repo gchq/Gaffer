@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -72,6 +73,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         return (OUTPUT) result;
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
     @Override
     public boolean validate(final Element element) {
         return null != element
@@ -127,6 +129,11 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     @Override
     public void addOption(final String name, final String value) {
         this.options.put(name, value);
+    }
+
+    @Override
+    public String getOption(final String name) {
+        return this.options.get(name);
     }
 
     @JsonGetter("options")

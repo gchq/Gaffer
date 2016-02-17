@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,17 +46,23 @@ public class Min extends NumericAggregateFunction {
 
     @Override
     protected void executeInt(final Integer input) {
-        if (input < (Integer) aggregate) aggregate = input;
+        if (input < (Integer) aggregate) {
+            aggregate = input;
+        }
     }
 
     @Override
     protected void executeLong(final Long input) {
-        if (input < (Long) aggregate) aggregate = input;
+        if (input < (Long) aggregate) {
+            aggregate = input;
+        }
     }
 
     @Override
     protected void executeDouble(final Double input) {
-        if (input < (Double) aggregate) aggregate = input;
+        if (input < (Double) aggregate) {
+            aggregate = input;
+        }
     }
 
     public Min statelessClone() {
