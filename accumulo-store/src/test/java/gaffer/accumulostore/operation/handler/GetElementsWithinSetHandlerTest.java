@@ -58,7 +58,6 @@ import gaffer.store.StoreException;
 
 public class GetElementsWithinSetHandlerTest {
 
-    private static final int numEntries = 1000;
 	private static final String AUTHS = "Test";
 	private static final long TIMESTAMP = System.currentTimeMillis();
 	private static View defaultView;
@@ -97,8 +96,8 @@ public class GetElementsWithinSetHandlerTest {
 	    byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
 	    Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
 	    defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
-	    setupGraph(byteEntityStore, numEntries);
-        setupGraph(Gaffer1KeyStore, numEntries);
+	    setupGraph(byteEntityStore);
+        setupGraph(Gaffer1KeyStore);
 	}
 	
 	@Test
@@ -230,7 +229,7 @@ public class GetElementsWithinSetHandlerTest {
         
 	}
 
-	private static void setupGraph(final AccumuloStore store, int numEntries) {
+	private static void setupGraph(final AccumuloStore store) {
 		try {
 	        // Create table
 	        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
