@@ -7,7 +7,7 @@
           "position": "COLUMN_QUALIFIER"
         },
         "timestamp": {
-          "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+          "serialiserClass": "gaffer.serialisation.simple.LongSerialiser",
           "position": "TIMESTAMP"
         },
         "property1": {
@@ -67,5 +67,5 @@
       }
     }
   },
-  "vertexSerialiserClass": "gaffer.serialisation.implementation.JavaSerialiser"
+  "vertexSerialiserClass": "gaffer.serialisation.simple.StringSerialiser"
 }

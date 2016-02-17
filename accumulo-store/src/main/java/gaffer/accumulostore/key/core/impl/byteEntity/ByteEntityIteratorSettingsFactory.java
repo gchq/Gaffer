@@ -16,14 +16,38 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
-import gaffer.operation.GetOperation;
-
 import org.apache.accumulo.core.client.IteratorSetting;
 
+import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
+import gaffer.accumulostore.operation.AbstractRangeOperation;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.IteratorSettingBuilder;
+import gaffer.operation.GetOperation;
+import gaffer.operation.GetOperation.IncludeEdgeType;
+import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
+    private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ByteEntityRangeElementPropertyFilterIterator.class
+            .getName();
+
     @Override
     public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
         return null;
     }
+
+    @Override
+    public IteratorSetting getElementPropertyRangeQueryFilter(final AbstractRangeOperation<?, ?> operation) {
+        final boolean includeEntities = operation.isIncludeEntities();
+        final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
+        final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+        if (includeEdgeType == IncludeEdgeType.ALL && includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
+                && includeEntities) {
+            return null;
+        }
+        return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
+                        .includeIncomingOutgoing(includeIncomingOutgoingType).includeEdges(includeEdgeType)
+                        .includeEntities(includeEntities).build();
+    }
+
 }

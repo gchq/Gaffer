@@ -312,7 +312,7 @@ public abstract class Store {
      */
     protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation);
 
-    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler<? extends OPERATION, OUTPUT> handler) {
+    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler handler) {
         operationHandlers.put(opClass, handler);
     }
 

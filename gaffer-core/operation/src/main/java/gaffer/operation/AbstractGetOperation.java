@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,8 +61,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         setSeedMatching(operation.getSeedMatching());
     }
 
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
+    /**
+     * @param seedMatching a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
+     *                     matched to the identifiers in the graph.
+     * @see gaffer.operation.GetOperation.SeedMatchingType
+     */
+    protected void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 
@@ -212,16 +215,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
             }
 
             seeds.add(seed);
-            return this;
-        }
-
-        /**
-         * @param seedMatching sets the seedMatching option on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setSeedMatching(SeedMatchingType)
-         */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seedMatching(final SeedMatchingType seedMatching) {
-            op.setSeedMatching(seedMatching);
             return this;
         }
 

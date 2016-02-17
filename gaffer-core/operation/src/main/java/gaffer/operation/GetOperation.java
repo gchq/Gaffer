@@ -68,13 +68,6 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
     void setPopulateProperties(final boolean populateProperties);
 
     /**
-     * @param seedMatching a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
-     * @see gaffer.operation.GetOperation.SeedMatchingType
-     */
-    void setSeedMatching(final SeedMatchingType seedMatching);
-
-    /**
      * @return a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
      * matched to the identifiers in the graph.
      * @see gaffer.operation.GetOperation.SeedMatchingType

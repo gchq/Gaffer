@@ -25,6 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.utils.Constants;
@@ -37,9 +38,11 @@ import gaffer.store.StoreException;
 public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
 
     @Override
-    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store)
+            throws IOException {
         super.setupJobConf(jobConf, operation, store);
-        jobConf.set(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS, ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
+        jobConf.set(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
     }
 
     @Override
@@ -61,7 +64,8 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupReducer(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    private void setupReducer(final Job job, final AddElementsFromHdfs operation, final Store store)
+            throws IOException {
         job.setReducerClass(AddElementsFromHdfsReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
@@ -69,10 +73,11 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupOutput(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
-        AccumuloFileOutputFormat.setOutputPath(job, operation.getOutputPath());
+        FileOutputFormat.setOutputPath(job, operation.getOutputPath());
     }
 
-    private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+    private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
+            throws IOException {
         String splitsFilePath = operation.getOption(Constants.OPERATION_USE_PROVIDED_SPLITS);
         int numReduceTasks;
         if (null != splitsFilePath && !splitsFilePath.equals("")) {
@@ -80,7 +85,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
             try {
                 numReduceTasks = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         } else {

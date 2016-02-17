@@ -51,4 +51,11 @@ public class PropertiesTuple implements Tuple<ElementComponentKey> {
     public void setProperties(final Properties properties) {
         this.properties = properties;
     }
+
+    @Override
+    public String toString() {
+        return "PropertiesTuple{"
+                + "properties=" + properties
+                + '}';
+    }
 }

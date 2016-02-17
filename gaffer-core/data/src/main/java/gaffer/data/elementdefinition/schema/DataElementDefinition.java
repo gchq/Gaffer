@@ -44,7 +44,7 @@ import java.util.Map;
 public abstract class DataElementDefinition extends TypedElementDefinition {
     private ElementFilter inputValidator;
     private ElementAggregator aggregator;
-    private ElementFilter expirator;
+    private ElementFilter expiration;
 
     /**
      * The <code>TypeStore</code> provides the different element identifier value types and property value types.
@@ -110,12 +110,12 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         return null != fullValidator.getFunctions() ? fullValidator : null;
     }
 
-    public ElementFilter getExpirator() {
-        return null != expirator ? expirator.clone() : new ElementFilter();
+    public ElementFilter getExpiration() {
+        return null != expiration ? expiration.clone() : new ElementFilter();
     }
 
-    private void setExpirator(final ElementFilter expirator) {
-        this.expirator = expirator;
+    private void setExpiration(final ElementFilter expiration) {
+        this.expiration = expiration;
     }
 
     public void setInputValidator(final ElementFilter inputValidator) {
@@ -132,9 +132,9 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         return aggregator;
     }
 
-    @JsonProperty("expirator")
-    ElementFilter getOriginalExpirator() {
-        return expirator;
+    @JsonProperty("expiration")
+    ElementFilter getOriginalExpiration() {
+        return expiration;
     }
 
     @JsonIgnore
@@ -213,12 +213,12 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         }
 
         /**
-         * @param expirator the expirator filter to set. Note that if a
+         * @param expiration the expiration filter to set. Note that if a
          *                  {@link gaffer.function.FilterFunction} returns false then the Element is removed.
          * @return this Builder
          */
-        public Builder expirator(final ElementFilter expirator) {
-            getElementDef().setExpirator(expirator);
+        public Builder expiration(final ElementFilter expiration) {
+            getElementDef().setExpiration(expiration);
             return this;
         }
 

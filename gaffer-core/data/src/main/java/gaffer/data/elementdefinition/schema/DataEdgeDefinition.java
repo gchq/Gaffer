@@ -68,8 +68,8 @@ public class DataEdgeDefinition extends DataElementDefinition {
             return (Builder) super.aggregator(aggregator);
         }
 
-        public Builder expirator(final ElementFilter expirator) {
-            return (Builder) super.expirator(expirator);
+        public Builder expiration(final ElementFilter expiration) {
+            return (Builder) super.expiration(expiration);
         }
 
         public Builder source(final Class<?> clazz) {

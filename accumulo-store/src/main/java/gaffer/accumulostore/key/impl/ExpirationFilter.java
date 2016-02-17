@@ -19,17 +19,18 @@ package gaffer.accumulostore.key.impl;
 import gaffer.accumulostore.utils.Constants;
 import gaffer.data.ElementValidator;
 import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The ExpiratorFilter will filter out {@link gaffer.data.element.Element}s
+ * The ExpirationFilter will filter out {@link gaffer.data.element.Element}s
  * based on the expiration functions given in the {@link DataSchema} that is passed to this iterator.
  * <p>
  * If a {@link gaffer.function.FilterFunction} returns false then the Element is removed.
  */
-public class ExpiratorFilter extends ElementFilter {
+public class ExpirationFilter extends ElementFilter {
     @Override
     public IteratorOptions describeOptions() {
         final Map<String, String> namedOptions = new HashMap<>();
@@ -41,11 +42,15 @@ public class ExpiratorFilter extends ElementFilter {
     }
 
     @Override
-    protected ElementValidator getElementValidator(final Map<String, String> options) throws UnsupportedEncodingException {
+    protected ElementValidator getElementValidator(final Map<String, String> options) {
         if (!options.containsKey(Constants.DATA_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
         }
 
-        return new ElementValidator(DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)), true);
+        try {
+            return new ElementValidator(DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)), true);
+        } catch (UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise data schema from JSON", e);
+        }
     }
 }

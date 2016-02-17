@@ -16,6 +16,10 @@
 
 package gaffer.accumulostore;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
@@ -28,16 +32,12 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetRelatedElements;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class AccumuloStoreTest {
 
@@ -47,6 +47,11 @@ public class AccumuloStoreTest {
     @BeforeClass
     public static void setup() throws Exception {
         store = new MockAccumuloStoreForTest();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        store = null;
     }
 
     @Test(expected = OperationException.class)
