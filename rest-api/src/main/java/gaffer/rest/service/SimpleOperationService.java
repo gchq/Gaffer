@@ -16,15 +16,20 @@
 
 package gaffer.rest.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
 import gaffer.graph.Graph;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
@@ -36,8 +41,6 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -79,40 +82,38 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation) {
-        return execute(operation);
+    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation, final Integer n) {
+        return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
-        return execute(operation);
+    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, final Integer n) {
+        return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
-        return execute(operation);
+    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, final Integer n) {
+        return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation) {
-        return execute(operation);
-    }
-
-
-    @Override
-    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
-        return execute(operation);
-    }
-
-
-    @Override
-    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation) {
-        return execute(operation);
+    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation, final Integer n) {
+        return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
-        return execute(operation);
+    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
+        return executeGet(operation, n);
     }
 
     protected void preOperationHook(final OperationChain<?> opChain) {
@@ -158,4 +159,9 @@ public class SimpleOperationService implements IOperationService {
             }
         }
     }
+
+    protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
+        return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
+    }
+
 }
