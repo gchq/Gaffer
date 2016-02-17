@@ -16,8 +16,9 @@
 
 package gaffer.accumulostore.key.impl;
 
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -37,17 +38,14 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.store.StoreException;
-
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class AggregatorIteratorTest {
 
@@ -64,6 +62,13 @@ public class AggregatorIteratorTest {
         gaffer1KeyStore.getProperties().setTable("Test2");
 
         defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+        defaultView = null;
     }
 
     @Test

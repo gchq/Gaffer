@@ -19,16 +19,6 @@ package gaffer.accumulostore.retriever.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.accumulo.core.client.AccumuloException;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -53,6 +43,15 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AccumuloSingleIDRetrieverTest {
 
@@ -68,19 +67,25 @@ public class AccumuloSingleIDRetrieverTest {
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
     }
-    
+
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+    }
+
     @Test
     public void testEntitySeedQueryEdgesAndEntities() throws AccumuloException, StoreException {
         testEntitySeedQueryEdgesAndEntities(byteEntityStore);
         testEntitySeedQueryEdgesAndEntities(gaffer1KeyStore);
     }
-    
+
     public void testEntitySeedQueryEdgesAndEntities(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EntitySeed(""+i));
+            ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
 
@@ -101,7 +106,7 @@ public class AccumuloSingleIDRetrieverTest {
         //Should find both i-B and i-C edges and entities i
         assertEquals(numEntries * 3, count);
     }
-    
+
     @Test
     public void testEntitySeedQueryEdgesOnly() throws AccumuloException, StoreException {
         testEntitySeedQueryEdgesOnly(byteEntityStore);
@@ -113,7 +118,7 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EntitySeed(""+i));
+            ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
 
@@ -134,19 +139,19 @@ public class AccumuloSingleIDRetrieverTest {
         //Should find both i-B and i-C edges.
         assertEquals(numEntries * 2, count);
     }
-    
+
     @Test
     public void testEntitySeedQueryEntitiesOnly() throws AccumuloException, StoreException {
         testEntitySeedQueryEntitiesOnly(byteEntityStore);
         testEntitySeedQueryEntitiesOnly(gaffer1KeyStore);
     }
-    
+
     public void testEntitySeedQueryEntitiesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EntitySeed(""+i));
+            ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
 
@@ -168,7 +173,7 @@ public class AccumuloSingleIDRetrieverTest {
         //Should find only the entities i
         assertEquals(numEntries, count);
     }
-    
+
     @Test
     public void testUndirectedEdgeSeedQueries() throws AccumuloException, StoreException {
         testUndirectedEdgeSeedQueries(byteEntityStore);
@@ -180,8 +185,8 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EdgeSeed("" +i, "B", false));
-            ids.add(new EdgeSeed("" +i, "C", true));
+            ids.add(new EdgeSeed("" + i, "B", false));
+            ids.add(new EdgeSeed("" + i, "C", true));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
 
@@ -215,14 +220,15 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EdgeSeed("" +i, "B", false));
-            ids.add(new EdgeSeed("" +i, "C", true));
+            ids.add(new EdgeSeed("" + i, "B", false));
+            ids.add(new EdgeSeed("" + i, "C", true));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.setIncludeEdges(IncludeEdgeType.DIRECTED);;
+        operation.setIncludeEdges(IncludeEdgeType.DIRECTED);
+        ;
         operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
@@ -235,11 +241,11 @@ public class AccumuloSingleIDRetrieverTest {
             Edge edge = (Edge) element;
             assertEquals("C", edge.getDestination());
         }
-        
+
         //Should find 1000 only A-C
         assertEquals(numEntries, count);
     }
-    
+
     @Test
     public void testEntitySeedQueryIncomingEdgesOnly() throws AccumuloException, StoreException {
         testEntitySeedQueryIncomingEdgesOnly(byteEntityStore);
@@ -251,7 +257,7 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EntitySeed(""+i));
+            ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
 
@@ -274,7 +280,7 @@ public class AccumuloSingleIDRetrieverTest {
         //Incoming option should find all edges i-B as undirected are both incoming and outgoing.
         assertEquals(numEntries, count);
     }
-    
+
     @Test
     public void testEntitySeedQueryOutgoingEdgesOnly() throws AccumuloException, StoreException {
         testEntitySeedQueryOutgoingEdgesOnly(byteEntityStore);
@@ -286,7 +292,7 @@ public class AccumuloSingleIDRetrieverTest {
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
-            ids.add(new EntitySeed(""+i));
+            ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
 
@@ -316,8 +322,8 @@ public class AccumuloSingleIDRetrieverTest {
             Edge edge = new Edge(TestGroups.EDGE);
             Edge edge2 = new Edge(TestGroups.EDGE);
             entity.setVertex("" + i);
-            edge.setSource(""+i);
-            edge2.setSource(""+i);
+            edge.setSource("" + i);
+            edge2.setSource("" + i);
             edge.setDestination("B");
             edge2.setDestination("C");
             edge.setDirected(false);
@@ -334,5 +340,5 @@ public class AccumuloSingleIDRetrieverTest {
             fail("Couldn't add element: " + e);
         }
     }
-    
+
 }

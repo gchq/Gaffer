@@ -19,15 +19,6 @@ package gaffer.accumulostore.retriever.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -49,6 +40,14 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AccumuloRangeIDRetrieverTest {
 
@@ -67,6 +66,13 @@ public class AccumuloRangeIDRetrieverTest {
         setupGraph(gaffer1KeyStore, numEntries);
     }
 
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+        defaultView = null;
+    }
+    
     @Test
     public void test() throws StoreException {
         test(byteEntityStore);
