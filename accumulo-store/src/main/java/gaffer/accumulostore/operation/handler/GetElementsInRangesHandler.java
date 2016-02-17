@@ -38,7 +38,7 @@ public class GetElementsInRangesHandler
     }
 
     public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation,
-            final AccumuloStore store) {
+            final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
@@ -53,7 +53,7 @@ public class GetElementsInRangesHandler
                 ret = new AccumuloRangeIDRetriever(store, operation);
             }
         } catch (IteratorSettingException | StoreException e) {
-            throw new RuntimeException(e);
+            throw new OperationException("Failed to get elements", e);
         }
         return ret;
     }

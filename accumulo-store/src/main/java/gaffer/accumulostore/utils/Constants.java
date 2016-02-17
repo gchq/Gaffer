@@ -37,7 +37,7 @@ public final class Constants {
     public static final String STORE_SCHEMA = "Store_Schema";
     public static final String INCLUDE_ENTITIES = "Include_All_Entities";
     public static final String INCLUDE_ALL_EDGES = "Include_All_Edges";
-    public static final String NO_EDGES = "All_Edges_Only";
+    public static final String NO_EDGES = "No_Edges";
     public static final String DIRECTED_EDGE_ONLY = "Directed_Edges_Only";
     public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
     public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";
@@ -46,37 +46,22 @@ public final class Constants {
     public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
 
     // Iterator priorities
-    public static final int AGE_OFF_ITERATOR_PRIORITY = 10; // Applied during
-                                                            // major
-                                                            // compactions,
-                                                            // minor compactions
-                                                            // and scans.
-    public static final int AGGREGATOR_ITERATOR_PRIORITY = 20; // Applied during
-                                                               // major
-                                                               // compactions,
-                                                               // minor
-                                                               // compactions
-                                                               // and scans.
-    public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31; // Applied only
-                                                                 // during
-                                                                 // scans.
-    public static final int RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY = 32; // Applied
-                                                                                  // only
-                                                                                  // during
-                                                                                  // scans.
-    public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY = 33; // Applied
-                                                                                                             // only
-                                                                                                             // during
-                                                                                                             // scans.
-    public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 34; // Applied
-                                                                   // only
-                                                                   // during
-                                                                   // scans.
-    public static final int QUERY_TIME_AGGREGATOR_PRIORITY = 35; // Applied only
-                                                                 // during
-                                                                 // scans.
-    public static final int TRANSFORM_PRIORITY = 50; // Applied only during
-                                                     // scans.
+    // Applied during major compactions, minor compactions  and scans.
+    public static final int AGE_OFF_ITERATOR_PRIORITY = 10;
+    // Applied during major compactions, minor compactions  and scans.
+    public static final int AGGREGATOR_ITERATOR_PRIORITY = 20;
+    // Applied only during scans.
+    public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31;
+    // Applied only during scans.
+    public static final int RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY = 32;
+    // Applied only during scans.
+    public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY = 33;
+    // Applied only during scans.
+    public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 34;
+    // Applied only during scans.
+    public static final int QUERY_TIME_AGGREGATOR_PRIORITY = 35;
+    // Applied only during scans.
+    public static final int TRANSFORM_PRIORITY = 50;
 
     // Operations options
     public static final String OPERATION_USE_ACCUMULO_PARTIONER = "accumulostore.operation.hdfs.use_accumulo_partioner";

@@ -23,7 +23,7 @@ public final class ByteEntityPositions {
     public static final byte INCORRECT_WAY_DIRECTED_EDGE = (byte) 3;
 
     private ByteEntityPositions() {
-        // private constructor to prevent users instantiating this class as it
-        // only contains constants.
+        // private constructor to prevent users instantiating this class
+        // as it only contains constants.
     }
 }

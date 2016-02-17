@@ -16,7 +16,6 @@
 
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
@@ -28,7 +27,7 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
-public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGetRangeFromPair<SEED_TYPE, Edge> {
+public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends GetElementsInRanges<SEED_TYPE, Edge> {
 
     public GetEdgesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
@@ -72,7 +71,7 @@ public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends AbstractGet
     }
 
     public static class Builder<OP_TYPE extends GetEdgesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
-            extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, Edge> {
+            extends GetElementsInRanges.Builder<OP_TYPE, SEED_TYPE, Edge> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

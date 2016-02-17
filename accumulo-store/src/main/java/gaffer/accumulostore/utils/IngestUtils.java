@@ -47,8 +47,8 @@ public final class IngestUtils {
     private static final FsPermission ACC_FILE_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
 
     private IngestUtils() {
-        // private to prevent this class being instantiated. All methods are
-        // static and should be called directly.
+        // private to prevent this class being instantiated.
+        // All methods are static and should be called directly.
     }
 
     /**

@@ -38,8 +38,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
 
     @Override
     protected byte[] getRowKeyFromEntity(final Entity entity) throws AccumuloElementConversionException {
-        // No Delimiters but need to escape bytes because later we check how
-        // many delimiter characters there are
+        // No Delimiters but need to escape bytes 
+        // because later we check how many delimiter characters there are
         try {
             return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
         } catch (final SerialisationException e) {
@@ -66,18 +66,14 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
             directionFlag2 = ClassicBytePositions.UNDIRECTED_EDGE;
         }
 
-        // Serialise source and destination to byte arrays, escaping if
-        // necessary
+        // Serialise source and destination to byte arrays, escaping if necessary
         final byte[] source = getSerialisedSource(edge);
         final byte[] destination = getSerialisedDestination(edge);
 
-        // Length of row key is the length of the source
-        // plus the length of the destination
-        // plus one for the delimiter in between the source and destination plus
-        // one for the
-        // delimiter in between the destination and the direction flag plus one
-        // for
-        // the direction flag at the end.
+        // Length of row key is the length of the source plus the length of the destination
+        // plus one for the delimiter in between the source and destination 
+        // plus one for the delimiter in between the destination and the direction flag
+        // plus one for the direction flag at the end.
         final int length = source.length + destination.length + 3;
         final byte[] rowKey1 = new byte[length];
         final byte[] rowKey2 = new byte[length];
@@ -139,8 +135,9 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
             final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
-        final int[] positionsOfDelimiters = new int[2]; // Expect to find 2
-                                                        // delimiters (3 fields)
+        
+        // Expect to find 2 delimiters (3 fields)
+        final int[] positionsOfDelimiters = new int[2];
         short numDelims = 0;
         for (int i = 0; i < rowKey.length; i++) {
             if (rowKey[i] == ByteArrayEscapeUtils.DELIMITER) {
@@ -155,11 +152,9 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
             throw new AccumuloElementConversionException(
                     "Wrong number of delimiters found in row key - found " + numDelims + ", expected 2.");
         }
-        // If edge is undirected then create edge (no need to worry about which
-        // direction the vertices
-        // should go in).
-        // If the edge is directed then need to decide which way round the
-        // vertices should go.
+        // If edge is undirected then create edge 
+        // (no need to worry about which direction the vertices should go in).
+        // If the edge is directed then need to decide which way round the vertices should go.
         final int directionFlag = rowKey[rowKey.length - 1];
         if (directionFlag == ClassicBytePositions.UNDIRECTED_EDGE) {
             // Edge is undirected
@@ -169,16 +164,14 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
                     .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
             return false;
         } else if (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the
-            // edge
+            // Edge is directed and the first identifier is the source of the edge
             sourceValueDestinationValue[0] = ByteArrayEscapeUtils
                     .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
             sourceValueDestinationValue[1] = ByteArrayEscapeUtils
                     .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
             return true;
         } else if (directionFlag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the
-            // edge
+            // Edge is directed and the second identifier is the source of the edge
             int src = 1;
             int dst = 0;
             if (options != null && options.containsKey(Constants.OPERATION_MATCH_AS_SOURCE)

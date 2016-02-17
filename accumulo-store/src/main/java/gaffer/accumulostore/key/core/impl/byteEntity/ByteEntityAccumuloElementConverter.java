@@ -134,10 +134,9 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     @Override
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
             final Map<String, String> options) throws AccumuloElementConversionException {
-        // Get element class, sourceValue, destinationValue and directed flag
-        // from row key
-        final int[] positionsOfDelimiters = new int[3]; // Expect to find 3
-                                                        // delimiters (4 fields)
+        // Get element class, sourceValue, destinationValue and directed flag from row key
+        // Expect to find 3 delimiters (4 fields)
+        final int[] positionsOfDelimiters = new int[3];
         short numDelims = 0;
         // Last byte will be directional flag so don't count it
         for (int i = 0; i < rowKey.length - 1; ++i) {
@@ -153,11 +152,9 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
             throw new AccumuloElementConversionException(
                     "Wrong number of delimiters found in row key - found " + numDelims + ", expected 3.");
         }
-        // If edge is undirected then create edge (no need to worry about which
-        // direction the vertices
-        // should go in).
-        // If the edge is directed then need to decide which way round the
-        // vertices should go.
+        // If edge is undirected then create edge
+        // (no need to worry about which direction the vertices should go in).
+        // If the edge is directed then need to decide which way round the vertices should go.
         byte directionFlag;
         try {
             directionFlag = rowKey[rowKey.length - 1];
@@ -172,16 +169,14 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
                     .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
             return false;
         } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the
-            // edge
+            // Edge is directed and the first identifier is the source of the edge
             sourceValueDestinationValue[0] = ByteArrayEscapeUtils
                     .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
             sourceValueDestinationValue[1] = ByteArrayEscapeUtils
                     .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
             return true;
         } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the
-            // edge
+            // Edge is directed and the second identifier is the source of the edge
             int src = 1;
             int dst = 0;
             if (options != null && options.containsKey(Constants.OPERATION_MATCH_AS_SOURCE)

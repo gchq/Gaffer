@@ -16,16 +16,16 @@
 
 package gaffer.accumulostore.operation.impl;
 
+import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.get.GetEdges;
 
 /**
  * Returns {@link gaffer.data.element.Edge}s where both ends are in a given set.
  *
  **/
-public class GetEdgesWithinSet extends GetEdges<EntitySeed> {
+public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
 
     public GetEdgesWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
@@ -43,7 +43,7 @@ public class GetEdgesWithinSet extends GetEdges<EntitySeed> {
         super(operation);
     }
 
-    public static class Builder<OP_TYPE extends GetEdgesWithinSet> extends GetEdges.Builder<OP_TYPE, EntitySeed> {
+    public static class Builder<OP_TYPE extends GetEdgesWithinSet> extends GetElementsWithinSet.Builder<OP_TYPE, Edge> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

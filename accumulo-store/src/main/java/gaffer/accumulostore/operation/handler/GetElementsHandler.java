@@ -35,7 +35,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final AccumuloStore store) {
+    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
@@ -49,7 +49,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
                 ret = new AccumuloSingleIDRetriever(store, operation);
             }
         } catch (IteratorSettingException | StoreException e) {
-            throw new RuntimeException(e);
+            throw new OperationException("Failed to get elements", e);
         }
         return ret;
     }

@@ -16,7 +16,6 @@
 
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
@@ -27,7 +26,7 @@ import gaffer.operation.data.EntitySeed;
  * A and the other is in set B.
  *
  */
-public class GetEdgesBetweenSets extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, Edge> {
+public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
 
     public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
         super(seedsA, seedsB);
@@ -60,7 +59,7 @@ public class GetEdgesBetweenSets extends AbstractAccumuloTwoSetSeededOperation<E
     }
 
     public static class Builder<OP_TYPE extends GetEdgesBetweenSets>
-            extends AbstractAccumuloTwoSetSeededOperation.Builder<OP_TYPE, EntitySeed, Edge> {
+            extends GetElementsBetweenSets.Builder<OP_TYPE, Edge> {
 
         protected Builder(final OP_TYPE op) {
             super(op);

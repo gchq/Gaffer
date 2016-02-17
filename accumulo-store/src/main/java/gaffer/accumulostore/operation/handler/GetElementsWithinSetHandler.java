@@ -35,7 +35,7 @@ public class GetElementsWithinSetHandler implements OperationHandler<GetElements
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation, final AccumuloStore store) {
+    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
@@ -45,7 +45,7 @@ public class GetElementsWithinSetHandler implements OperationHandler<GetElements
                 ret = new AccumuloIDWithinSetRetriever(store, operation);
             }
         } catch (IteratorSettingException | StoreException e) {
-            throw new RuntimeException(e);
+            throw new OperationException("Failed to get elements", e);
         }
         return ret;
     }

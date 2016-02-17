@@ -36,7 +36,7 @@ public class GetElementsBetweenSetsHandler
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation, final AccumuloStore store) {
+    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
@@ -46,7 +46,7 @@ public class GetElementsBetweenSetsHandler
                 ret = new AccumuloIDBetweenSetsRetriever(store, operation);
             }
         } catch (IteratorSettingException | StoreException e) {
-            throw new RuntimeException(e);
+            throw new OperationException("Failed to get elements", e);
         }
         return ret;
     }
