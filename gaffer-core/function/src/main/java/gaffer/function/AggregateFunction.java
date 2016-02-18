@@ -23,7 +23,7 @@ package gaffer.function;
  * <p>
  * For example:<br>
  * <code>AggregateFunction sum = new Sum();</code><br>
- * <code>sum.execute({1}); sum.execute({2}); sum.execute({3});</code><br>
+ * <code>sum.aggregate({1}); sum.aggregate({2}); sum.aggregate({3});</code><br>
  * <code>Object[] state = sum.state() // state = {6}</code>
  */
 public abstract class AggregateFunction extends ConsumerProducerFunction implements Cloneable {
@@ -38,7 +38,7 @@ public abstract class AggregateFunction extends ConsumerProducerFunction impleme
      *
      * @param input Input record.
      */
-    public abstract void execute(final Object[] input);
+    public abstract void aggregate(final Object[] input);
 
     /**
      * @return Record containing the current state of this function.

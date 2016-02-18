@@ -19,9 +19,9 @@ public class StringConcatTest extends ConsumerProducerFunctionTest {
         aggregator.init();
 
         // When
-        aggregator.execute("1");
-        aggregator.execute(new Object[]{"2"});
-        aggregator.execute(new Object[]{null});
+        aggregator._aggregate("1");
+        aggregator.aggregate(new Object[]{"2"});
+        aggregator.aggregate(new Object[]{null});
 
         // Then
         assertEquals("1;2;", aggregator.state()[0]);
@@ -31,7 +31,7 @@ public class StringConcatTest extends ConsumerProducerFunctionTest {
     public void shouldCloneAggregator() {
         // Given
         final StringConcat aggregator = new StringConcat();
-        aggregator.execute("1");
+        aggregator._aggregate("1");
 
         // When
         final StringConcat clone = aggregator.statelessClone();

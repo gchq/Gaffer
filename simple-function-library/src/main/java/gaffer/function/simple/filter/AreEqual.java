@@ -35,7 +35,7 @@ public class AreEqual extends FilterFunction {
      * @return true if either the input array is null, it has only 1 item or the first 2 items are equal. Otherwise false.
      */
     @Override
-    protected boolean filter(final Object[] input) {
+    protected boolean _isValid(final Object[] input) {
         if (null == input) {
             return true;
         }

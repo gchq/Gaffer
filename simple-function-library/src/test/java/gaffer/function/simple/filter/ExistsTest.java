@@ -33,7 +33,7 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter.filter("Not null value");
+        boolean accepted = filter._isValid("Not null value");
 
         // Then
         assertTrue(accepted);
@@ -45,7 +45,7 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter.filter(null);
+        boolean accepted = filter._isValid(null);
 
         // Then
         assertFalse(accepted);

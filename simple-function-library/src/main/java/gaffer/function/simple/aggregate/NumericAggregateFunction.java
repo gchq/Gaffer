@@ -16,18 +16,18 @@
 package gaffer.function.simple.aggregate;
 
 import gaffer.function.AggregateFunction;
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 
 /**
- * An <code>NumericAggregateFunction</code> is a {@link gaffer.function.SingleInputAggregateFunction} that takes in
+ * An <code>NumericAggregateFunction</code> is a {@link SimpleAggregateFunction} that takes in
  * {@link java.lang.Number}s of the same type and processes the number in some way. To implement this class just
- * implement the init methods and execute methods for the different number types.
+ * implement the init methods and aggregate methods for the different number types.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
  * otherwise it will be automatically set for you using the class of the first number passed in.
  *
  * @see gaffer.function.simple.aggregate.NumericAggregateFunction
  */
-public abstract class NumericAggregateFunction extends SingleInputAggregateFunction {
+public abstract class NumericAggregateFunction extends SimpleAggregateFunction<Number> {
 
     private NumberType mode = NumberType.AUTO;
 
@@ -75,7 +75,7 @@ public abstract class NumericAggregateFunction extends SingleInputAggregateFunct
     protected abstract void initDouble();
 
     @Override
-    public void execute(final Object input) {
+    protected void _aggregate(final Number input) {
         if (!allowsNull && input == null) {
             return;
         }
@@ -83,7 +83,7 @@ public abstract class NumericAggregateFunction extends SingleInputAggregateFunct
             case AUTO:
                 if (input instanceof Integer) {
                     setMode(NumberType.INT);
-                }  else if (input instanceof Long) {
+                } else if (input instanceof Long) {
                     setMode(NumberType.LONG);
                 } else if (input instanceof Double) {
                     setMode(NumberType.DOUBLE);
@@ -93,31 +93,31 @@ public abstract class NumericAggregateFunction extends SingleInputAggregateFunct
                 if (aggregate == null) {
                     init();
                 }
-                execute(input);
+                _aggregate(input);
                 break;
             case INT:
-                executeInt((Integer) input);
+                aggregateInt((Integer) input);
                 break;
             case LONG:
-                executeLong((Long) input);
+                aggregateLong((Long) input);
                 break;
             case DOUBLE:
-                executeDouble((Double) input);
+                aggregateDouble((Double) input);
                 break;
             default:
                 break;
         }
     }
 
-    protected abstract void executeInt(final Integer input);
+    protected abstract void aggregateInt(final Integer input);
 
-    protected abstract void executeLong(final Long input);
+    protected abstract void aggregateLong(final Long input);
 
-    protected abstract void executeDouble(final Double input);
+    protected abstract void aggregateDouble(final Double input);
 
     @Override
-    public Object[] state() {
-        return new Object[]{aggregate};
+    public Number _state() {
+        return aggregate;
     }
 
     public enum NumberType {

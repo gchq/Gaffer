@@ -101,7 +101,7 @@ public abstract class FunctionContext<F extends Function> implements Serializabl
         /**
          * Tests whether the {@link gaffer.function.Function} to be wrapped has been configured.
          *
-         * @return False until <code>execute(F)</code> is called, then true.
+         * @return False until <code>aggregate(F)</code> is called, then true.
          */
         public boolean isExecuted() {
             return executed;
