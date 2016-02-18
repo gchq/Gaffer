@@ -38,6 +38,8 @@
     </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <java.version>1.7</java.version>
 
         <!-- Dependency version properties -->
@@ -54,6 +56,7 @@
 
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
+        <surefire.plugin.version>2.19.1</surefire.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -200,7 +203,6 @@
                 <configuration>
                     <enableSshAgent>true</enableSshAgent>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <pushProperties>true</pushProperties>
                     <pushReleases>true</pushReleases>
                     <pushHotfixes>true</pushHotfixes>
                     <noDeploy>true</noDeploy>
@@ -294,7 +296,9 @@
                 </reportSets>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
                 <configuration>
                     <forkMode>perthread</forkMode>
                     <parallel>classes</parallel>
