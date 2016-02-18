@@ -1,2 +1,2 @@
 language: java
-script: mvn test && mvn javadoc:javadoc
+script: mvn test -X && mvn javadoc:javadoc
