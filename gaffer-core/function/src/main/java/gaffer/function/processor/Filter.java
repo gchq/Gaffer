@@ -122,7 +122,7 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
         for (ConsumerFunctionContext<R, FilterFunction> functionContext : functions) {
             FilterFunction function = functionContext.getFunction();
             Object[] selection = functionContext.select(tuple);
-            boolean result = function.execute(selection);
+            boolean result = function.isValid(selection);
 
             if (!result) {
                 LOGGER.debug(function.getClass().getName() + " filtered out "

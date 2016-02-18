@@ -49,7 +49,7 @@ public abstract class FilterFunctionTest extends ConsumerFunctionTest {
         function.setNot(false);
 
         // When
-        final boolean result = function.filter(getSomeAcceptedInput());
+        final boolean result = function.isValid(getSomeAcceptedInput());
 
         // Then
         assertTrue(result);
@@ -62,10 +62,10 @@ public abstract class FilterFunctionTest extends ConsumerFunctionTest {
         function.setNot(true);
 
         // When
-        final boolean result = function.filter(getSomeAcceptedInput());
+        final boolean result = function.isValid(getSomeAcceptedInput());
 
         // Then
-        assertTrue(result);
+        assertFalse(result);
     }
 
     protected abstract FilterFunction getInstance();

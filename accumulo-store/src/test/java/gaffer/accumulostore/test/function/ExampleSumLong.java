@@ -16,13 +16,13 @@
 
 package gaffer.accumulostore.test.function;
 
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 @Inputs(Long.class)
 @Outputs(Long.class)
-public class ExampleSumLong extends SingleInputAggregateFunction {
+public class ExampleSumLong extends SimpleAggregateFunction<Long> {
     private Long aggregate = null;
 
     @Override
@@ -31,19 +31,19 @@ public class ExampleSumLong extends SingleInputAggregateFunction {
     }
 
     @Override
-    protected void execute(final Object input) {
+    protected void _aggregate(final Long input) {
         if (aggregate == null) {
             init();
         }
 
         if (input != null) {
-            aggregate = aggregate + (Long) input;
+            aggregate = aggregate + input;
         }
     }
 
     @Override
-    public Object[] state() {
-        return new Object[]{aggregate};
+    public Long _state() {
+        return aggregate;
     }
 
     public ExampleSumLong statelessClone() {

@@ -64,7 +64,7 @@ public class ElementFilterTest {
         verify(functionContext1).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).execute(argumentCaptor.capture());
+        verify(function).isValid(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
     }
 

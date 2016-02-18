@@ -15,19 +15,18 @@
  */
 package gaffer.function.simple.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunction;
 import gaffer.function.FilterFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 public class RegexTest extends FilterFunctionTest {
     @Test
@@ -37,7 +36,7 @@ public class RegexTest extends FilterFunctionTest {
 
 
         // When
-        boolean accepted = filter.filter("teaadst");
+        boolean accepted = filter._isValid("teaadst");
 
         // Then
         assertTrue(accepted);
@@ -49,12 +48,12 @@ public class RegexTest extends FilterFunctionTest {
         final Regex filter = new Regex("fa[a-d]{3}il");
 
         // When
-        boolean accepted = filter.filter("favcdil");
+        boolean accepted = filter._isValid("favcdil");
 
         // Then
         assertFalse(accepted);
     }
-    
+
     @Test
     public void shouldClone() {
         // Given

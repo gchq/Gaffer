@@ -27,8 +27,8 @@ public class FreqMapAggregatorTest extends ConsumerProducerFunctionTest {
         freqMap2.put("3", 5);
 
         // When
-        aggregator.execute(freqMap1);
-        aggregator.execute(freqMap2);
+        aggregator._aggregate(freqMap1);
+        aggregator._aggregate(freqMap2);
 
         // Then
         final FreqMap mergedFreqMap = ((FreqMap) aggregator.state()[0]);
@@ -44,7 +44,7 @@ public class FreqMapAggregatorTest extends ConsumerProducerFunctionTest {
         final FreqMap freqMap1 = new FreqMap();
         freqMap1.put("1", 2);
         freqMap1.put("2", 3);
-        aggregator.execute(freqMap1);
+        aggregator._aggregate(freqMap1);
 
         // When
         final FreqMapAggregator clone = aggregator.statelessClone();

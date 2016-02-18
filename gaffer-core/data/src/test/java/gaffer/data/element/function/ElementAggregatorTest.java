@@ -70,7 +70,7 @@ public class ElementAggregatorTest {
         verify(functionContext1, times(2)).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).execute(argumentCaptor.capture());
+        verify(function).aggregate(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
     }
 
@@ -100,7 +100,7 @@ public class ElementAggregatorTest {
 
         assertSame(properties, propertiesTupleCaptor.getValue().getProperties());
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).execute(argumentCaptor.capture());
+        verify(function).aggregate(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
     }
 

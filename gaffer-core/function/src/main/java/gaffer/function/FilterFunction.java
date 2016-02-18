@@ -23,11 +23,11 @@ package gaffer.function;
  * <p>
  * For example:<br>
  * <code>FilterFunction isA = new IsA(Integer.class);</code><br>
- * <code>boolean result = isA.execute({1}); //result = true</code><br>
- * <code>result = isA.execute({"a"}); //result = false</code><br>
+ * <code>boolean result = isA.isValid({1}); //result = true</code><br>
+ * <code>result = isA.isValid({"a"}); //result = false</code><br>
  * <code>isA.setNot(true); // flip results</code>
- * <code>result = isA.execute({1}); //result = false</code><br>
- * <code>result = isA.execute({"a"}) // result = true</code>
+ * <code>result = isA.isValid({1}); //result = false</code><br>
+ * <code>result = isA.isValid({"a"}) // result = true</code>
  */
 public abstract class FilterFunction extends ConsumerFunction {
     private boolean not = false;
@@ -62,10 +62,10 @@ public abstract class FilterFunction extends ConsumerFunction {
      * <code>isNot() == true</code>. Input records should match the types reported by <code>getInputClasses()</code>.
      *
      * @param input the input objects.
-     * @return true if the input record passes, or false if it fails.
+     * @return true if the input record is valid, otherwise false.
      */
-    public boolean execute(final Object[] input) {
-        boolean result = filter(input);
+    public boolean isValid(final Object[] input) {
+        boolean result = _isValid(input);
         if (not) {
             return !result;
         } else {
@@ -83,5 +83,5 @@ public abstract class FilterFunction extends ConsumerFunction {
      * @param input Input record to test.
      * @return true if input record passes the test.
      */
-    protected abstract boolean filter(final Object[] input);
+    protected abstract boolean _isValid(final Object[] input);
 }

@@ -43,7 +43,7 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
         for (ConsumerProducerFunctionContext<R, TransformFunction> functionContext : functions) {
             TransformFunction function = functionContext.getFunction();
             Object[] selection = functionContext.select(tuple);
-            Object[] result = function.execute(selection);
+            Object[] result = function.transform(selection);
             functionContext.project(tuple, result);
         }
     }
