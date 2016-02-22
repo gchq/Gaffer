@@ -63,9 +63,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
                 new EdgeDomainObject("B", "C", true, 4),
                 new EdgeDomainObject("B", "C", true, 5),
                 new EdgeDomainObject("C", "B", true, 6),
-                new EdgeDomainObject("C", "B", false, 7),
-                new EdgeDomainObject("E", "G", true, 9),
-                new EdgeDomainObject("E", "F", true, 15)
+                new EdgeDomainObject("C", "B", false, 7)
         ), new BasicEdgeGenerator());
 
         generateEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
@@ -223,26 +221,6 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         assertThat(results, IsCollectionContaining.hasItems(
                 new Edge(TestGroups.EDGE, "B", "D", true),
                 new Edge(TestGroups.EDGE, "B", "C", true)
-        ));
-    }
-
-    @Test
-    @TraitRequirement(StoreTrait.CONTINUOUS_VALIDATION)
-    public void testValidatorBasedOnProperty() throws OperationException {
-        // BUILD
-        final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()
-                .addSeed(new EntitySeed("E"))
-                .option(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS)
-                .build();
-
-        // OPERATE
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
-
-        //CHECK
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                new Edge(TestGroups.EDGE, "E", "G", true)
         ));
     }
 }

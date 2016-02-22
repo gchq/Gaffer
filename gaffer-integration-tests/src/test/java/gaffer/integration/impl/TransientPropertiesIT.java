@@ -44,7 +44,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
 
     /**
      * Adds simple graph data required for testing.
-     *
      * @throws OperationException should never be thrown.
      */
     @Before
@@ -53,7 +52,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         final Collection<Element> elements = new ArrayList<>(2);
         final Edge sampleEdgeWithTransientProperty = new Edge(TestGroups.EDGE, "A", "B", true);
         sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.COUNT, 1L);
-        sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.INT, 1);
         sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.TRANSIENT_1, "test");
         elements.add(sampleEdgeWithTransientProperty);
 
@@ -68,7 +66,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
 
     /**
      * Tests that the edge stored does not contain any transient properties not stored in the Schemas.
-     *
      * @throws OperationException should never be thrown.
      */
     @Test
@@ -90,8 +87,7 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
     }
 
     /**
-     * Tests that the entity stored does not contain any transient properties not stored in the Schemas.
-     *
+     *Tests that the entity stored does not contain any transient properties not stored in the Schemas.
      * @throws OperationException should never be thrown.
      */
     @Test

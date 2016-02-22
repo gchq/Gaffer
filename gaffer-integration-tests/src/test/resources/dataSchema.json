@@ -15,21 +15,6 @@
       "properties": {
         "intProperty": "intProperty",
         "count": "count"
-      },
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.IsLessThan",
-              "value": 10
-            },
-            "selection": [
-              {
-                "key": "intProperty"
-              }
-            ]
-          }
-        ]
       }
     }
   },
