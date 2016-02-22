@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,9 +22,9 @@ import gaffer.arrayliststore.operation.handler.GetElementsHandler;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.data.ElementSeed;
 import gaffer.operation.Operation;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetElements;
@@ -42,10 +42,10 @@ import static gaffer.store.StoreTrait.VALIDATION;
 
 
 /**
- * A simple in memory {@link java.util.ArrayList} implementation of {@link gaffer2.store.Store}.
- * <p/>
- * This store holds 2 {@link java.util.ArrayList}s one for {@link gaffer2.data.element.Entity} and one for
- * {@link gaffer2.data.element.Edge}. As the elements are simply
+ * A simple in memory {@link java.util.ArrayList} implementation of {@link Store}.
+ * <p>
+ * This store holds 2 {@link java.util.ArrayList}s one for {@link Entity} and one for
+ * {@link Edge}. As the elements are simply
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {

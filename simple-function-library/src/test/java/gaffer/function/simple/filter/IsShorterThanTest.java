@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,7 +49,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter.filter("1234");
+        final boolean accepted = filter._isValid("1234");
 
         // Then
         assertTrue(accepted);
@@ -61,7 +61,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter.filter("123456");
+        final boolean accepted = filter._isValid("123456");
 
         // Then
         assertFalse(accepted);
@@ -73,7 +73,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter.filter("12345");
+        final boolean accepted = filter._isValid("12345");
 
         // Then
         assertFalse(accepted);
@@ -86,7 +86,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
 
         // When / Then
         try {
-            filter.filter(4);
+            filter._isValid(4);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
             assertNotNull(e);

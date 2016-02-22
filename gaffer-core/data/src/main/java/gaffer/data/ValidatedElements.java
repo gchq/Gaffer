@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,7 @@ import gaffer.data.elementdefinition.view.View;
  * An <code>ValidatedElements</code> extends {@link gaffer.data.TransformIterable} and uses an
  * {@link gaffer.data.ElementValidator} to validate the {@link gaffer.data.element.Element}s.
  * It does not transform the element items - just simply returns them if they are valid.
- * <p/>
+ * <p>
  * So the resultant {@link java.lang.Iterable} will only contain {@link gaffer.data.element.Element}s that have passed
  * the {@link gaffer.data.elementdefinition.schema.DataSchema} {@link gaffer.function.FilterFunction}s or
  * {@link gaffer.data.elementdefinition.view.View} {@link gaffer.function.FilterFunction}s.

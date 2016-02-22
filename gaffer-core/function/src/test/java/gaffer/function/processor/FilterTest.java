@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,11 +20,12 @@ import gaffer.function.FilterFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -67,7 +68,7 @@ public class FilterTest {
         final List<String> references = Collections.singletonList(reference);
         given(functionContext1.getSelection()).willReturn(references);
 
-        given(function1.execute(new String[]{value})).willReturn(true);
+        given(function1.isValid(new String[]{value})).willReturn(true);
 
         filter.addFunction(functionContext1);
 
@@ -83,7 +84,7 @@ public class FilterTest {
         verify(functionContext1).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor.capture());
+        verify(function1).isValid(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
 
         assertTrue(result);
@@ -111,8 +112,8 @@ public class FilterTest {
         given(tuple.get(reference1)).willReturn(value1);
         given(tuple.get(reference2)).willReturn(value2);
 
-        given(function1.execute(new String[]{value1, value2})).willReturn(true);
-        given(function2.execute(new String[]{value2})).willReturn(true);
+        given(function1.isValid(new String[]{value1, value2})).willReturn(true);
+        given(function2.isValid(new String[]{value2})).willReturn(true);
 
         given(functionContext1.select(tuple)).willReturn(new String[]{value1, value2});
         given(functionContext2.select(tuple)).willReturn(new String[]{value2});
@@ -125,12 +126,12 @@ public class FilterTest {
         verify(functionContext2).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor1 = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor1.capture());
+        verify(function1).isValid(argumentCaptor1.capture());
         assertEquals(value1, argumentCaptor1.getValue()[0]);
         assertEquals(value2, argumentCaptor1.getValue()[1]);
 
         final ArgumentCaptor<Object[]> argumentCaptor3 = ArgumentCaptor.forClass(Object[].class);
-        verify(function2).execute(argumentCaptor3.capture());
+        verify(function2).isValid(argumentCaptor3.capture());
         assertEquals(value2, argumentCaptor3.getValue()[0]);
 
         assertTrue(result);
@@ -158,8 +159,8 @@ public class FilterTest {
         given(tuple.get(reference1)).willReturn(value1);
         given(tuple.get(reference2)).willReturn(value2);
 
-        given(function1.execute(new String[]{value1, value2})).willReturn(true);
-        given(function2.execute(new String[]{value2})).willReturn(false);
+        given(function1.isValid(new String[]{value1, value2})).willReturn(true);
+        given(function2.isValid(new String[]{value2})).willReturn(false);
 
         given(functionContext1.select(tuple)).willReturn(new String[]{value1, value2});
         given(functionContext2.select(tuple)).willReturn(new String[]{value2});
@@ -172,12 +173,12 @@ public class FilterTest {
         verify(functionContext2).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor1 = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor1.capture());
+        verify(function1).isValid(argumentCaptor1.capture());
         assertEquals(value1, argumentCaptor1.getValue()[0]);
         assertEquals(value2, argumentCaptor1.getValue()[1]);
 
         final ArgumentCaptor<Object[]> argumentCaptor3 = ArgumentCaptor.forClass(Object[].class);
-        verify(function2).execute(argumentCaptor3.capture());
+        verify(function2).isValid(argumentCaptor3.capture());
         assertEquals(value2, argumentCaptor3.getValue()[0]);
 
         assertFalse(result);

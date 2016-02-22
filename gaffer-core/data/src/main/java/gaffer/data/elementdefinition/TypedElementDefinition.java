@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,13 +31,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An ElementDefinition that has maps of property name -> property value type and
- * {@link gaffer.data.element.IdentifierType} -> identifier value type.
+ * An ElementDefinition that has maps of property name to property value type and
+ * {@link gaffer.data.element.IdentifierType} to identifier value type.
  *
  * @see gaffer.data.elementdefinition.TypedElementDefinition.Builder
  */
 public abstract class TypedElementDefinition implements ElementDefinitionWithIds {
-    private static final Map<String, Class<?>> classes = new HashMap<>();
+    private static final Map<String, Class<?>> CLASSES = new HashMap<>();
 
     /**
      * A validator to validate the element definition
@@ -131,14 +131,14 @@ public abstract class TypedElementDefinition implements ElementDefinitionWithIds
             return null;
         }
 
-        Class<?> clazz = classes.get(className);
+        Class<?> clazz = CLASSES.get(className);
         if (null == clazz) {
             try {
                 clazz = Class.forName(className);
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Class could not be found: " + className, e);
             }
-            classes.put(className, clazz);
+            CLASSES.put(className, clazz);
         }
 
         return clazz;

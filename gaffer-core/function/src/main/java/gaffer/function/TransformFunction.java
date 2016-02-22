@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,10 @@ package gaffer.function;
 /**
  * A <code>TransformFunction</code> is a {@link gaffer.function.Function} that produces a new output record based on
  * the data in an input record.
- * <p/>
- * For example:<br/>
- * <code>TransformFunction concat = new Concat("|");</code><br/>
- * <code>Object[] result = concat.execute({"a", "b"}); // result = {"a|b"}</code>
+ * <p>
+ * For example:<br>
+ * <code>TransformFunction concat = new Concat("|");</code><br>
+ * <code>Object[] result = concat.transform({"a", "b"}); // result = {"a|b"}</code>
  */
 public abstract class TransformFunction extends ConsumerProducerFunction {
     /**
@@ -31,7 +31,7 @@ public abstract class TransformFunction extends ConsumerProducerFunction {
      * @param input Input record.
      * @return Output record.
      */
-    public abstract Object[] execute(final Object[] input);
+    public abstract Object[] transform(final Object[] input);
 
     @Override
     public abstract TransformFunction statelessClone();

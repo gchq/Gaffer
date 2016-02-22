@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ import javax.ws.rs.core.MediaType;
  * Each example method path should be equal to the corresponding IOperationService method with /example as a prefix.
  * Each example method should return a populated {@link gaffer.operation.Operation} which can be used to call the
  * corresponding IOperationService method.
- * <p/>
+ * <p>
  * Ideally the example should work against any {@link gaffer.store.Store} with any set of schemas
  * and properties, however this may not be possible in all cases - but it should at least give a starting point for
  * constructing a valid {@link gaffer.operation.Operation}.

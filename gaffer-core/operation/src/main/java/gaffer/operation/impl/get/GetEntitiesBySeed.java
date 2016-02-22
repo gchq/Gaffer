@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import gaffer.operation.GetOperation;
 /**
  * Restricts {@link gaffer.operation.impl.get.GetEntities} to match seeds that are equal.
  * This operation only takes seeds of type {@link gaffer.operation.data.EntitySeed}.
- * <p/>
+ * <p>
  * An Entity is EQUAL to an EntitySeed if the Entity's seed is equal to the EntitySeed.
  *
  * @see GetEntitiesBySeed.Builder
@@ -42,7 +42,7 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
         super(view);
     }
 
-    public GetEntitiesBySeed(final View view, Iterable<EntitySeed> seeds) {
+    public GetEntitiesBySeed(final View view, final Iterable<EntitySeed> seeds) {
         super(view, seeds);
     }
 

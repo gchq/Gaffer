@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,11 +26,11 @@ import gaffer.store.schema.StoreSchema;
 public abstract class AbstractCoreKeyPackage extends AccumuloKeyPackage {
     @Override
     public void validateSchema(final StoreSchema storeSchema) {
-        for (StoreElementDefinition storeElDef : storeSchema.getEdges().values()) {
+        for (final StoreElementDefinition storeElDef : storeSchema.getEdges().values()) {
             validateElementDef(storeElDef);
         }
 
-        for (StoreElementDefinition storeElDef : storeSchema.getEntities().values()) {
+        for (final StoreElementDefinition storeElDef : storeSchema.getEntities().values()) {
             validateElementDef(storeElDef);
         }
     }
@@ -38,7 +38,7 @@ public abstract class AbstractCoreKeyPackage extends AccumuloKeyPackage {
     private void validateElementDef(final StoreElementDefinition storeElDef) {
         boolean seenVisibility = false;
         boolean seenTimestamp = false;
-        for (StorePropertyDefinition storePropertyDef : storeElDef.getPropertyDefinitions()) {
+        for (final StorePropertyDefinition storePropertyDef : storeElDef.getPropertyDefinitions()) {
             if (StorePositions.VISIBILITY.isEqual(storePropertyDef.getPosition())) {
                 if (!seenVisibility) {
                     seenVisibility = true;

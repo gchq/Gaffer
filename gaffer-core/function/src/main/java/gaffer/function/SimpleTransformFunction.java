@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,23 @@
 
 package gaffer.function;
 
-public abstract class SingleInputFilterFunction extends FilterFunction {
+/**
+ * An <code>SimpleTransformFunction</code> is an {@link TransformFunction}
+ * that takes a single input and returns a single output.
+ */
+public abstract class SimpleTransformFunction<T> extends TransformFunction {
     @Override
-    protected boolean filter(final Object[] input) {
+    public Object[] transform(final Object[] input) {
         if (null == input || 1 != input.length) {
             throw new IllegalArgumentException("Expected an input array of length 1");
         }
 
-        return filter(input[0]);
+        try {
+            return new Object[]{_transform((T) input[0])};
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException("Input does not match parametrised type");
+        }
     }
 
-    protected abstract boolean filter(final Object input);
+    protected abstract T _transform(final T input);
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package gaffer.function.simple.filter;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.filter(new String[]{"test", "test"});
+        boolean accepted = equals._isValid(new String[]{"test", "test"});
 
         assertTrue(accepted);
     }
@@ -44,7 +43,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.filter(new String[]{null, null});
+        boolean accepted = equals._isValid(new String[]{null, null});
 
         assertTrue(accepted);
     }
@@ -54,7 +53,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.filter(new String[]{null, "test"});
+        boolean accepted = equals._isValid(new String[]{null, "test"});
 
         assertFalse(accepted);
     }
@@ -64,7 +63,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.filter(new String[]{"test", "test2"});
+        boolean accepted = equals._isValid(new String[]{"test", "test2"});
 
         assertFalse(accepted);
     }

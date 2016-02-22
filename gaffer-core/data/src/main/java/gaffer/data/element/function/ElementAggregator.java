@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package gaffer.data.element.function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Properties;
@@ -27,9 +28,9 @@ import gaffer.function.processor.Aggregator;
  * Element Aggregator - for aggregating {@link gaffer.data.element.Element}s.
  * When Elements are aggregated it is only the Element {@link gaffer.data.element.Properties} that are aggregated.
  * Aggregation requires elements to have the same identifiers and group.
- * <p/>
+ * <p>
  * Use {@link gaffer.data.element.function.ElementAggregator.Builder} to build an ElementAggregator.
- * <p/>
+ * <p>
  * To use this aggregator:
  * <ul>
  * <li>Use {@link gaffer.data.element.function.ElementAggregator.Builder} to build an ElementAggregator</li>
@@ -76,6 +77,7 @@ public class ElementAggregator extends Aggregator<ElementComponentKey> {
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
     @Override
     public ElementAggregator clone() {
         final ElementAggregator clone = new ElementAggregator();
@@ -84,6 +86,9 @@ public class ElementAggregator extends Aggregator<ElementComponentKey> {
         return clone;
     }
 
+    /**
+     * Builder for {@link ElementAggregator}.
+     */
     public static class Builder extends Aggregator.Builder<ElementComponentKey> {
         public Builder() {
             this(new ElementAggregator());

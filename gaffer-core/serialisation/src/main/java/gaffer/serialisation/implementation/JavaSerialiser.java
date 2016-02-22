@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * This class is used to serialise and deserialise objects in java
+ * This class is used to serialise and deserialise objects in java.
  */
 public class JavaSerialiser implements Serialisation {
     private static final long serialVersionUID = 2073581763875104361L;
@@ -73,7 +73,7 @@ public class JavaSerialiser implements Serialisation {
         return clazz.cast(this.deserialise(bytes));
     }
 
-    private void close(Closeable close) {
+    private void close(final Closeable close) {
         if (close != null) {
             try {
                 close.close();

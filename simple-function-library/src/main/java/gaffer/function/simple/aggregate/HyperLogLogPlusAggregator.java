@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +17,17 @@ package gaffer.function.simple.aggregate;
 
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 /**
- * An <code>HyperLogLogPlusAggregator</code> is a {@link gaffer.function.SingleInputAggregateFunction} that takes in
+ * An <code>HyperLogLogPlusAggregator</code> is a {@link SimpleAggregateFunction} that takes in
  * {@link com.clearspring.analytics.stream.cardinality.HyperLogLogPlus}s and merges the sketches together.
  */
 @Inputs(HyperLogLogPlus.class)
 @Outputs(HyperLogLogPlus.class)
-public class HyperLogLogPlusAggregator extends SingleInputAggregateFunction {
+public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogLogPlus> {
     private HyperLogLogPlus sketch;
 
     @Override
@@ -36,10 +36,10 @@ public class HyperLogLogPlusAggregator extends SingleInputAggregateFunction {
     }
 
     @Override
-    public void execute(final Object object) {
-        if (object != null) {
+    protected void _aggregate(final HyperLogLogPlus input) {
+        if (input != null) {
             try {
-                sketch.addAll((HyperLogLogPlus) object);
+                sketch.addAll(input);
             } catch (CardinalityMergeException exception) {
                 throw new RuntimeException("An Exception occurred when trying to aggregate the HyperLogLogPlus objects", exception);
             }
@@ -47,8 +47,8 @@ public class HyperLogLogPlusAggregator extends SingleInputAggregateFunction {
     }
 
     @Override
-    public Object[] state() {
-        return new Object[]{sketch};
+    protected HyperLogLogPlus _state() {
+        return sketch;
     }
 
     @Override

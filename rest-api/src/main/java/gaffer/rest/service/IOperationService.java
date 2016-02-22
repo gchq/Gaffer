@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -34,12 +35,12 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -69,37 +70,51 @@ public interface IOperationService {
     @POST
     @Path("/get/elements/bySeed")
     @ApiOperation(value = "Gets elements by seed from the graph", response = Element.class, responseContainer = "List")
-    Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation);
+    Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation,
+                                        @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @POST
     @Path("/get/elements/related")
     @ApiOperation(value = "Gets related elements from the graph", response = Element.class, responseContainer = "List")
-    Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
+    Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation,
+                                         @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @POST
     @Path("/get/entities/bySeed")
     @ApiOperation(value = "Gets entities by seed from the graph", response = Entity.class, responseContainer = "List")
-    Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
+    Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation,
+                                       @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @POST
     @Path("/get/entities/related")
     @ApiOperation(value = "Gets related entities from the graph", response = Entity.class, responseContainer = "List")
-    Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation);
+    Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation,
+                                        @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @POST
     @Path("/get/edges/bySeed")
     @ApiOperation(value = "Gets edge by seed from the graph", response = Edge.class, responseContainer = "List")
-    Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
+    Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation,
+                                  @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @POST
     @Path("/get/edges/related")
     @ApiOperation(value = "Gets related edges from the graph", response = Edge.class, responseContainer = "List")
-    Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation);
+    Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation,
+                                   @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @POST
     @Path("/get/entitySeeds/adjacent")
     @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
-    Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
+    Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation,
+                                                @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
 
     @PUT
     @Path("/add/elements")

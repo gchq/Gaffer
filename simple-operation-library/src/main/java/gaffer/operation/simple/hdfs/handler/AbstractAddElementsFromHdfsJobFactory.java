@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,10 +30,10 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
      * Creates a job with the store specific job initialisation and then applies the operation specific
      * {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser}.
      *
-     * @param operation
-     * @param store
+     * @param operation the add elements from hdfs operation
+     * @param store     the store executing the operation
      * @return the created job
-     * @throws IOException
+     * @throws IOException for IO issues
      */
     public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
         final JobConf jobConf = createJobConf(operation, store);
@@ -55,11 +55,18 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     }
 
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
-        jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false)));
-        jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false)));
+        jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
-        jobConf.setNumReduceTasks(operation.getNumReduceTasks());
+        Integer numTasks = operation.getNumMapTasks();
+        if (null != numTasks) {
+            jobConf.setNumMapTasks(numTasks);
+        }
+        numTasks = operation.getNumReduceTasks();
+        if (null != numTasks) {
+            jobConf.setNumReduceTasks(numTasks);
+        }
     }
 
     protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {

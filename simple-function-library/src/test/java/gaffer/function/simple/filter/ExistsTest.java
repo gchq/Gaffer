@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter.filter("Not null value");
+        boolean accepted = filter._isValid("Not null value");
 
         // Then
         assertTrue(accepted);
@@ -45,7 +45,7 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter.filter(null);
+        boolean accepted = filter._isValid(null);
 
         // Then
         assertFalse(accepted);

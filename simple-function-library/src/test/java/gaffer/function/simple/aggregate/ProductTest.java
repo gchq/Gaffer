@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -94,21 +94,21 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         intProduct.init();
 
         // When 1
-        intProduct.execute(2);
+        intProduct._aggregate(2);
 
         // Then 1
         assertTrue(intProduct.state()[0] instanceof Integer);
         assertEquals(2, intProduct.state()[0]);
 
         // When 2
-        intProduct.execute(3);
+        intProduct._aggregate(3);
 
         // Then 2
         assertTrue(intProduct.state()[0] instanceof Integer);
         assertEquals(6, intProduct.state()[0]);
 
         // When 3
-        intProduct.execute(8);
+        intProduct._aggregate(8);
 
         // Then 3
         assertTrue(intProduct.state()[0] instanceof Integer);
@@ -124,7 +124,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         intProduct.init();
 
         // When 1
-        intProduct.execute(2);
+        intProduct._aggregate(2);
 
         // Then 1
         assertTrue(intProduct.state()[0] instanceof Integer);
@@ -132,7 +132,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            intProduct.execute(2.7d);
+            intProduct._aggregate(2.7d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -143,7 +143,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            intProduct.execute(1l);
+            intProduct._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -162,21 +162,21 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         longProduct.init();
 
         // When 1
-        longProduct.execute(2l);
+        longProduct._aggregate(2l);
 
         // Then 1
         assertTrue(longProduct.state()[0] instanceof Long);
         assertEquals(2l, longProduct.state()[0]);
 
         // When 2
-        longProduct.execute(1l);
+        longProduct._aggregate(1l);
 
         // Then 2
         assertTrue(longProduct.state()[0] instanceof Long);
         assertEquals(2l, longProduct.state()[0]);
 
         // When 3
-        longProduct.execute(3l);
+        longProduct._aggregate(3l);
 
         // Then 3
         assertTrue(longProduct.state()[0] instanceof Long);
@@ -193,7 +193,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            longProduct.execute(1);
+            longProduct._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -203,7 +203,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         assertEquals(1l, longProduct.state()[0]);
 
         // When 2
-        longProduct.execute(3l);
+        longProduct._aggregate(3l);
 
         // Then 2
         assertTrue(longProduct.state()[0] instanceof Long);
@@ -211,7 +211,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            longProduct.execute(2.5d);
+            longProduct._aggregate(2.5d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -230,21 +230,21 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         doubleProduct.init();
 
         // When 1
-        doubleProduct.execute(1.2d);
+        doubleProduct._aggregate(1.2d);
 
         // Then 1
         assertTrue(doubleProduct.state()[0] instanceof Double);
         assertEquals(1.2d, doubleProduct.state()[0]);
 
         // When 2
-        doubleProduct.execute(2.5d);
+        doubleProduct._aggregate(2.5d);
 
         // Then 2
         assertTrue(doubleProduct.state()[0] instanceof Double);
         assertEquals(3.0d, doubleProduct.state()[0]);
 
         // When 3
-        doubleProduct.execute(1.5d);
+        doubleProduct._aggregate(1.5d);
 
         // Then 3
         assertTrue(doubleProduct.state()[0] instanceof Double);
@@ -261,7 +261,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            doubleProduct.execute(1);
+            doubleProduct._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -272,7 +272,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            doubleProduct.execute(3l);
+            doubleProduct._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -282,7 +282,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         assertEquals(1.0d, doubleProduct.state()[0]);
 
         // When 3
-        doubleProduct.execute(2.1d);
+        doubleProduct._aggregate(2.1d);
 
         // Then 3
         assertTrue(doubleProduct.state()[0] instanceof Double);
@@ -297,7 +297,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         product.init();
 
         // When 1
-        product.execute(2);
+        product._aggregate(2);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
@@ -306,7 +306,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            product.execute(3l);
+            product._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -318,7 +318,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            product.execute(2.1d);
+            product._aggregate(2.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -337,7 +337,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         product.init();
 
         // When 1
-        product.execute(2l);
+        product._aggregate(2l);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
@@ -346,7 +346,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            product.execute(3);
+            product._aggregate(3);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -358,7 +358,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            product.execute(2.1d);
+            product._aggregate(2.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -377,7 +377,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         product.init();
 
         // When 1
-        product.execute(1.1d);
+        product._aggregate(1.1d);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
@@ -386,7 +386,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            product.execute(2);
+            product._aggregate(2);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -398,7 +398,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            product.execute(1l);
+            product._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -416,7 +416,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         product.init();
 
         // When 1
-        product.execute(new Object[]{null});
+        product.aggregate(new Object[]{null});
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.AUTO, product.getMode());
         assertEquals(null, product.state()[0]);
@@ -430,7 +430,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         intProduct.init();
 
         // When 1
-        intProduct.execute(new Object[]{null});
+        intProduct.aggregate(new Object[]{null});
         // Then 1
         assertTrue(intProduct.state()[0] instanceof Integer);
         assertEquals(1, intProduct.state()[0]);
@@ -444,7 +444,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         longProduct.init();
 
         // When 1
-        longProduct.execute(new Object[]{null});
+        longProduct.aggregate(new Object[]{null});
         // Then 1
         assertTrue(longProduct.state()[0] instanceof Long);
         assertEquals(1l, longProduct.state()[0]);
@@ -458,7 +458,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         doubleProduct.init();
 
         // When 1
-        doubleProduct.execute(new Object[]{null});
+        doubleProduct.aggregate(new Object[]{null});
         // Then 1
         assertTrue(doubleProduct.state()[0] instanceof Double);
         assertEquals(1.0d, doubleProduct.state()[0]);
@@ -472,14 +472,14 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 1
         int firstValue = 1;
-        product.execute(firstValue);
+        product._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(product.state()[0] instanceof Integer);
         assertEquals(firstValue, product.state()[0]);
 
         // When 2
-        product.execute(new Object[]{null});
+        product.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(product.state()[0] instanceof Integer);
@@ -494,14 +494,14 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 1
         long firstValue = 1l;
-        product.execute(firstValue);
+        product._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(product.state()[0] instanceof Long);
         assertEquals(firstValue, product.state()[0]);
 
         // When 2
-        product.execute(new Object[]{null});
+        product.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(product.state()[0] instanceof Long);
@@ -516,14 +516,14 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 1
         double firstValue = 1.0f;
-        product.execute(firstValue);
+        product._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(product.state()[0] instanceof Double);
         assertEquals(firstValue, product.state()[0]);
 
         // When 2
-        product.execute(new Object[]{null});
+        product.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(product.state()[0] instanceof Double);
@@ -544,7 +544,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         // This is set to 2 because 1*1 = 1 which is also the initial value for Product.
-        clone.execute(2);
+        clone._aggregate(2);
         // Then 2
         assertEquals(2, clone.state()[0]);
     }
@@ -564,7 +564,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         // This is set to 2 because 1*1 = 1 which is also the initial value for Product.
-        clone.execute(2);
+        clone._aggregate(2);
         // Then 2
         assertEquals(2, clone.state()[0]);
     }
@@ -584,7 +584,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         // This is set to 2 because 1*1 = 1 which is also the initial value for Product.
-        clone.execute(2l);
+        clone._aggregate(2l);
         // Then 2
         assertEquals(2l, clone.state()[0]);
     }
@@ -604,7 +604,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
 
         // When 2
         // This is set to 2 because 1*1 = 1 which is also the initial value for Product.
-        clone.execute(2d);
+        clone._aggregate(2d);
         // Then 2
         assertEquals(2d, clone.state()[0]);
     }
@@ -617,7 +617,7 @@ public class ProductTest extends ConsumerProducerFunctionTest {
         product.init();
         int initialState = (int) product.state()[0];
         // This is set to 2 because 1*1 = 1 which is also the initial value for Product.
-        product.execute(2);
+        product._aggregate(2);
 
         // When
         final Product clone = product.statelessClone();

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,18 @@ package gaffer.function;
 
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.processor.Filter;
+
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+/**
+ * A <code>MultiFilterFunction</code> is a {@link FilterFunction} that
+ * contains a list of {@link FilterFunction}s. This can be used to create an
+ * And, Or and other complex filter functions.
+ */
 public abstract class MultiFilterFunction extends FilterFunction {
     private final Filter<Integer> filter;
 
@@ -93,7 +99,7 @@ public abstract class MultiFilterFunction extends FilterFunction {
 
                     private boolean executeFunction(final Object[] input, final ConsumerFunctionContext<Integer, FilterFunction> function) {
                         final Object[] selection = function.select(new ArrayTuple(input));
-                        return function.getFunction().execute(selection);
+                        return function.getFunction().isValid(selection);
                     }
                 };
             }

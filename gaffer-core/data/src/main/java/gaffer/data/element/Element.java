@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,8 @@ import java.util.Map;
  * <li>The identifier(s) along with the group should uniquely identify an element.</li>
  * <li>The properties are any other properties of the element. Properties should be split out as much as possible into
  * simple properties, enabling validation, aggregation, transformation and filtering to be done more precisely.</li>
- * <p/>
+ * </ul>
+ * <p>
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
@@ -137,8 +138,8 @@ public abstract class Element implements Serializable {
 
     @Override
     public String toString() {
-        return ", group='" + group + '\'' +
-                ", properties=" + properties;
+        return ", group='" + group
+                + "\', properties=" + properties;
     }
 }
 

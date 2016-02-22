@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ import java.util.List;
  * ie. the output of one operation is passed to the input of the next. For the chaining to be successful the operations
  * must be ordered correctly so the OUTPUT and INPUT types are compatible. The safest way to ensure they will be
  * compatible is to use the OperationChain.Builder to construct the chain.
- * <p/>
+ * <p>
  * A couple of special cases:
  * <ul>
  * <li>A {@link gaffer.operation.VoidOutput} can come before any operation - as long as the following operation doesn't
@@ -64,7 +64,7 @@ public class OperationChain<OUT> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("operations")
     Operation[] getOperationArray() {
-        return null != operations ? operations.toArray(new Operation[operations.size()]) : null;
+        return null != operations ? operations.toArray(new Operation[operations.size()]) : new Operation[0];
     }
 
     @JsonSetter("operations")
@@ -79,18 +79,18 @@ public class OperationChain<OUT> {
     /**
      * A <code>Builder</code> is a type safe way of building an {@link gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
-     * Usage:<br/>
-     * new Builder()<br/>
-     * &nbsp;.first(new SomeOperation.Builder()<br/>
-     * &nbsp;&nbsp;.addSomething()<br/>
-     * &nbsp;&nbsp;.build()<br/>
-     * &nbsp;)<br/>
-     * &nbsp;.then(new SomeOtherOperation.Builder()<br/>
-     * &nbsp;&nbsp;.addSomethingElse()<br/>
-     * &nbsp;&nbsp;.build()<br/>
-     * &nbsp;)<br/>
+     * Usage:<br>
+     * new Builder()<br>
+     * &nbsp;.first(new SomeOperation.Builder()<br>
+     * &nbsp;&nbsp;.addSomething()<br>
+     * &nbsp;&nbsp;.build()<br>
+     * &nbsp;)<br>
+     * &nbsp;.then(new SomeOtherOperation.Builder()<br>
+     * &nbsp;&nbsp;.addSomethingElse()<br>
+     * &nbsp;&nbsp;.build()<br>
+     * &nbsp;)<br>
      * &nbsp;.build();
-     * <p/>
+     * <p>
      * For a full example see the Example module.
      */
     public static class Builder {
@@ -102,10 +102,10 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(op);
         }
 
-        public static class TypelessBuilder {
+        public static final class TypelessBuilder {
             private final List<Operation> ops;
 
-            private TypelessBuilder(Operation op) {
+            private TypelessBuilder(final Operation op) {
                 this(new ArrayList<Operation>());
                 ops.add(op);
             }
@@ -114,17 +114,17 @@ public class OperationChain<OUT> {
                 this.ops = ops;
             }
 
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(Operation<?, NEXT_OUT> op) {
+            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<?, NEXT_OUT> op) {
                 ops.add(op);
                 return new TypedBuilder<>(ops);
             }
 
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(VoidInput<NEXT_OUT> op) {
+            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
                 ops.add(op);
                 return new TypedBuilder<>(ops);
             }
 
-            public TypelessBuilder then(VoidOutput<?> op) {
+            public TypelessBuilder then(final VoidOutput<?> op) {
                 ops.add(op);
                 return new TypelessBuilder(ops);
             }
@@ -134,7 +134,7 @@ public class OperationChain<OUT> {
             }
         }
 
-        public static class TypedBuilder<OUT> {
+        public static final class TypedBuilder<OUT> {
             private final List<Operation> ops;
 
             private TypedBuilder(final Operation<?, OUT> op) {

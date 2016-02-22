@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package gaffer.data.element;
 
+import java.io.Serializable;
+
 /**
  * This interface is used by the lazy loader classes to load {@link gaffer.data.element.Element}'s identifiers and
  * properties.
@@ -24,7 +26,7 @@ package gaffer.data.element;
  * @see gaffer.data.element.LazyEdge
  * @see LazyProperties
  */
-public interface ElementValueLoader {
+public interface ElementValueLoader extends Serializable {
     /**
      * @param name the property name to extract
      * @return the property value with the given name

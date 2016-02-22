@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ import gaffer.exception.SerialisationException;
 import gaffer.function.ConsumerProducerFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -95,21 +94,21 @@ public class SumTest extends ConsumerProducerFunctionTest {
         intSum.init();
 
         // When 1
-        intSum.execute(1);
+        intSum._aggregate(1);
 
         // Then 1
         assertTrue(intSum.state()[0] instanceof Integer);
         assertEquals(1, intSum.state()[0]);
 
         // When 2
-        intSum.execute(3);
+        intSum._aggregate(3);
 
         // Then 2
         assertTrue(intSum.state()[0] instanceof Integer);
         assertEquals(4, intSum.state()[0]);
 
         // When 3
-        intSum.execute(2);
+        intSum._aggregate(2);
 
         // Then 3
         assertTrue(intSum.state()[0] instanceof Integer);
@@ -125,7 +124,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         intSum.init();
 
         // When 1
-        intSum.execute(1);
+        intSum._aggregate(1);
 
         // Then 1
         assertTrue(intSum.state()[0] instanceof Integer);
@@ -133,7 +132,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            intSum.execute(2.7d);
+            intSum._aggregate(2.7d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -144,7 +143,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            intSum.execute(1l);
+            intSum._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -163,21 +162,21 @@ public class SumTest extends ConsumerProducerFunctionTest {
         longSum.init();
 
         // When 1
-        longSum.execute(2l);
+        longSum._aggregate(2l);
 
         // Then 1
         assertTrue(longSum.state()[0] instanceof Long);
         assertEquals(2l, longSum.state()[0]);
 
         // When 2
-        longSum.execute(1l);
+        longSum._aggregate(1l);
 
         // Then 2
         assertTrue(longSum.state()[0] instanceof Long);
         assertEquals(3l, longSum.state()[0]);
 
         // When 3
-        longSum.execute(3l);
+        longSum._aggregate(3l);
 
         // Then 3
         assertTrue(longSum.state()[0] instanceof Long);
@@ -194,7 +193,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            longSum.execute(1);
+            longSum._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -204,7 +203,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         assertEquals(0l, longSum.state()[0]);
 
         // When 2
-        longSum.execute(3l);
+        longSum._aggregate(3l);
 
         // Then 2
         assertTrue(longSum.state()[0] instanceof Long);
@@ -212,7 +211,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            longSum.execute(2.5d);
+            longSum._aggregate(2.5d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -231,21 +230,21 @@ public class SumTest extends ConsumerProducerFunctionTest {
         doubleSum.init();
 
         // When 1
-        doubleSum.execute(1.1d);
+        doubleSum._aggregate(1.1d);
 
         // Then 1
         assertTrue(doubleSum.state()[0] instanceof Double);
         assertEquals(1.1d, doubleSum.state()[0]);
 
         // When 2
-        doubleSum.execute(2.1d);
+        doubleSum._aggregate(2.1d);
 
         // Then 2
         assertTrue(doubleSum.state()[0] instanceof Double);
         assertEquals(3.2d, doubleSum.state()[0]);
 
         // When 3
-        doubleSum.execute(1.5d);
+        doubleSum._aggregate(1.5d);
 
         // Then 3
         assertTrue(doubleSum.state()[0] instanceof Double);
@@ -262,7 +261,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            doubleSum.execute(1);
+            doubleSum._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -273,7 +272,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            doubleSum.execute(3l);
+            doubleSum._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -283,7 +282,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         assertEquals(0.0d, doubleSum.state()[0]);
 
         // When 3
-        doubleSum.execute(2.1d);
+        doubleSum._aggregate(2.1d);
 
         // Then 3
         assertTrue(doubleSum.state()[0] instanceof Double);
@@ -298,7 +297,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         sum.init();
 
         // When 1
-        sum.execute(1);
+        sum._aggregate(1);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
@@ -307,7 +306,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            sum.execute(3l);
+            sum._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -319,7 +318,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            sum.execute(2.1d);
+            sum._aggregate(2.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -338,7 +337,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         sum.init();
 
         // When 1
-        sum.execute(1l);
+        sum._aggregate(1l);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
@@ -347,7 +346,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            sum.execute(3);
+            sum._aggregate(3);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -359,7 +358,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            sum.execute(2.1d);
+            sum._aggregate(2.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -378,7 +377,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         sum.init();
 
         // When 1
-        sum.execute(1.1d);
+        sum._aggregate(1.1d);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
@@ -387,7 +386,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            sum.execute(2);
+            sum._aggregate(2);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -399,7 +398,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            sum.execute(1l);
+            sum._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -417,7 +416,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         sum.init();
 
         // When 1
-        sum.execute(new Object[]{null});
+        sum._aggregate(null);
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.AUTO, sum.getMode());
         assertEquals(null, sum.state()[0]);
@@ -431,7 +430,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         intSum.init();
 
         // When 1
-        intSum.execute(new Object[]{null});
+        intSum._aggregate(null);
         // Then 1
         assertTrue(intSum.state()[0] instanceof Integer);
         assertEquals(0, intSum.state()[0]);
@@ -445,7 +444,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         longSum.init();
 
         // When 1
-        longSum.execute(new Object[]{null});
+        longSum._aggregate(null);
         // Then 1
         assertTrue(longSum.state()[0] instanceof Long);
         assertEquals(0l, longSum.state()[0]);
@@ -459,7 +458,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         doubleSum.init();
 
         // When 1
-        doubleSum.execute(new Object[]{null});
+        doubleSum._aggregate(null);
         // Then 1
         assertTrue(doubleSum.state()[0] instanceof Double);
         assertEquals(0.0d, doubleSum.state()[0]);
@@ -473,14 +472,15 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 1
         int firstValue = 1;
-        sum.execute(firstValue);
+        sum._aggregate(firstValue);
+
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(sum.state()[0] instanceof Integer);
         assertEquals(firstValue, sum.state()[0]);
 
         // When 2
-        sum.execute(new Object[]{null});
+        sum._aggregate(null);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(sum.state()[0] instanceof Integer);
@@ -495,14 +495,15 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 1
         long firstValue = 1l;
-        sum.execute(firstValue);
+        sum._aggregate(firstValue);
+
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(sum.state()[0] instanceof Long);
         assertEquals(firstValue, sum.state()[0]);
 
         // When 2
-        sum.execute(new Object[]{null});
+        sum._aggregate(null);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(sum.state()[0] instanceof Long);
@@ -517,14 +518,16 @@ public class SumTest extends ConsumerProducerFunctionTest {
 
         // When 1
         double firstValue = 1.0f;
-        sum.execute(firstValue);
+        sum._aggregate(firstValue);
+
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(sum.state()[0] instanceof Double);
         assertEquals(firstValue, sum.state()[0]);
 
         // When 2
-        sum.execute(new Object[]{null});
+        sum._aggregate(null);
+
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(sum.state()[0] instanceof Double);
@@ -544,7 +547,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.AUTO, clone.getMode());
 
         // When 2
-        clone.execute(1);
+        clone._aggregate(1);
         // Then 2
         assertEquals(1, clone.state()[0]);
     }
@@ -563,7 +566,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.INT, clone.getMode());
 
         // When 2
-        clone.execute(1);
+        clone._aggregate(1);
         // Then 2
         assertEquals(1, clone.state()[0]);
     }
@@ -582,7 +585,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.LONG, clone.getMode());
 
         // When 2
-        clone.execute(1l);
+        clone._aggregate(1l);
         // Then 2
         assertEquals(1l, clone.state()[0]);
     }
@@ -601,7 +604,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, clone.getMode());
 
         // When 2
-        clone.execute(1d);
+        clone._aggregate(1d);
         // Then 2
         assertEquals(1d, clone.state()[0]);
     }
@@ -613,7 +616,7 @@ public class SumTest extends ConsumerProducerFunctionTest {
         sum.setMode(NumericAggregateFunction.NumberType.INT);
         sum.init();
         int initialState = (int) sum.state()[0];
-        sum.execute(1);
+        sum._aggregate(1);
 
         // When
         final Sum clone = sum.statelessClone();

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,29 +15,28 @@
  */
 package gaffer.function.simple.aggregate;
 
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
- * An <code>ArrayListConcat</code> is a {@link gaffer.function.SingleInputAggregateFunction} that concatenates
+ * An <code>ArrayListConcat</code> is a {@link SimpleAggregateFunction} that concatenates
  * {@link java.util.ArrayList}s together.
  */
 @Inputs(ArrayList.class)
 @Outputs(ArrayList.class)
-public class ArrayListConcat extends SingleInputAggregateFunction {
-    private List<Object> result;
+public class ArrayListConcat extends SimpleAggregateFunction<ArrayList<Object>> {
+    private ArrayList<Object> result;
 
     @Override
-    public void execute(final Object input) {
+    protected void _aggregate(final ArrayList<Object> input) {
         if (null != input) {
             if (result == null) {
-                result = new ArrayList<Object>(((List) input));
+                result = new ArrayList<>(input);
             } else {
-                result.addAll((List) input);
+                result.addAll(input);
             }
         }
     }
@@ -48,8 +47,8 @@ public class ArrayListConcat extends SingleInputAggregateFunction {
     }
 
     @Override
-    public Object[] state() {
-        return new Object[]{result};
+    protected ArrayList<Object> _state() {
+        return result;
     }
 
     public ArrayListConcat statelessClone() {

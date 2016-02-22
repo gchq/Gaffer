@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,11 +33,11 @@ import java.util.Map;
 
 /**
  * Contains the full list of {@link gaffer.data.element.Element} types to be stored in the graph.
- * <p/>
+ * <p>
  * Each type of element should have the identifier type(s) listed and a map of property names and their corresponding types.
  * Each type can either be a full java class name or a custom type. Using custom types then allows you to specify
  * validation and aggregation for the element components.
- * <p/>
+ * <p>
  * This class must be JSON serialisable.
  * A data schema should normally be written in JSON and then it will be automatically deserialised at runtime.
  * An example of a JSON data schemas can be found in the Example module.
@@ -75,7 +75,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
     /**
      * This does not override the current types it just appends the additional types.
      *
-     * @param newTypes
+     * @param newTypes the new types to be added.
      */
     @JsonSetter("types")
     public void addTypes(final Types newTypes) {

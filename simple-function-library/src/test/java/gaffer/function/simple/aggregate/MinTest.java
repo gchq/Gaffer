@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -92,21 +92,21 @@ public class MinTest extends ConsumerProducerFunctionTest {
         intMin.init();
 
         // When 1
-        intMin.execute(1);
+        intMin._aggregate(1);
 
         // Then 1
         assertTrue(intMin.state()[0] instanceof Integer);
         assertEquals(1, intMin.state()[0]);
 
         // When 2
-        intMin.execute(2);
+        intMin._aggregate(2);
 
         // Then 2
         assertTrue(intMin.state()[0] instanceof Integer);
         assertEquals(1, intMin.state()[0]);
 
         // When 3
-        intMin.execute(3);
+        intMin._aggregate(3);
 
         // Then 3
         assertTrue(intMin.state()[0] instanceof Integer);
@@ -122,7 +122,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         intMin.init();
 
         // When 1
-        intMin.execute(1);
+        intMin._aggregate(1);
 
         // Then 1
         assertTrue(intMin.state()[0] instanceof Integer);
@@ -130,7 +130,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            intMin.execute(2.7d);
+            intMin._aggregate(2.7d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -141,7 +141,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            intMin.execute(5l);
+            intMin._aggregate(5l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -160,21 +160,21 @@ public class MinTest extends ConsumerProducerFunctionTest {
         longMin.init();
 
         // When 1
-        longMin.execute(1l);
+        longMin._aggregate(1l);
 
         // Then 1
         assertTrue(longMin.state()[0] instanceof Long);
         assertEquals(1l, longMin.state()[0]);
 
         // When 2
-        longMin.execute(2l);
+        longMin._aggregate(2l);
 
         // Then 2
         assertTrue(longMin.state()[0] instanceof Long);
         assertEquals(1l, longMin.state()[0]);
 
         // When 3
-        longMin.execute(3l);
+        longMin._aggregate(3l);
 
         // Then 3
         assertTrue(longMin.state()[0] instanceof Long);
@@ -191,7 +191,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            longMin.execute(3);
+            longMin._aggregate(3);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -201,7 +201,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         assertEquals(Long.MAX_VALUE, longMin.state()[0]);
 
         // When 2
-        longMin.execute(2l);
+        longMin._aggregate(2l);
 
         // Then 2
         assertTrue(longMin.state()[0] instanceof Long);
@@ -209,7 +209,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            longMin.execute(1.5d);
+            longMin._aggregate(1.5d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -228,21 +228,21 @@ public class MinTest extends ConsumerProducerFunctionTest {
         doubleMin.init();
 
         // When 1
-        doubleMin.execute(2.1d);
+        doubleMin._aggregate(2.1d);
 
         // Then 1
         assertTrue(doubleMin.state()[0] instanceof Double);
         assertEquals(2.1d, doubleMin.state()[0]);
 
         // When 2
-        doubleMin.execute(1.1d);
+        doubleMin._aggregate(1.1d);
 
         // Then 2
         assertTrue(doubleMin.state()[0] instanceof Double);
         assertEquals(1.1d, doubleMin.state()[0]);
 
         // When 3
-        doubleMin.execute(3.1d);
+        doubleMin._aggregate(3.1d);
 
         // Then 3
         assertTrue(doubleMin.state()[0] instanceof Double);
@@ -259,7 +259,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            doubleMin.execute(5);
+            doubleMin._aggregate(5);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -270,7 +270,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            doubleMin.execute(2l);
+            doubleMin._aggregate(2l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -280,7 +280,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         assertEquals(Double.MAX_VALUE, doubleMin.state()[0]);
 
         // When 3
-        doubleMin.execute(2.1d);
+        doubleMin._aggregate(2.1d);
 
         // Then 3
         assertTrue(doubleMin.state()[0] instanceof Double);
@@ -295,7 +295,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         min.init();
 
         // When 1
-        min.execute(2);
+        min._aggregate(2);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.INT, min.getMode());
@@ -304,7 +304,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            min.execute(3l);
+            min._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -316,7 +316,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            min.execute(1.1d);
+            min._aggregate(1.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -335,7 +335,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         min.init();
 
         // When 1
-        min.execute(2l);
+        min._aggregate(2l);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.LONG, min.getMode());
@@ -344,7 +344,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            min.execute(1);
+            min._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -356,7 +356,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            min.execute(3.1d);
+            min._aggregate(3.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -375,7 +375,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         min.init();
 
         // When 1
-        min.execute(2.1d);
+        min._aggregate(2.1d);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, min.getMode());
@@ -384,7 +384,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            min.execute(3);
+            min._aggregate(3);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -396,7 +396,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            min.execute(1l);
+            min._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -414,7 +414,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         min.init();
 
         // When 1
-        min.execute(new Object[]{null});
+        min.aggregate(new Object[]{null});
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.AUTO, min.getMode());
         assertEquals(null, min.state()[0]);
@@ -428,7 +428,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         intMin.init();
 
         // When 1
-        intMin.execute(new Object[]{null});
+        intMin.aggregate(new Object[]{null});
         // Then 1
         assertTrue(intMin.state()[0] instanceof Integer);
         assertEquals(Integer.MAX_VALUE, intMin.state()[0]);
@@ -442,7 +442,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         longMin.init();
 
         // When 1
-        longMin.execute(new Object[]{null});
+        longMin.aggregate(new Object[]{null});
         // Then 1
         assertTrue(longMin.state()[0] instanceof Long);
         assertEquals(Long.MAX_VALUE, longMin.state()[0]);
@@ -456,7 +456,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         doubleMin.init();
 
         // When 1
-        doubleMin.execute(new Object[]{null});
+        doubleMin.aggregate(new Object[]{null});
         // Then 1
         assertTrue(doubleMin.state()[0] instanceof Double);
         assertEquals(Double.MAX_VALUE, doubleMin.state()[0]);
@@ -470,14 +470,14 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 1
         int firstValue = 1;
-        min.execute(firstValue);
+        min._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, min.getMode());
         assertTrue(min.state()[0] instanceof Integer);
         assertEquals(firstValue, min.state()[0]);
 
         // When 2
-        min.execute(new Object[]{null});
+        min.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, min.getMode());
         assertTrue(min.state()[0] instanceof Integer);
@@ -492,14 +492,14 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 1
         long firstValue = 1l;
-        min.execute(firstValue);
+        min._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, min.getMode());
         assertTrue(min.state()[0] instanceof Long);
         assertEquals(firstValue, min.state()[0]);
 
         // When 2
-        min.execute(new Object[]{null});
+        min.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, min.getMode());
         assertTrue(min.state()[0] instanceof Long);
@@ -514,14 +514,14 @@ public class MinTest extends ConsumerProducerFunctionTest {
 
         // When 1
         double firstValue = 1.0f;
-        min.execute(firstValue);
+        min._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, min.getMode());
         assertTrue(min.state()[0] instanceof Double);
         assertEquals(firstValue, min.state()[0]);
 
         // When 2
-        min.execute(new Object[]{null});
+        min.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, min.getMode());
         assertTrue(min.state()[0] instanceof Double);
@@ -541,7 +541,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.AUTO, clone.getMode());
 
         // When 2
-        clone.execute(1);
+        clone._aggregate(1);
         // Then 2
         assertEquals(1, clone.state()[0]);
     }
@@ -560,7 +560,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.INT, clone.getMode());
 
         // When 2
-        clone.execute(1);
+        clone._aggregate(1);
         // Then 2
         assertEquals(1, clone.state()[0]);
     }
@@ -579,7 +579,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.LONG, clone.getMode());
 
         // When 2
-        clone.execute(1l);
+        clone._aggregate(1l);
         // Then 2
         assertEquals(1l, clone.state()[0]);
     }
@@ -598,7 +598,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, clone.getMode());
 
         // When 2
-        clone.execute(1d);
+        clone._aggregate(1d);
         // Then 2
         assertEquals(1d, clone.state()[0]);
     }
@@ -610,7 +610,7 @@ public class MinTest extends ConsumerProducerFunctionTest {
         min.setMode(NumericAggregateFunction.NumberType.INT);
         min.init();
         int initialState = (int) min.state()[0];
-        min.execute(1);
+        min._aggregate(1);
 
         // When
         final Min clone = min.statelessClone();

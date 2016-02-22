@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +17,18 @@
 package gaffer.rest.example;
 
 import gaffer.function.FilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 @Inputs(Object.class)
-public class ExampleFilterFunction extends FilterFunction {
+public class ExampleFilterFunction extends SimpleFilterFunction {
     @Override
     public FilterFunction statelessClone() {
         return new ExampleFilterFunction();
     }
 
     @Override
-    protected boolean filter(final Object[] input) {
+    protected boolean _isValid(final Object input) {
         return true;
     }
 }

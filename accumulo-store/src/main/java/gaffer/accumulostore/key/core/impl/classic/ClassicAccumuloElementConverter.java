@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,23 +25,22 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
 import gaffer.store.schema.StoreSchema;
-
 import org.apache.accumulo.core.data.Key;
-
 import java.util.Arrays;
 import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
-    public ClassicAccumuloElementConverter(StoreSchema storeSchema) {
+    public ClassicAccumuloElementConverter(final StoreSchema storeSchema) {
         super(storeSchema);
     }
 
     @Override
     protected byte[] getRowKeyFromEntity(final Entity entity) throws AccumuloElementConversionException {
-        //No Delimiters but need to escape bytes because later we check how many delimiter characters there are
+        // No Delimiters but need to escape bytes
+        // because later we check how many delimiter characters there are
         try {
             return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Entity Identifier", e);
         }
     }
@@ -49,12 +48,12 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     @Override
     protected Pair<byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
         // If edge is undirected then direction flag is 0 for both keys.
-        // If edge is directed then for the first gaffer.accumulostore.key the direction flag is 1
-        // indicating that the first identifier in the gaffer.accumulostore.key is the source
-        // and the second is the destination, and for the second gaffer.accumulostore.key the
-        // direction flag is 2 indicating that the first identifier in the
-        // gaffer.accumulostore.key is the destination and the second identifier in
-        // the gaffer.accumulostore.key is the source, i.e. they need flipping around.
+        // If edge is directed then for the first key the direction flag is 1
+        // indicating that the first identifier in the key is the source
+        // and the second is the destination, and for the second key
+        // the direction flag is 2 indicating that the first identifier
+        // in the key is the destination and the second identifier
+        // in the key is the source, i.e. they need flipping around.
         byte directionFlag1;
         byte directionFlag2;
         if (edge.isDirected()) {
@@ -66,25 +65,27 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         }
 
         // Serialise source and destination to byte arrays, escaping if necessary
-        byte[] source = getSerialisedSource(edge);
-        byte[] destination = getSerialisedDestination(edge);
+        final byte[] source = getSerialisedSource(edge);
+        final byte[] destination = getSerialisedDestination(edge);
 
-        // Length of row gaffer.accumulostore.key is the length of the source plus the length of the destination
-        // plus one for the delimiter in between the source and destination plus one for the
-        // delimiter in between the destination and the direction flag plus one for
-        // the direction flag at the end.
-        int length = source.length + destination.length + 3;
-        byte[] rowKey1 = new byte[length];
-        byte[] rowKey2 = new byte[length];
+        // Length of row key is the length of the source plus the length of the destination
+        // plus one for the delimiter in between the source and destination
+        // plus one for the delimiter in between the destination and the direction flag
+        // plus one for the direction flag at the end.
+        final int length = source.length + destination.length + 3;
+        final byte[] rowKey1 = new byte[length];
+        final byte[] rowKey2 = new byte[length];
 
-        // Create first gaffer.accumulostore.key: source DELIMITER destination DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
+        // Create first key: source DELIMITER destination
+        // DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
         System.arraycopy(source, 0, rowKey1, 0, source.length);
         rowKey1[source.length] = ByteArrayEscapeUtils.DELIMITER;
         System.arraycopy(destination, 0, rowKey1, source.length + 1, destination.length);
         rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[rowKey1.length - 1] = directionFlag1;
 
-        // Create second gaffer.accumulostore.key: destination DELIMITER source DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
+        // Create second key: destination DELIMITER source
+        // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
         System.arraycopy(destination, 0, rowKey2, 0, destination.length);
         rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
         System.arraycopy(source, 0, rowKey2, destination.length + 1, source.length);
@@ -109,7 +110,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         }
 
         if (numDelims != 0 && numDelims != 2) {
-            throw new AccumuloElementConversionException("Wrong number of delimiters found in row gaffer.accumulostore.key - found " + numDelims + ", expected 0 or 2.");
+            throw new AccumuloElementConversionException(
+                    "Wrong number of delimiters found in row key - found " + numDelims + ", expected 0 or 2.");
         }
 
         return numDelims == 0;
@@ -118,58 +120,70 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     @Override
     protected Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException {
         try {
-            Entity entity = new Entity(getGroupFromKey((key)), getVertexSerialiser().deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
+            final Entity entity = new Entity(getGroupFromKey((key)), getVertexSerialiser()
+                    .deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
             addPropertiesToElement(entity, key);
             return entity;
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to re-create Entity from key", e);
         }
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue, Map<String, String> options) throws AccumuloElementConversionException {
+    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
+            final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
-        int[] positionsOfDelimiters = new int[2]; // Expect to find 2 delimiters (3 fields)
+        // Expect to find 2 delimiters (3 fields)
+        final int[] positionsOfDelimiters = new int[2];
         short numDelims = 0;
         for (int i = 0; i < rowKey.length; i++) {
             if (rowKey[i] == ByteArrayEscapeUtils.DELIMITER) {
                 if (numDelims >= 2) {
-                    throw new AccumuloElementConversionException("Too many delimiters found in row key - found more than the expected 2.");
+                    throw new AccumuloElementConversionException(
+                            "Too many delimiters found in row key - found more than the expected 2.");
                 }
                 positionsOfDelimiters[numDelims++] = i;
             }
         }
         if (numDelims != 2) {
-            throw new AccumuloElementConversionException("Wrong number of delimiters found in row key - found " + numDelims + ", expected 2.");
+            throw new AccumuloElementConversionException(
+                    "Wrong number of delimiters found in row key - found " + numDelims + ", expected 2.");
         }
-        // If edge is undirected then create edge (no need to worry about which direction the vertices
-        // should go in).
+        // If edge is undirected then create edge
+        // (no need to worry about which direction the vertices should go in).
         // If the edge is directed then need to decide which way round the vertices should go.
-        int directionFlag = rowKey[rowKey.length - 1];
+        final int directionFlag = rowKey[rowKey.length - 1];
         if (directionFlag == ClassicBytePositions.UNDIRECTED_EDGE) {
             // Edge is undirected
-            sourceValueDestinationValue[0] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-            sourceValueDestinationValue[1] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+            sourceValueDestinationValue[0] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+            sourceValueDestinationValue[1] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
             return false;
         } else if (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the first identifier is the source of the edge
-            sourceValueDestinationValue[0] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-            sourceValueDestinationValue[1] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+            sourceValueDestinationValue[0] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+            sourceValueDestinationValue[1] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
             return true;
         } else if (directionFlag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the second identifier is the source of the edge
             int src = 1;
             int dst = 0;
-            if (options != null && options.containsKey(Constants.MATCH_AS_SOURCE)
-                    && "true".equalsIgnoreCase(options.get(Constants.MATCH_AS_SOURCE))) {
+            if (options != null && options.containsKey(Constants.OPERATION_MATCH_AS_SOURCE)
+                    && "true".equalsIgnoreCase(options.get(Constants.OPERATION_MATCH_AS_SOURCE))) {
                 src = 0;
                 dst = 1;
             }
-            sourceValueDestinationValue[src] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-            sourceValueDestinationValue[dst] = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+            sourceValueDestinationValue[src] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+            sourceValueDestinationValue[dst] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
             return true;
         } else {
-            throw new AccumuloElementConversionException("Invalid direction flag in row key - flag was " + directionFlag);
+            throw new AccumuloElementConversionException(
+                    "Invalid direction flag in row key - flag was " + directionFlag);
         }
     }
 }

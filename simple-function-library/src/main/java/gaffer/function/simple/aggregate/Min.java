@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 /**
- * An <code>Min</code> is a {@link gaffer.function.SingleInputAggregateFunction} that takes in
+ * An <code>Min</code> is a {@link gaffer.function.SimpleAggregateFunction} that takes in
  * {@link java.lang.Number}s of the same type and calculates the minimum.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
  * otherwise it will be automatically set for you using the class of the first number passed in.
@@ -45,18 +45,24 @@ public class Min extends NumericAggregateFunction {
     }
 
     @Override
-    protected void executeInt(final Integer input) {
-        if (input < (Integer) aggregate) aggregate = input;
+    protected void aggregateInt(final Integer input) {
+        if (input < (Integer) aggregate) {
+            aggregate = input;
+        }
     }
 
     @Override
-    protected void executeLong(final Long input) {
-        if (input < (Long) aggregate) aggregate = input;
+    protected void aggregateLong(final Long input) {
+        if (input < (Long) aggregate) {
+            aggregate = input;
+        }
     }
 
     @Override
-    protected void executeDouble(final Double input) {
-        if (input < (Double) aggregate) aggregate = input;
+    protected void aggregateDouble(final Double input) {
+        if (input < (Double) aggregate) {
+            aggregate = input;
+        }
     }
 
     public Min statelessClone() {

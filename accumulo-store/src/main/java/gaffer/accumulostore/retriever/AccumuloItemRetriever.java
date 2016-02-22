@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,10 @@
 
 package gaffer.accumulostore.retriever;
 
+import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;
@@ -31,19 +31,20 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE> extends AccumuloRetriever<OP_TYPE> {
+public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
+        extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
-    private Iterable<? extends SEED_TYPE> ids;
+    private final Iterable<? extends SEED_TYPE> ids;
 
-    protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation, final IteratorSetting... iteratorSettings) throws StoreException {
+    protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
+                                    final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
         this.ids = operation.getSeeds();
     }
@@ -56,7 +57,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
         try {
             iterator = new ElementIterator();
-        } catch (RetrieverException e) {
+        } catch (final RetrieverException e) {
             LOGGER.error(e.getMessage() + " returning empty iterator", e);
             return Collections.emptyIterator();
         }
@@ -75,17 +76,18 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         protected ElementIterator() throws RetrieverException {
             idsIterator = ids.iterator();
             count = 0;
-            Set<Range> ranges = new HashSet<>();
+            final Set<Range> ranges = new HashSet<>();
             while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
                 count++;
                 try {
                     addToRanges(idsIterator.next(), ranges);
-                } catch (RangeFactoryException e) {
+                } catch (final RangeFactoryException e) {
                     LOGGER.error("Failed to create a range from given seed pair", e);
                 }
             }
 
-            // Create BatchScanner, appropriately configured (i.e. ranges, iterators, etc).
+            // Create BatchScanner, appropriately configured (i.e. ranges,
+            // iterators, etc).
             try {
                 scanner = getScanner(ranges);
             } catch (TableNotFoundException | StoreException e) {
@@ -106,12 +108,12 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
             // then return false.
             while (idsIterator.hasNext() && !scannerIterator.hasNext()) {
                 count = 0;
-                Set<Range> ranges = new HashSet<>();
+                final Set<Range> ranges = new HashSet<>();
                 while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
                     count++;
                     try {
                         addToRanges(idsIterator.next(), ranges);
-                    } catch (RangeFactoryException e) {
+                    } catch (final RangeFactoryException e) {
                         LOGGER.error("Failed to create a range from given seed", e);
                     }
                 }
@@ -132,13 +134,15 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
         @Override
         public Element next() {
-            Map.Entry<Key, Value> entry = scannerIterator.next();
+            final Map.Entry<Key, Value> entry = scannerIterator.next();
             try {
-                Element elm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), operation.getOptions());
+                final Element elm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
+                        operation.getOptions());
                 doTransformation(elm);
                 return elm;
-            } catch (AccumuloElementConversionException e) {
-                LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null", e);
+            } catch (final AccumuloElementConversionException e) {
+                LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
+                        e);
                 return null;
             }
         }
@@ -148,6 +152,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
             throw new UnsupportedOperationException("Unable to remove elements from this iterator");
         }
 
+        @Override
         public void close() {
             if (scanner != null) {
                 scanner.close();

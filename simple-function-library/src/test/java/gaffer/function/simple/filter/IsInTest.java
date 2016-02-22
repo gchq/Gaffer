@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,7 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter.filter("B");
+        boolean accepted = filter._isValid("B");
 
         // Then
         assertTrue(accepted);
@@ -50,7 +50,7 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter.filter("D");
+        boolean accepted = filter._isValid("D");
 
         // Then
         assertFalse(accepted);

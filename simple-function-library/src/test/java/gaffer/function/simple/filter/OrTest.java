@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,12 +21,11 @@ import gaffer.function.FilterFunction;
 import gaffer.function.FilterFunctionTest;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
-
-import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -62,16 +61,16 @@ public class OrTest extends FilterFunctionTest {
         given(funcContext1.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test1a, test1b});
         given(funcContext2.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test2a});
 
-        given(func1.execute(new String[]{test, test1a, test1b})).willReturn(true);
-        given(func2.execute(new String[]{test, test2a})).willReturn(false);
+        given(func1.isValid(new String[]{test, test1a, test1b})).willReturn(true);
+        given(func2.isValid(new String[]{test, test2a})).willReturn(false);
 
         // When
-        boolean accepted = or.filter(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = or._isValid(new String[]{test, test1a, test2a, test1b});
 
         // Then
         assertTrue(accepted);
-        verify(func1).execute(new String[]{test, test1a, test1b});
-        verify(func2, never()).execute(new String[]{test, test2a});
+        verify(func1).isValid(new String[]{test, test1a, test1b});
+        verify(func2, never()).isValid(new String[]{test, test2a});
     }
 
     @Test
@@ -80,7 +79,7 @@ public class OrTest extends FilterFunctionTest {
         final Or or = new Or();
 
         // When
-        boolean accepted = or.filter(new String[]{"test"});
+        boolean accepted = or._isValid(new String[]{"test"});
 
         // Then
         assertTrue(accepted);
@@ -92,7 +91,7 @@ public class OrTest extends FilterFunctionTest {
         final Or or = new Or();
 
         // When
-        boolean accepted = or.filter(null);
+        boolean accepted = or._isValid(null);
 
         // Then
         assertTrue(accepted);
@@ -124,18 +123,18 @@ public class OrTest extends FilterFunctionTest {
         given(funcContext2.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test2a});
         given(funcContext3.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test});
 
-        given(func1.execute(new String[]{test, test1a, test1b})).willReturn(false);
-        given(func2.execute(new String[]{test, test2a})).willReturn(false);
-        given(func3.execute(new String[]{test})).willReturn(false);
+        given(func1.isValid(new String[]{test, test1a, test1b})).willReturn(false);
+        given(func2.isValid(new String[]{test, test2a})).willReturn(false);
+        given(func3.isValid(new String[]{test})).willReturn(false);
 
         // When
-        boolean accepted = or.filter(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = or._isValid(new String[]{test, test1a, test2a, test1b});
 
         // Then
         assertFalse(accepted);
-        verify(func1).execute(new String[]{test, test1a, test1b});
-        verify(func2).execute(new String[]{test, test2a});
-        verify(func3, never()).execute(new String[]{test, test2a});
+        verify(func1).isValid(new String[]{test, test1a, test1b});
+        verify(func2).isValid(new String[]{test, test2a});
+        verify(func3, never()).isValid(new String[]{test, test2a});
     }
 
     @Test

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,22 +15,22 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.function.SingleInputFilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * An <code>IsShorterThan</code> is a {@link gaffer.function.SingleInputFilterFunction} that checks that the input
+ * An <code>IsShorterThan</code> is a {@link SimpleFilterFunction} that checks that the input
  * object has a length less than a maximum length. There is also an orEqualTo flag that can be set to allow
  * the input object length to be less than or equal to the maximum length.
- * <p/>
+ * <p>
  * Allowed object types are {@link java.lang.String}s, arrays, {@link java.util.Collection}s and {@link java.util.Map}s.
  * Additional object types can easily be added by modifying the getLength(Object) method.
  */
 @Inputs(Object.class)
-public class IsShorterThan extends SingleInputFilterFunction {
+public class IsShorterThan extends SimpleFilterFunction<Object> {
     private int maxLength;
     private boolean orEqualTo;
 
@@ -65,7 +65,8 @@ public class IsShorterThan extends SingleInputFilterFunction {
         return clone;
     }
 
-    protected boolean filter(final Object input) {
+    @Override
+    protected boolean _isValid(final Object input) {
         if (null == input) {
             return true;
         }

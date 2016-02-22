@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,7 @@ import java.util.Set;
 /**
  * An implementation of {@link gaffer.rest.service.IGraphConfigurationService}. By default it will use a singleton
  * {@link gaffer.graph.Graph} generated using the {@link gaffer.rest.GraphFactory}.
- * <p/>
+ * <p>
  * Currently the {@link gaffer.operation.Operation}s, {@link gaffer.function.FilterFunction}s,
  * {@link gaffer.function.TransformFunction}s and {@link gaffer.data.generator.ElementGenerator}s available
  * are only returned if they are in a package prefixed with 'gaffer'.

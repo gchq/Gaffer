@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package gaffer.function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Inputs;
 import java.lang.annotation.AnnotationFormatError;
+import java.util.Arrays;
 
 /**
  * A <code>ConsumerFunction</code> is a {@link gaffer.function.Function} that consumes input records. Implementations
@@ -40,7 +41,7 @@ public abstract class ConsumerFunction implements Function {
             processInputAnnotation();
         }
 
-        return inputs;
+        return Arrays.copyOf(inputs, inputs.length);
     }
 
     /**

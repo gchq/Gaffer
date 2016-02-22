@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,7 @@ import java.io.Serializable;
  * @see gaffer.function.processor.Processor for details of how FunctionContext is used.
  */
 public abstract class FunctionContext<F extends Function> implements Serializable {
+    private static final long serialVersionUID = -3469570249850928140L;
     private F function;
 
     /**
@@ -67,7 +68,7 @@ public abstract class FunctionContext<F extends Function> implements Serializabl
      * @param <F> The type of {@link gaffer.function.Function} wrapped by the context.
      */
     public abstract static class Builder<F extends Function> {
-        protected final FunctionContext<F> context;
+        private final FunctionContext<F> context;
         private boolean executed = false;
 
         /**
@@ -100,7 +101,7 @@ public abstract class FunctionContext<F extends Function> implements Serializabl
         /**
          * Tests whether the {@link gaffer.function.Function} to be wrapped has been configured.
          *
-         * @return False until <code>execute(F)</code> is called, then true.
+         * @return False until <code>aggregate(F)</code> is called, then true.
          */
         public boolean isExecuted() {
             return executed;

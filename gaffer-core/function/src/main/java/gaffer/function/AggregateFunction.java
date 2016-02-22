@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,10 @@ package gaffer.function;
  * An <code>AggregateFunction</code> is a {@link gaffer.function.ConsumerProducerFunction} that reduces a number of
  * input records to a single output of the same record type. The function will update it's internal state in response
  * to new input records, and return the current state on request.
- * <p/>
- * For example:<br/>
- * <code>AggregateFunction sum = new Sum();</code><br/>
- * <code>sum.execute({1}); sum.execute({2}); sum.execute({3});</code><br/>
+ * <p>
+ * For example:<br>
+ * <code>AggregateFunction sum = new Sum();</code><br>
+ * <code>sum.aggregate({1}); sum.aggregate({2}); sum.aggregate({3});</code><br>
  * <code>Object[] state = sum.state() // state = {6}</code>
  */
 public abstract class AggregateFunction extends ConsumerProducerFunction implements Cloneable {
@@ -38,7 +38,7 @@ public abstract class AggregateFunction extends ConsumerProducerFunction impleme
      *
      * @param input Input record.
      */
-    public abstract void execute(final Object[] input);
+    public abstract void aggregate(final Object[] input);
 
     /**
      * @return Record containing the current state of this function.

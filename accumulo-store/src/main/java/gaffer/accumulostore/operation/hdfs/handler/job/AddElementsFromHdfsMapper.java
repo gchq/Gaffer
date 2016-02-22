@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,34 +15,46 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Pair;
-import gaffer.data.element.Element;
-import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
-import gaffer.store.schema.StoreSchema;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.Pair;
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
+import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
+import gaffer.store.schema.StoreSchema;
 
-public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
+public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
+        extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
     private AccumuloElementConverter elementConverter;
 
     @Override
     protected void setup(final Context context) {
         super.setup(context);
 
-        final StoreSchema storeSchema = StoreSchema.fromJson(context.getConfiguration().get(
-                AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes());
-        final String converterClass = context.getConfiguration().get(AccumuloAddElementsFromHdfsJobFactory.ELEMENT_CONVERTER);
+        final StoreSchema storeSchema;
         try {
-            Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class).newInstance(storeSchema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
+            storeSchema = StoreSchema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise Store Schema from JSON");
+        }
+
+        final String converterClass = context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
+        try {
+            final Class<?> elementConverterClass = Class.forName(converterClass);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
+                    .newInstance(storeSchema);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);
         }
     }
@@ -52,14 +64,14 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN> extends AbstractAddElem
         final Pair<Key> keyPair;
         try {
             keyPair = elementConverter.getKeysFromElement(element);
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
 
         final Value value;
         try {
             value = elementConverter.getValueFromElement(element);
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
 

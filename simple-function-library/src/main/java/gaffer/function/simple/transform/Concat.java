@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,15 +25,15 @@ import org.apache.commons.lang.StringUtils;
  * two objects and calls toString on them and concatenates them together. The default separator is a comma,
  * you can set a custom separator using setSeparator(String).
  */
-@Inputs({Object.class, Object.class})
+@Inputs({ Object.class, Object.class })
 @Outputs(String.class)
 public class Concat extends TransformFunction {
     private static final String DEFAULT_SEPARATOR = ",";
     private String separator = DEFAULT_SEPARATOR;
 
     @Override
-    public Object[] execute(final Object[] input) {
-        return null != input ? new Object[]{StringUtils.join(input, separator)} : null;
+    public Object[] transform(final Object[] input) {
+        return new Object[]{StringUtils.join(input, separator)};
     }
 
     public String getSeparator() {

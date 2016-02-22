@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package gaffer.data.element.function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.ElementTuple;
@@ -25,7 +26,7 @@ import gaffer.function.processor.Filter;
 
 /**
  * Element Filter - for filtering {@link gaffer.data.element.Element}s.
- * <p/>
+ * <p>
  * Use {@link gaffer.data.element.function.ElementAggregator.Builder} to build an ElementFilter.
  *
  * @see gaffer.data.element.function.ElementFilter.Builder
@@ -40,6 +41,7 @@ public class ElementFilter extends Filter<ElementComponentKey> {
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
     @Override
     public ElementFilter clone() {
         final ElementFilter clone = new ElementFilter();
@@ -48,6 +50,9 @@ public class ElementFilter extends Filter<ElementComponentKey> {
         return clone;
     }
 
+    /**
+     * Builder for {@link ElementFilter}.
+     */
     public static class Builder extends Filter.Builder<ElementComponentKey> {
         public Builder() {
             this(new ElementFilter());

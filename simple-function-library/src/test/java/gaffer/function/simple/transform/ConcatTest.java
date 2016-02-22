@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,7 +35,7 @@ public class ConcatTest extends ConsumerProducerFunctionTest {
         final Concat concat = new Concat();
 
         // When
-        final Object[] output = concat.execute(new String[]{"1", "2", "3"});
+        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
 
         assertArrayEquals(new String[]{"1,2,3"}, output);
     }
@@ -47,7 +47,7 @@ public class ConcatTest extends ConsumerProducerFunctionTest {
         concat.setSeparator(" ");
 
         // When
-        final Object[] output = concat.execute(new String[]{"1", "2", "3"});
+        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
 
         assertArrayEquals(new String[]{"1 2 3"}, output);
     }
@@ -58,31 +58,32 @@ public class ConcatTest extends ConsumerProducerFunctionTest {
         final Concat concat = new Concat();
 
         // When
-        final Object[] output = concat.execute(new String[]{"1", null, "3"});
+        final Object[] output = concat.transform(new String[]{"1", null, "3"});
 
         assertArrayEquals(new String[]{"1,,3"}, output);
     }
 
     @Test
-    public void shouldReturnNullForNullInput() {
+    public void shouldReturnEmptyArrayForNullInput() {
         // Given
         final Concat concat = new Concat();
 
         // When
-        final Object[] output = concat.execute(null);
+        final Object[] output = concat.transform(null);
 
-        assertNull(output);
+        assertEquals(1, output.length);
+        assertNull(output[0]);
     }
 
     @Test
     public void shouldReturnClonedConcatWithEmptyStateAndDefaultSeparator() {
         // Given
         final Concat concat = new Concat();
-        concat.execute(new String[]{"1", "2", "3"});
+        concat.transform(new String[]{"1", "2", "3"});
 
         // When
         Concat clone = concat.statelessClone();
-        final Object[] output = concat.execute(new String[]{"1", "2", "3"});
+        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
 
         // Then
         assertNotSame(concat, clone);
@@ -94,11 +95,11 @@ public class ConcatTest extends ConsumerProducerFunctionTest {
         // Given
         final Concat concat = new Concat();
         concat.setSeparator(" ");
-        concat.execute(new String[]{"1", "2", "3"});
+        concat.transform(new String[]{"1", "2", "3"});
 
         // When
         Concat clone = concat.statelessClone();
-        final Object[] output = concat.execute(new String[]{"1", "2", "3"});
+        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
 
         // Then
         assertNotSame(concat, clone);

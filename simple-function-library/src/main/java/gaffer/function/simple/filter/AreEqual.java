@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import gaffer.function.annotation.Inputs;
  * An <code>AreEqual</code> is a {@link gaffer.function.FilterFunction} that returns true if the two input objects
  * are equal.
  */
-@Inputs({Object.class, Object.class})
+@Inputs({ Object.class, Object.class })
 public class AreEqual extends FilterFunction {
 
     @Override
@@ -35,7 +35,7 @@ public class AreEqual extends FilterFunction {
      * @return true if either the input array is null, it has only 1 item or the first 2 items are equal. Otherwise false.
      */
     @Override
-    protected boolean filter(final Object[] input) {
+    protected boolean _isValid(final Object[] input) {
         if (null == input) {
             return true;
         }

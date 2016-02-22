@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -124,23 +124,23 @@ public class Gaffer1BloomElementFunctorTest {
         // Create entity
         Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex(1);
-        //		String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
+        //        String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
         Key key1 = elementConverter.getKeyFromEntity(entity);
 
         // Create edge from that entity
         Edge edge = new Edge(TestGroups.EDGE);
         edge.setSource(1);
         edge.setDestination(2);
-        //		String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
+        //        String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
         Key key2 = elementConverter.getKeysFromEdge(edge).getFirst();
 
         // Create range from entity to edge inclusive
         Range range = new Range(key1.getRow(), true, key2.getRow(), true);
 
-        // Check don't get null Bloom gaffer.accumulostore.key
+        // Check don't get null Bloom key
         assertNotNull(elementFunctor.transform(range));
 
-        // Check get correct Bloom gaffer.accumulostore.key
+        // Check get correct Bloom key
         org.apache.hadoop.util.bloom.Key expectedBloomKey = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
         assertEquals(expectedBloomKey, elementFunctor.transform(range));
     }
@@ -164,7 +164,7 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void testTransformRangeWhenRangeHasUnspecifiedStartOrEndKey() {
         try {
-            // Create Range with unspecified start gaffer.accumulostore.key and test - should get null
+            // Create Range with unspecified start key and test - should get null
             Edge edge1 = new Edge(TestGroups.EDGE);
             edge1.setSource("3");
             edge1.setDestination("4");
@@ -172,7 +172,7 @@ public class Gaffer1BloomElementFunctorTest {
             Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
             assertNull(elementFunctor.transform(range1));
 
-            // Create Range with unspecified end gaffer.accumulostore.key and test - should get null
+            // Create Range with unspecified end key and test - should get null
             Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
             assertNull(elementFunctor.transform(range2));
         } catch (AccumuloElementConversionException e) {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import java.util.List;
  * @param <F> The type of {@link gaffer.function.ConsumerFunction} wrapped by the context.
  */
 public class ConsumerFunctionContext<R, F extends ConsumerFunction> extends FunctionContext<F> {
+    private static final long serialVersionUID = -4572706365436487862L;
     private List<R> selection;
     private Object[] selected;
 
@@ -68,7 +69,7 @@ public class ConsumerFunctionContext<R, F extends ConsumerFunction> extends Func
 
     /**
      * Select data from an input {@link gaffer.function.Tuple}.
-     * <p/>
+     * <p>
      * <b>Note</b>: due to re-use of the container used to return input data, this method is not thread safe.
      *
      * @param tuple Input tuple to select from.

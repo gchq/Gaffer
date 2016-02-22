@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 
 public class CertificateVisibilitySerialiser implements Serialisation {
     public static final String BYTE_ENCODING = "UTF-8";
+    private static final long serialVersionUID = -1726585921080420988L;
 
     @Override
     public boolean canHandle(final Class clazz) {

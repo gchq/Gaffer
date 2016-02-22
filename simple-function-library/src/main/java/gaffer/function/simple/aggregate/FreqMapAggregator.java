@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package gaffer.function.simple.aggregate;
 
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 import gaffer.function.simple.types.FreqMap;
@@ -23,22 +23,21 @@ import gaffer.function.simple.types.FreqMap;
 import java.util.Map.Entry;
 
 /**
- * An <code>FreqMapAggregator</code> is a {@link gaffer.function.SingleInputAggregateFunction} that takes in
+ * An <code>FreqMapAggregator</code> is a {@link SimpleAggregateFunction} that takes in
  * {@link gaffer.function.simple.types.FreqMap}s and merges the frequencies together.
  */
 @Inputs(FreqMap.class)
 @Outputs(FreqMap.class)
-public class FreqMapAggregator extends SingleInputAggregateFunction {
+public class FreqMapAggregator extends SimpleAggregateFunction<FreqMap> {
     private FreqMap frequencyMap;
 
     @Override
-    protected void execute(final Object obj) {
-        if (null != obj) {
-            final FreqMap newMap = (FreqMap) obj;
+    protected void _aggregate(final FreqMap input) {
+        if (null != input) {
             if (null == frequencyMap) {
-                frequencyMap = new FreqMap(newMap);
+                frequencyMap = new FreqMap(input);
             } else {
-                for (Entry<String, Integer> entry : newMap.entrySet()) {
+                for (Entry<String, Integer> entry : input.entrySet()) {
                     if (frequencyMap.containsKey(entry.getKey())) {
                         frequencyMap.put(entry.getKey(), frequencyMap.get(entry.getKey()) + entry.getValue());
                     } else {
@@ -49,14 +48,17 @@ public class FreqMapAggregator extends SingleInputAggregateFunction {
         }
     }
 
+    @Override
     public void init() {
         frequencyMap = null;
     }
 
-    public Object[] state() {
-        return new Object[]{frequencyMap != null ? frequencyMap : new FreqMap()};
+    @Override
+    protected FreqMap _state() {
+        return frequencyMap != null ? frequencyMap : new FreqMap();
     }
 
+    @Override
     public FreqMapAggregator statelessClone() {
         final FreqMapAggregator aggregator = new FreqMapAggregator();
         aggregator.init();

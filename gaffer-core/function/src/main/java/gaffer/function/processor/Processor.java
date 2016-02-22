@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package gaffer.function.processor;
 
 import gaffer.function.context.FunctionContext;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,8 +25,11 @@ import java.util.List;
 /**
  * A <code>Processor</code> executes {@link gaffer.function.Function}s against {@link gaffer.function.Tuple}s. It
  * uses {@link gaffer.function.context.FunctionContext}s to bind functions to data in tuples.
+ *
+ * @param <R> The type of reference used by tuples.
+ * @param <C> The type of {@link FunctionContext} to use.
  */
-public abstract class Processor<R, C extends FunctionContext<?>> {
+public abstract class Processor<R, C extends FunctionContext<?>> implements Cloneable {
     protected List<C> functions;
 
     /**

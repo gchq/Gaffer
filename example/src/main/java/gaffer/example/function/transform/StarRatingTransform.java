@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,11 +20,11 @@ import gaffer.function.TransformFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
-@Inputs({Long.class, Integer.class})
+@Inputs({ Long.class, Integer.class })
 @Outputs(Float.class)
 public class StarRatingTransform extends TransformFunction {
     @Override
-    public Object[] execute(final Object[] input) {
+    public Object[] transform(final Object[] input) {
         return execute((Long) input[0], (Integer) input[1]);
     }
 

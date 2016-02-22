@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ import gaffer.exception.SerialisationException;
 import gaffer.function.ConsumerProducerFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -96,21 +95,21 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         intMax.init();
 
         // When 1
-        intMax.execute(1);
+        intMax._aggregate(1);
 
         // Then 1
         assertTrue(intMax.state()[0] instanceof Integer);
         assertEquals(1, intMax.state()[0]);
 
         // When 2
-        intMax.execute(3);
+        intMax._aggregate(3);
 
         // Then 2
         assertTrue(intMax.state()[0] instanceof Integer);
         assertEquals(3, intMax.state()[0]);
 
         // When 3
-        intMax.execute(2);
+        intMax._aggregate(2);
 
         // Then 3
         assertTrue(intMax.state()[0] instanceof Integer);
@@ -126,7 +125,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         intMax.init();
 
         // When 1
-        intMax.execute(1);
+        intMax._aggregate(1);
 
         // Then 1
         assertTrue(intMax.state()[0] instanceof Integer);
@@ -134,7 +133,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            intMax.execute(2.7d);
+            intMax._aggregate(2.7d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -145,7 +144,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            intMax.execute(1l);
+            intMax._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -164,21 +163,21 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         longMax.init();
 
         // When 1
-        longMax.execute(2l);
+        longMax._aggregate(2l);
 
         // Then 1
         assertTrue(longMax.state()[0] instanceof Long);
         assertEquals(2l, longMax.state()[0]);
 
         // When 2
-        longMax.execute(1l);
+        longMax._aggregate(1l);
 
         // Then 2
         assertTrue(longMax.state()[0] instanceof Long);
         assertEquals(2l, longMax.state()[0]);
 
         // When 3
-        longMax.execute(3l);
+        longMax._aggregate(3l);
 
         // Then 3
         assertTrue(longMax.state()[0] instanceof Long);
@@ -195,7 +194,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            longMax.execute(1);
+            longMax._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -205,7 +204,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         assertEquals(Long.MIN_VALUE, longMax.state()[0]);
 
         // When 2
-        longMax.execute(3l);
+        longMax._aggregate(3l);
 
         // Then 2
         assertTrue(longMax.state()[0] instanceof Long);
@@ -213,7 +212,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            longMax.execute(2.5d);
+            longMax._aggregate(2.5d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -232,21 +231,21 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         doubleMax.init();
 
         // When 1
-        doubleMax.execute(1.1d);
+        doubleMax._aggregate(1.1d);
 
         // Then 1
         assertTrue(doubleMax.state()[0] instanceof Double);
         assertEquals(1.1d, doubleMax.state()[0]);
 
         // When 2
-        doubleMax.execute(2.1d);
+        doubleMax._aggregate(2.1d);
 
         // Then 2
         assertTrue(doubleMax.state()[0] instanceof Double);
         assertEquals(2.1d, doubleMax.state()[0]);
 
         // When 3
-        doubleMax.execute(1.5d);
+        doubleMax._aggregate(1.5d);
 
         // Then 3
         assertTrue(doubleMax.state()[0] instanceof Double);
@@ -263,7 +262,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 1
         try {
-            doubleMax.execute(1);
+            doubleMax._aggregate(1);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -274,7 +273,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            doubleMax.execute(3l);
+            doubleMax._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -284,7 +283,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         assertEquals(Double.MIN_VALUE, doubleMax.state()[0]);
 
         // When 3
-        doubleMax.execute(2.1d);
+        doubleMax._aggregate(2.1d);
 
         // Then 3
         assertTrue(doubleMax.state()[0] instanceof Double);
@@ -299,7 +298,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         max.init();
 
         // When 1
-        max.execute(1);
+        max._aggregate(1);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.INT, max.getMode());
@@ -308,7 +307,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            max.execute(3l);
+            max._aggregate(3l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -320,7 +319,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            max.execute(2.1d);
+            max._aggregate(2.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -339,7 +338,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         max.init();
 
         // When 1
-        max.execute(1l);
+        max._aggregate(1l);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.LONG, max.getMode());
@@ -348,7 +347,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            max.execute(3);
+            max._aggregate(3);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -360,7 +359,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            max.execute(2.1d);
+            max._aggregate(2.1d);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -379,7 +378,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         max.init();
 
         // When 1
-        max.execute(1.1d);
+        max._aggregate(1.1d);
 
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, max.getMode());
@@ -388,7 +387,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 2
         try {
-            max.execute(2);
+            max._aggregate(2);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -400,7 +399,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 3
         try {
-            max.execute(1l);
+            max._aggregate(1l);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -418,7 +417,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         max.init();
 
         // When 1
-        max.execute(new Object[]{null});
+        max.aggregate(new Object[]{null});
         // Then 1
         assertEquals(NumericAggregateFunction.NumberType.AUTO, max.getMode());
         assertEquals(null, max.state()[0]);
@@ -432,7 +431,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         intMax.init();
 
         // When 1
-        intMax.execute(new Object[]{null});
+        intMax.aggregate(new Object[]{null});
         // Then 1
         assertTrue(intMax.state()[0] instanceof Integer);
         assertEquals(Integer.MIN_VALUE, intMax.state()[0]);
@@ -446,7 +445,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         longMax.init();
 
         // When 1
-        longMax.execute(new Object[]{null});
+        longMax.aggregate(new Object[]{null});
         // Then 1
         assertTrue(longMax.state()[0] instanceof Long);
         assertEquals(Long.MIN_VALUE, longMax.state()[0]);
@@ -460,7 +459,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         doubleMax.init();
 
         // When 1
-        doubleMax.execute(new Object[]{null});
+        doubleMax.aggregate(new Object[]{null});
         // Then 1
         assertTrue(doubleMax.state()[0] instanceof Double);
         assertEquals(Double.MIN_VALUE, doubleMax.state()[0]);
@@ -474,14 +473,14 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 1
         int firstValue = 1;
-        max.execute(firstValue);
+        max._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, max.getMode());
         assertTrue(max.state()[0] instanceof Integer);
         assertEquals(firstValue, max.state()[0]);
 
         // When 2
-        max.execute(new Object[]{null});
+        max.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.INT, max.getMode());
         assertTrue(max.state()[0] instanceof Integer);
@@ -496,14 +495,14 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 1
         long firstValue = 1l;
-        max.execute(firstValue);
+        max._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, max.getMode());
         assertTrue(max.state()[0] instanceof Long);
         assertEquals(firstValue, max.state()[0]);
 
         // When 2
-        max.execute(new Object[]{null});
+        max.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.LONG, max.getMode());
         assertTrue(max.state()[0] instanceof Long);
@@ -518,14 +517,14 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 1
         double firstValue = 1.0f;
-        max.execute(firstValue);
+        max._aggregate(firstValue);
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, max.getMode());
         assertTrue(max.state()[0] instanceof Double);
         assertEquals(firstValue, max.state()[0]);
 
         // When 2
-        max.execute(new Object[]{null});
+        max.aggregate(new Object[]{null});
         // Then
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, max.getMode());
         assertTrue(max.state()[0] instanceof Double);
@@ -545,7 +544,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.AUTO, clone.getMode());
 
         // When 2
-        clone.execute(1);
+        clone._aggregate(1);
         // Then 2
         assertEquals(1, clone.state()[0]);
     }
@@ -564,7 +563,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.INT, clone.getMode());
 
         // When 2
-        clone.execute(1);
+        clone._aggregate(1);
         // Then 2
         assertEquals(1, clone.state()[0]);
     }
@@ -583,7 +582,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.LONG, clone.getMode());
 
         // When 2
-        clone.execute(1l);
+        clone._aggregate(1l);
         // Then 2
         assertEquals(1l, clone.state()[0]);
     }
@@ -602,7 +601,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         assertEquals(NumericAggregateFunction.NumberType.DOUBLE, clone.getMode());
 
         // When 2
-        clone.execute(1d);
+        clone._aggregate(1d);
         // Then 2
         assertEquals(1d, clone.state()[0]);
     }
@@ -614,7 +613,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         max.setMode(NumericAggregateFunction.NumberType.INT);
         max.init();
         int initialState = (int) max.state()[0];
-        max.execute(1);
+        max._aggregate(1);
 
         // When
         final Max clone = max.statelessClone();

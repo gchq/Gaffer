@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,13 @@ import gaffer.operation.GetOperation;
  * Restricts {@link gaffer.operation.impl.get.GetEdges} to match seeds that are related.
  * This operation takes seeds of type {@link gaffer.operation.data.EntitySeed} and
  * {@link gaffer.operation.data.EdgeSeed}.
- * <p/>
+ * <p>
  * At a basic level RELATED is defined as:
  * <ul>
  * <li>An Edge is RELATED to an EntitySeed if either the Edge's source or destination matches the EntitySeed's identifier.</li>
  * <li>An Edge is RELATED to an EdgeSeed if the Edge's seed is equal to the EdgeSeed.</li>
  * </ul>
- * <p/>
+ * <p>
  * However adjusting the includeEdge property and the incomingOutgoing property allows Edges to be filtered out.
  *
  * @see gaffer.operation.impl.get.GetRelatedEdges.Builder
@@ -49,7 +49,7 @@ public class GetRelatedEdges extends GetEdges<ElementSeed> {
         super(view);
     }
 
-    public GetRelatedEdges(final View view, Iterable<ElementSeed> seeds) {
+    public GetRelatedEdges(final View view, final Iterable<ElementSeed> seeds) {
         super(view, seeds);
     }
 

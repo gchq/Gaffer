@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,18 +15,18 @@
  */
 package gaffer.function.simple.aggregate;
 
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 /**
- * An <code>StringConcat</code> is a {@link gaffer.function.SingleInputAggregateFunction} that takes in
+ * An <code>StringConcat</code> is a {@link SimpleAggregateFunction} that takes in
  * {@link java.lang.String}s and concatenates them together. The default separator is a comma, you can set a custom
  * separator using setSeparator(String).
  */
 @Inputs(String.class)
 @Outputs(String.class)
-public class StringConcat extends SingleInputAggregateFunction {
+public class StringConcat extends SimpleAggregateFunction<String> {
     private static final String DEFAULT_SEPARATOR = ",";
     private String aggregate;
     private String separator = DEFAULT_SEPARATOR;
@@ -37,13 +37,13 @@ public class StringConcat extends SingleInputAggregateFunction {
     }
 
     @Override
-    public Object[] state() {
-        return new Object[]{aggregate};
+    protected String _state() {
+        return aggregate;
     }
 
     @Override
-    protected void execute(final Object input) {
-        final String str = null != input ? input.toString() : "";
+    protected void _aggregate(final String input) {
+        final String str = null != input ? input : "";
         if (null == aggregate) {
             aggregate = str;
         } else {

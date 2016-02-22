@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,8 @@ package gaffer.data;
 
 /**
  * An <code>AlwaysValid</code> is an {@link gaffer.data.Validator} in which it always returns true.
+ *
+ * @param <T> the type of object to validate
  */
 public class AlwaysValid<T> implements Validator<T> {
     @Override

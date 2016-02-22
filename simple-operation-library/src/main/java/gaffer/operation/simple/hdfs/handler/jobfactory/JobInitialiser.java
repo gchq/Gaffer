@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,7 @@ public interface JobInitialiser {
      * @param job       the {@link org.apache.hadoop.mapreduce.Job} to be initialised
      * @param operation the {@link gaffer.operation.simple.hdfs.AddElementsFromHdfs} containing configuration.
      * @param store     the {@link gaffer.store.Store} that will handle the {@link gaffer.operation.Operation}
-     * @throws IOException
+     * @throws IOException if IO issues occur
      */
     void initialiseJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException;
 }

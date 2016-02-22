@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -74,6 +72,8 @@ public class JSONSerialiser {
     }
 
     /**
+     * Serialises an object.
+     *
      * @param object the object to be serialised
      * @return the provided object serialised into bytes
      * @throws SerialisationException if the object fails to be serialised
@@ -83,10 +83,12 @@ public class JSONSerialiser {
     }
 
     /**
+     * Serialises an object.
+     *
      * @param object      the object to be serialised
      * @param prettyPrint true if the object should be serialised with pretty printing
      * @return the provided object serialised (with pretty printing) into bytes
-     * @throws SerialisationException
+     * @throws SerialisationException if the object fails to serialise
      */
     public byte[] serialise(final Object object, final boolean prettyPrint) throws SerialisationException {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
@@ -100,25 +102,12 @@ public class JSONSerialiser {
     }
 
     /**
-     * @param object      the object to be serialised and written to file
-     * @param file        the {@link java.io.File} to write the serialised bytes to
-     * @param prettyPrint true if the object should be serialised with pretty printing
-     * @throws SerialisationException
-     */
-
-    public void serialise(final Object object, final File file, final boolean prettyPrint) throws SerialisationException {
-        try (FileWriter fileWriter = new FileWriter(file)) {
-            serialise(object, JSON_FACTORY.createGenerator(fileWriter), prettyPrint);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write schema to json file: " + e.getMessage(), e);
-        }
-    }
-
-    /**
+     * Serialises an object using the provided json generator.
+     *
      * @param object        the object to be serialised and written to file
      * @param jsonGenerator the {@link com.fasterxml.jackson.core.JsonGenerator} to use to write the object to
      * @param prettyPrint   true if the object should be serialised with pretty printing
-     * @throws SerialisationException
+     * @throws SerialisationException if the object fails to serialise
      */
     public void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint)
             throws SerialisationException {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import gaffer.function.annotation.Inputs;
  * instance of some control {@link java.lang.Class}.
  */
 @Inputs(Object.class)
-public class IsA extends FilterFunction {
+public class IsA extends SimpleFilterFunction<Object> {
     private Class<?> type;
 
     /**
@@ -84,9 +84,7 @@ public class IsA extends FilterFunction {
      * @return true iff there is a single, non-null input object that can be cast to the control class, otherwise false.
      */
     @Override
-    protected boolean filter(final Object[] input) {
-        return null != input
-                && 1 == input.length
-                && (null == input[0] || type.isAssignableFrom(input[0].getClass()));
+    protected boolean _isValid(final Object input) {
+        return null == input || type.isAssignableFrom(input.getClass());
     }
 }

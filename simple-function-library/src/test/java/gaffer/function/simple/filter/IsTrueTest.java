@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package gaffer.function.simple.filter;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter.filter(true);
+        boolean accepted = filter._isValid(true);
 
         // Then
         assertTrue(accepted);
@@ -46,7 +45,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter.filter(Boolean.TRUE);
+        boolean accepted = filter._isValid(Boolean.TRUE);
 
         // Then
         assertTrue(accepted);
@@ -58,7 +57,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter.filter(null);
+        boolean accepted = filter._isValid(null);
 
         // Then
         assertFalse(accepted);
@@ -70,7 +69,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter.filter(new Object[]{null});
+        boolean accepted = filter._isValid(null);
 
         // Then
         assertFalse(accepted);
@@ -82,7 +81,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter.filter(new Object[]{false});
+        boolean accepted = filter._isValid(false);
 
         // Then
         assertFalse(accepted);

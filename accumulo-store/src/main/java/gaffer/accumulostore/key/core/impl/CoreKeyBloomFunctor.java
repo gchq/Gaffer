@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,25 +19,27 @@ import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
-
 import java.util.Arrays;
 
 public class CoreKeyBloomFunctor implements KeyFunctor {
 
     /**
-     * Transforms a {@link org.apache.accumulo.core.data.Range} into a BloomFilter gaffer.accumulostore.key. If the first vertices in the
-     * start and end keys of the range are the same, then we can create the
-     * appropriate BloomFilter gaffer.accumulostore.key. If the gaffer.accumulostore.key does not correspond to either
-     * an {@link gaffer.data.element.Entity} or an {@link gaffer.data.element.Edge} then we return <code>null</code>
-     * to indicate that the range cannot be converted into a single gaffer.accumulostore.key for the Bloom filter.
+     * Transforms a {@link org.apache.accumulo.core.data.Range} into a
+     * BloomFilter key. If the first vertices in the start and end keys of the
+     * range are the same, then we can create the appropriate BloomFilter key.
+     * If the key does not correspond to either an
+     * {@link gaffer.data.element.Entity} or an {@link gaffer.data.element.Edge}
+     * then we return <code>null</code> to indicate that the range cannot be
+     * converted into a single key for the Bloom filter.
      */
     @Override
     public org.apache.hadoop.util.bloom.Key transform(final Range range) {
         if (range.getStartKey() == null || range.getEndKey() == null) {
             return null;
         }
-        byte[] startKeyFirstIdentifier = getVertexFromRangeKey(range.getStartKey().getRowData().getBackingArray());
-        byte[] endKeyFirstIdentifier = getVertexFromRangeKey(range.getEndKey().getRowData().getBackingArray());
+        final byte[] startKeyFirstIdentifier = getVertexFromRangeKey(
+                range.getStartKey().getRowData().getBackingArray());
+        final byte[] endKeyFirstIdentifier = getVertexFromRangeKey(range.getEndKey().getRowData().getBackingArray());
         if (Arrays.equals(startKeyFirstIdentifier, endKeyFirstIdentifier)) {
             return new org.apache.hadoop.util.bloom.Key(startKeyFirstIdentifier);
         }
@@ -45,10 +47,12 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
     }
 
     /**
-     * Transforms an Accumulo {@link org.apache.accumulo.core.data.Key} into the corresponding gaffer.accumulostore.key for the Bloom
-     * filter. If the gaffer.accumulostore.key does not correspond to either an {@link gaffer.data.element.Entity} or an
-     * {@link gaffer.data.element.Edge} then an {@link java.io.IOException} will be thrown by the
-     * method which will be caught and then <code>null</code> is returned.
+     * Transforms an Accumulo {@link org.apache.accumulo.core.data.Key} into the
+     * corresponding key for the Bloom filter. If the key does not correspond to
+     * either an {@link gaffer.data.element.Entity} or an
+     * {@link gaffer.data.element.Edge} then an {@link java.io.IOException} will
+     * be thrown by the method which will be caught and then <code>null</code>
+     * is returned.
      */
     @Override
     public org.apache.hadoop.util.bloom.Key transform(final Key key) {
@@ -72,7 +76,7 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
             if (getNumTrailingDelimPlusOne(key) % 2 == 0) {
                 return key;
             }
-            byte[] bloomKey = new byte[key.length - 1];
+            final byte[] bloomKey = new byte[key.length - 1];
             System.arraycopy(key, 0, bloomKey, 0, key.length - 1);
             return bloomKey;
         }
@@ -89,5 +93,4 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
         }
         return num;
     }
-
 }

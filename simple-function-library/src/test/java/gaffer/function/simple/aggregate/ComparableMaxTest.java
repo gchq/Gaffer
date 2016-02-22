@@ -18,9 +18,9 @@ public class ComparableMaxTest extends ConsumerProducerFunctionTest {
         aggregator.init();
 
         // When
-        aggregator.execute(1);
-        aggregator.execute(3);
-        aggregator.execute(2);
+        aggregator._aggregate(1);
+        aggregator._aggregate(3);
+        aggregator._aggregate(2);
 
         // Then
         assertEquals(3, aggregator.state()[0]);
@@ -30,7 +30,7 @@ public class ComparableMaxTest extends ConsumerProducerFunctionTest {
     public void shouldCloneAggregator() {
         // Given
         final ComparableMax aggregator = new ComparableMax();
-        aggregator.execute(1);
+        aggregator._aggregate(1);
 
         // When
         final ComparableMax clone = aggregator.statelessClone();

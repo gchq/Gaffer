@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import gaffer.operation.data.ElementSeed;
 
 /**
  * Restricts {@link gaffer.operation.impl.get.GetElements} to match seeds that are related.
- * <p/>
+ * <p>
  * At a basic level RELATED is defined as:
  * <ul>
  * <li>An Entity is RELATED to an EntitySeed if the Entity's seed is equal to the EntitySeed.</li>
@@ -52,7 +52,7 @@ public class GetRelatedElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exte
         super(view);
     }
 
-    public GetRelatedElements(final View view, Iterable<SEED_TYPE> seeds) {
+    public GetRelatedElements(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 

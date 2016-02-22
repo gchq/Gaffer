@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldAcceptTheTestValue() {
         final IsEqual filter = new IsEqual("test");
 
-        boolean accepted = filter.filter("test");
+        boolean accepted = filter._isValid("test");
 
         assertTrue(accepted);
     }
@@ -41,7 +41,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldAcceptWhenControlValueAndTestValueAreNull() {
         final IsEqual filter = new IsEqual();
 
-        boolean accepted = filter.filter(null);
+        boolean accepted = filter._isValid(null);
 
         assertTrue(accepted);
     }
@@ -50,7 +50,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldRejectWhenNotEqual() {
         final IsEqual filter = new IsEqual("test");
 
-        boolean accepted = filter.filter("a different value");
+        boolean accepted = filter._isValid("a different value");
 
         assertFalse(accepted);
     }

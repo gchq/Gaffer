@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
 
 public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest {
     private HyperLogLogPlus hyperLogLogPlus1;
@@ -49,9 +48,9 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
         assertEquals(0l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
-        hyperLogLogPlusAggregator.execute(hyperLogLogPlus1);
+        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         assertEquals(2l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
-        hyperLogLogPlusAggregator.execute(hyperLogLogPlus2);
+        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus2);
         assertEquals(4l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
     }
 
@@ -59,9 +58,9 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
     public void testFailedExecuteDueToNullInput() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
-        hyperLogLogPlusAggregator.execute(hyperLogLogPlus1);
+        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         try {
-            hyperLogLogPlusAggregator.execute(null);
+            hyperLogLogPlusAggregator.aggregate(null);
         } catch (IllegalArgumentException exception) {
             assertEquals("Expected an input array of length 1", exception.getMessage());
         }
@@ -71,25 +70,11 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
     public void testFailedExecuteDueToEmptyInput() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
-        hyperLogLogPlusAggregator.execute(hyperLogLogPlus1);
+        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         try {
-            hyperLogLogPlusAggregator.execute(new Object[0]);
+            hyperLogLogPlusAggregator.aggregate(new Object[0]);
         } catch (IllegalArgumentException exception) {
             assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testFailedExecuteDueToIncorrectInput() {
-        try {
-            HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-            hyperLogLogPlusAggregator.init();
-            hyperLogLogPlusAggregator.execute(hyperLogLogPlus1);
-            Integer[] intArray = new Integer[]{1};
-            hyperLogLogPlusAggregator.execute(intArray);
-            fail("An IllegalArgumentException should have been thrown");
-        } catch (ClassCastException exception) {
-            assertNotNull(exception);
         }
     }
 
@@ -97,11 +82,11 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
     public void testClone() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
-        hyperLogLogPlusAggregator.execute(hyperLogLogPlus1);
+        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
         assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
-        clone.execute(hyperLogLogPlus2);
+        clone._aggregate(hyperLogLogPlus2);
         assertEquals(hyperLogLogPlus2.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
 
@@ -112,7 +97,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
         assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
-        clone.execute(hyperLogLogPlus1);
+        clone._aggregate(hyperLogLogPlus1);
         assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
 
@@ -125,12 +110,12 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
             for (int j = 0; j < 100; j++) {
                 hyperLogLogPlus.offer(getRandomLetter());
             }
-            hyperLogLogPlusAggregator.execute(hyperLogLogPlus);
+            hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus);
         }
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
         assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
-        clone.execute(hyperLogLogPlus1);
+        clone._aggregate(hyperLogLogPlus1);
         assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
 

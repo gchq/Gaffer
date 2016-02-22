@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,10 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.operation.data.EntitySeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.EntitySeed;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
@@ -55,22 +55,9 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         return SeedMatchingType.RELATED;
     }
 
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        if (!getSeedMatching().equals(seedMatching)) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " only supports seed matching when set to " + getSeedMatching().name());
-        }
-    }
-
     public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
         public Builder() {
             super(new GetAdjacentEntitySeeds());
-        }
-
-        @Override
-        public Builder seedMatching(final SeedMatchingType seedMatching) {
-            super.seedMatching(seedMatching);
-            return this;
         }
 
         @Override

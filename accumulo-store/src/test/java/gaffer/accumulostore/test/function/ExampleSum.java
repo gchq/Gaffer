@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 
 package gaffer.accumulostore.test.function;
 
-import gaffer.function.SingleInputAggregateFunction;
+import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
 @Inputs(Integer.class)
 @Outputs(Integer.class)
-public class ExampleSum extends SingleInputAggregateFunction {
+public class ExampleSum extends SimpleAggregateFunction<Integer> {
     private Integer aggregate = null;
 
     @Override
@@ -31,19 +31,19 @@ public class ExampleSum extends SingleInputAggregateFunction {
     }
 
     @Override
-    public void execute(final Object input) {
+    protected void _aggregate(final Integer input) {
         if (aggregate == null) {
             init();
         }
 
         if (input != null) {
-            aggregate = aggregate + (Integer) input;
+            aggregate = aggregate + input;
         }
     }
 
     @Override
-    public Object[] state() {
-        return new Object[]{aggregate};
+    public Integer _state() {
+        return aggregate;
     }
 
     public ExampleSum statelessClone() {

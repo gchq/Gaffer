@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import gaffer.operation.GetOperation;
 /**
  * Restricts {@link gaffer.operation.impl.get.GetEdges} to match seeds that are equal.
  * This operation only takes seeds of type {@link gaffer.operation.data.EdgeSeed}.
- * <p/>
+ * <p>
  * At a basic level an Edge is EQUAL to an EdgeSeed if the Edge's seed is equal to the EdgeSeed.
  * However adjusting the includeEdge property allows for some Edges to be filtered out.
  *
@@ -43,7 +43,7 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         super(view);
     }
 
-    public GetEdgesBySeed(final View view, Iterable<EdgeSeed> seeds) {
+    public GetEdgesBySeed(final View view, final Iterable<EdgeSeed> seeds) {
         super(view, seeds);
     }
 

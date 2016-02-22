@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,9 @@
 
 package gaffer.function;
 
-import java.io.IOException;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,24 +33,11 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(String.class);
 
         // When
-        boolean accepted = filter.filter(new String[]{"Test"});
+        boolean accepted = filter.isValid(new String[]{"Test"});
 
         // Then
         assertTrue(accepted);
     }
-
-    @Test
-    public void shouldRejectTheValuesIfMoreThanOneGiven() {
-        // Given
-        final IsA filter = new IsA(String.class);
-
-        // When
-        boolean accepted = filter.filter(new String[]{"Test", "Test2"});
-
-        // Then
-        assertFalse(accepted);
-    }
-
 
     @Test
     public void shouldRejectTheValueWhenDifferentClasses() {
@@ -57,7 +45,7 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(String.class);
 
         // When
-        boolean accepted = filter.filter(new Integer[]{5});
+        boolean accepted = filter.isValid(new Integer[]{5});
 
         // Then
         assertFalse(accepted);
@@ -69,22 +57,10 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(Number.class);
 
         // When
-        boolean accepted = filter.filter(new Integer[]{5});
+        boolean accepted = filter.isValid(new Integer[]{5});
 
         // Then
         assertTrue(accepted);
-    }
-
-    @Test
-    public void shouldRejectTheValueWhenNullArray() {
-        // Given
-        final IsA filter = new IsA(String.class);
-
-        // When
-        boolean accepted = filter.filter(null);
-
-        // Then
-        assertFalse(accepted);
     }
 
     @Test
@@ -93,7 +69,7 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(String.class);
 
         // When
-        boolean accepted = filter.filter(new Object[]{null});
+        boolean accepted = filter.isValid(new Object[]{null});
 
         // Then
         assertTrue(accepted);

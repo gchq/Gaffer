@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,12 @@
 
 package gaffer.function.processor;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.FilterFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerFunctionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,13 +32,15 @@ import java.util.List;
  * order and the overall filter result for a given tuple is a logical AND of each filter function result. Tuples only
  * pass the filter if <b>all</b> functions return a positive (<code>true</code>) result, and they fail as soon as any
  * function returns a negative (<code>false</code>) result.
- * <p/>
+ * <p>
  * If performance is a concern then simple, faster filters or those with a higher probability of failure should be
  * configured to run first.
  *
  * @param <R> The type of reference used by tuples.
  */
 public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFunction>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Filter.class);
+
     /**
      * Default constructor - used for serialisation.
      */
@@ -53,8 +58,7 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
     }
 
     /**
-     * Create a <code>Filter</code> that executes the given {@link gaffer.function.context.FunctionContext}s. Varargs
-     * equivalent of <code>Filter(List<ConsumerFunctionContext<R, FilterFunction>>>)</code>.
+     * Create a <code>Filter</code> that executes the given {@link gaffer.function.context.FunctionContext}s.
      *
      * @param functions {@link gaffer.function.context.FunctionContext}s to execute.
      */
@@ -69,6 +73,8 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
      * @return Deep copy of this <code>Filter</code>.
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Does not required any fields from the parent class")
+    @Override
     public Filter<R> clone() {
         Filter<R> clone = new Filter<>();
         if (null != functions) {
@@ -109,14 +115,18 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
      * @return Logical AND of filter function results.
      */
     public boolean filter(final Tuple<R> tuple) {
-        if (functions == null) return true;
+        if (functions == null) {
+            return true;
+        }
 
         for (ConsumerFunctionContext<R, FilterFunction> functionContext : functions) {
             FilterFunction function = functionContext.getFunction();
             Object[] selection = functionContext.select(tuple);
-            boolean result = function.execute(selection);
+            boolean result = function.isValid(selection);
 
             if (!result) {
+                LOGGER.debug(function.getClass().getName() + " filtered out "
+                        + Arrays.toString(selection) + " from input: " + tuple);
                 return false;
             }
         }

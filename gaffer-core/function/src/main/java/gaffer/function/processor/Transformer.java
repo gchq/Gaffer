@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package gaffer.function.processor;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.TransformFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerProducerFunctionContext;
@@ -42,7 +43,7 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
         for (ConsumerProducerFunctionContext<R, TransformFunction> functionContext : functions) {
             TransformFunction function = functionContext.getFunction();
             Object[] selection = functionContext.select(tuple);
-            Object[] result = function.execute(selection);
+            Object[] result = function.transform(selection);
             functionContext.project(tuple, result);
         }
     }
@@ -53,6 +54,8 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
      * @return Deep copy of this <code>Transformer</code>.
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Does not required any fields from the parent class")
+    @Override
     public Transformer<R> clone() {
         Transformer<R> clone = new Transformer<>();
         if (null != functions) {

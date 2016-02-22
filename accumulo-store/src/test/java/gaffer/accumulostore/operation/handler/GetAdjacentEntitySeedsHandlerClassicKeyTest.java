@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package gaffer.function;
+package gaffer.accumulostore.operation.handler;
 
-public abstract class SingleInputAggregateFunction extends AggregateFunction {
-    @Override
-    public void execute(final Object[] input) {
-        if (null == input || 1 != input.length) {
-            throw new IllegalArgumentException("Expected an input array of length 1");
-        }
+import gaffer.accumulostore.MockAccumuloStore;
+import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 
-        execute(input[0]);
+public class GetAdjacentEntitySeedsHandlerClassicKeyTest extends GetAdjacentEntitySeedsHandlerTest {
+
+	@Override
+    protected MockAccumuloStore createMockStore() {
+        return new MockAccumuloStoreForTest(ClassicKeyPackage.class);
     }
-
-    protected abstract void execute(final Object input);
 }

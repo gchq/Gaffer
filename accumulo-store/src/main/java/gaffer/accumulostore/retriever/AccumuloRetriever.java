@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 
 package gaffer.accumulostore.retriever;
 
-import gaffer.accumulostore.key.IteratorSettingFactory;
-import gaffer.accumulostore.utils.CloseableIterable;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.RangeFactory;
+import gaffer.accumulostore.utils.CloseableIterable;
 import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.accumulostore.utils.Constants;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -34,12 +34,11 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-
 import java.util.Set;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
     private static final String AUTHORISATIONS_SEPERATOR = ",";
-	protected CloseableIterator<Element> iterator;
+    protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final RangeFactory rangeFactory;
@@ -48,20 +47,22 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
     protected final AccumuloElementConverter elementConverter;
     protected final IteratorSetting[] iteratorSettings;
 
-    protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation, final IteratorSetting... iteratorSettings) throws StoreException {
+    protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation,
+                                final IteratorSetting... iteratorSettings) throws StoreException {
         this.store = store;
         this.rangeFactory = store.getKeyPackage().getRangeFactory();
         this.iteratorSettingFactory = store.getKeyPackage().getIteratorFactory();
         this.elementConverter = store.getKeyPackage().getKeyConverter();
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
-        this.authorisations = new Authorizations(this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+        this.authorisations = new Authorizations(
+                this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
     }
 
     /**
      * Performs any transformations specified in a view on an element
      *
-     * @param element
+     * @param element the element to transform
      */
     public void doTransformation(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
@@ -70,6 +71,7 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         }
     }
 
+    @Override
     public void close() {
         if (iterator != null) {
             iterator.close();
@@ -78,14 +80,17 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
 
     /**
      * Create a scanner to use used in your query.
+     * <p>
      *
-     * @param ranges
-     * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the table specified in the properties with the ranges provided.
-     * @throws org.apache.accumulo.core.client.TableNotFoundException
-     * @throws gaffer.store.StoreException
+     * @param ranges the ranges to get the scanner for
+     * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the
+     * table specified in the properties with the ranges provided.
+     * @throws TableNotFoundException if an accumulo table could not be found
+     * @throws StoreException         if a connection to accumulo could not be created.
      */
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
-        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorisations, store.getProperties().getThreadsForBatchScanner());
+        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(),
+                authorisations, store.getProperties().getThreadsForBatchScanner());
         if (iteratorSettings != null) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
                 if (iteratorSetting != null) {
@@ -94,7 +99,7 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
             }
         }
         scanner.setRanges(Range.mergeOverlapping(ranges));
-        //Currently hard links element class to column family position.
+        // Currently hard links element class to column family position.
         for (final String col : operation.getView().getEdgeGroups()) {
             scanner.fetchColumnFamily(new Text(col));
         }

@@ -6,7 +6,7 @@
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ 	http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,15 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.3.2-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
@@ -37,6 +38,8 @@
     </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <java.version>1.7</java.version>
 
         <!-- Dependency version properties -->
@@ -51,19 +54,34 @@
         <avro.version>1.7.7</avro.version>
         <jackson.version>2.6.2</jackson.version>
 
+        <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
+        <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
+        <surefire.plugin.version>2.19.1</surefire.plugin.version>
+
         <!-- Define SCM properties for use with Release Plugin -->
-        <scm.url>https://github.com/GovernmentCommunicationsHeadquarters/Gaffer</scm.url>
-        <scm.connection>scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git</scm.connection>
-        <scm.developer.connection>scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
+        <scm.url>
+            https://github.com/GovernmentCommunicationsHeadquarters/Gaffer
+        </scm.url>
+        <scm.connection>
+            scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
+        </scm.connection>
+        <scm.developer.connection>
+            scm:git:https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
         </scm.developer.connection>
 
         <!-- Release configuration -->
         <releases.repository.id>gaffer.releases.repo</releases.repository.id>
-        <releases.repository.name>Gaffer Releases Repository</releases.repository.name>
-        <releases.repository.url>https://repository.somewhere.com/gaffer2-releases</releases.repository.url>
+        <releases.repository.name>Gaffer Releases Repository
+        </releases.repository.name>
+        <releases.repository.url>
+            https://repository.somewhere.com/gaffer2-releases
+        </releases.repository.url>
         <snapshots.repository.id>gaffer.snapshots.repo</snapshots.repository.id>
-        <snapshots.repository.name>Gaffer Snapshots Repository</snapshots.repository.name>
-        <snapshots.repository.url>https://repository.somewhere.com/gaffer2-snapshots</snapshots.repository.url>
+        <snapshots.repository.name>Gaffer Snapshots Repository
+        </snapshots.repository.name>
+        <snapshots.repository.url>
+            https://repository.somewhere.com/gaffer2-snapshots
+        </snapshots.repository.url>
     </properties>
 
     <scm>
@@ -86,6 +104,21 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>13.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.api.version}</version>
         </dependency>
 
         <!-- Testing Dependencies -->
@@ -170,7 +203,6 @@
                 <configuration>
                     <enableSshAgent>true</enableSshAgent>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <pushProperties>true</pushProperties>
                     <pushReleases>true</pushReleases>
                     <pushHotfixes>true</pushHotfixes>
                     <noDeploy>true</noDeploy>
@@ -179,6 +211,71 @@
                         <versionTagPrefix>vers</versionTagPrefix>
                     </flowInitContext>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>docs/checkstyle.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <headerLocation>docs/licenseHeader.txt</headerLocation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>test</phase>
+                        <configuration>
+                            <configLocation>docs/checkstyle.xml</configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <headerLocation>docs/licenseHeader.txt
+                            </headerLocation>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.plugin.version}</version>
+                <configuration>
+                    <effort>Low</effort>
+                    <threshold>Low</threshold>
+                    <xmlOutput>true</xmlOutput>
+                    <findbugsXmlOutputDirectory>
+                        ${project.build.directory}/findbugs
+                    </findbugsXmlOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>analyze-compile</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -189,14 +286,43 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.3</version>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
                 <configuration>
                     <forkMode>perthread</forkMode>
                     <parallel>classes</parallel>
-                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m -XX:MaxPermSize=256m</argLine>
+                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m
+                        -XX:MaxPermSize=256m
+                    </argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.plugin.version}</version>
             </plugin>
         </plugins>
     </reporting>
@@ -214,4 +340,5 @@
             <url>${snapshots.repository.url}</url>
         </snapshotRepository>
     </distributionManagement>
+
 </project>

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,8 @@
 package gaffer.store;
 
 import gaffer.store.schema.StoreSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +32,7 @@ import java.util.Properties;
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  */
 public class StoreProperties {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String STORE_SCHEMA_CLASS = "gaffer.store.schema.class";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
@@ -49,28 +52,13 @@ public class StoreProperties {
         this.props = props;
     }
 
-    private void readProperties() {
-        if (null != propFileLocation) {
-            try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
-                if (accIs != null) {
-                    props = new Properties();
-                    props.load(accIs);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     /**
      * @param key the property key
      * @return a property properties file with the given key.
      */
     public String get(final String key) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         return props.getProperty(key);
     }
@@ -83,10 +71,8 @@ public class StoreProperties {
      * @return a property properties file with the given key or the default value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         return props.getProperty(key, defaultValue);
     }
@@ -94,14 +80,12 @@ public class StoreProperties {
     /**
      * Set a parameter from the schema file.
      *
-     * @param key
-     * @param value
+     * @param key   the key
+     * @param value the value
      */
     public void set(final String key, final String value) {
-        synchronized (this) {
-            if (props == null) {
-                readProperties();
-            }
+        if (props == null) {
+            readProperties();
         }
         props.setProperty(key, value);
     }
@@ -137,5 +121,51 @@ public class StoreProperties {
 
     public Properties getProperties() {
         return props;
+    }
+
+    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) throws IOException {
+        return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+    }
+
+    public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        if (null == storePropertiesStream) {
+            return new StoreProperties();
+        }
+        final Properties props = new Properties();
+        try {
+            props.load(storePropertiesStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        } finally {
+            try {
+                storePropertiesStream.close();
+            } catch (IOException e) {
+                LOGGER.error("Failed to close store properties stream: " + e.getMessage(), e);
+            }
+        }
+        final String storePropertiesClass = props.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
+        final StoreProperties storeProperties;
+        if (null == storePropertiesClass) {
+            storeProperties = new StoreProperties();
+        } else {
+            try {
+                storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
+            }
+        }
+        storeProperties.setProperties(props);
+        return storeProperties;
+    }
+
+    private void readProperties() {
+        if (null != propFileLocation) {
+            try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
+                props = new Properties();
+                props.load(accIs);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -107,7 +107,7 @@ public class AggregatorTest {
         verify(functionContext1, times(2)).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor.capture());
+        verify(function1).aggregate(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
     }
 
@@ -144,12 +144,12 @@ public class AggregatorTest {
         verify(functionContext2, times(2)).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor1 = ArgumentCaptor.forClass(Object[].class);
-        verify(function1).execute(argumentCaptor1.capture());
+        verify(function1).aggregate(argumentCaptor1.capture());
         assertEquals(value1, argumentCaptor1.getValue()[0]);
         assertEquals(value2, argumentCaptor1.getValue()[1]);
 
         final ArgumentCaptor<Object[]> argumentCaptor3 = ArgumentCaptor.forClass(Object[].class);
-        verify(function2).execute(argumentCaptor3.capture());
+        verify(function2).aggregate(argumentCaptor3.capture());
         assertEquals(value2, argumentCaptor3.getValue()[0]);
     }
 
@@ -224,7 +224,7 @@ public class AggregatorTest {
         final AggregateFunction func5 = mock(AggregateFunction.class);
 
         // When - check you can build the selection/function in any order,
-        // although normally it will be done - select then execute.
+        // although normally it will be done - select then aggregate.
         final Aggregator<String> aggregator = new Aggregator.Builder<String>()
                 .select(reference1)
                 .execute(func1)

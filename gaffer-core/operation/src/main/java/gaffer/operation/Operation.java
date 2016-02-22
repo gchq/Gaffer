@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,10 +29,10 @@ import java.util.Map;
  * Operations should be written to be as generic as possible to allow them to be applied to different graph/stores.
  * NOTE - operations should not contain the operation logic. The logic should be separated out into a operation handler.
  * This will allow you to execute the same operation on different stores with different handlers.
- * <p/>
+ * <p>
  * This interface enforces all operations have the ability to supply a {@link View}, chain operations together
  * and provide an input for the operation.
- * <p/>
+ * <p>
  * Operations must be JSON serialisable in order to make REST API calls.
  *
  * @param <INPUT>  the input type of the operation. This must be JSON serialisable.
@@ -42,7 +42,7 @@ public interface Operation<INPUT, OUTPUT> {
     /**
      * @param element the {@link gaffer.data.element.Element} to be validated.
      * @return true if the {@link gaffer.data.element.Element} is valid. Otherwise false and a reason should be logged.
-     * <p/>
+     * <p>
      * If the element class is known then validate(Entity) or validate(Edge) should be called instead to avoid
      * unnecessary use of <code>instanceof</code>.
      * @see Operation#validate(Entity)
@@ -119,5 +119,13 @@ public interface Operation<INPUT, OUTPUT> {
      * @param value the value of the option
      */
     void addOption(final String name, final String value);
+
+    /**
+     * Gets an operation option by its given name.
+     *
+     * @param name  the name of the option
+     * @return the value of the option
+     */
+    String getOption(final String name);
 }
 
