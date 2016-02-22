@@ -145,6 +145,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throw new AccumuloElementConversionException("Failed to read map writable from value", e);
         }
         final StoreElementDefinition elementDefinition = storeSchema.getElement(group);
+        if (null == elementDefinition) {
+            throw new AccumuloElementConversionException("No StoreElementDefinition found for group " + group + " is this group in your Store Schema or do your table iterators need updating?");
+        }
         for (final Writable writeableKey : map.keySet()) {
             final String propertyName = writeableKey.toString();
             final BytesWritable propertyValueBytes = (BytesWritable) map.get(writeableKey);
