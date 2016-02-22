@@ -52,8 +52,8 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         setupMapper(job, operation, store);
         setupReducer(job, operation, store);
         setupOutput(job, operation, store);
-
-        if (operation.getOption(Constants.OPERATION_USE_ACCUMULO_PARTIONER).equalsIgnoreCase("true")) {
+        String useAccumuloPartioner = operation.getOption(Constants.OPERATION_USE_ACCUMULO_PARTIONER);
+        if (null != useAccumuloPartioner && useAccumuloPartioner.equalsIgnoreCase("true")) {
             setupPartioner(job, operation, (AccumuloStore) store);
         }
     }
