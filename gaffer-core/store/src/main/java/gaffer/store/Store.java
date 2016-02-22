@@ -107,7 +107,7 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support VALIDATION and FILTERING.
+     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support INPUT_VALIDATION and FILTERING.
      * <p>
      * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
@@ -132,7 +132,7 @@ public abstract class Store {
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
         final Iterator<Operation> opsItr;
 
-        if (hasTrait(StoreTrait.VALIDATION)) {
+        if (hasTrait(StoreTrait.INPUT_VALIDATION)) {
             opsItr = getValidatedOperations(operationChain).iterator();
         } else {
             opsItr = operationChain.getOperations().iterator();
@@ -323,7 +323,7 @@ public abstract class Store {
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
         final OUTPUT result;
 
-        if (!hasTrait(StoreTrait.VALIDATION) && operation instanceof Validate) {
+        if (!hasTrait(StoreTrait.INPUT_VALIDATION) && operation instanceof Validate) {
             result = (OUTPUT) ((Validate) operation).getElements();
         } else {
             final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());

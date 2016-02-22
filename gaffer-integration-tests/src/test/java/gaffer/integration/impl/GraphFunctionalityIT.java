@@ -227,7 +227,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.VALIDATOR)
+    @TraitRequirement(StoreTrait.CONTINUOUS_VALIDATION)
     public void testValidatorBasedOnProperty() throws OperationException {
         // BUILD
         final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()

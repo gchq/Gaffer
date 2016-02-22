@@ -63,7 +63,7 @@ import java.util.Map;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
+import static gaffer.store.StoreTrait.INPUT_VALIDATION;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -591,7 +591,7 @@ public class StoreTest {
     }
 
     private class StoreImpl extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, VALIDATION);
+        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, INPUT_VALIDATION);
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
