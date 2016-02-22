@@ -352,7 +352,7 @@
 
     <profiles>
         <profile>
-            <id>noForking</id>
+            <id>reducedMemory</id>
             <build>
                 <plugins>
                     <plugin>
@@ -368,32 +368,9 @@
                         <artifactId>findbugs-maven-plugin</artifactId>
                         <version>${findbugs.plugin.version}</version>
                         <configuration>
-                            <effort>Low</effort>
-                            <threshold>Low</threshold>
-                            <xmlOutput>true</xmlOutput>
-                            <findbugsXmlOutputDirectory>
-                                ${project.build.directory}/findbugs
-                            </findbugsXmlOutputDirectory>
+                            <skip>true</skip>
                             <fork>false</fork>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <id>analyze-compile</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <configuration>
-                                    <effort>Low</effort>
-                                    <threshold>Low</threshold>
-                                    <xmlOutput>true</xmlOutput>
-                                    <findbugsXmlOutputDirectory>
-                                        ${project.build.directory}/findbugs
-                                    </findbugsXmlOutputDirectory>
-                                    <fork>false</fork>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
