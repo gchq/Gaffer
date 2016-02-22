@@ -155,9 +155,9 @@ public final class AddUpdateTableIterator {
         final AccumuloStore store = new AccumuloStore();
         store.initialise(DataSchema.fromJson(getDataSchemaPath(args)), StoreSchema.fromJson(getStoreSchemaPath(args)),
                 StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
-        if ("update".equals(args[4])) {
+        if ("update".equals(args[3])) {
             updateIterator(store);
-        } else if ("add".equals(args[4])) {
+        } else if ("add".equals(args[3])) {
             addAggregatorIterator(store);
         } else {
             throw new IllegalArgumentException("Supplied option must either be add or update");

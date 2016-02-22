@@ -135,10 +135,10 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>gaffer2:serialisation</include>
-                                    <include>gaffer2:function</include>
-                                    <include>gaffer2:data</include>
-                                    <include>gaffer2:store</include>
+                                    <include>gaffer:serialisation</include>
+                                    <include>gaffer:function</include>
+                                    <include>gaffer:data</include>
+                                    <include>gaffer:store</include>
                                     <include>org.slf4j:slf4j-api</include>
                                 </includes>
                             </artifactSet>
@@ -149,44 +149,5 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>maintenance</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>aggregator-maintenance-utility</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>assembly</goal>
-                                </goals>
-                                <inherited>false</inherited>
-                                <configuration>
-                                    <descriptorRefs>
-                                        <descriptorRef>jar-with-dependencies
-                                        </descriptorRef>
-                                    </descriptorRefs>
-                                    <finalName>Aggregator-Maintenance-Utility
-                                    </finalName>
-                                    <archive>
-                                        <manifest>
-                                            <addClasspath>true</addClasspath>
-                                            <mainClass>
-                                                gaffer.accumulostore.utils.AddUpdateTableIterator
-                                            </mainClass>
-                                        </manifest>
-                                    </archive>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
+   
 </project>
