@@ -117,7 +117,7 @@ public class DataSchemaTest {
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
 
         // Check validator
-        ElementFilter validator = edgeDefinition.getInputValidator();
+        ElementFilter validator = edgeDefinition.getValidator();
         final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> valContexts = validator.getFunctions();
         int index = 0;
         ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
@@ -179,7 +179,7 @@ public class DataSchemaTest {
                 .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
                         .property(TestPropertyNames.F1, String.class)
                         .property(TestPropertyNames.F2, Integer.class)
-                        .inputValidator(new ElementFilter.Builder()
+                        .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.F1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
@@ -201,7 +201,7 @@ public class DataSchemaTest {
                 "        \"property1\" : \"java.lang.String\",\n" +
                 "        \"property2\" : \"java.lang.Integer\"\n" +
                 "      },\n" +
-                "      \"inputValidator\" : {\n" +
+                "      \"validator\" : {\n" +
                 "        \"functions\" : [ {\n" +
                 "          \"function\" : {\n" +
                 "            \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +

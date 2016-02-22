@@ -21,7 +21,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.key.impl.ExpirationFilter;
+import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.store.StoreException;
 import gaffer.store.schema.StoreSchema;
@@ -143,11 +143,15 @@ public final class TableUtils {
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
             LOGGER.info("Combiner iterator to table for all scopes");
 
-            // Add expiration iterator to table for all scopes
-            LOGGER.info("Adding expiration iterator to table for all scopes");
-            connector.tableOperations().attachIterator(tableName,
-                    getExpirationIterator(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage().getKeyConverter()));
-            LOGGER.info("Added expiration iterator to table for all scopes");
+            if (store.getProperties().getEnableValidatorIterator()) {
+                // Add validator iterator to table for all scopes
+                LOGGER.info("Adding validator iterator to table for all scopes");
+                connector.tableOperations().attachIterator(tableName,
+                        getValidatorIterator(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage().getKeyConverter()));
+                LOGGER.info("Added validator iterator to table for all scopes");
+            } else {
+                LOGGER.info("Validator iterator has been disabled");
+            }
 
         } catch (AccumuloSecurityException | TableNotFoundException e) {
             throw new AccumuloException(e);
@@ -307,9 +311,9 @@ public final class TableUtils {
         }
     }
 
-    private static IteratorSetting getExpirationIterator(final DataSchema dataSchema, final StoreSchema storeSchema, final AccumuloElementConverter keyConverter) {
-        return new IteratorSettingBuilder(Constants.EXPIRATION_ITERATOR_PRIORITY,
-                Constants.EXPIRATION_ITERATOR_NAME, ExpirationFilter.class)
+    private static IteratorSetting getValidatorIterator(final DataSchema dataSchema, final StoreSchema storeSchema, final AccumuloElementConverter keyConverter) {
+        return new IteratorSettingBuilder(Constants.VALIDATOR_ITERATOR_PRIORITY,
+                Constants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
                 .dataSchema(dataSchema)
                 .storeSchema(storeSchema)
                 .keyConverter(keyConverter)

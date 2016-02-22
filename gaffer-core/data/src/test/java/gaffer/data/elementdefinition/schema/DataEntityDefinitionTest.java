@@ -39,7 +39,7 @@ public class DataEntityDefinitionTest {
                 .property(TestPropertyNames.F1, String.class)
                 .vertex(Integer.class)
                 .property(TestPropertyNames.F2, Object.class)
-                .inputValidator(validator)
+                .validator(validator)
                 .aggregator(aggregator)
                 .build();
 
@@ -52,6 +52,6 @@ public class DataEntityDefinitionTest {
         assertEquals(Integer.class, elementDef.getIdentifierClass(IdentifierType.VERTEX));
 
         assertSame(aggregator, elementDef.getOriginalAggregator());
-        assertSame(validator, elementDef.getOriginalInputValidator());
+        assertSame(validator, elementDef.getOriginalValidator());
     }
 }

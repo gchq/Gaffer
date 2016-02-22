@@ -51,7 +51,7 @@ public class DataElementDefinitionValidator extends TypedElementDefinitionValida
      */
     @Override
     public boolean validate(final DataElementDefinition elementDef) {
-        final ElementFilter validator = elementDef.getInputValidator();
+        final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
         return super.validate(elementDef)
                 && validateAggregator(aggregator, elementDef)

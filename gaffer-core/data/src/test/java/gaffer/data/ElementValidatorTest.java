@@ -45,7 +45,7 @@ public class ElementValidatorTest {
 
         given(elm.getGroup()).willReturn(group);
         given(dataSchema.getElement(group)).willReturn(elementDef);
-        given(elementDef.getInputValidator()).willReturn(filter);
+        given(elementDef.getValidator()).willReturn(filter);
         given(filter.filter(elm)).willReturn(true);
 
         // When
@@ -67,7 +67,7 @@ public class ElementValidatorTest {
 
         given(elm.getGroup()).willReturn(group);
         given(dataSchema.getElement(group)).willReturn(elementDef);
-        given(elementDef.getInputValidator()).willReturn(filter);
+        given(elementDef.getValidator()).willReturn(filter);
         given(filter.filter(elm)).willReturn(false);
 
         // When
@@ -106,7 +106,7 @@ public class ElementValidatorTest {
 
         given(elm.getGroup()).willReturn(group);
         given(dataSchema.getElement(group)).willReturn(elementDef);
-        given(elementDef.getInputValidator()).willReturn(null);
+        given(elementDef.getValidator()).willReturn(null);
 
         // When
         final boolean isValid = validator.validate(elm);

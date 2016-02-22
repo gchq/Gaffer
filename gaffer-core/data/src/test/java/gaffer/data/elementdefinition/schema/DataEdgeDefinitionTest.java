@@ -43,7 +43,7 @@ public class DataEdgeDefinitionTest {
                 .property(TestPropertyNames.F2, Object.class)
                 .destination(Date.class)
                 .directed(Boolean.class)
-                .inputValidator(validator)
+                .validator(validator)
                 .aggregator(aggregator)
                 .build();
 
@@ -58,6 +58,6 @@ public class DataEdgeDefinitionTest {
         assertEquals(Boolean.class, elementDef.getIdentifierClass(IdentifierType.DIRECTED));
 
         assertSame(aggregator, elementDef.getOriginalAggregator());
-        assertSame(validator, elementDef.getOriginalInputValidator());
+        assertSame(validator, elementDef.getOriginalValidator());
     }
 }

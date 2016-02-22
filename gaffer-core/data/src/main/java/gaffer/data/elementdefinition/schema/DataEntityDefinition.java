@@ -49,16 +49,12 @@ public class DataEntityDefinition extends DataElementDefinition {
             return this;
         }
 
-        public Builder inputValidator(final ElementFilter validator) {
-            return (Builder) super.inputValidator(validator);
+        public Builder validator(final ElementFilter validator) {
+            return (Builder) super.validator(validator);
         }
 
         public Builder aggregator(final ElementAggregator aggregator) {
             return (Builder) super.aggregator(aggregator);
-        }
-
-        public Builder expiration(final ElementFilter expiration) {
-            return (Builder) super.expiration(expiration);
         }
 
         public DataEntityDefinition build() {

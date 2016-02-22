@@ -16,7 +16,7 @@
         "intProperty": "intProperty",
         "count": "count"
       },
-      "expiration": {
+      "validator": {
         "functions": [
           {
             "function": {

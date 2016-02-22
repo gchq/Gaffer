@@ -50,5 +50,5 @@ public enum StoreTrait {
      * Elements can be expired and removed from the store based on {@link gaffer.function.FilterFunction}s
      * defined in the {@link gaffer.data.elementdefinition.schema.DataSchema}.
      */
-    EXPIRATION
+    VALIDATOR
 }

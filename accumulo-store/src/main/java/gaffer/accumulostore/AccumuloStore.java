@@ -17,7 +17,7 @@
 package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.EXPIRATION;
+import static gaffer.store.StoreTrait.VALIDATOR;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static gaffer.store.StoreTrait.VALIDATION;
@@ -85,7 +85,7 @@ import java.util.Map;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, VALIDATION, EXPIRATION);
+    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, VALIDATION, VALIDATOR);
     private AccumuloKeyPackage keyPackage;
 
     @Override

@@ -35,11 +35,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ExpirationFilterTest {
+public class ValidatorFilterTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoStoreSchema() throws Exception {
         // Given
-        final ExpirationFilter filter = new ExpirationFilter();
+        final ValidatorFilter filter = new ValidatorFilter();
 
 
         final Map<String, String> options = new HashMap<>();
@@ -58,7 +58,7 @@ public class ExpirationFilterTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoDataSchema() throws Exception {
         // Given
-        final ExpirationFilter filter = new ExpirationFilter();
+        final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
@@ -76,7 +76,7 @@ public class ExpirationFilterTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithElementConverterClass() throws Exception {
         // Given
-        final ExpirationFilter filter = new ExpirationFilter();
+        final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
@@ -93,7 +93,7 @@ public class ExpirationFilterTest {
     @Test
     public void shouldReturnTrueWhenValidOptions() throws Exception {
         // Given
-        final ExpirationFilter filter = new ExpirationFilter();
+        final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
@@ -111,7 +111,7 @@ public class ExpirationFilterTest {
     @Test
     public void shouldAcceptElementWhenDataSchemaValidatorAcceptsElement() throws Exception {
         // Given
-        final ExpirationFilter filter = new ExpirationFilter();
+        final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
@@ -137,7 +137,7 @@ public class ExpirationFilterTest {
     @Test
     public void shouldNotAcceptElementWhenDataSchemaValidatorDoesNotAcceptElement() throws Exception {
         // Given
-        final ExpirationFilter filter = new ExpirationFilter();
+        final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());

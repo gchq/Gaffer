@@ -42,9 +42,8 @@ import java.util.Map;
  * @see gaffer.data.elementdefinition.TypedElementDefinition
  */
 public abstract class DataElementDefinition extends TypedElementDefinition {
-    private ElementFilter inputValidator;
+    private ElementFilter validator;
     private ElementAggregator aggregator;
-    private ElementFilter expiration;
 
     /**
      * The <code>TypeStore</code> provides the different element identifier value types and property value types.
@@ -94,8 +93,8 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      * If the <code>FilterFunction</code> does not contain any functions a null <code>FilterFunction</code> is
      * returned.
      */
-    public ElementFilter getInputValidator() {
-        final ElementFilter fullValidator = null != inputValidator ? inputValidator.clone() : new ElementFilter();
+    public ElementFilter getValidator() {
+        final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
         for (Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
             addIsAFunction(fullValidator, key, entry.getValue());
@@ -110,31 +109,18 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         return null != fullValidator.getFunctions() ? fullValidator : null;
     }
 
-    public ElementFilter getExpiration() {
-        return null != expiration ? expiration.clone() : new ElementFilter();
+    private void setValidator(final ElementFilter validator) {
+        this.validator = validator;
     }
 
-    private void setExpiration(final ElementFilter expiration) {
-        this.expiration = expiration;
-    }
-
-    public void setInputValidator(final ElementFilter inputValidator) {
-        this.inputValidator = inputValidator;
-    }
-
-    @JsonProperty("inputValidator")
-    ElementFilter getOriginalInputValidator() {
-        return inputValidator;
+    @JsonProperty("validator")
+    ElementFilter getOriginalValidator() {
+        return validator;
     }
 
     @JsonProperty("aggregator")
     ElementAggregator getOriginalAggregator() {
         return aggregator;
-    }
-
-    @JsonProperty("expiration")
-    ElementFilter getOriginalExpiration() {
-        return expiration;
     }
 
     @JsonIgnore
@@ -171,8 +157,8 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
         final Type type = getType(classOrTypeName);
-        if (null != type && null != type.getInputValidator()) {
-            for (ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getInputValidator().clone().getFunctions()) {
+        if (null != type && null != type.getValidator()) {
+            for (ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getValidator().clone().getFunctions()) {
                 final List<ElementComponentKey> selection = function.getSelection();
                 if (null == selection || selection.isEmpty()) {
                     function.setSelection(Collections.singletonList(key));
@@ -202,8 +188,8 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             super(elDef);
         }
 
-        public Builder inputValidator(final ElementFilter validator) {
-            getElementDef().setInputValidator(validator);
+        public Builder validator(final ElementFilter validator) {
+            getElementDef().setValidator(validator);
             return this;
         }
 
@@ -211,17 +197,6 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             getElementDef().setAggregator(aggregator);
             return this;
         }
-
-        /**
-         * @param expiration the expiration filter to set. Note that if a
-         *                  {@link gaffer.function.FilterFunction} returns false then the Element is removed.
-         * @return this Builder
-         */
-        public Builder expiration(final ElementFilter expiration) {
-            getElementDef().setExpiration(expiration);
-            return this;
-        }
-
 
         @Override
         protected DataElementDefinition getElementDef() {

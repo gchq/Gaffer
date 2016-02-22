@@ -34,7 +34,6 @@ public class ElementValidator implements Validator<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementValidator.class);
     private final DataSchema dataSchema;
     private final View view;
-    private final boolean useExpiration;
 
     /**
      * Constructs a <code>ElementValidator</code> with a {@link gaffer.data.elementdefinition.schema.DataSchema} to use to
@@ -44,13 +43,8 @@ public class ElementValidator implements Validator<Element> {
      *                   validate {@link gaffer.data.element.Element}s.
      */
     public ElementValidator(final DataSchema dataSchema) {
-        this(dataSchema, false);
-    }
-
-    public ElementValidator(final DataSchema dataSchema, final boolean useExpiration) {
         this.dataSchema = dataSchema;
         this.view = null;
-        this.useExpiration = useExpiration;
     }
 
     /**
@@ -63,7 +57,6 @@ public class ElementValidator implements Validator<Element> {
     public ElementValidator(final View view) {
         this.view = view;
         this.dataSchema = null;
-        useExpiration = false;
     }
 
     /**
@@ -91,7 +84,7 @@ public class ElementValidator implements Validator<Element> {
             return false;
         }
 
-        final ElementFilter validator = useExpiration ? elementDef.getExpiration() : elementDef.getInputValidator();
+        final ElementFilter validator = elementDef.getValidator();
         return null == validator || validator.filter(element);
     }
 

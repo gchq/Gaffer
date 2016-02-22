@@ -227,8 +227,8 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.EXPIRATION)
-    public void testExpirationBasedOnProperty() throws OperationException {
+    @TraitRequirement(StoreTrait.VALIDATOR)
+    public void testValidatorBasedOnProperty() throws OperationException {
         // BUILD
         final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("E"))

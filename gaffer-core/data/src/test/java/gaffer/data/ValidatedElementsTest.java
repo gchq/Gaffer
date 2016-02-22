@@ -60,7 +60,7 @@ public class ValidatedElementsTest {
 
             final DataElementDefinition elementDef = mock(DataElementDefinition.class);
             given(dataSchema.getElement(group)).willReturn(elementDef);
-            given(elementDef.getInputValidator()).willReturn(filters.get(i));
+            given(elementDef.getValidator()).willReturn(filters.get(i));
         }
         given(filters.get(1).filter(elements.get(1))).willReturn(false);
     }

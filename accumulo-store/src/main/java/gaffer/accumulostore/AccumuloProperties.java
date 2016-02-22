@@ -44,6 +44,7 @@ public class AccumuloProperties extends StoreProperties {
     public static final String NUM_THREADS_FOR_BATCH_WRITER = "accumulo.numThreadsForBatchWriter";
     public static final String SPLITS_FILE_PATH = "accumulo.splits.file.path";
     public static final String TABLE_REPLICATION_FACTOR = "accumulo.file.replication";
+    public static final String ENABLE_VALIDATOR_ITERATOR = "gaffer.store.accumulo.enable.validator.iterator";
 
     // default values
     private static final String NUM_THREADS_FOR_BATCH_WRITER_DEFAULT = "10";
@@ -55,6 +56,7 @@ public class AccumuloProperties extends StoreProperties {
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
     private static final String SPLITS_FILE_PATH_DEFAULT = "/data/splits.txt";
+    public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
 
     public AccumuloProperties() {
         super();
@@ -360,5 +362,23 @@ public class AccumuloProperties extends StoreProperties {
      */
     public void setTableFileReplicationFactor(final String replicationFactor) {
         set(TABLE_REPLICATION_FACTOR, replicationFactor);
+    }
+
+    /**
+     * Get the flag determining whether the validator iterator should be enabled.
+     *
+     * @return true if the validator iterator should be enabled
+     */
+    public boolean getEnableValidatorIterator() {
+        return Boolean.parseBoolean(get(ENABLE_VALIDATOR_ITERATOR, ENABLE_VALIDATOR_ITERATOR_DEFAULT));
+    }
+
+    /**
+     * Set the flag determining whether the validator iterator should be enabled.
+     *
+     * @param enableValidatorIterator true if the validator iterator should be enabled
+     */
+    public void setEnableValidatorIterator(final boolean enableValidatorIterator) {
+        set(ENABLE_VALIDATOR_ITERATOR, Boolean.toString(enableValidatorIterator));
     }
 }

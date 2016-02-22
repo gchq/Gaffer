@@ -23,7 +23,7 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
-import gaffer.accumulostore.key.impl.ExpirationFilter;
+import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.commonutil.PathUtil;
 import gaffer.data.elementdefinition.schema.DataEdgeDefinition;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -67,15 +67,15 @@ public class TableUtilsTest {
         final Map<String, EnumSet<IteratorScope>> itrs = store.getConnection().tableOperations().listIterators(TABLE_NAME);
         assertEquals(2, itrs.size());
 
-        final EnumSet<IteratorScope> expiration = itrs.get(Constants.EXPIRATION_ITERATOR_NAME);
-        assertEquals(EnumSet.allOf(IteratorScope.class), expiration);
-        final IteratorSetting expirationSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.EXPIRATION_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(Constants.EXPIRATION_ITERATOR_PRIORITY, expirationSetting.getPriority());
-        assertEquals(ExpirationFilter.class.getName(), expirationSetting.getIteratorClass());
-        final Map<String, String> expirationOptions = expirationSetting.getOptions();
-        assertNotNull(DataSchema.fromJson(expirationOptions.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertNotNull(StoreSchema.fromJson(expirationOptions.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), expirationOptions.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+        final EnumSet<IteratorScope> validator = itrs.get(Constants.VALIDATOR_ITERATOR_NAME);
+        assertEquals(EnumSet.allOf(IteratorScope.class), validator);
+        final IteratorSetting validatorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.VALIDATOR_ITERATOR_NAME, IteratorScope.majc);
+        assertEquals(Constants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
+        assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
+        final Map<String, String> validatorOptions = validatorSetting.getOptions();
+        assertNotNull(DataSchema.fromJson(validatorOptions.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(StoreSchema.fromJson(validatorOptions.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
         final EnumSet<IteratorScope> aggregator = itrs.get(Constants.AGGREGATOR_ITERATOR_NAME);
         assertEquals(EnumSet.allOf(IteratorScope.class), aggregator);
