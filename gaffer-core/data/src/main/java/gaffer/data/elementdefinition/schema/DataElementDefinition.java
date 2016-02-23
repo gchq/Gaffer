@@ -68,8 +68,6 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      * {@link gaffer.data.elementdefinition.schema.DataElementDefinition} and also the
      * {@link gaffer.function.AggregateFunction}s defined in the corresponding property value
      * {@link gaffer.data.elementdefinition.Type}s.
-     * If the <code>ElementAggregator</code> does not contain any functions a null <code>ElementAggregator</code> is
-     * returned.
      */
     public ElementAggregator getAggregator() {
         final ElementAggregator fullAggregator = null != aggregator ? aggregator.clone() : new ElementAggregator();
@@ -77,7 +75,7 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             addTypeAggregatorFunctions(fullAggregator, new ElementComponentKey(entry.getKey()), entry.getValue());
         }
 
-        return null != fullAggregator.getFunctions() ? fullAggregator : null;
+        return fullAggregator;
     }
 
     public void setAggregator(final ElementAggregator aggregator) {
@@ -90,8 +88,6 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      * {@link gaffer.data.elementdefinition.schema.DataElementDefinition} and also the
      * {@link gaffer.function.FilterFunction}s defined in the corresponding identifier and property value
      * {@link gaffer.data.elementdefinition.Type}s.
-     * If the <code>FilterFunction</code> does not contain any functions a null <code>FilterFunction</code> is
-     * returned.
      */
     public ElementFilter getValidator() {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
@@ -106,7 +102,7 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
 
-        return null != fullValidator.getFunctions() ? fullValidator : null;
+        return fullValidator;
     }
 
     private void setValidator(final ElementFilter validator) {

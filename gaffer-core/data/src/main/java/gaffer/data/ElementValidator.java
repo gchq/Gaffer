@@ -84,8 +84,7 @@ public class ElementValidator implements Validator<Element> {
             return false;
         }
 
-        final ElementFilter validator = elementDef.getValidator();
-        return null == validator || validator.filter(element);
+        return elementDef.getValidator().filter(element);
     }
 
     private boolean validateWithView(final Element element) {
