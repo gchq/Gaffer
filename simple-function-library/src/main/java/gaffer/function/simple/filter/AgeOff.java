@@ -23,8 +23,8 @@ import gaffer.function.annotation.Inputs;
  */
 @Inputs(Long.class)
 public class AgeOff extends SimpleFilterFunction<Long> {
-    public static final int HOURS_TO_MILLISECONDS = 24 * 60 * 60 * 1000;
-    public static final int DAYS_TO_MILLISECONDS = 24 * HOURS_TO_MILLISECONDS;
+    public static final long HOURS_TO_MILLISECONDS = 24L * 60L * 60L * 1000L;
+    public static final long DAYS_TO_MILLISECONDS = 24L * HOURS_TO_MILLISECONDS;
 
     /**
      * The default age of time (1 year) in milliseconds.
@@ -61,11 +61,11 @@ public class AgeOff extends SimpleFilterFunction<Long> {
         this.ageOffTime = ageOffTime;
     }
 
-    public void setAgeOffDays(final long ageOfDays) {
-        setAgeOffTime(ageOfDays * DAYS_TO_MILLISECONDS);
+    public void setAgeOffDays(final int ageOfDays) {
+        setAgeOffTime(DAYS_TO_MILLISECONDS * ageOfDays);
     }
 
     public void setAgeOffHours(final long ageOfHours) {
-        setAgeOffTime(ageOfHours * HOURS_TO_MILLISECONDS);
+        setAgeOffTime(HOURS_TO_MILLISECONDS * ageOfHours);
     }
 }
