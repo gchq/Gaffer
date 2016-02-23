@@ -132,7 +132,7 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
     public void setNumReduceTasks(final Integer numReduceTasks) {
         this.numReduceTasks = numReduceTasks;
     }
-    
+
     public Class<? extends Partitioner> getPartitioner() {
         return partitioner;
     }
@@ -185,7 +185,7 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
             op.setNumMapTasks(numMapTasks);
             return this;
         }
-        
+
         public Builder partioner(final Class<? extends Partitioner> partitioner) {
             op.setPartitioner(partitioner);
             return this;
