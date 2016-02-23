@@ -52,7 +52,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         setupMapper(job, operation, store);
         setupReducer(job, operation, store);
         setupOutput(job, operation, store);
-        String useAccumuloPartioner = operation.getOption(AccumuloStoreConstants.OPERATION_USE_ACCUMULO_PARTIONER);
+        String useAccumuloPartioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
         if (null != useAccumuloPartioner && useAccumuloPartioner.equalsIgnoreCase("true")) {
             setupPartioner(job, operation, (AccumuloStore) store);
         }
@@ -78,7 +78,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_SPLITS_FILE);
+        String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
         int numReduceTasks;
         if (null == splitsFilePath || splitsFilePath.equals("")) {
             splitsFilePath = store.getProperties().getSplitsFilePath();
