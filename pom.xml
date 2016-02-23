@@ -368,7 +368,6 @@
                         <artifactId>findbugs-maven-plugin</artifactId>
                         <version>${findbugs.plugin.version}</version>
                         <configuration>
-                            <skip>true</skip>
                             <fork>false</fork>
                         </configuration>
                     </plugin>
