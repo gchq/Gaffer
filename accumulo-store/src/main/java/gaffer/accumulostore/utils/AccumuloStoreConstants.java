@@ -64,7 +64,7 @@ public final class AccumuloStoreConstants {
     public static final int TRANSFORM_PRIORITY = 50;
 
     // Operations options
-    public static final String OPERATION_USE_ACCUMULO_PARTIONER = "accumulostore.operation.hdfs.use_accumulo_partioner";
+    public static final String OPERATION_USE_ACCUMULO_PARTIONER = "accumulostore.operation.hdfs.use_accumulo_partitioner";
     public static final String OPERATION_SPLITS_FILE = "accumulostore.operation.hdfs.user_provided_splits_file";
     public static final String OPERATION_AUTHORISATIONS = "accumulostore.operation.authorisations";
     public static final String OPERATION_MATCH_AS_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
