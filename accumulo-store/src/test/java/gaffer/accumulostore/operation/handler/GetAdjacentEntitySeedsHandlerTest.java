@@ -20,7 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
 import gaffer.data.element.Element;
@@ -75,8 +75,8 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
         final GetAdjacentEntitySeeds operation = super.createMockOperation(inOutType);
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.OPERATION_AUTHORISATIONS, "authorisation");
-        options.put(Constants.OPERATION_MATCH_AS_SOURCE, "true");
+        options.put(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "authorisation");
+        options.put(AccumuloStoreConstants.OPERATION_MATCH_AS_SOURCE, "true");
         given(operation.getOptions()).willReturn(options);
 
         return operation;

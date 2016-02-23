@@ -38,7 +38,7 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
@@ -112,7 +112,7 @@ public class AccumuloStore extends Store {
     @Override
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation)
             throws OperationException {
-        if (operation.getOptions().containsKey(Constants.OPERATION_AUTHORISATIONS)) {
+        if (operation.getOptions().containsKey(AccumuloStoreConstants.OPERATION_AUTHORISATIONS)) {
             return super.handleOperation(operation);
         } else {
             throw new OperationException("Operation must have the Authorisations option set");

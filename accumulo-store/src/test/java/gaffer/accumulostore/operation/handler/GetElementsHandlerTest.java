@@ -22,7 +22,7 @@ import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
 import gaffer.data.element.Edge;
@@ -190,7 +190,7 @@ public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
     @Override
     protected GetElements<ElementSeed, Element> createMockOperation(final SeedMatchingType seedMatching, final IncludeEdgeType includeEdgeType, final Boolean includeEntities, final IncludeIncomingOutgoingType inOutType, final Iterable<ElementSeed> seeds) throws IOException {
         final GetElements<ElementSeed, Element> operation = super.createMockOperation(seedMatching, includeEdgeType, includeEntities, inOutType, seeds);
-        operation.getOptions().put(Constants.OPERATION_AUTHORISATIONS, "authorisation");
+        operation.getOptions().put(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "authorisation");
 
         return operation;
     }

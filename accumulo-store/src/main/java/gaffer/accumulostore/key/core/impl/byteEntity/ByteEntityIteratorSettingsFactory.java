@@ -20,7 +20,7 @@ import org.apache.accumulo.core.client.IteratorSetting;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import gaffer.accumulostore.operation.AbstractRangeOperation;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
@@ -44,8 +44,8 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
                 && includeEntities) {
             return null;
         }
-        return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
-                Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
+        return new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
                         .includeIncomingOutgoing(includeIncomingOutgoingType).includeEdges(includeEdgeType)
                         .includeEntities(includeEntities).build();
     }

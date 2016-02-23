@@ -26,7 +26,7 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -107,7 +107,7 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private void testNoSummarisation(final AccumuloStore store) throws OperationException {
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -138,7 +138,7 @@ public class GetElementsBetweenSetsHandlerTest {
 	public void testShouldSummarise(final AccumuloStore store) throws OperationException {
 	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -170,7 +170,7 @@ public class GetElementsBetweenSetsHandlerTest {
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -200,7 +200,7 @@ public class GetElementsBetweenSetsHandlerTest {
 	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
 	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -228,7 +228,7 @@ public class GetElementsBetweenSetsHandlerTest {
     	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -259,7 +259,7 @@ public class GetElementsBetweenSetsHandlerTest {
     	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -314,7 +314,7 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
         AddElements add = new AddElements(data);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             store.execute(new OperationChain<>(add));
         } catch (OperationException e) {

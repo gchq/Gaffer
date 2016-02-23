@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -71,7 +71,7 @@ public class AccumuloStoreTest {
         elements.add(e);
         AddElements add = new AddElements.Builder()
                 .elements(elements)
-                .option(Constants.OPERATION_AUTHORISATIONS, AUTHS)
+                .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS)
                 .build();
         store.execute(new OperationChain<>(add));
 
@@ -80,7 +80,7 @@ public class AccumuloStoreTest {
                         .entity(TestGroups.ENTITY)
                         .build())
                 .addSeed(new EntitySeed("1"))
-                .option(Constants.OPERATION_AUTHORISATIONS, AUTHS)
+                .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS)
                 .build();
         Iterable<Element> results = store.execute(new OperationChain<>(getBySeed));
         Iterator<Element> resultsIter = results.iterator();
@@ -94,7 +94,7 @@ public class AccumuloStoreTest {
                         .entity(TestGroups.ENTITY)
                         .build())
                 .addSeed(new EntitySeed("1"))
-                .option(Constants.OPERATION_AUTHORISATIONS, AUTHS)
+                .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS)
                 .build();
         results = store.execute(new OperationChain<>(getRelated));
         resultsIter = results.iterator();

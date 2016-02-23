@@ -26,7 +26,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 
 public class ClassicRangeElementPropertyFilterIterator extends Filter {
@@ -69,10 +69,10 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (options.containsKey(Constants.INCLUDE_ENTITIES)) {
+        if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
-        if (!options.containsKey(Constants.NO_EDGES)) {
+        if (!options.containsKey(AccumuloStoreConstants.NO_EDGES)) {
             edges = true;
         }
         return true;
@@ -81,9 +81,9 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
     @Override
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions())
-                .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
-                .addNamedOption(Constants.NO_EDGES, "Optional: Set if no edges should be returned")
-                .setIteratorName(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
+                .addNamedOption(AccumuloStoreConstants.NO_EDGES, "Optional: Set if no edges should be returned")
+                .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
                 .build();

@@ -16,7 +16,7 @@
 
 package gaffer.accumulostore.test.bloom;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import org.apache.accumulo.core.bloomfilter.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
@@ -51,8 +51,8 @@ public class TestFilterWritability {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(baos);
         filter.write(out);
-        String x = new String(baos.toByteArray(), Constants.BLOOM_FILTER_CHARSET);
-        ByteArrayInputStream bais = new ByteArrayInputStream(x.getBytes(Constants.BLOOM_FILTER_CHARSET));
+        String x = new String(baos.toByteArray(), AccumuloStoreConstants.BLOOM_FILTER_CHARSET);
+        ByteArrayInputStream bais = new ByteArrayInputStream(x.getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET));
         DataInputStream in = new DataInputStream(bais);
         BloomFilter read = new BloomFilter();
         read.readFields(in);

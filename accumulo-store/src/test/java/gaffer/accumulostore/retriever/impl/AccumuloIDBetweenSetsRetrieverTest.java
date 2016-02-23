@@ -29,7 +29,7 @@ import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -99,7 +99,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         Set<EntitySeed> seedsB = new HashSet<>();
         seedsB.add(new EntitySeed("A23"));
         AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         AccumuloRetriever<?> retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
@@ -122,7 +122,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         seedsB.clear();
         seedsB.add(new EntitySeed("notpresent"));
         op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         results.clear();
         int count = 0;
@@ -145,7 +145,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         seedsB.clear();
         seedsB.add(new EntitySeed("A2"));
         op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         results.clear();
         count = 0;
@@ -198,7 +198,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
             op.setIncludeEntities(false);
             op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-            op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+            op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
             AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, false);
             Set<Element> results = new HashSet<>();
             for (Element elm : retriever) {
@@ -283,7 +283,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             Set<EntitySeed> seedsB = new HashSet<>();
             seedsB.add(new EntitySeed("B"));
             AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-            op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+            op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
             op.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
             op.setIncludeEntities(false);
             AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, false);
@@ -398,7 +398,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Now query for all edges in set - shouldn't get the false positive
         List<EntitySeed> seed = Collections.singletonList(new EntitySeed("A0"));
         AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seed, seeds, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
@@ -441,7 +441,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         Set<EntitySeed> seedsB = new HashSet<>();
         seedsB.add(new EntitySeed("A23"));
         AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         // Set graph to give us edges only
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
@@ -459,7 +459,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
         // Set graph to return entities only
         op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         op.setIncludeEntities(true);
 
@@ -482,7 +482,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .edge("X", new ViewEdgeDefinition())
                 .entity("X", new ViewEntityDefinition()).build();
         op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(true);
 
@@ -517,7 +517,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         Set<EntitySeed> seedsB = new HashSet<>();
         seedsB.add(new EntitySeed("A23"));
         AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
@@ -540,7 +540,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         seedsB.clear();
         seedsB.add(new EntitySeed("notpresent"));
         op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         results.clear();
         int count = 0;
@@ -563,7 +563,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         seedsB.clear();
         seedsB.add(new EntitySeed("A2"));
         op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         retriever = new AccumuloIDBetweenSetsRetriever(store, op, loadIntoMemory);
         results.clear();
         count = 0;
@@ -602,7 +602,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
         AddElements add = new AddElements(data);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             store.execute(new OperationChain<>(add));
         } catch (OperationException e) {

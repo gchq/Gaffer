@@ -25,7 +25,7 @@ import org.apache.accumulo.core.data.Range;
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
@@ -138,16 +138,16 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         System.arraycopy(firstValue, 0, key, 0, firstValue.length);
         key[firstValue.length] = ByteArrayEscapeUtils.DELIMITER;
         System.arraycopy(secondValue, 0, key, firstValue.length + 1, secondValue.length);
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private Range getRange(final byte[] serialisedVertex) {
         final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
-                Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+        final Key startKey = new Key(serialisedVertex, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
+                AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(endRowKey, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
                 Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
@@ -155,9 +155,9 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     private Range getEntityRangeFromVertex(final byte[] serialisedVertex) {
         final byte[] key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 1);
         key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER;
-        final Key startKey = new Key(serialisedVertex, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
-                Constants.EMPTY_BYTES, Long.MAX_VALUE);
-        final Key endKey = new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+        final Key startKey = new Key(serialisedVertex, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
+                AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
+        final Key endKey = new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
                 Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }
@@ -170,9 +170,9 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         final byte[] endRowKey = new byte[serialisedVertex.length + 1];
         System.arraycopy(serialisedVertex, 0, endRowKey, 0, serialisedVertex.length);
         endRowKey[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        final Key startKey = new Key(startRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+        final Key startKey = new Key(startRowKey, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
                 Long.MAX_VALUE);
-        final Key endKey = new Key(endRowKey, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+        final Key endKey = new Key(endRowKey, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
                 Long.MAX_VALUE);
         return new Range(startKey, true, endKey, false);
     }

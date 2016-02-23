@@ -20,7 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.IsEdgeValidator;
 import gaffer.data.TransformIterable;
 import gaffer.data.element.Edge;
@@ -43,7 +43,7 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
 
     public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final AccumuloStore store)
             throws OperationException {
-        operation.addOption(Constants.OPERATION_MATCH_AS_SOURCE, "true");
+        operation.addOption(AccumuloStoreConstants.OPERATION_MATCH_AS_SOURCE, "true");
 
         final AccumuloRetriever<?> edgeRetriever;
         try {

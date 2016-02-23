@@ -19,7 +19,7 @@ import org.apache.accumulo.core.client.IteratorSetting;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import gaffer.accumulostore.operation.AbstractRangeOperation;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
@@ -39,8 +39,8 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
         }
 
         return new IteratorSettingBuilder(
-                Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
-                Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME,
+                AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME,
                 EDGE_DIRECTED_UNDIRECTED_FILTER).includeIncomingOutgoing(operation.getIncludeIncomingOutGoing())
                         .includeEdges(operation.getIncludeEdges()).includeEntities(operation.isIncludeEntities())
                         .build();
@@ -53,8 +53,8 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
         if (includeEdgeType != IncludeEdgeType.NONE && includeEntities) {
             return null;
         }
-        return new IteratorSettingBuilder(Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
-                Constants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
+        return new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
                         .includeEdges(includeEdgeType).includeEntities(includeEntities).build();
     }
 
