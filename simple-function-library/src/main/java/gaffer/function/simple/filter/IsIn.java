@@ -18,7 +18,7 @@ package gaffer.function.simple.filter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import gaffer.function.SingleInputFilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 import java.util.Arrays;
@@ -27,11 +27,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>IsIn</code> is a {@link gaffer.function.SingleInputFilterFunction} that checks that the input object is
+ * An <code>IsIn</code> is a {@link SimpleFilterFunction} that checks that the input object is
  * in a set of allowed values.
  */
 @Inputs(Object.class)
-public class IsIn extends SingleInputFilterFunction {
+public class IsIn extends SimpleFilterFunction<Object> {
     private Set<Object> allowedValues;
 
     public IsIn() {
@@ -70,7 +70,8 @@ public class IsIn extends SingleInputFilterFunction {
         return new IsIn(allowedValues);
     }
 
-    protected boolean filter(final Object input) {
+    @Override
+    protected boolean _isValid(final Object input) {
         return allowedValues.contains(input);
     }
 }

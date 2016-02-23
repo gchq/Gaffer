@@ -21,10 +21,10 @@ import gaffer.function.annotation.Outputs;
 
 @Inputs(Object.class)
 @Outputs(String.class)
-public class ExampleTransformFunction extends SingleInputTransformFunction {
+public class ExampleTransformFunction extends SimpleTransformFunction<Object> {
     @Override
-    public Object[] execute(final Object input) {
-        return new Object[]{input + " transformed"};
+    public Object _transform(final Object input) {
+        return input + " transformed";
     }
 
     @Override

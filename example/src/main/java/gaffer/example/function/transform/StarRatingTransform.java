@@ -24,7 +24,7 @@ import gaffer.function.annotation.Outputs;
 @Outputs(Float.class)
 public class StarRatingTransform extends TransformFunction {
     @Override
-    public Object[] execute(final Object[] input) {
+    public Object[] transform(final Object[] input) {
         return execute((Long) input[0], (Integer) input[1]);
     }
 

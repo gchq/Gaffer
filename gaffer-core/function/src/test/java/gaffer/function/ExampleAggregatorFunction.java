@@ -21,7 +21,7 @@ import gaffer.function.annotation.Outputs;
 
 @Inputs(Object.class)
 @Outputs(Object.class)
-public class ExampleAggregatorFunction extends SingleInputAggregateFunction {
+public class ExampleAggregatorFunction extends SimpleAggregateFunction<Object> {
     private Object input;
 
     @Override
@@ -29,13 +29,13 @@ public class ExampleAggregatorFunction extends SingleInputAggregateFunction {
     }
 
     @Override
-    protected void execute(Object input) {
+    protected void _aggregate(Object input) {
         this.input = input;
     }
 
     @Override
-    public Object[] state() {
-        return new Object[]{input};
+    public Object _state() {
+        return input;
     }
 
     @Override

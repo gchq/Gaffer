@@ -80,7 +80,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
             throws IOException {
         String splitsFilePath = operation.getOption(Constants.OPERATION_USE_PROVIDED_SPLITS);
         int numReduceTasks;
-        if (null != splitsFilePath && !splitsFilePath.equals("")) {
+        if (null == splitsFilePath || splitsFilePath.equals("")) {
             splitsFilePath = store.getProperties().getSplitsFilePath();
             try {
                 numReduceTasks = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),

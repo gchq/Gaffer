@@ -18,7 +18,7 @@ public class IsXMoreThanYTest extends FilterFunctionTest {
         final IsXMoreThanY filter = new IsXMoreThanY();
 
         // When
-        boolean accepted = filter.filter(new Object[]{2, 1});
+        boolean accepted = filter._isValid(new Object[]{2, 1});
 
         // Then
         assertTrue(accepted);
@@ -30,7 +30,7 @@ public class IsXMoreThanYTest extends FilterFunctionTest {
         final IsXMoreThanY filter = new IsXMoreThanY();
 
         // When
-        boolean accepted = filter.filter(new Object[]{5, 6});
+        boolean accepted = filter._isValid(new Object[]{5, 6});
 
         // Then
         assertFalse(accepted);
@@ -43,7 +43,7 @@ public class IsXMoreThanYTest extends FilterFunctionTest {
         final IsXMoreThanY filter = new IsXMoreThanY();
 
         // When
-        boolean accepted = filter.filter(new Object[]{5, 5});
+        boolean accepted = filter._isValid(new Object[]{5, 5});
 
         // Then
         assertFalse(accepted);

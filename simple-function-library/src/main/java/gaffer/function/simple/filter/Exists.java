@@ -15,15 +15,15 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.function.SingleInputFilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 /**
- * An <code>Exists</code> is a {@link gaffer.function.SingleInputFilterFunction} that simply checks the input object
+ * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks the input object
  * is not null.
  */
 @Inputs(Object.class)
-public class Exists extends SingleInputFilterFunction {
+public class Exists extends SimpleFilterFunction<Object> {
 
     public Exists() {
         // Required for serialisation
@@ -34,7 +34,7 @@ public class Exists extends SingleInputFilterFunction {
     }
 
     @Override
-    protected boolean filter(final Object input) {
+    protected boolean _isValid(final Object input) {
         return null != input;
     }
 }

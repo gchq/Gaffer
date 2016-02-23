@@ -5,6 +5,7 @@ import gaffer.function.ConsumerProducerFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,12 +21,12 @@ public class ArrayListConcatTest extends ConsumerProducerFunctionTest {
         final ArrayListConcat aggregator = new ArrayListConcat();
         aggregator.init();
 
-        final List<Integer> list1 = Arrays.asList(1, 2, 3);
-        final List list2 = Arrays.asList("3", "4", 5L);
+        final ArrayList<Object> list1 = new ArrayList<Object>(Arrays.asList(1, 2, 3));
+        final ArrayList<Object> list2 = new ArrayList<Object>(Arrays.asList("3", "4", 5L));
 
         // When
-        aggregator.execute(list1);
-        aggregator.execute(list2);
+        aggregator._aggregate(list1);
+        aggregator._aggregate(list2);
 
         // Then
         assertEquals(Arrays.asList(1, 2, 3, "3", "4", 5L), aggregator.state()[0]);
@@ -35,7 +36,7 @@ public class ArrayListConcatTest extends ConsumerProducerFunctionTest {
     public void shouldCloneAggregator() {
         // Given
         final ArrayListConcat aggregator = new ArrayListConcat();
-        aggregator.execute(Arrays.asList(1));
+        aggregator._aggregate(new ArrayList<Object>(Arrays.asList(1)));
 
         // When
         final ArrayListConcat clone = aggregator.statelessClone();
