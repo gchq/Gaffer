@@ -158,7 +158,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         final Pair<Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.OPERATION_MATCH_SEEDS_AS_SOURCE, "true");
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
         // When
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), options);
