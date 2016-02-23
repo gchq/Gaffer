@@ -20,8 +20,6 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.schema.DataElementDefinition;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -29,6 +27,8 @@ import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
@@ -51,7 +51,6 @@ import gaffer.store.schema.StoreSchema;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -120,6 +119,19 @@ public abstract class Store {
      * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
      */
     protected abstract boolean isValidationRequired();
+
+    /**
+     * Executes a given operation and returns the result.
+     *
+     * @param operation   the operation to execute.
+     * @param <OPERATION> the operation type
+     * @param <OUTPUT>    the output type.
+     * @return the result from the operation
+     * @throws OperationException thrown by the operation handler if the operation fails.
+     */
+    public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(final OPERATION operation) throws OperationException {
+        return execute(new OperationChain<>(operation));
+    }
 
     /**
      * Executes a given operation chain and returns the result.

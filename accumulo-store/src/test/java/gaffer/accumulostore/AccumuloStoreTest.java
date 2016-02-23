@@ -20,12 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
@@ -54,15 +52,6 @@ public class AccumuloStoreTest {
         store = null;
     }
 
-    @Test(expected = OperationException.class)
-    public void testErrorThrownWhenNoAuthorisationAreProvided() throws OperationException {
-        List<Element> elements = new ArrayList<>();
-        Entity e = new Entity(TestGroups.ENTITY);
-        e.setVertex("1");
-        elements.add(e);
-        store.execute(new OperationChain<>(new AddElements(elements)));
-    }
-
     @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated() throws OperationException {
         List<Element> elements = new ArrayList<>();
@@ -71,18 +60,16 @@ public class AccumuloStoreTest {
         elements.add(e);
         AddElements add = new AddElements.Builder()
                 .elements(elements)
-                .option(Constants.OPERATION_AUTHORISATIONS, AUTHS)
                 .build();
-        store.execute(new OperationChain<>(add));
+        store.execute(add);
 
         GetElements<EntitySeed, Element> getBySeed = new GetElementsSeed.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
                 .addSeed(new EntitySeed("1"))
-                .option(Constants.OPERATION_AUTHORISATIONS, AUTHS)
                 .build();
-        Iterable<Element> results = store.execute(new OperationChain<>(getBySeed));
+        Iterable<Element> results = store.execute(getBySeed);
         Iterator<Element> resultsIter = results.iterator();
         assertTrue(resultsIter.hasNext());
         assertEquals(e, resultsIter.next());
@@ -94,9 +81,8 @@ public class AccumuloStoreTest {
                         .entity(TestGroups.ENTITY)
                         .build())
                 .addSeed(new EntitySeed("1"))
-                .option(Constants.OPERATION_AUTHORISATIONS, AUTHS)
                 .build();
-        results = store.execute(new OperationChain<>(getRelated));
+        results = store.execute(getRelated);
         resultsIter = results.iterator();
         assertTrue(resultsIter.hasNext());
         assertEquals(e, resultsIter.next());

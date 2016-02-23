@@ -40,7 +40,6 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -103,10 +102,8 @@ public class ComplexQuery {
                 .first(new GenerateElements.Builder<>()
                         .objects(new SampleData().generate())
                         .generator(new DataGenerator())
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new AddElements.Builder()
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 

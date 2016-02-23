@@ -35,7 +35,6 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -95,10 +94,8 @@ public class SimpleQuery {
                 .first(new GenerateElements.Builder<>()
                         .objects(new SampleData().generate())
                         .generator(new DataGenerator())
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new AddElements.Builder()
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 

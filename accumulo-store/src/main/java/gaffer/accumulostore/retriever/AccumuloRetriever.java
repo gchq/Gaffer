@@ -55,8 +55,12 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         this.elementConverter = store.getKeyPackage().getKeyConverter();
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
-        this.authorisations = new Authorizations(
-                this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+        if (null != this.operation.getOption(Constants.OPERATION_AUTHORISATIONS)) {
+            this.authorisations = new Authorizations(
+                    this.operation.getOption(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+        } else {
+            this.authorisations = new Authorizations();
+        }
     }
 
     /**
