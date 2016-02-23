@@ -16,20 +16,103 @@
 
 package gaffer.data.elementdefinition.schema;
 
-import gaffer.commonutil.TestPropertyNames;
-import gaffer.data.element.IdentifierType;
-import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.element.function.ElementFilter;
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import gaffer.commonutil.TestPropertyNames;
+import gaffer.data.element.ElementComponentKey;
+import gaffer.data.element.IdentifierType;
+import gaffer.data.element.function.ElementAggregator;
+import gaffer.data.element.function.ElementFilter;
+import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.IsA;
+import org.junit.Test;
+import java.util.Collections;
+import java.util.Date;
+
 public class DataEdgeDefinitionTest {
+    @Test
+    public void shouldReturnFullAggregator() {
+        // Given
+        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+                .source(Integer.class)
+                .destination(Date.class)
+                .directed(Boolean.class)
+                .property("property", String.class)
+                .aggregator(new ElementAggregator.Builder()
+                        .select("property")
+                        .execute(new ExampleAggregatorFunction())
+                        .build())
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        assertEquals(1, aggregator.getFunctions().size());
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregatorFunction);
+        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+                aggregator.getFunctions().get(0).getSelection());
+
+    }
+
+    @Test
+    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
+        // Given
+        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+                .source(Integer.class)
+                .destination(Date.class)
+                .directed(Boolean.class)
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        assertNull(aggregator.getFunctions());
+    }
+
+    @Test
+    public void shouldReturnValidatorWithNoFunctionsWhenNoProperties() {
+        // Given
+        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+                .build();
+
+        // When
+        final ElementFilter validator = elementDef.getValidator();
+
+        // Then
+        assertNull(validator.getFunctions());
+    }
+
+    @Test
+    public void shouldReturnFullValidator() {
+        // Given
+        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+                .source(Integer.class)
+                .property("property", String.class)
+                .aggregator(new ElementAggregator.Builder()
+                        .select("property")
+                        .execute(new ExampleAggregatorFunction())
+                        .build())
+                .build();
+
+        // When
+        final ElementFilter validator = elementDef.getValidator();
+
+        // Then
+        assertEquals(2, validator.getFunctions().size());
+        assertEquals(Integer.class.getName(), ((IsA) validator.getFunctions().get(0).getFunction()).getType());
+        assertEquals(String.class.getName(), ((IsA) validator.getFunctions().get(1).getFunction()).getType());
+        assertEquals(Collections.singletonList(new ElementComponentKey(IdentifierType.SOURCE)),
+                validator.getFunctions().get(0).getSelection());
+        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+                validator.getFunctions().get(1).getSelection());
+    }
+
     @Test
     public void shouldBuildElementDefinition() {
         // Given
