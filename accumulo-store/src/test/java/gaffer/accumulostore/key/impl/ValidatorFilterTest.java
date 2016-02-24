@@ -20,7 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -43,15 +43,15 @@ public class ValidatorFilterTest {
 
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.DATA_SCHEMA, getDataSchemaJson());
-        options.put(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         // When / Then
         try {
             filter.validateOptions(options);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(Constants.STORE_SCHEMA));
+            assertTrue(e.getMessage().contains(AccumuloStoreConstants.STORE_SCHEMA));
         }
     }
 
@@ -61,15 +61,15 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
-        options.put(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         // When / Then
         try {
             filter.validateOptions(options);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(Constants.DATA_SCHEMA));
+            assertTrue(e.getMessage().contains(AccumuloStoreConstants.DATA_SCHEMA));
         }
     }
 
@@ -79,14 +79,14 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
-        options.put(Constants.DATA_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
 
         // When / Then
         try {
             filter.validateOptions(options);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            assertTrue(e.getMessage().contains(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
     }
 
@@ -96,9 +96,9 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
-        options.put(Constants.DATA_SCHEMA, getDataSchemaJson());
-        options.put(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         // When
@@ -114,9 +114,9 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
-        options.put(Constants.DATA_SCHEMA, getDataSchemaJson());
-        options.put(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         filter.validateOptions(options);
@@ -140,9 +140,9 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.STORE_SCHEMA, getStoreSchemaJson());
-        options.put(Constants.DATA_SCHEMA, getEmptyDataSchemaJson());
-        options.put(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getEmptyDataSchemaJson());
+        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         filter.validateOptions(options);
@@ -166,14 +166,14 @@ public class ValidatorFilterTest {
                         .build())
                 .build();
 
-        return new String(dataSchema.toJson(false), Constants.UTF_8_CHARSET);
+        return new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 
     private String getEmptyDataSchemaJson() throws UnsupportedEncodingException {
         final DataSchema dataSchema = new DataSchema.Builder()
                 .build();
 
-        return new String(dataSchema.toJson(false), Constants.UTF_8_CHARSET);
+        return new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 
     private StoreSchema getStoreSchema() throws UnsupportedEncodingException {
@@ -184,6 +184,6 @@ public class ValidatorFilterTest {
     }
 
     private String getStoreSchemaJson() throws UnsupportedEncodingException {
-        return new String(getStoreSchema().toJson(false), Constants.UTF_8_CHARSET);
+        return new String(getStoreSchema().toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 }

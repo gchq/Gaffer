@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.clearspring.analytics.util.Lists;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
@@ -60,7 +60,7 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         elements.add(sampleEntityWithTransientProperty);
 
         final AddElements add = new AddElements(elements);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, "test");
+        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "test");
         graph.execute(add);
     }
 
@@ -74,7 +74,7 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         //OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("A")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, "test");
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "test");
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
         //CHECK
@@ -96,7 +96,7 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         //OPERATE
         final List<EntitySeed> seeds = Collections.singletonList(new EntitySeed("C"));
         final GetEntitiesBySeed getEdges = new GetEntitiesBySeed(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, "test");
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "test");
         final List<Entity> results = Lists.newArrayList(graph.execute(getEdges));
 
         //CHECK

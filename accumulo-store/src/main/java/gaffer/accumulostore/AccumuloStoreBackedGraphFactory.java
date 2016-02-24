@@ -24,7 +24,7 @@ import org.apache.hadoop.io.MapWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -63,13 +63,13 @@ public final class AccumuloStoreBackedGraphFactory {
         }
 
         final DataSchema dataSchema = DataSchema
-                .fromJson(((BytesWritable) map.get(Constants.DATA_SCHEMA_KEY)).getBytes());
+                .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.DATA_SCHEMA_KEY)).getBytes());
         final StoreSchema storeSchema = StoreSchema
-                .fromJson(((BytesWritable) map.get(Constants.STORE_SCHEMA_KEY)).getBytes());
+                .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.STORE_SCHEMA_KEY)).getBytes());
         final String keyPackageClass;
         try {
-            keyPackageClass = new String(((BytesWritable) map.get(Constants.KEY_PACKAGE_KEY)).getBytes(),
-                    Constants.UTF_8_CHARSET);
+            keyPackageClass = new String(((BytesWritable) map.get(AccumuloStoreConstants.KEY_PACKAGE_KEY)).getBytes(),
+                    AccumuloStoreConstants.UTF_8_CHARSET);
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
         }

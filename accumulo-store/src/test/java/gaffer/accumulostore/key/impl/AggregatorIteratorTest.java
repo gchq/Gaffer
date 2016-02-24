@@ -24,7 +24,7 @@ import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -119,11 +119,11 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
 
         AddElements add = new AddElements(Arrays.asList((Element) edge1, edge2, edge3));
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, "public");
+        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "public");
         store.execute(new OperationChain<>(add));
 
         GetRelatedEdges get = new GetRelatedEdges(defaultView, Collections.singletonList(((ElementSeed) new EntitySeed("1"))));
-        get.addOption(Constants.OPERATION_AUTHORISATIONS, "public");
+        get.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "public");
 
         // When
         final List<Edge> results = Lists.newArrayList(store.execute(new OperationChain<>(get)));

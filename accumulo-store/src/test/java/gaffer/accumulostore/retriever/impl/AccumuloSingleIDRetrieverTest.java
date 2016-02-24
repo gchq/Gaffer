@@ -24,7 +24,7 @@ import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -91,7 +91,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.ALL);
         try {
@@ -124,7 +124,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(false);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
@@ -157,7 +157,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         try {
@@ -192,7 +192,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
@@ -229,7 +229,7 @@ public class AccumuloSingleIDRetrieverTest {
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
         operation.setIncludeEdges(IncludeEdgeType.DIRECTED);
         ;
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
         } catch (IteratorSettingException e) {
@@ -263,7 +263,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
@@ -298,7 +298,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
@@ -333,7 +333,7 @@ public class AccumuloSingleIDRetrieverTest {
             elements.add(entity);
         }
         AddElements add = new AddElements(elements);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             store.execute(new OperationChain<>(add));
         } catch (OperationException e) {

@@ -67,25 +67,25 @@ public class TableUtilsTest {
         final Map<String, EnumSet<IteratorScope>> itrs = store.getConnection().tableOperations().listIterators(TABLE_NAME);
         assertEquals(2, itrs.size());
 
-        final EnumSet<IteratorScope> validator = itrs.get(Constants.VALIDATOR_ITERATOR_NAME);
+        final EnumSet<IteratorScope> validator = itrs.get(AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
         assertEquals(EnumSet.allOf(IteratorScope.class), validator);
-        final IteratorSetting validatorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.VALIDATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(Constants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
+        final IteratorSetting validatorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, IteratorScope.majc);
+        assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
         assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(DataSchema.fromJson(validatorOptions.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertNotNull(StoreSchema.fromJson(validatorOptions.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+        assertNotNull(DataSchema.fromJson(validatorOptions.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(StoreSchema.fromJson(validatorOptions.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
-        final EnumSet<IteratorScope> aggregator = itrs.get(Constants.AGGREGATOR_ITERATOR_NAME);
+        final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
         assertEquals(EnumSet.allOf(IteratorScope.class), aggregator);
-        final IteratorSetting aggregatorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, Constants.AGGREGATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(Constants.AGGREGATOR_ITERATOR_PRIORITY, aggregatorSetting.getPriority());
+        final IteratorSetting aggregatorSetting = store.getConnection().tableOperations().getIteratorSetting(TABLE_NAME, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, IteratorScope.majc);
+        assertEquals(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY, aggregatorSetting.getPriority());
         assertEquals(AggregatorIterator.class.getName(), aggregatorSetting.getIteratorClass());
         final Map<String, String> aggregatorOptions = aggregatorSetting.getOptions();
-        assertNotNull(DataSchema.fromJson(aggregatorOptions.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertNotNull(StoreSchema.fromJson(aggregatorOptions.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), aggregatorOptions.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+        assertNotNull(DataSchema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(StoreSchema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), aggregatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
 
         final Map<String, String> tableProps = new HashMap<>();

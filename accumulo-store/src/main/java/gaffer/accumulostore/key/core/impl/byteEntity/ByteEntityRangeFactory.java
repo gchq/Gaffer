@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.exception.SerialisationException;
 import gaffer.operation.GetOperation;
@@ -80,7 +80,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         key[sourceValue.length + 1] = directionFlag1;
         key[sourceValue.length + 2] = ByteArrayEscapeUtils.DELIMITER;
         System.arraycopy(destinationValue, 0, key, sourceValue.length + 3, destinationValue.length);
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         key[serialisedVertex.length + 1] = ByteEntityPositions.ENTITY;
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private Key getDirectedEdgeKeyDestinationFirst(final byte[] serialisedVertex, final boolean endKey) {
@@ -214,7 +214,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         key[serialisedVertex.length + 1] = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private Key getDirectedEdgeKeySourceFirst(final byte[] serialisedVertex, final boolean endKey) {
@@ -227,7 +227,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         key[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private Key getUnDirectedEdgeKey(final byte[] serialisedVertex, final boolean endKey) {
@@ -240,7 +240,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         key[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private Pair<Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
@@ -253,9 +253,9 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         startKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
         startKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER;
         return new Pair<>(
-                new Key(startKeyBytes, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                new Key(startKeyBytes, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
                         Long.MAX_VALUE),
-                new Key(endKeyBytes, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES,
+                new Key(endKeyBytes, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES,
                         Long.MAX_VALUE));
     }
 }

@@ -28,7 +28,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IngestUtils;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
@@ -41,7 +41,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store)
             throws IOException {
         super.setupJobConf(jobConf, operation, store);
-        jobConf.set(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+        jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
     }
 
@@ -52,7 +52,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         setupMapper(job, operation, store);
         setupReducer(job, operation, store);
         setupOutput(job, operation, store);
-        String useAccumuloPartioner = operation.getOption(Constants.OPERATION_USE_ACCUMULO_PARTIONER);
+        String useAccumuloPartioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
         if (null != useAccumuloPartioner && useAccumuloPartioner.equalsIgnoreCase("true")) {
             setupPartioner(job, operation, (AccumuloStore) store);
         }
@@ -78,7 +78,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        String splitsFilePath = operation.getOption(Constants.OPERATION_USE_PROVIDED_SPLITS);
+        String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
         int numReduceTasks;
         if (null == splitsFilePath || splitsFilePath.equals("")) {
             splitsFilePath = store.getProperties().getSplitsFilePath();

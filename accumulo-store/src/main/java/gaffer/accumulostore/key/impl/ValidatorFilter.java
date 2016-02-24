@@ -16,7 +16,7 @@
 
 package gaffer.accumulostore.key.impl;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.ElementValidator;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -34,21 +34,21 @@ public class ValidatorFilter extends ElementFilter {
     @Override
     public IteratorOptions describeOptions() {
         final Map<String, String> namedOptions = new HashMap<>();
-        namedOptions.put(Constants.DATA_SCHEMA, "A serialised data schema");
-        namedOptions.put(Constants.STORE_SCHEMA, "A serialised store schema");
-        return new IteratorOptions(Constants.DATA_SCHEMA,
+        namedOptions.put(AccumuloStoreConstants.DATA_SCHEMA, "A serialised data schema");
+        namedOptions.put(AccumuloStoreConstants.STORE_SCHEMA, "A serialised store schema");
+        return new IteratorOptions(AccumuloStoreConstants.DATA_SCHEMA,
                 "Only returns elements that are valid",
                 namedOptions, null);
     }
 
     @Override
     protected ElementValidator getElementValidator(final Map<String, String> options) {
-        if (!options.containsKey(Constants.DATA_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.DATA_SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
         }
 
         try {
-            return new ElementValidator(DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET)));
+            return new ElementValidator(DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
         } catch (UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise data schema from JSON", e);
         }
