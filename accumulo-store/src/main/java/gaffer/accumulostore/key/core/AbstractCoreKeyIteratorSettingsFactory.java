@@ -23,7 +23,7 @@ import gaffer.accumulostore.key.core.impl.CoreKeyColumnQualifierVisibilityValueA
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ElementFilter;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.data.elementdefinition.view.View;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -34,15 +34,15 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     @Override
     public IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException {
-        return new IteratorSettingBuilder(Constants.BLOOM_FILTER_ITERATOR_PRIORITY,
-                Constants.BLOOM_FILTER_ITERATOR_NAME, CoreKeyBloomFilterIterator.class).bloomFilter(filter).build();
+        return new IteratorSettingBuilder(AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_NAME, CoreKeyBloomFilterIterator.class).bloomFilter(filter).build();
     }
 
     @Override
     public IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
-        return new IteratorSettingBuilder(Constants.ELEMENT_FILTER_ITERATOR_PRIORITY,
-                Constants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME).storeSchema(store.getStoreSchema())
+        return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME).storeSchema(store.getStoreSchema())
                 .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
     }
 
@@ -58,7 +58,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
      */
     @Override
     public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
-        return new IteratorSettingBuilder(Constants.AGGREGATOR_ITERATOR_PRIORITY, Constants.AGGREGATOR_ITERATOR_NAME,
+        return new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
                 AggregatorIterator.class).all().dataSchema(store.getDataSchema()).storeSchema(store.getStoreSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter()).build();
     }
@@ -66,8 +66,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     @Override
     public IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store)
             throws IteratorSettingException {
-        return new IteratorSettingBuilder(Constants.QUERY_TIME_AGGREGATOR_PRIORITY,
-                Constants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
+        return new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+                AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
                 CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class).all().dataSchema(store.getDataSchema())
                 .storeSchema(store.getStoreSchema()).keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();

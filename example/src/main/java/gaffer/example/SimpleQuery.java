@@ -16,7 +16,7 @@
 
 package gaffer.example;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.data.Certificate;
@@ -95,10 +95,10 @@ public class SimpleQuery {
                 .first(new GenerateElements.Builder<>()
                         .objects(new SampleData().generate())
                         .generator(new DataGenerator())
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new AddElements.Builder()
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 
@@ -114,11 +114,11 @@ public class SimpleQuery {
                                 .edge(Group.VIEWING)
                                 .build())
                         .addSeed(new EntitySeed("filmA"))
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new GenerateObjects.Builder<Edge, Viewing>()
                         .generator(new ViewingGenerator())
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 

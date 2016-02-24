@@ -17,7 +17,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.Constants;
+import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
 
 import java.io.UnsupportedEncodingException;
 
@@ -34,7 +34,7 @@ public class DoubleSerialiser implements Serialisation {
     public byte[] serialise(final Object object) throws SerialisationException {
         Double value = (Double) object;
         try {
-            return value.toString().getBytes(Constants.ISO_8859_1_ENCODING);
+            return value.toString().getBytes(SimpleSerialisationConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -43,7 +43,7 @@ public class DoubleSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return Double.parseDouble(new String(bytes, Constants.ISO_8859_1_ENCODING).trim());
+            return Double.parseDouble(new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING).trim());
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

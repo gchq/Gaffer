@@ -16,7 +16,7 @@
 package gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
@@ -67,10 +67,10 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
                 new EdgeDomainObject("C", "B", false, 7)
         ), new BasicEdgeGenerator());
 
-        generateEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        generateEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
 
         AddElements addElements = new AddElements();
-        addElements.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        addElements.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         OperationChain<Void> opChain = new OperationChain.Builder()
                 .first(generateEdges)
                 .then(addElements)
@@ -85,7 +85,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         // OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("A")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         getEdges.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.BOTH);
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
@@ -105,7 +105,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         // OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("C")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         getEdges.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.OUTGOING);
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
@@ -124,7 +124,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         // OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("B")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         getEdges.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.OUTGOING);
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
@@ -151,7 +151,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         // OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("C")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         getEdges.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.BOTH);
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
@@ -182,7 +182,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         // OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("B")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(view, seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         getEdges.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.OUTGOING);
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
@@ -212,7 +212,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
         // OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("B")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(view, seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
+        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, TEST_AUTHS);
         getEdges.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.OUTGOING);
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 

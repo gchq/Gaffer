@@ -30,7 +30,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
@@ -102,23 +102,23 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (!options.containsKey(Constants.DATA_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.DATA_SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
         }
         try {
-            dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the store schema", e);
         }
         try {
             final Class<?> elementConverterClass = Class
-                    .forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
                     .newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }

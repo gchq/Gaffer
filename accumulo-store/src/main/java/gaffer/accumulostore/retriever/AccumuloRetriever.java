@@ -22,7 +22,7 @@ import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.utils.CloseableIterable;
 import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -56,7 +56,7 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
         this.authorisations = new Authorizations(
-                this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+                this.operation.getOptions().get(AccumuloStoreConstants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
     }
 
     /**

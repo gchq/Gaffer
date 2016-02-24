@@ -187,7 +187,7 @@ public final class TableUtils {
                 properties.getUserName(), properties.getPassword());
         BatchScanner scanner;
         try {
-            scanner = connection.createBatchScanner(Constants.GAFFER_UTILS_TABLE, getCurrentAuthorizations(connection),
+            scanner = connection.createBatchScanner(AccumuloStoreConstants.GAFFER_UTILS_TABLE, getCurrentAuthorizations(connection),
                     properties.getThreadsForBatchScanner());
         } catch (final TableNotFoundException e) {
             throw new TableUtilException(e);
@@ -245,24 +245,24 @@ public final class TableUtils {
         } catch (final StoreException e) {
             throw new TableUtilException(e);
         }
-        if (!conn.tableOperations().exists(Constants.GAFFER_UTILS_TABLE)) {
+        if (!conn.tableOperations().exists(AccumuloStoreConstants.GAFFER_UTILS_TABLE)) {
             try {
-                conn.tableOperations().create(Constants.GAFFER_UTILS_TABLE);
+                conn.tableOperations().create(AccumuloStoreConstants.GAFFER_UTILS_TABLE);
             } catch (final TableExistsException e) {
                 // Someone else got there first, never mind...
             } catch (AccumuloException | AccumuloSecurityException e) {
-                throw new TableUtilException("Failed to create : " + Constants.GAFFER_UTILS_TABLE + " table", e);
+                throw new TableUtilException("Failed to create : " + AccumuloStoreConstants.GAFFER_UTILS_TABLE + " table", e);
             }
         }
     }
 
     public static void addUpdateUtilsTable(final AccumuloStore store) throws TableUtilException {
         ensureUtilsTableExists(store);
-        final BatchWriter writer = createBatchWriter(store, Constants.GAFFER_UTILS_TABLE);
+        final BatchWriter writer = createBatchWriter(store, AccumuloStoreConstants.GAFFER_UTILS_TABLE);
         final Key key;
         try {
-            key = new Key(store.getProperties().getTable().getBytes(Constants.UTF_8_CHARSET), Constants.EMPTY_BYTES,
-                    Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+            key = new Key(store.getProperties().getTable().getBytes(AccumuloStoreConstants.UTF_8_CHARSET), AccumuloStoreConstants.EMPTY_BYTES,
+                    AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
         } catch (final UnsupportedEncodingException e) {
             throw new TableUtilException(e.getMessage(), e);
         }
@@ -314,14 +314,14 @@ public final class TableUtils {
      * @return An iterator setting describing an age off iterator
      */
     private static IteratorSetting getAgeOffIteratorSetting(final long ageOffTimeInMilliseconds) {
-        return new IteratorSettingBuilder(Constants.AGE_OFF_ITERATOR_PRIORITY, "ageoff", AgeOffFilter.class)
+        return new IteratorSettingBuilder(AccumuloStoreConstants.AGE_OFF_ITERATOR_PRIORITY, "ageoff", AgeOffFilter.class)
                 .option("ttl", "" + ageOffTimeInMilliseconds).build();
     }
 
     private static Range getTableSetupRange(final String table) {
         try {
-            return new Range(getTableSetupKey(table.getBytes(Constants.UTF_8_CHARSET), false),
-                    getTableSetupKey(table.getBytes(Constants.UTF_8_CHARSET), true));
+            return new Range(getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), false),
+                    getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), true));
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -335,17 +335,17 @@ public final class TableUtils {
         } else {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length);
         }
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private static Value getValueFromSchemas(final DataSchema dataSchema, final StoreSchema storeSchema,
                                              final AccumuloKeyPackage keyPackage) throws TableUtilException {
         final MapWritable map = new MapWritable();
-        map.put(Constants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
-        map.put(Constants.STORE_SCHEMA_KEY, new BytesWritable(storeSchema.toJson(false)));
+        map.put(AccumuloStoreConstants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
+        map.put(AccumuloStoreConstants.STORE_SCHEMA_KEY, new BytesWritable(storeSchema.toJson(false)));
         try {
-            map.put(Constants.KEY_PACKAGE_KEY,
-                    new BytesWritable(keyPackage.getClass().getName().getBytes(Constants.UTF_8_CHARSET)));
+            map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
+                    new BytesWritable(keyPackage.getClass().getName().getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
         } catch (final UnsupportedEncodingException e) {
             throw new TableUtilException(e.getMessage(), e);
         }
