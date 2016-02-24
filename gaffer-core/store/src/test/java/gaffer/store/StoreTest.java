@@ -16,6 +16,20 @@
 
 package gaffer.store;
 
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.VALIDATION;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.collect.Sets;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -52,27 +66,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class StoreTest {
     private OperationHandler<AddElements, Void> addElementsHandler;
@@ -336,13 +335,12 @@ public class StoreTest {
         final StoreSchema storeSchema = mock(StoreSchema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
-        final OperationChain opChain = new OperationChain(addElements);
         final StoreImpl store = new StoreImpl();
 
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        store.execute(opChain);
+        store.execute(addElements);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, store);
@@ -355,13 +353,12 @@ public class StoreTest {
         final StoreSchema storeSchema = mock(StoreSchema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
-        final OperationChain opChain = new OperationChain(operation);
         final StoreImpl store = new StoreImpl();
 
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        store.execute(opChain);
+        store.execute(operation);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -466,7 +463,6 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         given(validatable1.isValidate()).willReturn(false);
         given(validatableHandler.doOperation(validatable1, store)).willReturn(expectedResult);
@@ -474,7 +470,7 @@ public class StoreTest {
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        int result = store.execute(opChain);
+        int result = store.execute(validatable1);
 
         // Then
         Assert.assertEquals(expectedResult, result);
@@ -489,7 +485,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         store.setValidationRequired(true);
         given(validatable1.isValidate()).willReturn(false);
@@ -498,7 +493,7 @@ public class StoreTest {
 
         // When / then
         try {
-            store.execute(opChain);
+            store.execute(validatable1);
             fail("Exception expected");
         } catch (UnsupportedOperationException e) {
             assertNotNull(e);
@@ -557,7 +552,6 @@ public class StoreTest {
         final int expectedResult = 5;
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable);
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
@@ -565,7 +559,7 @@ public class StoreTest {
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        int result = store.execute(opChain);
+        int result = store.execute(validatable);
 
         //Then
         verify(validatable, times(1)).getOptions();
