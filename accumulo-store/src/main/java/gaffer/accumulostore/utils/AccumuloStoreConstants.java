@@ -18,7 +18,7 @@ package gaffer.accumulostore.utils;
 
 import org.apache.hadoop.io.Text;
 
-public final class Constants {
+public final class AccumuloStoreConstants {
     // Iterator names
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
@@ -64,11 +64,10 @@ public final class Constants {
     public static final int TRANSFORM_PRIORITY = 50;
 
     // Operations options
-    public static final String OPERATION_USE_ACCUMULO_PARTIONER = "accumulostore.operation.hdfs.use_accumulo_partioner";
-    public static final String OPERATION_USE_PROVIDED_SPLITS = "accumulostore.operation.hdfs.use_provided_splits";
+    public static final String OPERATION_HDFS_USE_ACCUMULO_PARTITIONER = "accumulostore.operation.hdfs.use_accumulo_partitioner";
+    public static final String OPERATION_HDFS_SPLITS_FILE = "accumulostore.operation.hdfs.user_provided_splits_file";
     public static final String OPERATION_AUTHORISATIONS = "accumulostore.operation.authorisations";
-    public static final String OPERATION_SPLITS_FILE_PATH = "accumulostore.operation.splits_file_path";
-    public static final String OPERATION_MATCH_AS_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
+    public static final String OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
 
     // Store factory constants
     public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
@@ -80,7 +79,7 @@ public final class Constants {
     public static final String UTF_8_CHARSET = "UTF-8";
     public static final byte[] EMPTY_BYTES = new byte[0];
 
-    private Constants() {
+    private AccumuloStoreConstants() {
         // private constructor to prevent users instantiating this class as it
         // only contains constants.
     }

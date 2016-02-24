@@ -17,7 +17,7 @@ package gaffer.accumulostore.operation.hdfs.handler.job;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -51,16 +51,16 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
         final StoreSchema storeSchema;
         try {
             dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA)
-                    .getBytes(Constants.UTF_8_CHARSET));
+                    .getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
             storeSchema = StoreSchema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
         }
 
         try {
             final Class<?> elementConverterClass = Class
-                    .forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
                     .newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -88,7 +88,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     private Value reduceMultiValue(final Key key, final Iterator<Value> iter, final Value firstValue) {
         final String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

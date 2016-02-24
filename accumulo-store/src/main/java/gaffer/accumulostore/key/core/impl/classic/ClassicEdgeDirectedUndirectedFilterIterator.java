@@ -25,7 +25,7 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 
 public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
@@ -92,25 +92,25 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (options.containsKey(Constants.DIRECTED_EDGE_ONLY) && options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
-            throw new IllegalArgumentException("Must specify ONLY ONE of " + Constants.DIRECTED_EDGE_ONLY + " or "
-                    + Constants.UNDIRECTED_EDGE_ONLY);
+        if (options.containsKey(AccumuloStoreConstants.DIRECTED_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY)) {
+            throw new IllegalArgumentException("Must specify ONLY ONE of " + AccumuloStoreConstants.DIRECTED_EDGE_ONLY + " or "
+                    + AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY);
         }
-        if (options.containsKey(Constants.INCOMING_EDGE_ONLY) && options.containsKey(Constants.OUTGOING_EDGE_ONLY)) {
+        if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
             throw new IllegalArgumentException(
-                    "Must specify ONLY ONE of " + Constants.INCOMING_EDGE_ONLY + " or " + Constants.OUTGOING_EDGE_ONLY);
+                    "Must specify ONLY ONE of " + AccumuloStoreConstants.INCOMING_EDGE_ONLY + " or " + AccumuloStoreConstants.OUTGOING_EDGE_ONLY);
         }
-        if (options.containsKey(Constants.INCOMING_EDGE_ONLY)) {
+        if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY)) {
             incomingEdges = true;
-        } else if (options.containsKey(Constants.OUTGOING_EDGE_ONLY)) {
+        } else if (options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
             outgoingEdges = true;
         }
-        if (options.containsKey(Constants.DIRECTED_EDGE_ONLY)) {
+        if (options.containsKey(AccumuloStoreConstants.DIRECTED_EDGE_ONLY)) {
             directedEdges = true;
-        } else if (options.containsKey(Constants.UNDIRECTED_EDGE_ONLY)) {
+        } else if (options.containsKey(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY)) {
             unDirectedEdges = true;
         }
-        if (options.containsKey(Constants.INCLUDE_ENTITIES)) {
+        if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
         return true;
@@ -119,14 +119,14 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     @Override
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions())
-                .addNamedOption(Constants.DIRECTED_EDGE_ONLY,
+                .addNamedOption(AccumuloStoreConstants.DIRECTED_EDGE_ONLY,
                         "Optional : Set if only directed edges should be returned")
-                .addNamedOption(Constants.UNDIRECTED_EDGE_ONLY,
+                .addNamedOption(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY,
                         "Optional: Set if only undirected edges should be returned")
-                .addNamedOption(Constants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
-                .addNamedOption(Constants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
-                .addNamedOption(Constants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
-                .setIteratorName(Constants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME)
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
+                .setIteratorName(AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
                 .build();

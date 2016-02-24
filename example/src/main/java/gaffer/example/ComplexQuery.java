@@ -16,7 +16,7 @@
 
 package gaffer.example;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
@@ -120,7 +120,7 @@ public class ComplexQuery {
                                 .edge(Group.VIEWING)
                                 .build())
                         .addSeed(new EntitySeed("user02"))
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
@@ -141,7 +141,7 @@ public class ComplexQuery {
                                         .build())
                                 .build())
                         .summarise(true)   // Setting the summarise flag to true will aggregate the results when run on a store that supports aggregation
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 

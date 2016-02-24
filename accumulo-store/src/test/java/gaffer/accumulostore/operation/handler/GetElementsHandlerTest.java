@@ -31,9 +31,7 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
-import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -182,10 +180,5 @@ public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
     @Override
     protected View createView() {
         return View.fromJson(PathUtil.view(getClass()));
-    }
-
-    @Override
-    protected GetElements<ElementSeed, Element> createMockOperation(final SeedMatchingType seedMatching, final IncludeEdgeType includeEdgeType, final Boolean includeEntities, final IncludeIncomingOutgoingType inOutType, final Iterable<ElementSeed> seeds) throws IOException {
-        return super.createMockOperation(seedMatching, includeEdgeType, includeEntities, inOutType, seeds);
     }
 }

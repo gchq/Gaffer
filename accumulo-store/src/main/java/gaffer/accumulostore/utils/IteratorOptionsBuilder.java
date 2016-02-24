@@ -46,19 +46,19 @@ public class IteratorOptionsBuilder {
     }
 
     public IteratorOptionsBuilder addViewNamedOption() {
-        return addNamedOption(Constants.VIEW, VIEW_DESCRIPTION);
+        return addNamedOption(AccumuloStoreConstants.VIEW, VIEW_DESCRIPTION);
     }
 
     public IteratorOptionsBuilder addStoreSchemaNamedOption() {
-        return addNamedOption(Constants.STORE_SCHEMA, STORE_SCHEMA_DESCRIPTION);
+        return addNamedOption(AccumuloStoreConstants.STORE_SCHEMA, STORE_SCHEMA_DESCRIPTION);
     }
 
     public IteratorOptionsBuilder addDataSchemaNamedOption() {
-        return addNamedOption(Constants.DATA_SCHEMA, DATA_SCHEMA_DESCRIPTION);
+        return addNamedOption(AccumuloStoreConstants.DATA_SCHEMA, DATA_SCHEMA_DESCRIPTION);
     }
 
     public IteratorOptionsBuilder addElementConverterClassNamedOption() {
-        return addNamedOption(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS, ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION);
+        return addNamedOption(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS, ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION);
     }
 
     public IteratorOptionsBuilder setIteratorName(final String iteratorName) {

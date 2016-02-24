@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.core.impl;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
@@ -158,7 +158,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         final Pair<Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.OPERATION_MATCH_AS_SOURCE, "true");
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
         // When
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), options);

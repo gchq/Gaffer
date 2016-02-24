@@ -27,6 +27,7 @@ import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
@@ -103,6 +104,7 @@ public class GetElementsWithinSetHandlerTest {
 
     public void testNoSummarisation(final AccumuloStore store) throws OperationException {
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
+        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setSummarise(false);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         Iterable<Element> elements = handler.doOperation(operation, store);

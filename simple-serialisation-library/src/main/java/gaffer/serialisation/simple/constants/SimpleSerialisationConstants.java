@@ -18,11 +18,11 @@ package gaffer.serialisation.simple.constants;
 /**
  * Serialisation constants.
  */
-public final class Constants {
+public final class SimpleSerialisationConstants {
     public static final String ISO_8859_1_ENCODING = "ISO-8859-1";
     public static final String UTF_8_ENCODING = "UTF-8";
 
-    private Constants() {
+    private SimpleSerialisationConstants() {
         // private constructor to prevent users instantiating this class as it only contains constants.
     }
 }

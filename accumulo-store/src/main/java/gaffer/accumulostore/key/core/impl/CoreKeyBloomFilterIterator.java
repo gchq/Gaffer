@@ -18,7 +18,7 @@ package gaffer.accumulostore.key.core.impl;
 
 import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -75,13 +75,13 @@ public class CoreKeyBloomFilterIterator extends Filter {
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (!options.containsKey(Constants.BLOOM_FILTER)) {
-            throw new BloomFilterIteratorException("Must set the " + Constants.BLOOM_FILTER + " option");
+        if (!options.containsKey(AccumuloStoreConstants.BLOOM_FILTER)) {
+            throw new BloomFilterIteratorException("Must set the " + AccumuloStoreConstants.BLOOM_FILTER + " option");
         }
         filter = new BloomFilter();
         try {
             filter.readFields(new DataInputStream(new ByteArrayInputStream(
-                    options.get(Constants.BLOOM_FILTER).getBytes(Constants.BLOOM_FILTER_CHARSET))));
+                    options.get(AccumuloStoreConstants.BLOOM_FILTER).getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET))));
         } catch (final IOException e) {
             throw new BloomFilterIteratorException("Failed to re-create serialised bloom filter", e);
         }
@@ -90,8 +90,8 @@ public class CoreKeyBloomFilterIterator extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(Constants.BLOOM_FILTER_ITERATOR_NAME, "Bloom Filter")
-                .addNamedOption(Constants.BLOOM_FILTER,
+        return new IteratorOptionsBuilder(AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_NAME, "Bloom Filter")
+                .addNamedOption(AccumuloStoreConstants.BLOOM_FILTER,
                         "Required: The serialised form of the bloom filter that keys will be tested against")
                 .build();
     }

@@ -84,6 +84,7 @@ public class GetElementsinRangesHandlerTest {
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         Iterable<Element> elements = handler.doOperation(operation, store);
         int count = 0;
@@ -160,6 +161,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
         GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
+
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
@@ -201,6 +203,7 @@ public class GetElementsinRangesHandlerTest {
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         operation.setSummarise(true);
@@ -227,6 +230,7 @@ public class GetElementsinRangesHandlerTest {
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         operation.setSummarise(true);
@@ -269,6 +273,7 @@ public class GetElementsinRangesHandlerTest {
             elements.add(edge2);
             elements.add(edge3);
         }
+
         try {
             store.execute(new AddElements(elements));
         } catch (OperationException e) {
