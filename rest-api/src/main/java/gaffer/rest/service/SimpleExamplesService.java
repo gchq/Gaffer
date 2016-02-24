@@ -289,7 +289,7 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     protected void populateOperation(final Operation operation) {
-        // override to add options the operation
+        // override to add options to the operation
     }
 
     protected Entity getEntity(final int uniqueId) {
