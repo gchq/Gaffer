@@ -44,5 +44,12 @@ public enum StoreTrait {
      * {@link gaffer.data.element.Element}s can be validated against the
      * {@link gaffer.data.elementdefinition.schema.DataSchema} on ingest.
      */
-    VALIDATION
+    INPUT_VALIDATION,
+
+    /**
+     * Elements will continuously be validated and removed if they are found to
+     * be invalid based on {@link gaffer.function.FilterFunction}s defined in the
+     * {@link gaffer.data.elementdefinition.schema.DataSchema}.
+     */
+    CONTINUOUS_VALIDATION
 }

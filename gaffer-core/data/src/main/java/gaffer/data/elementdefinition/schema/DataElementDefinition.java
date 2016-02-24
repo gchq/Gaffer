@@ -105,7 +105,7 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         return fullValidator;
     }
 
-    public void setValidator(final ElementFilter validator) {
+    private void setValidator(final ElementFilter validator) {
         this.validator = validator;
     }
 

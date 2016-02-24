@@ -17,9 +17,10 @@
 package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.CONTINUOUS_VALIDATION;
 import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.INPUT_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -84,7 +85,7 @@ import java.util.Map;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, VALIDATION);
+    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, INPUT_VALIDATION, CONTINUOUS_VALIDATION);
     private AccumuloKeyPackage keyPackage;
 
     @Override

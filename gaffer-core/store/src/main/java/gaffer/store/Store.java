@@ -20,8 +20,6 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.schema.DataElementDefinition;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -29,6 +27,8 @@ import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
@@ -51,7 +51,6 @@ import gaffer.store.schema.StoreSchema;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -107,7 +106,7 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support VALIDATION and FILTERING.
+     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support INPUT_VALIDATION and FILTERING.
      * <p>
      * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
@@ -132,7 +131,7 @@ public abstract class Store {
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
         final Iterator<Operation> opsItr;
 
-        if (hasTrait(StoreTrait.VALIDATION)) {
+        if (hasTrait(StoreTrait.INPUT_VALIDATION)) {
             opsItr = getValidatedOperations(operationChain).iterator();
         } else {
             opsItr = operationChain.getOperations().iterator();
@@ -312,7 +311,7 @@ public abstract class Store {
      */
     protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation);
 
-    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler handler) {
+    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         operationHandlers.put(opClass, handler);
     }
 
@@ -323,7 +322,7 @@ public abstract class Store {
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
         final OUTPUT result;
 
-        if (!hasTrait(StoreTrait.VALIDATION) && operation instanceof Validate) {
+        if (!hasTrait(StoreTrait.INPUT_VALIDATION) && operation instanceof Validate) {
             result = (OUTPUT) ((Validate) operation).getElements();
         } else {
             final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
