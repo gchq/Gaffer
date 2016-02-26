@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package gaffer.data.elementdefinition.schema;
+package gaffer.store.schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.TestPropertyNames;
@@ -27,49 +28,13 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.IsA;
+import org.junit.Assert;
 import org.junit.Test;
 import java.util.Collections;
 
 public class DataEntityDefinitionTest {
-    @Test
-    public void shouldReturnFullAggregator() {
-        // Given
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
-                .vertex(Integer.class)
-                .property("property", String.class)
-                .aggregator(new ElementAggregator.Builder()
-                        .select("property")
-                        .execute(new ExampleAggregatorFunction())
-                        .build())
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertEquals(1, aggregator.getFunctions().size());
-        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregatorFunction);
-        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
-                aggregator.getFunctions().get(0).getSelection());
-
-    }
-
-    @Test
-    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
-        // Given
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
-                .vertex(Integer.class)
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertNull(aggregator.getFunctions());
-    }
-
     @Test
     public void shouldReturnValidatorWithNoFunctionsWhenNoProperties() {
         // Given
@@ -87,12 +52,8 @@ public class DataEntityDefinitionTest {
     public void shouldReturnFullValidator() {
         // Given
         final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
-                .vertex(Integer.class)
-                .property("property", String.class)
-                .aggregator(new ElementAggregator.Builder()
-                        .select("property")
-                        .execute(new ExampleAggregatorFunction())
-                        .build())
+                .vertex("id.integer", Integer.class)
+                .property("property", "property.string", String.class)
                 .build();
 
         // When
@@ -112,26 +73,59 @@ public class DataEntityDefinitionTest {
     public void shouldBuildEntityDefinition() {
         // Given
         final ElementFilter validator = mock(ElementFilter.class);
-        final ElementAggregator aggregator = mock(ElementAggregator.class);
+        final ElementFilter clonedValidator = mock(ElementFilter.class);
+        given(validator.clone()).willReturn(clonedValidator);
 
         // When
         final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
-                .property(TestPropertyNames.F1, String.class)
-                .vertex(Integer.class)
-                .property(TestPropertyNames.F2, Object.class)
+                .property(TestPropertyNames.PROP_1, "property.string", String.class)
+                .vertex("id.integer", Integer.class)
+                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
                 .validator(validator)
-                .aggregator(aggregator)
                 .build();
 
         // Then
         assertEquals(2, elementDef.getProperties().size());
-        assertTrue(elementDef.containsProperty(TestPropertyNames.F1));
-        assertTrue(elementDef.containsProperty(TestPropertyNames.F2));
+        assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_1));
+        assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_2));
 
         assertEquals(1, elementDef.getIdentifiers().size());
         assertEquals(Integer.class, elementDef.getIdentifierClass(IdentifierType.VERTEX));
+        assertSame(clonedValidator, elementDef.getValidator());
+    }
 
-        assertSame(aggregator, elementDef.getOriginalAggregator());
-        assertSame(validator, elementDef.getOriginalValidator());
+    @Test
+    public void shouldReturnFullAggregator() {
+        // Given
+        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+                .vertex("id.integer", Integer.class)
+                .property("property", "property.string", new Type.Builder(String.class)
+                        .aggregateFunction(new ExampleAggregateFunction())
+                        .build())
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        Assert.assertEquals(1, aggregator.getFunctions().size());
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
+        Assert.assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+                aggregator.getFunctions().get(0).getSelection());
+
+    }
+
+    @Test
+    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
+        // Given
+        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+                .vertex("id.integer")
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        assertNull(aggregator.getFunctions());
     }
 }

@@ -16,7 +16,6 @@
 
 package gaffer.rest.service;
 
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.graph.Graph;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;

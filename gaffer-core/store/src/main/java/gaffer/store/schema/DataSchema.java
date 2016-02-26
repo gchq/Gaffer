@@ -17,31 +17,36 @@
 package gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
-
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A <code>StoreSchema</code> contains all the {@link gaffer.data.element.Element}s to be stored and specifically
- * the information needed to store them - i.e positions and serialisers.
+ * Contains the full list of {@link gaffer.data.element.Element} types to be stored in the graph.
+ * <p>
+ * Each type of element should have the identifier type(s) listed and a map of property names and their corresponding types.
+ * Each type can either be a full java class name or a custom type. Using custom types then allows you to specify
+ * validation and aggregation for the element components.
  * <p>
  * This class must be JSON serialisable.
- * A store schema should normally be written in JSON and then deserialised at runtime.
- * Examples of JSON data schemas can be found in the example projects.
+ * A data schema should normally be written in JSON and then it will be automatically deserialised at runtime.
+ * An example of a JSON data schemas can be found in the Example module.
  *
- * @see gaffer.store.schema.StoreSchema.Builder
- * @see gaffer.store.schema.StoreElementDefinition
- * @see gaffer.store.schema.StorePropertyDefinition
+ * @see DataSchema.Builder
+ * @see ElementDefinitions
  */
-public class StoreSchema extends ElementDefinitions<StoreElementDefinition, StoreElementDefinition> {
-    private static final long serialVersionUID = 2377712298631263987L;
+public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdgeDefinition> {
     private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
+    private static final long serialVersionUID = 4593579100621117269L;
 
     /**
      * The {@link gaffer.serialisation.Serialisation} for all identifiers. By default it is set to
@@ -54,26 +59,62 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
      * This could be used to set the identifier, group or general property positions.
      */
     private Map<String, String> positions;
+    /**
+     * A map of custom type name to {@link Type}.
+     *
+     * @see Types
+     * @see Type
+     */
+    private final Types types;
 
-    public StoreSchema() {
-        super();
+    public DataSchema() {
+        this(new Types());
     }
 
-    public StoreSchema(final Map<String, StoreElementDefinition> edges, final Map<String, StoreElementDefinition> entities) {
-        setEdges(edges);
-        setEntities(entities);
+    protected DataSchema(final Types types) {
+        this.types = types;
     }
 
-    public static StoreSchema fromJson(final InputStream inputStream) throws SchemaException {
-        return fromJson(inputStream, StoreSchema.class);
+    public static DataSchema fromJson(final InputStream inputStream) throws SchemaException {
+        return fromJson(inputStream, DataSchema.class);
     }
 
-    public static StoreSchema fromJson(final Path filePath) throws SchemaException {
-        return fromJson(filePath, StoreSchema.class);
+    public static DataSchema fromJson(final Path filePath) throws SchemaException {
+        return fromJson(filePath, DataSchema.class);
     }
 
-    public static StoreSchema fromJson(final byte[] jsonBytes) throws SchemaException {
-        return fromJson(jsonBytes, StoreSchema.class);
+    public static DataSchema fromJson(final byte[] jsonBytes) throws SchemaException {
+        return fromJson(jsonBytes, DataSchema.class);
+    }
+
+    public Types getTypes() {
+        return types;
+    }
+
+    /**
+     * This does not override the current types it just appends the additional types.
+     *
+     * @param newTypes the new types to be added.
+     */
+    @JsonSetter("types")
+    public void addTypes(final Types newTypes) {
+        types.putAll(newTypes);
+    }
+
+    public void addType(final String typeName, final Type type) {
+        types.put(typeName, type);
+    }
+
+    public Type getType(final String typeName) {
+        return types.getType(typeName);
+    }
+
+    public void addTypesFromPath(final Path path) {
+        loadTypes(path);
+    }
+
+    public void addTypesFromStream(final InputStream stream) {
+        loadTypes(stream);
     }
 
     public String getPosition(final String key) {
@@ -146,30 +187,61 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
     }
 
     @Override
-    public StoreElementDefinition getElement(final String group) {
-        return (StoreElementDefinition) super.getElement(group);
+    public void setEdges(final Map<String, DataEdgeDefinition> edges) {
+        super.setEdges(edges);
+        for (DataElementDefinition def : edges.values()) {
+            def.setTypes(types);
+        }
     }
 
-    /**
-     * Builds a {@link gaffer.store.schema.StoreElementDefinition}.
-     */
-    public static class Builder extends ElementDefinitions.Builder<StoreElementDefinition, StoreElementDefinition> {
+    @Override
+    public void setEntities(final Map<String, DataEntityDefinition> entities) {
+        super.setEntities(entities);
+        for (DataElementDefinition def : entities.values()) {
+            def.setTypes(types);
+        }
+    }
+
+    @Override
+    public DataElementDefinition getElement(final String group) {
+        return (DataElementDefinition) super.getElement(group);
+    }
+
+    @Override
+    protected void addEdge(final String group, final DataEdgeDefinition elementDef) {
+        super.addEdge(group, elementDef);
+        elementDef.setTypes(types);
+    }
+
+    @Override
+    protected void addEntity(final String group, final DataEntityDefinition elementDef) {
+        super.addEntity(group, elementDef);
+        elementDef.setTypes(types);
+    }
+
+    private void loadTypes(final Path path) {
+        try {
+            addTypes(JSON_SERIALISER.deserialise(Files.readAllBytes(path), types.getClass()));
+        } catch (IOException e) {
+            throw new SchemaException("Failed to load schema types from file : " + e.getMessage(), e);
+        }
+    }
+
+    private void loadTypes(final InputStream stream) {
+        try {
+            addTypes(JSON_SERIALISER.deserialise(stream, types.getClass()));
+        } catch (SerialisationException e) {
+            throw new SchemaException("Failed to load schema types from file : " + e.getMessage(), e);
+        }
+    }
+
+    public static class Builder extends ElementDefinitions.Builder<DataEntityDefinition, DataEdgeDefinition> {
         public Builder() {
-            this(new StoreSchema());
+            this(new DataSchema());
         }
 
-        public Builder(final StoreSchema storeSchema) {
-            super(storeSchema);
-        }
-
-        @Override
-        public Builder edge(final String group, final StoreElementDefinition elementDef) {
-            return (Builder) super.edge(group, elementDef);
-        }
-
-        @Override
-        public Builder entity(final String group, final StoreElementDefinition elementDef) {
-            return (Builder) super.entity(group, elementDef);
+        public Builder(final DataSchema dataSchema) {
+            super(dataSchema);
         }
 
         /**
@@ -178,7 +250,7 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
          * @param key      the key to add a position for.
          * @param position the position
          * @return this Builder
-         * @see gaffer.store.schema.StoreSchema#setPositions(java.util.Map)
+         * @see gaffer.store.schema.DataSchema#setPositions(java.util.Map)
          */
         public Builder position(final String key, final String position) {
             Map<String, String> positions = getElementDefs().getPositions();
@@ -196,7 +268,7 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
          *
          * @param vertexSerialiser the {@link gaffer.serialisation.Serialisation} to set
          * @return this Builder
-         * @see gaffer.store.schema.StoreSchema#setVertexSerialiser(Serialisation)
+         * @see gaffer.store.schema.DataSchema#setVertexSerialiser(Serialisation)
          */
         public Builder vertexSerialiser(final Serialisation vertexSerialiser) {
             getElementDefs().setVertexSerialiser(vertexSerialiser);
@@ -209,7 +281,7 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
          *
          * @param vertexSerialiserClass the {@link gaffer.serialisation.Serialisation} class name to set
          * @return this Builder
-         * @see gaffer.store.schema.StoreSchema#setVertexSerialiserClass(java.lang.String)
+         * @see gaffer.store.schema.DataSchema#setVertexSerialiserClass(java.lang.String)
          */
         public Builder vertexSerialiser(final String vertexSerialiserClass) {
             getElementDefs().setVertexSerialiserClass(vertexSerialiserClass);
@@ -218,13 +290,45 @@ public class StoreSchema extends ElementDefinitions<StoreElementDefinition, Stor
         }
 
         @Override
-        public StoreSchema build() {
-            return getElementDefs();
+        public Builder edge(final String group, final DataEdgeDefinition edgeDef) {
+            return (Builder) super.edge(group, edgeDef);
+        }
+
+        public Builder edge(final String group) {
+            return (Builder) super.edge(group, new DataEdgeDefinition());
         }
 
         @Override
-        protected StoreSchema getElementDefs() {
-            return (StoreSchema) super.getElementDefs();
+        public Builder entity(final String group, final DataEntityDefinition entityDef) {
+            return (Builder) super.entity(group, entityDef);
+        }
+
+        public Builder entity(final String group) {
+            return (Builder) super.entity(group, new DataEntityDefinition());
+        }
+
+        public Builder type(final String typeName, final Type type) {
+            getElementDefs().addType(typeName, type);
+            return this;
+        }
+
+        public Builder type(final String typeName, final Class<?> typeClass) {
+            return type(typeName, new Type(typeClass));
+        }
+
+        public Builder types(final Types types) {
+            getElementDefs().addTypes(types);
+            return this;
+        }
+
+        @Override
+        public DataSchema build() {
+            return (DataSchema) super.build();
+        }
+
+        @Override
+        protected DataSchema getElementDefs() {
+            return (DataSchema) super.getElementDefs();
         }
     }
 }

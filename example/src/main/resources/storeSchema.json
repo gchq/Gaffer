@@ -1,49 +1,47 @@
 {
-  "entities": {
-    "film": {
-      "properties": {
-        "name": {
-          "position": "VALUE"
-        },
-        "certificate": {
-          "position": "VISIBILITY",
-          "serialiserClass": "gaffer.example.serialiser.CertificateVisibilitySerialiser"
-        }
+  "types": {
+    "userId.string": {
+      "position": "COLUMN_QUALIFIER",
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
       }
     },
-    "person": {
-      "properties": {
-        "name": {
-          "position": "VALUE"
-        },
-        "age": {
-          "position": "VALUE"
-        }
+    "certificate": {
+      "position": "VISIBILITY",
+      "serialiserClass": "gaffer.example.serialiser.CertificateVisibilitySerialiser",
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.ComparableMax"
       }
     },
-    "review": {
-      "properties": {
-        "rating": {
-          "position": "VALUE"
-        },
-        "count": {
-          "position": "VALUE"
-        },
-        "userId": {
-          "position": "COLUMN_QUALIFIER"
-        }
+    "name.string": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
       }
-    }
-  },
-  "edges": {
-    "viewing": {
-      "properties": {
-        "startTime": {
-          "position": "VALUE"
-        },
-        "count": {
-          "position": "VALUE"
-        }
+    },
+    "rating.int": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Max"
+      }
+    },
+    "count.int": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "total.long": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "timestamp.long": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Max",
+        "mode": "LONG"
+      }
+    },
+    "max.integer": {
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Max"
       }
     }
   }

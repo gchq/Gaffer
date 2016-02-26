@@ -18,13 +18,9 @@ package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.key.impl.ValidatorFilter;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.store.StoreException;
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchScanner;
@@ -32,7 +28,6 @@ import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -147,7 +142,7 @@ public final class TableUtils {
                 // Add validator iterator to table for all scopes
                 LOGGER.info("Adding validator iterator to table for all scopes");
                 connector.tableOperations().attachIterator(tableName,
-                        getValidatorIterator(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage().getKeyConverter()));
+                        store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
                 LOGGER.info("Added validator iterator to table for all scopes");
             } else {
                 LOGGER.info("Validator iterator has been disabled");
@@ -274,7 +269,7 @@ public final class TableUtils {
         final Mutation m = new Mutation(key.getRow());
         m.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()),
                 key.getTimestamp(),
-                getValueFromSchemas(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage()));
+                getValueFromSchemas(store.getDataSchema(), store.getDataSchema(), store.getKeyPackage()));
         try {
             writer.addMutation(m);
         } catch (final MutationsRejectedException e) {
@@ -311,15 +306,6 @@ public final class TableUtils {
         }
     }
 
-    private static IteratorSetting getValidatorIterator(final DataSchema dataSchema, final StoreSchema storeSchema, final AccumuloElementConverter keyConverter) {
-        return new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
-                .dataSchema(dataSchema)
-                .storeSchema(storeSchema)
-                .keyConverter(keyConverter)
-                .build();
-    }
-
     private static Range getTableSetupRange(final String table) {
         try {
             return new Range(getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), false),
@@ -340,11 +326,11 @@ public final class TableUtils {
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
-    private static Value getValueFromSchemas(final DataSchema dataSchema, final StoreSchema storeSchema,
+    private static Value getValueFromSchemas(final DataSchema dataSchema, final DataSchema dataSchema,
                                              final AccumuloKeyPackage keyPackage) throws TableUtilException {
         final MapWritable map = new MapWritable();
         map.put(AccumuloStoreConstants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
-        map.put(AccumuloStoreConstants.STORE_SCHEMA_KEY, new BytesWritable(storeSchema.toJson(false)));
+        map.put(AccumuloStoreConstants.STORE_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
         try {
             map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
                     new BytesWritable(keyPackage.getClass().getName().getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));

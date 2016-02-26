@@ -17,9 +17,6 @@
 package gaffer.rest.service;
 
 import gaffer.commonutil.TestGroups;
-import gaffer.data.elementdefinition.schema.DataEdgeDefinition;
-import gaffer.data.elementdefinition.schema.DataEntityDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;

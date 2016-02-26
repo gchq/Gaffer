@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package gaffer.data.elementdefinition.schema;
+package gaffer.store.schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.TestPropertyNames;
@@ -27,54 +28,14 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.IsA;
+import org.junit.Assert;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
 
 public class DataEdgeDefinitionTest {
-    @Test
-    public void shouldReturnFullAggregator() {
-        // Given
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
-                .source(Integer.class)
-                .destination(Date.class)
-                .directed(Boolean.class)
-                .property("property", String.class)
-                .aggregator(new ElementAggregator.Builder()
-                        .select("property")
-                        .execute(new ExampleAggregatorFunction())
-                        .build())
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertEquals(1, aggregator.getFunctions().size());
-        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregatorFunction);
-        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
-                aggregator.getFunctions().get(0).getSelection());
-
-    }
-
-    @Test
-    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
-        // Given
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
-                .source(Integer.class)
-                .destination(Date.class)
-                .directed(Boolean.class)
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertNull(aggregator.getFunctions());
-    }
-
     @Test
     public void shouldReturnValidatorWithNoFunctionsWhenNoProperties() {
         // Given
@@ -92,12 +53,8 @@ public class DataEdgeDefinitionTest {
     public void shouldReturnFullValidator() {
         // Given
         final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
-                .source(Integer.class)
-                .property("property", String.class)
-                .aggregator(new ElementAggregator.Builder()
-                        .select("property")
-                        .execute(new ExampleAggregatorFunction())
-                        .build())
+                .source("id.integer", Integer.class)
+                .property("property", "property.string", String.class)
                 .build();
 
         // When
@@ -117,30 +74,64 @@ public class DataEdgeDefinitionTest {
     public void shouldBuildElementDefinition() {
         // Given
         final ElementFilter validator = mock(ElementFilter.class);
-        final ElementAggregator aggregator = mock(ElementAggregator.class);
+        final ElementFilter clonedValidator = mock(ElementFilter.class);
+
+        given(validator.clone()).willReturn(clonedValidator);
 
         // When
         final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
-                .property(TestPropertyNames.F1, String.class)
-                .source(Integer.class)
-                .property(TestPropertyNames.F2, Object.class)
-                .destination(Date.class)
-                .directed(Boolean.class)
+                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .source("id.integer", Integer.class)
+                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
+                .destination("id.date", Date.class)
+                .directed("directed.true", Boolean.class)
                 .validator(validator)
-                .aggregator(aggregator)
                 .build();
 
         // Then
         assertEquals(2, elementDef.getProperties().size());
-        assertTrue(elementDef.containsProperty(TestPropertyNames.F1));
-        assertTrue(elementDef.containsProperty(TestPropertyNames.F2));
+        assertEquals(Integer.class, elementDef.getPropertyClass(TestPropertyNames.PROP_1));
+        assertEquals(Object.class, elementDef.getPropertyClass(TestPropertyNames.PROP_2));
 
         assertEquals(3, elementDef.getIdentifiers().size());
         assertEquals(Integer.class, elementDef.getIdentifierClass(IdentifierType.SOURCE));
         assertEquals(Date.class, elementDef.getIdentifierClass(IdentifierType.DESTINATION));
         assertEquals(Boolean.class, elementDef.getIdentifierClass(IdentifierType.DIRECTED));
+        assertSame(clonedValidator, elementDef.getValidator());
+    }
 
-        assertSame(aggregator, elementDef.getOriginalAggregator());
-        assertSame(validator, elementDef.getOriginalValidator());
+    @Test
+    public void shouldReturnFullAggregator() {
+        // Given
+        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+                .source("id.integer", Integer.class)
+                .property("property", "property.string", new Type.Builder(String.class)
+                        .aggregateFunction(new ExampleAggregateFunction())
+                        .build())
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        Assert.assertEquals(1, aggregator.getFunctions().size());
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
+        Assert.assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+                aggregator.getFunctions().get(0).getSelection());
+
+    }
+
+    @Test
+    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
+        // Given
+        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+                .source("id.integer")
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        assertNull(aggregator.getFunctions());
     }
 }

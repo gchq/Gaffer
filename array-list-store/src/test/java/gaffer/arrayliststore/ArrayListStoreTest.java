@@ -301,7 +301,7 @@ public class ArrayListStoreTest {
     }
 
     private Graph createGraph() {
-        return new Graph(PathUtil.dataSchema(getClass()), PathUtil.storeSchema(getClass()), PathUtil.storeProps(getClass()));
+        return new Graph(PathUtil.dataSchema(getClass()), PathUtil.dataSchema(getClass()), PathUtil.storeProps(getClass()));
     }
 
     private void addElementsToGraph(final Graph graph) throws OperationException {

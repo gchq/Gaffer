@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package gaffer.data.elementdefinition.schema;
+package gaffer.store.schema;
 
 import gaffer.data.element.IdentifierType;
-import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 
 public class DataEntityDefinition extends DataElementDefinition {
-    private static final long serialVersionUID = 2307022506203200871L;
+    private static final long serialVersionUID = 5810237134790726020L;
 
     public void setVertex(final String className) {
         getIdentifierMap().put(IdentifierType.VERTEX, className);
     }
 
     public String getVertex() {
-        return getIdentifierClassName(IdentifierType.VERTEX);
+        return getIdentifierTypeName(IdentifierType.VERTEX);
     }
 
     public static class Builder extends DataElementDefinition.Builder {
@@ -40,23 +39,41 @@ public class DataEntityDefinition extends DataElementDefinition {
             super(elDef);
         }
 
-        public Builder property(final String propertyName, final Class<?> clazz) {
-            return (Builder) super.property(propertyName, clazz);
+        @Override
+        public Builder property(final String propertyName, final String exisitingTypeName) {
+            return (Builder) super.property(propertyName, exisitingTypeName);
         }
 
-        public Builder vertex(final Class<?> clazz) {
-            identifier(IdentifierType.VERTEX, clazz);
+        @Override
+        public Builder property(final String propertyName, final String typeName, final Type type) {
+            return (Builder) super.property(propertyName, typeName, type);
+        }
+
+        @Override
+        public Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
+            return (Builder) super.property(propertyName, typeName, typeClass);
+        }
+
+        public Builder vertex(final String exisitingTypeName) {
+            identifier(IdentifierType.VERTEX, exisitingTypeName);
             return this;
         }
 
+        public Builder vertex(final String typeName, final Type type) {
+            type(typeName, type);
+            return vertex(typeName);
+        }
+
+        public Builder vertex(final String typeName, final Class<?> typeClass) {
+            return vertex(typeName, new Type(typeClass));
+        }
+
+        @Override
         public Builder validator(final ElementFilter validator) {
             return (Builder) super.validator(validator);
         }
 
-        public Builder aggregator(final ElementAggregator aggregator) {
-            return (Builder) super.aggregator(aggregator);
-        }
-
+        @Override
         public DataEntityDefinition build() {
             return (DataEntityDefinition) super.build();
         }

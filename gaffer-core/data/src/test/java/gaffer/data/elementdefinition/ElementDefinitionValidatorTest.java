@@ -16,6 +16,11 @@
 
 package gaffer.data.elementdefinition;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
@@ -24,24 +29,18 @@ import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.processor.Processor;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
-public abstract class TypedElementDefinitionValidatorTest {
+public abstract class ElementDefinitionValidatorTest {
     @Test
     public void shouldValidateComponentTypesAndReturnTrueWhenNoIdentifiersOrProperties() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<String>());
 
@@ -55,15 +54,15 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateComponentTypesAndReturnTrueWhenIdentifiersAndPropertiesHaveClasses() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
         given(elementDef.getIdentifiers()).willReturn(Sets.newSet(IdentifierType.DESTINATION, IdentifierType.SOURCE));
-        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.F1, TestPropertyNames.F2));
+        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2));
 
         given(elementDef.getIdentifierClass(IdentifierType.DESTINATION)).willReturn((Class) Double.class);
         given(elementDef.getIdentifierClass(IdentifierType.SOURCE)).willReturn((Class) Long.class);
-        given(elementDef.getPropertyClass(TestPropertyNames.F1)).willReturn((Class) Integer.class);
-        given(elementDef.getPropertyClass(TestPropertyNames.F2)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
 
         // When
         final boolean isValid = validator.validateComponentTypes(elementDef);
@@ -75,11 +74,11 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateComponentTypesAndReturnFalseForInvalidPropertyClass() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
-        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.F1));
-        given(elementDef.getPropertyClass(TestPropertyNames.F1)).willThrow(new IllegalArgumentException());
+        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1));
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willThrow(new IllegalArgumentException());
 
         // When
         final boolean isValid = validator.validateComponentTypes(elementDef);
@@ -91,9 +90,9 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateFunctionSelectionsAndReturnFalseWhenAFunctionIsNull() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
         final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
 
         final List<ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> functions = new ArrayList<>();
         final ConsumerFunctionContext<ElementComponentKey, ConsumerFunction> function = mock(ConsumerFunctionContext.class);
@@ -112,9 +111,9 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateFunctionSelectionsAndReturnTrueWhenNoFunctionsSet() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
         final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
 
         given(processor.getFunctions()).willReturn(null);
 
@@ -128,9 +127,9 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateFunctionSelectionsAndReturnTrueWhenProcessorIsNull() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
         final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = null;
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
 
         // When
         final boolean isValid = validator.validateFunctionArgumentTypes(processor, elementDef);
@@ -142,9 +141,9 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateFunctionSelectionsAndReturnFalseWhenFunctionTypeDoesNotEqualSelectionType() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
         final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
 
         final List<ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> functions = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -172,9 +171,9 @@ public abstract class TypedElementDefinitionValidatorTest {
     @Test
     public void shouldValidateFunctionSelectionsAndReturnTrueWhenAllFunctionsAreValid() {
         // Given
-        final TypedElementDefinition elementDef = mock(TypedElementDefinition.class);
+        final ElementDefinition elementDef = mock(ElementDefinition.class);
         final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
-        final TypedElementDefinitionValidator validator = newElementDefinitionValidator();
+        final ElementDefinitionValidator validator = newElementDefinitionValidator();
 
         final List<ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> functions = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -200,5 +199,5 @@ public abstract class TypedElementDefinitionValidatorTest {
         assertTrue(isValid);
     }
 
-    protected abstract TypedElementDefinitionValidator newElementDefinitionValidator();
+    protected abstract ElementDefinitionValidator newElementDefinitionValidator();
 }

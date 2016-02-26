@@ -18,7 +18,6 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import gaffer.data.elementdefinition.schema.DataSchema;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,7 +27,7 @@ import java.util.List;
 
 /**
  * An <code>IGraphConfigurationService</code> has methods to get {@link gaffer.graph.Graph} configuration information
- * such as the {@link gaffer.data.elementdefinition.schema.DataSchema} and available {@link gaffer.operation.Operation}s.
+ * such as the {@link gaffer.store.schema.DataSchema} and available {@link gaffer.operation.Operation}s.
  */
 @Path("/graph")
 @Produces(MediaType.APPLICATION_JSON)

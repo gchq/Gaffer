@@ -33,14 +33,13 @@ import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.schema.StoreSchema;
 
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
-    private final StoreSchema storeSchema;
+    private final DataSchema dataSchema;
 
-    public ClassicRangeFactory(final StoreSchema storeSchema) {
-        this.storeSchema = storeSchema;
+    public ClassicRangeFactory(final DataSchema dataSchema) {
+        this.dataSchema = dataSchema;
     }
 
     @Override
@@ -58,7 +57,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(storeSchema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(dataSchema.getVertexSerialiser().serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
@@ -85,7 +84,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
                         : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE)
                 : ClassicBytePositions.UNDIRECTED_EDGE;
 
-        final Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
+        final Serialisation vertexSerialiser = dataSchema.getVertexSerialiser();
 
         // Serialise source and destination to byte arrays, escaping if
         // necessary

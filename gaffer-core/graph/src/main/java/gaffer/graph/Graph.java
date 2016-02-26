@@ -17,7 +17,6 @@
 package gaffer.graph;
 
 
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
@@ -27,8 +26,7 @@ import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
-import gaffer.store.schema.StoreSchema;
-
+import gaffer.store.schema.DataSchema;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -55,7 +53,7 @@ public final class Graph {
 
     /**
      * The {@link gaffer.data.elementdefinition.view.View} - by default this will just contain all the groups
-     * in the graph's {@link gaffer.data.elementdefinition.schema.DataSchema}, however it can be set to a subview to
+     * in the graph's {@link gaffer.store.schema.DataSchema}, however it can be set to a subview to
      * allow multiple operations to be performed on the same subview.
      */
     private final View view;
@@ -65,18 +63,17 @@ public final class Graph {
      * the store property file.
      * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
+     * {@link gaffer.store.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
      * @param dataSchemaPath      a {@link java.nio.file.Path} to the JSON
-     *                            {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.store.schema.StoreSchema}
+     *                            {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesPath a {@link java.nio.file.Path} to the store properties
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final Path dataSchemaPath, final Path storeSchemaPath, final Path storePropertiesPath)
+    public Graph(final Path dataSchemaPath, final Path storePropertiesPath)
             throws SchemaException {
-        this(dataSchemaPath, storeSchemaPath, storePropertiesPath, (View) null);
+        this(dataSchemaPath, storePropertiesPath, (View) null);
     }
 
     /**
@@ -84,19 +81,18 @@ public final class Graph {
      * the store property file.
      * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
+     * {@link gaffer.store.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
      * @param dataSchemaPath      a {@link java.nio.file.Path} to the JSON
-     *                            {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.store.schema.StoreSchema}
+     *                            {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesPath a {@link java.nio.file.Path} to the store properties
-     * @param schemaTypesPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.data.elementdefinition.Types}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @param schemaTypesPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.store.schema.Types}
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final Path dataSchemaPath, final Path storeSchemaPath,
-                 final Path storePropertiesPath, final Path schemaTypesPath) throws SchemaException {
-        this(dataSchemaPath, storeSchemaPath, storePropertiesPath, schemaTypesPath, null);
+    public Graph(final Path dataSchemaPath, final Path storePropertiesPath,
+                 final Path schemaTypesPath) throws SchemaException {
+        this(dataSchemaPath, storePropertiesPath, schemaTypesPath, null);
     }
 
     /**
@@ -104,16 +100,15 @@ public final class Graph {
      * property file and a JSON graph {@link gaffer.data.elementdefinition.view.View}.
      *
      * @param dataSchemaPath      a {@link java.nio.file.Path} to the JSON
-     *                            {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.store.schema.StoreSchema}
+     *                            {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesPath a {@link java.nio.file.Path} to the store properties
      * @param view                a {@link java.nio.file.Path} to the JSON {@link gaffer.data.elementdefinition.view.View}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final Path dataSchemaPath, final Path storeSchemaPath, final Path storePropertiesPath, final View view)
+    public Graph(final Path dataSchemaPath, final Path storePropertiesPath, final View view)
             throws SchemaException {
-        this(dataSchemaPath, storeSchemaPath, storePropertiesPath, null, view);
+        this(dataSchemaPath, storePropertiesPath, null, view);
     }
 
     /**
@@ -121,17 +116,16 @@ public final class Graph {
      * property file and a JSON graph {@link gaffer.data.elementdefinition.view.View}.
      *
      * @param dataSchemaPath      a {@link java.nio.file.Path} to the JSON
-     *                            {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.store.schema.StoreSchema}
+     *                            {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesPath a {@link java.nio.file.Path} to the store properties
-     * @param schemaTypesPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.data.elementdefinition.Types}
+     * @param schemaTypesPath     a {@link java.nio.file.Path} to the JSON {@link gaffer.store.schema.Types}
      * @param view                a {@link java.nio.file.Path} to the JSON {@link gaffer.data.elementdefinition.view.View}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final Path dataSchemaPath, final Path storeSchemaPath,
-                 final Path storePropertiesPath, final Path schemaTypesPath, final View view) throws SchemaException {
-        this(createInputStream(dataSchemaPath), createInputStream(storeSchemaPath),
+    public Graph(final Path dataSchemaPath, final Path storePropertiesPath,
+                 final Path schemaTypesPath, final View view) throws SchemaException {
+        this(createInputStream(dataSchemaPath),
                 createInputStream(storePropertiesPath), createInputStream(schemaTypesPath), view);
     }
 
@@ -140,18 +134,17 @@ public final class Graph {
      * the store property file.
      * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
+     * {@link gaffer.store.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
      * @param dataSchemaStream      a {@link java.io.InputStream} for the JSON
-     *                              {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaStream     a {@link java.io.InputStream} for the JSON {@link gaffer.store.schema.StoreSchema}
+     *                              {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesStream a {@link java.io.InputStream} for the store properties
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final InputStream dataSchemaStream, final InputStream storeSchemaStream,
+    public Graph(final InputStream dataSchemaStream,
                  final InputStream storePropertiesStream) throws SchemaException {
-        this(dataSchemaStream, storeSchemaStream, storePropertiesStream, (View) null);
+        this(dataSchemaStream, storePropertiesStream, (View) null);
     }
 
     /**
@@ -159,19 +152,18 @@ public final class Graph {
      * the store property file.
      * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
+     * {@link gaffer.store.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
      * @param dataSchemaStream      a {@link java.io.InputStream} for the JSON
-     *                              {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaStream     a {@link java.io.InputStream} for the JSON {@link gaffer.store.schema.StoreSchema}
+     *                              {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesStream a {@link java.io.InputStream} for the store properties
-     * @param schemaTypesStream     a {@link java.io.InputStream} for the JSON {@link gaffer.data.elementdefinition.Types}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @param schemaTypesStream     a {@link java.io.InputStream} for the JSON {@link gaffer.store.schema.Types}
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final InputStream dataSchemaStream, final InputStream storeSchemaStream,
+    public Graph(final InputStream dataSchemaStream,
                  final InputStream storePropertiesStream, final InputStream schemaTypesStream) throws SchemaException {
-        this(dataSchemaStream, storeSchemaStream, storePropertiesStream, schemaTypesStream, null);
+        this(dataSchemaStream, storePropertiesStream, schemaTypesStream, null);
     }
 
     /**
@@ -179,16 +171,15 @@ public final class Graph {
      * property file and a JSON graph {@link gaffer.data.elementdefinition.view.View}.
      *
      * @param dataSchemaStream      a {@link java.io.InputStream} for the JSON
-     *                              {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaStream     a {@link java.io.InputStream} for the JSON {@link gaffer.store.schema.StoreSchema}
+     *                              {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesStream a {@link java.io.InputStream} for the store properties
      * @param view                  a {@link java.io.InputStream}  to the JSON {@link gaffer.data.elementdefinition.view.View}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final InputStream dataSchemaStream, final InputStream storeSchemaStream,
+    public Graph(final InputStream dataSchemaStream,
                  final InputStream storePropertiesStream, final View view) throws SchemaException {
-        this(dataSchemaStream, storeSchemaStream, storePropertiesStream, null, view);
+        this(dataSchemaStream, storePropertiesStream, null, view);
     }
 
     /**
@@ -196,58 +187,55 @@ public final class Graph {
      * property file and a JSON graph {@link gaffer.data.elementdefinition.view.View}.
      *
      * @param dataSchemaStream      a {@link java.io.InputStream} for the JSON
-     *                              {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchemaStream     a {@link java.io.InputStream} for the JSON {@link gaffer.store.schema.StoreSchema}
+     *                              {@link gaffer.store.schema.DataSchema}
      * @param storePropertiesStream a {@link java.io.InputStream} for the store properties
-     * @param schemaTypesStream     a {@link java.io.InputStream} for the JSON {@link gaffer.data.elementdefinition.Types}
+     * @param schemaTypesStream     a {@link java.io.InputStream} for the JSON {@link gaffer.store.schema.Types}
      * @param view                  a {@link java.io.InputStream}  to the JSON {@link gaffer.data.elementdefinition.view.View}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final InputStream dataSchemaStream, final InputStream storeSchemaStream,
+    public Graph(final InputStream dataSchemaStream,
                  final InputStream storePropertiesStream, final InputStream schemaTypesStream, final View view) throws SchemaException {
-        this(createStore(dataSchemaStream, storeSchemaStream, storePropertiesStream, schemaTypesStream), view);
+        this(createStore(dataSchemaStream, storePropertiesStream, schemaTypesStream), view);
     }
 
     /**
      * Constructs a <code>Graph</code> with the various schemas and the store property file.
      * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
+     * {@link gaffer.store.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
-     * @param dataSchema      the {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchema     the {@link gaffer.store.schema.StoreSchema}
+     * @param dataSchema      the {@link gaffer.store.schema.DataSchema}
      * @param storeProperties the {@link gaffer.store.StoreProperties}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final DataSchema dataSchema, final StoreSchema storeSchema, final StoreProperties storeProperties)
+    public Graph(final DataSchema dataSchema, final StoreProperties storeProperties)
             throws SchemaException {
-        this(dataSchema, storeSchema, storeProperties, null);
+        this(dataSchema, storeProperties, null);
     }
 
     /**
      * Constructs a <code>Graph</code> with the various schemas, the store property file and a JSON graph
      * {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param dataSchema      the {@link gaffer.data.elementdefinition.schema.DataSchema}
-     * @param storeSchema     the {@link gaffer.store.schema.StoreSchema}
+     * @param dataSchema      the {@link gaffer.store.schema.DataSchema}
      * @param storeProperties the {@link gaffer.store.StoreProperties}
      * @param view            a graph {@link gaffer.data.elementdefinition.view.View}
-     * @throws SchemaException thrown if the {@link gaffer.data.elementdefinition.schema.DataSchema} or
-     *                         {@link gaffer.store.schema.StoreSchema} is invalid
+     * @throws SchemaException thrown if the {@link gaffer.store.schema.DataSchema} or
+     *                         {@link gaffer.store.schema.DataSchema} is invalid
      */
-    public Graph(final DataSchema dataSchema, final StoreSchema storeSchema, final StoreProperties storeProperties,
+    public Graph(final DataSchema dataSchema, final StoreProperties storeProperties,
                  final View view)
             throws SchemaException {
-        this(createStore(dataSchema, storeSchema, storeProperties), view);
+        this(createStore(dataSchema, storeProperties), view);
     }
 
     /**
      * Constructs a <code>Graph</code> with the given {@link gaffer.store.Store}.
      * <p>
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema}, i.e no filtering or transformations will be done.
+     * {@link gaffer.store.schema.DataSchema}, i.e no filtering or transformations will be done.
      *
      * @param store an instance of {@link Store} used to store the elements and handle operations.
      */
@@ -327,14 +315,15 @@ public final class Graph {
         return store.hasTrait(storeTrait);
     }
 
-    private static Store createStore(final InputStream dataSchemaStream, final InputStream storeSchemaStream, final InputStream storePropertiesStream, final InputStream schemaTypesStream) {
+    private static Store createStore(final InputStream dataSchemaStream,
+                                     final InputStream storePropertiesStream,
+                                     final InputStream schemaTypesStream) {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesStream);
-        DataSchema dataSchema = loadDataSchema(dataSchemaStream, schemaTypesStream);
-        StoreSchema storeSchema = loadStoreSchema(storeSchemaStream, storeProperties.getStoreSchemaClass());
-        return createStore(dataSchema, storeSchema, storeProperties);
+        DataSchema dataSchema = loadDataSchema(dataSchemaStream, schemaTypesStream, storeProperties.getDataSchemaClass());
+        return createStore(dataSchema, storeProperties);
     }
 
-    private static Store createStore(final DataSchema dataSchema, final StoreSchema storeSchema, final StoreProperties storeProperties) {
+    private static Store createStore(final DataSchema dataSchema, final StoreProperties storeProperties) {
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
             throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_PROPERTIES_CLASS);
@@ -348,41 +337,31 @@ public final class Graph {
         }
 
         try {
-            newStore.initialise(dataSchema, storeSchema, storeProperties);
+            newStore.initialise(dataSchema, storeProperties);
         } catch (StoreException e) {
             throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
         }
         return newStore;
     }
 
-    private static DataSchema loadDataSchema(final InputStream stream, final InputStream typeStream) throws SchemaException {
-        final DataSchema dataSchema = DataSchema.fromJson(stream);
+    private static DataSchema loadDataSchema(final InputStream dataSchemaStream, final InputStream typeStream, final String dataSchemaClass) throws SchemaException {
+        final DataSchema dataSchema;
+
+        try {
+            dataSchema = DataSchema.fromJson(dataSchemaStream, Class.forName(dataSchemaClass).asSubclass(DataSchema.class));
+        } catch (ClassNotFoundException e) {
+            throw new SchemaException("Store schema class was not found: " + dataSchemaClass, e);
+        }
 
         if (null != typeStream) {
             dataSchema.addTypesFromStream(typeStream);
         }
 
         if (!dataSchema.validate()) {
-            throw new SchemaException("ERROR: data schema failed to validate. Please check the logs for more information");
-        }
-
-        return dataSchema;
-    }
-
-    private static StoreSchema loadStoreSchema(final InputStream storeSchemaStream, final String storeSchemaClass) throws SchemaException {
-        final StoreSchema storeSchema;
-
-        try {
-            storeSchema = StoreSchema.fromJson(storeSchemaStream, Class.forName(storeSchemaClass).asSubclass(StoreSchema.class));
-        } catch (ClassNotFoundException e) {
-            throw new SchemaException("Store schema class was not found: " + storeSchemaClass, e);
-        }
-
-        if (!storeSchema.validate()) {
             throw new SchemaException("ERROR: store schema failed to validate. Please check the logs for more information");
         }
 
-        return storeSchema;
+        return dataSchema;
     }
 
     private static InputStream createInputStream(final Path path) {

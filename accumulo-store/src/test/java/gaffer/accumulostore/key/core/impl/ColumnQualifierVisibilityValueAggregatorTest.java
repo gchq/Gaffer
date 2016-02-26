@@ -69,8 +69,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         byteEntityStore.getProperties().setTable("Test");
         gaffer1KeyStore.getProperties().setTable("Test2");
 
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getStoreSchema());
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getStoreSchema());
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getDataSchema());
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getDataSchema());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .dataSchema(store.getDataSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -227,7 +227,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .dataSchema(store.getDataSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -329,7 +329,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .dataSchema(store.getDataSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);

@@ -36,15 +36,9 @@
           }
         }
       ]
-    },
-    "aggregatorFunction": {
-      "class": "gaffer.function.ExampleAggregatorFunction"
     }
   },
   "simpleDate": {
-    "class": "java.util.Date",
-    "aggregatorFunction": {
-      "class": "gaffer.function.ExampleAggregatorFunction"
-    }
+    "class": "java.util.Date"
   }
 }

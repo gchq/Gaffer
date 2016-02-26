@@ -24,7 +24,6 @@ import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -215,7 +214,7 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
     public static class Builder<EntityDef extends ElementDefinition, EdgeDef extends ElementDefinition> {
         private final ElementDefinitions<EntityDef, EdgeDef> elementDefs;
 
-        public Builder(final ElementDefinitions<EntityDef, EdgeDef> elementDefs) {
+        protected Builder(final ElementDefinitions<EntityDef, EdgeDef> elementDefs) {
             this.elementDefs = elementDefs;
         }
 
@@ -226,7 +225,7 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
          * @param edgeDef the edge definition for the given edge type.
          * @return this Builder
          */
-        public Builder edge(final String group, final EdgeDef edgeDef) {
+        protected Builder edge(final String group, final EdgeDef edgeDef) {
             elementDefs.addEdge(group, edgeDef);
             return this;
         }
@@ -238,7 +237,7 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
          * @param entityDef the entity definition for the given entity type.
          * @return this Builder
          */
-        public Builder entity(final String group, final EntityDef entityDef) {
+        protected Builder entity(final String group, final EntityDef entityDef) {
             elementDefs.addEntity(group, entityDef);
             return this;
         }
@@ -248,7 +247,11 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
          *
          * @return the build {@link gaffer.data.elementdefinition.ElementDefinitions}.
          */
-        public ElementDefinitions<EntityDef, EdgeDef> build() {
+        protected ElementDefinitions<EntityDef, EdgeDef> build() {
+            if (!elementDefs.validate()) {
+                throw new SchemaException("The " + elementDefs.getClass().getSimpleName() + " is not valid. Check the logs for more information.");
+            }
+
             return elementDefs;
         }
 

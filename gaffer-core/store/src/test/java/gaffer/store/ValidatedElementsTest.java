@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.data;
-
-import gaffer.data.element.Element;
-import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+package gaffer.store;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -37,6 +24,19 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import gaffer.data.element.Element;
+import gaffer.data.element.function.ElementFilter;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidatedElementsTest {

@@ -16,23 +16,23 @@
 
 package gaffer.operation.handler;
 
-import gaffer.data.element.Element;
-import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.operation.OperationException;
-import gaffer.operation.impl.Validate;
-import gaffer.store.Store;
-import gaffer.store.operation.handler.ValidateHandler;
-import java.util.Collections;
-import java.util.Iterator;
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
+import gaffer.data.element.Element;
+import gaffer.data.element.function.ElementFilter;
+import gaffer.operation.OperationException;
+import gaffer.operation.impl.Validate;
+import gaffer.store.Store;
+import gaffer.store.operation.handler.ValidateHandler;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
+import org.junit.Test;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class ValidateHandlerTest {
 

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package gaffer.data.elementdefinition.schema;
+package gaffer.store.schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -33,15 +32,20 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunction;
-import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.ExampleFilterFunction;
 import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
+import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.implementation.JavaSerialiser;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.NotSerializableException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Files;
@@ -97,29 +101,19 @@ public class DataSchemaTest {
 
         final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
         assertEquals(2, propertyMap.size());
-        assertEquals("simpleProperty", propertyMap.get(TestPropertyNames.F2));
-        assertEquals("simpleDate", propertyMap.get(TestPropertyNames.DATE));
-
-        // Check aggregator
-        assertNull(edgeDefinition.getOriginalAggregator());
-        ElementAggregator aggregator = edgeDefinition.getAggregator();
-        List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
-        assertEquals(2, aggContexts.size());
-
-        PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
-        assertTrue(aggContext.getFunction() instanceof ExampleAggregatorFunction);
-        assertEquals(1, aggContext.getSelection().size());
-        assertEquals(TestPropertyNames.F2, aggContext.getSelection().get(0).getPropertyName());
-
-        aggContext = aggContexts.get(1);
-        assertTrue(aggContext.getFunction() instanceof ExampleAggregatorFunction);
-        assertEquals(1, aggContext.getSelection().size());
-        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
+        assertEquals("prop.string", propertyMap.get(TestPropertyNames.PROP_2));
+        assertEquals("prop.date", propertyMap.get(TestPropertyNames.DATE));
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
         final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> valContexts = validator.getFunctions();
         int index = 0;
+//        ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
+//        assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
+//        assertEquals(2, valContext.getSelection().size());
+//        assertEquals(IdentifierType.SOURCE, valContext.getSelection().get(0).getIdentifierType());
+//        assertEquals(IdentifierType.DESTINATION, valContext.getSelection().get(1).getIdentifierType());
+
         ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
@@ -143,12 +137,12 @@ public class DataSchemaTest {
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.F2, valContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0).getPropertyName());
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.F2, valContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0).getPropertyName());
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
@@ -160,13 +154,26 @@ public class DataSchemaTest {
         // Entity definitions
         DataElementDefinition entityDefinition = dataSchema.getEntity(TestGroups.ENTITY);
         assertNotNull(entityDefinition);
-        assertTrue(entityDefinition.containsProperty(TestPropertyNames.F1));
-        aggregator = entityDefinition.getAggregator();
-        aggContexts = aggregator.getFunctions();
-        assertEquals(1, aggContexts.size());
-        assertTrue(aggContexts.get(0).getFunction() instanceof ExampleAggregatorFunction);
-        assertEquals(1, aggContexts.get(0).getSelection().size());
-        assertEquals(TestPropertyNames.F1, aggContexts.get(0).getSelection().get(0).getPropertyName());
+        assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
+
+        ElementAggregator aggregator = edgeDefinition.getAggregator();
+        List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
+        Assert.assertEquals(2, aggContexts.size());
+
+        PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
+        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
+        Assert.assertEquals(1, aggContext.getSelection().size());
+        Assert.assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0).getPropertyName());
+
+        aggContext = aggContexts.get(1);
+        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
+        Assert.assertEquals(1, aggContext.getSelection().size());
+        Assert.assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
+
+        //TODO: check types
+///        assertEquals(JavaSerialiser.class, property3.getSerialiser().getClass());
+
+
     }
 
     @Test
@@ -177,15 +184,11 @@ public class DataSchemaTest {
     private DataSchema createSchema() {
         return new DataSchema.Builder()
                 .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
-                        .property(TestPropertyNames.F1, String.class)
-                        .property(TestPropertyNames.F2, Integer.class)
+                        .property(TestPropertyNames.PROP_1, "property.string", String.class)
+                        .property(TestPropertyNames.PROP_2, "property.integer", Integer.class)
                         .validator(new ElementFilter.Builder()
-                                .select(TestPropertyNames.F1)
+                                .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
-                                .build())
-                        .aggregator(new ElementAggregator.Builder()
-                                .select(TestPropertyNames.F1)
-                                .execute(new ExampleAggregatorFunction())
                                 .build())
                         .build())
                 .build();
@@ -198,8 +201,8 @@ public class DataSchemaTest {
                 "  \"edges\" : {\n" +
                 "    \"BasicEdge\" : {\n" +
                 "      \"properties\" : {\n" +
-                "        \"property1\" : \"java.lang.String\",\n" +
-                "        \"property2\" : \"java.lang.Integer\"\n" +
+                "        \"property1\" : \"property.string\",\n" +
+                "        \"property2\" : \"property.integer\"\n" +
                 "      },\n" +
                 "      \"validator\" : {\n" +
                 "        \"functions\" : [ {\n" +
@@ -210,20 +213,57 @@ public class DataSchemaTest {
                 "            \"key\" : \"property1\"\n" +
                 "          } ]\n" +
                 "        } ]\n" +
-                "      },\n" +
-                "      \"aggregator\" : {\n" +
-                "        \"functions\" : [ {\n" +
-                "          \"function\" : {\n" +
-                "            \"class\" : \"gaffer.function.ExampleAggregatorFunction\"\n" +
-                "          },\n" +
-                "          \"selection\" : [ {\n" +
-                "            \"key\" : \"property1\"\n" +
-                "          } ]\n" +
-                "        } ]\n" +
                 "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"types\" : {\n" +
+                "    \"property.integer\" : {\n" +
+                "      \"class\" : \"java.lang.Integer\"\n" +
+                "    },\n" +
+                "    \"property.string\" : {\n" +
+                "      \"class\" : \"java.lang.String\"\n" +
                 "    }\n" +
                 "  }\n" +
                 "}", new String(dataSchema.toJson(true)));
+    }
+
+    @Test
+    public void testCorrectSerialiserRetrievableFromConfig() throws NotSerializableException {
+        DataSchema store = new DataSchema.Builder()
+                .type("property.string", new Type.Builder(String.class)
+                        .serialiser(new JavaSerialiser())
+                        .build())
+                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "property.string")
+                        .build())
+                .build();
+
+        assertEquals(JavaSerialiser.class,
+                store.getElement(TestGroups.EDGE)
+                        .getProperty(TestPropertyNames.PROP_1)
+                        .getSerialiser()
+                        .getClass());
+    }
+
+    @Test
+    public void testStoreConfigUsableWithSchemaInitialisationAndProgramaticListOfElements() {
+        final DataEntityDefinition entityDef = new DataEntityDefinition.Builder()
+                .property(TestPropertyNames.PROP_1, "property.1.string")
+                .build();
+
+        final DataEdgeDefinition edgeDef = new DataEdgeDefinition.Builder()
+                .property(TestPropertyNames.PROP_2, "property.2.string")
+                .build();
+
+        final DataSchema dataSchema = new DataSchema.Builder()
+                .type("property.1.string", String.class)
+                .type("property.2.string", Integer.class)
+                .entity(TestGroups.ENTITY, entityDef)
+                .edge(TestGroups.EDGE, edgeDef)
+                .build();
+
+        assertSame(entityDef, dataSchema.getEntity(TestGroups.ENTITY));
+        assertSame(edgeDef, dataSchema.getEdge(TestGroups.EDGE));
     }
 
     @Test
@@ -237,28 +277,48 @@ public class DataSchemaTest {
     }
 
     @Test
+    public void testDataSchemaConstructedFromInputStream() throws IOException {
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(PathUtil.STORE_SCHEMA);
+        assertNotNull(resourceAsStream);
+        final DataSchema deserialisedDataSchema = DataSchema.fromJson(resourceAsStream);
+        assertNotNull(deserialisedDataSchema);
+
+        final Map<String, DataEdgeDefinition> edges = deserialisedDataSchema.getEdges();
+
+        junit.framework.Assert.assertEquals(1, edges.size());
+        final DataElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
+        junit.framework.Assert.assertEquals(2, edgeGroup.getProperties().size());
+
+        final Map<String, DataEntityDefinition> entities = deserialisedDataSchema.getEntities();
+
+        junit.framework.Assert.assertEquals(1, entities.size());
+        final DataElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
+        junit.framework.Assert.assertEquals(1, entityGroup.getProperties().size());
+    }
+
+    @Test
     public void shouldBuildDataSchema() {
         // Given
-        final DataEdgeDefinition edgeDef1 = mock(DataEdgeDefinition.class);
-        final DataEdgeDefinition edgeDef2 = mock(DataEdgeDefinition.class);
-        final DataEntityDefinition entityDef1 = mock(DataEntityDefinition.class);
-        final DataEntityDefinition entityDef2 = mock(DataEntityDefinition.class);
+        final Serialisation vertexSerialiser = mock(Serialisation.class);
 
         // When
         final DataSchema schema = new DataSchema.Builder()
-                .edge(TestGroups.EDGE, edgeDef1)
-                .entity(TestGroups.ENTITY, entityDef1)
-                .entity(TestGroups.ENTITY_2, entityDef2)
-                .edge(TestGroups.EDGE_2, edgeDef2)
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE_2)
+                .vertexSerialiser(vertexSerialiser)
+                .position(IdentifierType.VERTEX.name(), "position1")
+                .position(IdentifierType.SOURCE.name(), "position2")
                 .build();
 
         // Then
         assertEquals(2, schema.getEdges().size());
-        assertSame(edgeDef1, schema.getEdge(TestGroups.EDGE));
-        assertSame(edgeDef2, schema.getEdge(TestGroups.EDGE_2));
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
 
         assertEquals(2, schema.getEntities().size());
-        assertSame(entityDef1, schema.getEntity(TestGroups.ENTITY));
-        assertSame(entityDef2, schema.getEntity(TestGroups.ENTITY_2));
+        assertNotNull(schema.getEntity(TestGroups.ENTITY));
+        assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
     }
 }

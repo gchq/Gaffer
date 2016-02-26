@@ -24,14 +24,13 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import java.util.Arrays;
 import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
-    public ClassicAccumuloElementConverter(final StoreSchema storeSchema) {
-        super(storeSchema);
+    public ClassicAccumuloElementConverter(final DataSchema dataSchema) {
+        super(dataSchema);
     }
 
     @Override

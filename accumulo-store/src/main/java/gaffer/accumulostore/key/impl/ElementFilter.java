@@ -21,11 +21,9 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.data.ElementValidator;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -77,9 +75,9 @@ public class ElementFilter extends Filter {
 
         validator = getElementValidator(options);
 
-        final StoreSchema storeSchema;
+        final DataSchema dataSchema;
         try {
-            storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise store schema from JSON", e);
         }
@@ -87,8 +85,8 @@ public class ElementFilter extends Filter {
         try {
             final Class<?> elementConverterClass = Class
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
+                    .newInstance(dataSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new ElementFilterException("Failed to load element converter from class name provided : "
@@ -99,7 +97,7 @@ public class ElementFilter extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addStoreSchemaNamedOption()
+        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addDataSchemaNamedOption()
                 .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME)
                 .setIteratorDescription("Only returns elements that pass validation against the given view").build();
     }

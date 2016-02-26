@@ -22,10 +22,10 @@ public class TestPropertyNames {
     public static final String DATE = "dateProperty";
     public static final String COUNT = "count";
 
-    public static final String F1 = "property1";
-    public static final String F2 = "property2";
-    public static final String F3 = "property3";
-    public static final String F4 = "property4";
+    public static final String PROP_1 = "property1";
+    public static final String PROP_2 = "property2";
+    public static final String PROP_3 = "property3";
+    public static final String PROP_4 = "property4";
 
     public static final String TRANSIENT_1 = "transientProperty1";
 }

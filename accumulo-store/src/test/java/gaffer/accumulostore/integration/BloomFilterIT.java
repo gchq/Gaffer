@@ -40,8 +40,6 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StoreSchema;
 
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
@@ -84,13 +82,13 @@ public class BloomFilterIT {
     private final static AccumuloElementConverter byteEntityElementConverter;
     private final static RangeFactory Gaffer1RangeFactory;
     private final static AccumuloElementConverter gafferV1ElementConverter;
-    private final static StoreSchema schema;
+    private final static DataSchema schema;
 
     static {
-        schema = new StoreSchema.Builder()
+        schema = new DataSchema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE, new StoreElementDefinition())
-                .entity(TestGroups.ENTITY, new StoreElementDefinition())
+                .edge(TestGroups.EDGE, new DataElementDefinition())
+                .entity(TestGroups.ENTITY, new DataElementDefinition())
                 .build();
         byteEntityRangeFactory = new ByteEntityRangeFactory(schema);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);

@@ -30,7 +30,6 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
-import gaffer.store.schema.StoreSchema;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
@@ -40,9 +39,9 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
     protected void setup(final Context context) {
         super.setup(context);
 
-        final StoreSchema storeSchema;
+        final DataSchema dataSchema;
         try {
-            storeSchema = StoreSchema.fromJson(context.getConfiguration()
+            dataSchema = DataSchema.fromJson(context.getConfiguration()
                     .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Store Schema from JSON");
@@ -51,8 +50,8 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             final Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
+                    .newInstance(dataSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);

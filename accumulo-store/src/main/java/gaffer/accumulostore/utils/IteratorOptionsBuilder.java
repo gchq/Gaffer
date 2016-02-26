@@ -49,7 +49,7 @@ public class IteratorOptionsBuilder {
         return addNamedOption(AccumuloStoreConstants.VIEW, VIEW_DESCRIPTION);
     }
 
-    public IteratorOptionsBuilder addStoreSchemaNamedOption() {
+    public IteratorOptionsBuilder addDataSchemaNamedOption() {
         return addNamedOption(AccumuloStoreConstants.STORE_SCHEMA, STORE_SCHEMA_DESCRIPTION);
     }
 

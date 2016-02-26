@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package gaffer.data;
+package gaffer.store;
 
+import gaffer.data.Validator;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An <code>ElementValidator</code> is a {@link gaffer.data.Validator} for {@link gaffer.data.element.Element}s
- * It is capable of validating an {@link gaffer.data.element.Element} based on {@link gaffer.function.FilterFunction}s
- * in {@link gaffer.data.elementdefinition.schema.DataSchema} or {@link gaffer.data.elementdefinition.view.View}.
+ * An <code>ElementValidator</code> is a {@link Validator} for {@link Element}s
+ * It is capable of validating an {@link Element} based on {@link gaffer.function.FilterFunction}s
+ * in {@link gaffer.store.schema.DataSchema} or {@link View}.
  */
 public class ElementValidator implements Validator<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementValidator.class);
@@ -36,11 +37,11 @@ public class ElementValidator implements Validator<Element> {
     private final View view;
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link gaffer.data.elementdefinition.schema.DataSchema} to use to
-     * validate {@link gaffer.data.element.Element}s.
+     * Constructs a <code>ElementValidator</code> with a {@link gaffer.store.schema.DataSchema} to use to
+     * validate {@link Element}s.
      *
-     * @param dataSchema the {@link gaffer.data.elementdefinition.schema.DataSchema} to use to
-     *                   validate {@link gaffer.data.element.Element}s.
+     * @param dataSchema the {@link gaffer.store.schema.DataSchema} to use to
+     *                   validate {@link Element}s.
      */
     public ElementValidator(final DataSchema dataSchema) {
         this.dataSchema = dataSchema;
@@ -48,11 +49,11 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link gaffer.data.elementdefinition.view.View} to use to
-     * validate {@link gaffer.data.element.Element}s.
+     * Constructs a <code>ElementValidator</code> with a {@link View} to use to
+     * validate {@link Element}s.
      *
-     * @param view the {@link gaffer.data.elementdefinition.view.View} to use to
-     *             validate {@link gaffer.data.element.Element}s.
+     * @param view the {@link View} to use to
+     *             validate {@link Element}s.
      */
     public ElementValidator(final View view) {
         this.view = view;
@@ -60,8 +61,8 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * @param element the {@link gaffer.data.element.Element} to validate
-     * @return true if the provided {@link gaffer.data.element.Element} is valid,
+     * @param element the {@link Element} to validate
+     * @return true if the provided {@link Element} is valid,
      * otherwise false and the reason will be logged.
      */
     @Override

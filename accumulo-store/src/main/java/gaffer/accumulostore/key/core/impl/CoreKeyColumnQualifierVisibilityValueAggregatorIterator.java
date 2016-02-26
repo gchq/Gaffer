@@ -34,9 +34,7 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
 
 public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
         extends CoreKeyColumnQualifierColumnVisibilityValueCombiner {
@@ -113,8 +111,8 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
         try {
             final Class<?> elementConverterClass = Class
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
+                    .newInstance(dataSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "

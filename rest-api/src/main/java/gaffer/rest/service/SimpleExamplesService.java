@@ -22,8 +22,6 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
 import gaffer.data.elementdefinition.view.ViewEntityDefinition;

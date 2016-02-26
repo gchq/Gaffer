@@ -25,7 +25,7 @@ import java.io.IOException;
 public interface AddElementsFromHdfsJobFactory {
     String UTF_8_CHARSET = "UTF-8";
     String DATA_SCHEMA = "dataSchema";
-    String STORE_SCHEMA = "storeSchema";
+    String STORE_SCHEMA = "dataSchema";
     String MAPPER_GENERATOR = "mapperGenerator";
     String VALIDATE = "validate";
 

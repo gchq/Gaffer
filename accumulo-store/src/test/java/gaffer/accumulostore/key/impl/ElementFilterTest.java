@@ -25,8 +25,6 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
@@ -36,7 +34,7 @@ import java.util.Map;
 
 public class ElementFilterTest {
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoStoreSchema() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoDataSchema() throws Exception {
         // Given
         final ElementFilter filter = new ElementFilter();
 
@@ -60,7 +58,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
@@ -78,7 +76,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
 
         // When / Then
@@ -95,7 +93,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
@@ -113,14 +111,14 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         filter.validateOptions(options);
 
-        final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getStoreSchema());
+        final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getDataSchema());
 
         final Element element = new Edge("BasicEdge", "source", "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
@@ -139,14 +137,14 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getStoreSchemaJson());
+        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getEmptyViewJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
         filter.validateOptions(options);
 
-        final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getStoreSchema());
+        final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getDataSchema());
 
         final Element element = new Edge("BasicEdge", "source", "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
@@ -174,14 +172,14 @@ public class ElementFilterTest {
         return new String(view.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 
-    private StoreSchema getStoreSchema() throws UnsupportedEncodingException {
-        return new StoreSchema.Builder()
-                .edge("BasicEdge", new StoreElementDefinition.Builder()
+    private DataSchema getDataSchema() throws UnsupportedEncodingException {
+        return new DataSchema.Builder()
+                .edge("BasicEdge", new DataElementDefinition.Builder()
                         .build())
                 .build();
     }
 
-    private String getStoreSchemaJson() throws UnsupportedEncodingException {
-        return new String(getStoreSchema().toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
+    private String getDataSchemaJson() throws UnsupportedEncodingException {
+        return new String(getDataSchema().toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 }

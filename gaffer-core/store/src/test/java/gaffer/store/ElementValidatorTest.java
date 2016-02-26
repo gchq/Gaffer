@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.data;
+package gaffer.store;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -24,8 +24,8 @@ import static org.mockito.Mockito.mock;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

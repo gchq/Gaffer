@@ -21,7 +21,7 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
-import gaffer.data.elementdefinition.TypedElementDefinitionValidatorTest;
+import gaffer.data.elementdefinition.ElementDefinitionValidatorTest;
 import gaffer.function.TransformFunction;
 import gaffer.function.context.ConsumerProducerFunctionContext;
 import org.junit.Test;
@@ -38,7 +38,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class ViewElementDefinitionValidatorTest extends TypedElementDefinitionValidatorTest {
+public class ViewElementDefinitionValidatorTest extends ElementDefinitionValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEmptyTransformer() {
         // Given
@@ -67,12 +67,12 @@ public class ViewElementDefinitionValidatorTest extends TypedElementDefinitionVa
         contexts.add(context1);
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
-        given(elementDef.getProperties()).willReturn(new HashSet<>(Collections.singletonList(TestPropertyNames.F1)));
+        given(elementDef.getProperties()).willReturn(new HashSet<>(Collections.singletonList(TestPropertyNames.PROP_1)));
         given(elementDef.getFilter()).willReturn(mock(ElementFilter.class));
         given(elementDef.getTransformer()).willReturn(transformer);
         given(context1.getSelection()).willReturn(Collections.singletonList(new ElementComponentKey("missingProperty")));
         given(transformer.getFunctions()).willReturn(contexts);
-        given(elementDef.getPropertyClass(TestPropertyNames.F1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
 
         // When
         final boolean isValid = validator.validate(elementDef);
@@ -92,12 +92,12 @@ public class ViewElementDefinitionValidatorTest extends TypedElementDefinitionVa
         contexts.add(context1);
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
-        given(elementDef.getProperties()).willReturn(new HashSet<>(Collections.singletonList(TestPropertyNames.F1)));
+        given(elementDef.getProperties()).willReturn(new HashSet<>(Collections.singletonList(TestPropertyNames.PROP_1)));
         given(elementDef.getFilter()).willReturn(mock(ElementFilter.class));
         given(elementDef.getTransformer()).willReturn(transformer);
         given(context1.getProjection()).willReturn(Collections.singletonList(new ElementComponentKey("missingProperty")));
         given(transformer.getFunctions()).willReturn(contexts);
-        given(elementDef.getPropertyClass(TestPropertyNames.F1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
 
         // When
         final boolean isValid = validator.validate(elementDef);

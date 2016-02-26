@@ -27,10 +27,8 @@ import org.slf4j.LoggerFactory;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.graph.Graph;
 import gaffer.store.StoreException;
-import gaffer.store.schema.StoreSchema;
 
 /**
  * Factory for creating new {@link gaffer.graph.Graph} instances of
@@ -64,7 +62,7 @@ public final class AccumuloStoreBackedGraphFactory {
 
         final DataSchema dataSchema = DataSchema
                 .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.DATA_SCHEMA_KEY)).getBytes());
-        final StoreSchema storeSchema = StoreSchema
+        final DataSchema dataSchema = DataSchema
                 .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.STORE_SCHEMA_KEY)).getBytes());
         final String keyPackageClass;
         try {
@@ -80,6 +78,6 @@ public final class AccumuloStoreBackedGraphFactory {
             props.setKeyPackageClass(keyPackageClass);
         }
 
-        return new Graph(dataSchema, storeSchema, props);
+        return new Graph(dataSchema, dataSchema, props);
     }
 }

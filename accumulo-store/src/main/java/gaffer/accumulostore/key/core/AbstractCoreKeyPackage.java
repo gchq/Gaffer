@@ -19,23 +19,20 @@ package gaffer.accumulostore.key.core;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.utils.StorePositions;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StorePropertyDefinition;
-import gaffer.store.schema.StoreSchema;
 
 public abstract class AbstractCoreKeyPackage extends AccumuloKeyPackage {
     @Override
-    public void validateSchema(final StoreSchema storeSchema) {
-        for (final StoreElementDefinition storeElDef : storeSchema.getEdges().values()) {
+    public void validateSchema(final DataSchema dataSchema) {
+        for (final DataElementDefinition storeElDef : dataSchema.getEdges().values()) {
             validateElementDef(storeElDef);
         }
 
-        for (final StoreElementDefinition storeElDef : storeSchema.getEntities().values()) {
+        for (final DataElementDefinition storeElDef : dataSchema.getEntities().values()) {
             validateElementDef(storeElDef);
         }
     }
 
-    private void validateElementDef(final StoreElementDefinition storeElDef) {
+    private void validateElementDef(final DataElementDefinition storeElDef) {
         boolean seenVisibility = false;
         boolean seenTimestamp = false;
         for (final StorePropertyDefinition storePropertyDef : storeElDef.getPropertyDefinitions()) {

@@ -1,8 +1,8 @@
 {
-  "simpleString": {
+  "id.string": {
     "class": "java.lang.String"
   },
-  "true": {
+  "directed.true": {
     "class": "java.lang.Boolean",
     "validator": {
       "functions": [
@@ -14,20 +14,9 @@
       ]
     }
   },
-  "false": {
-    "class": "java.lang.Boolean",
-    "validator": {
-      "functions": [
-        {
-          "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
-          }
-        }
-      ]
-    }
-  },
-  "simpleProperty": {
+  "prop.string": {
     "class": "java.lang.String",
+    "position": "PROPERTY_1",
     "validator": {
       "functions": [
         {
@@ -37,14 +26,15 @@
         }
       ]
     },
-    "aggregatorFunction": {
-      "class": "gaffer.function.ExampleAggregatorFunction"
+    "aggregateFunction": {
+      "class": "gaffer.function.ExampleAggregateFunction"
     }
   },
-  "simpleDate": {
+  "prop.date": {
     "class": "java.util.Date",
-    "aggregatorFunction": {
-      "class": "gaffer.function.ExampleAggregatorFunction"
+    "position": "PROPERTY_2",
+    "aggregateFunction": {
+      "class": "gaffer.function.ExampleAggregateFunction"
     }
   }
 }

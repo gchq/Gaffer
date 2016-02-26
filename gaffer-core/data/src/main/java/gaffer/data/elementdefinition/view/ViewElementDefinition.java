@@ -19,14 +19,14 @@ package gaffer.data.elementdefinition.view;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
-import gaffer.data.elementdefinition.TypedElementDefinition;
+import gaffer.data.elementdefinition.ElementDefinition;
 
 /**
- * A <code>ViewElementDefinition</code> extends {@link gaffer.data.elementdefinition.TypedElementDefinition} and adds
+ * A <code>ViewElementDefinition</code> extends {@link ElementDefinition} and adds
  * the ability to specify a {@link gaffer.data.element.function.ElementTransformer} and a
  * {@link gaffer.data.element.function.ElementFilter}.
  */
-public abstract class ViewElementDefinition extends TypedElementDefinition {
+public abstract class ViewElementDefinition extends ElementDefinition {
     private ElementTransformer transformer;
     private ElementFilter filter;
 
@@ -50,31 +50,32 @@ public abstract class ViewElementDefinition extends TypedElementDefinition {
         this.filter = filter;
     }
 
-    public abstract static class Builder extends TypedElementDefinition.Builder {
-        public Builder(final ViewElementDefinition elDef) {
+    public abstract static class Builder extends ElementDefinition.Builder {
+        protected Builder(final ViewElementDefinition elDef) {
             super(elDef);
         }
 
-        public Builder property(final String propertyName, final Class<?> clazz) {
-            return (Builder) super.property(propertyName, clazz);
+        protected Builder property(final String propertyName, final Class<?> clazz) {
+            return (Builder) super.property(propertyName, clazz.getName());
         }
 
-        public Builder identifier(final IdentifierType identifierType, final Class<?> clazz) {
-            return (Builder) super.identifier(identifierType, clazz);
+        protected Builder identifier(final IdentifierType identifierType, final Class<?> clazz) {
+            return (Builder) super.identifier(identifierType, clazz.getName());
         }
 
-        public Builder filter(final ElementFilter filter) {
+        protected Builder filter(final ElementFilter filter) {
             getElementDef().setFilter(filter);
             return this;
         }
 
-        public Builder transformer(final ElementTransformer transformer) {
+        protected Builder transformer(final ElementTransformer transformer) {
             getElementDef().setTransformer(transformer);
             return this;
         }
 
-        public ViewElementDefinition build() {
-            return getElementDef();
+        @Override
+        protected ViewElementDefinition build() {
+            return (ViewElementDefinition) super.build();
         }
 
         @Override

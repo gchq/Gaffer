@@ -30,7 +30,7 @@ import java.util.Set;
  * </ul>
  * VALUE simply maps to Accumulo's Value
  * <p>
- * The positions should be assigned to properties in the {@link gaffer.store.schema.StoreSchema} as follows:
+ * The positions should be assigned to properties in the {@link gaffer.store.schema.DataSchema} as follows:
  * <ul>
  * <li>VISIBILITY is optional and if used you will need to supply a custom
  * serialiser to convert the property value into a value Accumulo understands.

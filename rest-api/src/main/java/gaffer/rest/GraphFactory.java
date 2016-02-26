@@ -51,8 +51,8 @@ public class GraphFactory {
             throw new SchemaException("The path to the Data Schema was not found in system properties for key: " + SystemProperty.DATA_SCHEMA_PATH);
         }
 
-        final Path storeSchemaPath = Paths.get(System.getProperty(SystemProperty.STORE_SCHEMA_PATH));
-        if (null == storeSchemaPath) {
+        final Path dataSchemaPath = Paths.get(System.getProperty(SystemProperty.STORE_SCHEMA_PATH));
+        if (null == dataSchemaPath) {
             throw new SchemaException("The path to the Store Schema was not found in system properties for key: " + SystemProperty.STORE_SCHEMA_PATH);
         }
 
@@ -64,7 +64,7 @@ public class GraphFactory {
         final String typesPathStr = System.getProperty(SystemProperty.SCHEMA_TYPES_PATH);
         final Path typesPath = null != typesPathStr ? Paths.get(typesPathStr) : null;
 
-        return new Graph(dataSchemaPath, storeSchemaPath, storePropertiesPath, typesPath);
+        return new Graph(dataSchemaPath, dataSchemaPath, storePropertiesPath, typesPath);
     }
 
     private static void setGraph(final Graph graph) {

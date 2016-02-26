@@ -76,17 +76,27 @@ public interface IteratorSettingFactory {
      * this iterator will be applied to the table on creation
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link gaffer.store.schema.DataSchema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
+
+    /**
+     * Returns an Iterator that will validate elements in the accumulo table based
+     * on the validator provided in the {@link gaffer.store.schema.DataSchema}
+     * this iterator will be applied to the table on creation
+     *
+     * @param store the accumulo store
+     * @return A new {@link IteratorSetting} for an Iterator that will validate elements
+     */
+    IteratorSetting getValidatorIteratorSetting(final AccumuloStore store);
 
     /**
      * Returns an Iterator that will aggregate values at query time this is to
      * be used for the summarise option on getElement queries.
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.store.schema.DataSchema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
@@ -108,4 +118,14 @@ public interface IteratorSettingFactory {
      */
     IteratorSetting getElementPropertyRangeQueryFilter(AbstractRangeOperation<?, ?> operation);
 
+    /**
+     * Returns the iterator settings for a given iterator name. Allowed iterator
+     * names are: Aggregator, Validator and Bloom_Filter.
+     *
+     * @param store        the accumulo store
+     * @param iteratorName the name of the iterator to return the settings for
+     * @return the iterator settings for a given iterator name.
+     * @throws IteratorSettingException if an iterator setting could not be created
+     */
+    IteratorSetting getIteratorSetting(final AccumuloStore store, final String iteratorName) throws IteratorSettingException;
 }

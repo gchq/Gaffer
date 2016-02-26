@@ -29,11 +29,9 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
-import gaffer.store.schema.StoreSchema;
 
 public class IteratorSettingBuilder {
     private final IteratorSetting setting;
@@ -117,9 +115,9 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder storeSchema(final StoreSchema storeSchema) {
+    public IteratorSettingBuilder dataSchema(final DataSchema dataSchema) {
         try {
-            setting.addOption(AccumuloStoreConstants.STORE_SCHEMA, new String(storeSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
+            setting.addOption(AccumuloStoreConstants.STORE_SCHEMA, new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise store schema from JSON", e);
         }

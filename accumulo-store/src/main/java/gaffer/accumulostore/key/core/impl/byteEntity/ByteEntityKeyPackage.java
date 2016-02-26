@@ -18,7 +18,6 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
-import gaffer.store.schema.StoreSchema;
 
 public class ByteEntityKeyPackage extends AbstractCoreKeyPackage {
     public ByteEntityKeyPackage() {
@@ -26,13 +25,13 @@ public class ByteEntityKeyPackage extends AbstractCoreKeyPackage {
         setKeyFunctor(new CoreKeyBloomFunctor());
     }
 
-    public ByteEntityKeyPackage(final StoreSchema schema) {
+    public ByteEntityKeyPackage(final DataSchema schema) {
         this();
-        setStoreSchema(schema);
+        setDataSchema(schema);
     }
 
     @Override
-    public void setStoreSchema(final StoreSchema schema) {
+    public void setDataSchema(final DataSchema schema) {
         setRangeFactory(new ByteEntityRangeFactory(schema));
         setKeyConverter(new ByteEntityAccumuloElementConverter(schema));
     }

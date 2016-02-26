@@ -1,21 +1,29 @@
 {
   "entities": {
     "BasicEntity": {
-      "vertex": "simpleString",
+      "vertex": "id.string",
       "properties": {
-        "property1": "simpleProperty"
+        "property1": "prop.string"
       }
     }
   },
   "edges": {
     "BasicEdge": {
-      "source": "simpleString",
-      "destination": "simpleString",
-      "directed": "true",
+      "source": "id.string",
+      "destination": "id.string",
+      "directed": "directed.true",
       "properties": {
-        "property2": "simpleProperty",
-        "dateProperty": "simpleDate"
+        "property2": "prop.string",
+        "dateProperty": "prop.date"
       }
     }
-  }
+  },
+  "positions": {
+    "GROUP": "GROUP",
+    "VERTEX": "VERTEX",
+    "SOURCE": "SOURCE",
+    "DESTINATION": "DESTINATION",
+    "DIRECTED": "DIRECTED"
+  },
+  "vertexSerialiserClass": "gaffer.serialisation.implementation.JavaSerialiser"
 }

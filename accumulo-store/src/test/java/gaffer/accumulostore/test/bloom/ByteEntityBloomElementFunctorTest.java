@@ -25,8 +25,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StoreSchema;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
@@ -43,13 +41,13 @@ import static org.junit.Assert.fail;
 public class ByteEntityBloomElementFunctorTest {
 
     private final static AccumuloElementConverter elementConverter;
-    private final static StoreSchema schema;
+    private final static DataSchema schema;
 
     static {
-        schema = new StoreSchema.Builder()
+        schema = new DataSchema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE, new StoreElementDefinition())
-                .entity(TestGroups.ENTITY, new StoreElementDefinition())
+                .edge(TestGroups.EDGE, new DataElementDefinition())
+                .entity(TestGroups.ENTITY, new DataElementDefinition())
                 .build();
         elementConverter = new ByteEntityAccumuloElementConverter(schema);
     }

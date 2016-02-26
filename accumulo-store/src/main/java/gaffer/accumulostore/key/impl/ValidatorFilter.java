@@ -17,8 +17,6 @@
 package gaffer.accumulostore.key.impl;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.data.ElementValidator;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;

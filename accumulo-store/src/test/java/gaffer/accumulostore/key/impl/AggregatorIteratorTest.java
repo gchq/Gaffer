@@ -87,10 +87,10 @@ public class AggregatorIteratorTest {
         expectedResult.putProperty(AccumuloPropertyNames.COUNT, 13);
         expectedResult.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedResult.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
-        expectedResult.putProperty(AccumuloPropertyNames.F1, 0);
-        expectedResult.putProperty(AccumuloPropertyNames.F2, 0);
-        expectedResult.putProperty(AccumuloPropertyNames.F3, 1);
-        expectedResult.putProperty(AccumuloPropertyNames.F4, 1);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_3, 1);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
         Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource("1");
@@ -99,7 +99,7 @@ public class AggregatorIteratorTest {
         edge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge1.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
-        edge1.putProperty(AccumuloPropertyNames.F3, 1);
+        edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
 
         Edge edge2 = new Edge(TestGroups.EDGE);
         edge2.setSource("1");
@@ -108,7 +108,7 @@ public class AggregatorIteratorTest {
         edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge2.putProperty(AccumuloPropertyNames.COUNT, 2);
-        edge2.putProperty(AccumuloPropertyNames.F4, 1);
+        edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
         Edge edge3 = new Edge(TestGroups.EDGE);
         edge3.setSource("1");

@@ -19,7 +19,7 @@ package gaffer.data.elementdefinition.schema.exception;
 /**
  * An <code>SchemaException</code> is thrown when a schema is found to be invalid.
  * This can occur for several reasons including when deserialisation of a json schema fails, a schema having invalid
- * attributes or a {@link gaffer.data.elementdefinition.schema.DataSchema} not being compatible with a store schema.
+ * attributes or a {@link gaffer.store.schema.DataSchema} not being compatible with a store schema.
  */
 public class SchemaException extends RuntimeException {
     private static final long serialVersionUID = 3150434301320173603L;

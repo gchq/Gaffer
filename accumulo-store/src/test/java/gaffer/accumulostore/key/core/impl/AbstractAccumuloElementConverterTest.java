@@ -26,7 +26,6 @@ import gaffer.commonutil.PathUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,11 +43,11 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        StoreSchema storeSchema = StoreSchema.fromJson(PathUtil.storeSchema(getClass()));
-        converter = createConverter(storeSchema);
+        DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
+        converter = createConverter(dataSchema);
     }
 
-    protected abstract AccumuloElementConverter createConverter(final StoreSchema storeSchema);
+    protected abstract AccumuloElementConverter createConverter(final DataSchema dataSchema);
 
     //TEST WE CAN RETRIEVE AN ELEMENT FROM A KEY THAT HAS BEEN CREATED CORRECTLY
     @Test

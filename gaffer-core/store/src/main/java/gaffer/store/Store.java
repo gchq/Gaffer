@@ -20,8 +20,6 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -46,8 +44,8 @@ import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,20 +73,13 @@ public abstract class Store {
     private DataSchema dataSchema;
 
     /**
-     * The store schema - contains information on how to store and process the graph elements, such as position and serialisers.
-     */
-    private StoreSchema storeSchema;
-
-    /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
 
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
-    public void initialise(final DataSchema dataSchema, final StoreSchema storeSchema,
-                           final StoreProperties properties) throws StoreException {
-        this.storeSchema = storeSchema;
+    public void initialise(final DataSchema dataSchema, final StoreProperties properties) throws StoreException {
         this.dataSchema = dataSchema;
         this.properties = properties;
         addOpHandlers();
@@ -129,13 +120,7 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
-        final Iterator<Operation> opsItr;
-
-        if (hasTrait(StoreTrait.INPUT_VALIDATION)) {
-            opsItr = getValidatedOperations(operationChain).iterator();
-        } else {
-            opsItr = operationChain.getOperations().iterator();
-        }
+        final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
 
         if (!opsItr.hasNext()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
@@ -190,23 +175,13 @@ public abstract class Store {
     }
 
     /**
-     * Get this Store's {@link gaffer.data.elementdefinition.schema.DataSchema}.
+     * Get this Store's {@link DataSchema}.
      *
-     * @return the instance of {@link gaffer.data.elementdefinition.schema.DataSchema} used for describing the type of
+     * @return the instance of {@link gaffer.store.schema.DataSchema} used for describing the type of
      * {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
     public DataSchema getDataSchema() {
         return dataSchema;
-    }
-
-    /**
-     * Get this Store's {@link gaffer.store.schema.StoreSchema}
-     *
-     * @return the instance of {@link gaffer.store.schema.StoreSchema} used for describing how to store the
-     * {@link gaffer.data.element.Element}s, e.g the positions and serialisers to use.
-     */
-    public StoreSchema getStoreSchema() {
-        return storeSchema;
     }
 
     /**
@@ -219,36 +194,36 @@ public abstract class Store {
     }
 
     protected void validateSchemas() {
-        boolean valid = validateTwoSetsContainSameElements(getDataSchema().getEdgeGroups(), getStoreSchema().getEdgeGroups(), "edges")
-                && validateTwoSetsContainSameElements(getDataSchema().getEntityGroups(), getStoreSchema().getEntityGroups(), "entities");
+        boolean valid = validateTwoSetsContainSameElements(getDataSchema().getEdgeGroups(), getDataSchema().getEdgeGroups(), "edges")
+                && validateTwoSetsContainSameElements(getDataSchema().getEntityGroups(), getDataSchema().getEntityGroups(), "entities");
 
         if (!valid) {
             throw new SchemaException("ERROR: the store schema did not pass validation because the store schema and data schema contain different numbers of elements. Please check the logs for more detailed information");
         }
 
         for (String group : getDataSchema().getEdgeGroups()) {
-            valid &= validateTwoSetsContainSameElements(getDataSchema().getEdge(group).getProperties(), getStoreSchema().getEdge(group).getProperties(), "properties in the edge \"" + group + "\"");
+            valid &= validateTwoSetsContainSameElements(getDataSchema().getEdge(group).getProperties(), getDataSchema().getEdge(group).getProperties(), "properties in the edge \"" + group + "\"");
         }
 
         for (String group : getDataSchema().getEntityGroups()) {
-            valid &= validateTwoSetsContainSameElements(getDataSchema().getEntity(group).getProperties(), getStoreSchema().getEntity(group).getProperties(), "properties in the entity \"" + group + "\"");
+            valid &= validateTwoSetsContainSameElements(getDataSchema().getEntity(group).getProperties(), getDataSchema().getEntity(group).getProperties(), "properties in the entity \"" + group + "\"");
         }
 
         if (!valid) {
             throw new SchemaException("ERROR: the store schema did not pass validation because at least one of the elements in the store schema and data schema contain different numbers of properties. Please check the logs for more detailed information");
         }
-        HashMap<String, StoreElementDefinition> storeSchemaElements = new HashMap<>();
-        storeSchemaElements.putAll(getStoreSchema().getEdges());
-        storeSchemaElements.putAll(getStoreSchema().getEntities());
-        for (Map.Entry<String, StoreElementDefinition> storeElementDefinitionEntry : storeSchemaElements.entrySet()) {
-            DataElementDefinition dataElementDefinition = getDataSchema().getElement(storeElementDefinitionEntry.getKey());
-            for (String propertyName : storeElementDefinitionEntry.getValue().getProperties()) {
+        HashMap<String, DataElementDefinition> dataSchemaElements = new HashMap<>();
+        dataSchemaElements.putAll(getDataSchema().getEdges());
+        dataSchemaElements.putAll(getDataSchema().getEntities());
+        for (Map.Entry<String, DataElementDefinition> dataElementDefinitionEntry : dataSchemaElements.entrySet()) {
+            DataElementDefinition dataElementDefinition = getDataSchema().getElement(dataElementDefinitionEntry.getKey());
+            for (String propertyName : dataElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = dataElementDefinition.getPropertyClass(propertyName);
-                Serialisation serialisation = storeElementDefinitionEntry.getValue().getProperty(propertyName).getSerialiser();
+                Serialisation serialisation = dataElementDefinition.getProperty(propertyName).getSerialiser();
 
                 if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
-                    LOGGER.error("Store schema serialiser for property '" + propertyName + "' in the group '" + storeElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
+                    LOGGER.error("Store schema serialiser for property '" + propertyName + "' in the group '" + dataElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
                 }
             }
         }
@@ -320,17 +295,12 @@ public abstract class Store {
     }
 
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
+        final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
-
-        if (!hasTrait(StoreTrait.INPUT_VALIDATION) && operation instanceof Validate) {
-            result = (OUTPUT) ((Validate) operation).getElements();
+        if (null != handler) {
+            result = handler.doOperation(operation, this);
         } else {
-            final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
-            if (null != handler) {
-                result = handler.doOperation(operation, this);
-            } else {
-                result = doUnhandledOperation(operation);
-            }
+            result = doUnhandledOperation(operation);
         }
 
         return result;

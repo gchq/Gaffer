@@ -73,7 +73,7 @@ public final class AccumuloStoreConstants {
     // Store factory constants
     public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
     public static final Text DATA_SCHEMA_KEY = new Text("dataSchema");
-    public static final Text STORE_SCHEMA_KEY = new Text("storeSchema");
+    public static final Text STORE_SCHEMA_KEY = new Text("dataSchema");
     public static final Text KEY_PACKAGE_KEY = new Text("keyPackage");
 
     // General use constants

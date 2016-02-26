@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package gaffer.data;
+package gaffer.store;
 
+import gaffer.data.TransformIterable;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.store.schema.DataSchema;
 
 /**
- * An <code>ValidatedElements</code> extends {@link gaffer.data.TransformIterable} and uses an
- * {@link gaffer.data.ElementValidator} to validate the {@link gaffer.data.element.Element}s.
+ * An <code>ValidatedElements</code> extends {@link TransformIterable} and uses an
+ * {@link ElementValidator} to validate the {@link Element}s.
  * It does not transform the element items - just simply returns them if they are valid.
  * <p>
- * So the resultant {@link java.lang.Iterable} will only contain {@link gaffer.data.element.Element}s that have passed
- * the {@link gaffer.data.elementdefinition.schema.DataSchema} {@link gaffer.function.FilterFunction}s or
- * {@link gaffer.data.elementdefinition.view.View} {@link gaffer.function.FilterFunction}s.
+ * So the resultant {@link Iterable} will only contain {@link Element}s that have passed
+ * the {@link gaffer.store.schema.DataSchema} {@link gaffer.function.FilterFunction}s or
+ * {@link View} {@link gaffer.function.FilterFunction}s.
  */
 public class ValidatedElements extends TransformIterable<Element, Element> {
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given {@link java.lang.Iterable} of
-     * {@link gaffer.data.element.Element}s, a {@link gaffer.data.elementdefinition.schema.DataSchema} containing the
-     * {@link gaffer.function.FilterFunction}s to use to validate the {@link gaffer.data.element.Element}s and a
+     * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
+     * {@link Element}s, a {@link gaffer.store.schema.DataSchema} containing the
+     * {@link gaffer.function.FilterFunction}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.
      *
-     * @param elements    the input {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s
-     * @param dataSchema  the {@link gaffer.data.elementdefinition.schema.DataSchema} containing the
-     *                    {@link gaffer.function.FilterFunction}s to use to validate the {@link gaffer.data.element.Element}s.
+     * @param elements    the input {@link Iterable} of {@link Element}s
+     * @param dataSchema  the {@link gaffer.store.schema.DataSchema} containing the
+     *                    {@link gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
     public ValidatedElements(final Iterable<Element> elements, final DataSchema dataSchema, final boolean skipInvalid) {
@@ -47,14 +48,14 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
     }
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given {@link java.lang.Iterable} of
-     * {@link gaffer.data.element.Element}s, a {@link gaffer.data.elementdefinition.view.View} containing the
-     * {@link gaffer.function.FilterFunction}s to use to validate the {@link gaffer.data.element.Element}s and a
+     * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
+     * {@link Element}s, a {@link View} containing the
+     * {@link gaffer.function.FilterFunction}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.
      *
-     * @param elements    the input {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s
-     * @param view        the {@link gaffer.data.elementdefinition.view.View} containing the
-     *                    {@link gaffer.function.FilterFunction}s to use to validate the {@link gaffer.data.element.Element}s.
+     * @param elements    the input {@link Iterable} of {@link Element}s
+     * @param view        the {@link View} containing the
+     *                    {@link gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
     public ValidatedElements(final Iterable<Element> elements, final View view, final boolean skipInvalid) {

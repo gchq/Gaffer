@@ -23,7 +23,6 @@ import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.StoreElementDefinition;
 
 public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     @Override
@@ -46,7 +45,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         @Override
         protected Element transform(final Element element) {
             final Element cleanElement = element.emptyClone();
-            final StoreElementDefinition elementDefinition = store.getStoreSchema().getElement(element.getGroup());
+            final DataElementDefinition elementDefinition = store.getDataSchema().getElement(element.getGroup());
             for (String property : elementDefinition.getProperties()) {
                 cleanElement.putProperty(property, element.getProperty(property));
             }

@@ -49,9 +49,6 @@
     },
     "userId.string": {
       "class": "java.lang.String",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.StringConcat"
-      },
       "validator": {
         "functions": [
           {
@@ -76,9 +73,6 @@
     },
     "name.string": {
       "class": "java.lang.String",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.StringConcat"
-      },
       "validator": {
         "functions": [
           {
@@ -91,9 +85,6 @@
     },
     "certificate": {
       "class": "gaffer.example.data.Certificate",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.ComparableMax"
-      },
       "validator": {
         "functions": [
           {
@@ -106,9 +97,6 @@
     },
     "rating.int": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Max"
-      },
       "validator": {
         "functions": [
           {
@@ -130,9 +118,6 @@
     },
     "count.int": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
-      },
       "validator": {
         "functions": [
           {
@@ -146,23 +131,13 @@
       }
     },
     "total.long": {
-      "class": "java.lang.Long",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
-      }
+      "class": "java.lang.Long"
     },
     "timestamp.long": {
-      "class": "java.lang.Long",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Max",
-        "mode": "LONG"
-      }
+      "class": "java.lang.Long"
     },
     "max.integer": {
-      "class": "java.lang.Integer",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Max"
-      }
+      "class": "java.lang.Integer"
     }
   }
 }

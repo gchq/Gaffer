@@ -55,7 +55,7 @@ public abstract class GafferIntegrationTests {
      */
     @Before
     public void setup() throws Exception {
-        graph = new Graph(PathUtil.dataSchema(getClass()), PathUtil.storeSchema(getClass()), propertiesPath);
+        graph = new Graph(PathUtil.dataSchema(getClass()), PathUtil.dataSchema(getClass()), propertiesPath);
 
         final String originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))

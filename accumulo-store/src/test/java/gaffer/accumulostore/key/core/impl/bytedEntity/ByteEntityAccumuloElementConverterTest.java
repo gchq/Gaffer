@@ -18,14 +18,13 @@ package gaffer.accumulostore.key.core.impl.bytedEntity;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.AbstractAccumuloElementConverterTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import gaffer.store.schema.StoreSchema;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.
  */
 public class ByteEntityAccumuloElementConverterTest extends AbstractAccumuloElementConverterTest {
     @Override
-    protected AccumuloElementConverter createConverter(final StoreSchema storeSchema) {
-        return new ByteEntityAccumuloElementConverter(storeSchema);
+    protected AccumuloElementConverter createConverter(final DataSchema dataSchema) {
+        return new ByteEntityAccumuloElementConverter(dataSchema);
     }
 }

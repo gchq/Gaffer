@@ -17,9 +17,8 @@
 package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.CONTINUOUS_VALIDATION;
 import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.INPUT_VALIDATION;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -44,7 +43,6 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
@@ -58,7 +56,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
@@ -85,20 +83,20 @@ import java.util.Map;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, INPUT_VALIDATION, CONTINUOUS_VALIDATION);
+    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
     private AccumuloKeyPackage keyPackage;
 
     @Override
-    public void initialise(final DataSchema dataSchema, final StoreSchema storeSchema, final StoreProperties properties)
+    public void initialise(final DataSchema dataSchema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(dataSchema, storeSchema, properties);
+        super.initialise(dataSchema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
-        this.keyPackage.setStoreSchema(storeSchema);
+        this.keyPackage.setDataSchema(dataSchema);
         validateSchemasAgainstKeyDesign();
     }
 
@@ -268,14 +266,14 @@ public class AccumuloStore extends Store {
     @Override
     protected void validateSchemas() {
         super.validateSchemas();
-        final Map<String, String> positions = this.getStoreSchema().getPositions();
+        final Map<String, String> positions = this.getDataSchema().getPositions();
         if (positions != null && !positions.isEmpty()) {
             LOGGER.warn("The store schema positions are not used and will be ignored.");
         }
     }
 
     protected void validateSchemasAgainstKeyDesign() {
-        keyPackage.validateSchema(this.getStoreSchema());
+        keyPackage.validateSchema(this.getDataSchema());
     }
 
     @Override

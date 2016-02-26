@@ -15,14 +15,13 @@
  */
 package gaffer.operation.simple.hdfs.handler.mapper;
 
-import gaffer.data.ElementValidator;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
+import gaffer.store.ElementValidator;
+import gaffer.store.schema.DataSchema;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 

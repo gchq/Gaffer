@@ -18,8 +18,8 @@ package gaffer.accumulostore.key.core;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.StorePositions;
 import gaffer.data.element.Edge;
@@ -28,9 +28,8 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StorePropertyDefinition;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.io.BytesWritable;
@@ -51,10 +50,10 @@ import java.util.Map;
 
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     static final byte[] DELIMITER_ARRAY = new byte[]{0};
-    protected final StoreSchema storeSchema;
+    protected final DataSchema dataSchema;
 
-    public AbstractCoreKeyAccumuloElementConverter(final StoreSchema storeSchema) {
-        this.storeSchema = storeSchema;
+    public AbstractCoreKeyAccumuloElementConverter(final DataSchema dataSchema) {
+        this.dataSchema = dataSchema;
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
@@ -108,7 +107,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final MapWritable map = new MapWritable();
         for (final Map.Entry<String, Object> entry : properties.entrySet()) {
             final String propertyName = entry.getKey();
-            final StorePropertyDefinition propertyDefinition = storeSchema.getElement(group).getProperty(propertyName);
+            final StorePropertyDefinition propertyDefinition = dataSchema.getElement(group).getProperty(propertyName);
             if (propertyDefinition != null) {
                 if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
                     try {
@@ -144,9 +143,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         } catch (final IOException e) {
             throw new AccumuloElementConversionException("Failed to read map writable from value", e);
         }
-        final StoreElementDefinition elementDefinition = storeSchema.getElement(group);
+        final DataElementDefinition elementDefinition = dataSchema.getElement(group);
         if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No StoreElementDefinition found for group " + group + " is this group in your Store Schema or do your table iterators need updating?");
+            throw new AccumuloElementConversionException("No DataElementDefinition found for group " + group + " is this group in your Store Schema or do your table iterators need updating?");
         }
         for (final Writable writeableKey : map.keySet()) {
             final String propertyName = writeableKey.toString();
@@ -210,7 +209,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] buildColumnVisibility(final String group, final Properties properties)
             throws AccumuloElementConversionException {
-        final StoreElementDefinition elDef = storeSchema.getElement(group);
+        final DataElementDefinition elDef = dataSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -237,7 +236,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (columnVisibility == null || columnVisibility.length == 0) {
             return properties;
         }
-        final StoreElementDefinition elDef = storeSchema.getElement(group);
+        final DataElementDefinition elDef = dataSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -260,7 +259,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] buildColumnQualifier(final String group, final Properties properties)
             throws AccumuloElementConversionException {
-        final StoreElementDefinition elDef = storeSchema.getElement(group);
+        final DataElementDefinition elDef = dataSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -324,7 +323,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (keyPortion == null || keyPortion.length == 0) {
             return result;
         }
-        final StoreElementDefinition elDef = storeSchema.getElement(group);
+        final DataElementDefinition elDef = dataSchema.getElement(group);
         final List<Integer> positionsOfDelimiters = new ArrayList<>();
         for (int i = 0; i < keyPortion.length; i++) {
             if (keyPortion[i] == ByteArrayEscapeUtils.DELIMITER) {
@@ -384,7 +383,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     /**
-     * Get the properties for a given group defined in the StoreSchema as being
+     * Get the properties for a given group defined in the DataSchema as being
      * stored in the Accumulo timestamp column.
      *
      * @param group     The {@link Element} type to be queried
@@ -395,7 +394,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
      */
     public Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException {
-        final StoreElementDefinition elDef = storeSchema.getElement(group);
+        final DataElementDefinition elDef = dataSchema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -413,7 +412,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] serialiseVertexForBloomKey(final Object vertex) throws AccumuloElementConversionException {
         try {
-            return ByteArrayEscapeUtils.escape(this.storeSchema.getVertexSerialiser().serialise(vertex));
+            return ByteArrayEscapeUtils.escape(this.dataSchema.getVertexSerialiser().serialise(vertex));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException(
                     "Failed to serialise given identifier object for use in the bloom filter", e);
@@ -446,7 +445,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected Serialisation getVertexSerialiser() {
-        return storeSchema.getVertexSerialiser();
+        return dataSchema.getVertexSerialiser();
     }
 
     protected Edge getEdgeFromKey(final Key key, final Map<String, String> options)
@@ -494,7 +493,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     private long buildTimestamp(final Element element) throws AccumuloElementConversionException {
-        final StoreElementDefinition elDef = storeSchema.getElement(element.getGroup());
+        final DataElementDefinition elDef = dataSchema.getElement(element.getGroup());
         if (elDef == null) {
             throw new AccumuloElementConversionException(
                     "No element definition found for element class: " + element.getGroup());

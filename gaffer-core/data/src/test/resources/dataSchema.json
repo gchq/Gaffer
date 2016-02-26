@@ -17,6 +17,25 @@
       "properties": {
         "property2": "simpleProperty",
         "dateProperty": "simpleDate"
+      },
+      "validator": {
+        "functions": [
+          {
+            "function": {
+              "class": "gaffer.function.ExampleFilterFunction"
+            },
+            "selection": [
+              {
+                "key": "source",
+                "isId": true
+              },
+              {
+                "key": "destination",
+                "isId": true
+              }
+            ]
+          }
+        ]
       }
     }
   }

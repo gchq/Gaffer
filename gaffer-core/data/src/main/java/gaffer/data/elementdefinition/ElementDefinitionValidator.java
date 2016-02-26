@@ -27,13 +27,13 @@ import gaffer.function.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class TypedElementDefinitionValidator<ELEMENT_DEF extends TypedElementDefinition> implements Validator<ELEMENT_DEF> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TypedElementDefinitionValidator.class);
+public abstract class ElementDefinitionValidator<ELEMENT_DEF extends ElementDefinition> implements Validator<ELEMENT_DEF> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitionValidator.class);
 
     /**
-     * Validates the {@link TypedElementDefinition} and checks each identifier and property has a type associated with it.
+     * Validates the {@link ElementDefinition} and checks each identifier and property has a type associated with it.
      *
-     * @param elementDef the {@link gaffer.data.elementdefinition.TypedElementDefinition} to validate
+     * @param elementDef the {@link ElementDefinition} to validate
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
     public boolean validate(final ELEMENT_DEF elementDef) {
@@ -48,7 +48,7 @@ public abstract class TypedElementDefinitionValidator<ELEMENT_DEF extends TypedE
                     return false;
                 }
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getIdentifierClassName(idType) + " for identifier " + idType + " could not be found");
+                LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found");
                 return false;
             }
         }
@@ -60,7 +60,7 @@ public abstract class TypedElementDefinitionValidator<ELEMENT_DEF extends TypedE
                     return false;
                 }
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getPropertyClassName(propertyName) + " for property " + propertyName + " could not be found");
+                LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found");
                 return false;
             }
         }

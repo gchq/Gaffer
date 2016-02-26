@@ -23,9 +23,7 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Combiner;
@@ -111,10 +109,10 @@ public class AggregatorIterator extends Combiner {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
         }
 
-        final StoreSchema storeSchema;
+        final DataSchema dataSchema;
         try {
             dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the data/store schema", e);
         }
@@ -122,8 +120,8 @@ public class AggregatorIterator extends Combiner {
         try {
             final Class<?> elementConverterClass = Class
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
+                    .newInstance(dataSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
@@ -135,7 +133,7 @@ public class AggregatorIterator extends Combiner {
     @Override
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions()).addDataSchemaNamedOption()
-                .addStoreSchemaNamedOption().addElementConverterClassNamedOption()
+                .addDataSchemaNamedOption().addElementConverterClassNamedOption()
                 .setIteratorName(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Applies a reduce function to elements with identical (rowKey, column family, column qualifier, visibility)")

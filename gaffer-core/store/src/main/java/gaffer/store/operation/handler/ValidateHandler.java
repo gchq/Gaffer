@@ -16,17 +16,17 @@
 
 package gaffer.store.operation.handler;
 
-import gaffer.data.ValidatedElements;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
+import gaffer.store.ValidatedElements;
 
 /**
  * An <code>ValidateHandler</code> handles for {@link gaffer.operation.impl.Validate} operations.
  * Takes an {@link Iterable} of {@link Element}s and returns an
  * {@link Iterable} containing only valid {@link Element}s, specifically an instance of {@link ValidatedElements}.
- * The {@link gaffer.data.elementdefinition.schema.DataSchema} is used to validate the elements.
+ * The {@link gaffer.store.schema.DataSchema} is used to validate the elements.
  * The isSkipInvalidElements flag on {@link Validate} is used to determine what to do with invalid {@link Element}s.
  */
 public class ValidateHandler implements OperationHandler<Validate, Iterable<Element>> {

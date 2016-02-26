@@ -16,7 +16,6 @@
 
 package gaffer.rest.service;
 
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.function.FilterFunction;
 import gaffer.function.TransformFunction;

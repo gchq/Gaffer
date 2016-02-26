@@ -14,14 +14,32 @@
  * limitations under the License.
  */
 
-package gaffer.data.elementdefinition;
+package gaffer.function;
 
-import java.util.HashMap;
+import gaffer.function.annotation.Inputs;
+import gaffer.function.annotation.Outputs;
 
-/**
- * <code>Types</code> simply extends {@link java.util.HashMap} with key = {@link String}, value = {@link Type}.
- * This is required for serialising to JSON.
- */
-public class Types extends HashMap<String, Type> {
-    private static final long serialVersionUID = -4289118603357719559L;
+@Inputs(Object.class)
+@Outputs(Object.class)
+public class ExampleAggregateFunction extends SimpleAggregateFunction<Object> {
+    private Object input;
+
+    @Override
+    public void init() {
+    }
+
+    @Override
+    protected void _aggregate(Object input) {
+        this.input = input;
+    }
+
+    @Override
+    public Object _state() {
+        return input;
+    }
+
+    @Override
+    public ExampleAggregateFunction statelessClone() {
+        return new ExampleAggregateFunction();
+    }
 }

@@ -57,7 +57,7 @@ public class SimpleQuery {
             + Certificate._18.name();
 
     private static final Path DATA_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
-    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/storeSchema.json").getPath());
+    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
     private static final Path STORE_PROPERTIES_PATH = Paths.get(SimpleQuery.class.getResource("/store.properties").getPath());
 
     public static void main(final String[] args) throws OperationException {
