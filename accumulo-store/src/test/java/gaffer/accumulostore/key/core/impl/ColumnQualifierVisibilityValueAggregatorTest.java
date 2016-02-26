@@ -157,7 +157,6 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .dataSchema(store.getDataSchema())
-                    .dataSchema(store.getDataSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -226,7 +225,6 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
                     .dataSchema(store.getDataSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
@@ -328,7 +326,6 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
                     .dataSchema(store.getDataSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();

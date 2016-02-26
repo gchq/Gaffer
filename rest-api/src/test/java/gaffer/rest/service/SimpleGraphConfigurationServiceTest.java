@@ -16,17 +16,18 @@
 
 package gaffer.rest.service;
 
-import gaffer.graph.Graph;
-import gaffer.rest.GraphFactory;
-import gaffer.store.Store;
-import java.io.IOException;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
+import gaffer.graph.Graph;
+import gaffer.rest.GraphFactory;
+import gaffer.store.Store;
+import gaffer.store.schema.DataSchema;
+import org.junit.Before;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.List;
 
 
 public class SimpleGraphConfigurationServiceTest {

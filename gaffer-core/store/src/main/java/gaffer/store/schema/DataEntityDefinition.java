@@ -40,12 +40,17 @@ public class DataEntityDefinition extends DataElementDefinition {
         }
 
         @Override
+        public Builder property(final String propertyName, final Class<?> typeClass) {
+            return (Builder) super.property(propertyName, typeClass);
+        }
+
+        @Override
         public Builder property(final String propertyName, final String exisitingTypeName) {
             return (Builder) super.property(propertyName, exisitingTypeName);
         }
 
         @Override
-        public Builder property(final String propertyName, final String typeName, final Type type) {
+        public Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
             return (Builder) super.property(propertyName, typeName, type);
         }
 
@@ -59,13 +64,17 @@ public class DataEntityDefinition extends DataElementDefinition {
             return this;
         }
 
-        public Builder vertex(final String typeName, final Type type) {
+        public Builder vertex(final Class<?> typeClass) {
+            return vertex(typeClass.getName(), typeClass);
+        }
+
+        public Builder vertex(final String typeName, final TypeDefinition type) {
             type(typeName, type);
             return vertex(typeName);
         }
 
         public Builder vertex(final String typeName, final Class<?> typeClass) {
-            return vertex(typeName, new Type(typeClass));
+            return vertex(typeName, new TypeDefinition(typeClass));
         }
 
         @Override

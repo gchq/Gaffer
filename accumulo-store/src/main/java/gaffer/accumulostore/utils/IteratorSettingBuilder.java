@@ -16,22 +16,21 @@
 
 package gaffer.accumulostore.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-import org.apache.hadoop.util.bloom.BloomFilter;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
+import gaffer.store.schema.DataSchema;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+import org.apache.hadoop.util.bloom.BloomFilter;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class IteratorSettingBuilder {
     private final IteratorSetting setting;
@@ -41,7 +40,7 @@ public class IteratorSettingBuilder {
     }
 
     public IteratorSettingBuilder(final int priority, final String name,
-            final Class<? extends SortedKeyValueIterator<Key, Value>> iteratorClass) {
+                                  final Class<? extends SortedKeyValueIterator<Key, Value>> iteratorClass) {
         setting = new IteratorSetting(priority, name, iteratorClass);
     }
 
@@ -111,15 +110,6 @@ public class IteratorSettingBuilder {
             setting.addOption(AccumuloStoreConstants.DATA_SCHEMA, new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise data schema from JSON", e);
-        }
-        return this;
-    }
-
-    public IteratorSettingBuilder dataSchema(final DataSchema dataSchema) {
-        try {
-            setting.addOption(AccumuloStoreConstants.STORE_SCHEMA, new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise store schema from JSON", e);
         }
         return this;
     }

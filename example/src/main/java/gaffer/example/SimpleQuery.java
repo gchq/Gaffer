@@ -35,7 +35,6 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -57,7 +56,7 @@ public class SimpleQuery {
             + Certificate._18.name();
 
     private static final Path DATA_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
-    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
+    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/storeSchema.json").getPath());
     private static final Path STORE_PROPERTIES_PATH = Paths.get(SimpleQuery.class.getResource("/store.properties").getPath());
 
     public static void main(final String[] args) throws OperationException {
@@ -86,7 +85,7 @@ public class SimpleQuery {
      */
     public Iterable<Viewing> run() throws OperationException {
         // Create Graph
-        final Graph graph = new Graph(DATA_SCHEMA_PATH, STORE_SCHEMA_PATH, STORE_PROPERTIES_PATH);
+        final Graph graph = new Graph(STORE_PROPERTIES_PATH, DATA_SCHEMA_PATH, STORE_SCHEMA_PATH);
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.

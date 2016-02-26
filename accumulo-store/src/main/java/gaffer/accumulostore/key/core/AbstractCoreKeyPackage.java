@@ -19,6 +19,9 @@ package gaffer.accumulostore.key.core;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.utils.StorePositions;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.TypeDefinition;
 
 public abstract class AbstractCoreKeyPackage extends AccumuloKeyPackage {
     @Override
@@ -35,7 +38,7 @@ public abstract class AbstractCoreKeyPackage extends AccumuloKeyPackage {
     private void validateElementDef(final DataElementDefinition storeElDef) {
         boolean seenVisibility = false;
         boolean seenTimestamp = false;
-        for (final StorePropertyDefinition storePropertyDef : storeElDef.getPropertyDefinitions()) {
+        for (final TypeDefinition storePropertyDef : storeElDef.getPropertyTypeDefs()) {
             if (StorePositions.VISIBILITY.isEqual(storePropertyDef.getPosition())) {
                 if (!seenVisibility) {
                     seenVisibility = true;

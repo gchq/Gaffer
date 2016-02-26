@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 public class PathUtil {
     public static final String VIEW = "/view.json";
     public static final String DATA_SCHEMA = "/dataSchema.json";
-    public static final String STORE_SCHEMA = "/dataSchema.json";
+    public static final String STORE_SCHEMA = "/storeSchema.json";
     public static final String SCHEMA_TYPES = "/schemaTypes.json";
     public static final String STORE_PROPERTIES = "/store.properties";
 
@@ -36,6 +36,10 @@ public class PathUtil {
 
     public static Path schemaTypes(final Class clazz) {
         return path(clazz, SCHEMA_TYPES);
+    }
+
+    public static Path storeSchema(final Class clazz) {
+        return path(clazz, STORE_SCHEMA);
     }
 
     public static Path storeProps(final Class clazz) {

@@ -46,7 +46,8 @@ import gaffer.rest.example.ExampleDomainObject;
 import gaffer.rest.example.ExampleDomainObjectGenerator;
 import gaffer.rest.example.ExampleFilterFunction;
 import gaffer.rest.example.ExampleTransformFunction;
-
+import gaffer.store.schema.DataElementDefinition;
+import gaffer.store.schema.DataSchema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;

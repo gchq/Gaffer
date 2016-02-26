@@ -55,13 +55,19 @@ public class DataEdgeDefinition extends DataElementDefinition {
             super(elDef);
         }
 
+
+        @Override
+        public Builder property(final String propertyName, final Class<?> typeClass) {
+            return (Builder) super.property(propertyName, typeClass);
+        }
+
         @Override
         public Builder property(final String propertyName, final String exisitingTypeName) {
             return (Builder) super.property(propertyName, exisitingTypeName);
         }
 
         @Override
-        public Builder property(final String propertyName, final String typeName, final Type type) {
+        public Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
             return (Builder) super.property(propertyName, typeName, type);
         }
 
@@ -75,18 +81,26 @@ public class DataEdgeDefinition extends DataElementDefinition {
             return (Builder) super.validator(validator);
         }
 
+        public Builder source(final Class<?> typeClass) {
+            return source(typeClass.getName(), typeClass);
+        }
+
         public Builder source(final String exisitingTypeName) {
             identifier(IdentifierType.SOURCE, exisitingTypeName);
             return this;
         }
 
-        public Builder source(final String typeName, final Type type) {
+        public Builder source(final String typeName, final TypeDefinition type) {
             type(typeName, type);
             return source(typeName);
         }
 
         public Builder source(final String typeName, final Class<?> typeClass) {
-            return source(typeName, new Type(typeClass));
+            return source(typeName, new TypeDefinition(typeClass));
+        }
+
+        public Builder destination(final Class<?> typeClass) {
+            return destination(typeClass.getName(), typeClass);
         }
 
         public Builder destination(final String exisitingTypeName) {
@@ -94,13 +108,17 @@ public class DataEdgeDefinition extends DataElementDefinition {
             return this;
         }
 
-        public Builder destination(final String typeName, final Type type) {
+        public Builder destination(final String typeName, final TypeDefinition type) {
             type(typeName, type);
             return destination(typeName);
         }
 
         public Builder destination(final String typeName, final Class<?> typeClass) {
-            return destination(typeName, new Type(typeClass));
+            return destination(typeName, new TypeDefinition(typeClass));
+        }
+
+        public Builder directed(final Class<?> typeClass) {
+            return directed(typeClass.getName(), typeClass);
         }
 
         public Builder directed(final String exisitingTypeName) {
@@ -108,13 +126,13 @@ public class DataEdgeDefinition extends DataElementDefinition {
             return this;
         }
 
-        public Builder directed(final String typeName, final Type type) {
+        public Builder directed(final String typeName, final TypeDefinition type) {
             type(typeName, type);
             return directed(typeName);
         }
 
         public Builder directed(final String typeName, final Class<?> typeClass) {
-            return directed(typeName, new Type(typeClass));
+            return directed(typeName, new TypeDefinition(typeClass));
         }
 
         @Override

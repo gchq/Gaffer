@@ -1,27 +1,26 @@
 {
-  "entities": {
-    "BasicEntity": {
-      "properties": {
-        "stringProperty": {
-          "serialiserClass": "gaffer.serialisation.simple.StringSerialiser",
-          "position": "VALUE"
-        }
+  "vertexSerialiserClass": "gaffer.serialisation.simple.StringSerialiser",
+  "types": {
+    "prop.string": {
+      "position": "VALUE",
+      "serialiserClass": "gaffer.serialisation.simple.StringSerialiser",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
+      }
+    },
+    "prop.integer": {
+      "position": "VALUE",
+      "serialiserClass": "gaffer.serialisation.simple.IntegerSerialiser",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "prop.count": {
+      "position": "VALUE",
+      "serialiserClass": "gaffer.serialisation.simple.LongSerialiser",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
       }
     }
-  },
-  "edges": {
-    "BasicEdge": {
-      "properties": {
-        "intProperty": {
-          "serialiserClass": "gaffer.serialisation.simple.IntegerSerialiser",
-          "position": "VALUE"
-        },
-        "count": {
-          "serialiserClass": "gaffer.serialisation.simple.LongSerialiser",
-          "position": "VALUE"
-        }
-      }
-    }
-  },
-  "vertexSerialiserClass": "gaffer.serialisation.simple.StringSerialiser"
+  }
 }

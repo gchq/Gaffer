@@ -1,9 +1,9 @@
 {
   "entities": {
     "BasicEntity": {
-      "vertex": "java.lang.Object",
+      "vertex": "id.object",
       "properties": {
-        "columnQualifier": "simpleProperty",
+        "columnQualifier": "colQualProperty",
         "timestamp": "timestamp",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
@@ -15,11 +15,11 @@
   },
   "edges": {
     "BasicEdge": {
-      "source": "java.lang.Object",
-      "destination": "java.lang.Object",
-      "directed": "java.lang.Object",
+      "source": "id.object",
+      "destination": "id.object",
+      "directed": "directed.either",
       "properties": {
-        "columnQualifier": "simpleProperty",
+        "columnQualifier": "colQualProperty",
         "timestamp": "timestamp",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
@@ -30,15 +30,27 @@
     }
   },
   "types": {
+    "id.object": {
+      "class": "java.lang.Object"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
     "simpleProperty": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {
+      "aggregateFunction": {
+        "class": "gaffer.accumulostore.test.function.ExampleSum"
+      }
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
         "class": "gaffer.accumulostore.test.function.ExampleSum"
       }
     },
     "timestamp": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.accumulostore.test.function.ExampleSumLong"
       }
     }

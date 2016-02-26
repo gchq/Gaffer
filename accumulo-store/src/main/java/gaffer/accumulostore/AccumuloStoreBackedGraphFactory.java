@@ -16,19 +16,18 @@
 
 package gaffer.accumulostore;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-
-import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.MapWritable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.graph.Graph;
 import gaffer.store.StoreException;
+import gaffer.store.schema.DataSchema;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.MapWritable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 
 /**
  * Factory for creating new {@link gaffer.graph.Graph} instances of
@@ -62,8 +61,6 @@ public final class AccumuloStoreBackedGraphFactory {
 
         final DataSchema dataSchema = DataSchema
                 .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.DATA_SCHEMA_KEY)).getBytes());
-        final DataSchema dataSchema = DataSchema
-                .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.STORE_SCHEMA_KEY)).getBytes());
         final String keyPackageClass;
         try {
             keyPackageClass = new String(((BytesWritable) map.get(AccumuloStoreConstants.KEY_PACKAGE_KEY)).getBytes(),
@@ -78,6 +75,6 @@ public final class AccumuloStoreBackedGraphFactory {
             props.setKeyPackageClass(keyPackageClass);
         }
 
-        return new Graph(dataSchema, dataSchema, props);
+        return new Graph(props, dataSchema);
     }
 }

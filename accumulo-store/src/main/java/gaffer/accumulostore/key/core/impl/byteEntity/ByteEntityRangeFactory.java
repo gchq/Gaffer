@@ -18,8 +18,8 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.exception.SerialisationException;
 import gaffer.operation.GetOperation;
@@ -28,6 +28,7 @@ import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.serialisation.Serialisation;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-            final boolean endKey) throws RangeFactoryException {
+                                                                    final boolean endKey) throws RangeFactoryException {
         final Serialisation vertexSerialiser = dataSchema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
@@ -84,7 +85,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-            final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
+                                                                  final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
         final IncludeEdgeType includeEdges;
         final boolean includeEntities;

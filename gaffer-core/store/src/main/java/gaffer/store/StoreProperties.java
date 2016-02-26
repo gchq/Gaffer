@@ -51,6 +51,11 @@ public class StoreProperties {
         this.props = props;
     }
 
+    public StoreProperties(final Class<? extends Store> storeClass) {
+        this(new Properties());
+        setStoreClass(storeClass.getName());
+    }
+
     /**
      * @param key the property key
      * @return a property properties file with the given key.

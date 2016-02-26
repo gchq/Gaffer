@@ -17,6 +17,9 @@
 package gaffer.accumulostore.integration;
 
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
@@ -40,7 +43,9 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.serialisation.implementation.JavaSerialiser;
-
+import gaffer.store.schema.DataEdgeDefinition;
+import gaffer.store.schema.DataEntityDefinition;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
@@ -59,7 +64,6 @@ import org.codehaus.plexus.util.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,9 +71,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
@@ -86,9 +87,14 @@ public class BloomFilterIT {
 
     static {
         schema = new DataSchema.Builder()
+                .type("prop.integer", Integer.class)
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE, new DataElementDefinition())
-                .entity(TestGroups.ENTITY, new DataElementDefinition())
+                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                        .property(AccumuloPropertyNames.INT, "prop.integer")
+                        .build())
+                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
+                        .property(AccumuloPropertyNames.INT, "prop.integer")
+                        .build())
                 .build();
         byteEntityRangeFactory = new ByteEntityRangeFactory(schema);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);

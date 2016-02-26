@@ -16,20 +16,22 @@
 
 package gaffer.rest.service;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import gaffer.commonutil.TestGroups;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
+import gaffer.store.schema.DataEdgeDefinition;
+import gaffer.store.schema.DataEntityDefinition;
+import gaffer.store.schema.DataSchema;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 
 public class ExamplesServiceTest {

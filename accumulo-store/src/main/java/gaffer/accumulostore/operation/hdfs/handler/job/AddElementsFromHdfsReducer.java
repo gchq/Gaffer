@@ -22,6 +22,7 @@ import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -46,12 +47,9 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
 
     @Override
     protected void setup(final Context context) {
-        final DataSchema dataSchema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA)
-                    .getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
             dataSchema = DataSchema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                    .get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
         }

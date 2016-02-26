@@ -18,7 +18,6 @@ package gaffer.rest;
 
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.graph.Graph;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -49,11 +48,6 @@ public class GraphFactory {
         final Path dataSchemaPath = Paths.get(System.getProperty(SystemProperty.DATA_SCHEMA_PATH));
         if (null == dataSchemaPath) {
             throw new SchemaException("The path to the Data Schema was not found in system properties for key: " + SystemProperty.DATA_SCHEMA_PATH);
-        }
-
-        final Path dataSchemaPath = Paths.get(System.getProperty(SystemProperty.STORE_SCHEMA_PATH));
-        if (null == dataSchemaPath) {
-            throw new SchemaException("The path to the Store Schema was not found in system properties for key: " + SystemProperty.STORE_SCHEMA_PATH);
         }
 
         final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));

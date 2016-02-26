@@ -16,6 +16,8 @@
 
 package gaffer.arrayliststore;
 
+import static gaffer.store.StoreTrait.FILTERING;
+
 import gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.arrayliststore.operation.handler.GetElementsHandler;
@@ -31,14 +33,10 @@ import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.INPUT_VALIDATION;
 
 
 /**
@@ -49,7 +47,7 @@ import static gaffer.store.StoreTrait.INPUT_VALIDATION;
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {
-    private static final List<StoreTrait> TRAITS = Arrays.asList(FILTERING, INPUT_VALIDATION);
+    private static final List<StoreTrait> TRAITS = Collections.singletonList(FILTERING);
     private final List<Entity> entities = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
 

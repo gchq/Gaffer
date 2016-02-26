@@ -53,7 +53,6 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
                 .all()
                 .dataSchema(store.getDataSchema())
-                .dataSchema(store.getDataSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }
@@ -63,7 +62,6 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
                 .all()
-                .dataSchema(store.getDataSchema())
                 .dataSchema(store.getDataSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
@@ -75,7 +73,6 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                 AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                 .all()
-                .dataSchema(store.getDataSchema())
                 .dataSchema(store.getDataSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();

@@ -1,35 +1,38 @@
 {
   "entities": {
     "BasicEntity": {
-      "vertex": "java.lang.String",
+      "vertex": "id.string",
       "properties": {
-        "stringProperty": "java.lang.String"
+        "stringProperty": "prop.string"
       }
     }
   },
   "edges": {
     "BasicEdge": {
-      "source": "java.lang.String",
-      "destination": "java.lang.String",
-      "directed": "java.lang.Boolean",
+      "source": "id.string",
+      "destination": "id.string",
+      "directed": "directed.either",
       "properties": {
-        "intProperty": "intProperty",
-        "count": "count"
+        "intProperty": "prop.integer",
+        "count": "prop.count"
       }
     }
   },
   "types": {
-    "intProperty": {
-      "class": "java.lang.Integer",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
-      }
+    "id.string": {
+      "class": "java.lang.String"
     },
-    "count": {
-      "class": "java.lang.Long",
-      "aggregatorFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
-      }
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "prop.string": {
+      "class": "java.lang.String"
+    },
+    "prop.integer": {
+      "class": "java.lang.Integer"
+    },
+    "prop.count": {
+      "class": "java.lang.Long"
     }
   }
 }

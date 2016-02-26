@@ -40,7 +40,6 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -62,7 +61,7 @@ public class ComplexQuery {
             + Certificate._18.name();
 
     private static final Path DATA_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
-    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
+    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/storeSchema.json").getPath());
     private static final Path STORE_PROPERTIES_PATH = Paths.get(SimpleQuery.class.getResource("/store.properties").getPath());
 
     public static void main(final String[] args) throws OperationException {
@@ -93,7 +92,7 @@ public class ComplexQuery {
      */
     public Iterable<Entity> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(DATA_SCHEMA_PATH, STORE_SCHEMA_PATH, STORE_PROPERTIES_PATH);
+        final Graph graph = new Graph(STORE_PROPERTIES_PATH, DATA_SCHEMA_PATH, STORE_SCHEMA_PATH);
 
 
         // Populate the graph with some example data

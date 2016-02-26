@@ -105,7 +105,8 @@ public class DataEdgeDefinitionTest {
         // Given
         final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
                 .source("id.integer", Integer.class)
-                .property("property", "property.string", new Type.Builder(String.class)
+                .property("property", "property.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build())
                 .build();

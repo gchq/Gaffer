@@ -15,13 +15,6 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -30,6 +23,12 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
+import gaffer.store.schema.DataSchema;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
@@ -42,7 +41,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         final DataSchema dataSchema;
         try {
             dataSchema = DataSchema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                    .get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Store Schema from JSON");
         }

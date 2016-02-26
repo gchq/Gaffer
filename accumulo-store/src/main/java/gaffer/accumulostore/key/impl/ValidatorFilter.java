@@ -18,6 +18,8 @@ package gaffer.accumulostore.key.impl;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.store.ElementValidator;
+import gaffer.store.schema.DataSchema;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +35,6 @@ public class ValidatorFilter extends ElementFilter {
     public IteratorOptions describeOptions() {
         final Map<String, String> namedOptions = new HashMap<>();
         namedOptions.put(AccumuloStoreConstants.DATA_SCHEMA, "A serialised data schema");
-        namedOptions.put(AccumuloStoreConstants.STORE_SCHEMA, "A serialised store schema");
         return new IteratorOptions(AccumuloStoreConstants.DATA_SCHEMA,
                 "Only returns elements that are valid",
                 namedOptions, null);

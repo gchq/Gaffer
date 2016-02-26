@@ -18,6 +18,7 @@ package gaffer.accumulostore.key.core.impl.bytedEntity;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.AbstractAccumuloElementConverterTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
+import gaffer.store.schema.DataSchema;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.

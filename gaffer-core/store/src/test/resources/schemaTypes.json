@@ -1,40 +1,42 @@
 {
-  "id.string": {
-    "class": "java.lang.String"
-  },
-  "directed.true": {
-    "class": "java.lang.Boolean",
-    "validator": {
-      "functions": [
-        {
-          "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
-          }
-        }
-      ]
-    }
-  },
-  "prop.string": {
-    "class": "java.lang.String",
-    "position": "PROPERTY_1",
-    "validator": {
-      "functions": [
-        {
-          "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
-          }
-        }
-      ]
+  "types": {
+    "id.string": {
+      "class": "java.lang.String"
     },
-    "aggregateFunction": {
-      "class": "gaffer.function.ExampleAggregateFunction"
-    }
-  },
-  "prop.date": {
-    "class": "java.util.Date",
-    "position": "PROPERTY_2",
-    "aggregateFunction": {
-      "class": "gaffer.function.ExampleAggregateFunction"
+    "directed.true": {
+      "class": "java.lang.Boolean",
+      "validator": {
+        "functions": [
+          {
+            "function": {
+              "class": "gaffer.function.ExampleFilterFunction"
+            }
+          }
+        ]
+      }
+    },
+    "prop.string": {
+      "class": "java.lang.String",
+      "position": "PROPERTY_1",
+      "validator": {
+        "functions": [
+          {
+            "function": {
+              "class": "gaffer.function.ExampleFilterFunction"
+            }
+          }
+        ]
+      },
+      "aggregateFunction": {
+        "class": "gaffer.function.ExampleAggregateFunction"
+      }
+    },
+    "prop.date": {
+      "class": "java.util.Date",
+      "position": "PROPERTY_2",
+      "aggregateFunction": {
+        "class": "gaffer.function.ExampleAggregateFunction"
+      }
     }
   }
 }

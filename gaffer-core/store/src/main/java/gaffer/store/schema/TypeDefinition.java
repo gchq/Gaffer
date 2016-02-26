@@ -26,22 +26,22 @@ import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
 
 /**
- * A <code>Type</code> contains the an object's java class along with how to validate and aggregate the object.
+ * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
  * It is used to deserialise/serialise a {@link gaffer.store.schema.DataSchema} to/from JSON.
  */
-public class Type {
+public class TypeDefinition {
     private static final Serialisation DEFAULT_SERIALISER = new JavaSerialiser();
 
     private Class<?> clazz;
-    private ElementFilter validator;
     private Serialisation serialiser = DEFAULT_SERIALISER;
     private String position;
+    private ElementFilter validator;
     private AggregateFunction aggregateFunction;
 
-    Type() {
+    public TypeDefinition() {
     }
 
-    public Type(final Class<?> clazz) {
+    public TypeDefinition(final Class<?> clazz) {
         this.clazz = clazz;
     }
 
@@ -145,9 +145,45 @@ public class Type {
         this.aggregateFunction = aggregateFunction;
     }
 
+    public void merge(final TypeDefinition type) {
+        if (null == clazz) {
+            clazz = type.getClazz();
+        } else if (null != type.getClazz() && !clazz.equals(type.getClazz())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with type class, options are: "
+                    + clazz.getName() + " and " + type.getClazz().getName());
+        }
+
+        if (DEFAULT_SERIALISER.getClass().equals(serialiser.getClass())) {
+            setSerialiser(type.getSerialiser());
+        } else if (!serialiser.getClass().equals(type.getSerialiser().getClass())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") serialiser, options are: "
+                    + serialiser.getClass().getName() + " and " + type.getSerialiser().getClass().getName());
+        }
+
+        if (null == position) {
+            position = type.getPosition();
+        } else if (null != type.getPosition() && !position.equals(type.getPosition())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") positions, options are: "
+                    + position + " and " + type.getPosition());
+        }
+
+        if (null == validator) {
+            validator = type.getValidator();
+        } else if (null != type.getValidator() && null != type.getValidator().getFunctions()) {
+            validator.addFunctions(type.getValidator().getFunctions());
+        }
+
+        if (null == aggregateFunction) {
+            aggregateFunction = type.getAggregateFunction();
+        } else if (null != type.getAggregateFunction() && !aggregateFunction.equals(type.getAggregateFunction())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") aggregate function, options are: "
+                    + aggregateFunction + " and " + type.getAggregateFunction());
+        }
+    }
+
     @Override
     public String toString() {
-        return "Type{"
+        return "TypeDefinition{"
                 + "clazz=" + clazz
                 + ", position='" + position + '\''
                 + ", validator=" + validator
@@ -165,7 +201,7 @@ public class Type {
             return false;
         }
 
-        final Type type = (Type) o;
+        final TypeDefinition type = (TypeDefinition) o;
 
         if (!getClazz().equals(type.getClazz())) {
             return false;
@@ -194,10 +230,9 @@ public class Type {
     }
 
     public static class Builder {
-        private Type type = new Type();
+        private TypeDefinition type = new TypeDefinition();
 
-        public Builder(final Class<?> clazz) {
-            type.setClazz(clazz);
+        public Builder() {
         }
 
         public Builder clazz(final Class clazz) {
@@ -225,10 +260,7 @@ public class Type {
             return this;
         }
 
-        public Type build() {
-            if (null == type.getClazz()) {
-                throw new IllegalStateException("Type requires a class");
-            }
+        public TypeDefinition build() {
             return type;
         }
     }

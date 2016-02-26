@@ -18,6 +18,7 @@ package gaffer.accumulostore.key.core.impl.gaffer1;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.AbstractAccumuloElementConverterTest;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
+import gaffer.store.schema.DataSchema;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.

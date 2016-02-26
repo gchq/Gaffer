@@ -22,9 +22,9 @@ import gaffer.function.TransformFunction;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.rest.SystemProperty;
+import gaffer.store.schema.DataSchema;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
-
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;

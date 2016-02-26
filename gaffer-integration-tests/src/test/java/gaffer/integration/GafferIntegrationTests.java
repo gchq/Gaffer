@@ -15,6 +15,8 @@
  */
 package gaffer.integration;
 
+import static org.junit.Assume.assumeTrue;
+
 import gaffer.commonutil.PathUtil;
 import gaffer.graph.Graph;
 import gaffer.store.StoreTrait;
@@ -24,7 +26,6 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -32,8 +33,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
-import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public abstract class GafferIntegrationTests {
@@ -55,7 +54,7 @@ public abstract class GafferIntegrationTests {
      */
     @Before
     public void setup() throws Exception {
-        graph = new Graph(PathUtil.dataSchema(getClass()), PathUtil.dataSchema(getClass()), propertiesPath);
+        graph = new Graph(propertiesPath, PathUtil.dataSchema(getClass()), PathUtil.storeSchema(getClass()));
 
         final String originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))

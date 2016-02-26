@@ -21,6 +21,7 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.commonutil.PathUtil;
 import gaffer.store.StoreException;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -39,13 +40,15 @@ public class MockAccumuloStoreForTest extends MockAccumuloStore {
     }
 
     public MockAccumuloStoreForTest(final Class<? extends AbstractCoreKeyPackage> keyPackageClass) {
-        final DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
-        final DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
+        final DataSchema dataSchema = DataSchema.fromJson(
+                PathUtil.dataSchema(getClass()),
+                PathUtil.storeSchema(getClass()));
+
         final AccumuloProperties properties = new AccumuloProperties(PathUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());
 
         try {
-            initialise(dataSchema, dataSchema, properties);
+            initialise(dataSchema, properties);
         } catch (StoreException e) {
             throw new RuntimeException(e);
         }

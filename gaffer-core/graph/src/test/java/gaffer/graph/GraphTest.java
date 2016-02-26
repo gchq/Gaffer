@@ -25,47 +25,108 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
+import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.add.AddElements;
+import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
+import gaffer.store.StoreProperties;
+import gaffer.store.StoreTrait;
+import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.schema.DataEdgeDefinition;
+import gaffer.store.schema.DataEntityDefinition;
 import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.TypeDefinition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
     @Test
+    public void shouldConstructGraphFromDataSchemaModules() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties(StoreImpl.class);
+        final DataSchema dataSchemaModule1 = new DataSchema.Builder()
+                .type("prop.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .build())
+                .buildModule();
+
+        final DataSchema dataSchemaModule2 = new DataSchema.Builder()
+                .type("prop.integer", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .build())
+                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .build())
+                .buildModule();
+
+        final DataSchema dataSchemaModule3 = new DataSchema.Builder()
+                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .build())
+                .buildModule();
+
+        final DataSchema dataSchemaModule4 = new DataSchema.Builder()
+                .entity(TestGroups.ENTITY_2, new DataEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .build())
+                .buildModule();
+
+
+        // When
+        final Graph graph = new Graph(storeProperties,
+                dataSchemaModule1, dataSchemaModule2, dataSchemaModule3, dataSchemaModule4);
+
+        // Then
+        final DataSchema dataSchema = graph.getDataSchema();
+        dataSchema.getEntity(TestGroups.ENTITY);
+
+    }
+
+    @Test
     public void shouldConstructGraphAndCreateViewWithGroups() {
         // Given
         final Store store = mock(Store.class);
-        final DataSchema graphDataSchema = mock(DataSchema.class);
-        given(store.getDataSchema()).willReturn(graphDataSchema);
+        final DataSchema dataSchema = mock(DataSchema.class);
+        given(store.getDataSchema()).willReturn(dataSchema);
         final Set<String> edgeGroups = new HashSet<>();
         edgeGroups.add("edge1");
         edgeGroups.add("edge2");
         edgeGroups.add("edge3");
         edgeGroups.add("edge4");
-        given(graphDataSchema.getEdgeGroups()).willReturn(edgeGroups);
+        given(dataSchema.getEdgeGroups()).willReturn(edgeGroups);
 
         final Set<String> entityGroups = new HashSet<>();
         entityGroups.add("entity1");
         entityGroups.add("entity2");
         entityGroups.add("entity3");
         entityGroups.add("entity4");
-        given(graphDataSchema.getEntityGroups()).willReturn(entityGroups);
+        given(dataSchema.getEntityGroups()).willReturn(entityGroups);
 
         // When
         final View resultView = new Graph(store).getView();
 
         // Then
-        assertNotSame(graphDataSchema, resultView);
+        assertNotSame(dataSchema, resultView);
         assertArrayEquals(entityGroups.toArray(), resultView.getEntityGroups().toArray());
         assertArrayEquals(edgeGroups.toArray(), resultView.getEdgeGroups().toArray());
 
@@ -126,5 +187,43 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain);
         verify(operation, Mockito.never()).setView(view);
+    }
+
+    static class StoreImpl extends Store {
+
+        @Override
+        protected Collection<StoreTrait> getTraits() {
+            return new ArrayList<>(0);
+        }
+
+        @Override
+        protected boolean isValidationRequired() {
+            return false;
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+
+        }
+
+        @Override
+        protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation) {
+            return null;
+        }
     }
 }

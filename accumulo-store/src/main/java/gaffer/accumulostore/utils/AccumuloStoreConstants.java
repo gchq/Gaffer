@@ -35,7 +35,6 @@ public final class AccumuloStoreConstants {
     // Iterator options
     public static final String VIEW = "View";
     public static final String DATA_SCHEMA = "Data_Schema";
-    public static final String STORE_SCHEMA = "Store_Schema";
     public static final String INCLUDE_ENTITIES = "Include_All_Entities";
     public static final String INCLUDE_ALL_EDGES = "Include_All_Edges";
     public static final String NO_EDGES = "No_Edges";
@@ -73,7 +72,6 @@ public final class AccumuloStoreConstants {
     // Store factory constants
     public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
     public static final Text DATA_SCHEMA_KEY = new Text("dataSchema");
-    public static final Text STORE_SCHEMA_KEY = new Text("dataSchema");
     public static final Text KEY_PACKAGE_KEY = new Text("keyPackage");
 
     // General use constants

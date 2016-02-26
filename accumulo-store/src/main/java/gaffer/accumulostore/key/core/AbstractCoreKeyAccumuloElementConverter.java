@@ -30,6 +30,7 @@ import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import gaffer.store.schema.DataElementDefinition;
 import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.io.BytesWritable;
@@ -107,7 +108,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final MapWritable map = new MapWritable();
         for (final Map.Entry<String, Object> entry : properties.entrySet()) {
             final String propertyName = entry.getKey();
-            final StorePropertyDefinition propertyDefinition = dataSchema.getElement(group).getProperty(propertyName);
+            final TypeDefinition propertyDefinition = dataSchema.getElement(group).getPropertyTypeDef(propertyName);
             if (propertyDefinition != null) {
                 if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
                     try {
@@ -151,7 +152,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             final String propertyName = writeableKey.toString();
             final BytesWritable propertyValueBytes = (BytesWritable) map.get(writeableKey);
             try {
-                properties.put(propertyName, elementDefinition.getProperty(propertyName).getSerialiser()
+                properties.put(propertyName, elementDefinition.getPropertyTypeDef(propertyName).getSerialiser()
                         .deserialise(propertyValueBytes.getBytes()));
             } catch (final SerialisationException e) {
                 throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
@@ -216,7 +217,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         for (final String propertyName : elDef.getProperties()) {
             final Object property = properties.get(propertyName);
             if (property != null) {
-                final StorePropertyDefinition propertyDef = elDef.getProperty(propertyName);
+                final TypeDefinition propertyDef = elDef.getPropertyTypeDef(propertyName);
                 if (StorePositions.VISIBILITY.isEqual(propertyDef.getPosition())) {
                     try {
                         return ByteArrayEscapeUtils.escape(propertyDef.getSerialiser().serialise(property));
@@ -241,7 +242,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
         for (final String propertyName : elDef.getProperties()) {
-            final StorePropertyDefinition property = elDef.getProperty(propertyName);
+            final TypeDefinition property = elDef.getPropertyTypeDef(propertyName);
             if (StorePositions.VISIBILITY.isEqual(property.getPosition())) {
                 final Serialisation serialiser = property.getSerialiser();
                 try {
@@ -268,7 +269,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         int totalLength = 0;
         byte[] byteHolder;
         for (final String propertyName : elDef.getProperties()) {
-            final StorePropertyDefinition property = elDef.getProperty(propertyName);
+            final TypeDefinition property = elDef.getPropertyTypeDef(propertyName);
             if (StorePositions.COLUMN_QUALIFIER.isEqual(property.getPosition())) {
                 final Object value = properties.get(propertyName);
                 if (value != null) {
@@ -348,7 +349,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 nextPos = keyPortion.length;
             }
             try {
-                propertyValue = elDef.getProperty(propertyName).getSerialiser()
+                propertyValue = elDef.getPropertyTypeDef(propertyName).getSerialiser()
                         .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
             } catch (final SerialisationException e) {
                 throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
@@ -370,7 +371,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     nextPos = keyPortion.length;
                 }
                 try {
-                    propertyValue = elDef.getProperty(propertyName).getSerialiser().deserialise(
+                    propertyValue = elDef.getPropertyTypeDef(propertyName).getSerialiser().deserialise(
                             ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
@@ -400,7 +401,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
         final Properties properties = new Properties();
         for (final String propertyName : elDef.getProperties()) {
-            final StorePropertyDefinition property = elDef.getProperty(propertyName);
+            final TypeDefinition property = elDef.getPropertyTypeDef(propertyName);
             if (StorePositions.TIMESTAMP.isEqual(property.getPosition())) {
                 properties.put(propertyName, timestamp);
                 return properties;
@@ -501,7 +502,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         for (final String propertyName : elDef.getProperties()) {
             final Object property = element.getProperty(propertyName);
             if (property != null) {
-                final StorePropertyDefinition propertyDef = elDef.getProperty(propertyName);
+                final TypeDefinition propertyDef = elDef.getPropertyTypeDef(propertyName);
                 if (StorePositions.TIMESTAMP.isEqual(propertyDef.getPosition())) {
                     return (Long) property;
                 }

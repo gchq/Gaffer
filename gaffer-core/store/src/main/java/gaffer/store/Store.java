@@ -219,7 +219,7 @@ public abstract class Store {
             DataElementDefinition dataElementDefinition = getDataSchema().getElement(dataElementDefinitionEntry.getKey());
             for (String propertyName : dataElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = dataElementDefinition.getPropertyClass(propertyName);
-                Serialisation serialisation = dataElementDefinition.getProperty(propertyName).getSerialiser();
+                Serialisation serialisation = dataElementDefinition.getPropertyTypeDef(propertyName).getSerialiser();
 
                 if (!serialisation.canHandle(propertyClass)) {
                     valid = false;

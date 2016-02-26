@@ -24,6 +24,8 @@ import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.store.ElementValidator;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -49,7 +51,7 @@ public class ElementFilter extends Filter {
             element = elementConverter.getFullElement(key, value);
         } catch (final AccumuloElementConversionException e) {
             throw new ElementFilterException(
-                    "Element filter iterator failed to crete an element from an accumulo key value pair", e);
+                    "Element filter iterator failed to create an element from an accumulo key value pair", e);
         }
         return validator.validate(element);
     }
@@ -69,15 +71,15 @@ public class ElementFilter extends Filter {
         if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
-        if (!options.containsKey(AccumuloStoreConstants.STORE_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.STORE_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.DATA_SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
         }
 
         validator = getElementValidator(options);
 
         final DataSchema dataSchema;
         try {
-            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise store schema from JSON", e);
         }

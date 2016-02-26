@@ -25,6 +25,7 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class ElementFilterTest {
         try {
             filter.validateOptions(options);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(AccumuloStoreConstants.STORE_SCHEMA));
+            assertTrue(e.getMessage().contains(AccumuloStoreConstants.DATA_SCHEMA));
         }
     }
 
@@ -58,7 +59,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
@@ -76,7 +77,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
 
         // When / Then
@@ -93,7 +94,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
@@ -111,7 +112,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
@@ -137,7 +138,7 @@ public class ElementFilterTest {
         final ElementFilter filter = new ElementFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.VIEW, getEmptyViewJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
@@ -174,8 +175,7 @@ public class ElementFilterTest {
 
     private DataSchema getDataSchema() throws UnsupportedEncodingException {
         return new DataSchema.Builder()
-                .edge("BasicEdge", new DataElementDefinition.Builder()
-                        .build())
+                .edge("BasicEdge")
                 .build();
     }
 

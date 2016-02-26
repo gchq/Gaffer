@@ -18,6 +18,7 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
+import gaffer.store.schema.DataSchema;
 
 public class ByteEntityKeyPackage extends AbstractCoreKeyPackage {
     public ByteEntityKeyPackage() {

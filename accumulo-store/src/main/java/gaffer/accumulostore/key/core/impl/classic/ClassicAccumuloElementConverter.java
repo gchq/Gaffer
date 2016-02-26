@@ -18,12 +18,13 @@ package gaffer.accumulostore.key.core.impl.classic;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import java.util.Arrays;
 import java.util.Map;
@@ -130,7 +131,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
 
     @Override
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
-            final Map<String, String> options) throws AccumuloElementConversionException {
+                                                        final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
         final int[] positionsOfDelimiters = new int[2];

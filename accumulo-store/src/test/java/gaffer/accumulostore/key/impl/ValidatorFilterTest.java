@@ -22,8 +22,11 @@ import static org.junit.Assert.assertTrue;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
+import gaffer.store.schema.DataEdgeDefinition;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
@@ -39,25 +42,6 @@ public class ValidatorFilterTest {
 
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
-        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
-                ByteEntityAccumuloElementConverter.class.getName());
-
-        // When / Then
-        try {
-            filter.validateOptions(options);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(AccumuloStoreConstants.STORE_SCHEMA));
-        }
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoDataSchema() throws Exception {
-        // Given
-        final ValidatorFilter filter = new ValidatorFilter();
-
-        final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
@@ -75,7 +59,6 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
 
         // When / Then
@@ -92,7 +75,6 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
@@ -110,7 +92,6 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
@@ -136,8 +117,7 @@ public class ValidatorFilterTest {
         final ValidatorFilter filter = new ValidatorFilter();
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.STORE_SCHEMA, getDataSchemaJson());
-        options.put(AccumuloStoreConstants.DATA_SCHEMA, getEmptyDataSchemaJson());
+        options.put(AccumuloStoreConstants.DATA_SCHEMA, getDataSchemaJson());
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
@@ -145,7 +125,8 @@ public class ValidatorFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getDataSchema());
 
-        final Element element = new Edge("BasicEdge", "source", "dest", true);
+        final int invalidSource = 1;
+        final Element element = new Edge(TestGroups.EDGE, invalidSource, "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -157,29 +138,16 @@ public class ValidatorFilterTest {
     }
 
     private String getDataSchemaJson() throws UnsupportedEncodingException {
-        final DataSchema dataSchema = new DataSchema.Builder()
-                .edge("BasicEdge", new DataEdgeDefinition.Builder()
-                        .build())
-                .build();
-
-        return new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
-    }
-
-    private String getEmptyDataSchemaJson() throws UnsupportedEncodingException {
-        final DataSchema dataSchema = new DataSchema.Builder()
-                .build();
-
-        return new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
+        return new String(getDataSchema().toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 
     private DataSchema getDataSchema() throws UnsupportedEncodingException {
         return new DataSchema.Builder()
-                .edge("BasicEdge", new DataElementDefinition.Builder()
+                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                        .source(String.class)
+                        .destination(String.class)
+                        .directed(Boolean.class)
                         .build())
                 .build();
-    }
-
-    private String getDataSchemaJson() throws UnsupportedEncodingException {
-        return new String(getDataSchema().toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
     }
 }

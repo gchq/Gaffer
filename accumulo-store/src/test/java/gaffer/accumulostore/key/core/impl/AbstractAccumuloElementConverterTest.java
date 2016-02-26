@@ -16,26 +16,26 @@
 package gaffer.accumulostore.key.core.impl;
 
 
+import static org.junit.Assert.assertEquals;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
-import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractAccumuloElementConverterTest {
 
@@ -43,7 +43,8 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
+        DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()),
+                PathUtil.storeSchema(getClass()));
         converter = createConverter(dataSchema);
     }
 

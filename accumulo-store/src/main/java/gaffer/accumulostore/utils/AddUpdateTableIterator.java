@@ -21,6 +21,7 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -149,15 +150,16 @@ public final class AddUpdateTableIterator {
     }
 
     public static void main(final String[] args) throws StoreException, SchemaException, IOException {
-        if (args.length < 4) {
+        if (args.length < 3) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<data_schema_path> <store_schema_path> <store_properties_path> <"
-                    + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + "> <optional comma separated list of iterators to update>");
+                    + "<comma separated data schema paths> <store properties path> <"
+                    + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
+                    + "> <optional comma separated list of iterators to update>");
             System.exit(1);
         }
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(DataSchema.fromJson(getDataSchemaPath(args)), DataSchema.fromJson(getDataSchemaPath(args)),
+        store.initialise(DataSchema.fromJson(getDataSchemaPaths(args)),
                 StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
 
         final String[] iterators = getIteratorNames(args);
@@ -186,8 +188,8 @@ public final class AddUpdateTableIterator {
     }
 
     private static String[] getIteratorNames(final String[] args) {
-        if (args.length >= 4) {
-            return args[4].split(",");
+        if (args.length >= 3) {
+            return args[3].split(",");
         } else {
             return new String[]{AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
                     AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME};
@@ -195,18 +197,20 @@ public final class AddUpdateTableIterator {
     }
 
     private static String getModifyKey(final String[] arg) {
-        return arg[3];
+        return arg[2];
     }
 
     private static Path getAccumuloPropertiesPath(final String[] args) {
-        return Paths.get(args[2]);
-    }
-
-    private static Path getDataSchemaPath(final String[] args) {
         return Paths.get(args[1]);
     }
 
-    private static Path getDataSchemaPath(final String[] args) {
-        return Paths.get(args[0]);
+    private static Path[] getDataSchemaPaths(final String[] args) {
+        final String[] pathStrs = args[0].split(",");
+        final Path[] paths = new Path[pathStrs.length];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = Paths.get(pathStrs[i]);
+        }
+
+        return paths;
     }
 }

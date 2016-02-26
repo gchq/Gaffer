@@ -19,18 +19,28 @@ package gaffer.store.schema;
 import java.util.HashMap;
 
 /**
- * <code>Types</code> simply extends {@link HashMap} with key = {@link String}, value = {@link Type}.
+ * <code>TypeDefinitions</code> simply extends {@link HashMap} with key = {@link String}, value = {@link TypeDefinition}.
  * This is required for serialising to JSON.
  */
-public class Types extends HashMap<String, Type> {
+public class TypeDefinitions extends HashMap<String, TypeDefinition> {
     private static final long serialVersionUID = -4289118603357719559L;
 
-    public Type getType(final String typeName) {
-        final Type type = get(typeName);
+    public TypeDefinition getType(final String typeName) {
+        final TypeDefinition type = get(typeName);
         if (null == type) {
             throw new IllegalArgumentException("Unable to find type with name: " + typeName);
         }
 
         return type;
+    }
+
+    public void merge(final TypeDefinitions types) {
+        for (Entry<String, TypeDefinition> entry : types.entrySet()) {
+            if (!containsKey(entry.getKey())) {
+                put(entry.getKey(), entry.getValue());
+            } else {
+                getType(entry.getKey()).merge(entry.getValue());
+            }
+        }
     }
 }

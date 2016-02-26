@@ -40,7 +40,6 @@ import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -51,6 +50,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -60,14 +60,16 @@ public class DataSchemaTest {
     @Before
     public void setup() throws IOException {
         dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
+
+        final DataSchema dataSchemaTypes = DataSchema.fromJson(PathUtil.schemaTypes(getClass()));
+        dataSchema.merge(dataSchemaTypes);
     }
 
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
         //Given
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
         final byte[] json1 = dataSchema.toJson(false);
-        final DataSchema dataSchema2 = DataSchema.fromJson(json1, DataSchema.class);
+        final DataSchema dataSchema2 = DataSchema.fromJson(DataSchema.class, json1);
 
         // When
         final byte[] json2 = dataSchema2.toJson(false);
@@ -79,7 +81,6 @@ public class DataSchemaTest {
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() throws SerialisationException {
         //Given
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
         final byte[] json1 = dataSchema.toJson(true);
         final DataSchema dataSchema2 = DataSchema.fromJson(json1);
 
@@ -92,9 +93,6 @@ public class DataSchemaTest {
 
     @Test
     public void testLoadingSchemaFromJson() {
-        // Add the types from a separate file
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
-
         // Edge definitions
         DataElementDefinition edgeDefinition = dataSchema.getEdge(TestGroups.EDGE);
         assertNotNull(edgeDefinition);
@@ -108,11 +106,6 @@ public class DataSchemaTest {
         ElementFilter validator = edgeDefinition.getValidator();
         final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> valContexts = validator.getFunctions();
         int index = 0;
-//        ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
-//        assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
-//        assertEquals(2, valContext.getSelection().size());
-//        assertEquals(IdentifierType.SOURCE, valContext.getSelection().get(0).getIdentifierType());
-//        assertEquals(IdentifierType.DESTINATION, valContext.getSelection().get(1).getIdentifierType());
 
         ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
@@ -151,27 +144,37 @@ public class DataSchemaTest {
 
         assertEquals(index, valContexts.size());
 
+        TypeDefinition type = edgeDefinition.getPropertyTypeDef(TestPropertyNames.DATE);
+        assertEquals(Date.class, type.getClazz());
+        assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
+        assertEquals("PROPERTY_2", type.getPosition());
+        assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
+
+
         // Entity definitions
         DataElementDefinition entityDefinition = dataSchema.getEntity(TestGroups.ENTITY);
         assertNotNull(entityDefinition);
         assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
+        type = entityDefinition.getPropertyTypeDef(TestPropertyNames.PROP_1);
+        assertEquals(String.class, type.getClazz());
+        assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
+        assertEquals("PROPERTY_1", type.getPosition());
+        assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         ElementAggregator aggregator = edgeDefinition.getAggregator();
         List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
-        Assert.assertEquals(2, aggContexts.size());
+        assertEquals(2, aggContexts.size());
 
         PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
-        Assert.assertEquals(1, aggContext.getSelection().size());
-        Assert.assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0).getPropertyName());
+        assertEquals(1, aggContext.getSelection().size());
+        assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0).getPropertyName());
+
 
         aggContext = aggContexts.get(1);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
-        Assert.assertEquals(1, aggContext.getSelection().size());
-        Assert.assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
-
-        //TODO: check types
-///        assertEquals(JavaSerialiser.class, property3.getSerialiser().getClass());
+        assertEquals(1, aggContext.getSelection().size());
+        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
 
 
     }
@@ -191,6 +194,8 @@ public class DataSchemaTest {
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
+                .type("property.string", String.class)
+                .type("property.integer", Integer.class)
                 .build();
     }
 
@@ -217,11 +222,11 @@ public class DataSchemaTest {
                 "    }\n" +
                 "  },\n" +
                 "  \"types\" : {\n" +
-                "    \"property.integer\" : {\n" +
-                "      \"class\" : \"java.lang.Integer\"\n" +
-                "    },\n" +
                 "    \"property.string\" : {\n" +
                 "      \"class\" : \"java.lang.String\"\n" +
+                "    },\n" +
+                "    \"property.integer\" : {\n" +
+                "      \"class\" : \"java.lang.Integer\"\n" +
                 "    }\n" +
                 "  }\n" +
                 "}", new String(dataSchema.toJson(true)));
@@ -230,7 +235,8 @@ public class DataSchemaTest {
     @Test
     public void testCorrectSerialiserRetrievableFromConfig() throws NotSerializableException {
         DataSchema store = new DataSchema.Builder()
-                .type("property.string", new Type.Builder(String.class)
+                .type("property.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .serialiser(new JavaSerialiser())
                         .build())
                 .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
@@ -240,7 +246,7 @@ public class DataSchemaTest {
 
         assertEquals(JavaSerialiser.class,
                 store.getElement(TestGroups.EDGE)
-                        .getProperty(TestPropertyNames.PROP_1)
+                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
                         .getSerialiser()
                         .getClass());
     }
@@ -278,22 +284,22 @@ public class DataSchemaTest {
 
     @Test
     public void testDataSchemaConstructedFromInputStream() throws IOException {
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(PathUtil.STORE_SCHEMA);
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(PathUtil.DATA_SCHEMA);
         assertNotNull(resourceAsStream);
         final DataSchema deserialisedDataSchema = DataSchema.fromJson(resourceAsStream);
         assertNotNull(deserialisedDataSchema);
 
         final Map<String, DataEdgeDefinition> edges = deserialisedDataSchema.getEdges();
 
-        junit.framework.Assert.assertEquals(1, edges.size());
+        assertEquals(1, edges.size());
         final DataElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
-        junit.framework.Assert.assertEquals(2, edgeGroup.getProperties().size());
+        assertEquals(2, edgeGroup.getProperties().size());
 
         final Map<String, DataEntityDefinition> entities = deserialisedDataSchema.getEntities();
 
-        junit.framework.Assert.assertEquals(1, entities.size());
+        assertEquals(1, entities.size());
         final DataElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
-        junit.framework.Assert.assertEquals(1, entityGroup.getProperties().size());
+        assertEquals(1, entityGroup.getProperties().size());
     }
 
     @Test

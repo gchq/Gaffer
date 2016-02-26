@@ -20,15 +20,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Contains the full list of {@link gaffer.data.element.Element} types to be stored in the graph.
@@ -58,36 +56,36 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
      * A map of keys to positions.
      * This could be used to set the identifier, group or general property positions.
      */
-    private Map<String, String> positions;
+    private Map<String, String> positions = new HashMap<>();
     /**
-     * A map of custom type name to {@link Type}.
+     * A map of custom type name to {@link TypeDefinition}.
      *
-     * @see Types
-     * @see Type
+     * @see TypeDefinitions
+     * @see TypeDefinition
      */
-    private final Types types;
+    private final TypeDefinitions types;
 
     public DataSchema() {
-        this(new Types());
+        this(new TypeDefinitions());
     }
 
-    protected DataSchema(final Types types) {
+    protected DataSchema(final TypeDefinitions types) {
         this.types = types;
     }
 
-    public static DataSchema fromJson(final InputStream inputStream) throws SchemaException {
-        return fromJson(inputStream, DataSchema.class);
+    public static DataSchema fromJson(final InputStream... inputStreams) throws SchemaException {
+        return fromJson(DataSchema.class, inputStreams);
     }
 
-    public static DataSchema fromJson(final Path filePath) throws SchemaException {
-        return fromJson(filePath, DataSchema.class);
+    public static DataSchema fromJson(final Path... filePaths) throws SchemaException {
+        return fromJson(DataSchema.class, filePaths);
     }
 
-    public static DataSchema fromJson(final byte[] jsonBytes) throws SchemaException {
-        return fromJson(jsonBytes, DataSchema.class);
+    public static DataSchema fromJson(final byte[]... jsonBytes) throws SchemaException {
+        return fromJson(DataSchema.class, jsonBytes);
     }
 
-    public Types getTypes() {
+    public TypeDefinitions getTypes() {
         return types;
     }
 
@@ -97,24 +95,16 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
      * @param newTypes the new types to be added.
      */
     @JsonSetter("types")
-    public void addTypes(final Types newTypes) {
+    public void addTypes(final TypeDefinitions newTypes) {
         types.putAll(newTypes);
     }
 
-    public void addType(final String typeName, final Type type) {
+    public void addType(final String typeName, final TypeDefinition type) {
         types.put(typeName, type);
     }
 
-    public Type getType(final String typeName) {
+    public TypeDefinition getType(final String typeName) {
         return types.getType(typeName);
-    }
-
-    public void addTypesFromPath(final Path path) {
-        loadTypes(path);
-    }
-
-    public void addTypesFromStream(final InputStream stream) {
-        loadTypes(stream);
     }
 
     public String getPosition(final String key) {
@@ -190,7 +180,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
     public void setEdges(final Map<String, DataEdgeDefinition> edges) {
         super.setEdges(edges);
         for (DataElementDefinition def : edges.values()) {
-            def.setTypes(types);
+            def.setTypesLookup(types);
         }
     }
 
@@ -198,7 +188,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
     public void setEntities(final Map<String, DataEntityDefinition> entities) {
         super.setEntities(entities);
         for (DataElementDefinition def : entities.values()) {
-            def.setTypes(types);
+            def.setTypesLookup(types);
         }
     }
 
@@ -208,31 +198,51 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
     }
 
     @Override
+    public void merge(final ElementDefinitions<DataEntityDefinition, DataEdgeDefinition> elementDefs) {
+        if (elementDefs instanceof DataSchema) {
+            merge(((DataSchema) elementDefs));
+        } else {
+            super.merge(elementDefs);
+        }
+    }
+
+    public void merge(final DataSchema dataSchema) {
+        super.merge(dataSchema);
+
+        for (Entry<String, String> entry : dataSchema.getPositions().entrySet()) {
+            final String newPosKey = entry.getKey();
+            final String newPosVal = entry.getValue();
+            if (!positions.containsKey(newPosKey)) {
+                positions.put(newPosKey, newPosVal);
+            } else {
+                final String posVal = positions.get(newPosKey);
+                if (!posVal.equals(newPosVal)) {
+                    throw new SchemaException("Unable to merge schemas. Conflict with position " + newPosKey
+                            + ". Positions are: " + posVal + " and " + newPosVal);
+                }
+            }
+        }
+
+        if (DEFAULT_VERTEX_SERIALISER.getClass().equals(vertexSerialiser.getClass())) {
+            setVertexSerialiser(dataSchema.getVertexSerialiser());
+        } else if (!vertexSerialiser.getClass().equals(dataSchema.getVertexSerialiser().getClass())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
+                    + vertexSerialiser.getClass().getName() + " and " + dataSchema.getVertexSerialiser().getClass().getName());
+        }
+
+        types.merge(dataSchema.getTypes());
+    }
+
+    @Override
     protected void addEdge(final String group, final DataEdgeDefinition elementDef) {
+        elementDef.setTypesLookup(types);
         super.addEdge(group, elementDef);
-        elementDef.setTypes(types);
     }
 
     @Override
     protected void addEntity(final String group, final DataEntityDefinition elementDef) {
+        elementDef.setTypesLookup(types);
         super.addEntity(group, elementDef);
-        elementDef.setTypes(types);
-    }
-
-    private void loadTypes(final Path path) {
-        try {
-            addTypes(JSON_SERIALISER.deserialise(Files.readAllBytes(path), types.getClass()));
-        } catch (IOException e) {
-            throw new SchemaException("Failed to load schema types from file : " + e.getMessage(), e);
-        }
-    }
-
-    private void loadTypes(final InputStream stream) {
-        try {
-            addTypes(JSON_SERIALISER.deserialise(stream, types.getClass()));
-        } catch (SerialisationException e) {
-            throw new SchemaException("Failed to load schema types from file : " + e.getMessage(), e);
-        }
     }
 
     public static class Builder extends ElementDefinitions.Builder<DataEntityDefinition, DataEdgeDefinition> {
@@ -295,7 +305,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
         }
 
         public Builder edge(final String group) {
-            return (Builder) super.edge(group, new DataEdgeDefinition());
+            return edge(group, new DataEdgeDefinition());
         }
 
         @Override
@@ -304,19 +314,19 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
         }
 
         public Builder entity(final String group) {
-            return (Builder) super.entity(group, new DataEntityDefinition());
+            return entity(group, new DataEntityDefinition());
         }
 
-        public Builder type(final String typeName, final Type type) {
+        public Builder type(final String typeName, final TypeDefinition type) {
             getElementDefs().addType(typeName, type);
             return this;
         }
 
         public Builder type(final String typeName, final Class<?> typeClass) {
-            return type(typeName, new Type(typeClass));
+            return type(typeName, new TypeDefinition(typeClass));
         }
 
-        public Builder types(final Types types) {
+        public Builder types(final TypeDefinitions types) {
             getElementDefs().addTypes(types);
             return this;
         }
@@ -324,6 +334,11 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
         @Override
         public DataSchema build() {
             return (DataSchema) super.build();
+        }
+
+        @Override
+        public DataSchema buildModule() {
+            return (DataSchema) super.buildModule();
         }
 
         @Override

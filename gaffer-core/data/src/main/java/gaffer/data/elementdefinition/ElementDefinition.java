@@ -22,12 +22,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.Validator;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
+import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -145,6 +147,36 @@ public abstract class ElementDefinition implements Serializable {
         }
 
         return clazz;
+    }
+
+    public void merge(final ElementDefinition elementDef) {
+        for (Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+            final String newProp = entry.getKey();
+            final String newPropTypeName = entry.getValue();
+            if (!properties.containsKey(newProp)) {
+                properties.put(newProp, newPropTypeName);
+            } else {
+                final String typeName = properties.get(newProp);
+                if (!typeName.equals(newPropTypeName)) {
+                    throw new SchemaException("Unable to merge schemas. Conflict of types with property " + newProp
+                            + ". Type names are: " + typeName + " and " + newPropTypeName);
+                }
+            }
+        }
+
+        for (Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+            final IdentifierType newId = entry.getKey();
+            final String newIdTypeName = entry.getValue();
+            if (!identifiers.containsKey(newId)) {
+                identifiers.put(newId, newIdTypeName);
+            } else {
+                final String typeName = identifiers.get(newId);
+                if (!typeName.equals(newIdTypeName)) {
+                    throw new SchemaException("Unable to merge schemas. Conflict of types with identifier " + newId
+                            + ". Type names are: " + typeName + " and " + newIdTypeName);
+                }
+            }
+        }
     }
 
     public static class Builder {

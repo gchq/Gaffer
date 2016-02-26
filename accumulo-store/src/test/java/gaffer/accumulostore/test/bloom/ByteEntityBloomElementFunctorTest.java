@@ -16,6 +16,12 @@
 
 package gaffer.accumulostore.test.bloom;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -25,18 +31,11 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.serialisation.implementation.JavaSerialiser;
-
+import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.junit.Test;
-
 import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class ByteEntityBloomElementFunctorTest {
 
@@ -46,8 +45,8 @@ public class ByteEntityBloomElementFunctorTest {
     static {
         schema = new DataSchema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE, new DataElementDefinition())
-                .entity(TestGroups.ENTITY, new DataElementDefinition())
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
                 .build();
         elementConverter = new ByteEntityAccumuloElementConverter(schema);
     }

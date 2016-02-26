@@ -99,7 +99,8 @@ public class DataEntityDefinitionTest {
         // Given
         final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
                 .vertex("id.integer", Integer.class)
-                .property("property", "property.string", new Type.Builder(String.class)
+                .property("property", "property.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build())
                 .build();

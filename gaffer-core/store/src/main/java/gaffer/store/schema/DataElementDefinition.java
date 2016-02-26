@@ -18,6 +18,7 @@ package gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gaffer.data.TransformIterable;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
@@ -39,14 +40,15 @@ import java.util.Map;
  * @see DataElementDefinition.Builder
  */
 public abstract class DataElementDefinition extends ElementDefinition {
+    private static final long serialVersionUID = -8077961120272676568L;
     private ElementFilter validator;
 
     /**
-     * The <code>Types</code> provides the different element identifier value types and property value types.
+     * The <code>TypeDefinitions</code> provides the different element identifier value types and property value types.
      *
-     * @see Types
+     * @see TypeDefinitions
      */
-    private Types types;
+    private TypeDefinitions typesLookup;
 
     /**
      * Constructs a <code>DataElementDefinition</code> with a <code>DataElementDefinitionValidator</code> to validate
@@ -63,7 +65,7 @@ public abstract class DataElementDefinition extends ElementDefinition {
      * {@link gaffer.function.AggregateFunction}s defined in this
      * {@link DataElementDefinition} and also the
      * {@link gaffer.function.AggregateFunction}s defined in the corresponding property value
-     * {@link Type}s.
+     * {@link TypeDefinition}s.
      */
     @JsonIgnore
     public ElementAggregator getAggregator() {
@@ -80,7 +82,7 @@ public abstract class DataElementDefinition extends ElementDefinition {
      * {@link FilterFunction}s defined in this
      * {@link DataElementDefinition} and also the
      * {@link FilterFunction}s defined in the corresponding identifier and property value
-     * {@link Type}s.
+     * {@link TypeDefinition}s.
      */
     public ElementFilter getValidator() {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
@@ -107,49 +109,90 @@ public abstract class DataElementDefinition extends ElementDefinition {
         return validator;
     }
 
+    public void setTypesLookup(final TypeDefinitions newTypes) {
+        if (null != typesLookup && null != newTypes) {
+            newTypes.merge(typesLookup);
+        }
+
+        typesLookup = newTypes;
+    }
+
     @JsonIgnore
-    public Types getTypes() {
-        if (null == types) {
-            setTypes(new Types());
+    public Iterable<TypeDefinition> getPropertyTypeDefs() {
+        return new TransformIterable<String, TypeDefinition>(getPropertyMap().values()) {
+            @Override
+            protected TypeDefinition transform(final String typeName) {
+                return getTypeDef(typeName);
+            }
+        };
+    }
+
+    @JsonIgnore
+    public Iterable<TypeDefinition> getIdentifierTypeDefs() {
+        return new TransformIterable<String, TypeDefinition>(getIdentifierMap().values()) {
+            @Override
+            protected TypeDefinition transform(final String typeName) {
+                return getTypeDef(typeName);
+            }
+        };
+    }
+
+    public TypeDefinition getPropertyTypeDef(final String property) {
+        if (containsProperty(property)) {
+            return getTypeDef(getPropertyMap().get(property));
         }
 
-        return types;
+        return null;
     }
 
-    public void setTypes(final Types newTypes) {
-        if (null != types && null != newTypes && types != newTypes) {
-            newTypes.putAll(types);
+    public TypeDefinition getIdentifierTypeDef(final IdentifierType idType) {
+        if (containsIdentifier(idType)) {
+            return getTypeDef(getIdentifierMap().get(idType));
         }
 
-        types = newTypes;
-    }
-
-    public Type getType(final String typeName) {
-        return getTypes().getType(typeName);
-    }
-
-    public Type getProperty(final String property) {
-        return getType(getPropertyMap().get(property));
-    }
-
-    public Type getIdentifier(final IdentifierType idType) {
-        return getType(getIdentifierMap().get(idType));
+        return null;
     }
 
     @Override
     public Class<?> getPropertyClass(final String propertyName) {
         final String typeName = super.getPropertyTypeName(propertyName);
-        return null != typeName ? getType(typeName).getClazz() : null;
+        return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
     @Override
     public Class<?> getIdentifierClass(final IdentifierType idType) {
         final String typeName = super.getIdentifierTypeName(idType);
-        return null != typeName ? getType(typeName).getClazz() : null;
+        return null != typeName ? getTypeDef(typeName).getClazz() : null;
+    }
+
+    @Override
+    public void merge(final ElementDefinition elementDef) {
+        if (elementDef instanceof DataElementDefinition) {
+            merge(((DataElementDefinition) elementDef));
+        } else {
+            super.merge(elementDef);
+        }
+    }
+
+    public void merge(final DataElementDefinition elementDef) {
+        super.merge(elementDef);
+        if (null == validator) {
+            validator = elementDef.getOriginalValidator();
+        } else if (null != elementDef.getOriginalValidator() && null != elementDef.getOriginalValidator().getFunctions()) {
+            validator.addFunctions(elementDef.getOriginalValidator().getFunctions());
+        }
+    }
+
+    protected TypeDefinitions getTypesLookup() {
+        if (null == typesLookup) {
+            setTypesLookup(new TypeDefinitions());
+        }
+
+        return typesLookup;
     }
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
-        final Type type = getType(classOrTypeName);
+        final TypeDefinition type = getTypeDef(classOrTypeName);
         if (null != type.getValidator()) {
             for (ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getValidator().clone().getFunctions()) {
                 final List<ElementComponentKey> selection = function.getSelection();
@@ -164,7 +207,7 @@ public abstract class DataElementDefinition extends ElementDefinition {
     }
 
     private void addTypeAggregateFunctions(final ElementAggregator aggregator, final ElementComponentKey key, final String typeName) {
-        final Type type = getType(typeName);
+        final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
             aggregator.addFunction(new PassThroughFunctionContext<>(type.getAggregateFunction().statelessClone(), Collections.singletonList(key)));
         }
@@ -173,7 +216,11 @@ public abstract class DataElementDefinition extends ElementDefinition {
     private void addIsAFunction(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
         fullValidator.addFunction(
                 new ConsumerFunctionContext<ElementComponentKey, FilterFunction>(
-                        new IsA(getType(classOrTypeName).getClazz()), Collections.singletonList(key)));
+                        new IsA(getTypeDef(classOrTypeName).getClazz()), Collections.singletonList(key)));
+    }
+
+    private TypeDefinition getTypeDef(final String typeName) {
+        return getTypesLookup().getType(typeName);
     }
 
     protected static class Builder extends ElementDefinition.Builder {
@@ -186,25 +233,26 @@ public abstract class DataElementDefinition extends ElementDefinition {
             return this;
         }
 
-        protected Builder property(final String propertyName, final String typeName, final Type type) {
+        protected Builder property(final String propertyName, final Class<?> clazz) {
+            return property(propertyName, clazz.getName(), clazz);
+        }
+
+        protected Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
             type(typeName, type);
             return (Builder) property(propertyName, typeName);
         }
 
-        public Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
-            return property(propertyName, typeName, new Type(typeClass));
+        protected Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
+            return property(propertyName, typeName, new TypeDefinition(typeClass));
         }
 
-        protected Builder type(final String typeName, final Type type) {
-            final Types types = getElementDef().getTypes();
-            final Type exisitingType;
-            try {
-                exisitingType = types.getType(typeName);
-                if (!exisitingType.equals(type)) {
-                    throw new IllegalArgumentException("The type provided conflicts with an existing type with the same name");
-                }
-            } catch (final IllegalArgumentException e) {
+        protected Builder type(final String typeName, final TypeDefinition type) {
+            final TypeDefinitions types = getElementDef().getTypesLookup();
+            final TypeDefinition exisitingType = types.get(typeName);
+            if (null == exisitingType) {
                 types.put(typeName, type);
+            } else if (!exisitingType.equals(type)) {
+                throw new IllegalArgumentException("The type provided conflicts with an existing type with the same name");
             }
 
             return this;
