@@ -129,7 +129,7 @@ public class StoreTest {
             store.initialise(myDataSchema, properties);
             fail();
         } catch (SchemaException exception) {
-            Assert.assertEquals("ERROR: Store schema property serialiser cannot handle a property in the data schema", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
     }
 
@@ -172,6 +172,7 @@ public class StoreTest {
         final OperationChain opChain = new OperationChain(addElements);
         final StoreImpl store = new StoreImpl();
 
+        given(dataSchema.validate()).willReturn(true);
         store.initialise(dataSchema, properties);
 
         // When
@@ -190,6 +191,7 @@ public class StoreTest {
         final OperationChain opChain = new OperationChain(operation);
         final StoreImpl store = new StoreImpl();
 
+        given(dataSchema.validate()).willReturn(true);
         store.initialise(dataSchema, properties);
 
         // When
@@ -237,6 +239,7 @@ public class StoreTest {
                 .then(getElementsSeed)
                 .build();
 
+        given(dataSchema.validate()).willReturn(true);
         given(addElementsHandler.doOperation(addElements1, store)).willReturn(null);
         given(getElementsHandler.doOperation(getElementsSeed, store)).willReturn(getElementsResult);
 
@@ -261,6 +264,7 @@ public class StoreTest {
         final Iterable<Element> elements = mock(Iterable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
+        given(dataSchema.validate()).willReturn(true);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable1.isValidate()).willReturn(true);
         given(validatable1.getElements()).willReturn(elements);
@@ -286,6 +290,7 @@ public class StoreTest {
         final Validatable<Integer> validatable1 = mock(Validatable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
+        given(dataSchema.validate()).willReturn(true);
         given(validatable1.isValidate()).willReturn(false);
         given(validatableHandler.doOperation(validatable1, store)).willReturn(expectedResult);
 
@@ -308,6 +313,7 @@ public class StoreTest {
         final Validatable<Integer> validatable1 = mock(Validatable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
+        given(dataSchema.validate()).willReturn(true);
         store.setValidationRequired(true);
         given(validatable1.isValidate()).willReturn(false);
 
@@ -344,6 +350,7 @@ public class StoreTest {
                 .build();
 
 
+        given(dataSchema.validate()).willReturn(true);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable2.isSkipInvalidElements()).willReturn(skipInvalidElements);
 
@@ -374,6 +381,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable);
 
+        given(dataSchema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
         given(validatableHandler.doOperation(validatable, store)).willReturn(expectedResult);

@@ -123,6 +123,16 @@ public abstract class ElementDefinition implements Serializable {
         return identifiers.get(idType);
     }
 
+    @JsonIgnore
+    public Collection<String> getPropertyTypeNames() {
+        return properties.values();
+    }
+
+    @JsonIgnore
+    public Collection<String> getIdentifierTypeNames() {
+        return identifiers.values();
+    }
+
     public Class<?> getClass(final ElementComponentKey key) {
         if (key.isId()) {
             return getIdentifierClass(key.getIdentifierType());

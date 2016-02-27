@@ -16,7 +16,6 @@
 
 package gaffer.store;
 
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
@@ -46,12 +45,12 @@ import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.schema.DataElementDefinition;
 import gaffer.store.schema.DataSchema;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +82,7 @@ public abstract class Store {
         this.dataSchema = dataSchema;
         this.properties = properties;
         addOpHandlers();
+        optimiseSchemas();
         validateSchemas();
     }
 
@@ -193,61 +193,48 @@ public abstract class Store {
         return properties;
     }
 
+    /**
+     * Removes any types in the data schema that are not used.
+     */
+    protected void optimiseSchemas() {
+        final Set<String> usedTypeNames = new HashSet<>();
+        final Set<DataElementDefinition> dataSchemaElements = new HashSet<>();
+        dataSchemaElements.addAll(getDataSchema().getEdges().values());
+        dataSchemaElements.addAll(getDataSchema().getEntities().values());
+        for (DataElementDefinition elDef : dataSchemaElements) {
+            usedTypeNames.addAll(elDef.getIdentifierTypeNames());
+            usedTypeNames.addAll(elDef.getPropertyTypeNames());
+        }
+
+        if (null != getDataSchema().getTypes()) {
+            for (String typeName : new HashSet<>(getDataSchema().getTypes().keySet())) {
+                if (!usedTypeNames.contains(typeName)) {
+                    getDataSchema().getTypes().remove(typeName);
+                }
+            }
+        }
+    }
+
     protected void validateSchemas() {
-        boolean valid = validateTwoSetsContainSameElements(getDataSchema().getEdgeGroups(), getDataSchema().getEdgeGroups(), "edges")
-                && validateTwoSetsContainSameElements(getDataSchema().getEntityGroups(), getDataSchema().getEntityGroups(), "entities");
+        boolean valid = dataSchema.validate();
 
-        if (!valid) {
-            throw new SchemaException("ERROR: the store schema did not pass validation because the store schema and data schema contain different numbers of elements. Please check the logs for more detailed information");
-        }
-
-        for (String group : getDataSchema().getEdgeGroups()) {
-            valid &= validateTwoSetsContainSameElements(getDataSchema().getEdge(group).getProperties(), getDataSchema().getEdge(group).getProperties(), "properties in the edge \"" + group + "\"");
-        }
-
-        for (String group : getDataSchema().getEntityGroups()) {
-            valid &= validateTwoSetsContainSameElements(getDataSchema().getEntity(group).getProperties(), getDataSchema().getEntity(group).getProperties(), "properties in the entity \"" + group + "\"");
-        }
-
-        if (!valid) {
-            throw new SchemaException("ERROR: the store schema did not pass validation because at least one of the elements in the store schema and data schema contain different numbers of properties. Please check the logs for more detailed information");
-        }
-        HashMap<String, DataElementDefinition> dataSchemaElements = new HashMap<>();
+        final HashMap<String, DataElementDefinition> dataSchemaElements = new HashMap<>();
         dataSchemaElements.putAll(getDataSchema().getEdges());
         dataSchemaElements.putAll(getDataSchema().getEntities());
         for (Map.Entry<String, DataElementDefinition> dataElementDefinitionEntry : dataSchemaElements.entrySet()) {
-            DataElementDefinition dataElementDefinition = getDataSchema().getElement(dataElementDefinitionEntry.getKey());
             for (String propertyName : dataElementDefinitionEntry.getValue().getProperties()) {
-                Class propertyClass = dataElementDefinition.getPropertyClass(propertyName);
-                Serialisation serialisation = dataElementDefinition.getPropertyTypeDef(propertyName).getSerialiser();
+                Class propertyClass = dataElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                Serialisation serialisation = dataElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
 
                 if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
-                    LOGGER.error("Store schema serialiser for property '" + propertyName + "' in the group '" + dataElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
+                    LOGGER.error("Store schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + dataElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
                 }
             }
         }
         if (!valid) {
-            throw new SchemaException("ERROR: Store schema property serialiser cannot handle a property in the data schema");
+            throw new SchemaException("Data schema is not valid. Check the logs for more information.");
         }
-
-    }
-
-    protected boolean validateTwoSetsContainSameElements(final Set<String> firstSet, final Set<String> secondSet, final String type) {
-        final Set<String> firstSetCopy = Sets.newHashSet(firstSet);
-        final Set<String> secondSetCopy = Sets.newHashSet(secondSet);
-        firstSetCopy.removeAll(secondSetCopy);
-        secondSetCopy.removeAll(firstSet);
-        boolean valid = true;
-        if (!firstSetCopy.isEmpty()) {
-            valid = false;
-            LOGGER.warn("the data schema contains the following " + type + " which are not in the store schema: {" + StringUtils.join(firstSetCopy, ", ") + " }");
-        }
-        if (!secondSetCopy.isEmpty()) {
-            valid = false;
-            LOGGER.warn("the store schema contains the following " + type + " which are not in the data schema: {" + StringUtils.join(secondSetCopy, ", ") + " }");
-        }
-        return valid;
     }
 
     /**

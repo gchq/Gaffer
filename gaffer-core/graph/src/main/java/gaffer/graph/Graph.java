@@ -270,10 +270,6 @@ public final class Graph {
             }
         }
 
-        if (!mergedDataSchema.validate()) {
-            throw new SchemaException("ERROR: store schema failed to validate. Please check the logs for more information");
-        }
-
         return createStore(storeProperties, mergedDataSchema);
     }
 
