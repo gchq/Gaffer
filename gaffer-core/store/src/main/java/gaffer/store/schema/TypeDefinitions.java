@@ -17,6 +17,7 @@
 package gaffer.store.schema;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <code>TypeDefinitions</code> simply extends {@link HashMap} with key = {@link String}, value = {@link TypeDefinition}.
@@ -35,7 +36,7 @@ public class TypeDefinitions extends HashMap<String, TypeDefinition> {
     }
 
     public void merge(final TypeDefinitions types) {
-        for (Entry<String, TypeDefinition> entry : types.entrySet()) {
+        for (Map.Entry<String, TypeDefinition> entry : types.entrySet()) {
             if (!containsKey(entry.getKey())) {
                 put(entry.getKey(), entry.getValue());
             } else {
