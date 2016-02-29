@@ -24,7 +24,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -179,6 +179,6 @@ public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
 
     @Override
     protected View createView() {
-        return View.fromJson(PathUtil.view(getClass()));
+        return View.fromJson(StreamUtil.view(getClass()));
     }
 }

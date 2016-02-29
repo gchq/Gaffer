@@ -16,14 +16,21 @@
 
 package gaffer.integration;
 
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.VALIDATION;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.PathUtil;
 import gaffer.data.element.Element;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.Operation;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetElements;
@@ -34,18 +41,10 @@ import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.StoreSchema;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class StoreIT {
     @Test
@@ -53,10 +52,10 @@ public class StoreIT {
         // Given
         final TestStore testStore = new TestStore();
 
-        final DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
+        final DataSchema dataSchema = DataSchema.fromJson(StreamUtil.dataSchema(getClass()));
+        dataSchema.addTypesFromStream(StreamUtil.schemaTypes(getClass()));
 
-        final StoreSchema storeSchema = StoreSchema.fromJson(PathUtil.storeSchema(getClass()));
+        final StoreSchema storeSchema = StoreSchema.fromJson(StreamUtil.storeSchema(getClass()));
 
         // When
         testStore.initialise(dataSchema, storeSchema, new StoreProperties());

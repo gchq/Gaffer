@@ -16,7 +16,14 @@
 
 package gaffer.data.elementdefinition.schema;
 
-import gaffer.commonutil.PathUtil;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.ElementComponentKey;
@@ -34,35 +41,28 @@ import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class DataSchemaTest {
     private DataSchema dataSchema;
 
     @Before
     public void setup() throws IOException {
-        dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
+        dataSchema = DataSchema.fromJson(StreamUtil.dataSchema(getClass()));
     }
 
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
         //Given
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
+        dataSchema.addTypesFromStream(StreamUtil.schemaTypes(getClass()));
         final byte[] json1 = dataSchema.toJson(false);
         final DataSchema dataSchema2 = DataSchema.fromJson(json1, DataSchema.class);
 
@@ -76,7 +76,7 @@ public class DataSchemaTest {
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() throws SerialisationException {
         //Given
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
+        dataSchema.addTypesFromStream(StreamUtil.schemaTypes(getClass()));
         final byte[] json1 = dataSchema.toJson(true);
         final DataSchema dataSchema2 = DataSchema.fromJson(json1);
 
@@ -90,7 +90,7 @@ public class DataSchemaTest {
     @Test
     public void testLoadingSchemaFromJson() {
         // Add the types from a separate file
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
+        dataSchema.addTypesFromStream(StreamUtil.schemaTypes(getClass()));
 
         // Edge definitions
         DataElementDefinition edgeDefinition = dataSchema.getEdge(TestGroups.EDGE);
@@ -230,7 +230,7 @@ public class DataSchemaTest {
     @Test
     public void testAbleToLoadProgramaticallyCreatedSchema() throws IOException {
         dataSchema = createSchema();
-        Path path = PathUtil.path(getClass(), "/testFile");
+        Path path = Paths.get(getClass().getResource("/testFile").getPath());
         ByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         channel.write(ByteBuffer.wrap(dataSchema.toJson(true)));
 

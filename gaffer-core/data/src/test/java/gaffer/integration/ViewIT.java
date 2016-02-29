@@ -16,9 +16,14 @@
 
 package gaffer.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
-import gaffer.commonutil.PathUtil;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementTransformer;
@@ -28,14 +33,8 @@ import gaffer.function.ExampleTransformFunction;
 import gaffer.function.TransformFunction;
 import gaffer.function.context.ConsumerProducerFunctionContext;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 
 public class ViewIT {
@@ -119,10 +118,10 @@ public class ViewIT {
     }
 
     private View loadView() throws IOException {
-        return View.fromJson(PathUtil.view(getClass()));
+        return View.fromJson(StreamUtil.view(getClass()));
     }
 
     private View loadInvalidView() throws IOException {
-        return View.fromJson(PathUtil.path(getClass(), "/invalidView.json"));
+        return View.fromJson(StreamUtil.openStream(getClass(), "/invalidView.json"));
     }
 }
