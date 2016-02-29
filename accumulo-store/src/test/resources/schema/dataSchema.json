@@ -28,31 +28,5 @@
         "count": "simpleProperty"
       }
     }
-  },
-  "types": {
-    "id.object": {
-      "class": "java.lang.Object"
-    },
-    "directed.either": {
-      "class": "java.lang.Boolean"
-    },
-    "simpleProperty": {
-      "class": "java.lang.Integer",
-      "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
-      }
-    },
-    "colQualProperty": {
-      "class": "java.lang.Integer",
-      "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
-      }
-    },
-    "timestamp": {
-      "class": "java.lang.Long",
-      "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSumLong"
-      }
-    }
   }
 }

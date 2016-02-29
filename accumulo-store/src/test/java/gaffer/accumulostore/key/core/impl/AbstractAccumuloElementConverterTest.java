@@ -43,8 +43,11 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        Schema schema = Schema.fromJson(PathUtil.dataSchema(getClass()),
-                PathUtil.storeSchema(getClass()));
+        final Schema schema = Schema.fromJson(
+                PathUtil.dataSchema(getClass()),
+                PathUtil.dataTypes(getClass()),
+                PathUtil.storeSchema(getClass()),
+                PathUtil.storeTypes(getClass()));
         converter = createConverter(schema);
     }
 

@@ -21,8 +21,7 @@ package gaffer.rest;
  */
 public abstract class SystemProperty {
     // KEYS
-    public static final String SCHEMA_TYPES_PATH = "gaffer.schemaTypes";
-    public static final String SCHEMA_PATH = "gaffer.schema";
+    public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
     public static final String BASE_URL = "gaffer.rest-api.basePath";
     public static final String VERSION = "gaffer.rest-api.version";

@@ -45,23 +45,30 @@ public class GraphFactory {
     }
 
     private static Graph createGraph() {
-        final Path schemaPath = Paths.get(System.getProperty(SystemProperty.SCHEMA_PATH));
-        if (null == schemaPath) {
-            throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATH);
-        }
-
         final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
         if (null == storePropertiesPath) {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
         }
 
-        final String typesPathStr = System.getProperty(SystemProperty.SCHEMA_TYPES_PATH);
-        final Path typesPath = null != typesPathStr ? Paths.get(typesPathStr) : null;
-
-        return new Graph(schemaPath, schemaPath, storePropertiesPath, typesPath);
+        return new Graph(storePropertiesPath, getSchemaPaths());
     }
 
     private static void setGraph(final Graph graph) {
         GraphFactory.graph = graph;
+    }
+
+    private static Path[] getSchemaPaths() {
+        final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
+        if (null == schemaPaths) {
+            throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATHS);
+        }
+
+        final String[] schemaPathsArray = schemaPaths.split(",");
+        final Path[] paths = new Path[schemaPathsArray.length];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = Paths.get(schemaPathsArray[i]);
+        }
+
+        return paths;
     }
 }

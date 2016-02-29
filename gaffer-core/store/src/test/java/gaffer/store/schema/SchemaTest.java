@@ -59,10 +59,10 @@ public class SchemaTest {
 
     @Before
     public void setup() throws IOException {
-        schema = Schema.fromJson(PathUtil.schema(getClass()));
-
-        final Schema schemaTypes = Schema.fromJson(PathUtil.schemaTypes(getClass()));
-        schema.merge(schemaTypes);
+        schema = Schema.fromJson(PathUtil.dataSchema(getClass()),
+                PathUtil.dataTypes(getClass()),
+                PathUtil.storeSchema(getClass()),
+                PathUtil.storeTypes(getClass()));
     }
 
     @Test

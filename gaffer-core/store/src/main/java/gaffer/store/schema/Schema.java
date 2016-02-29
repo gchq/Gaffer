@@ -19,9 +19,9 @@ package gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.elementdefinition.ElementDefinitions;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -225,7 +225,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         if (DEFAULT_VERTEX_SERIALISER.getClass().equals(vertexSerialiser.getClass())) {
             setVertexSerialiser(schema.getVertexSerialiser());
-        } else if (!vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
+        } else if (!DEFAULT_VERTEX_SERIALISER.getClass().equals(schema.getVertexSerialiser().getClass())
+                && !vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
             throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
                     + vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
         }

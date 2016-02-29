@@ -17,7 +17,6 @@
     },
     "prop.string": {
       "class": "java.lang.String",
-      "position": "PROPERTY_1",
       "validator": {
         "functions": [
           {
@@ -26,17 +25,10 @@
             }
           }
         ]
-      },
-      "aggregateFunction": {
-        "class": "gaffer.function.ExampleAggregateFunction"
       }
     },
     "prop.date": {
-      "class": "java.util.Date",
-      "position": "PROPERTY_2",
-      "aggregateFunction": {
-        "class": "gaffer.function.ExampleAggregateFunction"
-      }
+      "class": "java.util.Date"
     }
   }
 }

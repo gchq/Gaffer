@@ -50,8 +50,10 @@ public class StoreIT {
         // Given
         final TestStore testStore = new TestStore();
 
-        final Schema schema = Schema.fromJson(
-                PathUtil.schema(getClass()), PathUtil.schemaTypes(getClass()));
+        final Schema schema = Schema.fromJson(PathUtil.dataSchema(getClass()),
+                PathUtil.dataTypes(getClass()),
+                PathUtil.storeSchema(getClass()),
+                PathUtil.storeTypes(getClass()));
 
         // When
         testStore.initialise(schema, new StoreProperties());

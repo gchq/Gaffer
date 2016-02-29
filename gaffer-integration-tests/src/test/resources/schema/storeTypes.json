@@ -1,5 +1,4 @@
 {
-  "vertexSerialiserClass": "gaffer.serialisation.simple.StringSerialiser",
   "types": {
     "prop.string": {
       "position": "VALUE",

@@ -17,22 +17,5 @@
         "count": "prop.count"
       }
     }
-  },
-  "types": {
-    "id.string": {
-      "class": "java.lang.String"
-    },
-    "directed.either": {
-      "class": "java.lang.Boolean"
-    },
-    "prop.string": {
-      "class": "java.lang.String"
-    },
-    "prop.integer": {
-      "class": "java.lang.Integer"
-    },
-    "prop.count": {
-      "class": "java.lang.Long"
-    }
   }
 }
