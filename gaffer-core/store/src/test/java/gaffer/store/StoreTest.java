@@ -18,7 +18,6 @@ package gaffer.store;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.INPUT_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -335,13 +334,12 @@ public class StoreTest {
         final StoreSchema storeSchema = mock(StoreSchema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
-        final OperationChain opChain = new OperationChain(addElements);
         final StoreImpl store = new StoreImpl();
 
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        store.execute(opChain);
+        store.execute(addElements);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, store);
@@ -354,13 +352,12 @@ public class StoreTest {
         final StoreSchema storeSchema = mock(StoreSchema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
-        final OperationChain opChain = new OperationChain(operation);
         final StoreImpl store = new StoreImpl();
 
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        store.execute(opChain);
+        store.execute(operation);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -465,7 +462,6 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         given(validatable1.isValidate()).willReturn(false);
         given(validatableHandler.doOperation(validatable1, store)).willReturn(expectedResult);
@@ -473,7 +469,7 @@ public class StoreTest {
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        int result = store.execute(opChain);
+        int result = store.execute(validatable1);
 
         // Then
         Assert.assertEquals(expectedResult, result);
@@ -488,7 +484,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         store.setValidationRequired(true);
         given(validatable1.isValidate()).willReturn(false);
@@ -497,7 +492,7 @@ public class StoreTest {
 
         // When / then
         try {
-            store.execute(opChain);
+            store.execute(validatable1);
             fail("Exception expected");
         } catch (UnsupportedOperationException e) {
             assertNotNull(e);
@@ -556,7 +551,6 @@ public class StoreTest {
         final int expectedResult = 5;
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable);
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
@@ -564,7 +558,7 @@ public class StoreTest {
         store.initialise(dataSchema, storeSchema, properties);
 
         // When
-        int result = store.execute(opChain);
+        int result = store.execute(validatable);
 
         //Then
         verify(validatable, times(1)).getOptions();
@@ -590,7 +584,7 @@ public class StoreTest {
     }
 
     private class StoreImpl extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, INPUT_VALIDATION);
+        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.clearspring.analytics.util.Lists;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
@@ -44,6 +43,7 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
 
     /**
      * Adds simple graph data required for testing.
+     *
      * @throws OperationException should never be thrown.
      */
     @Before
@@ -60,12 +60,12 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         elements.add(sampleEntityWithTransientProperty);
 
         final AddElements add = new AddElements(elements);
-        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "test");
         graph.execute(add);
     }
 
     /**
      * Tests that the edge stored does not contain any transient properties not stored in the Schemas.
+     *
      * @throws OperationException should never be thrown.
      */
     @Test
@@ -74,7 +74,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         //OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("A")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "test");
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
         //CHECK
@@ -87,7 +86,8 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
     }
 
     /**
-     *Tests that the entity stored does not contain any transient properties not stored in the Schemas.
+     * Tests that the entity stored does not contain any transient properties not stored in the Schemas.
+     *
      * @throws OperationException should never be thrown.
      */
     @Test
@@ -96,7 +96,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         //OPERATE
         final List<EntitySeed> seeds = Collections.singletonList(new EntitySeed("C"));
         final GetEntitiesBySeed getEdges = new GetEntitiesBySeed(seeds);
-        getEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "test");
         final List<Entity> results = Lists.newArrayList(graph.execute(getEdges));
 
         //CHECK

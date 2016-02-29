@@ -26,7 +26,6 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -36,7 +35,6 @@ import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
 import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
@@ -81,16 +79,16 @@ public class GetElementsBetweenSetsHandlerTest {
         EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
         EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
         EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-    }	
-	
-	@BeforeClass
-	public static void setup() throws StoreException, IOException {
-	    byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-	    gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-	    defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
-	    setupGraph(byteEntityStore);
+    }
+
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
+        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
+        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
-	}
+    }
 
     @AfterClass
     public static void tearDown() {
@@ -107,7 +105,6 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private void testNoSummarisation(final AccumuloStore store) throws OperationException {
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -126,19 +123,18 @@ public class GetElementsBetweenSetsHandlerTest {
         }
 
         //Without query compaction the result size should be 4
-        assertEquals(4, results.size());        
-	}
-	
-	@Test
-	public void testShouldSummarise() throws OperationException {
-		testShouldSummarise(byteEntityStore);
-		testShouldSummarise(gaffer1KeyStore);
-	}
-	
-	public void testShouldSummarise(final AccumuloStore store) throws OperationException {
-	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+        assertEquals(4, results.size());
+    }
+
+    @Test
+    public void testShouldSummarise() throws OperationException {
+        testShouldSummarise(byteEntityStore);
+        testShouldSummarise(gaffer1KeyStore);
+    }
+
+    public void testShouldSummarise(final AccumuloStore store) throws OperationException {
+        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
-        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -157,20 +153,19 @@ public class GetElementsBetweenSetsHandlerTest {
         //With query compaction the result size should be 2
         assertEquals(2, results.size());
 
-	}
-	
-	@Test
-	public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
-		testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
-		testShouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
-	}
-	
-	public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
+    }
+
+    @Test
+    public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
+        testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
+        testShouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    }
+
+    public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
-        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -188,19 +183,18 @@ public class GetElementsBetweenSetsHandlerTest {
         assertEquals(1, results.size());
 
         assertEquals(expectedResults, results);
-        
-	}
-	
-	@Test
-	public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
-		testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
-		testShouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
-	}
-	
-	public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-	    GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+
+    }
+
+    @Test
+    public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
+        testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+        testShouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    }
+
+    public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
+        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
-        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -217,18 +211,17 @@ public class GetElementsBetweenSetsHandlerTest {
         assertEquals(1, results.size());
 
         assertEquals(expectedResults, results);
-	}
-	
-	 public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
-    	testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
-    	testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
     }
-    
+
+    public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
+        testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
+        testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    }
+
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
-    	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -251,15 +244,14 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void testShouldHaveNoIncomingEdges() throws OperationException {
-    	testShouldHaveNoIncomingEdges(byteEntityStore);
-    	testShouldHaveNoIncomingEdges(gaffer1KeyStore);
+        testShouldHaveNoIncomingEdges(byteEntityStore);
+        testShouldHaveNoIncomingEdges(gaffer1KeyStore);
     }
-    
+
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
-    	GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-        op.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
@@ -313,10 +305,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
-        AddElements add = new AddElements(data);
-        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
-            store.execute(new OperationChain<>(add));
+            store.execute(new AddElements(data));
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

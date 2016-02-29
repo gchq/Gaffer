@@ -26,7 +26,6 @@ import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
@@ -34,7 +33,6 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
 import gaffer.data.elementdefinition.view.ViewEntityDefinition;
-import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -72,7 +70,7 @@ public class AccumuloRangeIDRetrieverTest {
         gaffer1KeyStore = null;
         defaultView = null;
     }
-    
+
     @Test
     public void test() throws StoreException {
         test(byteEntityStore);
@@ -87,7 +85,6 @@ public class AccumuloRangeIDRetrieverTest {
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         AccumuloRangeIDRetriever retriever = null;
         AbstractGetRangeFromPair<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             retriever = new AccumuloRangeIDRetriever(store, operation);
         } catch (IteratorSettingException e) {
@@ -113,10 +110,8 @@ public class AccumuloRangeIDRetrieverTest {
             edge.setDirected(false);
             elements.add(edge);
         }
-        AddElements add = new AddElements(elements);
-        add.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
-            store.execute(new OperationChain<>(add));
+            store.execute(new AddElements(elements));
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

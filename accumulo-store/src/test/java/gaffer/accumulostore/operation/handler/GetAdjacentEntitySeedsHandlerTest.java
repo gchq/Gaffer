@@ -16,29 +16,27 @@
 
 package gaffer.accumulostore.operation.handler;
 
+import static org.mockito.BDDMockito.given;
+
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
-import gaffer.operation.data.EntitySeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.handler.AbstractGetAdjacentEntitySeedsHandlerTest;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.mockito.BDDMockito.given;
 
 public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntitySeedsHandlerTest {
     @Override
@@ -75,7 +73,6 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
         final GetAdjacentEntitySeeds operation = super.createMockOperation(inOutType);
 
         final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "authorisation");
         options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
         given(operation.getOptions()).willReturn(options);
 

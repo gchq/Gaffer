@@ -106,9 +106,8 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support INPUT_VALIDATION and FILTERING.
+     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support FILTERING.
      * <p>
-     * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
      *
      * @return the {@link gaffer.store.StoreTrait}s for this store.
@@ -121,6 +120,19 @@ public abstract class Store {
     protected abstract boolean isValidationRequired();
 
     /**
+     * Executes a given operation and returns the result.
+     *
+     * @param operation   the operation to execute.
+     * @param <OPERATION> the operation type
+     * @param <OUTPUT>    the output type.
+     * @return the result from the operation
+     * @throws OperationException thrown by the operation handler if the operation fails.
+     */
+    public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(final OPERATION operation) throws OperationException {
+        return execute(new OperationChain<>(operation));
+    }
+
+    /**
      * Executes a given operation chain and returns the result.
      *
      * @param operationChain the operation chain to execute.
@@ -129,13 +141,7 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
-        final Iterator<Operation> opsItr;
-
-        if (hasTrait(StoreTrait.INPUT_VALIDATION)) {
-            opsItr = getValidatedOperations(operationChain).iterator();
-        } else {
-            opsItr = operationChain.getOperations().iterator();
-        }
+        final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
 
         if (!opsItr.hasNext()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
@@ -320,17 +326,12 @@ public abstract class Store {
     }
 
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
+        final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
-
-        if (!hasTrait(StoreTrait.INPUT_VALIDATION) && operation instanceof Validate) {
-            result = (OUTPUT) ((Validate) operation).getElements();
+        if (null != handler) {
+            result = handler.doOperation(operation, this);
         } else {
-            final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
-            if (null != handler) {
-                result = handler.doOperation(operation, this);
-            } else {
-                result = doUnhandledOperation(operation);
-            }
+            result = doUnhandledOperation(operation);
         }
 
         return result;

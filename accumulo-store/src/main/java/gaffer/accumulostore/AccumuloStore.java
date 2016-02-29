@@ -17,9 +17,8 @@
 package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.CONTINUOUS_VALIDATION;
 import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.INPUT_VALIDATION;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -39,14 +38,12 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.operation.Operation;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
@@ -85,7 +82,7 @@ import java.util.Map;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, INPUT_VALIDATION, CONTINUOUS_VALIDATION);
+    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
     private AccumuloKeyPackage keyPackage;
 
     @Override
@@ -100,24 +97,6 @@ public class AccumuloStore extends Store {
         }
         this.keyPackage.setStoreSchema(storeSchema);
         validateSchemasAgainstKeyDesign();
-    }
-
-    /**
-     * Executes a given gaffer.accumulostore.operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param <OUTPUT>  the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException if an operation handler fails to handle the given operation
-     */
-    @Override
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation)
-            throws OperationException {
-        if (operation.getOptions().containsKey(AccumuloStoreConstants.OPERATION_AUTHORISATIONS)) {
-            return super.handleOperation(operation);
-        } else {
-            throw new OperationException("Operation must have the Authorisations option set");
-        }
     }
 
     /**
