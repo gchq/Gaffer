@@ -93,6 +93,6 @@ public class TableUtilsTest {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 
-        assertEquals(2, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
+        assertEquals(0, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
     }
 }

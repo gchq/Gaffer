@@ -40,7 +40,7 @@ public enum StoreTrait {
     TRANSFORMATION,
 
     /**
-     * Elements will continuously be validated and removed if they are found to
+     * Elements will be validated continuously and removed if they are found to
      * be invalid based on {@link gaffer.function.FilterFunction}s defined in the
      * {@link gaffer.data.elementdefinition.schema.DataSchema}.
      */
