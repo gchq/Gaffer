@@ -60,5 +60,66 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>exampleJar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>example-simple-query</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assembly</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptorRefs>
+                                        <descriptorRef>jar-with-dependencies
+                                        </descriptorRef>
+                                    </descriptorRefs>
+                                    <finalName>example-simple-query
+                                    </finalName>
+                                    <archive>
+                                        <manifest>
+                                            <addClasspath>true</addClasspath>
+                                            <mainClass>
+                                                gaffer.example.SimpleQuery
+                                            </mainClass>
+                                        </manifest>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>example-complex-query</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assembly</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptorRefs>
+                                        <descriptorRef>jar-with-dependencies
+                                        </descriptorRef>
+                                    </descriptorRefs>
+                                    <finalName>example-complex-query
+                                    </finalName>
+                                    <archive>
+                                        <manifest>
+                                            <addClasspath>true</addClasspath>
+                                            <mainClass>
+                                                gaffer.example.ComplexQuery
+                                            </mainClass>
+                                        </manifest>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
