@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.AggregateFunction;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;

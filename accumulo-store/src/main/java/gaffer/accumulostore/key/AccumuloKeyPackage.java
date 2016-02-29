@@ -72,10 +72,10 @@ public abstract class AccumuloKeyPackage {
      * This method is here so that users schemas can be checked for
      * compatibility against current key implementation. A
      * runtime Exception of
-     * {@link gaffer.data.elementdefinition.schema.exception.SchemaException}
+     * {@link gaffer.data.elementdefinition.exception.SchemaException}
      * should be thrown if incompatibilities are found.
      *
-     * @param dataSchema the store schema to validate
+     * @param dataSchema the data schema to validate
      */
     public abstract void validateSchema(final DataSchema dataSchema);
 }

@@ -94,10 +94,8 @@ public class SimpleQuery {
                 .first(new GenerateElements.Builder<>()
                         .objects(new SampleData().generate())
                         .generator(new DataGenerator())
-                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new AddElements.Builder()
-                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 

@@ -19,9 +19,9 @@ package gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.elementdefinition.ElementDefinitions;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -128,9 +128,9 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
     }
 
     /**
-     * Returns the vertex serialiser for this store schema.
+     * Returns the vertex serialiser for this schema.
      * <p>
-     * There can be only one vertex serialiser per store schema because in order for searches to work correctly,
+     * There can be only one vertex serialiser for all elements because in order for searches to work correctly,
      * the byte representation of the search term's (seeds) must match the byte representation stored,
      * i.e you need to know how your results have been serialised which effectively means all vertices must be serialised the same way within a table.
      *

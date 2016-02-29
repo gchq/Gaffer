@@ -18,7 +18,7 @@ package gaffer.accumulostore.key.core;
 
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.utils.StorePositions;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.DataElementDefinition;
 import gaffer.store.schema.DataSchema;
 import gaffer.store.schema.TypeDefinition;

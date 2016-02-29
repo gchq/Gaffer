@@ -23,8 +23,8 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.DataSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Combiner;
@@ -110,7 +110,7 @@ public class AggregatorIterator extends Combiner {
         try {
             dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the data/store schema", e);
+            throw new SchemaException("Unable to deserialise the data schema from json", e);
         }
 
         try {

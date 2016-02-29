@@ -17,7 +17,7 @@
 package gaffer.data.elementdefinition.view;
 
 import gaffer.data.elementdefinition.ElementDefinitions;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collection;

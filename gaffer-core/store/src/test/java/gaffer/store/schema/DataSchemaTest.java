@@ -29,7 +29,7 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunction;
 import gaffer.function.ExampleAggregateFunction;

@@ -20,7 +20,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;

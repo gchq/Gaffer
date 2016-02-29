@@ -146,7 +146,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
         final DataElementDefinition elementDefinition = dataSchema.getElement(group);
         if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No DataElementDefinition found for group " + group + " is this group in your Store Schema or do your table iterators need updating?");
+            throw new AccumuloElementConversionException("No DataElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
         for (final Writable writeableKey : map.keySet()) {
             final String propertyName = writeableKey.toString();

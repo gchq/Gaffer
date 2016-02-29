@@ -51,10 +51,8 @@ import gaffer.store.schema.DataSchema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class SimpleExamplesService implements IExamplesService {
@@ -291,9 +289,7 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     protected void populateOperation(final Operation operation) {
-        final Map<Object, Object> options = new HashMap<>();
-        options.put("authorisations", "auth");
-        operation.setOptions(options);
+        // override to add options to the operation
     }
 
     protected Entity getEntity(final int uniqueId) {

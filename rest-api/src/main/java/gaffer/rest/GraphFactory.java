@@ -16,7 +16,7 @@
 
 package gaffer.rest;
 
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.graph.Graph;
 import java.nio.file.Path;
 import java.nio.file.Paths;

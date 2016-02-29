@@ -17,7 +17,6 @@
 package gaffer.graph;
 
 
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -27,6 +26,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.DataSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -248,9 +248,8 @@ public final class Graph {
         try {
             dataSchemaClass = Class.forName(storeProperties.getDataSchemaClass()).asSubclass(DataSchema.class);
         } catch (ClassNotFoundException e) {
-            throw new SchemaException("Store schema class was not found: " + storeProperties.getDataSchemaClass(), e);
+            throw new SchemaException("Data schema class was not found: " + storeProperties.getDataSchemaClass(), e);
         }
-
 
         return createStore(storeProperties, DataSchema.fromJson(dataSchemaClass, dataSchemaStreams));
     }

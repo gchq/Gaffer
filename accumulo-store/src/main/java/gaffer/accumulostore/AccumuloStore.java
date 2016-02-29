@@ -38,13 +38,11 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
 import gaffer.operation.Operation;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
@@ -98,24 +96,6 @@ public class AccumuloStore extends Store {
         }
         this.keyPackage.setDataSchema(dataSchema);
         validateSchemasAgainstKeyDesign();
-    }
-
-    /**
-     * Executes a given gaffer.accumulostore.operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param <OUTPUT>  the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException if an operation handler fails to handle the given operation
-     */
-    @Override
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation)
-            throws OperationException {
-        if (operation.getOptions().containsKey(AccumuloStoreConstants.OPERATION_AUTHORISATIONS)) {
-            return super.handleOperation(operation);
-        } else {
-            throw new OperationException("Operation must have the Authorisations option set");
-        }
     }
 
     /**
@@ -268,7 +248,7 @@ public class AccumuloStore extends Store {
         super.validateSchemas();
         final Map<String, String> positions = this.getDataSchema().getPositions();
         if (positions != null && !positions.isEmpty()) {
-            LOGGER.warn("The store schema positions are not used and will be ignored.");
+            LOGGER.warn("The schema positions are not used and will be ignored.");
         }
     }
 

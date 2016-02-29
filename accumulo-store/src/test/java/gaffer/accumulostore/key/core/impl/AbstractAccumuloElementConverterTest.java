@@ -27,7 +27,7 @@ import gaffer.commonutil.PathUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Before;

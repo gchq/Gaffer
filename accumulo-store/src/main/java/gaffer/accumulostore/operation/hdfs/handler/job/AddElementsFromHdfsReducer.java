@@ -20,7 +20,7 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.store.schema.DataSchema;
 import org.apache.accumulo.core.data.Key;

@@ -18,10 +18,10 @@ package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.DataSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -38,9 +38,9 @@ import java.util.EnumSet;
  * <p>
  * This class also has an executable main method that can be used to either
  * re-add or update the aggregator iterator that is set on a table The main
- * method takes 4 arguments, a path to a data schema, a path to a store schema
- * and path to a store properties file. In addition the main method takes one
- * other argument one word either add or update
+ * method takes 3 arguments, a comma separate list of paths to data schemas,
+ * a path to a store properties file and the type of operation to perform on the
+ * table iterators - add, update or remove.
  * <p>
  * The add option will set a new aggregator iterator on the table given in the
  * store properties file (For example if the iterator was removed in the

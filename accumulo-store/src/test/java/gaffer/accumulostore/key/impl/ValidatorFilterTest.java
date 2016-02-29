@@ -19,6 +19,7 @@ package gaffer.accumulostore.key.impl;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import gaffer.accumulostore.function.ExampleFilterFunction;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
@@ -27,6 +28,7 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.store.schema.DataEdgeDefinition;
 import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
@@ -125,8 +127,7 @@ public class ValidatorFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getDataSchema());
 
-        final int invalidSource = 1;
-        final Element element = new Edge(TestGroups.EDGE, invalidSource, "dest", true);
+        final Element element = new Edge(TestGroups.EDGE, "invalid", "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -143,10 +144,19 @@ public class ValidatorFilterTest {
 
     private DataSchema getDataSchema() throws UnsupportedEncodingException {
         return new DataSchema.Builder()
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .validator(new gaffer.data.element.function.ElementFilter.Builder()
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .type("directed.true", new TypeDefinition.Builder()
+                        .clazz(Boolean.class)
+                        .build())
                 .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
-                        .source(String.class)
-                        .destination(String.class)
-                        .directed(Boolean.class)
+                        .source("string")
+                        .destination("string")
+                        .directed("directed.true")
                         .build())
                 .build();
     }

@@ -35,7 +35,7 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.LazyEntity;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.Validatable;
@@ -159,7 +159,6 @@ public class StoreTest {
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(dataSchema, store.getDataSchema());
-        assertSame(dataSchema, store.getDataSchema());
         assertSame(properties, store.getProperties());
     }
 
@@ -169,14 +168,13 @@ public class StoreTest {
         final DataSchema dataSchema = mock(DataSchema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
-        final OperationChain opChain = new OperationChain(addElements);
         final StoreImpl store = new StoreImpl();
 
         given(dataSchema.validate()).willReturn(true);
         store.initialise(dataSchema, properties);
 
         // When
-        store.execute(opChain);
+        store.execute(addElements);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, store);
@@ -188,14 +186,13 @@ public class StoreTest {
         final DataSchema dataSchema = mock(DataSchema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
-        final OperationChain opChain = new OperationChain(operation);
         final StoreImpl store = new StoreImpl();
 
         given(dataSchema.validate()).willReturn(true);
         store.initialise(dataSchema, properties);
 
         // When
-        store.execute(opChain);
+        store.execute(operation);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -288,7 +285,6 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         given(dataSchema.validate()).willReturn(true);
         given(validatable1.isValidate()).willReturn(false);
@@ -297,7 +293,7 @@ public class StoreTest {
         store.initialise(dataSchema, properties);
 
         // When
-        int result = store.execute(opChain);
+        int result = store.execute(validatable1);
 
         // Then
         Assert.assertEquals(expectedResult, result);
@@ -311,7 +307,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         given(dataSchema.validate()).willReturn(true);
         store.setValidationRequired(true);
@@ -321,7 +316,7 @@ public class StoreTest {
 
         // When / then
         try {
-            store.execute(opChain);
+            store.execute(validatable1);
             fail("Exception expected");
         } catch (UnsupportedOperationException e) {
             assertNotNull(e);
@@ -379,7 +374,6 @@ public class StoreTest {
         final int expectedResult = 5;
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
-        final OperationChain<Integer> opChain = new OperationChain<>(validatable);
 
         given(dataSchema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
@@ -388,7 +382,7 @@ public class StoreTest {
         store.initialise(dataSchema, properties);
 
         // When
-        int result = store.execute(opChain);
+        int result = store.execute(validatable);
 
         //Then
         verify(validatable, times(1)).getOptions();

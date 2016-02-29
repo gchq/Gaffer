@@ -19,7 +19,7 @@ package gaffer.data.elementdefinition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.slf4j.Logger;

@@ -78,22 +78,31 @@ public abstract class DataElementDefinition extends ElementDefinition {
     }
 
     /**
-     * @return a cloned instance of {@link ElementFilter} fully populated with all the
-     * {@link FilterFunction}s defined in this
+     * @return a cloned instance of {@link gaffer.data.element.function.ElementFilter} fully populated with all the
+     * {@link gaffer.function.FilterFunction}s defined in this
      * {@link DataElementDefinition} and also the
-     * {@link FilterFunction}s defined in the corresponding identifier and property value
+     * {@link DataElementDefinition} and also the
+     * {@link gaffer.function.FilterFunction}s defined in the corresponding identifier and property value
      * {@link TypeDefinition}s.
      */
     public ElementFilter getValidator() {
+        return getValidator(true);
+    }
+
+    public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
         for (Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
-            addIsAFunction(fullValidator, key, entry.getValue());
+            if (includeIsA) {
+                addIsAFunction(fullValidator, key, entry.getValue());
+            }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
         for (Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
-            addIsAFunction(fullValidator, key, entry.getValue());
+            if (includeIsA) {
+                addIsAFunction(fullValidator, key, entry.getValue());
+            }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
 

@@ -19,7 +19,6 @@ package gaffer.store;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -45,6 +44,7 @@ import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.schema.DataElementDefinition;
 import gaffer.store.schema.DataSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
@@ -97,9 +97,8 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support INPUT_VALIDATION and FILTERING.
+     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support FILTERING.
      * <p>
-     * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
      *
      * @return the {@link gaffer.store.StoreTrait}s for this store.
@@ -110,6 +109,19 @@ public abstract class Store {
      * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
      */
     protected abstract boolean isValidationRequired();
+
+    /**
+     * Executes a given operation and returns the result.
+     *
+     * @param operation   the operation to execute.
+     * @param <OPERATION> the operation type
+     * @param <OUTPUT>    the output type.
+     * @return the result from the operation
+     * @throws OperationException thrown by the operation handler if the operation fails.
+     */
+    public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(final OPERATION operation) throws OperationException {
+        return execute(new OperationChain<>(operation));
+    }
 
     /**
      * Executes a given operation chain and returns the result.
@@ -228,7 +240,7 @@ public abstract class Store {
 
                 if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
-                    LOGGER.error("Store schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + dataElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
+                    LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + dataElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
                 }
             }
         }

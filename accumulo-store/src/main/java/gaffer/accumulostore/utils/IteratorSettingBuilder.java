@@ -18,7 +18,7 @@ package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.store.schema.DataSchema;

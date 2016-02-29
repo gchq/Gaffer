@@ -22,10 +22,10 @@ import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.ElementValidator;
 import gaffer.store.schema.DataSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -81,7 +81,7 @@ public class ElementFilter extends Filter {
         try {
             dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise store schema from JSON", e);
+            throw new SchemaException("Unable to deserialise the data schema from JSON", e);
         }
 
         try {

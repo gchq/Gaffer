@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.Validator;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
