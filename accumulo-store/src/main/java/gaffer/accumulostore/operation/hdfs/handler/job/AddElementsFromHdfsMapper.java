@@ -22,7 +22,7 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -38,19 +38,19 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
     protected void setup(final Context context) {
         super.setup(context);
 
-        final DataSchema dataSchema;
+        final Schema schema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the data schema from JSON");
+            throw new SchemaException("Unable to deserialise the schema from JSON");
         }
 
         final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             final Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
-                    .newInstance(dataSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);

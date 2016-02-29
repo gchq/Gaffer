@@ -46,8 +46,8 @@ import gaffer.rest.example.ExampleDomainObject;
 import gaffer.rest.example.ExampleDomainObjectGenerator;
 import gaffer.rest.example.ExampleFilterFunction;
 import gaffer.rest.example.ExampleTransformFunction;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -225,7 +225,7 @@ public class SimpleExamplesService implements IExamplesService {
         final GenerateElements<ExampleDomainObject> op = new GenerateElements<>(new ExampleDomainObjectGenerator());
         final ArrayList<ExampleDomainObject> objs = new ArrayList<>();
         if (hasEntities()) {
-            final DataElementDefinition entityDef = getDataSchema().getEdge(getAnEdgeGroup());
+            final SchemaElementDefinition entityDef = getSchema().getEdge(getAnEdgeGroup());
             objs.add(new ExampleDomainObject(getAnEntityGroup(),
                     getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), 1)));
             objs.add(new ExampleDomainObject(getAnEntityGroup(),
@@ -234,7 +234,7 @@ public class SimpleExamplesService implements IExamplesService {
 
 
         if (hasEdges()) {
-            final DataElementDefinition edgeDef = getDataSchema().getEdge(getAnEdgeGroup());
+            final SchemaElementDefinition edgeDef = getSchema().getEdge(getAnEdgeGroup());
             objs.add(new ExampleDomainObject(getAnEdgeGroup(),
                     getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), 1),
                     getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), 1),
@@ -246,8 +246,8 @@ public class SimpleExamplesService implements IExamplesService {
         return op;
     }
 
-    private DataSchema getDataSchema() {
-        return graphFactory.getGraph().getDataSchema();
+    private Schema getSchema() {
+        return graphFactory.getGraph().getSchema();
     }
 
     private void populateOperation(final GetOperation operation) {
@@ -294,7 +294,7 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected Entity getEntity(final int uniqueId) {
         final String group = getAnEntityGroup();
-        final DataElementDefinition entityDef = getDataSchema().getEntity(group);
+        final SchemaElementDefinition entityDef = getSchema().getEntity(group);
 
         final Entity entity = new Entity(group);
         entity.setVertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId));
@@ -305,7 +305,7 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected Edge getEdge(final int uniqueId1, final int uniqueId2) {
         final String group = getAnEdgeGroup();
-        final DataElementDefinition edgeDef = getDataSchema().getEdge(group);
+        final SchemaElementDefinition edgeDef = getSchema().getEdge(group);
 
         final Edge edge = new Edge(group);
         edge.setSource(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1));
@@ -319,22 +319,22 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected EntitySeed getEntitySeed(final int uniqueId) {
         return new EntitySeed(
-                getExampleVertex(getDataSchema().getEntity(getAnEntityGroup()).getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+                getExampleVertex(getSchema().getEntity(getAnEntityGroup()).getIdentifierClass(IdentifierType.VERTEX), uniqueId));
     }
 
     protected EdgeSeed getEdgeSeed(final int uniqueId1, final int uniqueId2) {
         return new EdgeSeed(
-                getExampleVertex(getDataSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
-                getExampleVertex(getDataSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
+                getExampleVertex(getSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
+                getExampleVertex(getSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
                 isAnEdgeDirected());
     }
 
     protected boolean isAnEdgeDirected() {
-        return !getDataSchema().getEdge(getAnEdgeGroup()).getDirected().toLowerCase(Locale.getDefault()).contains("false");
+        return !getSchema().getEdge(getAnEdgeGroup()).getDirected().toLowerCase(Locale.getDefault()).contains("false");
     }
 
     protected String getAnEntityPropertyName() {
-        final DataElementDefinition entityDef = getDataSchema().getEntity(getAnEntityGroup());
+        final SchemaElementDefinition entityDef = getSchema().getEntity(getAnEntityGroup());
         final String propertyName;
         if (null != entityDef && !entityDef.getProperties().isEmpty()) {
             propertyName = entityDef.getProperties().iterator().next();
@@ -346,15 +346,15 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     protected String getAnEntityGroup() {
-        if (!getDataSchema().getEntityGroups().isEmpty()) {
-            return getDataSchema().getEntityGroups().iterator().next();
+        if (!getSchema().getEntityGroups().isEmpty()) {
+            return getSchema().getEntityGroups().iterator().next();
         } else {
             return "exampleEntityGroup";
         }
     }
 
     protected String getAnEdgePropertyName() {
-        final DataElementDefinition edgeDef = getDataSchema().getEdge(getAnEdgeGroup());
+        final SchemaElementDefinition edgeDef = getSchema().getEdge(getAnEdgeGroup());
         final String propertyName;
         if (null != edgeDef && !edgeDef.getProperties().isEmpty()) {
             propertyName = edgeDef.getProperties().iterator().next();
@@ -366,22 +366,22 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     protected String getAnEdgeGroup() {
-        if (!getDataSchema().getEdgeGroups().isEmpty()) {
-            return getDataSchema().getEdgeGroups().iterator().next();
+        if (!getSchema().getEdgeGroups().isEmpty()) {
+            return getSchema().getEdgeGroups().iterator().next();
         } else {
             return "exampleEdgeGroup";
         }
     }
 
     protected boolean hasEdges() {
-        return !getDataSchema().getEdges().isEmpty();
+        return !getSchema().getEdges().isEmpty();
     }
 
     protected boolean hasEntities() {
-        return !getDataSchema().getEntities().isEmpty();
+        return !getSchema().getEntities().isEmpty();
     }
 
-    protected void populateProperties(final Element element, final DataElementDefinition elementDef, final int uniqueId) {
+    protected void populateProperties(final Element element, final SchemaElementDefinition elementDef, final int uniqueId) {
         for (String property : elementDef.getProperties()) {
             element.putProperty(property, getExampleValue(elementDef.getPropertyClass(property), uniqueId));
         }

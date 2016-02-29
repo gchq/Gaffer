@@ -26,9 +26,9 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
-import gaffer.store.schema.DataEdgeDefinition;
-import gaffer.store.schema.DataEntityDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -40,12 +40,12 @@ public class ExamplesServiceTest {
 
     @Before
     public void setup() {
-        final DataSchema dataSchema = new DataSchema.Builder()
-                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property("entityProperties", String.class)
                         .vertex(String.class)
                         .build())
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property("edgeProperties", String.class)
                         .source(String.class)
                         .destination(String.class)
@@ -55,7 +55,7 @@ public class ExamplesServiceTest {
 
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
-        given(store.getDataSchema()).willReturn(dataSchema);
+        given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph(store);
         given(graphFactory.getGraph()).willReturn(graph);
 

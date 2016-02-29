@@ -29,14 +29,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * An <code>DataElementDefinitionValidator</code> extends
+ * An <code>SchemaElementDefinitionValidator</code> extends
  * {@link ElementDefinitionValidator} and adds additional validation for a
- * {@link DataElementDefinition}. To be able to aggregate 2 similar elements
+ * {@link SchemaElementDefinition}. To be able to aggregate 2 similar elements
  * together ALL properties have to be aggregated together. So this validator checks that either no properties have
  * aggregator functions or all properties have aggregator functions defined.
  */
-public class DataElementDefinitionValidator extends ElementDefinitionValidator<DataElementDefinition> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataElementDefinitionValidator.class);
+public class SchemaElementDefinitionValidator extends ElementDefinitionValidator<SchemaElementDefinition> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchemaElementDefinitionValidator.class);
 
     /**
      * Carries out the validation as per {@link ElementDefinitionValidator} and then
@@ -49,7 +49,7 @@ public class DataElementDefinitionValidator extends ElementDefinitionValidator<D
      * @see ElementDefinitionValidator
      */
     @Override
-    public boolean validate(final DataElementDefinition elementDef) {
+    public boolean validate(final SchemaElementDefinition elementDef) {
         final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
         return super.validate(elementDef)
@@ -58,7 +58,7 @@ public class DataElementDefinitionValidator extends ElementDefinitionValidator<D
                 && validateFunctionArgumentTypes(aggregator, elementDef);
     }
 
-    private boolean validateAggregator(final ElementAggregator aggregator, final DataElementDefinition elementDef) {
+    private boolean validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef) {
         if (null == aggregator || null == aggregator.getFunctions()) {
             // if aggregate functions are not defined then it is valid
             return true;

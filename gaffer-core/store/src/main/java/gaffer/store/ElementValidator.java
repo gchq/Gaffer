@@ -21,46 +21,46 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * An <code>ElementValidator</code> is a {@link Validator} for {@link Element}s
  * It is capable of validating an {@link Element} based on {@link gaffer.function.FilterFunction}s
- * in {@link gaffer.store.schema.DataSchema} or {@link View}.
+ * in {@link Schema} or {@link View}.
  */
 public class ElementValidator implements Validator<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementValidator.class);
-    private final DataSchema dataSchema;
+    private final Schema schema;
     private final View view;
     private final boolean includeIsA;
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link gaffer.store.schema.DataSchema} to use to
+     * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
      * validate {@link Element}s.
      *
-     * @param dataSchema the {@link gaffer.store.schema.DataSchema} to use to
+     * @param schema the {@link Schema} to use to
      *                   validate {@link Element}s.
      */
-    public ElementValidator(final DataSchema dataSchema) {
-        this(dataSchema, true);
+    public ElementValidator(final Schema schema) {
+        this(schema, true);
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link DataSchema} to use to
+     * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
      * validate {@link gaffer.data.element.Element}s. Uses the includeIsA flag
      * to determine whether the IsA validate functions should be used. Disabling
      * them can be useful when you already know the data is of the correct type
      * and therefore you are able to improve the performance.
      *
-     * @param dataSchema the {@link DataSchema} to use to
+     * @param schema the {@link Schema} to use to
      *                   validate {@link gaffer.data.element.Element}s.
      * @param includeIsA if true then the ISA validate functions are used, otherwise they are skipped.
      */
-    public ElementValidator(final DataSchema dataSchema, final boolean includeIsA) {
-        this.dataSchema = dataSchema;
+    public ElementValidator(final Schema schema, final boolean includeIsA) {
+        this.schema = schema;
         this.view = null;
         this.includeIsA = includeIsA;
     }
@@ -74,7 +74,7 @@ public class ElementValidator implements Validator<Element> {
      */
     public ElementValidator(final View view) {
         this.view = view;
-        this.dataSchema = null;
+        this.schema = null;
         includeIsA = false;
     }
 
@@ -89,15 +89,15 @@ public class ElementValidator implements Validator<Element> {
             return false;
         }
 
-        if (null != dataSchema) {
-            return validateWithDataSchema(element);
+        if (null != schema) {
+            return validateWithSchema(element);
         }
 
         return validateWithView(element);
     }
 
-    private boolean validateWithDataSchema(final Element element) {
-        final DataElementDefinition elementDef = dataSchema.getElement(element.getGroup());
+    private boolean validateWithSchema(final Element element) {
+        final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
         if (null == elementDef) {
             LOGGER.warn("No element definition found for : " + element.getGroup());
             return false;

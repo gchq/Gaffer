@@ -23,7 +23,7 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
@@ -47,7 +47,7 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
         } catch (final AccumuloElementConversionException e) {
             throw new RuntimeException(e);
         }
-        aggregator = dataSchema.getElement(group).getAggregator();
+        aggregator = schema.getElement(group).getAggregator();
         triple = iter.next();
         if (!iter.hasNext()) {
             return triple;
@@ -100,8 +100,8 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
         try {
             final Class<?> elementConverterClass = Class
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
-                    .newInstance(dataSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
@@ -112,7 +112,7 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addDataSchemaNamedOption()
+        return new IteratorOptionsBuilder(super.describeOptions()).addSchemaNamedOption()
                 .addElementConverterClassNamedOption().build();
     }
 

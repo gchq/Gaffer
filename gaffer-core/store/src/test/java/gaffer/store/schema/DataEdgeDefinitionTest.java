@@ -39,7 +39,7 @@ public class DataEdgeDefinitionTest {
     @Test
     public void shouldReturnValidatorWithNoFunctionsWhenNoProperties() {
         // Given
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
                 .build();
 
         // When
@@ -52,7 +52,7 @@ public class DataEdgeDefinitionTest {
     @Test
     public void shouldReturnFullValidator() {
         // Given
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
                 .source("id.integer", Integer.class)
                 .property("property", "property.string", String.class)
                 .build();
@@ -79,7 +79,7 @@ public class DataEdgeDefinitionTest {
         given(validator.clone()).willReturn(clonedValidator);
 
         // When
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
                 .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
                 .source("id.integer", Integer.class)
                 .property(TestPropertyNames.PROP_2, "property.object", Object.class)
@@ -103,7 +103,7 @@ public class DataEdgeDefinitionTest {
     @Test
     public void shouldReturnFullAggregator() {
         // Given
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
                 .source("id.integer", Integer.class)
                 .property("property", "property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -125,7 +125,7 @@ public class DataEdgeDefinitionTest {
     @Test
     public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
         // Given
-        final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
                 .source("id.integer")
                 .build();
 

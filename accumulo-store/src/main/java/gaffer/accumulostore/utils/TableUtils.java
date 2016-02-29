@@ -21,7 +21,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.store.StoreException;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchScanner;
@@ -270,7 +270,7 @@ public final class TableUtils {
         final Mutation m = new Mutation(key.getRow());
         m.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()),
                 key.getTimestamp(),
-                getValueFromSchemas(store.getDataSchema(), store.getKeyPackage()));
+                getValueFromSchemas(store.getSchema(), store.getKeyPackage()));
         try {
             writer.addMutation(m);
         } catch (final MutationsRejectedException e) {
@@ -327,10 +327,10 @@ public final class TableUtils {
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
-    private static Value getValueFromSchemas(final DataSchema dataSchema,
+    private static Value getValueFromSchemas(final Schema schema,
                                              final AccumuloKeyPackage keyPackage) throws TableUtilException {
         final MapWritable map = new MapWritable();
-        map.put(AccumuloStoreConstants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
+        map.put(AccumuloStoreConstants.SCHEMA_KEY, new BytesWritable(schema.toJson(false)));
         try {
             map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
                     new BytesWritable(keyPackage.getClass().getName().getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));

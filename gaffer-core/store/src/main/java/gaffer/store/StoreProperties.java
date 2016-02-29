@@ -16,7 +16,7 @@
 
 package gaffer.store;
 
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.Properties;
 public class StoreProperties {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
-    public static final String DATA_SCHEMA_CLASS = "gaffer.store.schema.class";
+    public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
 
     private Path propFileLocation;
@@ -102,12 +102,12 @@ public class StoreProperties {
         set(STORE_CLASS, storeClass);
     }
 
-    public String getDataSchemaClass() {
-        return get(DATA_SCHEMA_CLASS, DataSchema.class.getName());
+    public String getSchemaClass() {
+        return get(SCHEMA_CLASS, Schema.class.getName());
     }
 
-    public void setDataSchemaClass(final String dataSchemaClass) {
-        set(DATA_SCHEMA_CLASS, dataSchemaClass);
+    public void setSchemaClass(final String schemaClass) {
+        set(SCHEMA_CLASS, schemaClass);
     }
 
     public String getStorePropertiesClass() {

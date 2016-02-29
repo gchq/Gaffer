@@ -19,7 +19,7 @@ package gaffer.store.schema;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 
-public class DataEdgeDefinition extends DataElementDefinition {
+public class SchemaEdgeDefinition extends SchemaElementDefinition {
     private static final long serialVersionUID = -5054720501112437147L;
 
     public void setSource(final String typeName) {
@@ -46,12 +46,12 @@ public class DataEdgeDefinition extends DataElementDefinition {
         return getIdentifierTypeName(IdentifierType.DIRECTED);
     }
 
-    public static class Builder extends DataElementDefinition.Builder {
+    public static class Builder extends SchemaElementDefinition.Builder {
         public Builder() {
-            this(new DataEdgeDefinition());
+            this(new SchemaEdgeDefinition());
         }
 
-        public Builder(final DataEdgeDefinition elDef) {
+        public Builder(final SchemaEdgeDefinition elDef) {
             super(elDef);
         }
 
@@ -136,13 +136,13 @@ public class DataEdgeDefinition extends DataElementDefinition {
         }
 
         @Override
-        public DataEdgeDefinition build() {
-            return (DataEdgeDefinition) super.build();
+        public SchemaEdgeDefinition build() {
+            return (SchemaEdgeDefinition) super.build();
         }
 
         @Override
-        protected DataEdgeDefinition getElementDef() {
-            return (DataEdgeDefinition) super.getElementDef();
+        protected SchemaEdgeDefinition getElementDef() {
+            return (SchemaEdgeDefinition) super.getElementDef();
         }
     }
 }

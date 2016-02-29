@@ -24,7 +24,7 @@ import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.ElementValidator;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -71,24 +71,24 @@ public class ElementFilter extends Filter {
         if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
-        if (!options.containsKey(AccumuloStoreConstants.DATA_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
         }
 
         validator = getElementValidator(options);
 
-        final DataSchema dataSchema;
+        final Schema schema;
         try {
-            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the data schema from JSON", e);
+            throw new SchemaException("Unable to deserialise the schema from JSON", e);
         }
 
         try {
             final Class<?> elementConverterClass = Class
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(DataSchema.class)
-                    .newInstance(dataSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new ElementFilterException("Failed to load element converter from class name provided : "
@@ -99,7 +99,7 @@ public class ElementFilter extends Filter {
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addDataSchemaNamedOption()
+        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
                 .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME)
                 .setIteratorDescription("Only returns elements that pass validation against the given view").build();
     }

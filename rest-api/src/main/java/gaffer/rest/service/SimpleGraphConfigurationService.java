@@ -22,7 +22,7 @@ import gaffer.function.TransformFunction;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.rest.SystemProperty;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import java.lang.reflect.Modifier;
@@ -65,8 +65,8 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public DataSchema getDataSchema() {
-        return graphFactory.getGraph().getDataSchema();
+    public Schema getSchema() {
+        return graphFactory.getGraph().getSchema();
     }
 
     @Override

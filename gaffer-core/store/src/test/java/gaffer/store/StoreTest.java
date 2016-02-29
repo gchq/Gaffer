@@ -55,9 +55,9 @@ import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.DataEdgeDefinition;
-import gaffer.store.schema.DataEntityDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.Schema;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class StoreTest {
     private OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler;
     private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
     private OperationHandler<Validate, Iterable<Element>> validateHandler;
-    private DataSchema dataSchema;
+    private Schema schema;
 
     @Before
     public void setup() {
@@ -85,27 +85,27 @@ public class StoreTest {
         validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
 
-        dataSchema = new DataSchema.Builder()
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+        schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(String.class)
                         .destination(String.class)
                         .directed(Boolean.class)
                         .property(TestPropertyNames.PROP_1, String.class)
                         .property(TestPropertyNames.PROP_2, String.class)
                         .build())
-                .edge(TestGroups.EDGE_2, new DataEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .source(String.class)
                         .destination(String.class)
                         .directed(Boolean.class)
                         .property(TestPropertyNames.PROP_1, String.class)
                         .property(TestPropertyNames.PROP_2, String.class)
                         .build())
-                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(Integer.class)
                         .property(TestPropertyNames.PROP_1, String.class)
                         .property(TestPropertyNames.PROP_2, String.class)
                         .build())
-                .entity(TestGroups.ENTITY_2, new DataEntityDefinition.Builder()
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .vertex(String.class)
                         .property(TestPropertyNames.PROP_1, String.class)
                         .property(TestPropertyNames.PROP_2, String.class)
@@ -116,8 +116,8 @@ public class StoreTest {
     @Test
     public void shouldThrowExceptionWhenPropertyIsNotSerialisable() throws StoreException {
         // Given
-        final DataSchema myDataSchema = new DataSchema.Builder()
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+        final Schema mySchema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, Store.class)
                         .build())
                 .build();
@@ -126,7 +126,7 @@ public class StoreTest {
 
         // When
         try {
-            store.initialise(myDataSchema, properties);
+            store.initialise(mySchema, properties);
             fail();
         } catch (SchemaException exception) {
             assertNotNull(exception.getMessage());
@@ -140,7 +140,7 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
 
         // When
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
@@ -158,20 +158,20 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
-        assertSame(dataSchema, store.getDataSchema());
+        assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
     }
 
     @Test
     public void shouldDelegateDoOperationToOperationHandler() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
         final StoreImpl store = new StoreImpl();
 
-        given(dataSchema.validate()).willReturn(true);
-        store.initialise(dataSchema, properties);
+        given(schema.validate()).willReturn(true);
+        store.initialise(schema, properties);
 
         // When
         store.execute(addElements);
@@ -183,13 +183,13 @@ public class StoreTest {
     @Test
     public void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
 
-        given(dataSchema.validate()).willReturn(true);
-        store.initialise(dataSchema, properties);
+        given(schema.validate()).willReturn(true);
+        store.initialise(schema, properties);
 
         // When
         store.execute(operation);
@@ -209,7 +209,7 @@ public class StoreTest {
         given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
         given(lazyElement.getElement()).willReturn(entity);
 
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When
         final Element result = store.populateElement(lazyElement);
@@ -224,7 +224,7 @@ public class StoreTest {
     @Test
     public void shouldHandleMultiStepOperations() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Iterable<Element> getElementsResult = mock(Iterable.class);
@@ -236,11 +236,11 @@ public class StoreTest {
                 .then(getElementsSeed)
                 .build();
 
-        given(dataSchema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(true);
         given(addElementsHandler.doOperation(addElements1, store)).willReturn(null);
         given(getElementsHandler.doOperation(getElementsSeed, store)).willReturn(getElementsResult);
 
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When
         final Iterable<Element> result = store.execute(opChain);
@@ -252,7 +252,7 @@ public class StoreTest {
     @Test
     public void shouldAddValidateOperationForValidatableOperation() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
@@ -261,13 +261,13 @@ public class StoreTest {
         final Iterable<Element> elements = mock(Iterable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
-        given(dataSchema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(true);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable1.isValidate()).willReturn(true);
         given(validatable1.getElements()).willReturn(elements);
         given(validatableHandler.doOperation(validatable1, store)).willReturn(expectedResult);
 
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When
         final int result = store.execute(opChain);
@@ -280,17 +280,17 @@ public class StoreTest {
     @Test
     public void shouldNotAddValidateOperationWhenValidatableHasValidateSetToFalse() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable1 = mock(Validatable.class);
 
-        given(dataSchema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(true);
         given(validatable1.isValidate()).willReturn(false);
         given(validatableHandler.doOperation(validatable1, store)).willReturn(expectedResult);
 
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When
         int result = store.execute(validatable1);
@@ -303,16 +303,16 @@ public class StoreTest {
     @Test
     public void shouldThrowExceptionIfValidatableHasValidateSetToFalseAndStoreRequiresValidation() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Validatable<Integer> validatable1 = mock(Validatable.class);
 
-        given(dataSchema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(true);
         store.setValidationRequired(true);
         given(validatable1.isValidate()).willReturn(false);
 
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When / then
         try {
@@ -326,7 +326,7 @@ public class StoreTest {
     @Test
     public void shouldAddValidateOperationsForAllValidatableOperations() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
@@ -345,7 +345,7 @@ public class StoreTest {
                 .build();
 
 
-        given(dataSchema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(true);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable2.isSkipInvalidElements()).willReturn(skipInvalidElements);
 
@@ -355,7 +355,7 @@ public class StoreTest {
 
         given(validatableHandler.doOperation(validatable1, store)).willReturn(expectedResult);
 
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When
         int result = store.execute(opChain);
@@ -368,18 +368,18 @@ public class StoreTest {
     @Test
     public void shouldCopyOptionsIntoValidateOperations() throws Exception {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
 
-        given(dataSchema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
         given(validatableHandler.doOperation(validatable, store)).willReturn(expectedResult);
-        store.initialise(dataSchema, properties);
+        store.initialise(schema, properties);
 
         // When
         int result = store.execute(validatable);
@@ -391,13 +391,13 @@ public class StoreTest {
         Assert.assertEquals(expectedResult, result);
     }
 
-    private void shouldThrowExceptionWhenValidatingSchemas(final DataSchema dataSchema) {
+    private void shouldThrowExceptionWhenValidatingSchemas(final Schema schema) {
         //Given
         final StoreImpl store = new StoreImpl();
 
         // When
         try {
-            store.initialise(dataSchema, mock(StoreProperties.class));
+            store.initialise(schema, mock(StoreProperties.class));
             fail("No exception thrown");
         } catch (SchemaException e) {
             // Then

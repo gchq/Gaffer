@@ -19,7 +19,7 @@ package gaffer.store;
 import gaffer.data.TransformIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 
 /**
  * An <code>ValidatedElements</code> extends {@link TransformIterable} and uses an
@@ -27,24 +27,24 @@ import gaffer.store.schema.DataSchema;
  * It does not transform the element items - just simply returns them if they are valid.
  * <p>
  * So the resultant {@link Iterable} will only contain {@link Element}s that have passed
- * the {@link gaffer.store.schema.DataSchema} {@link gaffer.function.FilterFunction}s or
+ * the {@link Schema} {@link gaffer.function.FilterFunction}s or
  * {@link View} {@link gaffer.function.FilterFunction}s.
  */
 public class ValidatedElements extends TransformIterable<Element, Element> {
 
     /**
      * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
-     * {@link Element}s, a {@link gaffer.store.schema.DataSchema} containing the
+     * {@link Element}s, a {@link Schema} containing the
      * {@link gaffer.function.FilterFunction}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param elements    the input {@link Iterable} of {@link Element}s
-     * @param dataSchema  the {@link gaffer.store.schema.DataSchema} containing the
+     * @param schema  the {@link Schema} containing the
      *                    {@link gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
-    public ValidatedElements(final Iterable<Element> elements, final DataSchema dataSchema, final boolean skipInvalid) {
-        super(elements, new ElementValidator(dataSchema), skipInvalid);
+    public ValidatedElements(final Iterable<Element> elements, final Schema schema, final boolean skipInvalid) {
+        super(elements, new ElementValidator(schema), skipInvalid);
     }
 
     /**

@@ -54,25 +54,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class DataSchemaTest {
-    private DataSchema dataSchema;
+public class SchemaTest {
+    private Schema schema;
 
     @Before
     public void setup() throws IOException {
-        dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
+        schema = Schema.fromJson(PathUtil.schema(getClass()));
 
-        final DataSchema dataSchemaTypes = DataSchema.fromJson(PathUtil.schemaTypes(getClass()));
-        dataSchema.merge(dataSchemaTypes);
+        final Schema schemaTypes = Schema.fromJson(PathUtil.schemaTypes(getClass()));
+        schema.merge(schemaTypes);
     }
 
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
         //Given
-        final byte[] json1 = dataSchema.toJson(false);
-        final DataSchema dataSchema2 = DataSchema.fromJson(DataSchema.class, json1);
+        final byte[] json1 = schema.toJson(false);
+        final Schema schema2 = Schema.fromJson(Schema.class, json1);
 
         // When
-        final byte[] json2 = dataSchema2.toJson(false);
+        final byte[] json2 = schema2.toJson(false);
 
         // Then
         assertEquals(new String(json1), new String(json2));
@@ -81,11 +81,11 @@ public class DataSchemaTest {
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() throws SerialisationException {
         //Given
-        final byte[] json1 = dataSchema.toJson(true);
-        final DataSchema dataSchema2 = DataSchema.fromJson(json1);
+        final byte[] json1 = schema.toJson(true);
+        final Schema schema2 = Schema.fromJson(json1);
 
         // When
-        final byte[] json2 = dataSchema2.toJson(true);
+        final byte[] json2 = schema2.toJson(true);
 
         // Then
         assertEquals(new String(json1), new String(json2));
@@ -94,7 +94,7 @@ public class DataSchemaTest {
     @Test
     public void testLoadingSchemaFromJson() {
         // Edge definitions
-        DataElementDefinition edgeDefinition = dataSchema.getEdge(TestGroups.EDGE);
+        SchemaElementDefinition edgeDefinition = schema.getEdge(TestGroups.EDGE);
         assertNotNull(edgeDefinition);
 
         final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
@@ -152,7 +152,7 @@ public class DataSchemaTest {
 
 
         // Entity definitions
-        DataElementDefinition entityDefinition = dataSchema.getEntity(TestGroups.ENTITY);
+        SchemaElementDefinition entityDefinition = schema.getEntity(TestGroups.ENTITY);
         assertNotNull(entityDefinition);
         assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
         type = entityDefinition.getPropertyTypeDef(TestPropertyNames.PROP_1);
@@ -181,12 +181,12 @@ public class DataSchemaTest {
 
     @Test
     public void createProgramaticSchema() {
-        dataSchema = createSchema();
+        schema = createSchema();
     }
 
-    private DataSchema createSchema() {
-        return new DataSchema.Builder()
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+    private Schema createSchema() {
+        return new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, "property.string", String.class)
                         .property(TestPropertyNames.PROP_2, "property.integer", Integer.class)
                         .validator(new ElementFilter.Builder()
@@ -201,7 +201,7 @@ public class DataSchemaTest {
 
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
-        dataSchema = createSchema();
+        schema = createSchema();
         assertEquals("{\n" +
                 "  \"edges\" : {\n" +
                 "    \"BasicEdge\" : {\n" +
@@ -229,17 +229,17 @@ public class DataSchemaTest {
                 "      \"class\" : \"java.lang.Integer\"\n" +
                 "    }\n" +
                 "  }\n" +
-                "}", new String(dataSchema.toJson(true)));
+                "}", new String(schema.toJson(true)));
     }
 
     @Test
     public void testCorrectSerialiserRetrievableFromConfig() throws NotSerializableException {
-        DataSchema store = new DataSchema.Builder()
+        Schema store = new Schema.Builder()
                 .type("property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .serialiser(new JavaSerialiser())
                         .build())
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, "property.string")
                         .build())
                 .build();
@@ -253,62 +253,62 @@ public class DataSchemaTest {
 
     @Test
     public void testStoreConfigUsableWithSchemaInitialisationAndProgramaticListOfElements() {
-        final DataEntityDefinition entityDef = new DataEntityDefinition.Builder()
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
                 .property(TestPropertyNames.PROP_1, "property.1.string")
                 .build();
 
-        final DataEdgeDefinition edgeDef = new DataEdgeDefinition.Builder()
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .property(TestPropertyNames.PROP_2, "property.2.string")
                 .build();
 
-        final DataSchema dataSchema = new DataSchema.Builder()
+        final Schema schema = new Schema.Builder()
                 .type("property.1.string", String.class)
                 .type("property.2.string", Integer.class)
                 .entity(TestGroups.ENTITY, entityDef)
                 .edge(TestGroups.EDGE, edgeDef)
                 .build();
 
-        assertSame(entityDef, dataSchema.getEntity(TestGroups.ENTITY));
-        assertSame(edgeDef, dataSchema.getEdge(TestGroups.EDGE));
+        assertSame(entityDef, schema.getEntity(TestGroups.ENTITY));
+        assertSame(edgeDef, schema.getEdge(TestGroups.EDGE));
     }
 
     @Test
     public void testAbleToLoadProgramaticallyCreatedSchema() throws IOException {
-        dataSchema = createSchema();
+        schema = createSchema();
         Path path = PathUtil.path(getClass(), "/testFile");
         ByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-        channel.write(ByteBuffer.wrap(dataSchema.toJson(true)));
+        channel.write(ByteBuffer.wrap(schema.toJson(true)));
 
-        dataSchema = DataSchema.fromJson(path);
+        schema = Schema.fromJson(path);
     }
 
     @Test
-    public void testDataSchemaConstructedFromInputStream() throws IOException {
+    public void testSchemaConstructedFromInputStream() throws IOException {
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(PathUtil.DATA_SCHEMA);
         assertNotNull(resourceAsStream);
-        final DataSchema deserialisedDataSchema = DataSchema.fromJson(resourceAsStream);
-        assertNotNull(deserialisedDataSchema);
+        final Schema deserialisedSchema = Schema.fromJson(resourceAsStream);
+        assertNotNull(deserialisedSchema);
 
-        final Map<String, DataEdgeDefinition> edges = deserialisedDataSchema.getEdges();
+        final Map<String, SchemaEdgeDefinition> edges = deserialisedSchema.getEdges();
 
         assertEquals(1, edges.size());
-        final DataElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
+        final SchemaElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
         assertEquals(2, edgeGroup.getProperties().size());
 
-        final Map<String, DataEntityDefinition> entities = deserialisedDataSchema.getEntities();
+        final Map<String, SchemaEntityDefinition> entities = deserialisedSchema.getEntities();
 
         assertEquals(1, entities.size());
-        final DataElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
+        final SchemaElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
         assertEquals(1, entityGroup.getProperties().size());
     }
 
     @Test
-    public void shouldBuildDataSchema() {
+    public void shouldBuildSchema() {
         // Given
         final Serialisation vertexSerialiser = mock(Serialisation.class);
 
         // When
-        final DataSchema schema = new DataSchema.Builder()
+        final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .entity(TestGroups.ENTITY_2)

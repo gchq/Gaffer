@@ -26,7 +26,7 @@ import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import java.util.Arrays;
@@ -35,10 +35,10 @@ import java.util.List;
 
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
-    private final DataSchema dataSchema;
+    private final Schema schema;
 
-    public ClassicRangeFactory(final DataSchema dataSchema) {
-        this.dataSchema = dataSchema;
+    public ClassicRangeFactory(final Schema schema) {
+        this.schema = schema;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(dataSchema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
@@ -83,7 +83,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
                 : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE)
                 : ClassicBytePositions.UNDIRECTED_EDGE;
 
-        final Serialisation vertexSerialiser = dataSchema.getVertexSerialiser();
+        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
 
         // Serialise source and destination to byte arrays, escaping if
         // necessary

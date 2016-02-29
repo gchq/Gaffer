@@ -24,7 +24,7 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import java.util.Arrays;
 import java.util.Map;
@@ -56,8 +56,8 @@ import java.util.Map;
  */
 public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
 
-    public ByteEntityAccumuloElementConverter(final DataSchema dataSchema) {
-        super(dataSchema);
+    public ByteEntityAccumuloElementConverter(final Schema schema) {
+        super(schema);
     }
 
     @Override

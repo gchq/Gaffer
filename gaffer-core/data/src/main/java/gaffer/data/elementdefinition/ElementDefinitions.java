@@ -40,8 +40,8 @@ import java.util.Set;
  * Contains the full list of groups in the graph.
  * <p>
  * This class must be JSON serialisable.
- * A data schema should normally be written in JSON and then deserialised at runtime.
- * Examples of JSON data schemas can be found in the example projects.
+ * A schema should normally be written in JSON and then deserialised at runtime.
+ * Examples of JSON schemas can be found in the example projects.
  *
  * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
  * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges

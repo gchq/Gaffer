@@ -27,7 +27,7 @@ import gaffer.serialisation.implementation.JavaSerialiser;
 
 /**
  * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
- * It is used to deserialise/serialise a {@link gaffer.store.schema.DataSchema} to/from JSON.
+ * It is used to deserialise/serialise a {@link Schema} to/from JSON.
  */
 public class TypeDefinition {
     private static final Serialisation DEFAULT_SERIALISER = new JavaSerialiser();

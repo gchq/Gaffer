@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * A <code>Validate</code> operation takes in {@link gaffer.data.element.Element}s validates them using the
- * {@link gaffer.store.schema.DataSchema} and returns the valid {@link gaffer.data.element.Element}s.
+ * {@link gaffer.store.schema.Schema} and returns the valid {@link gaffer.data.element.Element}s.
  * If skipInvalidElements is set to false, the handler should stop the operation if invalid elements are found.
  * The Graph will automatically add this operation prior to all {@link gaffer.operation.Validatable} operations when
  * executing.

@@ -19,7 +19,7 @@ package gaffer.store.schema;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 
-public class DataEntityDefinition extends DataElementDefinition {
+public class SchemaEntityDefinition extends SchemaElementDefinition {
     private static final long serialVersionUID = 5810237134790726020L;
 
     public void setVertex(final String className) {
@@ -30,12 +30,12 @@ public class DataEntityDefinition extends DataElementDefinition {
         return getIdentifierTypeName(IdentifierType.VERTEX);
     }
 
-    public static class Builder extends DataElementDefinition.Builder {
+    public static class Builder extends SchemaElementDefinition.Builder {
         public Builder() {
-            this(new DataEntityDefinition());
+            this(new SchemaEntityDefinition());
         }
 
-        public Builder(final DataEntityDefinition elDef) {
+        public Builder(final SchemaEntityDefinition elDef) {
             super(elDef);
         }
 
@@ -83,13 +83,13 @@ public class DataEntityDefinition extends DataElementDefinition {
         }
 
         @Override
-        public DataEntityDefinition build() {
-            return (DataEntityDefinition) super.build();
+        public SchemaEntityDefinition build() {
+            return (SchemaEntityDefinition) super.build();
         }
 
         @Override
-        protected DataEntityDefinition getElementDef() {
-            return (DataEntityDefinition) super.getElementDef();
+        protected SchemaEntityDefinition getElementDef() {
+            return (SchemaEntityDefinition) super.getElementDef();
         }
     }
 }

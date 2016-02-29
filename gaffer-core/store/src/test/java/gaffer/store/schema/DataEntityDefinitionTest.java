@@ -38,7 +38,7 @@ public class DataEntityDefinitionTest {
     @Test
     public void shouldReturnValidatorWithNoFunctionsWhenNoProperties() {
         // Given
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .build();
 
         // When
@@ -51,7 +51,7 @@ public class DataEntityDefinitionTest {
     @Test
     public void shouldReturnFullValidator() {
         // Given
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .vertex("id.integer", Integer.class)
                 .property("property", "property.string", String.class)
                 .build();
@@ -77,7 +77,7 @@ public class DataEntityDefinitionTest {
         given(validator.clone()).willReturn(clonedValidator);
 
         // When
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .property(TestPropertyNames.PROP_1, "property.string", String.class)
                 .vertex("id.integer", Integer.class)
                 .property(TestPropertyNames.PROP_2, "property.object", Object.class)
@@ -97,7 +97,7 @@ public class DataEntityDefinitionTest {
     @Test
     public void shouldReturnFullAggregator() {
         // Given
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .vertex("id.integer", Integer.class)
                 .property("property", "property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -119,7 +119,7 @@ public class DataEntityDefinitionTest {
     @Test
     public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
         // Given
-        final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .vertex("id.integer")
                 .build();
 

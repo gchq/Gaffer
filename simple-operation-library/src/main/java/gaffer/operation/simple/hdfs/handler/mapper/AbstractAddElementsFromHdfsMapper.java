@@ -18,7 +18,7 @@ package gaffer.operation.simple.hdfs.handler.mapper;
 import gaffer.data.element.Element;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.store.ElementValidator;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +48,13 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     protected void setup(final Context context) {
         doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
 
-        final DataSchema dataSchema;
+        final Schema schema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA).getBytes(AddElementsFromHdfsJobFactory.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AddElementsFromHdfsJobFactory.UTF_8_CHARSET));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        elementValidator = new ElementValidator(dataSchema);
+        elementValidator = new ElementValidator(schema);
 
         final String generatorClass = context.getConfiguration().get(AddElementsFromHdfsJobFactory.MAPPER_GENERATOR);
         try {

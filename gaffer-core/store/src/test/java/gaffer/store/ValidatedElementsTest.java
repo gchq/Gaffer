@@ -27,8 +27,8 @@ import static org.mockito.Mockito.verify;
 
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,13 +42,13 @@ import java.util.NoSuchElementException;
 public class ValidatedElementsTest {
     private List<Element> elements;
     private List<ElementFilter> filters;
-    private DataSchema dataSchema;
+    private Schema schema;
 
     @Before
     public void setup() {
         elements = new ArrayList<>();
         filters = new ArrayList<>();
-        dataSchema = mock(DataSchema.class);
+        schema = mock(Schema.class);
 
         for (int i = 0; i < 3; i++) {
             elements.add(mock(Element.class));
@@ -58,8 +58,8 @@ public class ValidatedElementsTest {
             given(elements.get(i).getGroup()).willReturn(group);
             given(filters.get(i).filter(elements.get(i))).willReturn(true);
 
-            final DataElementDefinition elementDef = mock(DataElementDefinition.class);
-            given(dataSchema.getElement(group)).willReturn(elementDef);
+            final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+            given(schema.getElement(group)).willReturn(elementDef);
             given(elementDef.getValidator(true)).willReturn(filters.get(i));
         }
         given(filters.get(1).filter(elements.get(1))).willReturn(false);
@@ -70,7 +70,7 @@ public class ValidatedElementsTest {
         // Given
         final boolean skipInvalidElements = true;
 
-        final ValidatedElements validElements = new ValidatedElements(elements, dataSchema, skipInvalidElements);
+        final ValidatedElements validElements = new ValidatedElements(elements, schema, skipInvalidElements);
         final Iterator<Element> itr = validElements.iterator();
 
         // When 1a
@@ -102,7 +102,7 @@ public class ValidatedElementsTest {
     public void shouldCreateIteratorThatThrowsExceptionOnInvalidElement() {
         // Given
         final boolean skipInvalidElements = false;
-        final ValidatedElements validElements = new ValidatedElements(elements, dataSchema, skipInvalidElements);
+        final ValidatedElements validElements = new ValidatedElements(elements, schema, skipInvalidElements);
         final Iterator<Element> itr = validElements.iterator();
 
         // When 1a
@@ -133,7 +133,7 @@ public class ValidatedElementsTest {
     public void shouldThrowExceptionIfNextCalledWhenNoNextElement() {
         // Given
         final boolean skipInvalidElements = true;
-        final ValidatedElements validElements = new ValidatedElements(elements, dataSchema, skipInvalidElements);
+        final ValidatedElements validElements = new ValidatedElements(elements, schema, skipInvalidElements);
         final Iterator<Element> itr = validElements.iterator();
 
         // When 1
@@ -157,7 +157,7 @@ public class ValidatedElementsTest {
     public void shouldThrowExceptionIfRemoveCalled() {
         // Given
         final boolean skipInvalidElements = true;
-        final ValidatedElements validElements = new ValidatedElements(elements, dataSchema, skipInvalidElements);
+        final ValidatedElements validElements = new ValidatedElements(elements, schema, skipInvalidElements);
         final Iterator<Element> itr = validElements.iterator();
 
         // When / Then

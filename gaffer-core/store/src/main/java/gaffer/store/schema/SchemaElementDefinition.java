@@ -33,13 +33,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>DataElementDefinition</code> is the representation of a single group in a
- * {@link DataSchema}.
+ * A <code>SchemaElementDefinition</code> is the representation of a single group in a
+ * {@link Schema}.
  * Each element needs identifiers and can optionally have properties, an aggregator and a validator.
  *
- * @see DataElementDefinition.Builder
+ * @see SchemaElementDefinition.Builder
  */
-public abstract class DataElementDefinition extends ElementDefinition {
+public abstract class SchemaElementDefinition extends ElementDefinition {
     private static final long serialVersionUID = -8077961120272676568L;
     private ElementFilter validator;
 
@@ -51,19 +51,19 @@ public abstract class DataElementDefinition extends ElementDefinition {
     private TypeDefinitions typesLookup;
 
     /**
-     * Constructs a <code>DataElementDefinition</code> with a <code>DataElementDefinitionValidator</code> to validate
-     * this <code>DataElementDefinition</code>.
+     * Constructs a <code>SchemaElementDefinition</code> with a <code>SchemaElementDefinitionValidator</code> to validate
+     * this <code>SchemaElementDefinition</code>.
      *
-     * @see DataElementDefinitionValidator
+     * @see SchemaElementDefinitionValidator
      */
-    public DataElementDefinition() {
-        super(new DataElementDefinitionValidator());
+    public SchemaElementDefinition() {
+        super(new SchemaElementDefinitionValidator());
     }
 
     /**
      * @return a cloned instance of {@link ElementAggregator} fully populated with all the
      * {@link gaffer.function.AggregateFunction}s defined in this
-     * {@link DataElementDefinition} and also the
+     * {@link SchemaElementDefinition} and also the
      * {@link gaffer.function.AggregateFunction}s defined in the corresponding property value
      * {@link TypeDefinition}s.
      */
@@ -80,8 +80,8 @@ public abstract class DataElementDefinition extends ElementDefinition {
     /**
      * @return a cloned instance of {@link gaffer.data.element.function.ElementFilter} fully populated with all the
      * {@link gaffer.function.FilterFunction}s defined in this
-     * {@link DataElementDefinition} and also the
-     * {@link DataElementDefinition} and also the
+     * {@link SchemaElementDefinition} and also the
+     * {@link SchemaElementDefinition} and also the
      * {@link gaffer.function.FilterFunction}s defined in the corresponding identifier and property value
      * {@link TypeDefinition}s.
      */
@@ -176,14 +176,14 @@ public abstract class DataElementDefinition extends ElementDefinition {
 
     @Override
     public void merge(final ElementDefinition elementDef) {
-        if (elementDef instanceof DataElementDefinition) {
-            merge(((DataElementDefinition) elementDef));
+        if (elementDef instanceof SchemaElementDefinition) {
+            merge(((SchemaElementDefinition) elementDef));
         } else {
             super.merge(elementDef);
         }
     }
 
-    public void merge(final DataElementDefinition elementDef) {
+    public void merge(final SchemaElementDefinition elementDef) {
         super.merge(elementDef);
         if (null == validator) {
             validator = elementDef.getOriginalValidator();
@@ -233,7 +233,7 @@ public abstract class DataElementDefinition extends ElementDefinition {
     }
 
     protected static class Builder extends ElementDefinition.Builder {
-        protected Builder(final DataElementDefinition elDef) {
+        protected Builder(final SchemaElementDefinition elDef) {
             super(elDef);
         }
 
@@ -267,12 +267,12 @@ public abstract class DataElementDefinition extends ElementDefinition {
             return this;
         }
 
-        protected DataElementDefinition build() {
-            return (DataElementDefinition) super.build();
+        protected SchemaElementDefinition build() {
+            return (SchemaElementDefinition) super.build();
         }
 
-        protected DataElementDefinition getElementDef() {
-            return (DataElementDefinition) super.getElementDef();
+        protected SchemaElementDefinition getElementDef() {
+            return (SchemaElementDefinition) super.getElementDef();
         }
     }
 }

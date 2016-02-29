@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import gaffer.graph.Graph;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -37,8 +37,8 @@ public class SimpleGraphConfigurationServiceTest {
     public void setup() {
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
-        final DataSchema dataSchema = mock(DataSchema.class);
-        given(store.getDataSchema()).willReturn(dataSchema);
+        final Schema schema = mock(Schema.class);
+        given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph(store);
         given(graphFactory.getGraph()).willReturn(graph);
 

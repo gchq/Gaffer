@@ -21,7 +21,7 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -105,11 +105,11 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder dataSchema(final DataSchema dataSchema) {
+    public IteratorSettingBuilder schema(final Schema schema) {
         try {
-            setting.addOption(AccumuloStoreConstants.DATA_SCHEMA, new String(dataSchema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
+            setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise data schema from JSON", e);
+            throw new SchemaException("Unable to deserialise schema from JSON", e);
         }
         return this;
     }

@@ -54,7 +54,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
@@ -85,16 +85,16 @@ public class AccumuloStore extends Store {
     private AccumuloKeyPackage keyPackage;
 
     @Override
-    public void initialise(final DataSchema dataSchema, final StoreProperties properties)
+    public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(dataSchema, properties);
+        super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
-        this.keyPackage.setDataSchema(dataSchema);
+        this.keyPackage.setSchema(schema);
         validateSchemasAgainstKeyDesign();
     }
 
@@ -246,14 +246,14 @@ public class AccumuloStore extends Store {
     @Override
     protected void validateSchemas() {
         super.validateSchemas();
-        final Map<String, String> positions = this.getDataSchema().getPositions();
+        final Map<String, String> positions = this.getSchema().getPositions();
         if (positions != null && !positions.isEmpty()) {
             LOGGER.warn("The schema positions are not used and will be ignored.");
         }
     }
 
     protected void validateSchemasAgainstKeyDesign() {
-        keyPackage.validateSchema(this.getDataSchema());
+        keyPackage.validateSchema(this.getSchema());
     }
 
     @Override

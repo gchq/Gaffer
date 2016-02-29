@@ -55,7 +55,7 @@ public class SimpleQuery {
             + Certificate._15.name() + ","
             + Certificate._18.name();
 
-    private static final Path DATA_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
+    private static final Path SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
     private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/storeSchema.json").getPath());
     private static final Path STORE_PROPERTIES_PATH = Paths.get(SimpleQuery.class.getResource("/store.properties").getPath());
 
@@ -85,7 +85,7 @@ public class SimpleQuery {
      */
     public Iterable<Viewing> run() throws OperationException {
         // Create Graph
-        final Graph graph = new Graph(STORE_PROPERTIES_PATH, DATA_SCHEMA_PATH, STORE_SCHEMA_PATH);
+        final Graph graph = new Graph(STORE_PROPERTIES_PATH, SCHEMA_PATH, STORE_SCHEMA_PATH);
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.

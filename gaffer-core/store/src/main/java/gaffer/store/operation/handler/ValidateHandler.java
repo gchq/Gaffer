@@ -26,14 +26,14 @@ import gaffer.store.ValidatedElements;
  * An <code>ValidateHandler</code> handles for {@link gaffer.operation.impl.Validate} operations.
  * Takes an {@link Iterable} of {@link Element}s and returns an
  * {@link Iterable} containing only valid {@link Element}s, specifically an instance of {@link ValidatedElements}.
- * The {@link gaffer.store.schema.DataSchema} is used to validate the elements.
+ * The {@link gaffer.store.schema.Schema} is used to validate the elements.
  * The isSkipInvalidElements flag on {@link Validate} is used to determine what to do with invalid {@link Element}s.
  */
 public class ValidateHandler implements OperationHandler<Validate, Iterable<Element>> {
     @Override
     public Iterable<Element> doOperation(final Validate operation, final Store store) throws OperationException {
         return null != operation.getElements()
-                ? new ValidatedElements(operation.getElements(), store.getDataSchema(), operation.isSkipInvalidElements())
+                ? new ValidatedElements(operation.getElements(), store.getSchema(), operation.isSkipInvalidElements())
                 : null;
     }
 }

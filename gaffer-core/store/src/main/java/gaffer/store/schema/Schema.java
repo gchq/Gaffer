@@ -36,13 +36,13 @@ import java.util.Map.Entry;
  * validation and aggregation for the element components.
  * <p>
  * This class must be JSON serialisable.
- * A data schema should normally be written in JSON and then it will be automatically deserialised at runtime.
- * An example of a JSON data schemas can be found in the Example module.
+ * A schema should normally be written in JSON and then it will be automatically deserialised at runtime.
+ * An example of a JSON schemas can be found in the Example module.
  *
- * @see DataSchema.Builder
+ * @see Schema.Builder
  * @see ElementDefinitions
  */
-public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdgeDefinition> {
+public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> {
     private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
     private static final long serialVersionUID = 4593579100621117269L;
 
@@ -65,24 +65,24 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
      */
     private final TypeDefinitions types;
 
-    public DataSchema() {
+    public Schema() {
         this(new TypeDefinitions());
     }
 
-    protected DataSchema(final TypeDefinitions types) {
+    protected Schema(final TypeDefinitions types) {
         this.types = types;
     }
 
-    public static DataSchema fromJson(final InputStream... inputStreams) throws SchemaException {
-        return fromJson(DataSchema.class, inputStreams);
+    public static Schema fromJson(final InputStream... inputStreams) throws SchemaException {
+        return fromJson(Schema.class, inputStreams);
     }
 
-    public static DataSchema fromJson(final Path... filePaths) throws SchemaException {
-        return fromJson(DataSchema.class, filePaths);
+    public static Schema fromJson(final Path... filePaths) throws SchemaException {
+        return fromJson(Schema.class, filePaths);
     }
 
-    public static DataSchema fromJson(final byte[]... jsonBytes) throws SchemaException {
-        return fromJson(DataSchema.class, jsonBytes);
+    public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
+        return fromJson(Schema.class, jsonBytes);
     }
 
     public TypeDefinitions getTypes() {
@@ -177,39 +177,39 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
     }
 
     @Override
-    public void setEdges(final Map<String, DataEdgeDefinition> edges) {
+    public void setEdges(final Map<String, SchemaEdgeDefinition> edges) {
         super.setEdges(edges);
-        for (DataElementDefinition def : edges.values()) {
+        for (SchemaElementDefinition def : edges.values()) {
             def.setTypesLookup(types);
         }
     }
 
     @Override
-    public void setEntities(final Map<String, DataEntityDefinition> entities) {
+    public void setEntities(final Map<String, SchemaEntityDefinition> entities) {
         super.setEntities(entities);
-        for (DataElementDefinition def : entities.values()) {
+        for (SchemaElementDefinition def : entities.values()) {
             def.setTypesLookup(types);
         }
     }
 
     @Override
-    public DataElementDefinition getElement(final String group) {
-        return (DataElementDefinition) super.getElement(group);
+    public SchemaElementDefinition getElement(final String group) {
+        return (SchemaElementDefinition) super.getElement(group);
     }
 
     @Override
-    public void merge(final ElementDefinitions<DataEntityDefinition, DataEdgeDefinition> elementDefs) {
-        if (elementDefs instanceof DataSchema) {
-            merge(((DataSchema) elementDefs));
+    public void merge(final ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> elementDefs) {
+        if (elementDefs instanceof Schema) {
+            merge(((Schema) elementDefs));
         } else {
             super.merge(elementDefs);
         }
     }
 
-    public void merge(final DataSchema dataSchema) {
-        super.merge(dataSchema);
+    public void merge(final Schema schema) {
+        super.merge(schema);
 
-        for (Entry<String, String> entry : dataSchema.getPositions().entrySet()) {
+        for (Entry<String, String> entry : schema.getPositions().entrySet()) {
             final String newPosKey = entry.getKey();
             final String newPosVal = entry.getValue();
             if (!positions.containsKey(newPosKey)) {
@@ -224,34 +224,34 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
         }
 
         if (DEFAULT_VERTEX_SERIALISER.getClass().equals(vertexSerialiser.getClass())) {
-            setVertexSerialiser(dataSchema.getVertexSerialiser());
-        } else if (!vertexSerialiser.getClass().equals(dataSchema.getVertexSerialiser().getClass())) {
+            setVertexSerialiser(schema.getVertexSerialiser());
+        } else if (!vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
             throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
-                    + vertexSerialiser.getClass().getName() + " and " + dataSchema.getVertexSerialiser().getClass().getName());
+                    + vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
         }
 
-        types.merge(dataSchema.getTypes());
+        types.merge(schema.getTypes());
     }
 
     @Override
-    protected void addEdge(final String group, final DataEdgeDefinition elementDef) {
+    protected void addEdge(final String group, final SchemaEdgeDefinition elementDef) {
         elementDef.setTypesLookup(types);
         super.addEdge(group, elementDef);
     }
 
     @Override
-    protected void addEntity(final String group, final DataEntityDefinition elementDef) {
+    protected void addEntity(final String group, final SchemaEntityDefinition elementDef) {
         elementDef.setTypesLookup(types);
         super.addEntity(group, elementDef);
     }
 
-    public static class Builder extends ElementDefinitions.Builder<DataEntityDefinition, DataEdgeDefinition> {
+    public static class Builder extends ElementDefinitions.Builder<SchemaEntityDefinition, SchemaEdgeDefinition> {
         public Builder() {
-            this(new DataSchema());
+            this(new Schema());
         }
 
-        public Builder(final DataSchema dataSchema) {
-            super(dataSchema);
+        public Builder(final Schema schema) {
+            super(schema);
         }
 
         /**
@@ -260,7 +260,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
          * @param key      the key to add a position for.
          * @param position the position
          * @return this Builder
-         * @see gaffer.store.schema.DataSchema#setPositions(java.util.Map)
+         * @see Schema#setPositions(java.util.Map)
          */
         public Builder position(final String key, final String position) {
             Map<String, String> positions = getElementDefs().getPositions();
@@ -278,7 +278,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
          *
          * @param vertexSerialiser the {@link gaffer.serialisation.Serialisation} to set
          * @return this Builder
-         * @see gaffer.store.schema.DataSchema#setVertexSerialiser(Serialisation)
+         * @see Schema#setVertexSerialiser(Serialisation)
          */
         public Builder vertexSerialiser(final Serialisation vertexSerialiser) {
             getElementDefs().setVertexSerialiser(vertexSerialiser);
@@ -291,7 +291,7 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
          *
          * @param vertexSerialiserClass the {@link gaffer.serialisation.Serialisation} class name to set
          * @return this Builder
-         * @see gaffer.store.schema.DataSchema#setVertexSerialiserClass(java.lang.String)
+         * @see Schema#setVertexSerialiserClass(java.lang.String)
          */
         public Builder vertexSerialiser(final String vertexSerialiserClass) {
             getElementDefs().setVertexSerialiserClass(vertexSerialiserClass);
@@ -300,21 +300,21 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
         }
 
         @Override
-        public Builder edge(final String group, final DataEdgeDefinition edgeDef) {
+        public Builder edge(final String group, final SchemaEdgeDefinition edgeDef) {
             return (Builder) super.edge(group, edgeDef);
         }
 
         public Builder edge(final String group) {
-            return edge(group, new DataEdgeDefinition());
+            return edge(group, new SchemaEdgeDefinition());
         }
 
         @Override
-        public Builder entity(final String group, final DataEntityDefinition entityDef) {
+        public Builder entity(final String group, final SchemaEntityDefinition entityDef) {
             return (Builder) super.entity(group, entityDef);
         }
 
         public Builder entity(final String group) {
-            return entity(group, new DataEntityDefinition());
+            return entity(group, new SchemaEntityDefinition());
         }
 
         public Builder type(final String typeName, final TypeDefinition type) {
@@ -332,18 +332,18 @@ public class DataSchema extends ElementDefinitions<DataEntityDefinition, DataEdg
         }
 
         @Override
-        public DataSchema build() {
-            return (DataSchema) super.build();
+        public Schema build() {
+            return (Schema) super.build();
         }
 
         @Override
-        public DataSchema buildModule() {
-            return (DataSchema) super.buildModule();
+        public Schema buildModule() {
+            return (Schema) super.buildModule();
         }
 
         @Override
-        protected DataSchema getElementDefs() {
-            return (DataSchema) super.getElementDefs();
+        protected Schema getElementDefs() {
+            return (Schema) super.getElementDefs();
         }
     }
 }

@@ -21,7 +21,7 @@ import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.graph.Graph;
 import gaffer.store.StoreException;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.slf4j.Logger;
@@ -59,8 +59,8 @@ public final class AccumuloStoreBackedGraphFactory {
             throw new StoreException(e);
         }
 
-        final DataSchema dataSchema = DataSchema
-                .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.DATA_SCHEMA_KEY)).getBytes());
+        final Schema schema = Schema
+                .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.SCHEMA_KEY)).getBytes());
         final String keyPackageClass;
         try {
             keyPackageClass = new String(((BytesWritable) map.get(AccumuloStoreConstants.KEY_PACKAGE_KEY)).getBytes(),
@@ -75,6 +75,6 @@ public final class AccumuloStoreBackedGraphFactory {
             props.setKeyPackageClass(keyPackageClass);
         }
 
-        return new Graph(props, dataSchema);
+        return new Graph(props, schema);
     }
 }

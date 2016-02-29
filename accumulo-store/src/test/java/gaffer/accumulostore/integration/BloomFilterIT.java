@@ -43,9 +43,9 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.store.schema.DataEdgeDefinition;
-import gaffer.store.schema.DataEntityDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
@@ -83,16 +83,16 @@ public class BloomFilterIT {
     private final static AccumuloElementConverter byteEntityElementConverter;
     private final static RangeFactory Gaffer1RangeFactory;
     private final static AccumuloElementConverter gafferV1ElementConverter;
-    private final static DataSchema schema;
+    private final static Schema schema;
 
     static {
-        schema = new DataSchema.Builder()
+        schema = new Schema.Builder()
                 .type("prop.integer", Integer.class)
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.INT, "prop.integer")
                         .build())
-                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(AccumuloPropertyNames.INT, "prop.integer")
                         .build())
                 .build();

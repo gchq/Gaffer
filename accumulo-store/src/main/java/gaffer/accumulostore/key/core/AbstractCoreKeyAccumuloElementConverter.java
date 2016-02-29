@@ -28,8 +28,8 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -51,10 +51,10 @@ import java.util.Map;
 
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     static final byte[] DELIMITER_ARRAY = new byte[]{0};
-    protected final DataSchema dataSchema;
+    protected final Schema schema;
 
-    public AbstractCoreKeyAccumuloElementConverter(final DataSchema dataSchema) {
-        this.dataSchema = dataSchema;
+    public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
+        this.schema = schema;
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
@@ -108,7 +108,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final MapWritable map = new MapWritable();
         for (final Map.Entry<String, Object> entry : properties.entrySet()) {
             final String propertyName = entry.getKey();
-            final TypeDefinition propertyDefinition = dataSchema.getElement(group).getPropertyTypeDef(propertyName);
+            final TypeDefinition propertyDefinition = schema.getElement(group).getPropertyTypeDef(propertyName);
             if (propertyDefinition != null) {
                 if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
                     try {
@@ -144,9 +144,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         } catch (final IOException e) {
             throw new AccumuloElementConversionException("Failed to read map writable from value", e);
         }
-        final DataElementDefinition elementDefinition = dataSchema.getElement(group);
+        final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No DataElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
         for (final Writable writeableKey : map.keySet()) {
             final String propertyName = writeableKey.toString();
@@ -210,7 +210,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] buildColumnVisibility(final String group, final Properties properties)
             throws AccumuloElementConversionException {
-        final DataElementDefinition elDef = dataSchema.getElement(group);
+        final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -237,7 +237,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (columnVisibility == null || columnVisibility.length == 0) {
             return properties;
         }
-        final DataElementDefinition elDef = dataSchema.getElement(group);
+        final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -260,7 +260,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] buildColumnQualifier(final String group, final Properties properties)
             throws AccumuloElementConversionException {
-        final DataElementDefinition elDef = dataSchema.getElement(group);
+        final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -324,7 +324,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (keyPortion == null || keyPortion.length == 0) {
             return result;
         }
-        final DataElementDefinition elDef = dataSchema.getElement(group);
+        final SchemaElementDefinition elDef = schema.getElement(group);
         final List<Integer> positionsOfDelimiters = new ArrayList<>();
         for (int i = 0; i < keyPortion.length; i++) {
             if (keyPortion[i] == ByteArrayEscapeUtils.DELIMITER) {
@@ -384,7 +384,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     /**
-     * Get the properties for a given group defined in the DataSchema as being
+     * Get the properties for a given group defined in the Schema as being
      * stored in the Accumulo timestamp column.
      *
      * @param group     The {@link Element} type to be queried
@@ -395,7 +395,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
      */
     public Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException {
-        final DataElementDefinition elDef = dataSchema.getElement(group);
+        final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
@@ -413,7 +413,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] serialiseVertexForBloomKey(final Object vertex) throws AccumuloElementConversionException {
         try {
-            return ByteArrayEscapeUtils.escape(this.dataSchema.getVertexSerialiser().serialise(vertex));
+            return ByteArrayEscapeUtils.escape(this.schema.getVertexSerialiser().serialise(vertex));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException(
                     "Failed to serialise given identifier object for use in the bloom filter", e);
@@ -446,7 +446,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected Serialisation getVertexSerialiser() {
-        return dataSchema.getVertexSerialiser();
+        return schema.getVertexSerialiser();
     }
 
     protected Edge getEdgeFromKey(final Key key, final Map<String, String> options)
@@ -494,7 +494,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     private long buildTimestamp(final Element element) throws AccumuloElementConversionException {
-        final DataElementDefinition elDef = dataSchema.getElement(element.getGroup());
+        final SchemaElementDefinition elDef = schema.getElement(element.getGroup());
         if (elDef == null) {
             throw new AccumuloElementConversionException(
                     "No element definition found for element class: " + element.getGroup());

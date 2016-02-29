@@ -152,7 +152,7 @@ public interface AccumuloElementConverter {
     /**
      * Helper Used to create Bloom Filters, method Serialises a given object
      * (from an {@link gaffer.operation.data.EntitySeed} ) with the Identifier
-     * Serialiser defined in the data schema.
+     * Serialiser defined in the schema.
      *
      * @param vertex the vertex identifier to serialise
      * @return A byte array representing the given object
@@ -212,7 +212,7 @@ public interface AccumuloElementConverter {
      * @param group      the element group
      * @param properties the element properties
      * @return A byte array representing the provided {@link gaffer.data.element.Properties} that are marked as to be stored in the provided
-     * position in the data schema.
+     * position in the schema.
      * @throws AccumuloElementConversionException If conversion fails
      */
     byte[] buildColumnVisibility(final String group, final Properties properties)

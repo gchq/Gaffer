@@ -43,7 +43,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     public IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
         return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME).dataSchema(store.getDataSchema())
+                AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME).schema(store.getSchema())
                 .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
     }
 
@@ -52,7 +52,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
                 .all()
-                .dataSchema(store.getDataSchema())
+                .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }
@@ -62,7 +62,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
                 .all()
-                .dataSchema(store.getDataSchema())
+                .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }
@@ -73,7 +73,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                 AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                 .all()
-                .dataSchema(store.getDataSchema())
+                .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }

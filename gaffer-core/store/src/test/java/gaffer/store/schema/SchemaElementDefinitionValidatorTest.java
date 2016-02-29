@@ -38,13 +38,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-public class DataElementDefinitionValidatorTest extends ElementDefinitionValidatorTest {
+public class SchemaElementDefinitionValidatorTest extends ElementDefinitionValidatorTest {
 
     @Test
     public void shouldValidateAndReturnTrueWhenNoPropertiesAggregated() {
         // Given
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
-        final DataElementDefinitionValidator validator = new DataElementDefinitionValidator();
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<String>());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
@@ -60,8 +60,8 @@ public class DataElementDefinitionValidatorTest extends ElementDefinitionValidat
     @Test
     public void shouldValidateAndReturnTrueWhenAggregatorIsValid() {
         // Given
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
-        final DataElementDefinitionValidator validator = new DataElementDefinitionValidator();
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
         final ElementAggregator aggregator = mock(ElementAggregator.class);
         final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
@@ -96,8 +96,8 @@ public class DataElementDefinitionValidatorTest extends ElementDefinitionValidat
     @Test
     public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnAggregatorFunction() {
         // Given
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
-        final DataElementDefinitionValidator validator = new DataElementDefinitionValidator();
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
         final ElementAggregator aggregator = mock(ElementAggregator.class);
         final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
@@ -125,6 +125,6 @@ public class DataElementDefinitionValidatorTest extends ElementDefinitionValidat
 
     @Override
     protected ElementDefinitionValidator newElementDefinitionValidator() {
-        return new DataElementDefinitionValidator();
+        return new SchemaElementDefinitionValidator();
     }
 }

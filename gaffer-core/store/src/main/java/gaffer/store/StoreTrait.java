@@ -42,7 +42,7 @@ public enum StoreTrait {
     /**
      * Elements will be validated continuously and removed if they are found to
      * be invalid based on {@link gaffer.function.FilterFunction}s defined in the
-     * {@link gaffer.store.schema.DataSchema}.
+     * {@link gaffer.store.schema.Schema}.
      */
     STORE_VALIDATION
 }

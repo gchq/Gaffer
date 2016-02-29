@@ -28,8 +28,8 @@ import gaffer.operation.OperationException;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.ValidateHandler;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
@@ -59,18 +59,18 @@ public class ValidateHandlerTest {
         final Validate validate = mock(Validate.class);
         final Element elm1 = mock(Element.class);
         final Iterable<Element> elements = Collections.singletonList(elm1);
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
 
         given(validate.getElements()).willReturn(elements);
         given(validate.isSkipInvalidElements()).willReturn(false);
-        given(store.getDataSchema()).willReturn(dataSchema);
+        given(store.getSchema()).willReturn(schema);
         final String group = "group";
         given(elm1.getGroup()).willReturn(group);
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final ElementFilter validator = mock(ElementFilter.class);
         given(validator.filter(elm1)).willReturn(true);
         given(elementDef.getValidator(true)).willReturn(validator);
-        given(dataSchema.getElement(group)).willReturn(elementDef);
+        given(schema.getElement(group)).willReturn(elementDef);
 
         // When
         final Iterable<Element> result = handler.doOperation(validate, store);

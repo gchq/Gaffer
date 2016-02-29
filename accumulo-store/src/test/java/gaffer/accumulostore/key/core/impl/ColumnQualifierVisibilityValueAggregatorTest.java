@@ -69,8 +69,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         byteEntityStore.getProperties().setTable("Test");
         gaffer1KeyStore.getProperties().setTable("Test2");
 
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getDataSchema());
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getDataSchema());
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getSchema());
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getSchema());
     }
 
     @Test
@@ -156,7 +156,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -225,7 +225,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -326,7 +326,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);

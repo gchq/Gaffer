@@ -42,8 +42,8 @@ import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +67,9 @@ public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
 
     /**
-     * The data schema - contains the type of {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
+     * The schema - contains the type of {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    private DataSchema dataSchema;
+    private Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
@@ -78,8 +78,8 @@ public abstract class Store {
 
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
-    public void initialise(final DataSchema dataSchema, final StoreProperties properties) throws StoreException {
-        this.dataSchema = dataSchema;
+    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+        this.schema = schema;
         this.properties = properties;
         addOpHandlers();
         optimiseSchemas();
@@ -164,7 +164,7 @@ public abstract class Store {
 
     /**
      * Ensures all identifier and property values are populated on an element by triggering getters on the element for
-     * all identifier and properties in the {@link DataSchema} forcing a lazy element to load all of its values.
+     * all identifier and properties in the {@link Schema} forcing a lazy element to load all of its values.
      *
      * @param lazyElement the lazy element
      * @return the fully populated unwrapped element
@@ -172,7 +172,7 @@ public abstract class Store {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
-        final DataElementDefinition elementDefinition = getDataSchema().getElement(lazyElement.getGroup());
+        final SchemaElementDefinition elementDefinition = getSchema().getElement(lazyElement.getGroup());
         if (null != elementDefinition) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
                 lazyElement.getIdentifier(identifierType);
@@ -187,13 +187,13 @@ public abstract class Store {
     }
 
     /**
-     * Get this Store's {@link DataSchema}.
+     * Get this Store's {@link Schema}.
      *
-     * @return the instance of {@link gaffer.store.schema.DataSchema} used for describing the type of
+     * @return the instance of {@link Schema} used for describing the type of
      * {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    public DataSchema getDataSchema() {
-        return dataSchema;
+    public Schema getSchema() {
+        return schema;
     }
 
     /**
@@ -206,46 +206,46 @@ public abstract class Store {
     }
 
     /**
-     * Removes any types in the data schema that are not used.
+     * Removes any types in the schema that are not used.
      */
     protected void optimiseSchemas() {
         final Set<String> usedTypeNames = new HashSet<>();
-        final Set<DataElementDefinition> dataSchemaElements = new HashSet<>();
-        dataSchemaElements.addAll(getDataSchema().getEdges().values());
-        dataSchemaElements.addAll(getDataSchema().getEntities().values());
-        for (DataElementDefinition elDef : dataSchemaElements) {
+        final Set<SchemaElementDefinition> schemaElements = new HashSet<>();
+        schemaElements.addAll(getSchema().getEdges().values());
+        schemaElements.addAll(getSchema().getEntities().values());
+        for (SchemaElementDefinition elDef : schemaElements) {
             usedTypeNames.addAll(elDef.getIdentifierTypeNames());
             usedTypeNames.addAll(elDef.getPropertyTypeNames());
         }
 
-        if (null != getDataSchema().getTypes()) {
-            for (String typeName : new HashSet<>(getDataSchema().getTypes().keySet())) {
+        if (null != getSchema().getTypes()) {
+            for (String typeName : new HashSet<>(getSchema().getTypes().keySet())) {
                 if (!usedTypeNames.contains(typeName)) {
-                    getDataSchema().getTypes().remove(typeName);
+                    getSchema().getTypes().remove(typeName);
                 }
             }
         }
     }
 
     protected void validateSchemas() {
-        boolean valid = dataSchema.validate();
+        boolean valid = schema.validate();
 
-        final HashMap<String, DataElementDefinition> dataSchemaElements = new HashMap<>();
-        dataSchemaElements.putAll(getDataSchema().getEdges());
-        dataSchemaElements.putAll(getDataSchema().getEntities());
-        for (Map.Entry<String, DataElementDefinition> dataElementDefinitionEntry : dataSchemaElements.entrySet()) {
-            for (String propertyName : dataElementDefinitionEntry.getValue().getProperties()) {
-                Class propertyClass = dataElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                Serialisation serialisation = dataElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+        schemaElements.putAll(getSchema().getEdges());
+        schemaElements.putAll(getSchema().getEntities());
+        for (Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+            for (String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
+                Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
 
                 if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
-                    LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + dataElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
+                    LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
                 }
             }
         }
         if (!valid) {
-            throw new SchemaException("Data schema is not valid. Check the logs for more information.");
+            throw new SchemaException("Schema is not valid. Check the logs for more information.");
         }
     }
 

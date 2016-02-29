@@ -42,9 +42,9 @@ import gaffer.store.Store;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.DataEdgeDefinition;
-import gaffer.store.schema.DataEntityDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.Schema;
 import gaffer.store.schema.TypeDefinition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,35 +58,35 @@ import java.util.Set;
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
     @Test
-    public void shouldConstructGraphFromDataSchemaModules() {
+    public void shouldConstructGraphFromSchemaModules() {
         // Given
         final StoreProperties storeProperties = new StoreProperties(StoreImpl.class);
-        final DataSchema dataSchemaModule1 = new DataSchema.Builder()
+        final Schema schemaModule1 = new Schema.Builder()
                 .type("prop.string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, "prop.string")
                         .build())
                 .buildModule();
 
-        final DataSchema dataSchemaModule2 = new DataSchema.Builder()
+        final Schema schemaModule2 = new Schema.Builder()
                 .type("prop.integer", new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .build())
-                .edge(TestGroups.EDGE, new DataEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, "prop.integer")
                         .build())
                 .buildModule();
 
-        final DataSchema dataSchemaModule3 = new DataSchema.Builder()
-                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
+        final Schema schemaModule3 = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, "prop.string")
                         .build())
                 .buildModule();
 
-        final DataSchema dataSchemaModule4 = new DataSchema.Builder()
-                .entity(TestGroups.ENTITY_2, new DataEntityDefinition.Builder()
+        final Schema schemaModule4 = new Schema.Builder()
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, "prop.integer")
                         .build())
                 .buildModule();
@@ -94,11 +94,11 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph(storeProperties,
-                dataSchemaModule1, dataSchemaModule2, dataSchemaModule3, dataSchemaModule4);
+                schemaModule1, schemaModule2, schemaModule3, schemaModule4);
 
         // Then
-        final DataSchema dataSchema = graph.getDataSchema();
-        dataSchema.getEntity(TestGroups.ENTITY);
+        final Schema schema = graph.getSchema();
+        schema.getEntity(TestGroups.ENTITY);
 
     }
 
@@ -106,27 +106,27 @@ public class GraphTest {
     public void shouldConstructGraphAndCreateViewWithGroups() {
         // Given
         final Store store = mock(Store.class);
-        final DataSchema dataSchema = mock(DataSchema.class);
-        given(store.getDataSchema()).willReturn(dataSchema);
+        final Schema schema = mock(Schema.class);
+        given(store.getSchema()).willReturn(schema);
         final Set<String> edgeGroups = new HashSet<>();
         edgeGroups.add("edge1");
         edgeGroups.add("edge2");
         edgeGroups.add("edge3");
         edgeGroups.add("edge4");
-        given(dataSchema.getEdgeGroups()).willReturn(edgeGroups);
+        given(schema.getEdgeGroups()).willReturn(edgeGroups);
 
         final Set<String> entityGroups = new HashSet<>();
         entityGroups.add("entity1");
         entityGroups.add("entity2");
         entityGroups.add("entity3");
         entityGroups.add("entity4");
-        given(dataSchema.getEntityGroups()).willReturn(entityGroups);
+        given(schema.getEntityGroups()).willReturn(entityGroups);
 
         // When
         final View resultView = new Graph(store).getView();
 
         // Then
-        assertNotSame(dataSchema, resultView);
+        assertNotSame(schema, resultView);
         assertArrayEquals(entityGroups.toArray(), resultView.getEntityGroups().toArray());
         assertArrayEquals(edgeGroups.toArray(), resultView.getEdgeGroups().toArray());
 

@@ -31,7 +31,7 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.junit.Test;
@@ -40,10 +40,10 @@ import java.util.Arrays;
 public class ByteEntityBloomElementFunctorTest {
 
     private final static AccumuloElementConverter elementConverter;
-    private final static DataSchema schema;
+    private final static Schema schema;
 
     static {
-        schema = new DataSchema.Builder()
+        schema = new Schema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)

@@ -26,8 +26,8 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.store.schema.DataElementDefinition;
-import gaffer.store.schema.DataSchema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -36,18 +36,18 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ElementValidatorTest {
 
     @Test
-    public void shouldReturnTrueWhenDataSchemaValidateWithValidElement() {
+    public void shouldReturnTrueWhenSchemaValidateWithValidElement() {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final String group = TestGroups.EDGE;
         final Element elm = mock(Element.class);
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final ElementFilter filter = mock(ElementFilter.class);
         final boolean includeIsA = true;
-        final ElementValidator validator = new ElementValidator(dataSchema, includeIsA);
+        final ElementValidator validator = new ElementValidator(schema, includeIsA);
 
         given(elm.getGroup()).willReturn(group);
-        given(dataSchema.getElement(group)).willReturn(elementDef);
+        given(schema.getElement(group)).willReturn(elementDef);
         given(elementDef.getValidator(includeIsA)).willReturn(filter);
         given(filter.filter(elm)).willReturn(true);
 
@@ -59,18 +59,18 @@ public class ElementValidatorTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenDataSchemaValidateWithoutIsAWithValidElement() {
+    public void shouldReturnTrueWhenSchemaValidateWithoutIsAWithValidElement() {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final String group = TestGroups.EDGE;
         final Element elm = mock(Element.class);
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final ElementFilter filter = mock(ElementFilter.class);
         final boolean includeIsA = false;
-        final ElementValidator validator = new ElementValidator(dataSchema, includeIsA);
+        final ElementValidator validator = new ElementValidator(schema, includeIsA);
 
         given(elm.getGroup()).willReturn(group);
-        given(dataSchema.getElement(group)).willReturn(elementDef);
+        given(schema.getElement(group)).willReturn(elementDef);
         given(elementDef.getValidator(includeIsA)).willReturn(filter);
         given(filter.filter(elm)).willReturn(true);
 
@@ -82,18 +82,18 @@ public class ElementValidatorTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenDataSchemaValidateWithInvalidElement() {
+    public void shouldReturnFalseWhenSchemaValidateWithInvalidElement() {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final String group = TestGroups.EDGE;
         final Element elm = mock(Element.class);
-        final DataElementDefinition elementDef = mock(DataElementDefinition.class);
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final ElementFilter filter = mock(ElementFilter.class);
         final boolean includeIsA = true;
-        final ElementValidator validator = new ElementValidator(dataSchema, includeIsA);
+        final ElementValidator validator = new ElementValidator(schema, includeIsA);
 
         given(elm.getGroup()).willReturn(group);
-        given(dataSchema.getElement(group)).willReturn(elementDef);
+        given(schema.getElement(group)).willReturn(elementDef);
         given(elementDef.getValidator(includeIsA)).willReturn(filter);
         given(filter.filter(elm)).willReturn(false);
 
@@ -105,16 +105,16 @@ public class ElementValidatorTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenNoDataSchemaElementDefinition() {
+    public void shouldReturnFalseWhenNoSchemaElementDefinition() {
         // Given
-        final DataSchema dataSchema = mock(DataSchema.class);
+        final Schema schema = mock(Schema.class);
         final String group = TestGroups.EDGE;
         final Element elm = mock(Element.class);
         final boolean includeIsA = true;
-        final ElementValidator validator = new ElementValidator(dataSchema, includeIsA);
+        final ElementValidator validator = new ElementValidator(schema, includeIsA);
 
         given(elm.getGroup()).willReturn(group);
-        given(dataSchema.getElement(group)).willReturn(null);
+        given(schema.getElement(group)).willReturn(null);
 
         // When
         final boolean isValid = validator.validate(elm);
