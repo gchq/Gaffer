@@ -18,24 +18,11 @@ package gaffer.accumulostore.key.core.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.accumulostore.utils.TableUtils;
-import gaffer.commonutil.TestGroups;
-import gaffer.data.element.Edge;
-import gaffer.data.element.Element;
-import gaffer.data.element.Properties;
-import gaffer.store.StoreException;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
@@ -51,10 +38,24 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.junit.Before;
 import org.junit.Test;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
+
+import gaffer.accumulostore.MockAccumuloStore;
+import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.key.AccumuloElementConverter;
+import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
+import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
+import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
+import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.IteratorSettingBuilder;
+import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.TestGroups;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.data.element.Properties;
+import gaffer.store.StoreException;
 
 public class ColumnQualifierVisibilityValueAggregatorTest {
     private MockAccumuloStore byteEntityStore;
