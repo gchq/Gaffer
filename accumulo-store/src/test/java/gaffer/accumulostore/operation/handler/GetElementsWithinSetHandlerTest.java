@@ -268,7 +268,7 @@ public class GetElementsWithinSetHandlerTest {
                 data.add(entity);
             }
             addElements(data, store);
-        } catch (AccumuloException | TableExistsException | IteratorSettingException e) {
+        } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }

@@ -575,7 +575,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             data.add(DIRECTED_EDGE);
             data.add(UNDIRECTED_EDGE);
             addElements(data, store);
-        } catch (AccumuloException | TableExistsException | IteratorSettingException e) {
+        } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
