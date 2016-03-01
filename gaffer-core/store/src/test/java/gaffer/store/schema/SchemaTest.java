@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.PathUtil;
@@ -316,6 +317,7 @@ public class SchemaTest {
                 .vertexSerialiser(vertexSerialiser)
                 .position(IdentifierType.VERTEX.name(), "position1")
                 .position(IdentifierType.SOURCE.name(), "position2")
+                .type("exampleType", String.class)
                 .build();
 
         // Then
@@ -326,5 +328,189 @@ public class SchemaTest {
         assertEquals(2, schema.getEntities().size());
         assertNotNull(schema.getEntity(TestGroups.ENTITY));
         assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
+
+        assertEquals("position1", schema.getPosition(IdentifierType.VERTEX.name()));
+        assertEquals("position2", schema.getPosition(IdentifierType.SOURCE.name()));
+        assertEquals(String.class, schema.getType("exampleType").getClazz());
+        assertSame(vertexSerialiser, schema.getVertexSerialiser());
+    }
+
+    @Test
+    public void shouldMergeDifferentSchemas() {
+        // Given
+        final String type1 = "type1";
+        final String type2 = "type2";
+        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Schema schema1 = new Schema.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .vertexSerialiser(vertexSerialiser)
+                .position(IdentifierType.VERTEX.name(), "position1")
+                .type(type1, Integer.class)
+                .build();
+
+        final Schema schema2 = new Schema.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE_2)
+                .position(IdentifierType.SOURCE.name(), "position2")
+                .type(type2, String.class)
+                .build();
+
+        // When
+        schema1.merge(schema2);
+
+        // Then
+        assertEquals(2, schema1.getEdges().size());
+        assertNotNull(schema1.getEdge(TestGroups.EDGE));
+        assertNotNull(schema1.getEdge(TestGroups.EDGE_2));
+
+        assertEquals(2, schema1.getEntities().size());
+        assertNotNull(schema1.getEntity(TestGroups.ENTITY));
+        assertNotNull(schema1.getEntity(TestGroups.ENTITY_2));
+
+        assertEquals("position1", schema1.getPosition(IdentifierType.VERTEX.name()));
+        assertEquals("position2", schema1.getPosition(IdentifierType.SOURCE.name()));
+        assertEquals(Integer.class, schema1.getType(type1).getClazz());
+        assertEquals(String.class, schema1.getType(type2).getClazz());
+        assertSame(vertexSerialiser, schema1.getVertexSerialiser());
+    }
+
+    @Test
+    public void shouldMergeDifferentSchemasOppositeWayAround() {
+        // Given
+        final String type1 = "type1";
+        final String type2 = "type2";
+        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Schema schema1 = new Schema.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .vertexSerialiser(vertexSerialiser)
+                .position(IdentifierType.VERTEX.name(), "position1")
+                .type(type1, Integer.class)
+                .build();
+
+        final Schema schema2 = new Schema.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE_2)
+                .position(IdentifierType.SOURCE.name(), "position2")
+                .type(type2, String.class)
+                .build();
+
+        // When
+        schema2.merge(schema1);
+
+        // Then
+        assertEquals(2, schema2.getEdges().size());
+        assertNotNull(schema2.getEdge(TestGroups.EDGE));
+        assertNotNull(schema2.getEdge(TestGroups.EDGE_2));
+
+        assertEquals(2, schema2.getEntities().size());
+        assertNotNull(schema2.getEntity(TestGroups.ENTITY));
+        assertNotNull(schema2.getEntity(TestGroups.ENTITY_2));
+
+        assertEquals("position1", schema2.getPosition(IdentifierType.VERTEX.name()));
+        assertEquals("position2", schema2.getPosition(IdentifierType.SOURCE.name()));
+        assertEquals(Integer.class, schema2.getType(type1).getClazz());
+        assertEquals(String.class, schema2.getType(type2).getClazz());
+        assertSame(vertexSerialiser, schema2.getVertexSerialiser());
+    }
+
+
+    @Test
+    public void shouldBeAbleToMergeSchemaWithItselfAndNotDuplicateObjects() {
+        // Given
+        final String position1 = "position1";
+        final String position2 = "position2";
+        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE_2)
+                .vertexSerialiser(vertexSerialiser)
+                .position(IdentifierType.VERTEX.name(), position1)
+                .position(IdentifierType.SOURCE.name(), position2)
+                .type("exampleType", String.class)
+                .build();
+
+        // When
+        schema.merge(schema);
+
+        // Then
+        assertEquals(2, schema.getEdges().size());
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+
+        assertEquals(2, schema.getEntities().size());
+        assertNotNull(schema.getEntity(TestGroups.ENTITY));
+        assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
+
+        assertEquals(position1, schema.getPosition(IdentifierType.VERTEX.name()));
+        assertEquals(position2, schema.getPosition(IdentifierType.SOURCE.name()));
+        assertEquals(String.class, schema.getType("exampleType").getClazz());
+        assertSame(vertexSerialiser, schema.getVertexSerialiser());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMergeSchemasWithConflictingVertexSerialiser() {
+        // Given
+        final Serialisation vertexSerialiser1 = mock(Serialisation.class);
+        final Serialisation vertexSerialiser2 = mock(SerialisationImpl.class);
+        final Schema schema1 = new Schema.Builder()
+                .vertexSerialiser(vertexSerialiser1)
+                .build();
+        final Schema schema2 = new Schema.Builder()
+                .vertexSerialiser(vertexSerialiser2)
+                .build();
+
+        // When / Then
+        try {
+            schema1.merge(schema2);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("vertex serialiser"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMergeSchemasWithConflictingPosition() {
+        // Given
+        final String position1 = "position1";
+        final String position2 = "position2";
+        final Schema schema1 = new Schema.Builder()
+                .position(IdentifierType.SOURCE.name(), position1)
+                .build();
+        final Schema schema2 = new Schema.Builder()
+                .position(IdentifierType.SOURCE.name(), position2)
+                .build();
+
+        // When / Then
+        try {
+            schema1.merge(schema2);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("position"));
+        }
+    }
+
+    private class SerialisationImpl implements Serialisation {
+        private static final long serialVersionUID = 5055359689222968046L;
+
+        @Override
+        public boolean canHandle(final Class clazz) {
+            return false;
+        }
+
+        @Override
+        public byte[] serialise(final Object object) throws SerialisationException {
+            return new byte[0];
+        }
+
+        @Override
+        public Object deserialise(final byte[] bytes) throws SerialisationException {
+            return null;
+        }
     }
 }

@@ -19,7 +19,7 @@ package gaffer.store;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -55,10 +55,9 @@ import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
-import gaffer.store.schema.Schema;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -273,7 +272,7 @@ public class StoreTest {
         final int result = store.execute(opChain);
 
         // Then
-        Assert.assertEquals(expectedResult, result);
+        assertEquals(expectedResult, result);
         verify(validateHandler).doOperation(Mockito.any(Validate.class), Mockito.eq(store));
     }
 
@@ -296,7 +295,7 @@ public class StoreTest {
         int result = store.execute(validatable1);
 
         // Then
-        Assert.assertEquals(expectedResult, result);
+        assertEquals(expectedResult, result);
         verify(validateHandler, Mockito.never()).doOperation(Mockito.any(Validate.class), Mockito.eq(store));
     }
 
@@ -361,7 +360,7 @@ public class StoreTest {
         int result = store.execute(opChain);
 
         // Then
-        Assert.assertEquals(expectedResult, result);
+        assertEquals(expectedResult, result);
         verify(validateHandler, Mockito.times(2)).doOperation(Mockito.any(Validate.class), Mockito.eq(store));
     }
 
@@ -388,7 +387,7 @@ public class StoreTest {
         verify(validatable, times(1)).getOptions();
 
         // Then
-        Assert.assertEquals(expectedResult, result);
+        assertEquals(expectedResult, result);
     }
 
     private void shouldThrowExceptionWhenValidatingSchemas(final Schema schema) {
