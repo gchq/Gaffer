@@ -18,10 +18,10 @@ package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
-import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -40,9 +40,11 @@ import java.util.EnumSet;
  * re-add or update the aggregator iterator that is set on a table The main
  * method takes 3 arguments, a comma separate list of paths to schemas,
  * a path to a store properties file and the type of operation to perform on the
- * table iterators - add, update or remove.
+ * table iterators - add, update or remove. It takes an optional 5th argument to
+ * specify which iterators to update, it defaults to updating both the 'Aggregator'
+ * and 'Validator' iterators.
  * <p>
- * The add option will set a new aggregator iterator on the table given in the
+ * The add option will set a new iterator on the table given in the
  * store properties file (For example if the iterator was removed in the
  * accumulo shell) The update option will update the existing aggregator
  * iterator with options for the store and schemas provided previously to
@@ -52,10 +54,10 @@ import java.util.EnumSet;
  * have put some data in a table.
  */
 public final class AddUpdateTableIterator {
-
     public static final String UPDATE_KEY = "update";
     public static final String REMOVE_KEY = "remove";
     public static final String ADD_KEY = "add";
+    private static final int NUM_REQUIRED_ARGS = 3;
 
     private AddUpdateTableIterator() {
         // private to prevent this class being instantiated. All methods are
@@ -150,7 +152,7 @@ public final class AddUpdateTableIterator {
     }
 
     public static void main(final String[] args) throws StoreException, SchemaException, IOException {
-        if (args.length < 3) {
+        if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
                     + "<comma separated schema paths> <store properties path> <"
                     + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
@@ -188,7 +190,7 @@ public final class AddUpdateTableIterator {
     }
 
     private static String[] getIteratorNames(final String[] args) {
-        if (args.length >= 3) {
+        if (args.length > NUM_REQUIRED_ARGS) {
             return args[3].split(",");
         } else {
             return new String[]{AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
