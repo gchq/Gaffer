@@ -50,7 +50,6 @@ import java.util.Set;
 
 public class GetElementsinRangesHandlerTest {
 
-    private static final String AUTHS = "Test";
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;

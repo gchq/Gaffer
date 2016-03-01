@@ -40,7 +40,6 @@ import java.util.List;
 public class AccumuloStoreTest {
 
     private static AccumuloStore store;
-    private static final String AUTHS = "Test";
 
     @BeforeClass
     public static void setup() throws Exception {

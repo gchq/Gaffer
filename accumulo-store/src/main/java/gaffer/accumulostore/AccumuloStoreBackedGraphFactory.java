@@ -17,7 +17,6 @@
 package gaffer.accumulostore;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.graph.Graph;
 import gaffer.store.StoreException;
@@ -52,15 +51,10 @@ public final class AccumuloStoreBackedGraphFactory {
      */
     public static Graph getGraph(final Path propertiesFileLocation) throws StoreException {
         final AccumuloProperties props = new AccumuloProperties(propertiesFileLocation);
-        final MapWritable map;
-        try {
-            map = TableUtils.getStoreConstructorInfo(props);
-        } catch (final TableUtilException e) {
-            throw new StoreException(e);
-        }
-
+        final MapWritable map = TableUtils.getStoreConstructorInfo(props);
         final Schema schema = Schema
                 .fromJson(((BytesWritable) map.get(AccumuloStoreConstants.SCHEMA_KEY)).getBytes());
+
         final String keyPackageClass;
         try {
             keyPackageClass = new String(((BytesWritable) map.get(AccumuloStoreConstants.KEY_PACKAGE_KEY)).getBytes(),
