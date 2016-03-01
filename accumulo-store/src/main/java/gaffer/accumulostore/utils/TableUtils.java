@@ -137,7 +137,7 @@ public final class TableUtils {
             connector.tableOperations().attachIterator(tableName, getAgeOffIteratorSetting(ageOfTimeInMils));
             LOGGER.info("Added age off iterator to table for all scopes");
         } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
-            throw new StoreException(e);
+            throw new StoreException(e.getMessage(), e);
         }
         addUpdateUtilsTable(store);
 
@@ -174,7 +174,7 @@ public final class TableUtils {
             scanner = connection.createBatchScanner(AccumuloStoreConstants.GAFFER_UTILS_TABLE, getCurrentAuthorizations(connection),
                     properties.getThreadsForBatchScanner());
         } catch (final TableNotFoundException e) {
-            throw new StoreException(e);
+            throw new StoreException(e.getMessage(), e);
         }
         scanner.setRanges(Collections.singleton(getTableSetupRange(properties.getTable())));
         final Iterator<Entry<Key, Value>> iter = scanner.iterator();
