@@ -17,6 +17,7 @@
 package gaffer.graph;
 
 
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -26,7 +27,6 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
-import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -65,8 +65,8 @@ public final class Graph {
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link Schema}, i.e no filtering or transformations will be done.
      *
-     * @param storePropertiesPath   a {@link java.nio.file.Path} to the store properties
-     * @param schemaModulePaths {@link java.nio.file.Path}s to {@link Schema} modules
+     * @param storePropertiesPath a {@link java.nio.file.Path} to the store properties
+     * @param schemaModulePaths   {@link java.nio.file.Path}s to {@link Schema} modules
      * @throws SchemaException thrown if the {@link Schema} or
      *                         {@link Schema} is invalid
      */
@@ -78,9 +78,9 @@ public final class Graph {
      * Constructs a <code>Graph</code> with the {@link java.nio.file.Path}s to the various JSON schemas, the store
      * property file and a JSON graph {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param storePropertiesPath   a {@link java.nio.file.Path} to the store properties
-     * @param view                  a {@link java.nio.file.Path} to the JSON {@link gaffer.data.elementdefinition.view.View}
-     * @param schemaModulePaths {@link java.nio.file.Path}s to {@link Schema} modules
+     * @param storePropertiesPath a {@link java.nio.file.Path} to the store properties
+     * @param view                a {@link java.nio.file.Path} to the JSON {@link gaffer.data.elementdefinition.view.View}
+     * @param schemaModulePaths   {@link java.nio.file.Path}s to {@link Schema} modules
      * @throws SchemaException thrown if the {@link Schema} or
      *                         {@link Schema} is invalid
      */
@@ -97,8 +97,8 @@ public final class Graph {
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link Schema}, i.e no filtering or transformations will be done.
      *
-     * @param storePropertiesStream   a {@link java.io.InputStream} for the store properties
-     * @param schemaModuleStreams {@link java.io.InputStream}s to {@link Schema} modules
+     * @param storePropertiesStream a {@link java.io.InputStream} for the store properties
+     * @param schemaModuleStreams   {@link java.io.InputStream}s to {@link Schema} modules
      * @throws SchemaException thrown if the {@link Schema} or
      *                         {@link Schema} is invalid
      */
@@ -111,9 +111,9 @@ public final class Graph {
      * Constructs a <code>Graph</code> with the {@link java.io.InputStream}s for the various JSON schemas, the store
      * property file and a JSON graph {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param storePropertiesStream   a {@link java.io.InputStream} for the store properties
-     * @param view                    a {@link java.io.InputStream}  to the JSON {@link gaffer.data.elementdefinition.view.View}
-     * @param schemaModuleStreams {@link java.io.InputStream}s to {@link Schema} modules
+     * @param storePropertiesStream a {@link java.io.InputStream} for the store properties
+     * @param view                  a {@link java.io.InputStream}  to the JSON {@link gaffer.data.elementdefinition.view.View}
+     * @param schemaModuleStreams   {@link java.io.InputStream}s to {@link Schema} modules
      * @throws SchemaException thrown if the {@link Schema} or
      *                         {@link Schema} is invalid
      */
@@ -128,8 +128,8 @@ public final class Graph {
      * A full graph {@link gaffer.data.elementdefinition.view.View} will be automatically generated based on the
      * {@link Schema}, i.e no filtering or transformations will be done.
      *
-     * @param storeProperties   the {@link gaffer.store.StoreProperties}
-     * @param schemaModules additional {@link Schema} modules
+     * @param storeProperties the {@link gaffer.store.StoreProperties}
+     * @param schemaModules   additional {@link Schema} modules
      * @throws SchemaException thrown if the {@link Schema} or
      *                         {@link Schema} is invalid
      */
@@ -142,9 +142,9 @@ public final class Graph {
      * Constructs a <code>Graph</code> with the various schemas, the store property file and a JSON graph
      * {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param storeProperties   the {@link gaffer.store.StoreProperties}
-     * @param view              a graph {@link gaffer.data.elementdefinition.view.View}
-     * @param schemaModules {@link Schema} modules
+     * @param storeProperties the {@link gaffer.store.StoreProperties}
+     * @param view            a graph {@link gaffer.data.elementdefinition.view.View}
+     * @param schemaModules   {@link Schema} modules
      * @throws SchemaException thrown if the {@link Schema} or
      *                         {@link Schema} is invalid
      */

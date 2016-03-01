@@ -17,7 +17,7 @@ package gaffer.integration;
 
 import static org.junit.Assume.assumeTrue;
 
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.graph.Graph;
 import gaffer.store.StoreTrait;
 import org.junit.After;
@@ -29,7 +29,6 @@ import org.junit.runners.Parameterized;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,7 +43,7 @@ public abstract class GafferIntegrationTests {
     @Parameterized.Parameter(0)
     public String storeName;
     @Parameterized.Parameter(1)
-    public Path propertiesPath;
+    public String propertiesPath;
 
     /**
      * Setup the Parameterised Graph for each type of Store.
@@ -54,11 +53,11 @@ public abstract class GafferIntegrationTests {
      */
     @Before
     public void setup() throws Exception {
-        graph = new Graph(propertiesPath,
-                PathUtil.dataSchema(getClass()),
-                PathUtil.dataTypes(getClass()),
-                PathUtil.storeSchema(getClass()),
-                PathUtil.storeTypes(getClass()));
+        graph = new Graph(StreamUtil.openStream(getClass(), propertiesPath),
+                StreamUtil.dataSchema(getClass()),
+                StreamUtil.dataTypes(getClass()),
+                StreamUtil.storeSchema(getClass()),
+                StreamUtil.storeTypes(getClass()));
 
         final String originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
@@ -89,8 +88,8 @@ public abstract class GafferIntegrationTests {
         // Different Stores/Graphs
         return Arrays.asList(
                 new Object[][]{
-                        {"AccumuloStore", PathUtil.path(GafferIntegrationTests.class, "/accumulo.properties")},
-                        {"ArrayListStore", PathUtil.path(GafferIntegrationTests.class, "/arraylist.properties")}
+                        {"AccumuloStore", "/accumulo.properties"},
+                        {"ArrayListStore", "/arraylist.properties"}
                 }
         );
     }

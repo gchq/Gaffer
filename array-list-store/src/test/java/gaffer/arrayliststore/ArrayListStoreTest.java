@@ -25,7 +25,7 @@ import gaffer.arrayliststore.data.SimpleEntityDataObject;
 import gaffer.arrayliststore.data.generator.SimpleEdgeGenerator;
 import gaffer.arrayliststore.data.generator.SimpleEntityGenerator;
 import gaffer.arrayliststore.data.generator.SimpleGenerator;
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
@@ -300,7 +300,7 @@ public class ArrayListStoreTest {
     }
 
     private Graph createGraph() {
-        return new Graph(PathUtil.storeProps(getClass()), PathUtil.schema(getClass()));
+        return new Graph(StreamUtil.storeProps(getClass()), StreamUtil.schema(getClass()));
     }
 
     private void addElementsToGraph(final Graph graph) throws OperationException {

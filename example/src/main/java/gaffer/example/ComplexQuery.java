@@ -40,8 +40,6 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * This example shows how to interact with a Gaffer graph with a simple and complex query.
@@ -59,11 +57,6 @@ public class ComplexQuery {
             + Certificate._12A.name() + ","
             + Certificate._15.name() + ","
             + Certificate._18.name();
-
-    private static final Path DATA_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/schema/dataSchema.json").getPath());
-    private static final Path DATA_TYPES_PATH = Paths.get(SimpleQuery.class.getResource("/schema/dataTypes.json").getPath());
-    private static final Path STORE_TYPES_PATH = Paths.get(SimpleQuery.class.getResource("/schema/storeTypes.json").getPath());
-    private static final Path STORE_PROPERTIES_PATH = Paths.get(SimpleQuery.class.getResource("/store.properties").getPath());
 
     public static void main(final String[] args) throws OperationException {
         final Iterable<Entity> complexResults = new ComplexQuery().run();
@@ -93,8 +86,11 @@ public class ComplexQuery {
      */
     public Iterable<Entity> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(STORE_PROPERTIES_PATH, DATA_SCHEMA_PATH, DATA_TYPES_PATH, STORE_TYPES_PATH);
-
+        final Graph graph = new Graph(
+                SimpleQuery.class.getResourceAsStream("/store.properties"),
+                SimpleQuery.class.getResourceAsStream("/schema/dataSchema.json"),
+                SimpleQuery.class.getResourceAsStream("/schema/dataTypes.json"),
+                SimpleQuery.class.getResourceAsStream("/schema/storeTypes.json"));
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.

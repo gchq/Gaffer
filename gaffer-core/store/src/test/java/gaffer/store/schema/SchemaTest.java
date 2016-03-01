@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.ElementComponentKey;
@@ -50,6 +50,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
@@ -60,10 +61,10 @@ public class SchemaTest {
 
     @Before
     public void setup() throws IOException {
-        schema = Schema.fromJson(PathUtil.dataSchema(getClass()),
-                PathUtil.dataTypes(getClass()),
-                PathUtil.storeSchema(getClass()),
-                PathUtil.storeTypes(getClass()));
+        schema = Schema.fromJson(StreamUtil.dataSchema(getClass()),
+                StreamUtil.dataTypes(getClass()),
+                StreamUtil.storeSchema(getClass()),
+                StreamUtil.storeTypes(getClass()));
     }
 
     @Test
@@ -276,7 +277,7 @@ public class SchemaTest {
     @Test
     public void testAbleToLoadProgramaticallyCreatedSchema() throws IOException {
         schema = createSchema();
-        Path path = PathUtil.path(getClass(), "/testFile");
+        Path path = Paths.get(getClass().getResource("/testFile").getPath());
         ByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         channel.write(ByteBuffer.wrap(schema.toJson(true)));
 
@@ -285,7 +286,7 @@ public class SchemaTest {
 
     @Test
     public void testSchemaConstructedFromInputStream() throws IOException {
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(PathUtil.DATA_SCHEMA);
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.DATA_SCHEMA);
         assertNotNull(resourceAsStream);
         final Schema deserialisedSchema = Schema.fromJson(resourceAsStream);
         assertNotNull(deserialisedSchema);

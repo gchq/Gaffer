@@ -18,6 +18,7 @@ package gaffer.accumulostore;
 
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.store.StoreProperties;
+import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
@@ -64,6 +65,10 @@ public class AccumuloProperties extends StoreProperties {
 
     public AccumuloProperties(final Path propFileLocation) {
         super(propFileLocation);
+    }
+
+    public static AccumuloProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        return ((AccumuloProperties) StoreProperties.loadStoreProperties(storePropertiesStream));
     }
 
     public void setNumThreadsForBatchWriter(final String numThreadsForBatchWriter) {
