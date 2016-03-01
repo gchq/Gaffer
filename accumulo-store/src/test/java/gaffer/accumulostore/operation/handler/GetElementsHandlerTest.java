@@ -19,7 +19,17 @@ package gaffer.accumulostore.operation.handler;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
+
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -40,13 +50,6 @@ import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import org.junit.Test;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
     @Test

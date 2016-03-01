@@ -54,7 +54,6 @@ import java.util.Set;
 public class AccumuloSingleIDRetrieverTest {
 
     private static final int numEntries = 1000;
-    private static final String AUTHS = "Test";
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
