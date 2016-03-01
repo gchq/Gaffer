@@ -106,6 +106,12 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
+            <artifactId>simple-function-library</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
