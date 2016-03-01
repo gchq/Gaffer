@@ -27,9 +27,8 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
-import java.io.IOException;
+import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -86,8 +85,7 @@ public final class Graph {
      */
     public Graph(final Path storePropertiesPath, final View view,
                  final Path... schemaModulePaths) throws SchemaException {
-        this(createInputStream(storePropertiesPath), view,
-                createInputStreams(schemaModulePaths));
+        this(createStore(storePropertiesPath, schemaModulePaths), view);
     }
 
     /**
@@ -237,21 +235,31 @@ public final class Graph {
         return store.hasTrait(storeTrait);
     }
 
-    private static Store createStore(final InputStream storePropertiesStream,
-                                     final InputStream... schemaStreams) {
-        if (null == schemaStreams || 0 == schemaStreams.length) {
+    private static Store createStore(final Path storePropertiesPath,
+                                     final Path... schemaPaths) {
+        if (null == schemaPaths || 0 == schemaPaths.length) {
             throw new IllegalArgumentException("At least one schema module is required");
         }
 
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesStream);
-        final Class<? extends Schema> schemaClass;
-        try {
-            schemaClass = Class.forName(storeProperties.getSchemaClass()).asSubclass(Schema.class);
-        } catch (ClassNotFoundException e) {
-            throw new SchemaException("Schema class was not found: " + storeProperties.getSchemaClass(), e);
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
+        return createStore(storeProperties, Schema.fromJson(storeProperties.getSchemaClass(), schemaPaths));
+    }
+
+    private static Store createStore(final InputStream storePropertiesStream,
+                                     final InputStream... schemaStreams) {
+        if (null == schemaStreams || 0 == schemaStreams.length) {
+            IOUtils.closeQuietly(storePropertiesStream);
+            throw new IllegalArgumentException("At least one schema module is required");
         }
 
-        return createStore(storeProperties, Schema.fromJson(schemaClass, schemaStreams));
+        try {
+            final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesStream);
+            return createStore(storeProperties, Schema.fromJson(storeProperties.getSchemaClass(), schemaStreams));
+        } finally {
+            for (InputStream inputStream : schemaStreams) {
+                IOUtils.closeQuietly(inputStream);
+            }
+        }
     }
 
     private static Store createStore(final StoreProperties storeProperties,
@@ -291,26 +299,5 @@ public final class Graph {
             throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
         }
         return newStore;
-    }
-
-    private static InputStream createInputStream(final Path path) {
-        try {
-            return null != path ? Files.newInputStream(path) : null;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to create input stream from path: " + path, e);
-        }
-    }
-
-    private static InputStream[] createInputStreams(final Path... paths) {
-        InputStream[] stream = new InputStream[paths.length];
-        for (int i = 0; i < paths.length; i++) {
-            try {
-                stream[i] = null != paths[i] ? Files.newInputStream(paths[i]) : null;
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Failed to create input stream from path: " + paths[i], e);
-            }
-        }
-
-        return stream;
     }
 }

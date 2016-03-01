@@ -16,6 +16,7 @@
 
 package gaffer.store;
 
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,21 +103,56 @@ public class StoreProperties {
         set(STORE_CLASS, storeClass);
     }
 
-    public String getSchemaClass() {
+    public String getSchemaClassName() {
         return get(SCHEMA_CLASS, Schema.class.getName());
+    }
+
+    public Class<? extends Schema> getSchemaClass() {
+        final Class<? extends Schema> schemaClass;
+        try {
+            schemaClass = Class.forName(getSchemaClassName()).asSubclass(Schema.class);
+        } catch (ClassNotFoundException e) {
+            throw new SchemaException("Schema class was not found: " + getSchemaClassName(), e);
+        }
+
+        return schemaClass;
     }
 
     public void setSchemaClass(final String schemaClass) {
         set(SCHEMA_CLASS, schemaClass);
     }
 
-    public String getStorePropertiesClass() {
+    public void setSchemaClassName(final String schemaClassName) {
+        set(SCHEMA_CLASS, schemaClassName);
+    }
+
+    public void setSchemaClass(final Class<? extends Schema> schemaClass) {
+        set(SCHEMA_CLASS, schemaClass.getName());
+    }
+
+    public String getStorePropertiesClassName() {
         return get(STORE_PROPERTIES_CLASS, StoreProperties.class.getName());
     }
 
-    public void setStorePropertiesClass(final String storePropertiesClass) {
-        set(STORE_PROPERTIES_CLASS, storePropertiesClass);
+    public Class<? extends StoreProperties> getStorePropertiesClass() {
+        final Class<? extends StoreProperties> clazz;
+        try {
+            clazz = Class.forName(getStorePropertiesClassName()).asSubclass(StoreProperties.class);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Store properties class was not found: " + getStorePropertiesClassName(), e);
+        }
+
+        return clazz;
     }
+
+    public void setStorePropertiesClassName(final String storePropertiesClassName) {
+        set(STORE_PROPERTIES_CLASS, storePropertiesClassName);
+    }
+
+    public void setStorePropertiesClass(final Class<? extends StoreProperties> storePropertiesClass) {
+        set(STORE_PROPERTIES_CLASS, storePropertiesClass.getName());
+    }
+
 
     public void setProperties(final Properties properties) {
         this.props = properties;
@@ -127,8 +163,12 @@ public class StoreProperties {
         return props;
     }
 
-    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) throws IOException {
-        return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        try {
+            return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
     }
 
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {

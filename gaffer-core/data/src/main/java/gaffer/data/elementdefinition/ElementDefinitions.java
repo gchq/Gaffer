@@ -22,6 +22,7 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -73,8 +74,15 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final InputStream... inputStreams) throws SchemaException {
-        return fromJson(clazz, (Object[]) inputStreams);
-
+        try {
+            return fromJson(clazz, (Object[]) inputStreams);
+        } finally {
+            if (null != inputStreams) {
+                for (InputStream inputStream : inputStreams) {
+                    IOUtils.closeQuietly(inputStream);
+                }
+            }
+        }
     }
 
     public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final byte[]... jsonBytes) throws SchemaException {

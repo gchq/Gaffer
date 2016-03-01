@@ -35,6 +35,7 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.InputStream;
 
 /**
  * This example shows how to interact with a Gaffer graph with a simple and complex query.
@@ -78,12 +79,9 @@ public class SimpleQuery {
      * @throws OperationException if operation chain fails to be executed on the graph
      */
     public Iterable<Viewing> run() throws OperationException {
-        // Create Graph
-        final Graph graph = new Graph(
-                SimpleQuery.class.getResourceAsStream("/store.properties"),
-                SimpleQuery.class.getResourceAsStream("/schema/dataSchema.json"),
-                SimpleQuery.class.getResourceAsStream("/schema/dataTypes.json"),
-                SimpleQuery.class.getResourceAsStream("/schema/storeTypes.json"));
+        // Setup graph
+        final Graph graph = new Graph(getStorePropertiesStream(),
+                getDataSchema(), getDataTypes(), getStoreTypes());
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.
@@ -119,5 +117,31 @@ public class SimpleQuery {
 
         // Execute the operation on the graph
         return graph.execute(queryChain);
+    }
+
+    private InputStream getStoreTypes() {
+        return getResourceAsStreamSafely("/schema/storeTypes.json");
+    }
+
+    private InputStream getDataTypes() {
+        return getResourceAsStreamSafely("/schema/dataTypes.json");
+    }
+
+    private InputStream getDataSchema() {
+        return getResourceAsStreamSafely("/schema/dataSchema.json");
+    }
+
+    private InputStream getStorePropertiesStream() {
+        return getResourceAsStreamSafely("/store.properties");
+    }
+
+    private InputStream getResourceAsStreamSafely(final String name) {
+        try {
+            return SimpleQuery.class.getResourceAsStream(name);
+        } catch (final Exception e) {
+            LOGGER.error("Failed to load resource: " + name, e);
+        }
+
+        return null;
     }
 }

@@ -116,7 +116,8 @@ public final class IngestUtils {
     public static int getNumSplits(final FileSystem fs, final Path splitsFile) throws IOException {
         int numSplits = 0;
         try (final FSDataInputStream fis = fs.open(splitsFile);
-             final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, AccumuloStoreConstants.UTF_8_CHARSET))) {
+             final InputStreamReader streamReader = new InputStreamReader(fis, AccumuloStoreConstants.UTF_8_CHARSET);
+             final BufferedReader reader = new BufferedReader(streamReader)) {
             while (reader.readLine() != null) {
                 ++numSplits;
             }
@@ -140,7 +141,8 @@ public final class IngestUtils {
         final SortedSet<Text> splits = new TreeSet<>();
 
         try (final FSDataInputStream fis = fs.open(splitsFile);
-             final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, AccumuloStoreConstants.UTF_8_CHARSET))) {
+             final InputStreamReader streamReader = new InputStreamReader(fis, AccumuloStoreConstants.UTF_8_CHARSET);
+             final BufferedReader reader = new BufferedReader(streamReader)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 splits.add(new Text(Base64.decodeBase64(line)));

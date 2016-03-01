@@ -20,11 +20,11 @@ import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -54,18 +54,11 @@ public class JavaSerialiser implements Serialisation {
     }
 
     public Object deserialise(final byte[] bytes) throws SerialisationException {
-        ObjectInputStream is;
-        try {
-            is = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        } catch (IOException e) {
-            throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
-        }
-        try {
+        try (final InputStream inputStream = new ByteArrayInputStream(bytes);
+             final ObjectInputStream is = new ObjectInputStream(inputStream)) {
             return is.readObject();
         } catch (ClassNotFoundException | IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to recreate object", e);
-        } finally {
-            close(is);
         }
     }
 
