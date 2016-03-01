@@ -16,9 +16,7 @@
 
 package gaffer.accumulostore.key.exception;
 
-import org.apache.accumulo.core.client.AccumuloException;
-
-public class AccumuloElementConversionException extends AccumuloException {
+public class AccumuloElementConversionException extends Exception {
 
     private static final long serialVersionUID = -7168514897597660295L;
 

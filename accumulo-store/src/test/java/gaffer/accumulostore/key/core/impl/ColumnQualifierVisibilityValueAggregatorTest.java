@@ -25,6 +25,7 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementCo
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -74,12 +75,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingMultiplePropertySets() throws StoreException {
+    public void testAggregatingMultiplePropertySets() throws StoreException, AccumuloElementConversionException {
         testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
+    public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -179,12 +180,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
 
     @Test
-    public void testAggregatingSinglePropertySet() throws StoreException {
+    public void testAggregatingSinglePropertySet() throws StoreException, AccumuloElementConversionException {
         testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
+    public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -248,12 +249,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingEmptyColumnQualifier() throws StoreException {
+    public void testAggregatingEmptyColumnQualifier() throws StoreException, AccumuloElementConversionException {
         testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
+    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table

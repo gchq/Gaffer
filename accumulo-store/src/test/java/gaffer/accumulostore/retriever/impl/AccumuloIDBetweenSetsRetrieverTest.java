@@ -321,21 +321,20 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      * checking that isn't returned.
      *
      * @throws gaffer.store.StoreException
-     * @throws gaffer.accumulostore.key.exception.IteratorSettingException
-     * @throws org.apache.accumulo.core.client.AccumuloException
+     * @throws AccumuloElementConversionException 
      */
     @Test
-    public void testDealWithFalsePositives() throws IteratorSettingException, StoreException, AccumuloException {
+    public void testDealWithFalsePositives() throws StoreException, AccumuloElementConversionException {
         testDealWithFalsePositives(byteEntityStore);
         testDealWithFalsePositives(gaffer1KeyStore);
     }
 
-    public void testDealWithFalsePositives(final AccumuloStore store) throws IteratorSettingException, StoreException, AccumuloException {
+    public void testDealWithFalsePositives(final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         testDealWithFalsePositives(true, store);
         testDealWithFalsePositives(false, store);
     }
 
-    static void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws IteratorSettingException, StoreException, AccumuloElementConversionException {
+    static void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
