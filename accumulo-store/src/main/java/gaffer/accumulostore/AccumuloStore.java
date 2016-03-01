@@ -39,7 +39,6 @@ import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.utils.Pair;
-import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -56,7 +55,6 @@ import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -108,12 +106,8 @@ public class AccumuloStore extends Store {
      * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        try {
-            return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
+        return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
                     getProperties().getUserName(), getProperties().getPassword());
-        } catch (final TableUtilException e) {
-            throw new StoreException("Failed to create accumulo connection", e);
-        }
     }
 
     @Override
@@ -166,22 +160,13 @@ public class AccumuloStore extends Store {
      * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
-        try {
-            TableUtils.ensureTableExists(this);
-        } catch (final AccumuloException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+        TableUtils.ensureTableExists(this);
         insertGraphElements(elements);
     }
 
     protected void insertGraphElements(final Iterable<Element> elements) throws StoreException {
         // Create BatchWriter
-        final BatchWriter writer;
-        try {
-            writer = TableUtils.createBatchWriter(this);
-        } catch (final TableUtilException e) {
-            throw new StoreException(e);
-        }
+        final BatchWriter writer = TableUtils.createBatchWriter(this);
         // Loop through elements, convert to mutations, and add to
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without

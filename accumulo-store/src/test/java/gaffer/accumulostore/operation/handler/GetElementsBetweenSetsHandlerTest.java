@@ -49,7 +49,6 @@ import java.util.List;
 
 public class GetElementsBetweenSetsHandlerTest {
 
-    private static final String AUTHS = "Test";
     private static final long TIMESTAMP = System.currentTimeMillis();
     // Query for all edges between the set {A0} and the set {A23}
     private static final List<EntitySeed> seedsA = Arrays.asList(new EntitySeed("A0"));

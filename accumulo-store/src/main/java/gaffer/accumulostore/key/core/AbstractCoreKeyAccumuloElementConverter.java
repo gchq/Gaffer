@@ -18,8 +18,8 @@ package gaffer.accumulostore.key.core;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.StorePositions;
 import gaffer.data.element.Edge;
@@ -41,6 +41,7 @@ import org.apache.hadoop.io.WritableUtils;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,8 +140,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             return properties;
         }
         final MapWritable map = new MapWritable();
-        try {
-            map.readFields(new DataInputStream(new ByteArrayInputStream(value.get())));
+        try (final InputStream inStream = new ByteArrayInputStream(value.get());
+             final DataInputStream dataStream = new DataInputStream(inStream)) {
+            map.readFields(dataStream);
         } catch (final IOException e) {
             throw new AccumuloElementConversionException("Failed to read map writable from value", e);
         }

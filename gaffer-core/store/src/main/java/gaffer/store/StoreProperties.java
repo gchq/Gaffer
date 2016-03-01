@@ -122,8 +122,12 @@ public class StoreProperties {
         return props;
     }
 
-    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) throws IOException {
-        return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        try {
+            return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
     }
 
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
