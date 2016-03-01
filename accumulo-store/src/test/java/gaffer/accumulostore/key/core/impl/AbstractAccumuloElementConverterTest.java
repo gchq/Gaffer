@@ -22,7 +22,7 @@ import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
@@ -44,7 +44,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        StoreSchema storeSchema = StoreSchema.fromJson(PathUtil.storeSchema(getClass()));
+        StoreSchema storeSchema = StoreSchema.fromJson(StreamUtil.storeSchema(getClass()));
         converter = createConverter(storeSchema);
     }
 

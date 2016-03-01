@@ -22,7 +22,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
@@ -65,7 +65,7 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
 
     @Override
     protected View createView() {
-        return View.fromJson(PathUtil.view(getClass()));
+        return View.fromJson(StreamUtil.view(getClass()));
     }
 
     @Override

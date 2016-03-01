@@ -16,7 +16,7 @@
 
 package gaffer.store.schema;
 
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.IdentifierType;
@@ -153,12 +153,12 @@ public class StoreSchemaTest {
     }
 
     private StoreSchema loadStoreSchema() throws IOException {
-        return StoreSchema.fromJson(PathUtil.storeSchema(getClass()));
+        return StoreSchema.fromJson(StreamUtil.storeSchema(getClass()));
     }
 
     @Test
     public void testStoreSchemaConstructedFromInputStream() throws IOException {
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(PathUtil.STORE_SCHEMA);
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.STORE_SCHEMA);
         assertNotNull(resourceAsStream);
         final StoreSchema deserialisedStoreSchema = StoreSchema.fromJson(resourceAsStream);
         assertNotNull(deserialisedStoreSchema);
