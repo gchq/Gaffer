@@ -22,7 +22,7 @@ import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.DataSchema;
@@ -51,10 +51,10 @@ public class StoreIT {
         // Given
         final TestStore testStore = new TestStore();
 
-        final DataSchema dataSchema = DataSchema.fromJson(PathUtil.dataSchema(getClass()));
-        dataSchema.addTypesFromPath(PathUtil.schemaTypes(getClass()));
+        final DataSchema dataSchema = DataSchema.fromJson(StreamUtil.dataSchema(getClass()));
+        dataSchema.addTypesFromStream(StreamUtil.schemaTypes(getClass()));
 
-        final StoreSchema storeSchema = StoreSchema.fromJson(PathUtil.storeSchema(getClass()));
+        final StoreSchema storeSchema = StoreSchema.fromJson(StreamUtil.storeSchema(getClass()));
 
         // When
         testStore.initialise(dataSchema, storeSchema, new StoreProperties());

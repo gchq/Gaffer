@@ -24,7 +24,7 @@ import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ValidatorFilter;
-import gaffer.commonutil.PathUtil;
+import gaffer.commonutil.StreamUtil;
 import gaffer.data.elementdefinition.schema.DataEdgeDefinition;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.store.schema.StoreElementDefinition;
@@ -57,7 +57,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = new AccumuloProperties(PathUtil.storeProps(TableUtilsTest.class));
+        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(dataSchema, storeSchema, props);
 
         // When

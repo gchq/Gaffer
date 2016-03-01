@@ -16,38 +16,37 @@
 
 package gaffer.commonutil;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 
-public class PathUtil {
+public class StreamUtil {
     public static final String VIEW = "/view.json";
     public static final String DATA_SCHEMA = "/dataSchema.json";
     public static final String STORE_SCHEMA = "/storeSchema.json";
     public static final String SCHEMA_TYPES = "/schemaTypes.json";
     public static final String STORE_PROPERTIES = "/store.properties";
 
-    public static Path view(final Class clazz) {
-        return path(clazz, VIEW);
+    public static InputStream view(final Class clazz) {
+        return openStream(clazz, VIEW);
     }
 
-    public static Path dataSchema(final Class clazz) {
-        return path(clazz, DATA_SCHEMA);
+    public static InputStream dataSchema(final Class clazz) {
+        return openStream(clazz, DATA_SCHEMA);
     }
 
-    public static Path storeSchema(final Class clazz) {
-        return path(clazz, STORE_SCHEMA);
+    public static InputStream storeSchema(final Class clazz) {
+        return openStream(clazz, STORE_SCHEMA);
     }
 
-    public static Path schemaTypes(final Class clazz) {
-        return path(clazz, SCHEMA_TYPES);
+    public static InputStream schemaTypes(final Class clazz) {
+        return openStream(clazz, SCHEMA_TYPES);
     }
 
-    public static Path storeProps(final Class clazz) {
-        return path(clazz, STORE_PROPERTIES);
+    public static InputStream storeProps(final Class clazz) {
+        return openStream(clazz, STORE_PROPERTIES);
     }
 
-    public static Path path(final Class clazz, final String path) {
-        return Paths.get(clazz.getResource(path).getPath());
+    public static InputStream openStream(final Class clazz, final String path) {
+        return clazz.getResourceAsStream(path);
     }
 
 }
