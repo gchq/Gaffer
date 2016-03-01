@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -332,8 +333,9 @@ public final class TableUtils {
 
     private static MapWritable getSchemasFromValue(final Value value) throws StoreException {
         final MapWritable map = new MapWritable();
-        try {
-            map.readFields(new DataInputStream(new ByteArrayInputStream(value.get())));
+        try (final InputStream inStream = new ByteArrayInputStream(value.get());
+             final DataInputStream dataStream = new DataInputStream(inStream)) {
+            map.readFields(dataStream);
         } catch (final IOException e) {
             throw new StoreException("Failed to read map writable from value", e);
         }

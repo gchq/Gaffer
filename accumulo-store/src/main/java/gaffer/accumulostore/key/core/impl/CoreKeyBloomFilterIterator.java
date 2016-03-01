@@ -17,8 +17,8 @@
 package gaffer.accumulostore.key.core.impl;
 
 import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -29,6 +29,8 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -79,9 +81,16 @@ public class CoreKeyBloomFilterIterator extends Filter {
             throw new BloomFilterIteratorException("Must set the " + AccumuloStoreConstants.BLOOM_FILTER + " option");
         }
         filter = new BloomFilter();
+        final byte[] bytes;
         try {
-            filter.readFields(new DataInputStream(new ByteArrayInputStream(
-                    options.get(AccumuloStoreConstants.BLOOM_FILTER).getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET))));
+            bytes = options.get(AccumuloStoreConstants.BLOOM_FILTER).getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new BloomFilterIteratorException("Failed to re-create serialised bloom filter", e);
+        }
+
+        try (final InputStream inStream = new ByteArrayInputStream(bytes);
+             final DataInputStream dataStream = new DataInputStream(inStream)) {
+            filter.readFields(dataStream);
         } catch (final IOException e) {
             throw new BloomFilterIteratorException("Failed to re-create serialised bloom filter", e);
         }
