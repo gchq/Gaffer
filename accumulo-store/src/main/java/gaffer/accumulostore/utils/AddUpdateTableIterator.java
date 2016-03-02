@@ -16,11 +16,11 @@
 
 package gaffer.accumulostore.utils;
 
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.StoreException;
-import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -37,27 +37,30 @@ import java.util.EnumSet;
  * table.
  * <p>
  * This class also has an executable main method that can be used to either
- * re-add or update the aggregator iterator that is set on a table The main
- * method takes 3 arguments, a comma separate list of paths to schemas,
+ * re-add or update the aggregator iterator that is set on a table.
+ * It should be run on an accumulo cluster. The main
+ * method takes 3 arguments: a comma separated list of paths to schemas,
  * a path to a store properties file and the type of operation to perform on the
- * table iterators - add, update or remove. It takes an optional 5th argument to
- * specify which iterators to update, it defaults to updating both the 'Aggregator'
- * and 'Validator' iterators.
+ * table iterators - add, update or remove.
  * <p>
- * The add option will set a new iterator on the table given in the
+ * The add option will set new iterators on the table given in the
  * store properties file (For example if the iterator was removed in the
  * accumulo shell) The update option will update the existing aggregator
- * iterator with options for the store and schemas provided previously to
- * the main method.
+ * iterator with options for the store and data schemas provided previously to
+ * the main method. The remove option allows an iterator to be removed.
  * <p>
- * This is useful if you wish to change the way data is aggregated after you
- * have put some data in a table.
+ * This is useful if you wish to change the way data is aggregated or validated
+ * after you have put some data in a table.
  */
 public final class AddUpdateTableIterator {
     public static final String UPDATE_KEY = "update";
     public static final String REMOVE_KEY = "remove";
     public static final String ADD_KEY = "add";
     private static final int NUM_REQUIRED_ARGS = 3;
+    private static final String[] ITERATORS = {
+            AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
+            AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME
+    };
 
     private AddUpdateTableIterator() {
         // private to prevent this class being instantiated. All methods are
@@ -127,10 +130,12 @@ public final class AddUpdateTableIterator {
      * @throws StoreException if any issues occur adding an aggregator iterator
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
-        try {
-            addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-        } catch (final IteratorSettingException e) {
-            throw new StoreException(e.getMessage(), e);
+        if (!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator()) {
+            try {
+                addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
+            } catch (final IteratorSettingException e) {
+                throw new StoreException(e.getMessage(), e);
+            }
         }
     }
 
@@ -156,29 +161,28 @@ public final class AddUpdateTableIterator {
             System.err.println("Wrong number of arguments. \nUsage: "
                     + "<comma separated schema paths> <store properties path> <"
                     + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
-                    + "> <optional comma separated list of iterators to update>");
+                    + ">");
             System.exit(1);
         }
 
         final AccumuloStore store = new AccumuloStore();
         store.initialise(Schema.fromJson(getSchemaPaths(args)),
-                StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
+                AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
 
-        final String[] iterators = getIteratorNames(args);
         final String modifyKey = getModifyKey(args);
         switch (modifyKey) {
             case UPDATE_KEY:
-                for (String iterator : iterators) {
+                for (String iterator : ITERATORS) {
                     updateIterator(store, iterator);
                 }
                 break;
             case ADD_KEY:
-                for (String iterator : iterators) {
+                for (String iterator : ITERATORS) {
                     addIterator(store, iterator);
                 }
                 break;
             case REMOVE_KEY:
-                for (String iterator : iterators) {
+                for (String iterator : ITERATORS) {
                     removeIterator(store, iterator);
                 }
                 break;
@@ -186,15 +190,6 @@ public final class AddUpdateTableIterator {
                 throw new IllegalArgumentException("Supplied add or update key ("
                         + modifyKey + ") was not valid, it must either be "
                         + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + ".");
-        }
-    }
-
-    private static String[] getIteratorNames(final String[] args) {
-        if (args.length > NUM_REQUIRED_ARGS) {
-            return args[3].split(",");
-        } else {
-            return new String[]{AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
-                    AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME};
         }
     }
 
