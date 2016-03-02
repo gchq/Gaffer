@@ -1,17 +1,17 @@
 package gaffer.function.simple.aggregate;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.ConsumerProducerFunctionTest;
-import gaffer.function.simple.types.FreqMap;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class FreqMapAggregatorTest extends ConsumerProducerFunctionTest {
+import gaffer.exception.SerialisationException;
+import gaffer.function.AggregateFunctionTest;
+import gaffer.function.simple.types.FreqMap;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
+public class FreqMapAggregatorTest extends AggregateFunctionTest {
     @Test
     public void shouldMergeFreqMaps() {
         // Given

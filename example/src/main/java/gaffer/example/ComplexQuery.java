@@ -30,6 +30,7 @@ import gaffer.example.data.schema.TransientProperty;
 import gaffer.example.function.transform.StarRatingTransform;
 import gaffer.example.generator.DataGenerator;
 import gaffer.function.simple.filter.IsEqual;
+import gaffer.function.simple.filter.Not;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -126,7 +127,7 @@ public class ComplexQuery {
                                         .property(TransientProperty.FIVE_STAR_RATING, Float.class)
                                         .filter(new ElementFilter.Builder()
                                                 .select(Property.USER_ID)
-                                                .execute(new IsEqual("user02").not())
+                                                .execute(new Not(new IsEqual("user02")))
                                                 .build())
                                         .transformer(new ElementTransformer.Builder()
                                                 .select(Property.RATING, Property.COUNT)

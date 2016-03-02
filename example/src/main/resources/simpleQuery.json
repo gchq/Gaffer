@@ -8,7 +8,7 @@
         }
       },
       "options": {
-        "authorisations": "U,PG,_12A,_15,_18"
+        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
       },
       "seeds": [
         {
@@ -21,7 +21,7 @@
     {
       "class": "gaffer.operation.impl.generate.GenerateObjects",
       "options": {
-        "authorisations": "U,PG,_12A,_15,_18"
+        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
       },
       "elementGenerator": {
         "class": "gaffer.example.generator.ViewingGenerator"

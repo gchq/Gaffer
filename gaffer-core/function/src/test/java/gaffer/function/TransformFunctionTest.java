@@ -16,18 +16,7 @@
 
 package gaffer.function;
 
-import gaffer.function.annotation.Inputs;
-
-@Inputs(Object.class)
-public class ExampleFilterFunction extends SimpleFilterFunction<Object> {
-
+public abstract class TransformFunctionTest extends ConsumerProducerFunctionTest {
     @Override
-    public ExampleFilterFunction statelessClone() {
-        return new ExampleFilterFunction();
-    }
-
-    @Override
-    public boolean isValid(final Object input) {
-        return false;
-    }
+    protected abstract TransformFunction getInstance();
 }
