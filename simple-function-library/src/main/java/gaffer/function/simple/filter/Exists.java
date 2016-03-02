@@ -34,7 +34,7 @@ public class Exists extends SimpleFilterFunction<Object> {
     }
 
     @Override
-    protected boolean _isValid(final Object input) {
+    public boolean isValid(final Object input) {
         return null != input;
     }
 }

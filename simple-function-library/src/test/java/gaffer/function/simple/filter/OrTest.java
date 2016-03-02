@@ -15,18 +15,6 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.ArrayTuple;
-import gaffer.function.FilterFunction;
-import gaffer.function.FilterFunctionTest;
-import gaffer.function.context.ConsumerFunctionContext;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,6 +26,17 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.ArrayTuple;
+import gaffer.function.FilterFunction;
+import gaffer.function.FilterFunctionTest;
+import gaffer.function.context.ConsumerFunctionContext;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+import org.mockito.Mockito;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class OrTest extends FilterFunctionTest {
 
@@ -65,7 +64,7 @@ public class OrTest extends FilterFunctionTest {
         given(func2.isValid(new String[]{test, test2a})).willReturn(false);
 
         // When
-        boolean accepted = or._isValid(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = or.isValid(new String[]{test, test1a, test2a, test1b});
 
         // Then
         assertTrue(accepted);
@@ -79,7 +78,7 @@ public class OrTest extends FilterFunctionTest {
         final Or or = new Or();
 
         // When
-        boolean accepted = or._isValid(new String[]{"test"});
+        boolean accepted = or.isValid(new String[]{"test"});
 
         // Then
         assertTrue(accepted);
@@ -91,7 +90,7 @@ public class OrTest extends FilterFunctionTest {
         final Or or = new Or();
 
         // When
-        boolean accepted = or._isValid(null);
+        boolean accepted = or.isValid(null);
 
         // Then
         assertTrue(accepted);
@@ -128,7 +127,7 @@ public class OrTest extends FilterFunctionTest {
         given(func3.isValid(new String[]{test})).willReturn(false);
 
         // When
-        boolean accepted = or._isValid(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = or.isValid(new String[]{test, test1a, test2a, test1b});
 
         // Then
         assertFalse(accepted);
@@ -204,10 +203,5 @@ public class OrTest extends FilterFunctionTest {
     @Override
     protected Or getInstance() {
         return new Or();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[0];
     }
 }

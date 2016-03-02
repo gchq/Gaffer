@@ -15,16 +15,16 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class ExistsTest extends FilterFunctionTest {
     @Test
@@ -33,7 +33,7 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter._isValid("Not null value");
+        boolean accepted = filter.isValid("Not null value");
 
         // Then
         assertTrue(accepted);
@@ -45,7 +45,7 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter._isValid(null);
+        boolean accepted = filter.isValid((Object) null);
 
         // Then
         assertFalse(accepted);
@@ -91,10 +91,5 @@ public class ExistsTest extends FilterFunctionTest {
     @Override
     protected Exists getInstance() {
         return new Exists();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{""};
     }
 }

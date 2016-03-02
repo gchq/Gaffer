@@ -15,20 +15,19 @@
  */
 package gaffer.function.simple.aggregate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.exception.SerialisationException;
-import gaffer.function.ConsumerProducerFunction;
-import gaffer.function.ConsumerProducerFunctionTest;
+import gaffer.function.AggregateFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-
-public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest {
+public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     private HyperLogLogPlus hyperLogLogPlus1;
     private HyperLogLogPlus hyperLogLogPlus2;
 
@@ -148,7 +147,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
     }
 
     @Override
-    protected ConsumerProducerFunction getInstance() {
+    protected HyperLogLogPlusAggregator getInstance() {
         return new HyperLogLogPlusAggregator();
     }
 }

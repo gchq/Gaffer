@@ -24,17 +24,17 @@ package gaffer.function;
  */
 public abstract class SimpleFilterFunction<T> extends FilterFunction {
     @Override
-    protected boolean _isValid(final Object[] input) {
+    public boolean isValid(final Object[] input) {
         if (null == input || 1 != input.length) {
             throw new IllegalArgumentException("Expected an input array of length 1");
         }
 
         try {
-            return _isValid((T) input[0]);
+            return isValid((T) input[0]);
         } catch (final ClassCastException e) {
             throw new IllegalArgumentException("Input does not match parametrised type");
         }
     }
 
-    protected abstract boolean _isValid(final T input);
+    protected abstract boolean isValid(final T input);
 }
