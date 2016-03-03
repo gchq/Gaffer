@@ -32,7 +32,6 @@ public abstract class NumericAggregateFunction extends SimpleAggregateFunction<N
     private NumberType mode = NumberType.AUTO;
 
     protected Number aggregate = null;
-    protected boolean allowsNull = false;
 
     /**
      * Sets the number type mode. If this is not set, then this will be set automatically based on the class of the
@@ -53,32 +52,15 @@ public abstract class NumericAggregateFunction extends SimpleAggregateFunction<N
 
     @Override
     public void init() {
-        switch (mode) {
-            case INT:
-                initInt();
-                break;
-            case LONG:
-                initLong();
-                break;
-            case DOUBLE:
-                initDouble();
-                break;
-            default:
-                aggregate = null;
-        }
+        aggregate = null;
     }
-
-    protected abstract void initInt();
-
-    protected abstract void initLong();
-
-    protected abstract void initDouble();
 
     @Override
     protected void _aggregate(final Number input) {
-        if (!allowsNull && input == null) {
+        if (input == null) {
             return;
         }
+
         switch (mode) {
             case AUTO:
                 if (input instanceof Integer) {
@@ -90,19 +72,28 @@ public abstract class NumericAggregateFunction extends SimpleAggregateFunction<N
                 } else {
                     break;
                 }
-                if (aggregate == null) {
-                    init();
-                }
                 _aggregate(input);
                 break;
             case INT:
-                aggregateInt((Integer) input);
+                if (null == aggregate) {
+                    aggregate = (Integer) input;
+                } else {
+                    aggregateInt((Integer) input);
+                }
                 break;
             case LONG:
-                aggregateLong((Long) input);
+                if (null == aggregate) {
+                    aggregate = (Long) input;
+                } else {
+                    aggregateLong((Long) input);
+                }
                 break;
             case DOUBLE:
-                aggregateDouble((Double) input);
+                if (null == aggregate) {
+                    aggregate = (Double) input;
+                } else {
+                    aggregateDouble((Double) input);
+                }
                 break;
             default:
                 break;
