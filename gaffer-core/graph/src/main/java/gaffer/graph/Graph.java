@@ -266,6 +266,10 @@ public final class Graph {
         } else {
             this.view = view;
         }
+
+        if (!this.view.validate()) {
+            throw new SchemaException("Graph view is not valid. See the logs for more information.");
+        }
     }
 
     /**
@@ -294,6 +298,10 @@ public final class Graph {
         for (Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
+            } else if (!operation.getView().validate()) {
+                throw new SchemaException("View for operation "
+                        + operation.getClass().getName()
+                        + " is not valid. See the logs for more information.");
             }
         }
 
