@@ -28,9 +28,6 @@
 
     <artifactId>accumulo-store</artifactId>
 
-    <properties>
-        <skipITs>true</skipITs>
-    </properties>
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
         <dependency>
