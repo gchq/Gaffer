@@ -40,9 +40,9 @@ public enum StoreTrait {
     TRANSFORMATION,
 
     /**
-     * Most stores should have this trait as the abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
-     * {@link gaffer.data.element.Element}s can be validated against the
-     * {@link gaffer.data.elementdefinition.schema.DataSchema} on ingest.
+     * Elements will be validated continuously and removed if they are found to
+     * be invalid based on {@link gaffer.function.FilterFunction}s defined in the
+     * {@link gaffer.data.elementdefinition.schema.DataSchema}.
      */
-    VALIDATION
+    STORE_VALIDATION
 }

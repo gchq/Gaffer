@@ -97,15 +97,23 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      */
     @JsonIgnore
     public ElementFilter getValidator() {
+        return getValidator(true);
+    }
+
+    public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
         for (Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
-            addIsAFunction(fullValidator, key, entry.getValue());
+            if (includeIsA) {
+                addIsAFunction(fullValidator, key, entry.getValue());
+            }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
         for (Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
-            addIsAFunction(fullValidator, key, entry.getValue());
+            if (includeIsA) {
+                addIsAFunction(fullValidator, key, entry.getValue());
+            }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
 

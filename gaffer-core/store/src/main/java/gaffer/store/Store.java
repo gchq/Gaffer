@@ -106,9 +106,8 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support VALIDATION and FILTERING.
+     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support FILTERING.
      * <p>
-     * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
      *
      * @return the {@link gaffer.store.StoreTrait}s for this store.
@@ -142,13 +141,7 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
-        final Iterator<Operation> opsItr;
-
-        if (hasTrait(StoreTrait.VALIDATION)) {
-            opsItr = getValidatedOperations(operationChain).iterator();
-        } else {
-            opsItr = operationChain.getOperations().iterator();
-        }
+        final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
 
         if (!opsItr.hasNext()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
@@ -324,7 +317,7 @@ public abstract class Store {
      */
     protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation);
 
-    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler handler) {
+    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         operationHandlers.put(opClass, handler);
     }
 
@@ -333,17 +326,12 @@ public abstract class Store {
     }
 
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
+        final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
-
-        if (!hasTrait(StoreTrait.VALIDATION) && operation instanceof Validate) {
-            result = (OUTPUT) ((Validate) operation).getElements();
+        if (null != handler) {
+            result = handler.doOperation(operation, this);
         } else {
-            final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
-            if (null != handler) {
-                result = handler.doOperation(operation, this);
-            } else {
-                result = doUnhandledOperation(operation);
-            }
+            result = doUnhandledOperation(operation);
         }
 
         return result;

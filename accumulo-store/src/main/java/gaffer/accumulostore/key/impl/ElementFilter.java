@@ -58,7 +58,7 @@ public class ElementFilter extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -74,22 +74,14 @@ public class ElementFilter extends Filter {
         if (!options.containsKey(AccumuloStoreConstants.STORE_SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.STORE_SCHEMA);
         }
-        if (!options.containsKey(AccumuloStoreConstants.VIEW)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
-        }
-        try {
-            validator = new ElementValidator(
-                    View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise view from JSON", e);
 
-        }
+        validator = getElementValidator(options);
 
         final StoreSchema storeSchema;
         try {
             storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new ElementFilterException(e.getMessage(), e);
+            throw new SchemaException("Unable to deserialise store schema from JSON", e);
         }
 
         try {
@@ -110,5 +102,17 @@ public class ElementFilter extends Filter {
         return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addStoreSchemaNamedOption()
                 .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME)
                 .setIteratorDescription("Only returns elements that pass validation against the given view").build();
+    }
+
+    protected ElementValidator getElementValidator(final Map<String, String> options) {
+        if (!options.containsKey(AccumuloStoreConstants.VIEW)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
+        }
+
+        try {
+            return new ElementValidator(View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise view from JSON", e);
+        }
     }
 }
