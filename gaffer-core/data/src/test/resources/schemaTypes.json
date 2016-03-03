@@ -4,27 +4,23 @@
   },
   "true": {
     "class": "java.lang.Boolean",
-    "validator": {
-      "functions": [
-        {
-          "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
-          }
+    "validateFunctions": [
+      {
+        "function": {
+          "class": "gaffer.function.ExampleFilterFunction"
         }
-      ]
-    }
+      }
+    ]
   },
   "false": {
     "class": "java.lang.Boolean",
-    "validator": {
-      "functions": [
-        {
-          "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
-          }
+    "validateFunctions": [
+      {
+        "function": {
+          "class": "gaffer.function.ExampleFilterFunction"
         }
-      ]
-    }
+      }
+    ]
   },
   "simpleProperty": {
     "class": "java.lang.Object",
@@ -37,14 +33,14 @@
         }
       ]
     },
-    "aggregatorFunction": {
-      "class": "gaffer.function.ExampleAggregatorFunction"
+    "aggregateFunction": {
+      "class": "gaffer.function.ExampleAggregateFunction"
     }
   },
   "simpleDate": {
     "class": "java.util.Date",
-    "aggregatorFunction": {
-      "class": "gaffer.function.ExampleAggregatorFunction"
+    "aggregateFunction": {
+      "class": "gaffer.function.ExampleAggregateFunction"
     }
   }
 }

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.TestPropertyNames;
@@ -27,7 +28,7 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.IsA;
 import org.junit.Test;
 import java.util.Collections;
@@ -41,7 +42,7 @@ public class DataEntityDefinitionTest {
                 .property("property", String.class)
                 .aggregator(new ElementAggregator.Builder()
                         .select("property")
-                        .execute(new ExampleAggregatorFunction())
+                        .execute(new ExampleAggregateFunction())
                         .build())
                 .build();
 
@@ -50,7 +51,7 @@ public class DataEntityDefinitionTest {
 
         // Then
         assertEquals(1, aggregator.getFunctions().size());
-        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregatorFunction);
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
         assertEquals(Collections.singletonList(new ElementComponentKey("property")),
                 aggregator.getFunctions().get(0).getSelection());
 
@@ -91,7 +92,7 @@ public class DataEntityDefinitionTest {
                 .property("property", String.class)
                 .aggregator(new ElementAggregator.Builder()
                         .select("property")
-                        .execute(new ExampleAggregatorFunction())
+                        .execute(new ExampleAggregateFunction())
                         .build())
                 .build();
 
@@ -112,7 +113,13 @@ public class DataEntityDefinitionTest {
     public void shouldBuildEntityDefinition() {
         // Given
         final ElementFilter validator = mock(ElementFilter.class);
+        final ElementFilter clonedValidator = mock(ElementFilter.class);
+
         final ElementAggregator aggregator = mock(ElementAggregator.class);
+        final ElementAggregator clonedAggregator = mock(ElementAggregator.class);
+
+        given(validator.clone()).willReturn(clonedValidator);
+        given(aggregator.clone()).willReturn(clonedAggregator);
 
         // When
         final DataEntityDefinition elementDef = new DataEntityDefinition.Builder()
@@ -131,7 +138,7 @@ public class DataEntityDefinitionTest {
         assertEquals(1, elementDef.getIdentifiers().size());
         assertEquals(Integer.class, elementDef.getIdentifierClass(IdentifierType.VERTEX));
 
-        assertSame(aggregator, elementDef.getOriginalAggregator());
-        assertSame(validator, elementDef.getOriginalValidator());
+        assertSame(clonedAggregator, elementDef.getAggregator());
+        assertSame(clonedValidator, elementDef.getValidator());
     }
 }

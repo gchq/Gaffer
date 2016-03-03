@@ -21,7 +21,7 @@ import gaffer.function.annotation.Outputs;
 
 @Inputs(Object.class)
 @Outputs(Object.class)
-public class ExampleAggregatorFunction extends SimpleAggregateFunction<Object> {
+public class ExampleAggregateFunction extends SimpleAggregateFunction<Object> {
     private Object input;
 
     @Override
@@ -39,7 +39,7 @@ public class ExampleAggregatorFunction extends SimpleAggregateFunction<Object> {
     }
 
     @Override
-    public ExampleAggregatorFunction statelessClone() {
-        return new ExampleAggregatorFunction();
+    public ExampleAggregateFunction statelessClone() {
+        return new ExampleAggregateFunction();
     }
 }

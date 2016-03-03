@@ -16,10 +16,19 @@
 
 package gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.TypedElementDefinition;
+import gaffer.function.FilterFunction;
+import gaffer.function.TransformFunction;
+import gaffer.function.context.ConsumerFunctionContext;
+import gaffer.function.context.ConsumerProducerFunctionContext;
+import java.util.List;
 
 /**
  * A <code>ViewElementDefinition</code> extends {@link gaffer.data.elementdefinition.TypedElementDefinition} and adds
@@ -34,6 +43,7 @@ public abstract class ViewElementDefinition extends TypedElementDefinition {
         super(new ViewElementDefinitionValidator());
     }
 
+    @JsonIgnore
     public ElementTransformer getTransformer() {
         return transformer;
     }
@@ -42,12 +52,38 @@ public abstract class ViewElementDefinition extends TypedElementDefinition {
         this.transformer = transformer;
     }
 
+    @JsonIgnore
     public ElementFilter getFilter() {
         return filter;
     }
 
     public void setFilter(final ElementFilter filter) {
         this.filter = filter;
+    }
+
+    @JsonGetter("filterFunctions")
+    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getFilterFunctions() {
+        return null != filter ? filter.getFunctions() : null;
+    }
+
+    @JsonSetter("filterFunctions")
+    public void addFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+        if (null == filter) {
+            filter = new ElementFilter();
+        }
+
+        filter.addFunctions(functions);
+    }
+
+    @JsonGetter("transformFunctions")
+    public List<ConsumerProducerFunctionContext<ElementComponentKey, TransformFunction>> getTransformFunctions() {
+        return null != transformer ? transformer.getFunctions() : null;
+    }
+
+    @JsonSetter("transformFunctions")
+    public void addTransformFunctions(final List<ConsumerProducerFunctionContext<ElementComponentKey, TransformFunction>> functions) {
+        transformer = new ElementTransformer();
+        transformer.addFunctions(functions);
     }
 
     public abstract static class Builder extends TypedElementDefinition.Builder {

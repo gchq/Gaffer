@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.TestPropertyNames;
@@ -27,7 +28,7 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.IsA;
 import org.junit.Test;
 import java.util.Collections;
@@ -44,7 +45,7 @@ public class DataEdgeDefinitionTest {
                 .property("property", String.class)
                 .aggregator(new ElementAggregator.Builder()
                         .select("property")
-                        .execute(new ExampleAggregatorFunction())
+                        .execute(new ExampleAggregateFunction())
                         .build())
                 .build();
 
@@ -53,7 +54,7 @@ public class DataEdgeDefinitionTest {
 
         // Then
         assertEquals(1, aggregator.getFunctions().size());
-        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregatorFunction);
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
         assertEquals(Collections.singletonList(new ElementComponentKey("property")),
                 aggregator.getFunctions().get(0).getSelection());
 
@@ -96,7 +97,7 @@ public class DataEdgeDefinitionTest {
                 .property("property", String.class)
                 .aggregator(new ElementAggregator.Builder()
                         .select("property")
-                        .execute(new ExampleAggregatorFunction())
+                        .execute(new ExampleAggregateFunction())
                         .build())
                 .build();
 
@@ -117,7 +118,13 @@ public class DataEdgeDefinitionTest {
     public void shouldBuildElementDefinition() {
         // Given
         final ElementFilter validator = mock(ElementFilter.class);
+        final ElementFilter clonedValidator = mock(ElementFilter.class);
+
         final ElementAggregator aggregator = mock(ElementAggregator.class);
+        final ElementAggregator clonedAggregator = mock(ElementAggregator.class);
+
+        given(validator.clone()).willReturn(clonedValidator);
+        given(aggregator.clone()).willReturn(clonedAggregator);
 
         // When
         final DataEdgeDefinition elementDef = new DataEdgeDefinition.Builder()
@@ -140,7 +147,7 @@ public class DataEdgeDefinitionTest {
         assertEquals(Date.class, elementDef.getIdentifierClass(IdentifierType.DESTINATION));
         assertEquals(Boolean.class, elementDef.getIdentifierClass(IdentifierType.DIRECTED));
 
-        assertSame(aggregator, elementDef.getOriginalAggregator());
-        assertSame(validator, elementDef.getOriginalValidator());
+        assertSame(clonedAggregator, elementDef.getAggregator());
+        assertSame(clonedValidator, elementDef.getValidator());
     }
 }

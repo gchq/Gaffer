@@ -32,11 +32,11 @@
   "types": {
     "simpleProperty": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {"class": "gaffer.accumulostore.test.function.ExampleSum"}
+      "aggregateFunction": {"class": "gaffer.accumulostore.test.function.ExampleSum"}
     },
     "timestamp": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {"class": "gaffer.accumulostore.test.function.ExampleSumLong"}
+      "aggregateFunction": {"class": "gaffer.accumulostore.test.function.ExampleSumLong"}
     }
   }
 }
