@@ -19,7 +19,6 @@ package gaffer.store;
 import gaffer.store.schema.StoreSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -123,8 +122,12 @@ public class StoreProperties {
         return props;
     }
 
-    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) throws IOException {
-        return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        try {
+            return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
     }
 
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {

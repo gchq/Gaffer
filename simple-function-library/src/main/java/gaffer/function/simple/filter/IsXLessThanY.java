@@ -23,13 +23,14 @@ import gaffer.function.annotation.Inputs;
  * An <code>IsXLessThanY</code> is a {@link gaffer.function.FilterFunction} that checks that the first input
  * {@link java.lang.Comparable} is less than the second input {@link java.lang.Comparable}.
  */
-@Inputs({ Comparable.class, Comparable.class })
+@Inputs({Comparable.class, Comparable.class})
 public class IsXLessThanY extends FilterFunction {
     public IsXLessThanY statelessClone() {
         return new IsXLessThanY();
     }
 
-    protected boolean filter(final Object[] input) {
+    @Override
+    protected boolean _isValid(final Object[] input) {
         return !(null == input
                 || input.length != 2
                 || null == input[0]

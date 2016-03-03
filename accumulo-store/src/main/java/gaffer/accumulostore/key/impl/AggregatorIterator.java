@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.impl;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
@@ -57,7 +57,7 @@ public class AggregatorIterator extends Combiner {
         }
         final String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
         } catch (final UnsupportedEncodingException e) {
             throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
@@ -101,33 +101,33 @@ public class AggregatorIterator extends Combiner {
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (!options.containsKey(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
+        if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
-        if (!options.containsKey(Constants.STORE_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.STORE_SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.STORE_SCHEMA);
         }
-        if (!options.containsKey(Constants.DATA_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.DATA_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.DATA_SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
         }
 
         final StoreSchema storeSchema;
         try {
-            dataSchema = DataSchema.fromJson(options.get(Constants.DATA_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the data/store schema", e);
         }
 
         try {
             final Class<?> elementConverterClass = Class
-                    .forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
                     .newInstance(storeSchema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }
@@ -136,7 +136,7 @@ public class AggregatorIterator extends Combiner {
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions()).addDataSchemaNamedOption()
                 .addStoreSchemaNamedOption().addElementConverterClassNamedOption()
-                .setIteratorName(Constants.AGGREGATOR_ITERATOR_NAME)
+                .setIteratorName(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Applies a reduce function to elements with identical (rowKey, column family, column qualifier, visibility)")
                 .build();

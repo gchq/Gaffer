@@ -24,7 +24,6 @@ import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -34,7 +33,6 @@ import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
 import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
@@ -56,7 +54,6 @@ import java.util.Set;
 public class AccumuloSingleIDRetrieverTest {
 
     private static final int numEntries = 1000;
-    private static final String AUTHS = "Test";
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
@@ -91,7 +88,6 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.ALL);
         try {
@@ -124,7 +120,6 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(false);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
@@ -157,7 +152,6 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         try {
@@ -192,7 +186,6 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
@@ -228,8 +221,6 @@ public class AccumuloSingleIDRetrieverTest {
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
         operation.setIncludeEdges(IncludeEdgeType.DIRECTED);
-        ;
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation);
         } catch (IteratorSettingException e) {
@@ -263,7 +254,6 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
@@ -298,7 +288,6 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
@@ -332,10 +321,8 @@ public class AccumuloSingleIDRetrieverTest {
             elements.add(edge2);
             elements.add(entity);
         }
-        AddElements add = new AddElements(elements);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
-            store.execute(new OperationChain<>(add));
+            store.execute(new AddElements(elements));
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

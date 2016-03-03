@@ -15,23 +15,22 @@
  */
 package gaffer.function.simple.filter;
 
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunction;
+import gaffer.function.FilterFunctionTest;
+import gaffer.function.Function;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.regex.Pattern;
-
-import org.junit.Test;
-
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunction;
-import gaffer.function.FilterFunctionTest;
-import gaffer.function.Function;
-import gaffer.jsonserialisation.JSONSerialiser;
-
-public class MultiRegexTest extends FilterFunctionTest {  
+public class MultiRegexTest extends FilterFunctionTest {
 
     @Test
     public void shouldAccepValidValue() {
@@ -42,7 +41,7 @@ public class MultiRegexTest extends FilterFunctionTest {
         final MultiRegex filter = new MultiRegex(patterns);
 
         // When
-        boolean accepted = filter.filter("pass");
+        boolean accepted = filter._isValid("pass");
 
         // Then
         assertTrue(accepted);
@@ -57,7 +56,7 @@ public class MultiRegexTest extends FilterFunctionTest {
         final MultiRegex filter = new MultiRegex(patterns);
 
         // When
-        boolean accepted = filter.filter("pass");
+        boolean accepted = filter._isValid("pass");
 
         // Then
         assertFalse(accepted);
@@ -90,10 +89,10 @@ public class MultiRegexTest extends FilterFunctionTest {
         assertEquals("{\n" +
                 "  \"class\" : \"gaffer.function.simple.filter.MultiRegex\",\n" +
                 "  \"value\" : [ {\n" +
-                "    \"java.util.regex.Pattern\" : \"test\"\n"+
+                "    \"java.util.regex.Pattern\" : \"test\"\n" +
                 "  }, {\n" +
-                "    \"java.util.regex.Pattern\" : \"test2\"\n"+
-                "  } ]\n"+
+                "    \"java.util.regex.Pattern\" : \"test2\"\n" +
+                "  } ]\n" +
                 "}", json);
 
         // When 2
@@ -122,4 +121,5 @@ public class MultiRegexTest extends FilterFunctionTest {
     @Override
     protected Class<? extends Function> getFunctionClass() {
         return MultiRegex.class;
-    }}
+    }
+}

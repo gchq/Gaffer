@@ -17,17 +17,18 @@
 package gaffer.rest.example;
 
 import gaffer.function.FilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 @Inputs(Object.class)
-public class ExampleFilterFunction extends FilterFunction {
+public class ExampleFilterFunction extends SimpleFilterFunction {
     @Override
     public FilterFunction statelessClone() {
         return new ExampleFilterFunction();
     }
 
     @Override
-    protected boolean filter(final Object[] input) {
+    protected boolean _isValid(final Object input) {
         return true;
     }
 }

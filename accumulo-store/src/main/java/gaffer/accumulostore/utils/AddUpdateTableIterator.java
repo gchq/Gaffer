@@ -60,7 +60,7 @@ public final class AddUpdateTableIterator {
 
     /**
      * This method takes a store and uses the default Aggregator iterator name
-     * found in {@link Constants} as the iterator name to be removed. The stores
+     * found in {@link AccumuloStoreConstants} as the iterator name to be removed. The stores
      * configured iterator settings factory will be used to create a new
      * iterator in the removed ones place
      *
@@ -68,7 +68,7 @@ public final class AddUpdateTableIterator {
      * @throws StoreException if any issues occur when updating the iterator
      */
     public static void updateIterator(final AccumuloStore store) throws StoreException {
-        updateIterator(store, Constants.AGGREGATOR_ITERATOR_NAME);
+        updateIterator(store, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
     }
 
     /**
@@ -87,7 +87,7 @@ public final class AddUpdateTableIterator {
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
             // Update GafferUtilsTable with likely new schemas
             TableUtils.addUpdateUtilsTable(store);
-        } catch (IteratorSettingException | TableUtilException e) {
+        } catch (IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }
     }
@@ -141,7 +141,7 @@ public final class AddUpdateTableIterator {
         try {
             store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
         } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
-            throw new StoreException("Add iterator with Name: " + iteratorSetting.getName());
+            throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
         }
     }
 

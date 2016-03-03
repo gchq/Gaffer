@@ -15,17 +15,16 @@
  */
 package gaffer.function.simple.filter;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import gaffer.function.SimpleFilterFunction;
+import gaffer.function.annotation.Inputs;
+
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import gaffer.function.SingleInputFilterFunction;
-import gaffer.function.annotation.Inputs;
-
 @Inputs(String.class)
-public class MultiRegex extends SingleInputFilterFunction {
+public class MultiRegex extends SimpleFilterFunction<String> {
     private Pattern[] patterns;
 
     public MultiRegex() {
@@ -51,12 +50,12 @@ public class MultiRegex extends SingleInputFilterFunction {
     }
 
     @Override
-    protected boolean filter(final Object input) {
+    protected boolean _isValid(final String input) {
         if (null == input || input.getClass() != String.class) {
             return false;
         }
         for (Pattern pattern : patterns) {
-            if (pattern.matcher((CharSequence) input).matches()) {
+            if (pattern.matcher(input).matches()) {
                 return true;
             }
         }

@@ -15,36 +15,35 @@
  */
 package gaffer.integration.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import com.clearspring.analytics.util.Lists;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.data.ElementSeed;
 import gaffer.integration.GafferIntegrationTests;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 public class TransientPropertiesIT extends GafferIntegrationTests {
 
     /**
      * Adds simple graph data required for testing.
+     *
      * @throws OperationException should never be thrown.
      */
     @Before
@@ -61,12 +60,12 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         elements.add(sampleEntityWithTransientProperty);
 
         final AddElements add = new AddElements(elements);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, "test");
         graph.execute(add);
     }
 
     /**
      * Tests that the edge stored does not contain any transient properties not stored in the Schemas.
+     *
      * @throws OperationException should never be thrown.
      */
     @Test
@@ -75,7 +74,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         //OPERATE
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) (new EntitySeed("A")));
         final GetRelatedEdges getEdges = new GetRelatedEdges(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, "test");
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
 
         //CHECK
@@ -88,7 +86,8 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
     }
 
     /**
-     *Tests that the entity stored does not contain any transient properties not stored in the Schemas.
+     * Tests that the entity stored does not contain any transient properties not stored in the Schemas.
+     *
      * @throws OperationException should never be thrown.
      */
     @Test
@@ -97,7 +96,6 @@ public class TransientPropertiesIT extends GafferIntegrationTests {
         //OPERATE
         final List<EntitySeed> seeds = Collections.singletonList(new EntitySeed("C"));
         final GetEntitiesBySeed getEdges = new GetEntitiesBySeed(seeds);
-        getEdges.addOption(Constants.OPERATION_AUTHORISATIONS, "test");
         final List<Entity> results = Lists.newArrayList(graph.execute(getEdges));
 
         //CHECK

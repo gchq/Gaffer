@@ -99,7 +99,7 @@ public abstract class MultiFilterFunction extends FilterFunction {
 
                     private boolean executeFunction(final Object[] input, final ConsumerFunctionContext<Integer, FilterFunction> function) {
                         final Object[] selection = function.select(new ArrayTuple(input));
-                        return function.getFunction().execute(selection);
+                        return function.getFunction().isValid(selection);
                     }
                 };
             }

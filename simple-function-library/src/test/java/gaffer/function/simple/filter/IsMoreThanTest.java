@@ -18,7 +18,6 @@ package gaffer.function.simple.filter;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5);
 
         // When
-        boolean accepted = filter.filter(6);
+        boolean accepted = filter._isValid(6);
 
         // Then
         assertTrue(accepted);
@@ -46,7 +45,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5, true);
 
         // When
-        boolean accepted = filter.filter(6);
+        boolean accepted = filter._isValid(6);
 
         // Then
         assertTrue(accepted);
@@ -58,7 +57,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5, true);
 
         // When
-        boolean accepted = filter.filter(4);
+        boolean accepted = filter._isValid(4);
 
         // Then
         assertFalse(accepted);
@@ -70,7 +69,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5);
 
         // When
-        boolean accepted = filter.filter(4);
+        boolean accepted = filter._isValid(4);
 
         // Then
         assertFalse(accepted);
@@ -82,7 +81,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5);
 
         // When
-        boolean accepted = filter.filter(5);
+        boolean accepted = filter._isValid(5);
 
         // Then
         assertFalse(accepted);
@@ -95,7 +94,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5, true);
 
         // When
-        boolean accepted = filter.filter(5);
+        boolean accepted = filter._isValid(5);
 
         // Then
         assertTrue(accepted);

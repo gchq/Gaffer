@@ -17,15 +17,15 @@ package gaffer.function.simple.filter;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gaffer.function.SingleInputFilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 /**
- * An <code>Exists</code> is a {@link gaffer.function.SingleInputFilterFunction} that simply checks that the input
+ * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks that the input
  * {@link com.clearspring.analytics.stream.cardinality.HyperLogLogPlus} cardinality is less than a control value.
  */
 @Inputs(HyperLogLogPlus.class)
-public class HyperLogLogPlusIsLessThan extends SingleInputFilterFunction {
+public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogPlus> {
     private long controlValue;
     private boolean orEqualTo;
 
@@ -65,11 +65,11 @@ public class HyperLogLogPlusIsLessThan extends SingleInputFilterFunction {
     }
 
     @Override
-    protected boolean filter(final Object input) {
+    protected boolean _isValid(final HyperLogLogPlus input) {
         if (input == null) {
             return false;
         }
-        long cardinality = ((HyperLogLogPlus) input).cardinality();
+        long cardinality = input.cardinality();
         if (orEqualTo) {
             if (cardinality <= controlValue) {
                 return true;

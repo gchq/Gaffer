@@ -22,6 +22,7 @@ import gaffer.operation.VoidOutput;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 
 /**
@@ -61,6 +62,7 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
      * For Text data see {@link gaffer.operation.simple.hdfs.handler.jobfactory.TextJobInitialiser}.
      */
     private JobInitialiser jobInitialiser;
+    private Class<? extends Partitioner> partitioner;
 
     public Path getInputPath() {
         return inputPath;
@@ -131,6 +133,14 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
         this.numReduceTasks = numReduceTasks;
     }
 
+    public Class<? extends Partitioner> getPartitioner() {
+        return partitioner;
+    }
+
+    public void setPartitioner(final Class<? extends Partitioner> partitioner) {
+        this.partitioner = partitioner;
+    }
+
     public static class Builder extends AbstractOperation.Builder<AddElementsFromHdfs, Void, Void> {
         public Builder() {
             super(new AddElementsFromHdfs());
@@ -173,6 +183,11 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
 
         public Builder mappers(final Integer numMapTasks) {
             op.setNumMapTasks(numMapTasks);
+            return this;
+        }
+
+        public Builder partioner(final Class<? extends Partitioner> partitioner) {
+            op.setPartitioner(partitioner);
             return this;
         }
 

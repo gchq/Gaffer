@@ -38,7 +38,7 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter.filter("B");
+        boolean accepted = filter._isValid("B");
 
         // Then
         assertTrue(accepted);
@@ -50,7 +50,7 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter.filter("D");
+        boolean accepted = filter._isValid("D");
 
         // Then
         assertFalse(accepted);

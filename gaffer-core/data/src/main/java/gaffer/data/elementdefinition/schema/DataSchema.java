@@ -24,7 +24,6 @@ import gaffer.data.elementdefinition.TypeStore;
 import gaffer.data.elementdefinition.Types;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.exception.SerialisationException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;

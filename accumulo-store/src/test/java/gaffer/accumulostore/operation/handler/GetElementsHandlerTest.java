@@ -16,32 +16,8 @@
 
 package gaffer.accumulostore.operation.handler;
 
-import com.google.common.collect.Lists;
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.operation.handler.GetElementsHandler;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
-import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.PathUtil;
-import gaffer.data.element.Edge;
-import gaffer.data.element.Element;
-import gaffer.data.element.Entity;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
-import gaffer.operation.GetOperation.IncludeEdgeType;
-import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.GetOperation.SeedMatchingType;
-import gaffer.operation.OperationException;
-import gaffer.operation.handler.AbstractGetElementsHandlerTest;
-import gaffer.operation.impl.get.GetElements;
-import gaffer.store.Store;
-import gaffer.store.StoreException;
-import gaffer.store.operation.handler.OperationHandler;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,8 +26,30 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
+import org.junit.Test;
+
+import com.google.common.collect.Lists;
+
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.MockAccumuloStore;
+import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.commonutil.StreamUtil;
+import gaffer.commonutil.TestGroups;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.data.element.Entity;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.GetOperation;
+import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
+import gaffer.operation.handler.AbstractGetElementsHandlerTest;
+import gaffer.operation.impl.get.GetElements;
+import gaffer.store.Store;
+import gaffer.store.StoreException;
+import gaffer.store.operation.handler.OperationHandler;
 
 public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
     @Test
@@ -184,14 +182,6 @@ public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
 
     @Override
     protected View createView() {
-        return View.fromJson(PathUtil.view(getClass()));
-    }
-
-    @Override
-    protected GetElements<ElementSeed, Element> createMockOperation(final SeedMatchingType seedMatching, final IncludeEdgeType includeEdgeType, final Boolean includeEntities, final IncludeIncomingOutgoingType inOutType, final Iterable<ElementSeed> seeds) throws IOException {
-        final GetElements<ElementSeed, Element> operation = super.createMockOperation(seedMatching, includeEdgeType, includeEntities, inOutType, seeds);
-        operation.getOptions().put(Constants.OPERATION_AUTHORISATIONS, "authorisation");
-
-        return operation;
+        return View.fromJson(StreamUtil.view(getClass()));
     }
 }

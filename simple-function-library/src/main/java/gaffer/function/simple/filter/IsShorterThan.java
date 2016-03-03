@@ -15,14 +15,14 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.function.SingleInputFilterFunction;
+import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * An <code>IsShorterThan</code> is a {@link gaffer.function.SingleInputFilterFunction} that checks that the input
+ * An <code>IsShorterThan</code> is a {@link SimpleFilterFunction} that checks that the input
  * object has a length less than a maximum length. There is also an orEqualTo flag that can be set to allow
  * the input object length to be less than or equal to the maximum length.
  * <p>
@@ -30,7 +30,7 @@ import java.util.Map;
  * Additional object types can easily be added by modifying the getLength(Object) method.
  */
 @Inputs(Object.class)
-public class IsShorterThan extends SingleInputFilterFunction {
+public class IsShorterThan extends SimpleFilterFunction<Object> {
     private int maxLength;
     private boolean orEqualTo;
 
@@ -65,7 +65,8 @@ public class IsShorterThan extends SingleInputFilterFunction {
         return clone;
     }
 
-    protected boolean filter(final Object input) {
+    @Override
+    protected boolean _isValid(final Object input) {
         if (null == input) {
             return true;
         }

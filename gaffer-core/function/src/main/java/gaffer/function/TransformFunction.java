@@ -22,7 +22,7 @@ package gaffer.function;
  * <p>
  * For example:<br>
  * <code>TransformFunction concat = new Concat("|");</code><br>
- * <code>Object[] result = concat.execute({"a", "b"}); // result = {"a|b"}</code>
+ * <code>Object[] result = concat.transform({"a", "b"}); // result = {"a|b"}</code>
  */
 public abstract class TransformFunction extends ConsumerProducerFunction {
     /**
@@ -31,7 +31,7 @@ public abstract class TransformFunction extends ConsumerProducerFunction {
      * @param input Input record.
      * @return Output record.
      */
-    public abstract Object[] execute(final Object[] input);
+    public abstract Object[] transform(final Object[] input);
 
     @Override
     public abstract TransformFunction statelessClone();

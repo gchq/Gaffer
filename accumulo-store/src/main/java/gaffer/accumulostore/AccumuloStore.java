@@ -38,14 +38,11 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
-import gaffer.accumulostore.utils.TableUtilException;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.operation.Operation;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
@@ -58,7 +55,6 @@ import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.StoreSchema;
-import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -102,24 +98,6 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Executes a given gaffer.accumulostore.operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param <OUTPUT>  the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException if an operation handler fails to handle the given operation
-     */
-    @Override
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation)
-            throws OperationException {
-        if (operation.getOptions().containsKey(Constants.OPERATION_AUTHORISATIONS)) {
-            return super.handleOperation(operation);
-        } else {
-            throw new OperationException("Operation must have the Authorisations option set");
-        }
-    }
-
-    /**
      * Creates an Accumulo {@link org.apache.accumulo.core.client.Connector}
      * using the properties found in properties file associated with the
      * AccumuloStore
@@ -128,12 +106,8 @@ public class AccumuloStore extends Store {
      * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        try {
-            return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
+        return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
                     getProperties().getUserName(), getProperties().getPassword());
-        } catch (final TableUtilException e) {
-            throw new StoreException("Failed to create accumulo connection", e);
-        }
     }
 
     @Override
@@ -186,22 +160,13 @@ public class AccumuloStore extends Store {
      * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
-        try {
-            TableUtils.ensureTableExists(this);
-        } catch (final AccumuloException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+        TableUtils.ensureTableExists(this);
         insertGraphElements(elements);
     }
 
     protected void insertGraphElements(final Iterable<Element> elements) throws StoreException {
         // Create BatchWriter
-        final BatchWriter writer;
-        try {
-            writer = TableUtils.createBatchWriter(this);
-        } catch (final TableUtilException e) {
-            throw new StoreException(e);
-        }
+        final BatchWriter writer = TableUtils.createBatchWriter(this);
         // Loop through elements, convert to mutations, and add to
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without

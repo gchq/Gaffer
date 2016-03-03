@@ -16,6 +16,15 @@
 
 package gaffer.data.element.function;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Properties;
@@ -27,17 +36,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElementAggregatorTest {
@@ -70,7 +70,7 @@ public class ElementAggregatorTest {
         verify(functionContext1, times(2)).getFunction();
 
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).execute(argumentCaptor.capture());
+        verify(function).aggregate(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
     }
 
@@ -100,8 +100,26 @@ public class ElementAggregatorTest {
 
         assertSame(properties, propertiesTupleCaptor.getValue().getProperties());
         final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).execute(argumentCaptor.capture());
+        verify(function).aggregate(argumentCaptor.capture());
         assertEquals(value, argumentCaptor.getValue()[0]);
+    }
+
+    @Test
+    public void shouldAggregateWithNoPropertiesOrFunctions() {
+        // Given
+        final ElementAggregator aggregator = new ElementAggregator();
+        final Edge edge1 = new Edge("group");
+        final Edge edge2 = new Edge("group");
+
+        // When - aggregate and set state
+        aggregator.aggregate(edge1);
+        aggregator.aggregate(edge2);
+
+        final Edge aggregatedEdge = new Edge("group");
+        aggregator.state(aggregatedEdge);
+
+        // Then
+        assertTrue(aggregatedEdge.getProperties().isEmpty());
     }
 
     @Test

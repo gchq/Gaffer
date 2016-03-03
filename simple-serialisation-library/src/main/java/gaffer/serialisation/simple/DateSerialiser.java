@@ -18,7 +18,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.Constants;
+import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -36,7 +36,7 @@ public class DateSerialiser implements Serialisation {
     public byte[] serialise(final Object object) throws SerialisationException {
         Date value = (Date) object;
         try {
-            return ((Long) value.getTime()).toString().getBytes(Constants.ISO_8859_1_ENCODING);
+            return ((Long) value.getTime()).toString().getBytes(SimpleSerialisationConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -46,7 +46,7 @@ public class DateSerialiser implements Serialisation {
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         Long longR;
         try {
-             longR = Long.parseLong(new String(bytes, Constants.ISO_8859_1_ENCODING).trim());
+             longR = Long.parseLong(new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING).trim());
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

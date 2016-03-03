@@ -16,7 +16,7 @@
 
 package gaffer.example;
 
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
@@ -41,9 +41,6 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
  * This example shows how to interact with a Gaffer graph with a simple and complex query.
  */
@@ -60,10 +57,6 @@ public class ComplexQuery {
             + Certificate._12A.name() + ","
             + Certificate._15.name() + ","
             + Certificate._18.name();
-
-    private static final Path DATA_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/dataSchema.json").getPath());
-    private static final Path STORE_SCHEMA_PATH = Paths.get(SimpleQuery.class.getResource("/storeSchema.json").getPath());
-    private static final Path STORE_PROPERTIES_PATH = Paths.get(SimpleQuery.class.getResource("/store.properties").getPath());
 
     public static void main(final String[] args) throws OperationException {
         final Iterable<Entity> complexResults = new ComplexQuery().run();
@@ -93,8 +86,9 @@ public class ComplexQuery {
      */
     public Iterable<Entity> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(DATA_SCHEMA_PATH, STORE_SCHEMA_PATH, STORE_PROPERTIES_PATH);
-
+        final Graph graph = new Graph(SimpleQuery.class.getResourceAsStream("/dataSchema.json"),
+                SimpleQuery.class.getResourceAsStream("/storeSchema.json"),
+                SimpleQuery.class.getResourceAsStream("/store.properties"));
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.
@@ -103,10 +97,8 @@ public class ComplexQuery {
                 .first(new GenerateElements.Builder<>()
                         .objects(new SampleData().generate())
                         .generator(new DataGenerator())
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new AddElements.Builder()
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 
@@ -123,7 +115,7 @@ public class ComplexQuery {
                                 .edge(Group.VIEWING)
                                 .build())
                         .addSeed(new EntitySeed("user02"))
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
@@ -144,7 +136,7 @@ public class ComplexQuery {
                                         .build())
                                 .build())
                         .summarise(true)   // Setting the summarise flag to true will aggregate the results when run on a store that supports aggregation
-                        .option(Constants.OPERATION_AUTHORISATIONS, AUTH)
+                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 

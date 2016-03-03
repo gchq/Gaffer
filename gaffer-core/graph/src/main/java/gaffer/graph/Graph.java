@@ -28,10 +28,8 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.StoreSchema;
-
-import java.io.IOException;
+import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -131,8 +129,7 @@ public final class Graph {
      */
     public Graph(final Path dataSchemaPath, final Path storeSchemaPath,
                  final Path storePropertiesPath, final Path schemaTypesPath, final View view) throws SchemaException {
-        this(createInputStream(dataSchemaPath), createInputStream(storeSchemaPath),
-                createInputStream(storePropertiesPath), createInputStream(schemaTypesPath), view);
+        this(createStore(dataSchemaPath, storeSchemaPath, storePropertiesPath, schemaTypesPath), view);
     }
 
     /**
@@ -327,11 +324,25 @@ public final class Graph {
         return store.hasTrait(storeTrait);
     }
 
-    private static Store createStore(final InputStream dataSchemaStream, final InputStream storeSchemaStream, final InputStream storePropertiesStream, final InputStream schemaTypesStream) {
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesStream);
-        DataSchema dataSchema = loadDataSchema(dataSchemaStream, schemaTypesStream);
-        StoreSchema storeSchema = loadStoreSchema(storeSchemaStream, storeProperties.getStoreSchemaClass());
+    private static Store createStore(final Path dataSchemaPath, final Path storeSchemaPath, final Path storePropertiesPath, final Path schemaTypesPath) {
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
+        DataSchema dataSchema = loadDataSchema(dataSchemaPath, schemaTypesPath);
+        StoreSchema storeSchema = loadStoreSchema(storeSchemaPath, storeProperties.getStoreSchemaClass());
         return createStore(dataSchema, storeSchema, storeProperties);
+    }
+
+    private static Store createStore(final InputStream dataSchemaStream, final InputStream storeSchemaStream, final InputStream storePropertiesStream, final InputStream schemaTypesStream) {
+        try {
+            final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesStream);
+            DataSchema dataSchema = loadDataSchema(dataSchemaStream, schemaTypesStream);
+            StoreSchema storeSchema = loadStoreSchema(storeSchemaStream, storeProperties.getStoreSchemaClass());
+            return createStore(dataSchema, storeSchema, storeProperties);
+        } finally {
+            IOUtils.closeQuietly(dataSchemaStream);
+            IOUtils.closeQuietly(storeSchemaStream);
+            IOUtils.closeQuietly(storePropertiesStream);
+            IOUtils.closeQuietly(schemaTypesStream);
+        }
     }
 
     private static Store createStore(final DataSchema dataSchema, final StoreSchema storeSchema, final StoreProperties storeProperties) {
@@ -355,6 +366,20 @@ public final class Graph {
         return newStore;
     }
 
+    private static DataSchema loadDataSchema(final Path path, final Path typePath) throws SchemaException {
+        final DataSchema dataSchema = DataSchema.fromJson(path);
+
+        if (null != typePath) {
+            dataSchema.addTypesFromPath(typePath);
+        }
+
+        if (!dataSchema.validate()) {
+            throw new SchemaException("ERROR: data schema failed to validate. Please check the logs for more information");
+        }
+
+        return dataSchema;
+    }
+
     private static DataSchema loadDataSchema(final InputStream stream, final InputStream typeStream) throws SchemaException {
         final DataSchema dataSchema = DataSchema.fromJson(stream);
 
@@ -367,6 +392,22 @@ public final class Graph {
         }
 
         return dataSchema;
+    }
+
+    private static StoreSchema loadStoreSchema(final Path storeSchemaPath, final String storeSchemaClass) throws SchemaException {
+        final StoreSchema storeSchema;
+
+        try {
+            storeSchema = StoreSchema.fromJson(storeSchemaPath, Class.forName(storeSchemaClass).asSubclass(StoreSchema.class));
+        } catch (ClassNotFoundException e) {
+            throw new SchemaException("Store schema class was not found: " + storeSchemaClass, e);
+        }
+
+        if (!storeSchema.validate()) {
+            throw new SchemaException("ERROR: store schema failed to validate. Please check the logs for more information");
+        }
+
+        return storeSchema;
     }
 
     private static StoreSchema loadStoreSchema(final InputStream storeSchemaStream, final String storeSchemaClass) throws SchemaException {
@@ -383,13 +424,5 @@ public final class Graph {
         }
 
         return storeSchema;
-    }
-
-    private static InputStream createInputStream(final Path path) {
-        try {
-            return null != path ? Files.newInputStream(path) : null;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to create input stream from path: " + path, e);
-        }
     }
 }

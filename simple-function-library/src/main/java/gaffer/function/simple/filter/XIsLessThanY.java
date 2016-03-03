@@ -21,13 +21,14 @@ import gaffer.function.annotation.Inputs;
 /**
  * This class checks that the first value is less than the second value. Both values must be the same class.
  */
-@Inputs({ Comparable.class, Comparable.class })
+@Inputs({Comparable.class, Comparable.class})
 public class XIsLessThanY extends FilterFunction {
     public XIsLessThanY statelessClone() {
         return new XIsLessThanY();
     }
 
-    protected boolean filter(final Object[] input) {
+    @Override
+    protected boolean _isValid(final Object[] input) {
         return !(null == input
                 || input.length != 2
                 || null == input[0]

@@ -18,7 +18,7 @@ package gaffer.accumulostore.key.core.impl;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.store.schema.StoreSchema;
@@ -253,11 +253,11 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
-        if (!options.containsKey(Constants.STORE_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.STORE_SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.STORE_SCHEMA);
         }
         try {
-            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the store schema", e);
         }
@@ -266,7 +266,7 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(Constants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
+        return new IteratorOptionsBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
                 "Applies a reduce function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)")
                 .addStoreSchemaNamedOption().build();
     }

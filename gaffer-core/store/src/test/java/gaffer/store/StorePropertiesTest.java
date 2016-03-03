@@ -16,21 +16,17 @@
 
 package gaffer.store;
 
-import gaffer.commonutil.PathUtil;
-import org.junit.Test;
-
-import java.nio.file.Path;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class StorePropertiesTest {
-    private static final Path STORE_PROPS_PATH = PathUtil.storeProps(StorePropertiesTest.class);
+import gaffer.commonutil.StreamUtil;
+import org.junit.Test;
 
+public class StorePropertiesTest {
     @Test
     public void shouldGetProperty() {
         // Given
-        final StoreProperties props = new StoreProperties(STORE_PROPS_PATH);
+        final StoreProperties props = createStoreProperties();
 
         // When
         String value = props.get("key1");
@@ -42,7 +38,7 @@ public class StorePropertiesTest {
     @Test
     public void shouldSetAndGetProperty() {
         // Given
-        final StoreProperties props = new StoreProperties(STORE_PROPS_PATH);
+        final StoreProperties props = createStoreProperties();
 
         // When
         props.set("key2", "value2");
@@ -55,7 +51,7 @@ public class StorePropertiesTest {
     @Test
     public void shouldGetPropertyWithDefaultValue() {
         // Given
-        final StoreProperties props = new StoreProperties(STORE_PROPS_PATH);
+        final StoreProperties props = createStoreProperties();
 
         // When
         String value = props.get("key1", "property not found");
@@ -67,7 +63,7 @@ public class StorePropertiesTest {
     @Test
     public void shouldGetUnknownProperty() {
         // Given
-        final StoreProperties props = new StoreProperties(STORE_PROPS_PATH);
+        final StoreProperties props = createStoreProperties();
 
         // When
         String value = props.get("a key that does not exist");
@@ -79,12 +75,16 @@ public class StorePropertiesTest {
     @Test
     public void shouldGetUnknownPropertyWithDefaultValue() {
         // Given
-        final StoreProperties props = new StoreProperties(STORE_PROPS_PATH);
+        final StoreProperties props = createStoreProperties();
 
         // When
         String value = props.get("a key that does not exist", "property not found");
 
         // Then
         assertEquals("property not found", value);
+    }
+
+    private StoreProperties createStoreProperties() {
+        return StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
     }
 }
