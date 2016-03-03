@@ -16,6 +16,12 @@
 
 package gaffer.operation.handler;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.schema.DataElementDefinition;
@@ -24,15 +30,9 @@ import gaffer.operation.OperationException;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.ValidateHandler;
+import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 public class ValidateHandlerTest {
 
@@ -69,7 +69,7 @@ public class ValidateHandlerTest {
         final DataElementDefinition elementDef = mock(DataElementDefinition.class);
         final ElementFilter validator = mock(ElementFilter.class);
         given(validator.filter(elm1)).willReturn(true);
-        given(elementDef.getValidator()).willReturn(validator);
+        given(elementDef.getValidator(true)).willReturn(validator);
         given(dataSchema.getElement(group)).willReturn(elementDef);
 
         // When

@@ -30,7 +30,6 @@ import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -42,7 +41,6 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
-import org.apache.accumulo.core.iterators.user.AgeOffFilter;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.io.BytesWritable;
@@ -66,7 +64,6 @@ import java.util.concurrent.TimeUnit;
  * Static utilities used in the creation and maintenance of accumulo tables.
  */
 public final class TableUtils {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
 
     private TableUtils() {
@@ -81,7 +78,7 @@ public final class TableUtils {
      */
     public static void ensureTableExists(final AccumuloStore store) throws StoreException {
         final Connector conn;
-            conn = store.getConnection();
+        conn = store.getConnection();
         if (!conn.tableOperations().exists(store.getProperties().getTable())) {
             try {
                 TableUtils.createTable(store);
@@ -98,8 +95,8 @@ public final class TableUtils {
      * specified time period.
      *
      * @param store the accumulo store
-     * @throws StoreException        failure to create accumulo connection or  add iterator settings
-     * @throws TableExistsException     failure to create table
+     * @throws StoreException       failure to create accumulo connection or  add iterator settings
+     * @throws TableExistsException failure to create table
      */
     public static void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
@@ -132,16 +129,20 @@ public final class TableUtils {
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
             LOGGER.info("Combiner iterator to table for all scopes");
 
-            // Add age off iterator to table for all scopes
-            LOGGER.info("Adding age off iterator to table for all scopes");
-            final Long ageOfTimeInMils = 24L * 60L * 60L * 1000L * store.getProperties().getAgeOffTimeInDays();
-            connector.tableOperations().attachIterator(tableName, getAgeOffIteratorSetting(ageOfTimeInMils));
-            LOGGER.info("Added age off iterator to table for all scopes");
+            if (store.getProperties().getEnableValidatorIterator()) {
+                // Add validator iterator to table for all scopes
+                LOGGER.info("Adding validator iterator to table for all scopes");
+                connector.tableOperations().attachIterator(tableName,
+                        store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
+                LOGGER.info("Added validator iterator to table for all scopes");
+            } else {
+                LOGGER.info("Validator iterator has been disabled");
+            }
+
         } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }
         addUpdateUtilsTable(store);
-
     }
 
     /**
@@ -283,18 +284,6 @@ public final class TableUtils {
             throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
                     + store.getProperties().getTable(), e);
         }
-    }
-
-    /**
-     * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that
-     * specifies the age off iterator.
-     *
-     * @param ageOffTimeInMilliseconds the age off time in milliseconds
-     * @return An iterator setting describing an age off iterator
-     */
-    private static IteratorSetting getAgeOffIteratorSetting(final long ageOffTimeInMilliseconds) {
-        return new IteratorSettingBuilder(AccumuloStoreConstants.AGE_OFF_ITERATOR_PRIORITY, "ageoff", AgeOffFilter.class)
-                .option("ttl", "" + ageOffTimeInMilliseconds).build();
     }
 
     private static Range getTableSetupRange(final String table) {

@@ -21,11 +21,15 @@
   "types": {
     "intProperty": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Sum"}
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
     },
     "count": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {"class": "gaffer.function.simple.aggregate.Sum"}
+      "aggregatorFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
     }
   }
 }

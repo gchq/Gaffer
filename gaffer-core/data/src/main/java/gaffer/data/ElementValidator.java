@@ -34,6 +34,7 @@ public class ElementValidator implements Validator<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementValidator.class);
     private final DataSchema dataSchema;
     private final View view;
+    private final boolean includeIsA;
 
     /**
      * Constructs a <code>ElementValidator</code> with a {@link gaffer.data.elementdefinition.schema.DataSchema} to use to
@@ -43,8 +44,24 @@ public class ElementValidator implements Validator<Element> {
      *                   validate {@link gaffer.data.element.Element}s.
      */
     public ElementValidator(final DataSchema dataSchema) {
+        this(dataSchema, true);
+    }
+
+    /**
+     * Constructs a <code>ElementValidator</code> with a {@link gaffer.data.elementdefinition.schema.DataSchema} to use to
+     * validate {@link gaffer.data.element.Element}s. Uses the includeIsA flag
+     * to determine whether the IsA validate functions should be used. Disabling
+     * them can be useful when you already know the data is of the correct type
+     * and therefore you are able to improve the performance.
+     *
+     * @param dataSchema the {@link gaffer.data.elementdefinition.schema.DataSchema} to use to
+     *                   validate {@link gaffer.data.element.Element}s.
+     * @param includeIsA if true then the ISA validate functions are used, otherwise they are skipped.
+     */
+    public ElementValidator(final DataSchema dataSchema, final boolean includeIsA) {
         this.dataSchema = dataSchema;
         this.view = null;
+        this.includeIsA = includeIsA;
     }
 
     /**
@@ -57,6 +74,7 @@ public class ElementValidator implements Validator<Element> {
     public ElementValidator(final View view) {
         this.view = view;
         this.dataSchema = null;
+        includeIsA = false;
     }
 
     /**
@@ -84,7 +102,7 @@ public class ElementValidator implements Validator<Element> {
             return false;
         }
 
-        return elementDef.getValidator().filter(element);
+        return elementDef.getValidator(includeIsA).filter(element);
     }
 
     private boolean validateWithView(final Element element) {

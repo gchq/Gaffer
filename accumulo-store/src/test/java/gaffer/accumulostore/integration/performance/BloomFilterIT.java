@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.integration;
+package gaffer.accumulostore.integration.performance;
 
+
+import static org.junit.Assert.assertTrue;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.RangeFactory;
@@ -42,7 +44,6 @@ import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.serialisation.implementation.JavaSerialiser;
 import gaffer.store.schema.StoreElementDefinition;
 import gaffer.store.schema.StoreSchema;
-
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
@@ -61,7 +62,6 @@ import org.codehaus.plexus.util.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,9 +69,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
@@ -102,65 +99,65 @@ public class BloomFilterIT {
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Test
-    public void test() throws AccumuloElementConversionException, RangeFactoryException {
+    public void test() throws AccumuloElementConversionException, RangeFactoryException, IOException {
         testFilter(byteEntityElementConverter, byteEntityRangeFactory);
         testFilter(gafferV1ElementConverter, Gaffer1RangeFactory);
     }
 
-    public void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException {
+    public void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
+        // Create random data to insert, and sort it
+        final Random random = new Random();
+        final HashSet<Key> keysSet = new HashSet<>();
+        final HashSet<Entity> dataSet = new HashSet<>();
+        for (int i = 0; i < 100000; i++) {
+            final Entity source = new Entity(TestGroups.ENTITY);
+            source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
+            final Entity destination = new Entity(TestGroups.ENTITY);
+            destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
+            dataSet.add(source);
+            dataSet.add(destination);
+            final Entity sourceEntity = new Entity(source.getGroup());
+            sourceEntity.setVertex(source.getVertex());
+            final Entity destinationEntity = new Entity(destination.getGroup());
+            destinationEntity.setVertex(destination.getVertex());
+            final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination.getVertex(), true);
+            keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
+            keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
+            final Pair<Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
+            keysSet.add(edgeKeys.getFirst());
+            keysSet.add(edgeKeys.getSecond());
+        }
+        final ArrayList<Key> keys = new ArrayList<>(keysSet);
+        Collections.sort(keys);
+        final Properties property = new Properties();
+        property.put(AccumuloPropertyNames.INT, 10);
+        final Value value = elementConverter.getValueFromProperties(property, TestGroups.ENTITY);
+        final Value value2 = elementConverter.getValueFromProperties(property, TestGroups.EDGE);
+
+        // Create Accumulo configuration
+        final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration.getDefaultConfiguration());
+        accumuloConf.set(Property.TABLE_BLOOM_ENABLED, "true");
+        accumuloConf.set(Property.TABLE_BLOOM_KEY_FUNCTOR, CoreKeyBloomFunctor.class.getName());
+        accumuloConf.set(Property.TABLE_FILE_TYPE, RFile.EXTENSION);
+        accumuloConf.set(Property.TABLE_BLOOM_LOAD_THRESHOLD, "1");
+        accumuloConf.set(Property.TSERV_BLOOM_LOAD_MAXCONCURRENT, "1");
+
+        // Create Hadoop configuration
+        final Configuration conf = CachedConfiguration.getInstance();
+        final FileSystem fs = FileSystem.get(conf);
+
+        // Open file
+        final String suffix = FileOperations.getNewFileExtension(accumuloConf);
+        final String filenameTemp = tempFolder.newFile().getAbsolutePath();
+        FileUtils.fileDelete(filenameTemp);
+        final String filename = filenameTemp + "." + suffix;
+        final File file = new File(filename);
+        if (file.exists()) {
+            file.delete();
+        }
+        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
+
         try {
-            // Create random data to insert, and sort it
-            final Random random = new Random();
-            final HashSet<Key> keysSet = new HashSet<>();
-            final HashSet<Entity> dataSet = new HashSet<>();
-            for (int i = 0; i < 100000; i++) {
-                final Entity source = new Entity(TestGroups.ENTITY);
-                source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
-                final Entity destination = new Entity(TestGroups.ENTITY);
-                destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
-                dataSet.add(source);
-                dataSet.add(destination);
-                final Entity sourceEntity = new Entity(source.getGroup());
-                sourceEntity.setVertex(source.getVertex());
-                final Entity destinationEntity = new Entity(destination.getGroup());
-                destinationEntity.setVertex(destination.getVertex());
-                final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination.getVertex(), true);
-                keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
-                keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
-                final Pair<Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
-                keysSet.add(edgeKeys.getFirst());
-                keysSet.add(edgeKeys.getSecond());
-            }
-            final ArrayList<Key> keys = new ArrayList<>(keysSet);
-            Collections.sort(keys);
-            final Properties property = new Properties();
-            property.put(AccumuloPropertyNames.INT, 10);
-            final Value value = elementConverter.getValueFromProperties(property, TestGroups.ENTITY);
-            final Value value2 = elementConverter.getValueFromProperties(property, TestGroups.EDGE);
-
-            // Create Accumulo configuration
-            final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration.getDefaultConfiguration());
-            accumuloConf.set(Property.TABLE_BLOOM_ENABLED, "true");
-            accumuloConf.set(Property.TABLE_BLOOM_KEY_FUNCTOR, CoreKeyBloomFunctor.class.getName());
-            accumuloConf.set(Property.TABLE_FILE_TYPE, RFile.EXTENSION);
-            accumuloConf.set(Property.TABLE_BLOOM_LOAD_THRESHOLD, "1");
-            accumuloConf.set(Property.TSERV_BLOOM_LOAD_MAXCONCURRENT, "1");
-
-            // Create Hadoop configuration
-            final Configuration conf = CachedConfiguration.getInstance();
-            final FileSystem fs = FileSystem.get(conf);
-
-            // Open file
-            final String suffix = FileOperations.getNewFileExtension(accumuloConf);
-            final String filenameTemp = tempFolder.newFile().getAbsolutePath();
-            FileUtils.fileDelete(filenameTemp);
-            final String filename = filenameTemp + "." + suffix;
-            final File file = new File(filename);
-            if (file.exists()) {
-                file.delete();
-            }
-            final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
-
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (Key key : keys) {
@@ -170,11 +167,13 @@ public class BloomFilterIT {
                     writer.append(key, value2);
                 }
             }
+        } finally {
             writer.close();
+        }
 
-            // Reader
-            FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
-
+        // Reader
+        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
+        try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
             double maxRandomRate = -1.0;
@@ -198,11 +197,9 @@ public class BloomFilterIT {
 
             // Random look up rate should be much faster
             assertTrue(maxRandomRate > maxCausalRate);
-
+        } finally {
             // Close reader
             reader.close();
-        } catch (IOException e) {
-            fail("IOException " + e);
         }
     }
 
