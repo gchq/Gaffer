@@ -30,52 +30,6 @@ package gaffer.function;
  * <code>result = isA.isValid({"a"}) // result = true</code>
  */
 public abstract class FilterFunction extends ConsumerFunction {
-    private boolean not = false;
-
-    /**
-     * @return true if the result of this <code>FilterFunction</code> is reversed.
-     */
-    public boolean isNot() {
-        return not;
-    }
-
-    /**
-     * @param not if the result of this <code>FilterFunction</code> is reversed.
-     */
-    public void setNot(final boolean not) {
-        this.not = not;
-    }
-
-    /**
-     * Sets the not flag to true.
-     *
-     * @return this filter function.
-     */
-    public FilterFunction not() {
-        setNot(true);
-        return this;
-    }
-
-
-    /**
-     * Executes this <code>FilterFunction</code> with an input record, reversing the result if
-     * <code>isNot() == true</code>. Input records should match the types reported by <code>getInputClasses()</code>.
-     *
-     * @param input the input objects.
-     * @return true if the input record is valid, otherwise false.
-     */
-    public boolean isValid(final Object[] input) {
-        boolean result = _isValid(input);
-        if (not) {
-            return !result;
-        } else {
-            return result;
-        }
-    }
-
-    @Override
-    public abstract FilterFunction statelessClone();
-
     /**
      * Executes this <code>FilterFunction</code> with an input record. Input records should match the types reported by
      * <code>getInputClasses()</code>.
@@ -83,5 +37,8 @@ public abstract class FilterFunction extends ConsumerFunction {
      * @param input Input record to test.
      * @return true if input record passes the test.
      */
-    protected abstract boolean _isValid(final Object[] input);
+    public abstract boolean isValid(final Object[] input);
+
+    @Override
+    public abstract FilterFunction statelessClone();
 }

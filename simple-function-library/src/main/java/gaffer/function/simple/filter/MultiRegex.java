@@ -50,7 +50,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     }
 
     @Override
-    protected boolean _isValid(final String input) {
+    public boolean isValid(final String input) {
         if (null == input || input.getClass() != String.class) {
             return false;
         }

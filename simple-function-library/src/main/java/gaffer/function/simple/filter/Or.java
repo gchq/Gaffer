@@ -46,7 +46,7 @@ public class Or extends MultiFilterFunction {
      * @return true if any of the contained filter functions returns true, otherwise false.
      */
     @Override
-    protected boolean _isValid(final Object[] input) {
+    public boolean isValid(final Object[] input) {
         if (getFunctions().isEmpty()) {
             return true;
         }

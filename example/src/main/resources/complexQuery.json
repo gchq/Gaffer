@@ -8,7 +8,7 @@
         }
       },
       "options": {
-        "authorisations": "U,PG,_12A,_15,_18"
+        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
       },
       "seeds": [
         {
@@ -55,9 +55,11 @@
               "functions": [
                 {
                   "function": {
-                    "class": "gaffer.function.simple.filter.IsEqual",
-                    "not": true,
-                    "value": "user02"
+                    "class": "gaffer.function.simple.filter.Not",
+                    "function": {
+                      "class": "gaffer.function.simple.filter.IsEqual",
+                      "value": "user02"
+                    }
                   },
                   "selection": [
                     {
@@ -70,7 +72,9 @@
           }
         }
       },
-      "options": {"authorisations": "U,PG,_12A,_15,_18"},
+      "options": {
+        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
+      },
       "summarise": true
     }
   ]

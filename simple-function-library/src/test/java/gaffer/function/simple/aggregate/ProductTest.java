@@ -15,12 +15,6 @@
  */
 package gaffer.function.simple.aggregate;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.ConsumerProducerFunctionTest;
-import gaffer.function.Function;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -28,7 +22,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ProductTest extends ConsumerProducerFunctionTest {
+import gaffer.exception.SerialisationException;
+import gaffer.function.AggregateFunctionTest;
+import gaffer.function.Function;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
+public class ProductTest extends AggregateFunctionTest {
 
     @Test
     public void testInitialiseInAutoMode() {

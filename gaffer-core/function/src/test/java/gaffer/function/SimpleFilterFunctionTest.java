@@ -16,15 +16,14 @@
 
 package gaffer.function;
 
-import gaffer.function.annotation.Inputs;
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.function.annotation.Inputs;
+import org.junit.Test;
+import java.io.IOException;
 
 public class SimpleFilterFunctionTest extends FilterFunctionTest {
     @Test
@@ -47,7 +46,7 @@ public class SimpleFilterFunctionTest extends FilterFunctionTest {
 
         // When / then
         try {
-            filter.isValid(null);
+            filter.isValid((Object[]) null);
         } catch (final IllegalArgumentException e) {
             assertNotNull(e);
         }
@@ -119,11 +118,6 @@ public class SimpleFilterFunctionTest extends FilterFunctionTest {
         return new ExampleSimpleFilterFunction();
     }
 
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{"Test"};
-    }
-
     @Inputs(String.class)
     public static class ExampleSimpleFilterFunction extends SimpleFilterFunction<String> {
 
@@ -131,7 +125,7 @@ public class SimpleFilterFunctionTest extends FilterFunctionTest {
         }
 
         @Override
-        protected boolean _isValid(final String input) {
+        public boolean isValid(final String input) {
             return true;
         }
 

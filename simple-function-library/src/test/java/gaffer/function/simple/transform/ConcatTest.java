@@ -15,20 +15,19 @@
  */
 package gaffer.function.simple.transform;
 
-import gaffer.function.ConsumerProducerFunctionTest;
-import gaffer.function.Function;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
-public class ConcatTest extends ConsumerProducerFunctionTest {
+import gaffer.function.Function;
+import gaffer.function.TransformFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+import java.io.IOException;
+
+public class ConcatTest extends TransformFunctionTest {
     @Test
     public void shouldConcatStringsWithDefaultSeparator() {
         // Given

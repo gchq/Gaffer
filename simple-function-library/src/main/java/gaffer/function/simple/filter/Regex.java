@@ -49,7 +49,7 @@ public class Regex extends SimpleFilterFunction<String> {
     }
 
     @Override
-    protected boolean _isValid(final String input) {
+    public boolean isValid(final String input) {
         return !(null == input || input.getClass() != String.class)
                 && controlValue.matcher(input).matches();
     }
