@@ -15,20 +15,6 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.ArrayTuple;
-import gaffer.function.FilterFunction;
-import gaffer.function.FilterFunctionTest;
-import gaffer.function.context.ConsumerFunctionContext;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.InputMismatchException;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,6 +27,19 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.ArrayTuple;
+import gaffer.function.FilterFunction;
+import gaffer.function.FilterFunctionTest;
+import gaffer.function.context.ConsumerFunctionContext;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+import org.mockito.Mockito;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.InputMismatchException;
 
 public class AndTest extends FilterFunctionTest {
 
@@ -69,7 +68,7 @@ public class AndTest extends FilterFunctionTest {
         given(func2.isValid(new String[]{test, test2a})).willReturn(true);
 
         // When
-        boolean accepted = and._isValid(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = and.isValid(new String[]{test, test1a, test2a, test1b});
 
         // Then
         assertTrue(accepted);
@@ -81,7 +80,7 @@ public class AndTest extends FilterFunctionTest {
         final And and = new And();
 
         // When
-        boolean accepted = and._isValid(new String[]{"test"});
+        boolean accepted = and.isValid(new String[]{"test"});
 
         // Then
         assertTrue(accepted);
@@ -93,7 +92,7 @@ public class AndTest extends FilterFunctionTest {
         final And and = new And();
 
         // When
-        boolean accepted = and._isValid(null);
+        boolean accepted = and.isValid(null);
 
         // Then
         assertTrue(accepted);
@@ -130,7 +129,7 @@ public class AndTest extends FilterFunctionTest {
         given(func3.isValid(new String[]{test})).willReturn(true);
 
         // When
-        boolean accepted = and._isValid(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = and.isValid(new String[]{test, test1a, test2a, test1b});
 
         // Then
         assertFalse(accepted);
@@ -256,10 +255,5 @@ public class AndTest extends FilterFunctionTest {
     @Override
     protected And getInstance() {
         return new And();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[0];
     }
 }

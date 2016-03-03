@@ -76,7 +76,7 @@ public class AgeOffTest extends FilterFunctionTest {
         final AgeOff filter = new AgeOff(CUSTOM_AGE_OFF);
 
         // When
-        final boolean accepted = filter._isValid(System.currentTimeMillis() - CUSTOM_AGE_OFF + MINUTE_IN_MILLISECONDS);
+        final boolean accepted = filter.isValid(System.currentTimeMillis() - CUSTOM_AGE_OFF + MINUTE_IN_MILLISECONDS);
 
         // Then
         assertTrue(accepted);
@@ -88,7 +88,7 @@ public class AgeOffTest extends FilterFunctionTest {
         final AgeOff filter = new AgeOff(CUSTOM_AGE_OFF);
 
         // When
-        final boolean accepted = filter._isValid(System.currentTimeMillis() - CUSTOM_AGE_OFF - MINUTE_IN_MILLISECONDS);
+        final boolean accepted = filter.isValid(System.currentTimeMillis() - CUSTOM_AGE_OFF - MINUTE_IN_MILLISECONDS);
 
         // Then
         assertFalse(accepted);
@@ -137,10 +137,5 @@ public class AgeOffTest extends FilterFunctionTest {
     @Override
     protected AgeOff getInstance() {
         return new AgeOff();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{System.currentTimeMillis()};
     }
 }

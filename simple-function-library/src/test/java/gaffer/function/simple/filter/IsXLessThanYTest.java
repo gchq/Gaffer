@@ -1,15 +1,15 @@
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class IsXLessThanYTest extends FilterFunctionTest {
     @Test
@@ -18,7 +18,7 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final IsXLessThanY filter = new IsXLessThanY();
 
         // When
-        boolean accepted = filter._isValid(new Object[]{1, 2});
+        boolean accepted = filter.isValid(new Object[]{1, 2});
 
         // Then
         assertTrue(accepted);
@@ -30,7 +30,7 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final IsXLessThanY filter = new IsXLessThanY();
 
         // When
-        boolean accepted = filter._isValid(new Object[]{6, 5});
+        boolean accepted = filter.isValid(new Object[]{6, 5});
 
         // Then
         assertFalse(accepted);
@@ -43,7 +43,7 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final IsXLessThanY filter = new IsXLessThanY();
 
         // When
-        boolean accepted = filter._isValid(new Object[]{5, 5});
+        boolean accepted = filter.isValid(new Object[]{5, 5});
 
         // Then
         assertFalse(accepted);
@@ -89,10 +89,5 @@ public class IsXLessThanYTest extends FilterFunctionTest {
     @Override
     protected IsXLessThanY getInstance() {
         return new IsXLessThanY();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{1, 2};
     }
 }

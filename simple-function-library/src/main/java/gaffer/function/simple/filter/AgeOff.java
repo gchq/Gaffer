@@ -49,7 +49,7 @@ public class AgeOff extends SimpleFilterFunction<Long> {
     }
 
     @Override
-    protected boolean _isValid(final Long input) {
+    public boolean isValid(final Long input) {
         return null != input && (System.currentTimeMillis() - input) < ageOffTime;
     }
 
