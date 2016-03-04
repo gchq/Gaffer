@@ -91,8 +91,8 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
 
     public TupleAggregator<R> copy() {
         TupleAggregator<R> copy = new TupleAggregator<R>();
-        for (FunctionContext<Buffer, R> accumulator : this.buffers) {
-            copy.addBuffer(accumulator.copy());
+        for (FunctionContext<Buffer, R> buffer : this.buffers) {
+            copy.addBuffer(buffer.copy());
         }
         return copy;
     }
