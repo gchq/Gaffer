@@ -30,21 +30,6 @@ import gaffer.function.annotation.Outputs;
 @Outputs(Number.class)
 public class Min extends NumericAggregateFunction {
     @Override
-    protected void initInt() {
-        aggregate = Integer.MAX_VALUE;
-    }
-
-    @Override
-    protected void initLong() {
-        aggregate = Long.MAX_VALUE;
-    }
-
-    @Override
-    protected void initDouble() {
-        aggregate = Double.MAX_VALUE;
-    }
-
-    @Override
     protected void aggregateInt(final Integer input) {
         if (input < (Integer) aggregate) {
             aggregate = input;

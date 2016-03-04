@@ -30,21 +30,6 @@ import gaffer.function.annotation.Outputs;
 @Outputs(Number.class)
 public class Product extends NumericAggregateFunction {
     @Override
-    protected void initInt() {
-        aggregate = 1;
-    }
-
-    @Override
-    protected void initLong() {
-        aggregate = 1L;
-    }
-
-    @Override
-    protected void initDouble() {
-        aggregate = 1.0d;
-    }
-
-    @Override
     protected void aggregateInt(final Integer input) {
         aggregate = (Integer) aggregate * input;
     }

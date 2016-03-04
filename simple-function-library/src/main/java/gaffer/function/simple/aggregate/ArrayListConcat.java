@@ -18,7 +18,6 @@ package gaffer.function.simple.aggregate;
 import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
-
 import java.util.ArrayList;
 
 /**
@@ -33,7 +32,7 @@ public class ArrayListConcat extends SimpleAggregateFunction<ArrayList<Object>> 
     @Override
     protected void _aggregate(final ArrayList<Object> input) {
         if (null != input) {
-            if (result == null) {
+            if (null == result) {
                 result = new ArrayList<>(input);
             } else {
                 result.addAll(input);
@@ -43,7 +42,7 @@ public class ArrayListConcat extends SimpleAggregateFunction<ArrayList<Object>> 
 
     @Override
     public void init() {
-        result = new ArrayList<>();
+        result = null;
     }
 
     @Override

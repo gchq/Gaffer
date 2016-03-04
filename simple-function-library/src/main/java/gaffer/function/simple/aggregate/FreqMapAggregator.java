@@ -19,7 +19,6 @@ import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 import gaffer.function.simple.types.FreqMap;
-
 import java.util.Map.Entry;
 
 /**
@@ -55,7 +54,7 @@ public class FreqMapAggregator extends SimpleAggregateFunction<FreqMap> {
 
     @Override
     protected FreqMap _state() {
-        return frequencyMap != null ? frequencyMap : new FreqMap();
+        return frequencyMap;
     }
 
     @Override
