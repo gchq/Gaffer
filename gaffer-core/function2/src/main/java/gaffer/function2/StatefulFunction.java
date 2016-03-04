@@ -16,9 +16,31 @@
 
 package gaffer.function2;
 
+/**
+ * A <code>StatefulFunction</code> is a {@link gaffer.function2.Function} that updates state in response
+ * to each input, and outputs the current state on request.
+ * @param <I> Function input type
+ * @param <O> Function output type
+ */
 public interface StatefulFunction<I, O> extends Function<I, O> {
-    void initialise();
+    /**
+     * Resets the state of this <code>StatefulFunction</code>.
+     */
+    void init();
+
+    /**
+     * Updates the state of this <code>StatefulFunction</code>.
+     * @param input Input value
+     */
     void execute(I input);
+
+    /**
+     * @return Current state of this <code>StatefulFunction</code>
+     */
     O state();
+
+    /**
+     * @return New <code>StatefulFunction</code> of the same type.
+     */
     StatefulFunction<I, O> copy();
 }

@@ -19,10 +19,21 @@ package gaffer.tuple.tuplen;
 import gaffer.tuple.ArrayTuple;
 import gaffer.tuple.view.TupleView;
 
+/**
+ * A {@link gaffer.tuple.Tuple} with five values of the specified generic types.
+ * @param <A> Type of first tuple value.
+ * @param <B> Type of second tuple value.
+ * @param <C> Type of third tuple value.
+ * @param <D> Type of fourth tuple value.
+ * @param <E> Type of fifth tuple value.
+ */
 public abstract class Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
     public abstract E get4();
     public abstract void put4(E e);
 
+    /**
+     * @return New <code>Tuple5</code> backed by a new {@link gaffer.tuple.ArrayTuple} of size 5.
+     */
     public static Tuple5 createTuple() {
         return new TupleView(new Integer[][]{{0}, {1}, {2}, {3}, {4}}, new ArrayTuple(5));
     }

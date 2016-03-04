@@ -16,11 +16,25 @@
 
 package gaffer.function2;
 
+/**
+ * A <code>Buffer</code> {@link gaffer.function2.StatefulFunction} has different input and
+ * output types.
+ * @param <I> Function input type
+ * @param <O> Function output type
+ */
 public abstract class Buffer<I, O> implements StatefulFunction<I, O> {
     public void execute(final I input) {
         accept(input);
     }
 
+    /**
+     * Accept a new input value into this <code>Buffer</code>.
+     * @param input Input value
+     */
     public abstract void accept(I input);
+
+    /**
+     * @return New <code>Buffer</code> of the same type.
+     */
     public abstract Buffer<I, O> copy();
 }

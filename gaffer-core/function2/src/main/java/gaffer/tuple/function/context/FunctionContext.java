@@ -20,27 +20,54 @@ import gaffer.function2.Function;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.view.TupleView;
 
+/**
+ * A <code>FunctionContext</code> wraps a {@link gaffer.function2.Function}. It appends application-specific
+ * configuration data to the function so that it can be executed in the context of that application.
+ *
+ * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context
+ * @param <R> The type of reference used to select from and project into tuples
+ */
 public class FunctionContext<F extends Function, R> {
     protected F function;
     private TupleView<R> selectionView;
     private TupleView<R> projectionView;
 
+    /**
+     * Create a <code>FunctionContext</code> with the given selection and projection.
+     * @param selectionView Function input selection criteria
+     * @param function Function to execute
+     * @param projectionView Function output projection criteria
+     */
     public FunctionContext(final TupleView<R> selectionView, final F function, final TupleView<R> projectionView) {
         setSelection(selectionView);
         setFunction(function);
         setProjection(projectionView);
     }
 
+    /**
+     * Default constructor - for serialisation.
+     */
     public FunctionContext() { }
 
+    /**
+     * @param function Function to execute.
+     */
     public void setFunction(final F function) {
         this.function = function;
     }
 
+    /**
+     * @return Function to execute.
+     */
     public F getFunction() {
         return function;
     }
 
+    /**
+     * Select the input value for the function from a source {@link gaffer.tuple.Tuple}.
+     * @param source Source tuple.
+     * @return Input value.
+     */
     public Object selectFrom(final Tuple<R> source) {
         if (selectionView != null) {
             return selectionView.get(source);
@@ -49,20 +76,35 @@ public class FunctionContext<F extends Function, R> {
         }
     }
 
+    /**
+     * Project the output value from the function into a target {@link gaffer.tuple.Tuple}.
+     * @param target Target tuple.
+     * @param output Output value.
+     */
     public void projectInto(final Tuple<R> target, final Object output) {
         if (projectionView != null) {
             projectionView.set(target, output);
         }
     }
 
+    /**
+     * @param selectionView Function input selection criteria.
+     */
     public void setSelection(final TupleView<R> selectionView) {
         this.selectionView = selectionView;
     }
 
+    /**
+     * @param projectionView Function output projection criteria.
+     */
     public void setProjection(final TupleView<R> projectionView) {
         this.projectionView = projectionView;
     }
 
+    /**
+     * @return New <code>FunctionContext</code> with the same selection criteria, function and
+     * projection criteria.
+     */
     public FunctionContext<F, R> copy() {
         return new FunctionContext<F, R>(selectionView, (F) function.copy(), projectionView);
     }

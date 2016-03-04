@@ -16,7 +16,7 @@
 
 package gaffer.tuple.function;
 
-import gaffer.function2.Buffer;
+import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
@@ -25,74 +25,115 @@ import gaffer.tuple.view.TupleView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A <code>TupleAggregator</code> aggregates {@link gaffer.tuple.Tuple}s by applying
+ * {@link gaffer.function2.StatefulFunction}>s to aggregate the tuple values. Outputs a single tuple.
+ * @param <R> The type of reference used by tuples.
+ */
 public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
-    private List<FunctionContext<Buffer, R>> buffers;
+    private List<FunctionContext<StatefulFunction, R>> functions;
     private Tuple<R> outputTuple;
 
+    /**
+     * Default constructor - for serialisation.
+     */
     public TupleAggregator() { }
 
-    public TupleAggregator(final List<FunctionContext<Buffer, R>> buffers) {
-        setBuffers(buffers);
+    /**
+     * Create a <code>TupleAggregator</code> that applies the given functions.
+     * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
+     */
+    public TupleAggregator(final List<FunctionContext<StatefulFunction, R>> functions) {
+        setFunctions(functions);
         outputTuple = null;
     }
 
-    public void setBuffers(final List<FunctionContext<Buffer, R>> buffers) {
-        this.buffers = buffers;
+    /**
+     * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
+     */
+    public void setFunctions(final List<FunctionContext<StatefulFunction, R>> functions) {
+        this.functions = functions;
     }
 
-    public void addBuffer(final FunctionContext<Buffer, R> buffer) {
-        if (buffers == null) {
-            buffers = new ArrayList<FunctionContext<Buffer, R>>();
+    /**
+     * @param function {@link gaffer.function2.StatefulFunction} to aggregate tuple values.
+     */
+    public void addFunction(final FunctionContext<StatefulFunction, R> function) {
+        if (functions == null) {
+            functions = new ArrayList<FunctionContext<StatefulFunction, R>>();
         }
-        buffers.add(buffer);
+        functions.add(function);
     }
 
-    public void addBuffer(final TupleView<R> selection, final Buffer buffer, final TupleView<R> projection) {
-        FunctionContext<Buffer, R> context = new FunctionContext<Buffer, R>(selection, buffer, projection);
-        addBuffer(context);
+    /**
+     * @param selection Function input selection criteria.
+     * @param function The function to aggregate tuple values.
+     * @param projection Function output projection criteria.
+     */
+    public void addFunction(final TupleView<R> selection, final StatefulFunction function, final TupleView<R> projection) {
+        FunctionContext<StatefulFunction, R> context = new FunctionContext<StatefulFunction, R>(selection, function, projection);
+        addFunction(context);
     }
 
-    public void initialise() {
+    /**
+     * Initialise this <code>TupleAggregator</code> and all of it's aggregation functions.
+     */
+    public void init() {
         outputTuple = null;
-        if (buffers != null) {
-            for (FunctionContext<Buffer, R> buffer : buffers) {
-                buffer.getFunction().initialise();
+        if (functions != null) {
+            for (FunctionContext<StatefulFunction, R> function : functions) {
+                function.getFunction().init();
             }
         }
     }
 
+    /**
+     * Aggregate an input tuple.
+     * @param input Input tuple
+     */
     public void aggregate(final Tuple<R> input) {
-        if (buffers != null) {
+        if (functions != null) {
             if (outputTuple == null) {
                 outputTuple = input;
             }
-            for (FunctionContext<Buffer, R> buffer : buffers) {
-                buffer.getFunction().accept(buffer.selectFrom(input));
+            for (FunctionContext<StatefulFunction, R> function : functions) {
+                function.getFunction().execute(function.selectFrom(input));
             }
         }
     }
 
+    /**
+     * Aggregate a group of input tuples to produce an output tuple.
+     * @param group Input tuples.
+     * @return Output tuple.
+     */
     public Tuple<R> aggregateGroup(final Iterable<Tuple<R>> group) {
-        initialise();
+        init();
         for (Tuple<R> input : group) {
             aggregate(input);
         }
         return state();
     }
 
+    /**
+     * @return Current state of the output tuple.
+     */
     public Tuple<R> state() {
         if (outputTuple != null) {
-            for (FunctionContext<Buffer, R> buffer : buffers) {
-                buffer.projectInto(outputTuple, buffer.getFunction().state());
+            for (FunctionContext<StatefulFunction, R> function : functions) {
+                function.projectInto(outputTuple, function.getFunction().state());
             }
         }
         return outputTuple;
     }
 
+    /**
+     * @return New <code>TupleAggregator</code> with new {@link gaffer.function2.StatefulFunction}s.
+     */
     public TupleAggregator<R> copy() {
         TupleAggregator<R> copy = new TupleAggregator<R>();
-        for (FunctionContext<Buffer, R> buffer : this.buffers) {
-            copy.addBuffer(buffer.copy());
+        for (FunctionContext<StatefulFunction, R> function : this.functions) {
+            copy.addFunction(function.copy());
         }
         return copy;
     }

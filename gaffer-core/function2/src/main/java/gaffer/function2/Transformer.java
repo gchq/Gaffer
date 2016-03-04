@@ -16,11 +16,26 @@
 
 package gaffer.function2;
 
+/**
+ * A <code>Transformer</code> {@link gaffer.function2.StatelessFunction} transforms an input value
+ * to produce an output value.
+ * @param <I> Function input type
+ * @param <O> Function output type
+ */
 public abstract class Transformer<I, O> implements StatelessFunction<I, O> {
     public O execute(final I input) {
         return transform(input);
     }
 
+    /**
+     * Transform an input value to produce an output value.
+     * @param input Input value
+     * @return Output value
+     */
     public abstract O transform(I input);
+
+    /**
+     * @return New <code>Transformer</code> of the same type.
+     */
     public abstract Transformer<I, O> copy();
 }

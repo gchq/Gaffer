@@ -20,10 +20,17 @@ import gaffer.tuple.ArrayTuple;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.view.TupleView;
 
+/**
+ * A {@link gaffer.tuple.Tuple} with a single value of the specified generic type.
+ * @param <A> Type of first tuple value.
+ */
 public abstract class Tuple1<A> implements Tuple<Integer> {
     public abstract A get0();
     public abstract void put0(A a);
 
+    /**
+     * @return New <code>Tuple1</code> backed by a new {@link gaffer.tuple.ArrayTuple} of size 1.
+     */
     public static Tuple1 createTuple() {
         return new TupleView(new Integer[][]{{0}}, new ArrayTuple(1));
     }

@@ -16,7 +16,22 @@
 
 package gaffer.function2;
 
+/**
+ * A <code>StatelessFunction</code> is a {@link gaffer.function2.Function} that returns an output
+ * in response to each input.
+ * @param <I> Function input type
+ * @param <O> Function output type
+ */
 public interface StatelessFunction<I, O> extends Function<I, O> {
+    /**
+     * Execute this <code>StatelessFunction</code>.
+     * @param input Input value
+     * @return Output value
+     */
     O execute(I input);
+
+    /**
+     * @return New <code>StatelessFunction</code> of the same type.
+     */
     StatelessFunction<I, O> copy();
 }
