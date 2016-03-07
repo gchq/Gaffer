@@ -18,7 +18,6 @@ package gaffer.function;
 
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.processor.Filter;
-
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Iterator;
@@ -98,7 +97,13 @@ public abstract class MultiFilterFunction extends FilterFunction {
                     }
 
                     private boolean executeFunction(final Object[] input, final ConsumerFunctionContext<Integer, FilterFunction> function) {
-                        final Object[] selection = function.select(new ArrayTuple(input));
+                        final Object[] selection;
+                        if (null == function.getSelection()) {
+                            selection = input;
+                        } else {
+                            selection = function.select(new ArrayTuple(input));
+                        }
+
                         return function.getFunction().isValid(selection);
                     }
                 };

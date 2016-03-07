@@ -16,7 +16,45 @@
 
 package gaffer.function;
 
+import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
+
 public abstract class AggregateFunctionTest extends ConsumerProducerFunctionTest {
+    @Test
+    public void shouldReturnNullStateIfNoInputsGiven() {
+        // Given
+        final AggregateFunction function = getInstance();
+        function.init();
+
+        // When
+        final Object[] state = function.state();
+
+        // Then
+        for (Object item : state) {
+            assertNull(item);
+        }
+    }
+
+    @Test
+    public void shouldReturnNullStateForNullInputs() {
+        // Given
+        final AggregateFunction function = getInstance();
+        function.init();
+
+        // When - aggregate with null inputs
+        final Object[] input = new Object[function.getInputClasses().length];
+        function.aggregate(input);
+
+        // When - call state
+        final Object[] state = function.state();
+
+        // Then
+        for (Object item : state) {
+            assertNull(item);
+        }
+    }
+
     @Override
     protected abstract AggregateFunction getInstance();
 }

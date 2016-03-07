@@ -19,7 +19,6 @@ package gaffer.integration;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -77,7 +76,7 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, VALIDATION);
+        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
 
         @Override
         protected Collection<StoreTrait> getTraits() {

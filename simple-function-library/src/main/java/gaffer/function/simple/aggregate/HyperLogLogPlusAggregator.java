@@ -32,12 +32,15 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
 
     @Override
     public void init() {
-        sketch = new HyperLogLogPlus(5, 5);
+        sketch = null;
     }
 
     @Override
     protected void _aggregate(final HyperLogLogPlus input) {
         if (input != null) {
+            if (null == sketch) {
+                sketch = new HyperLogLogPlus(5, 5);
+            }
             try {
                 sketch.addAll(input);
             } catch (CardinalityMergeException exception) {
