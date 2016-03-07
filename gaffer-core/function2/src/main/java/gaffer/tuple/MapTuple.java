@@ -23,7 +23,7 @@ import java.util.Map;
 public class MapTuple implements Tuple<String> {
     private Map<String, Object> values;
 
-    public MapTuple(Map<String, Object> values) {
+    public MapTuple(final Map<String, Object> values) {
         this.values = values;
     }
 

@@ -16,6 +16,7 @@
 
 package gaffer.tuple;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.tuple.tuplen.Tuple5;
 
 import java.util.Arrays;
@@ -32,6 +33,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
      * Create an <code>ArrayTuple</code> backed by the given array.
      * @param values Array backing this <code>ArrayTuple</code>.
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "This class is designed to simply wrap an object array.")
     public ArrayTuple(final Object[] values) {
         this.values = values;
     }
@@ -40,7 +42,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
      * Create an <code>ArrayTuple</code> backed by a new array of the given size.
      * @param size Size of array backing this <code>ArrayTuple</code>.
      */
-    public ArrayTuple(int size) {
+    public ArrayTuple(final int size) {
         this.values = new Object[size];
     }
 
@@ -66,7 +68,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
     }
 
     @Override
-    public void put4(Object value) {
+    public void put4(final Object value) {
         values[4] = value;
     }
 
@@ -76,7 +78,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
     }
 
     @Override
-    public void put3(Object value) {
+    public void put3(final Object value) {
         values[3] = value;
     }
 
@@ -86,7 +88,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
     }
 
     @Override
-    public void put2(Object value) {
+    public void put2(final Object value) {
         values[2] = value;
     }
 
@@ -96,7 +98,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
     }
 
     @Override
-    public void put1(Object value) {
+    public void put1(final Object value) {
         values[1] = value;
     }
 
@@ -106,7 +108,7 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
     }
 
     @Override
-    public void put0(Object value) {
+    public void put0(final Object value) {
         values[0] = value;
     }
 }
