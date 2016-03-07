@@ -39,51 +39,6 @@ public class MinTest extends AggregateFunctionTest {
     }
 
     @Test
-    public void testInitialiseInIntMode() {
-        // Given 1
-        final Min intMin = new Min();
-        intMin.setMode(NumericAggregateFunction.NumberType.INT);
-
-        assertEquals(NumericAggregateFunction.NumberType.INT, intMin.getMode());
-
-        // When 1
-        intMin.init();
-
-        // Then
-        assertEquals(Integer.MAX_VALUE, intMin.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInLongMode() {
-        // Given 1
-        final Min longMin = new Min();
-        longMin.setMode(NumericAggregateFunction.NumberType.LONG);
-
-        assertEquals(NumericAggregateFunction.NumberType.LONG, longMin.getMode());
-
-        // When 1
-        longMin.init();
-
-        // Then
-        assertEquals(Long.MAX_VALUE, longMin.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInDoubleMode() {
-        // Given 1
-        final Min doubleMin = new Min();
-        doubleMin.setMode(NumericAggregateFunction.NumberType.DOUBLE);
-
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, doubleMin.getMode());
-
-        // When 1
-        doubleMin.init();
-
-        // Then
-        assertEquals(Double.MAX_VALUE, doubleMin.state()[0]);
-    }
-
-    @Test
     public void testAggregateInIntMode() {
         // Given
         final Min intMin = new Min();
@@ -197,8 +152,7 @@ public class MinTest extends AggregateFunctionTest {
         }
 
         // Then 1
-        assertTrue(longMin.state()[0] instanceof Long);
-        assertEquals(Long.MAX_VALUE, longMin.state()[0]);
+        assertNull(longMin.state()[0]);
 
         // When 2
         longMin._aggregate(2l);
@@ -265,8 +219,7 @@ public class MinTest extends AggregateFunctionTest {
         }
 
         // Then 1
-        assertTrue(doubleMin.state()[0] instanceof Double);
-        assertEquals(Double.MAX_VALUE, doubleMin.state()[0]);
+        assertNull(doubleMin.state()[0]);
 
         // When 2
         try {
@@ -276,8 +229,7 @@ public class MinTest extends AggregateFunctionTest {
         }
 
         // Then 2
-        assertTrue(doubleMin.state()[0] instanceof Double);
-        assertEquals(Double.MAX_VALUE, doubleMin.state()[0]);
+        assertNull(doubleMin.state()[0]);
 
         // When 3
         doubleMin._aggregate(2.1d);
@@ -429,9 +381,9 @@ public class MinTest extends AggregateFunctionTest {
 
         // When 1
         intMin.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(intMin.state()[0] instanceof Integer);
-        assertEquals(Integer.MAX_VALUE, intMin.state()[0]);
+        assertNull(intMin.state()[0]);
     }
 
     @Test
@@ -443,9 +395,9 @@ public class MinTest extends AggregateFunctionTest {
 
         // When 1
         longMin.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(longMin.state()[0] instanceof Long);
-        assertEquals(Long.MAX_VALUE, longMin.state()[0]);
+        assertNull(longMin.state()[0]);
     }
 
     @Test
@@ -457,9 +409,9 @@ public class MinTest extends AggregateFunctionTest {
 
         // When 1
         doubleMin.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(doubleMin.state()[0] instanceof Double);
-        assertEquals(Double.MAX_VALUE, doubleMin.state()[0]);
+        assertNull(doubleMin.state()[0]);
     }
 
     @Test
@@ -472,14 +424,12 @@ public class MinTest extends AggregateFunctionTest {
         int firstValue = 1;
         min._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, min.getMode());
         assertTrue(min.state()[0] instanceof Integer);
         assertEquals(firstValue, min.state()[0]);
 
         // When 2
         min.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, min.getMode());
         assertTrue(min.state()[0] instanceof Integer);
         assertEquals(firstValue, min.state()[0]);
     }
@@ -494,14 +444,12 @@ public class MinTest extends AggregateFunctionTest {
         long firstValue = 1l;
         min._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, min.getMode());
         assertTrue(min.state()[0] instanceof Long);
         assertEquals(firstValue, min.state()[0]);
 
         // When 2
         min.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, min.getMode());
         assertTrue(min.state()[0] instanceof Long);
         assertEquals(firstValue, min.state()[0]);
     }
@@ -516,14 +464,12 @@ public class MinTest extends AggregateFunctionTest {
         double firstValue = 1.0f;
         min._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, min.getMode());
         assertTrue(min.state()[0] instanceof Double);
         assertEquals(firstValue, min.state()[0]);
 
         // When 2
         min.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, min.getMode());
         assertTrue(min.state()[0] instanceof Double);
         assertEquals(firstValue, min.state()[0]);
     }
@@ -609,7 +555,7 @@ public class MinTest extends AggregateFunctionTest {
         final Min min = new Min();
         min.setMode(NumericAggregateFunction.NumberType.INT);
         min.init();
-        int initialState = (int) min.state()[0];
+        Integer initialState = (Integer) min.state()[0];
         min._aggregate(1);
 
         // When

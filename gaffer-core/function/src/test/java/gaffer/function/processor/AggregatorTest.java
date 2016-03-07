@@ -16,22 +16,24 @@
 
 package gaffer.function.processor;
 
-import gaffer.function.AggregateFunction;
-import gaffer.function.Tuple;
-import gaffer.function.context.PassThroughFunctionContext;
-import java.util.Collections;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import gaffer.function.AggregateFunction;
+import gaffer.function.Tuple;
+import gaffer.function.context.PassThroughFunctionContext;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import java.util.Collections;
+import java.util.List;
 
 public class AggregatorTest {
     private AggregateFunction function1;
@@ -152,6 +154,42 @@ public class AggregatorTest {
         verify(function2).aggregate(argumentCaptor3.capture());
         assertEquals(value2, argumentCaptor3.getValue()[0]);
     }
+
+    @Test
+    public void shouldNotCallAggregateFunctionIfSelectionContainsAllNullValues() {
+        // Given
+        final String reference1 = "reference1";
+        final String reference2 = "reference2";
+        final String value1 = null;
+        final String value2 = null;
+        final Aggregator<String> aggregator = new Aggregator<>();
+
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
+        given(functionContext1.getFunction()).willReturn(function1);
+        aggregator.addFunction(functionContext1);
+
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext2 = mock(PassThroughFunctionContext.class);
+        given(functionContext2.getFunction()).willReturn(function2);
+        aggregator.addFunction(functionContext2);
+
+
+        final Tuple<String> tuple = mock(Tuple.class);
+        given(tuple.get(reference1)).willReturn(value1);
+        given(tuple.get(reference2)).willReturn(value2);
+
+        given(functionContext1.select(tuple)).willReturn(new String[]{value1, value2});
+        given(functionContext2.select(tuple)).willReturn(new String[]{value2});
+
+        // When
+        aggregator.aggregate(tuple);
+
+        // Then
+        verify(functionContext1).getFunction();
+        verify(functionContext2).getFunction();
+        verify(function1, never()).aggregate(Mockito.any(Object[].class));
+        verify(function2, never()).aggregate(Mockito.any(Object[].class));
+    }
+
 
     @Test
     public void shouldNotDoNothingIfStateCalledWithNoFunctions() {
