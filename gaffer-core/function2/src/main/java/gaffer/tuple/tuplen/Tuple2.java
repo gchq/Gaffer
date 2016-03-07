@@ -29,9 +29,9 @@ public abstract class Tuple2<A, B> extends Tuple1<A> {
     public abstract void put1(B b);
 
     /**
-     * @return New <code>Tuple2</code> backed by a new {@link gaffer.tuple.ArrayTuple} of size 2.
+     * @return New {@link gaffer.tuple.ArrayTuple} of size 2.
      */
     public static Tuple2 createTuple() {
-        return new TupleView(new Integer[][]{{0}, {1}}, new ArrayTuple(2));
+        return new ArrayTuple(2);
     }
 }

@@ -16,24 +16,97 @@
 
 package gaffer.tuple;
 
-import java.util.ArrayList;
+import gaffer.tuple.tuplen.Tuple5;
 
-public class ArrayTuple extends ArrayList<Object> implements Tuple<Integer> {
-    private static final long serialVersionUID = -4729093309234184200L;
+import java.util.Arrays;
+import java.util.Iterator;
 
-    public ArrayTuple(final int size) {
-        super(size);
+/**
+ * An <code>ArrayTuple</code> is a simple implementation of the {@link gaffer.tuple.Tuple} interface, backed by an
+ * array of {@link java.lang.Object}s, referenced by their index.
+ */
+public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
+    private final Object[] values;
+
+    /**
+     * Create an <code>ArrayTuple</code> backed by the given array.
+     * @param values Array backing this <code>ArrayTuple</code>.
+     */
+    public ArrayTuple(final Object[] values) {
+        this.values = values;
     }
 
-    public void putValue(final Integer reference, final Object value) {
-        add(reference, value);
+    /**
+     * Create an <code>ArrayTuple</code> backed by a new array of the given size.
+     * @param size Size of array backing this <code>ArrayTuple</code>.
+     */
+    public ArrayTuple(int size) {
+        this.values = new Object[size];
     }
 
-    public Object getValue(final Integer reference) {
-        return get(reference);
+    public Object getValue(final Integer index) {
+        return values[index];
+    }
+
+    public void putValue(final Integer index, final Object value) {
+        values[index] = value;
     }
 
     public Iterable<Object> values() {
-        return this;
+        return Arrays.asList(values);
+    }
+
+    public Iterator<Object> iterator() {
+        return values().iterator();
+    }
+
+    @Override
+    public Object get4() {
+        return values[4];
+    }
+
+    @Override
+    public void put4(Object value) {
+        values[4] = value;
+    }
+
+    @Override
+    public Object get3() {
+        return values[3];
+    }
+
+    @Override
+    public void put3(Object value) {
+        values[3] = value;
+    }
+
+    @Override
+    public Object get2() {
+        return values[2];
+    }
+
+    @Override
+    public void put2(Object value) {
+        values[2] = value;
+    }
+
+    @Override
+    public Object get1() {
+        return values[1];
+    }
+
+    @Override
+    public void put1(Object value) {
+        values[1] = value;
+    }
+
+    @Override
+    public Object get0() {
+        return values[0];
+    }
+
+    @Override
+    public void put0(Object value) {
+        values[0] = value;
     }
 }

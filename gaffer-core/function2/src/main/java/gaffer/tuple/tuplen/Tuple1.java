@@ -29,9 +29,9 @@ public abstract class Tuple1<A> implements Tuple<Integer> {
     public abstract void put0(A a);
 
     /**
-     * @return New <code>Tuple1</code> backed by a new {@link gaffer.tuple.ArrayTuple} of size 1.
+     * @return New {@link gaffer.tuple.ArrayTuple} of size 1.
      */
     public static Tuple1 createTuple() {
-        return new TupleView(new Integer[][]{{0}}, new ArrayTuple(1));
+        return new ArrayTuple(1);
     }
 }

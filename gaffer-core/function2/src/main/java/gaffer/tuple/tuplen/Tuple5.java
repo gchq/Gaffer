@@ -32,9 +32,9 @@ public abstract class Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
     public abstract void put4(E e);
 
     /**
-     * @return New <code>Tuple5</code> backed by a new {@link gaffer.tuple.ArrayTuple} of size 5.
+     * @return New {@link gaffer.tuple.ArrayTuple} of size 5.
      */
     public static Tuple5 createTuple() {
-        return new TupleView(new Integer[][]{{0}, {1}, {2}, {3}, {4}}, new ArrayTuple(5));
+        return new ArrayTuple(5);
     }
 }
