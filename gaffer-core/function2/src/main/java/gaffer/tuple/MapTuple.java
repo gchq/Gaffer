@@ -24,14 +24,14 @@ import java.util.Map;
  * A <code>MapTuple</code> is an implementation of {@link gaffer.tuple.Tuple} backed by a
  * {@link java.util.Map}.
  */
-public class MapTuple implements Tuple<String> {
-    private Map<String, Object> values;
+public class MapTuple<R> implements Tuple<R> {
+    private Map<R, Object> values;
 
     /**
      * Create a <code>MapTuple</code> backed by the given {@link java.util.Map}.
      * @param values Backing {@link java.util.Map}.
      */
-    public MapTuple(final Map<String, Object> values) {
+    public MapTuple(final Map<R, Object> values) {
         this.values = values;
     }
 
@@ -39,16 +39,16 @@ public class MapTuple implements Tuple<String> {
      * Create a <code>MapTuple</code> backed by a new {@link java.util.HashMap}.
      */
     public MapTuple() {
-        this.values = new HashMap<String, Object>();
+        this.values = new HashMap<R, Object>();
     }
 
     @Override
-    public void put(final String reference, final Object value) {
+    public void put(final R reference, final Object value) {
         values.put(reference, value);
     }
 
     @Override
-    public Object get(final String reference) {
+    public Object get(final R reference) {
         return values.get(reference);
     }
 
