@@ -27,7 +27,16 @@ import gaffer.tuple.ArrayTuple;
  * @param <E> Type of fifth tuple value.
  */
 public abstract class Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
+    /**
+     * Get the value at index 4.
+     * @return Value.
+     */
     public abstract E get4();
+
+    /**
+     * Put a value into index 4.
+     * @param e Value to put.
+     */
     public abstract void put4(E e);
 
     /**

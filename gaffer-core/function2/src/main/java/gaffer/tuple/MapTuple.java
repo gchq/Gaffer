@@ -20,29 +20,44 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * A <code>MapTuple</code> is an implementation of {@link gaffer.tuple.Tuple} backed by a
+ * {@link java.util.Map}.
+ */
 public class MapTuple implements Tuple<String> {
     private Map<String, Object> values;
 
+    /**
+     * Create a <code>MapTuple</code> backed by the given {@link java.util.Map}.
+     * @param values Backing {@link java.util.Map}.
+     */
     public MapTuple(final Map<String, Object> values) {
         this.values = values;
     }
 
+    /**
+     * Create a <code>MapTuple</code> backed by a new {@link java.util.HashMap}.
+     */
     public MapTuple() {
         this.values = new HashMap<String, Object>();
     }
 
+    @Override
     public void put(final String reference, final Object value) {
         values.put(reference, value);
     }
 
+    @Override
     public Object get(final String reference) {
         return values.get(reference);
     }
 
+    @Override
     public Iterable<Object> values() {
         return values.values();
     }
 
+    @Override
     public Iterator<Object> iterator() {
         return values().iterator();
     }

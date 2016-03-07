@@ -46,18 +46,30 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
         this.values = new Object[size];
     }
 
+    /**
+     * Get a value from this <code>ArrayTuple</code> at the given index.
+     * @param index Value index.
+     * @return Value.
+     */
     public Object get(final Integer index) {
         return values[index];
     }
 
+    /**
+     * Put a value into this <code>ArrayTuple</code> at the given index.
+     * @param index Value index.
+     * @param value Value to put.
+     */
     public void put(final Integer index, final Object value) {
         values[index] = value;
     }
 
+    @Override
     public Iterable<Object> values() {
         return Arrays.asList(values);
     }
 
+    @Override
     public Iterator<Object> iterator() {
         return values().iterator();
     }

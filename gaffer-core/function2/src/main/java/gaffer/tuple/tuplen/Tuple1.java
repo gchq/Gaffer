@@ -24,7 +24,16 @@ import gaffer.tuple.Tuple;
  * @param <A> Type of first tuple value.
  */
 public abstract class Tuple1<A> implements Tuple<Integer> {
+    /**
+     * Get the value at index 0.
+     * @return Value.
+     */
     public abstract A get0();
+
+    /**
+     * Put a value into index 0.
+     * @param a Value to put.
+     */
     public abstract void put0(A a);
 
     /**

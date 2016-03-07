@@ -24,7 +24,16 @@ import gaffer.tuple.ArrayTuple;
  * @param <B> Type of second tuple value.
  */
 public abstract class Tuple2<A, B> extends Tuple1<A> {
+    /**
+     * Get the value at index 1.
+     * @return Value.
+     */
     public abstract B get1();
+
+    /**
+     * Put a value into index 1.
+     * @param b Value to put.
+     */
     public abstract void put1(B b);
 
     /**

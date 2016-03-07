@@ -16,8 +16,27 @@
 
 package gaffer.tuple;
 
+/**
+ * A <code>Tuple</code> provides a map-like interface to any data structure.
+ * @param <R> The type of reference used by the underlying data structure to access data values.
+ */
 public interface Tuple<R> extends Iterable<Object> {
+    /**
+     * Put a value into this <code>Tuple</code> with the given reference.
+     * @param reference Value reference.
+     * @param value Value to put.
+     */
     void put(R reference, Object value);
+
+    /**
+     * Get a value from this <code>Tuple</code> with the given reference.
+     * @param reference Value reference.
+     * @return Value or null if not present.
+     */
     Object get(R reference);
+
+    /**
+     * @return Values in this <code>Tuple</code>.
+     */
     Iterable<Object> values();
 }

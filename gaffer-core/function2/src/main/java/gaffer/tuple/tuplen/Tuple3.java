@@ -25,7 +25,16 @@ import gaffer.tuple.ArrayTuple;
  * @param <C> Type of third tuple value.
  */
 public abstract class Tuple3<A, B, C> extends Tuple2<A, B> {
+    /**
+     * Get the value at index 2.
+     * @return Value.
+     */
     public abstract C get2();
+
+    /**
+     * Put a value into index 2.
+     * @param c Value to put.
+     */
     public abstract void put2(C c);
 
     /**
