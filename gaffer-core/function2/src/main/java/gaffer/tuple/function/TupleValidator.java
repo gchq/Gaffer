@@ -19,7 +19,7 @@ package gaffer.tuple.function;
 import gaffer.function2.Validator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.handler.TupleView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +79,7 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
     public boolean validate(final Tuple<R> input) {
         if (validators != null) {
             for (FunctionContext<Validator, R> validator : validators) {
-                boolean valid = validator.getFunction().validate(validator.selectFrom(input));
+                boolean valid = validator.getFunction().validate(validator.select(input));
                 if (!valid) {
                     return false;
                 }

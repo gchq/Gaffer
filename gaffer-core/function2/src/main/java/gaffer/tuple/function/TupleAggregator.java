@@ -20,7 +20,7 @@ import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.handler.TupleView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +30,8 @@ import java.util.List;
  * {@link gaffer.function2.StatefulFunction}>s to aggregate the tuple values. Outputs a single tuple.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
-    private List<FunctionContext<StatefulFunction, R>> functions;
+public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<Tuple<R>> {
+    private List<FunctionContext<F, R>> functions;
     private Tuple<R> outputTuple;
 
     /**
@@ -43,7 +43,7 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
      * Create a <code>TupleAggregator</code> that applies the given functions.
      * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
      */
-    public TupleAggregator(final List<FunctionContext<StatefulFunction, R>> functions) {
+    public TupleAggregator(final List<FunctionContext<F, R>> functions) {
         setFunctions(functions);
         outputTuple = null;
     }
@@ -51,16 +51,16 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
     /**
      * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
      */
-    public void setFunctions(final List<FunctionContext<StatefulFunction, R>> functions) {
+    public void setFunctions(final List<FunctionContext<F, R>> functions) {
         this.functions = functions;
     }
 
     /**
      * @param function {@link gaffer.function2.StatefulFunction} to aggregate tuple values.
      */
-    public void addFunction(final FunctionContext<StatefulFunction, R> function) {
+    public void addFunction(final FunctionContext<F, R> function) {
         if (functions == null) {
-            functions = new ArrayList<FunctionContext<StatefulFunction, R>>();
+            functions = new ArrayList<FunctionContext<F, R>>();
         }
         functions.add(function);
     }
@@ -70,8 +70,8 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
      * @param function The function to aggregate tuple values.
      * @param projection Function output projection criteria.
      */
-    public void addFunction(final TupleView<R> selection, final StatefulFunction function, final TupleView<R> projection) {
-        FunctionContext<StatefulFunction, R> context = new FunctionContext<StatefulFunction, R>(selection, function, projection);
+    public void addFunction(final TupleView<R> selection, final F function, final TupleView<R> projection) {
+        FunctionContext<F, R> context = new FunctionContext<F, R>(selection, function, projection);
         addFunction(context);
     }
 
@@ -81,7 +81,7 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
     public void init() {
         outputTuple = null;
         if (functions != null) {
-            for (FunctionContext<StatefulFunction, R> function : functions) {
+            for (FunctionContext<F, R> function : functions) {
                 function.getFunction().init();
             }
         }
@@ -96,8 +96,8 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
             if (outputTuple == null) {
                 outputTuple = input;
             }
-            for (FunctionContext<StatefulFunction, R> function : functions) {
-                function.getFunction().execute(function.selectFrom(input));
+            for (FunctionContext<F, R> function : functions) {
+                function.getFunction().execute(function.select(input));
             }
         }
     }
@@ -120,8 +120,8 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
      */
     public Tuple<R> state() {
         if (outputTuple != null) {
-            for (FunctionContext<StatefulFunction, R> function : functions) {
-                function.projectInto(outputTuple, function.getFunction().state());
+            for (FunctionContext<F, R> function : functions) {
+                function.project(outputTuple, function.getFunction().state());
             }
         }
         return outputTuple;
@@ -130,9 +130,9 @@ public class TupleAggregator<R> extends Aggregator<Tuple<R>> {
     /**
      * @return New <code>TupleAggregator</code> with new {@link gaffer.function2.StatefulFunction}s.
      */
-    public TupleAggregator<R> copy() {
-        TupleAggregator<R> copy = new TupleAggregator<R>();
-        for (FunctionContext<StatefulFunction, R> function : this.functions) {
+    public TupleAggregator<F, R> copy() {
+        TupleAggregator<F, R> copy = new TupleAggregator<F, R>();
+        for (FunctionContext<F, R> function : this.functions) {
             copy.addFunction(function.copy());
         }
         return copy;

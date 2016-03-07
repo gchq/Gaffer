@@ -19,7 +19,7 @@ package gaffer.tuple.function;
 import gaffer.tuple.Tuple;
 import gaffer.function2.Transformer;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.handler.TupleView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +80,7 @@ public class TupleTransformer<R> extends Transformer<Tuple<R>, Tuple<R>> {
     public Tuple<R> transform(final Tuple<R> input) {
         if (transforms != null) {
             for (FunctionContext<Transformer, R> transform : transforms) {
-                transform.projectInto(input, transform.getFunction().execute(transform.selectFrom(input)));
+                transform.project(input, transform.getFunction().execute(transform.select(input)));
             }
         }
         return input;

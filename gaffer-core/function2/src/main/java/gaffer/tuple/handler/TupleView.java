@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.view;
+package gaffer.tuple.handler;
 
 import gaffer.tuple.Tuple;
 import gaffer.tuple.tuplen.Tuple5;
@@ -41,7 +41,16 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
         setReferences(references);
     }
 
+    public TupleView(final R[] references) {
+        setReferences(references);
+    }
+
     public TupleView(final R[][] references, final Tuple<R> tuple) {
+        this(references);
+        setTuple(tuple);
+    }
+
+    public TupleView(final R[] references, final Tuple<R> tuple) {
         this(references);
         setTuple(tuple);
     }
@@ -54,6 +63,13 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
             } else if (refs.length > 1) {
                 handlers.add(new MultiReferenceHandler<R>(Arrays.asList(refs)));
             }
+        }
+    }
+
+    public void setReferences(final R[] references) {
+        handlers = new ArrayList<TupleHandler<R>>(references.length);
+        for (R reference : references) {
+            handlers.add(new SingleReferenceHandler<R>(reference));
         }
     }
 

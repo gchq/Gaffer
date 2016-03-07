@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.view;
+package gaffer.tuple.handler;
 
 import gaffer.tuple.Tuple;
 

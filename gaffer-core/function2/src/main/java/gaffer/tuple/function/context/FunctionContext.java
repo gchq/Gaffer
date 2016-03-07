@@ -18,16 +18,16 @@ package gaffer.tuple.function.context;
 
 import gaffer.function2.Function;
 import gaffer.tuple.Tuple;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.handler.TupleHandler;
+import gaffer.tuple.handler.TupleView;
 
 /**
  * A <code>FunctionContext</code> wraps a {@link gaffer.function2.Function}. It appends application-specific
  * configuration data to the function so that it can be executed in the context of that application.
- *
- * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context
- * @param <R> The type of reference used to select from and project into tuples
+ * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context.
+ * @param <R> The type of reference used to select from and project into tuples.
  */
-public class FunctionContext<F extends Function, R> {
+public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
     protected F function;
     private TupleView<R> selectionView;
     private TupleView<R> projectionView;
@@ -68,7 +68,7 @@ public class FunctionContext<F extends Function, R> {
      * @param source Source tuple.
      * @return Input value.
      */
-    public Object selectFrom(final Tuple<R> source) {
+    public Object select(final Tuple<R> source) {
         if (selectionView != null) {
             return selectionView.select(source);
         } else {
@@ -81,7 +81,7 @@ public class FunctionContext<F extends Function, R> {
      * @param target Target tuple.
      * @param output Output value.
      */
-    public void projectInto(final Tuple<R> target, final Object output) {
+    public void project(final Tuple<R> target, final Object output) {
         if (projectionView != null) {
             projectionView.project(target, output);
         }
@@ -95,10 +95,38 @@ public class FunctionContext<F extends Function, R> {
     }
 
     /**
+     * @param selection References of tuple values to select.
+     */
+    public void setSelection(final R[][] selection) {
+        selectionView = new TupleView<R>(selection);
+    }
+
+    /**
+     * @param selection References of tuple values to select.
+     */
+    public void setSelection(final R[] selection) {
+        selectionView = new TupleView<R>(selection);
+    }
+
+    /**
      * @param projectionView Function output projection criteria.
      */
     public void setProjection(final TupleView<R> projectionView) {
         this.projectionView = projectionView;
+    }
+
+    /**
+     * @param projection References of tuple values to project.
+     */
+    public void setProjection(final R[][] projection) {
+        projectionView = new TupleView<R>(projection);
+    }
+
+    /**
+     * @param projection References of tuple values to project.
+     */
+    public void setProjection(final R[] projection) {
+        projectionView = new TupleView<R>(projection);
     }
 
     /**
