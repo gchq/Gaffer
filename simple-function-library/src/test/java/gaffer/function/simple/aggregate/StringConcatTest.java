@@ -24,7 +24,7 @@ public class StringConcatTest extends AggregateFunctionTest {
         aggregator.aggregate(new Object[]{null});
 
         // Then
-        assertEquals("1;2;", aggregator.state()[0]);
+        assertEquals("1;2", aggregator.state()[0]);
     }
 
     @Test

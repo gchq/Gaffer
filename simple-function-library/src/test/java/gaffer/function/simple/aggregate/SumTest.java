@@ -40,52 +40,6 @@ public class SumTest extends AggregateFunctionTest {
     }
 
     @Test
-    public void testInitialiseInIntMode() {
-        // Given 1
-        final Sum intSum = new Sum();
-        intSum.setMode(NumericAggregateFunction.NumberType.INT);
-
-        assertEquals(NumericAggregateFunction.NumberType.INT, intSum.getMode());
-
-        // When 1
-        intSum.init();
-
-        // Then
-        assertEquals(0, intSum.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInLongMode() {
-        // Given 1
-        final Sum longSum = new Sum();
-        longSum.setMode(NumericAggregateFunction.NumberType.LONG);
-
-        assertEquals(NumericAggregateFunction.NumberType.LONG, longSum.getMode());
-
-        // When 1
-        longSum.init();
-
-        // Then
-        assertEquals(0l, longSum.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInDoubleMode() {
-        // Given 1
-        final Sum doubleSum = new Sum();
-        doubleSum.setMode(NumericAggregateFunction.NumberType.DOUBLE);
-
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, doubleSum.getMode());
-
-        // When 1
-        doubleSum.init();
-
-        // Then
-        assertEquals(0.0d, doubleSum.state()[0]);
-    }
-
-
-    @Test
     public void testAggregateInIntMode() {
         // Given
         final Sum intSum = new Sum();
@@ -199,8 +153,7 @@ public class SumTest extends AggregateFunctionTest {
         }
 
         // Then 1
-        assertTrue(longSum.state()[0] instanceof Long);
-        assertEquals(0l, longSum.state()[0]);
+        assertNull(longSum.state()[0]);
 
         // When 2
         longSum._aggregate(3l);
@@ -267,8 +220,7 @@ public class SumTest extends AggregateFunctionTest {
         }
 
         // Then 1
-        assertTrue(doubleSum.state()[0] instanceof Double);
-        assertEquals(0.0d, doubleSum.state()[0]);
+        assertNull(doubleSum.state()[0]);
 
         // When 2
         try {
@@ -278,8 +230,7 @@ public class SumTest extends AggregateFunctionTest {
         }
 
         // Then 2
-        assertTrue(doubleSum.state()[0] instanceof Double);
-        assertEquals(0.0d, doubleSum.state()[0]);
+        assertNull(doubleSum.state()[0]);
 
         // When 3
         doubleSum._aggregate(2.1d);
@@ -431,9 +382,9 @@ public class SumTest extends AggregateFunctionTest {
 
         // When 1
         intSum._aggregate(null);
+
         // Then 1
-        assertTrue(intSum.state()[0] instanceof Integer);
-        assertEquals(0, intSum.state()[0]);
+        assertNull(intSum.state()[0]);
     }
 
     @Test
@@ -445,9 +396,9 @@ public class SumTest extends AggregateFunctionTest {
 
         // When 1
         longSum._aggregate(null);
+
         // Then 1
-        assertTrue(longSum.state()[0] instanceof Long);
-        assertEquals(0l, longSum.state()[0]);
+        assertNull(longSum.state()[0]);
     }
 
     @Test
@@ -459,9 +410,9 @@ public class SumTest extends AggregateFunctionTest {
 
         // When 1
         doubleSum._aggregate(null);
+
         // Then 1
-        assertTrue(doubleSum.state()[0] instanceof Double);
-        assertEquals(0.0d, doubleSum.state()[0]);
+        assertNull(doubleSum.state()[0]);
     }
 
     @Test
@@ -475,14 +426,12 @@ public class SumTest extends AggregateFunctionTest {
         sum._aggregate(firstValue);
 
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(sum.state()[0] instanceof Integer);
         assertEquals(firstValue, sum.state()[0]);
 
         // When 2
         sum._aggregate(null);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(sum.state()[0] instanceof Integer);
         assertEquals(firstValue, sum.state()[0]);
     }
@@ -498,14 +447,12 @@ public class SumTest extends AggregateFunctionTest {
         sum._aggregate(firstValue);
 
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(sum.state()[0] instanceof Long);
         assertEquals(firstValue, sum.state()[0]);
 
         // When 2
         sum._aggregate(null);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(sum.state()[0] instanceof Long);
         assertEquals(firstValue, sum.state()[0]);
     }
@@ -521,7 +468,6 @@ public class SumTest extends AggregateFunctionTest {
         sum._aggregate(firstValue);
 
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(sum.state()[0] instanceof Double);
         assertEquals(firstValue, sum.state()[0]);
 
@@ -529,7 +475,6 @@ public class SumTest extends AggregateFunctionTest {
         sum._aggregate(null);
 
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(sum.state()[0] instanceof Double);
         assertEquals(firstValue, sum.state()[0]);
     }
@@ -615,7 +560,7 @@ public class SumTest extends AggregateFunctionTest {
         final Sum sum = new Sum();
         sum.setMode(NumericAggregateFunction.NumberType.INT);
         sum.init();
-        int initialState = (int) sum.state()[0];
+        Integer initialState = (Integer) sum.state()[0];
         sum._aggregate(1);
 
         // When
