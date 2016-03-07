@@ -43,11 +43,12 @@ public class StringConcat extends SimpleAggregateFunction<String> {
 
     @Override
     protected void _aggregate(final String input) {
-        final String str = null != input ? input : "";
-        if (null == aggregate) {
-            aggregate = str;
-        } else {
-            aggregate = aggregate + separator + str;
+        if (null != input) {
+            if (null == aggregate) {
+                aggregate = input;
+            } else {
+                aggregate = aggregate + separator + input;
+            }
         }
     }
 

@@ -3,7 +3,7 @@ package gaffer.function.simple.aggregate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
@@ -51,7 +51,7 @@ public class FreqMapAggregatorTest extends AggregateFunctionTest {
 
         // Then
         assertNotSame(aggregator, clone);
-        assertTrue(((FreqMap) clone.state()[0]).isEmpty());
+        assertNull((clone.state()[0]));
     }
 
 

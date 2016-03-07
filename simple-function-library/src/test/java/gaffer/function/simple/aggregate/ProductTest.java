@@ -40,52 +40,6 @@ public class ProductTest extends AggregateFunctionTest {
     }
 
     @Test
-    public void testInitialiseInIntMode() {
-        // Given 1
-        final Product intProduct = new Product();
-        intProduct.setMode(NumericAggregateFunction.NumberType.INT);
-
-        assertEquals(NumericAggregateFunction.NumberType.INT, intProduct.getMode());
-
-        // When 1
-        intProduct.init();
-
-        // Then
-        assertEquals(1, intProduct.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInLongMode() {
-        // Given 1
-        final Product longProduct = new Product();
-        longProduct.setMode(NumericAggregateFunction.NumberType.LONG);
-
-        assertEquals(NumericAggregateFunction.NumberType.LONG, longProduct.getMode());
-
-        // When 1
-        longProduct.init();
-
-        // Then
-        assertEquals(1l, longProduct.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInDoubleMode() {
-        // Given 1
-        final Product doubleProduct = new Product();
-        doubleProduct.setMode(NumericAggregateFunction.NumberType.DOUBLE);
-
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, doubleProduct.getMode());
-
-        // When 1
-        doubleProduct.init();
-
-        // Then
-        assertEquals(1.0d, doubleProduct.state()[0]);
-    }
-
-
-    @Test
     public void testAggregateInIntMode() {
         // Given
         final Product intProduct = new Product();
@@ -199,8 +153,7 @@ public class ProductTest extends AggregateFunctionTest {
         }
 
         // Then 1
-        assertTrue(longProduct.state()[0] instanceof Long);
-        assertEquals(1l, longProduct.state()[0]);
+        assertNull(longProduct.state()[0]);
 
         // When 2
         longProduct._aggregate(3l);
@@ -267,8 +220,7 @@ public class ProductTest extends AggregateFunctionTest {
         }
 
         // Then 1
-        assertTrue(doubleProduct.state()[0] instanceof Double);
-        assertEquals(1.0d, doubleProduct.state()[0]);
+        assertNull(doubleProduct.state()[0]);
 
         // When 2
         try {
@@ -278,8 +230,7 @@ public class ProductTest extends AggregateFunctionTest {
         }
 
         // Then 2
-        assertTrue(doubleProduct.state()[0] instanceof Double);
-        assertEquals(1.0d, doubleProduct.state()[0]);
+        assertNull(doubleProduct.state()[0]);
 
         // When 3
         doubleProduct._aggregate(2.1d);
@@ -431,9 +382,9 @@ public class ProductTest extends AggregateFunctionTest {
 
         // When 1
         intProduct.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(intProduct.state()[0] instanceof Integer);
-        assertEquals(1, intProduct.state()[0]);
+        assertNull(intProduct.state()[0]);
     }
 
     @Test
@@ -445,9 +396,9 @@ public class ProductTest extends AggregateFunctionTest {
 
         // When 1
         longProduct.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(longProduct.state()[0] instanceof Long);
-        assertEquals(1l, longProduct.state()[0]);
+        assertNull(longProduct.state()[0]);
     }
 
     @Test
@@ -459,9 +410,9 @@ public class ProductTest extends AggregateFunctionTest {
 
         // When 1
         doubleProduct.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(doubleProduct.state()[0] instanceof Double);
-        assertEquals(1.0d, doubleProduct.state()[0]);
+        assertNull(doubleProduct.state()[0]);
     }
 
     @Test
@@ -474,14 +425,13 @@ public class ProductTest extends AggregateFunctionTest {
         int firstValue = 1;
         product._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(product.state()[0] instanceof Integer);
         assertEquals(firstValue, product.state()[0]);
 
         // When 2
         product.aggregate(new Object[]{null});
+
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(product.state()[0] instanceof Integer);
         assertEquals(firstValue, product.state()[0]);
     }
@@ -496,14 +446,12 @@ public class ProductTest extends AggregateFunctionTest {
         long firstValue = 1l;
         product._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(product.state()[0] instanceof Long);
         assertEquals(firstValue, product.state()[0]);
 
         // When 2
         product.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(product.state()[0] instanceof Long);
         assertEquals(firstValue, product.state()[0]);
     }
@@ -518,14 +466,12 @@ public class ProductTest extends AggregateFunctionTest {
         double firstValue = 1.0f;
         product._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(product.state()[0] instanceof Double);
         assertEquals(firstValue, product.state()[0]);
 
         // When 2
         product.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(product.state()[0] instanceof Double);
         assertEquals(firstValue, product.state()[0]);
     }
@@ -615,7 +561,7 @@ public class ProductTest extends AggregateFunctionTest {
         final Product product = new Product();
         product.setMode(NumericAggregateFunction.NumberType.INT);
         product.init();
-        int initialState = (int) product.state()[0];
+        Integer initialState = (Integer) product.state()[0];
         // This is set to 2 because 1*1 = 1 which is also the initial value for Product.
         product._aggregate(2);
 

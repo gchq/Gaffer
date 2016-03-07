@@ -18,6 +18,7 @@ package gaffer.function.simple.aggregate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.exception.SerialisationException;
@@ -46,7 +47,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     public void testExecute() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
-        assertEquals(0l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
+        assertNull((hyperLogLogPlusAggregator.state()[0]));
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         assertEquals(2l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus2);
@@ -84,7 +85,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
+        assertNull((clone.state()[0]));
         clone._aggregate(hyperLogLogPlus2);
         assertEquals(hyperLogLogPlus2.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
@@ -95,7 +96,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         hyperLogLogPlusAggregator.init();
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
+        assertNull((clone.state()[0]));
         clone._aggregate(hyperLogLogPlus1);
         assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
@@ -113,7 +114,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         }
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
+        assertNull((clone.state()[0]));
         clone._aggregate(hyperLogLogPlus1);
         assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
