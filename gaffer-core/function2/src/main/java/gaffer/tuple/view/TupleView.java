@@ -57,23 +57,23 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
         }
     }
 
-    public Object get(final Tuple<R> tuple) {
+    public Object select(final Tuple<R> tuple) {
         if (handlers.size() == 1) {
-            return handlers.get(0).get(tuple);
+            return handlers.get(0).select(tuple);
         } else {
             setTuple(tuple);
             return this;
         }
     }
 
-    public void set(final Tuple<R> tuple, final Object values) {
+    public void project(final Tuple<R> tuple, final Object values) {
         if (handlers.size() == 1) {
-            handlers.get(0).set(tuple, values);
+            handlers.get(0).project(tuple, values);
         } else {
             setTuple(tuple);
             int i = 0;
             for (Object value : (Iterable) values) {
-                putValue(i++, value);
+                put(i++, value);
             }
         }
     }
@@ -82,18 +82,18 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
         this.tuple = tuple;
     }
 
-    public Object getValue(final Integer index) {
-        return handlers.get(index).get(tuple);
+    public Object get(final Integer index) {
+        return handlers.get(index).select(tuple);
     }
 
-    public void putValue(final Integer index, final Object value) {
-        handlers.get(index).set(tuple, value);
+    public void put(final Integer index, final Object value) {
+        handlers.get(index).project(tuple, value);
     }
 
     public Iterable<Object> values() {
         List<Object> values = new ArrayList<Object>(handlers.size());
         for (int i = 0; i < handlers.size(); i++) {
-            values.add(handlers.get(i).get(tuple));
+            values.add(handlers.get(i).select(tuple));
         }
         return values;
     }
@@ -103,42 +103,42 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
     }
 
     public Object get4() {
-        return getValue(4);
+        return get(4);
     }
 
     public void put4(final Object value) {
-        putValue(4, value);
+        put(4, value);
     }
 
     public Object get3() {
-        return getValue(3);
+        return get(3);
     }
 
     public void put3(final Object value) {
-        putValue(3, value);
+        put(3, value);
     }
 
     public Object get2() {
-        return getValue(2);
+        return get(2);
     }
 
     public void put2(final Object value) {
-        putValue(2, value);
+        put(2, value);
     }
 
     public Object get1() {
-        return getValue(1);
+        return get(1);
     }
 
     public void put1(final Object value) {
-        putValue(1, value);
+        put(1, value);
     }
 
     public Object get0() {
-        return getValue(0);
+        return get(0);
     }
 
     public void put0(final Object value) {
-        putValue(0, value);
+        put(0, value);
     }
 }

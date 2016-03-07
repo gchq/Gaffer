@@ -19,6 +19,6 @@ package gaffer.tuple.view;
 import gaffer.tuple.Tuple;
 
 public interface TupleHandler<R> {
-    Object get(Tuple<R> source);
-    void set(Tuple<R> target, Object value);
+    Object select(Tuple<R> source);
+    void project(Tuple<R> target, Object value);
 }

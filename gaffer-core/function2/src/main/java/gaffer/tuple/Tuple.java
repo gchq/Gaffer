@@ -17,7 +17,7 @@
 package gaffer.tuple;
 
 public interface Tuple<R> extends Iterable<Object> {
-    void putValue(R reference, Object value);
-    Object getValue(R reference);
+    void put(R reference, Object value);
+    Object get(R reference);
     Iterable<Object> values();
 }

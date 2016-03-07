@@ -32,16 +32,16 @@ public class MultiReferenceHandler<R> implements TupleHandler<R> {
         view = new TupleView<R>(handlers);
     }
 
-    public Tuple get(final Tuple<R> source) {
+    public Tuple select(final Tuple<R> source) {
         view.setTuple(source);
         return view;
     }
 
-    public void set(final Tuple<R> target, final Object values) {
+    public void project(final Tuple<R> target, final Object values) {
         view.setTuple(target);
         int i = 0;
         for (Object value : (Iterable) values) {
-            view.putValue(i++, value);
+            view.put(i++, value);
         }
     }
 }

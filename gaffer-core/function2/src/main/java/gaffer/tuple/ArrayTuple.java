@@ -44,11 +44,11 @@ public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
         this.values = new Object[size];
     }
 
-    public Object getValue(final Integer index) {
+    public Object get(final Integer index) {
         return values[index];
     }
 
-    public void putValue(final Integer index, final Object value) {
+    public void put(final Integer index, final Object value) {
         values[index] = value;
     }
 

@@ -70,7 +70,7 @@ public class FunctionContext<F extends Function, R> {
      */
     public Object selectFrom(final Tuple<R> source) {
         if (selectionView != null) {
-            return selectionView.get(source);
+            return selectionView.select(source);
         } else {
             return null;
         }
@@ -83,7 +83,7 @@ public class FunctionContext<F extends Function, R> {
      */
     public void projectInto(final Tuple<R> target, final Object output) {
         if (projectionView != null) {
-            projectionView.set(target, output);
+            projectionView.project(target, output);
         }
     }
 

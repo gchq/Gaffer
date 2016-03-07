@@ -17,7 +17,6 @@
 package gaffer.tuple.tuplen;
 
 import gaffer.tuple.ArrayTuple;
-import gaffer.tuple.view.TupleView;
 
 /**
  * A {@link gaffer.tuple.Tuple} with five values of the specified generic types.

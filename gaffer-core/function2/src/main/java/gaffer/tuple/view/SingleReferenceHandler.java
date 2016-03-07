@@ -25,11 +25,11 @@ public class SingleReferenceHandler<R> implements TupleHandler<R> {
         this.reference = reference;
     }
 
-    public Object get(final Tuple<R> source) {
-        return source.getValue(reference);
+    public Object select(final Tuple<R> source) {
+        return source.get(reference);
     }
 
-    public void set(final Tuple<R> target, final Object value) {
-        target.putValue(reference, value);
+    public void project(final Tuple<R> target, final Object value) {
+        target.put(reference, value);
     }
 }

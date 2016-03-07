@@ -18,16 +18,29 @@ package gaffer.tuple;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
-public class MapTuple extends HashMap<String, Object> implements Tuple<String> {
-    private static final long serialVersionUID = -5799451579204438891L;
+public class MapTuple implements Tuple<String> {
+    private Map<String, Object> values;
 
-    public void putValue(final String reference, final Object value) {
-        put(reference, value);
+    public MapTuple(Map<String, Object> values) {
+        this.values = values;
     }
 
-    public Object getValue(final String reference) {
-        return get(reference);
+    public MapTuple() {
+        this.values = new HashMap<String, Object>();
+    }
+
+    public void put(final String reference, final Object value) {
+        values.put(reference, value);
+    }
+
+    public Object get(final String reference) {
+        return values.get(reference);
+    }
+
+    public Iterable<Object> values() {
+        return values.values();
     }
 
     public Iterator<Object> iterator() {
