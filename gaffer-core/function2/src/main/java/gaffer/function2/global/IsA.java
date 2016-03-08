@@ -80,7 +80,7 @@ public class IsA extends Validator<Object> {
      * Tests whether the argument supplied is an instance of the control class.
      *
      * @param input {@link java.lang.Object} to test.
-     * @return true iff input is non-null and can be cast to the control class, otherwise false.
+     * @return true iff input is null or non-null and can be cast to the control class, otherwise false.
      */
     @Override
     public boolean validate(final Object input) {
