@@ -33,57 +33,57 @@ public class ArrayTupleTest {
 
     @Test
     public void testTupleNAccessors() {
-        String put0 = "a";
-        Integer put1 = 1;
-        Long put2 = 2l;
-        Double put3 = 3.0d;
-        Float put4 = 4.0f;
+        String a = "a";
+        Integer b = 1;
+        Long c = 2l;
+        Double d = 3.0d;
+        Float e = 4.0f;
 
         ArrayTuple tuple = new ArrayTuple(5);
 
-        Tuple1<String> tuple1 = (Tuple1) tuple;
-        tuple1.put0(put0);
-        String got0 = tuple1.get0();
-        assertEquals("Unexpected value at index 0", put0, got0);
+        Tuple1<String> tuple1 = (Tuple1)tuple;
+        tuple1.put0(a);
+        assertEquals("Unexpected value at index 0", a, tuple1.get0());
+        assertEquals("Unexpected value at reference 0", a, tuple.get(0));
 
-        Tuple2<String, Integer> tuple2 = (Tuple2) tuple;
-        tuple2.put1(put1);
-        got0 = tuple2.get0();
-        Integer got1 = tuple2.get1();
-        assertEquals("Unexpected value at index 0", put0, got0);
-        assertEquals("Unexpected value at index 1", put1, got1);
+        Tuple2<String, Integer> tuple2 = (Tuple2)tuple;
+        tuple2.put1(b);
+        assertEquals("Unexpected value at index 0", a, tuple2.get0());
+        assertEquals("Unexpected value at index 1", b, tuple2.get1());
+        assertEquals("Unexpected value at reference 0", a, tuple.get(0));
+        assertEquals("Unexpected value at reference 1", b, tuple.get(1));
 
-        Tuple3<String, Integer, Long> tuple3 = (Tuple3) tuple;
-        tuple3.put2(put2);
-        got0 = tuple3.get0();
-        got1 = tuple3.get1();
-        Long got2 = tuple3.get2();
-        assertEquals("Unexpected value at index 0", put0, got0);
-        assertEquals("Unexpected value at index 1", put1, got1);
-        assertEquals("Unexpected value at index 2", put2, got2);
+        Tuple3<String, Integer, Long> tuple3 = (Tuple3)tuple;
+        tuple3.put2(c);
+        assertEquals("Unexpected value at index 0", a, tuple3.get0());
+        assertEquals("Unexpected value at index 1", b, tuple3.get1());
+        assertEquals("Unexpected value at index 2", c, tuple3.get2());
+        assertEquals("Unexpected value at reference 0", a, tuple.get(0));
+        assertEquals("Unexpected value at reference 1", b, tuple.get(1));
+        assertEquals("Unexpected value at reference 2", c, tuple.get(2));
 
-        Tuple4<String, Integer, Long, Double> tuple4 = (Tuple4) tuple;
-        tuple4.put3(put3);
-        got0 = tuple4.get0();
-        got1 = tuple4.get1();
-        got2 = tuple4.get2();
-        Double got3 = tuple4.get3();
-        assertEquals("Unexpected value at index 0", put0, got0);
-        assertEquals("Unexpected value at index 1", put1, got1);
-        assertEquals("Unexpected value at index 2", put2, got2);
-        assertEquals("Unexpected value at index 3", put3, got3);
+        Tuple4<String, Integer, Long, Double> tuple4 = (Tuple4)tuple;
+        tuple4.put3(d);
+        assertEquals("Unexpected value at index 0", a, tuple4.get0());
+        assertEquals("Unexpected value at index 1", b, tuple4.get1());
+        assertEquals("Unexpected value at index 2", c, tuple4.get2());
+        assertEquals("Unexpected value at index 3", d, tuple4.get3());
+        assertEquals("Unexpected value at reference 0", a, tuple.get(0));
+        assertEquals("Unexpected value at reference 1", b, tuple.get(1));
+        assertEquals("Unexpected value at reference 2", c, tuple.get(2));
+        assertEquals("Unexpected value at reference 3", d, tuple.get(3));
 
         Tuple5<String, Integer, Long, Double, Float> tuple5 = (Tuple5) tuple;
-        tuple5.put4(put4);
-        got0 = tuple5.get0();
-        got1 = tuple5.get1();
-        got2 = tuple5.get2();
-        got3 = tuple5.get3();
-        Float got4 = tuple5.get4();
-        assertEquals("Unexpected value at index 0", put0, got0);
-        assertEquals("Unexpected value at index 1", put1, got1);
-        assertEquals("Unexpected value at index 2", put2, got2);
-        assertEquals("Unexpected value at index 3", put3, got3);
-        assertEquals("Unexpected value at index 4", put4, got4);
+        tuple5.put4(e);
+        assertEquals("Unexpected value at index 0", a, tuple5.get0());
+        assertEquals("Unexpected value at index 1", b, tuple5.get1());
+        assertEquals("Unexpected value at index 2", c, tuple5.get2());
+        assertEquals("Unexpected value at index 3", d, tuple5.get3());
+        assertEquals("Unexpected value at index 4", e, tuple5.get4());
+        assertEquals("Unexpected value at reference 0", a, tuple.get(0));
+        assertEquals("Unexpected value at reference 1", b, tuple.get(1));
+        assertEquals("Unexpected value at reference 2", c, tuple.get(2));
+        assertEquals("Unexpected value at reference 3", d, tuple.get(3));
+        assertEquals("Unexpected value at reference 4", e, tuple.get(4));
     }
 }
