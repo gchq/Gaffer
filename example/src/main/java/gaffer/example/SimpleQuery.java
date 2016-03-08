@@ -80,8 +80,12 @@ public class SimpleQuery {
      */
     public Iterable<Viewing> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(getStorePropertiesStream(),
-                getDataSchema(), getDataTypes(), getStoreTypes());
+        final Graph graph = new Graph.Builder()
+                .storeProperties(getStorePropertiesStream())
+                .addSchema(getDataSchema())
+                .addSchema(getDataTypes())
+                .addSchema(getStoreTypes())
+                .build();
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.
