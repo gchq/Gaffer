@@ -16,6 +16,7 @@
 
 package gaffer.tuple.function.context;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function2.Function;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.handler.TupleHandler;
@@ -26,11 +27,9 @@ import gaffer.tuple.handler.TupleView;
  * configuration data to the function so that it can be executed in the context of that application. The
  * <code>FunctionContext</code> uses a {@link gaffer.tuple.handler.TupleView} to select and project values
  * into/out of {@link gaffer.tuple.Tuple}s.
- *
- * @see gaffer.tuple.handler.TupleView
- *
  * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context.
  * @param <R> The type of reference used to select from and project into tuples.
+ * @see gaffer.tuple.handler.TupleView
  */
 public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
     protected F function;
@@ -95,6 +94,7 @@ public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
     /**
      * @param selectionView Function input selection criteria.
      */
+    @JsonIgnore
     public void setSelection(final TupleView<R> selectionView) {
         this.selectionView = selectionView;
     }
@@ -114,8 +114,16 @@ public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
     }
 
     /**
+     * @return References of tuple values to select.
+     */
+    public R[][] getSelection() {
+        return selectionView.getReferences();
+    }
+
+    /**
      * @param projectionView Function output projection criteria.
      */
+    @JsonIgnore
     public void setProjection(final TupleView<R> projectionView) {
         this.projectionView = projectionView;
     }
@@ -132,6 +140,13 @@ public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
      */
     public void setProjection(final R[] projection) {
         projectionView = new TupleView<R>(projection);
+    }
+
+    /**
+     * @return References of tuple values to project.
+     */
+    public R[][] getProjection() {
+        return projectionView.getReferences();
     }
 
     /**

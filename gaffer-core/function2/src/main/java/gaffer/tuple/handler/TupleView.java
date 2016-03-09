@@ -20,7 +20,6 @@ import gaffer.tuple.Tuple;
 import gaffer.tuple.tuplen.Tuple5;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,24 +57,12 @@ import java.util.List;
  *     TupleView&lt;String&gt; view = new TupleView(new String[]{"a", "b"});<br/>
  *     view.project(tuple, function.execute("in"));<br/>
  * </code>
- *
- * @see gaffer.tuple.handler.SingleReferenceHandler
- * @see gaffer.tuple.handler.MultiReferenceHandler
- *
  * @param <R> The type of reference used to select from and project into tuples.
+ * @see gaffer.tuple.handler.SingleReferenceHandler
  */
 public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object> implements TupleHandler<R> {
     protected Tuple<R> tuple;
     protected List<TupleHandler<R>> handlers;
-
-    public TupleView(final List<TupleHandler<R>> handlers) {
-        this.handlers = handlers;
-    }
-
-    public TupleView(final List<TupleHandler<R>> handlers, final Tuple<R> tuple) {
-        this(handlers);
-        setTuple(tuple);
-    }
 
     public TupleView(final R[][] references) {
         setReferences(references);
@@ -85,23 +72,13 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
         setReferences(references);
     }
 
-    public TupleView(final R[][] references, final Tuple<R> tuple) {
-        this(references);
-        setTuple(tuple);
-    }
-
-    public TupleView(final R[] references, final Tuple<R> tuple) {
-        this(references);
-        setTuple(tuple);
-    }
-
     public void setReferences(final R[][] references) {
         handlers = new ArrayList<TupleHandler<R>>(references.length);
         for (R[] refs : references) {
             if (refs.length == 1) {
                 handlers.add(new SingleReferenceHandler<R>(refs[0]));
             } else if (refs.length > 1) {
-                handlers.add(new MultiReferenceHandler<R>(Arrays.asList(refs)));
+                handlers.add(new TupleView<R>(refs));
             }
         }
     }
@@ -111,6 +88,28 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
         for (R reference : references) {
             handlers.add(new SingleReferenceHandler<R>(reference));
         }
+    }
+
+    public R[][] getReferences() {
+        R[][] references = (R[][]) new Object[handlers.size()][];
+        int i = 0;
+        for (TupleHandler<R> handler : handlers) {
+            if (handler instanceof TupleView) {
+                references[i++] = flattenReferences(((TupleView<R>) handler).getReferences());
+            } else {
+                references[i++] = (R[]) new Object[]{((SingleReferenceHandler<R>) handler).getReference()};
+            }
+        }
+        return references;
+    }
+
+    private R[] flattenReferences(final R[][] references) {
+        R[] flattened = (R[]) new Object[references.length];
+        int i = 0;
+        for (R[] refs : references) {
+            flattened[i++] = refs[0];
+        }
+        return flattened;
     }
 
     public Object select(final Tuple<R> tuple) {

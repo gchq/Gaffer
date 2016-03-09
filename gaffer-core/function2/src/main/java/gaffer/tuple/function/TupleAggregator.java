@@ -56,6 +56,13 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
     }
 
     /**
+     * @return {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
+     */
+    public List<FunctionContext<F, R>> getFunctions() {
+        return functions;
+    }
+
+    /**
      * @param function {@link gaffer.function2.StatefulFunction} to aggregate tuple values.
      */
     public void addFunction(final FunctionContext<F, R> function) {

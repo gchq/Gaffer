@@ -51,4 +51,11 @@ public class SingleReferenceHandler<R> implements TupleHandler<R> {
     public void project(final Tuple<R> target, final Object value) {
         target.put(reference, value);
     }
+
+    /**
+     * @return Value reference.
+     */
+    public R getReference() {
+        return reference;
+    }
 }

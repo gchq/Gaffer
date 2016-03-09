@@ -53,6 +53,13 @@ public class TupleTransformer<R> extends Transformer<Tuple<R>, Tuple<R>> {
     }
 
     /**
+     * @return {@link gaffer.function2.Transformer}s to transform tuple values.
+     */
+    public List<FunctionContext<Transformer, R>> getTransforms() {
+        return transforms;
+    }
+
+    /**
      * @param transform {@link gaffer.function2.Transformer} to transform tuple values.
      */
     public void addTransform(final FunctionContext<Transformer, R> transform) {

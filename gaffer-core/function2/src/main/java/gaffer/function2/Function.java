@@ -16,11 +16,16 @@
 
 package gaffer.function2;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 /**
  * A <code>Function</code> is a logical unit of processing that can be applied to an input to produce an output.
  * @param <I> Function input type
  * @param <O> Function output type
  */
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
 public interface Function<I, O> {
     /**
      * @return New <code>Function</code> of the same type.

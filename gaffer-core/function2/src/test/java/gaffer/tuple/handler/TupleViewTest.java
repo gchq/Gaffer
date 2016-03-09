@@ -92,7 +92,8 @@ public class TupleViewTest {
         Float e = 4.0f;
 
         MapTuple<String> tuple = new MapTuple<>();
-        TupleView view = new TupleView(new String[]{"a", "b", "c", "d", "e"}, tuple);
+        TupleView view = new TupleView(new String[]{"a", "b", "c", "d", "e"});
+        view.setTuple(tuple);
 
         Tuple1<String> tuple1 = (Tuple1)view;
         tuple1.put0(a);

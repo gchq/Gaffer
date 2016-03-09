@@ -53,6 +53,13 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
     }
 
     /**
+     * @return {@link gaffer.function2.Validator}s to validate tuple values.
+     */
+    public List<FunctionContext<Validator, R>> getValidators() {
+        return validators;
+    }
+
+    /**
      * @param validator {@link gaffer.function2.Validator} to validate tuple values.
      */
     public void addValidator(final FunctionContext<Validator, R> validator) {
