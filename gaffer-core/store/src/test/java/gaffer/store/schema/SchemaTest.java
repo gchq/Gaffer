@@ -211,16 +211,14 @@ public class SchemaTest {
                 "        \"property1\" : \"property.string\",\n" +
                 "        \"property2\" : \"property.integer\"\n" +
                 "      },\n" +
-                "      \"validator\" : {\n" +
-                "        \"functions\" : [ {\n" +
-                "          \"function\" : {\n" +
-                "            \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
-                "          },\n" +
-                "          \"selection\" : [ {\n" +
-                "            \"key\" : \"property1\"\n" +
-                "          } ]\n" +
+                "      \"validateFunctions\" : [ {\n" +
+                "        \"function\" : {\n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ {\n" +
+                "          \"key\" : \"property1\"\n" +
                 "        } ]\n" +
-                "      }\n" +
+                "      } ]\n" +
                 "    }\n" +
                 "  },\n" +
                 "  \"types\" : {\n" +

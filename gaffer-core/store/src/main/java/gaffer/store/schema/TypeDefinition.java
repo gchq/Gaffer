@@ -19,11 +19,17 @@ package gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.AggregateFunction;
+import gaffer.function.FilterFunction;
+import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
@@ -65,12 +71,33 @@ public class TypeDefinition {
         this.clazz = null != classType ? Class.forName(classType) : null;
     }
 
+    @JsonIgnore
     public ElementFilter getValidator() {
         return validator;
     }
 
+    @JsonSetter("validator")
     public void setValidator(final ElementFilter validator) {
         this.validator = validator;
+    }
+
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
+    @JsonGetter("validateFunctions")
+    public ConsumerFunctionContext<ElementComponentKey, FilterFunction>[] getOriginalValidateFunctions() {
+        if (null != validator) {
+            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions = validator.getFunctions();
+            return functions.toArray(new ConsumerFunctionContext[functions.size()]);
+        }
+
+        return null;
+    }
+
+    @JsonSetter("validateFunctions")
+    public void addValidateFunctions(final ConsumerFunctionContext<ElementComponentKey, FilterFunction>... functions) {
+        if (null == validator) {
+            validator = new ElementFilter();
+        }
+        validator.addFunctions(Arrays.asList(functions));
     }
 
     /**

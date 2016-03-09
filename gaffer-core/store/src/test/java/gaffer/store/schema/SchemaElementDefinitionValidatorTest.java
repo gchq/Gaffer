@@ -94,7 +94,7 @@ public class SchemaElementDefinitionValidatorTest extends ElementDefinitionValid
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnAggregatorFunction() {
+    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnAggregateFunction() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();

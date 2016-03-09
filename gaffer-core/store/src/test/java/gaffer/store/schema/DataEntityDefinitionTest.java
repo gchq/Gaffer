@@ -54,6 +54,8 @@ public class DataEntityDefinitionTest {
         final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .vertex("id.integer", Integer.class)
                 .property("property", "property.string", String.class)
+                .vertex(Integer.class)
+                .property("property", String.class)
                 .build();
 
         // When
@@ -114,19 +116,5 @@ public class DataEntityDefinitionTest {
         Assert.assertEquals(Collections.singletonList(new ElementComponentKey("property")),
                 aggregator.getFunctions().get(0).getSelection());
 
-    }
-
-    @Test
-    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
-        // Given
-        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer")
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertNull(aggregator.getFunctions());
     }
 }
