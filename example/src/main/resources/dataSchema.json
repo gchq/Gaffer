@@ -37,130 +37,116 @@
   "types": {
     "filmId.string": {
       "class": "java.lang.String",
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.Exists"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.Exists"
           }
-        ]
-      }
+        }
+      ]
     },
     "userId.string": {
       "class": "java.lang.String",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.StringConcat"
       },
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.Exists"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.Exists"
           }
-        ]
-      }
+        }
+      ]
     },
     "true": {
       "class": "java.lang.Boolean",
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.IsTrue"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsTrue"
           }
-        ]
-      }
+        }
+      ]
     },
     "name.string": {
       "class": "java.lang.String",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.StringConcat"
       },
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.Exists"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.Exists"
           }
-        ]
-      }
+        }
+      ]
     },
     "certificate": {
       "class": "gaffer.example.data.Certificate",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.ComparableMax"
       },
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.Exists"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.Exists"
           }
-        ]
-      }
+        }
+      ]
     },
     "rating.int": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Max"
       },
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.IsMoreThan",
-              "orEqualTo": true,
-              "value": 0
-            }
-          },
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.IsLessThan",
-              "orEqualTo": true,
-              "value": 100
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsMoreThan",
+            "orEqualTo": true,
+            "value": 0
           }
-        ]
-      }
+        },
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsLessThan",
+            "orEqualTo": true,
+            "value": 100
+          }
+        }
+      ]
     },
     "count.int": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Sum"
       },
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.simple.filter.IsMoreThan",
-              "orEqualTo": true,
-              "value": 0
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsMoreThan",
+            "orEqualTo": true,
+            "value": 0
           }
-        ]
-      }
+        }
+      ]
     },
     "total.long": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Sum"
       }
     },
     "timestamp.long": {
       "class": "java.lang.Long",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Max",
         "mode": "LONG"
       }
     },
     "max.integer": {
       "class": "java.lang.Integer",
-      "aggregatorFunction": {
+      "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Max"
       }
     }

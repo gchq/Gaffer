@@ -16,8 +16,10 @@
 
 package gaffer.data.elementdefinition.schema;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
@@ -25,10 +27,12 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.Type;
 import gaffer.data.elementdefinition.TypeStore;
 import gaffer.data.elementdefinition.TypedElementDefinition;
+import gaffer.function.AggregateFunction;
 import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -69,15 +73,17 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      * {@link gaffer.function.AggregateFunction}s defined in the corresponding property value
      * {@link gaffer.data.elementdefinition.Type}s.
      */
+    @JsonIgnore
     public ElementAggregator getAggregator() {
         final ElementAggregator fullAggregator = null != aggregator ? aggregator.clone() : new ElementAggregator();
         for (Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
-            addTypeAggregatorFunctions(fullAggregator, new ElementComponentKey(entry.getKey()), entry.getValue());
+            addTypeAggregateFunctions(fullAggregator, new ElementComponentKey(entry.getKey()), entry.getValue());
         }
 
         return fullAggregator;
     }
 
+    @JsonSetter("aggregator")
     public void setAggregator(final ElementAggregator aggregator) {
         this.aggregator = aggregator;
     }
@@ -89,6 +95,7 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
      * {@link gaffer.function.FilterFunction}s defined in the corresponding identifier and property value
      * {@link gaffer.data.elementdefinition.Type}s.
      */
+    @JsonIgnore
     public ElementFilter getValidator() {
         return getValidator(true);
     }
@@ -113,18 +120,47 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         return fullValidator;
     }
 
-    private void setValidator(final ElementFilter validator) {
+    @JsonSetter("validator")
+    public void setValidator(final ElementFilter validator) {
         this.validator = validator;
     }
 
-    @JsonProperty("validator")
-    ElementFilter getOriginalValidator() {
-        return validator;
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
+    @JsonGetter("validateFunctions")
+    public ConsumerFunctionContext<ElementComponentKey, FilterFunction>[] getOriginalValidateFunctions() {
+        if (null != validator) {
+            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions = validator.getFunctions();
+            return functions.toArray(new ConsumerFunctionContext[functions.size()]);
+        }
+
+        return null;
     }
 
-    @JsonProperty("aggregator")
-    ElementAggregator getOriginalAggregator() {
-        return aggregator;
+    @JsonSetter("validateFunctions")
+    public void addValidateFunctions(final ConsumerFunctionContext<ElementComponentKey, FilterFunction>... functions) {
+        if (null == validator) {
+            validator = new ElementFilter();
+        }
+        validator.addFunctions(Arrays.asList(functions));
+    }
+
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the aggregator is null")
+    @JsonGetter("aggregateFunctions")
+    public PassThroughFunctionContext<ElementComponentKey, AggregateFunction>[] getOriginalAggregateFunctions() {
+        if (null != aggregator) {
+            final List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> functions = aggregator.getFunctions();
+            return functions.toArray(new PassThroughFunctionContext[functions.size()]);
+        }
+
+        return null;
+    }
+
+    @JsonSetter("aggregateFunctions")
+    public void addAggregateFunctions(final PassThroughFunctionContext<ElementComponentKey, AggregateFunction>... functions) {
+        if (null == aggregator) {
+            aggregator = new ElementAggregator();
+        }
+        aggregator.addFunctions(Arrays.asList(functions));
     }
 
     @JsonIgnore
@@ -174,10 +210,10 @@ public abstract class DataElementDefinition extends TypedElementDefinition {
         }
     }
 
-    private void addTypeAggregatorFunctions(final ElementAggregator aggregator, final ElementComponentKey key, final String typeName) {
+    private void addTypeAggregateFunctions(final ElementAggregator aggregator, final ElementComponentKey key, final String typeName) {
         final Type type = getType(typeName);
-        if (null != type && null != type.getAggregatorFunction()) {
-            aggregator.addFunction(new PassThroughFunctionContext<>(type.getAggregatorFunction().statelessClone(), Collections.singletonList(key)));
+        if (null != type && null != type.getAggregateFunction()) {
+            aggregator.addFunction(new PassThroughFunctionContext<>(type.getAggregateFunction().statelessClone(), Collections.singletonList(key)));
         }
     }
 

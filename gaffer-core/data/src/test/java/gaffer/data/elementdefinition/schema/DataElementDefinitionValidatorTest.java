@@ -95,7 +95,7 @@ public class DataElementDefinitionValidatorTest extends TypedElementDefinitionVa
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnAggregatorFunction() {
+    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnAggregateFunction() {
         // Given
         final DataElementDefinition elementDef = mock(DataElementDefinition.class);
         final DataElementDefinitionValidator validator = new DataElementDefinitionValidator();

@@ -57,7 +57,7 @@ public class AggregatorTest {
     }
 
     @Test
-    public void shouldAddAndInitAggregatorFunction() {
+    public void shouldAddAndInitAggregateFunction() {
         // Given
         final Aggregator<String> aggregator = new Aggregator<>();
 

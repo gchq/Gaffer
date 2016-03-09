@@ -29,46 +29,42 @@
               "userId": "java.lang.String",
               "starRating": "java.lang.Float"
             },
-            "transformer": {
-              "functions": [
-                {
-                  "function": {
-                    "class": "gaffer.example.function.transform.StarRatingTransform"
+            "transformFunctions": [
+              {
+                "function": {
+                  "class": "gaffer.example.function.transform.StarRatingTransform"
+                },
+                "selection": [
+                  {
+                    "key": "rating"
                   },
-                  "selection": [
-                    {
-                      "key": "rating"
-                    },
-                    {
-                      "key": "count"
-                    }
-                  ],
-                  "projection": [
-                    {
-                      "key": "starRating"
-                    }
-                  ]
-                }
-              ]
-            },
-            "filter": {
-              "functions": [
-                {
+                  {
+                    "key": "count"
+                  }
+                ],
+                "projection": [
+                  {
+                    "key": "starRating"
+                  }
+                ]
+              }
+            ],
+            "filterFunctions": [
+              {
+                "function": {
+                  "class": "gaffer.function.simple.filter.Not",
                   "function": {
-                    "class": "gaffer.function.simple.filter.Not",
-                    "function": {
-                      "class": "gaffer.function.simple.filter.IsEqual",
-                      "value": "user02"
-                    }
-                  },
-                  "selection": [
-                    {
-                      "key": "userId"
-                    }
-                  ]
-                }
-              ]
-            }
+                    "class": "gaffer.function.simple.filter.IsEqual",
+                    "value": "user02"
+                  }
+                },
+                "selection": [
+                  {
+                    "key": "userId"
+                  }
+                ]
+              }
+            ]
           }
         }
       },

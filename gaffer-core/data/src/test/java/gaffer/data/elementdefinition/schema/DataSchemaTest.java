@@ -18,7 +18,6 @@ package gaffer.data.elementdefinition.schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -33,7 +32,7 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunction;
-import gaffer.function.ExampleAggregatorFunction;
+import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.ExampleFilterFunction;
 import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
@@ -102,18 +101,17 @@ public class DataSchemaTest {
         assertEquals("simpleDate", propertyMap.get(TestPropertyNames.DATE));
 
         // Check aggregator
-        assertNull(edgeDefinition.getOriginalAggregator());
         ElementAggregator aggregator = edgeDefinition.getAggregator();
         List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
         assertEquals(2, aggContexts.size());
 
         PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
-        assertTrue(aggContext.getFunction() instanceof ExampleAggregatorFunction);
+        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
         assertEquals(TestPropertyNames.F2, aggContext.getSelection().get(0).getPropertyName());
 
         aggContext = aggContexts.get(1);
-        assertTrue(aggContext.getFunction() instanceof ExampleAggregatorFunction);
+        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
 
@@ -165,7 +163,7 @@ public class DataSchemaTest {
         aggregator = entityDefinition.getAggregator();
         aggContexts = aggregator.getFunctions();
         assertEquals(1, aggContexts.size());
-        assertTrue(aggContexts.get(0).getFunction() instanceof ExampleAggregatorFunction);
+        assertTrue(aggContexts.get(0).getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContexts.get(0).getSelection().size());
         assertEquals(TestPropertyNames.F1, aggContexts.get(0).getSelection().get(0).getPropertyName());
     }
@@ -186,7 +184,7 @@ public class DataSchemaTest {
                                 .build())
                         .aggregator(new ElementAggregator.Builder()
                                 .select(TestPropertyNames.F1)
-                                .execute(new ExampleAggregatorFunction())
+                                .execute(new ExampleAggregateFunction())
                                 .build())
                         .build())
                 .build();
@@ -202,26 +200,22 @@ public class DataSchemaTest {
                 "        \"property1\" : \"java.lang.String\",\n" +
                 "        \"property2\" : \"java.lang.Integer\"\n" +
                 "      },\n" +
-                "      \"validator\" : {\n" +
-                "        \"functions\" : [ {\n" +
-                "          \"function\" : {\n" +
-                "            \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
-                "          },\n" +
-                "          \"selection\" : [ {\n" +
-                "            \"key\" : \"property1\"\n" +
-                "          } ]\n" +
+                "      \"validateFunctions\" : [ {\n" +
+                "        \"function\" : {\n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ {\n" +
+                "          \"key\" : \"property1\"\n" +
                 "        } ]\n" +
-                "      },\n" +
-                "      \"aggregator\" : {\n" +
-                "        \"functions\" : [ {\n" +
-                "          \"function\" : {\n" +
-                "            \"class\" : \"gaffer.function.ExampleAggregatorFunction\"\n" +
-                "          },\n" +
-                "          \"selection\" : [ {\n" +
-                "            \"key\" : \"property1\"\n" +
-                "          } ]\n" +
+                "      } ],\n" +
+                "      \"aggregateFunctions\" : [ {\n" +
+                "        \"function\" : {\n" +
+                "          \"class\" : \"gaffer.function.ExampleAggregateFunction\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ {\n" +
+                "          \"key\" : \"property1\"\n" +
                 "        } ]\n" +
-                "      }\n" +
+                "      } ]\n" +
                 "    }\n" +
                 "  }\n" +
                 "}", new String(dataSchema.toJson(true)));
