@@ -23,7 +23,12 @@ import gaffer.tuple.handler.TupleView;
 
 /**
  * A <code>FunctionContext</code> wraps a {@link gaffer.function2.Function}. It appends application-specific
- * configuration data to the function so that it can be executed in the context of that application.
+ * configuration data to the function so that it can be executed in the context of that application. The
+ * <code>FunctionContext</code> uses a {@link gaffer.tuple.handler.TupleView} to select and project values
+ * into/out of {@link gaffer.tuple.Tuple}s.
+ *
+ * @see gaffer.tuple.handler.TupleView
+ *
  * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context.
  * @param <R> The type of reference used to select from and project into tuples.
  */

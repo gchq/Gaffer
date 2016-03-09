@@ -17,8 +17,7 @@
 package gaffer.function2;
 
 /**
- * A <code>Function</code> is a logical unit of processing that can be applied to an input to produce
- * an output.
+ * A <code>Function</code> is a logical unit of processing that can be applied to an input to produce an output.
  * @param <I> Function input type
  * @param <O> Function output type
  */

@@ -18,7 +18,22 @@ package gaffer.tuple.handler;
 
 import gaffer.tuple.Tuple;
 
+/**
+ * A <code>TupleHandler</code> allows the selection and projection of tuple values.
+ * @param <R> The type of reference used to select from and project into tuples.
+ */
 public interface TupleHandler<R> {
+    /**
+     * Select a value from the source {@link gaffer.tuple.Tuple}.
+     * @param source Source {@link gaffer.tuple.Tuple}.
+     * @return Selected value.
+     */
     Object select(Tuple<R> source);
+
+    /**
+     * Project a value into the target {@link gaffer.tuple.Tuple}.
+     * @param target Target {@link gaffer.tuple.Tuple}.
+     * @param value Value to project.
+     */
     void project(Tuple<R> target, Object value);
 }

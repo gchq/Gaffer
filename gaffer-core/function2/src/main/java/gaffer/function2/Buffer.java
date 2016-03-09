@@ -17,8 +17,7 @@
 package gaffer.function2;
 
 /**
- * A <code>Buffer</code> {@link gaffer.function2.StatefulFunction} has different input and
- * output types.
+ * A <code>Buffer</code> {@link gaffer.function2.StatefulFunction} has different input and output types.
  * @param <I> Function input type
  * @param <O> Function output type
  */
