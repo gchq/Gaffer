@@ -16,16 +16,14 @@
 
 package gaffer.accumulostore.utils;
 
+import org.apache.accumulo.core.iterators.OptionDescriber.IteratorOptions;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.accumulo.core.iterators.OptionDescriber.IteratorOptions;
 
 public class IteratorOptionsBuilder {
 
     private static final String VIEW_DESCRIPTION = "Required: The json serialised form of a view";
-    private static final String DATA_SCHEMA_DESCRIPTION = "Required: The json serialised form of the data schema";
-    private static final String STORE_SCHEMA_DESCRIPTION = "Required: The json serialised form of the store schema";
+    private static final String SCHEMA_DESCRIPTION = "Required: The json serialised form of the schema";
     private static final String ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION = "Required: The element coverter class to be used for key/value conversion";
 
     public IteratorOptions options;
@@ -49,12 +47,8 @@ public class IteratorOptionsBuilder {
         return addNamedOption(AccumuloStoreConstants.VIEW, VIEW_DESCRIPTION);
     }
 
-    public IteratorOptionsBuilder addStoreSchemaNamedOption() {
-        return addNamedOption(AccumuloStoreConstants.STORE_SCHEMA, STORE_SCHEMA_DESCRIPTION);
-    }
-
-    public IteratorOptionsBuilder addDataSchemaNamedOption() {
-        return addNamedOption(AccumuloStoreConstants.DATA_SCHEMA, DATA_SCHEMA_DESCRIPTION);
+    public IteratorOptionsBuilder addSchemaNamedOption() {
+        return addNamedOption(AccumuloStoreConstants.SCHEMA, SCHEMA_DESCRIPTION);
     }
 
     public IteratorOptionsBuilder addElementConverterClassNamedOption() {

@@ -11,48 +11,41 @@ import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.schema.DataEntityDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.function.simple.filter.AgeOff;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StorePropertyDefinition;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.TypeDefinition;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
 public class AgeOffIT {
+
     @Test
     public void shouldAgeOffDataBasedOnSchema() throws OperationException, InterruptedException {
         // Given
         final long now = System.currentTimeMillis();
         final String vertex = "entity1";
         final long ageOffTime = 4L * 1000; // 4 seconds;
-        final DataSchema dataSchema = new DataSchema.Builder()
-                .entity(TestGroups.ENTITY, new DataEntityDefinition.Builder()
-                        .property(TestPropertyNames.TIMESTAMP, Long.class)
+        final Schema schema = new Schema.Builder()
+                .type("timestamp", new TypeDefinition.Builder()
+                        .clazz(Long.class)
                         .validator(new ElementFilter.Builder()
                                 .execute(new AgeOff(ageOffTime))
-                                .select(TestPropertyNames.TIMESTAMP)
                                 .build())
+                        .position(StorePositions.VALUE.name())
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.TIMESTAMP, "timestamp")
                         .build())
                 .build();
 
-        final StoreSchema storeSchema = new StoreSchema.Builder()
-                .entity(TestGroups.ENTITY, new StoreElementDefinition.Builder()
-                        .property(TestPropertyNames.TIMESTAMP, new StorePropertyDefinition.Builder()
-                                .position(StorePositions.VALUE.name())
-                                .build())
-                        .build())
-                .build();
-
-        final Graph graph = new Graph(dataSchema, storeSchema,
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass())));
+        final Graph graph = new Graph(AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass())), schema);
 
         final Entity entity = new Entity(TestGroups.ENTITY, vertex);
         entity.putProperty(TestPropertyNames.TIMESTAMP, now);

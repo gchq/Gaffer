@@ -55,7 +55,7 @@ public class ViewIT {
 
         final List<ElementComponentKey> selection = contexts.get(0).getSelection();
         assertEquals(2, selection.size());
-        assertEquals(TestPropertyNames.F1, selection.get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_1, selection.get(0).getPropertyName());
         assertEquals(IdentifierType.SOURCE, selection.get(1).getIdentifierType());
 
         final List<ElementComponentKey> projection = contexts.get(0).getProjection();

@@ -21,7 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
-
 import java.io.IOException;
 
 public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
@@ -55,8 +54,7 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     }
 
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
-        jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false), UTF_8_CHARSET));
-        jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         Integer numTasks = operation.getNumMapTasks();

@@ -467,8 +467,9 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data).
         View view = new View.Builder()
-                .edge("X", new ViewEdgeDefinition())
-                .entity("X", new ViewEntityDefinition()).build();
+                .edge("edgeX")
+                .entity("entityX")
+                .build();
         op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(true);
