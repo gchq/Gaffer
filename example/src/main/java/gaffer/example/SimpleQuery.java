@@ -17,6 +17,7 @@
 package gaffer.example;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.data.Certificate;
@@ -35,7 +36,6 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.InputStream;
 
 /**
  * This example shows how to interact with a Gaffer graph with a simple and complex query.
@@ -80,8 +80,10 @@ public class SimpleQuery {
      */
     public Iterable<Viewing> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(getStorePropertiesStream(),
-                getDataSchema(), getDataTypes(), getStoreTypes());
+        final Graph graph = new Graph(StreamUtil.storeProps(this.getClass(), true),
+                StreamUtil.dataSchema(this.getClass(), true),
+                StreamUtil.dataTypes(this.getClass(), true),
+                StreamUtil.storeTypes(this.getClass(), true));
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.
@@ -117,31 +119,5 @@ public class SimpleQuery {
 
         // Execute the operation on the graph
         return graph.execute(queryChain);
-    }
-
-    private InputStream getStoreTypes() {
-        return getResourceAsStreamSafely("/schema/storeTypes.json");
-    }
-
-    private InputStream getDataTypes() {
-        return getResourceAsStreamSafely("/schema/dataTypes.json");
-    }
-
-    private InputStream getDataSchema() {
-        return getResourceAsStreamSafely("/schema/dataSchema.json");
-    }
-
-    private InputStream getStorePropertiesStream() {
-        return getResourceAsStreamSafely("/store.properties");
-    }
-
-    private InputStream getResourceAsStreamSafely(final String name) {
-        try {
-            return SimpleQuery.class.getResourceAsStream(name);
-        } catch (final Exception e) {
-            LOGGER.error("Failed to load resource: " + name, e);
-        }
-
-        return null;
     }
 }

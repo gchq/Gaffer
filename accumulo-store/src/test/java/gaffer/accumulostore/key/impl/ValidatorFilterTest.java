@@ -26,8 +26,8 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -102,7 +102,7 @@ public class ValidatorFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge("BasicEdge", "source", "dest", true);
+        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 

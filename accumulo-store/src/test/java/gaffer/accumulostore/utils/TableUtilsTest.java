@@ -25,6 +25,7 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementCo
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.commonutil.StreamUtil;
+import gaffer.commonutil.TestGroups;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -46,7 +47,7 @@ public class TableUtilsTest {
         final Schema schema = new Schema.Builder()
                 .type("id.string", String.class)
                 .type("directed.true", Boolean.class)
-                .edge("BasicEdge", new SchemaEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("id.string")
                         .destination("id.string")
                         .directed("directed.true")
@@ -69,7 +70,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
         assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
@@ -78,7 +79,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY, aggregatorSetting.getPriority());
         assertEquals(AggregatorIterator.class.getName(), aggregatorSetting.getIteratorClass());
         final Map<String, String> aggregatorOptions = aggregatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(Schema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), aggregatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
 
