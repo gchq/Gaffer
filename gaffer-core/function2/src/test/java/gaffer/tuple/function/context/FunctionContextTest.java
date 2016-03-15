@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gaffer.function2.mock.MockTransform;
 import gaffer.tuple.MapTuple;
-import gaffer.tuple.handler.TupleView;
+import gaffer.tuple.view.TupleView;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.handler;
+package gaffer.tuple.view;
 
 import gaffer.tuple.Tuple;
 import gaffer.tuple.tuplen.Tuple5;
@@ -29,7 +29,7 @@ import java.util.List;
  * <code>Tuple&lt;Integer&gt;</code>.
  * @param <R> The type of reference used to select from and project into tuples.
  */
-public class MultiReferenceHandler<R> extends Tuple5<Object, Object, Object, Object, Object> implements TupleHandler<R> {
+public class MultiReferenceHandler<R> extends Tuple5<Object, Object, Object, Object, Object> implements ReferenceHandler<R> {
     private R[] references;
     private Tuple<R> tuple;
 

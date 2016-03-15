@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.handler;
+package gaffer.tuple.view;
 
 import gaffer.tuple.Tuple;
 
@@ -22,11 +22,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link gaffer.tuple.handler.TupleHandler} that selects and projects the values into/out of a
+ * A {@link ReferenceHandler} that selects and projects the values into/out of a
  * {@link gaffer.tuple.Tuple} using a single reference.
  * @param <R> The type of reference used to select from and project into tuples.
  */
-public class SingleReferenceHandler<R> implements TupleHandler<R> {
+public class SingleReferenceHandler<R> implements ReferenceHandler<R> {
     private R reference;
 
     /**

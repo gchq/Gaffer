@@ -19,7 +19,7 @@ package gaffer.tuple.function;
 import gaffer.function2.Validator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.handler.TupleView;
+import gaffer.tuple.view.TupleView;
 
 import java.util.ArrayList;
 import java.util.List;

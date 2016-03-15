@@ -21,7 +21,7 @@ import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.handler.TupleView;
+import gaffer.tuple.view.TupleView;
 
 import java.util.ArrayList;
 import java.util.List;

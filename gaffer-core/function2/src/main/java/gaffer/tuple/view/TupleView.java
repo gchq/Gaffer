@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.handler;
+package gaffer.tuple.view;
 
 import gaffer.tuple.Tuple;
 import gaffer.tuple.tuplen.Tuple5;
@@ -58,12 +58,12 @@ import java.util.List;
  *     view.project(tuple, function.execute("in"));<br/>
  * </code>
  * @param <R> The type of reference used to select from and project into tuples.
- * @see gaffer.tuple.handler.SingleReferenceHandler
- * @see gaffer.tuple.handler.MultiReferenceHandler
+ * @see gaffer.tuple.view.SingleReferenceHandler
+ * @see gaffer.tuple.view.MultiReferenceHandler
  */
 public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object> {
     private Tuple<R> tuple;
-    private List<TupleHandler<R>> handlers;
+    private List<ReferenceHandler<R>> handlers;
 
     /**
      * Create a new <code>TupleView</code>.
@@ -78,11 +78,11 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
     }
 
     /**
-     * Add a {@link gaffer.tuple.handler.TupleHandler} to this <code>TupleView</code>.
+     * Add a {@link ReferenceHandler} to this <code>TupleView</code>.
      * @param handler Handler to add.
      * @return This view.
      */
-    public TupleView<R> addHandler(final TupleHandler<R> handler) {
+    public TupleView<R> addHandler(final ReferenceHandler<R> handler) {
         if (handlers == null) {
             handlers = new ArrayList<>();
         }
@@ -91,7 +91,7 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
     }
 
    /**
-     * Add a {@link gaffer.tuple.handler.TupleHandler} to this <code>TupleView</code> using the specified references.
+     * Add a {@link ReferenceHandler} to this <code>TupleView</code> using the specified references.
      * @param references The references to add.
      * @return This view.
      */
@@ -104,9 +104,9 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
     }
 
     /**
-     * @return {@link gaffer.tuple.handler.TupleHandler}s used by this <code>TupleView</code>.
+     * @return {@link ReferenceHandler}s used by this <code>TupleView</code>.
      */
-    public List<TupleHandler<R>> getHandlers() {
+    public List<ReferenceHandler<R>> getHandlers() {
         return handlers;
     }
 
@@ -115,7 +115,7 @@ public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object>
      */
     public List<List<R>> getReferences() {
         List<List<R>> references = new ArrayList(handlers.size());
-        for (TupleHandler<R> handler : handlers) {
+        for (ReferenceHandler<R> handler : handlers) {
             references.add(handler.getReferences());
         }
         return references;

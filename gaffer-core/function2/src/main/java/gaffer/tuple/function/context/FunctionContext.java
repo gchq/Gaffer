@@ -19,18 +19,18 @@ package gaffer.tuple.function.context;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function2.Function;
 import gaffer.tuple.Tuple;
-import gaffer.tuple.handler.TupleView;
+import gaffer.tuple.view.TupleView;
 
 import java.util.List;
 
 /**
  * A <code>FunctionContext</code> wraps a {@link gaffer.function2.Function}. It appends application-specific
  * configuration data to the function so that it can be executed in the context of that application. The
- * <code>FunctionContext</code> uses a {@link gaffer.tuple.handler.TupleView} to select and project values
+ * <code>FunctionContext</code> uses a {@link gaffer.tuple.view.TupleView} to select and project values
  * into/out of {@link gaffer.tuple.Tuple}s.
  * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context.
  * @param <R> The type of reference used to select from and project into tuples.
- * @see gaffer.tuple.handler.TupleView
+ * @see gaffer.tuple.view.TupleView
  */
 public class FunctionContext<F extends Function, R> {
     protected F function;

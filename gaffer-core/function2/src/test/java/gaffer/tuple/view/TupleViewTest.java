@@ -1,4 +1,4 @@
-package gaffer.tuple.handler;
+package gaffer.tuple.view;
 
 import gaffer.tuple.MapTuple;
 import gaffer.tuple.tuplen.*;

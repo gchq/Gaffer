@@ -8,7 +8,7 @@ import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.function2.mock.MockSingleInputAggregator;
 import gaffer.tuple.MapTuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.handler.TupleView;
+import gaffer.tuple.view.TupleView;
 import org.junit.Test;
 
 import java.io.IOException;
