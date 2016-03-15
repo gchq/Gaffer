@@ -18,7 +18,9 @@ package gaffer.function2;
 
 /**
  * A <code>StatefulFunction</code> is a {@link gaffer.function2.Function} that updates state in response
- * to each input, and outputs the current state on request.
+ * to each input, and outputs the current state on request. The order in which Gaffer will provide input
+ * values is undefined, so to provide consistent behaviour, all <code>StatefulFunction</code>s should be
+ * commutative and associative.
  * @param <I> Function input type
  * @param <O> Function output type
  */

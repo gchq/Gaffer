@@ -16,7 +16,9 @@ public class TupleViewTest {
         String b = "b";
         String c = "c";
 
-        TupleView<String> view = new TupleView<>(new String[]{a, b, c});
+        TupleView<String> view = new TupleView<String>().addHandler(a)
+                                                        .addHandler(b)
+                                                        .addHandler(c);
 
         MapTuple<String> inputTuple = new MapTuple<>();
         inputTuple.put(a, a);
@@ -48,7 +50,9 @@ public class TupleViewTest {
         String c2 = "c2";
         String c3 = "c3";
 
-        TupleView<String> view = new TupleView<>(new String[][]{{a1, a2}, {b1}, {c1, c2, c3}});
+        TupleView<String> view = new TupleView<String>().addHandler(a1, a2)
+                                                        .addHandler(b1)
+                                                        .addHandler(c1, c2, c3);
 
         MapTuple<String> inputTuple = new MapTuple<>();
         inputTuple.put(a1, a1);
@@ -92,7 +96,11 @@ public class TupleViewTest {
         Float e = 4.0f;
 
         MapTuple<String> tuple = new MapTuple<>();
-        TupleView view = new TupleView(new String[]{"a", "b", "c", "d", "e"});
+        TupleView<String> view = new TupleView<String>().addHandler("a")
+                                                        .addHandler("b")
+                                                        .addHandler("c")
+                                                        .addHandler("d")
+                                                        .addHandler("e");
         view.setTuple(tuple);
 
         Tuple1<String> tuple1 = (Tuple1)view;

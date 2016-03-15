@@ -29,13 +29,17 @@ public abstract class Tuple3<A, B, C> extends Tuple2<A, B> {
      * Get the value at index 2.
      * @return Value.
      */
-    public abstract C get2();
+    public C get2() {
+        return (C) get(2);
+    }
 
     /**
      * Put a value into index 2.
      * @param c Value to put.
      */
-    public abstract void put2(C c);
+    public void put2(final C c) {
+        put(2, c);
+    }
 
     /**
      * @return New {@link gaffer.tuple.ArrayTuple} of size 3.

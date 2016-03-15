@@ -19,8 +19,9 @@ package gaffer.tuple.function.context;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function2.Function;
 import gaffer.tuple.Tuple;
-import gaffer.tuple.handler.TupleHandler;
 import gaffer.tuple.handler.TupleView;
+
+import java.util.List;
 
 /**
  * A <code>FunctionContext</code> wraps a {@link gaffer.function2.Function}. It appends application-specific
@@ -31,9 +32,11 @@ import gaffer.tuple.handler.TupleView;
  * @param <R> The type of reference used to select from and project into tuples.
  * @see gaffer.tuple.handler.TupleView
  */
-public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
+public class FunctionContext<F extends Function, R> {
     protected F function;
+    @JsonIgnore
     private TupleView<R> selectionView;
+    @JsonIgnore
     private TupleView<R> projectionView;
 
     /**
@@ -43,9 +46,9 @@ public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
      * @param projectionView Function output projection criteria
      */
     public FunctionContext(final TupleView<R> selectionView, final F function, final TupleView<R> projectionView) {
-        setSelection(selectionView);
+        setSelectionView(selectionView);
         setFunction(function);
-        setProjection(projectionView);
+        setProjectionView(projectionView);
     }
 
     /**
@@ -94,59 +97,63 @@ public class FunctionContext<F extends Function, R> implements TupleHandler<R> {
     /**
      * @param selectionView Function input selection criteria.
      */
-    @JsonIgnore
-    public void setSelection(final TupleView<R> selectionView) {
+    public void setSelectionView(final TupleView<R> selectionView) {
         this.selectionView = selectionView;
     }
 
     /**
      * @param selection References of tuple values to select.
      */
-    public void setSelection(final R[][] selection) {
-        selectionView = new TupleView<R>(selection);
+    public void setSelection(final List<List<R>> selection) {
+        selectionView = new TupleView<R>();
+        for (List<R> references : selection) {
+            selectionView.addHandler((R[]) references.toArray());
+        }
     }
 
     /**
-     * @param selection References of tuple values to select.
+     * @return Function input selection criteria.
      */
-    public void setSelection(final R[] selection) {
-        selectionView = new TupleView<R>(selection);
+    public TupleView<R> getSelectionView() {
+        return selectionView;
     }
 
     /**
      * @return References of tuple values to select.
      */
-    public R[][] getSelection() {
-        return selectionView.getReferences();
+    public List<List<R>> getSelection() {
+        return selectionView == null ? null : selectionView.getReferences();
     }
 
     /**
      * @param projectionView Function output projection criteria.
      */
-    @JsonIgnore
-    public void setProjection(final TupleView<R> projectionView) {
+    public void setProjectionView(final TupleView<R> projectionView) {
         this.projectionView = projectionView;
     }
 
     /**
      * @param projection References of tuple values to project.
      */
-    public void setProjection(final R[][] projection) {
-        projectionView = new TupleView<R>(projection);
+    public void setProjection(final List<List<R>> projection) {
+        projectionView = new TupleView<R>();
+        for (List<R> references : projection) {
+            projectionView.addHandler((R[]) references.toArray());
+        }
     }
 
     /**
-     * @param projection References of tuple values to project.
+     * @return Function output projection criteria.
      */
-    public void setProjection(final R[] projection) {
-        projectionView = new TupleView<R>(projection);
+    public TupleView<R> getProjectionView() {
+        return projectionView;
     }
 
     /**
      * @return References of tuple values to project.
      */
-    public R[][] getProjection() {
-        return projectionView.getReferences();
+    public List<List<R>> getProjection() {
+        return projectionView == null ? null : projectionView.getReferences();
     }
 
     /**

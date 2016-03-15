@@ -18,6 +18,9 @@ package gaffer.tuple.handler;
 
 import gaffer.tuple.Tuple;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A {@link gaffer.tuple.handler.TupleHandler} that selects and projects the values into/out of a
  * {@link gaffer.tuple.Tuple} using a single reference.
@@ -55,7 +58,7 @@ public class SingleReferenceHandler<R> implements TupleHandler<R> {
     /**
      * @return Value reference.
      */
-    public R getReference() {
-        return reference;
+    public List<R> getReferences() {
+        return Arrays.asList(reference);
     }
 }

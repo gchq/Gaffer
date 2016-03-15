@@ -16,6 +16,7 @@
 
 package gaffer.tuple.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
@@ -27,11 +28,14 @@ import java.util.List;
 
 /**
  * A <code>TupleAggregator</code> aggregates {@link gaffer.tuple.Tuple}s by applying
- * {@link gaffer.function2.StatefulFunction}>s to aggregate the tuple values. Outputs a single tuple.
+ * {@link gaffer.function2.StatefulFunction}>s to aggregate the tuple values. Projects
+ * aggregated values into a single output {@link gaffer.tuple.Tuple}, which, if not
+ * externally specified, will be the first tuple supplied as input.
  * @param <R> The type of reference used by tuples.
  */
 public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<Tuple<R>> {
     private List<FunctionContext<F, R>> functions;
+    @JsonIgnore
     private Tuple<R> outputTuple;
 
     /**
@@ -83,8 +87,16 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
     }
 
     /**
+     * @param outputTuple Tuple that the aggregated values should be projected into.
+     */
+    public void setOutputTuple(final Tuple<R> outputTuple) {
+        this.outputTuple = outputTuple;
+    }
+
+    /**
      * Initialise this <code>TupleAggregator</code> and all of it's aggregation functions.
      */
+    @Override
     public void init() {
         outputTuple = null;
         if (functions != null) {
@@ -98,10 +110,11 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
      * Aggregate an input tuple.
      * @param input Input tuple
      */
+    @Override
     public void aggregate(final Tuple<R> input) {
         if (functions != null) {
             if (outputTuple == null) {
-                outputTuple = input;
+                setOutputTuple(input);
             }
             for (FunctionContext<F, R> function : functions) {
                 function.getFunction().execute(function.select(input));
@@ -123,8 +136,9 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
     }
 
     /**
-     * @return Current state of the output tuple.
+     * @return Project the current state of the functions into the output tuple.
      */
+    @Override
     public Tuple<R> state() {
         if (outputTuple != null) {
             for (FunctionContext<F, R> function : functions) {
