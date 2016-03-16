@@ -9,27 +9,25 @@
         "DESTINATION": "java.lang.String",
         "DIRECTED": "java.lang.String"
       },
-      "transformer": {
-        "functions": [
-          {
-            "selection": [
-              {
-                "key": "testProperty",
-                "isId": false
-              }
-            ],
-            "projection": [
-              {
-                "key": "testTransientPropertyInvalidName",
-                "isId": false
-              }
-            ],
-            "function": {
-              "class": "gaffer.function.ExampleTransformFunction"
+      "transformFunctions": [
+        {
+          "selection": [
+            {
+              "key": "testProperty",
+              "isId": false
             }
+          ],
+          "projection": [
+            {
+              "key": "testTransientPropertyInvalidName",
+              "isId": false
+            }
+          ],
+          "function": {
+            "class": "gaffer.function.ExampleTransformFunction"
           }
-        ]
-      }
+        }
+      ]
     }
   }
 }

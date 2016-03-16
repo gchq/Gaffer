@@ -16,8 +16,10 @@
 
 package gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.TransformIterable;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
@@ -28,6 +30,7 @@ import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +88,7 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
      * {@link gaffer.function.FilterFunction}s defined in the corresponding identifier and property value
      * {@link TypeDefinition}s.
      */
+    @JsonIgnore
     public ElementFilter getValidator() {
         return getValidator(true);
     }
@@ -109,13 +113,28 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
         return fullValidator;
     }
 
+    @JsonSetter("validator")
     private void setValidator(final ElementFilter validator) {
         this.validator = validator;
     }
 
-    @JsonProperty("validator")
-    ElementFilter getOriginalValidator() {
-        return validator;
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
+    @JsonGetter("validateFunctions")
+    public ConsumerFunctionContext<ElementComponentKey, FilterFunction>[] getOriginalValidateFunctions() {
+        if (null != validator) {
+            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions = validator.getFunctions();
+            return functions.toArray(new ConsumerFunctionContext[functions.size()]);
+        }
+
+        return null;
+    }
+
+    @JsonSetter("validateFunctions")
+    public void addValidateFunctions(final ConsumerFunctionContext<ElementComponentKey, FilterFunction>... functions) {
+        if (null == validator) {
+            validator = new ElementFilter();
+        }
+        validator.addFunctions(Arrays.asList(functions));
     }
 
     public void setTypesLookup(final TypeDefinitions newTypes) {
@@ -186,12 +205,13 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
     public void merge(final SchemaElementDefinition elementDef) {
         super.merge(elementDef);
         if (null == validator) {
-            validator = elementDef.getOriginalValidator();
-        } else if (null != elementDef.getOriginalValidator() && null != elementDef.getOriginalValidator().getFunctions()) {
-            validator.addFunctions(elementDef.getOriginalValidator().getFunctions());
+            validator = elementDef.validator;
+        } else if (null != elementDef.getOriginalValidateFunctions()) {
+            validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
         }
     }
 
+    @JsonIgnore
     protected TypeDefinitions getTypesLookup() {
         if (null == typesLookup) {
             setTypesLookup(new TypeDefinitions());

@@ -19,18 +19,15 @@ package gaffer.store.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
-import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.IsA;
-import org.junit.Assert;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
@@ -110,29 +107,5 @@ public class DataEdgeDefinitionTest {
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build())
                 .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        Assert.assertEquals(1, aggregator.getFunctions().size());
-        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
-        Assert.assertEquals(Collections.singletonList(new ElementComponentKey("property")),
-                aggregator.getFunctions().get(0).getSelection());
-
-    }
-
-    @Test
-    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
-        // Given
-        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
-                .source("id.integer")
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertNull(aggregator.getFunctions());
     }
 }

@@ -16,9 +16,11 @@
 
 package gaffer.commonutil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 
-public class StreamUtil {
+public abstract class StreamUtil {
     public static final String VIEW = "/view.json";
     public static final String SCHEMA = "/schema/schema.json";
     public static final String DATA_SCHEMA = "/schema/dataSchema.json";
@@ -26,6 +28,12 @@ public class StreamUtil {
     public static final String STORE_SCHEMA = "/schema/storeSchema.json";
     public static final String STORE_TYPES = "/schema/storeTypes.json";
     public static final String STORE_PROPERTIES = "/store.properties";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
+
+    private StreamUtil() {
+        // this class should not be instantiated - it contains only util methods and constants.
+    }
 
     public static InputStream view(final Class clazz) {
         return openStream(clazz, VIEW);
@@ -55,8 +63,48 @@ public class StreamUtil {
         return openStream(clazz, STORE_PROPERTIES);
     }
 
-    public static InputStream openStream(final Class clazz, final String path) {
-        return clazz.getResourceAsStream(path);
+    public static InputStream view(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, VIEW, logErrors);
     }
 
+    public static InputStream schema(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, SCHEMA, logErrors);
+    }
+
+    public static InputStream dataSchema(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, DATA_SCHEMA, logErrors);
+    }
+
+    public static InputStream dataTypes(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, DATA_TYPES, logErrors);
+    }
+
+    public static InputStream storeSchema(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, STORE_SCHEMA, logErrors);
+    }
+
+    public static InputStream storeTypes(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, STORE_TYPES, logErrors);
+    }
+
+    public static InputStream storeProps(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, STORE_PROPERTIES, logErrors);
+    }
+
+    public static InputStream openStream(final Class clazz, final String path) {
+        return openStream(clazz, path, false);
+    }
+
+    public static InputStream openStream(final Class clazz, final String path, final boolean logErrors) {
+        try {
+            return clazz.getResourceAsStream(path);
+        } catch (final Exception e) {
+            if (logErrors) {
+                LOGGER.error("Failed to create input stream for " + path, e);
+                return null;
+            } else {
+                throw e;
+            }
+        }
+    }
 }

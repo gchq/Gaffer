@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
@@ -121,7 +122,7 @@ public class ElementFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge("BasicEdge", "source", "dest", true);
+        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -147,7 +148,7 @@ public class ElementFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge("BasicEdge", "source", "dest", true);
+        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -160,7 +161,7 @@ public class ElementFilterTest {
 
     private String getViewJson() throws UnsupportedEncodingException {
         final View view = new View.Builder()
-                .edge("BasicEdge")
+                .edge(TestGroups.EDGE)
                 .build();
 
         return new String(view.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET);
@@ -175,7 +176,7 @@ public class ElementFilterTest {
 
     private Schema getSchema() throws UnsupportedEncodingException {
         return new Schema.Builder()
-                .edge("BasicEdge")
+                .edge(TestGroups.EDGE)
                 .build();
     }
 

@@ -5,27 +5,23 @@
     },
     "directed.true": {
       "class": "java.lang.Boolean",
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.ExampleFilterFunction"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.ExampleFilterFunction"
           }
-        ]
-      }
+        }
+      ]
     },
     "prop.string": {
       "class": "java.lang.String",
-      "validator": {
-        "functions": [
-          {
-            "function": {
-              "class": "gaffer.function.ExampleFilterFunction"
-            }
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.ExampleFilterFunction"
           }
-        ]
-      }
+        }
+      ]
     },
     "prop.date": {
       "class": "java.util.Date"

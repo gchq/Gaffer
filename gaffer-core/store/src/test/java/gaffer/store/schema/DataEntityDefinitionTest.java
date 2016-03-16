@@ -30,7 +30,6 @@ import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.IsA;
-import org.junit.Assert;
 import org.junit.Test;
 import java.util.Collections;
 
@@ -54,6 +53,8 @@ public class DataEntityDefinitionTest {
         final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
                 .vertex("id.integer", Integer.class)
                 .property("property", "property.string", String.class)
+                .vertex(Integer.class)
+                .property("property", String.class)
                 .build();
 
         // When
@@ -109,24 +110,10 @@ public class DataEntityDefinitionTest {
         final ElementAggregator aggregator = elementDef.getAggregator();
 
         // Then
-        Assert.assertEquals(1, aggregator.getFunctions().size());
+        assertEquals(1, aggregator.getFunctions().size());
         assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
-        Assert.assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
                 aggregator.getFunctions().get(0).getSelection());
 
-    }
-
-    @Test
-    public void shouldReturnAggregatorWithNoFunctionsWhenNoProperties() {
-        // Given
-        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer")
-                .build();
-
-        // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
-
-        // Then
-        assertNull(aggregator.getFunctions());
     }
 }
