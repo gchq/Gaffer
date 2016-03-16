@@ -45,7 +45,7 @@ public class AccumuloRangeIDRetriever
 
     /**
      * Use of the varargs parameter here will mean the usual default iterators
-     * wont be applied, (Edge Direction,Edge/Entity Type and View Filtering) To
+     * wont be applied, (Edge Direction,Edge/Entity TypeDefinition and View Filtering) To
      * apply them pass them directly to the varargs via calling your
      * keyPackage.getIteratorFactory() and either
      * getElementFilterIteratorSetting and/Or

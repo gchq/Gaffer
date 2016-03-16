@@ -16,6 +16,9 @@
 
 package gaffer.arrayliststore;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.Lists;
 import gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import gaffer.arrayliststore.data.SimpleEntityDataObject;
@@ -47,12 +50,8 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ArrayListStoreTest {
     @Test
@@ -301,7 +300,7 @@ public class ArrayListStoreTest {
     }
 
     private Graph createGraph() {
-        return new Graph(StreamUtil.dataSchema(getClass()), StreamUtil.storeSchema(getClass()), StreamUtil.storeProps(getClass()));
+        return new Graph(StreamUtil.storeProps(getClass()), StreamUtil.schema(getClass()));
     }
 
     private void addElementsToGraph(final Graph graph) throws OperationException {

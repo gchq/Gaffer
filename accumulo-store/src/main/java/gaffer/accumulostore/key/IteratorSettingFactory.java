@@ -76,14 +76,14 @@ public interface IteratorSettingFactory {
      * this iterator will be applied to the table on creation
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
 
     /**
      * Returns an Iterator that will validate elements in the accumulo table based
-     * on the validator provided in the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * on the validator provided in the {@link gaffer.store.schema.Schema}
      * this iterator will be applied to the table on creation
      *
      * @param store the accumulo store
@@ -96,7 +96,7 @@ public interface IteratorSettingFactory {
      * be used for the summarise option on getElement queries.
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.data.elementdefinition.schema.DataSchema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;

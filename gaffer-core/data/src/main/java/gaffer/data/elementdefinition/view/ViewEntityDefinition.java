@@ -28,7 +28,7 @@ public class ViewEntityDefinition extends ViewElementDefinition {
     }
 
     public String getVertex() {
-        return getIdentifierClassName(IdentifierType.VERTEX);
+        return getIdentifierTypeName(IdentifierType.VERTEX);
     }
 
     public static class Builder extends ViewElementDefinition.Builder {

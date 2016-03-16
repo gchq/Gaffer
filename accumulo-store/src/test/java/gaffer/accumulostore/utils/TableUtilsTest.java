@@ -25,10 +25,9 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementCo
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.commonutil.StreamUtil;
-import gaffer.data.elementdefinition.schema.DataEdgeDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StoreSchema;
+import gaffer.commonutil.TestGroups;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
@@ -45,20 +44,18 @@ public class TableUtilsTest {
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given
         final MockAccumuloStore store = new MockAccumuloStore();
-        final DataSchema dataSchema = new DataSchema.Builder()
-                .edge("BasicEdge", new DataEdgeDefinition.Builder()
-                        .source(String.class)
-                        .destination(String.class)
-                        .directed(Boolean.class)
-                        .build())
-                .build();
-        final StoreSchema storeSchema = new StoreSchema.Builder()
-                .edge("BasicEdge", new StoreElementDefinition.Builder()
+        final Schema schema = new Schema.Builder()
+                .type("id.string", String.class)
+                .type("directed.true", Boolean.class)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("id.string")
+                        .destination("id.string")
+                        .directed("directed.true")
                         .build())
                 .build();
 
         final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        store.initialise(dataSchema, storeSchema, props);
+        store.initialise(schema, props);
 
         // When
         TableUtils.createTable(store);
@@ -73,8 +70,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
         assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(DataSchema.fromJson(validatorOptions.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertNotNull(StoreSchema.fromJson(validatorOptions.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
@@ -83,8 +79,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY, aggregatorSetting.getPriority());
         assertEquals(AggregatorIterator.class.getName(), aggregatorSetting.getIteratorClass());
         final Map<String, String> aggregatorOptions = aggregatorSetting.getOptions();
-        assertNotNull(DataSchema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
-        assertNotNull(StoreSchema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge("BasicEdge"));
+        assertNotNull(Schema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)).getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), aggregatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
 

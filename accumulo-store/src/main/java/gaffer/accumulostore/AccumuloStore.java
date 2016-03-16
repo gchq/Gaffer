@@ -41,7 +41,6 @@ import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.operation.Operation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -54,7 +53,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -84,16 +83,16 @@ public class AccumuloStore extends Store {
     private AccumuloKeyPackage keyPackage;
 
     @Override
-    public void initialise(final DataSchema dataSchema, final StoreSchema storeSchema, final StoreProperties properties)
+    public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(dataSchema, storeSchema, properties);
+        super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
-        this.keyPackage.setStoreSchema(storeSchema);
+        this.keyPackage.setSchema(schema);
         validateSchemasAgainstKeyDesign();
     }
 
@@ -107,7 +106,7 @@ public class AccumuloStore extends Store {
      */
     public Connector getConnection() throws StoreException {
         return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
-                    getProperties().getUserName(), getProperties().getPassword());
+                getProperties().getUserName(), getProperties().getPassword());
     }
 
     @Override
@@ -232,14 +231,14 @@ public class AccumuloStore extends Store {
     @Override
     protected void validateSchemas() {
         super.validateSchemas();
-        final Map<String, String> positions = this.getStoreSchema().getPositions();
+        final Map<String, String> positions = this.getSchema().getPositions();
         if (positions != null && !positions.isEmpty()) {
-            LOGGER.warn("The store schema positions are not used and will be ignored.");
+            LOGGER.warn("The schema positions are not used and will be ignored.");
         }
     }
 
     protected void validateSchemasAgainstKeyDesign() {
-        keyPackage.validateSchema(this.getStoreSchema());
+        keyPackage.validateSchema(this.getSchema());
     }
 
     @Override

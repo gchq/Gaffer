@@ -19,10 +19,9 @@ package gaffer.accumulostore.utils;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.StoreException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -40,8 +39,8 @@ import java.util.EnumSet;
  * This class also has an executable main method that can be used to either
  * re-add or update the aggregator iterator that is set on a table.
  * It should be run on an accumulo cluster. The main
- * method takes 4 arguments, a path to a data schema, a path to a store schema
- * and path to a store properties file and the type of operation to perform on the
+ * method takes 3 arguments: a comma separated list of paths to schemas,
+ * a path to a store properties file and the type of operation to perform on the
  * table iterators - add, update or remove.
  * <p>
  * The add option will set new iterators on the table given in the
@@ -57,7 +56,7 @@ public final class AddUpdateTableIterator {
     public static final String UPDATE_KEY = "update";
     public static final String REMOVE_KEY = "remove";
     public static final String ADD_KEY = "add";
-    private static final int NUM_REQUIRED_ARGS = 4;
+    private static final int NUM_REQUIRED_ARGS = 3;
     private static final String[] ITERATORS = {
             AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
             AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME
@@ -160,15 +159,14 @@ public final class AddUpdateTableIterator {
     public static void main(final String[] args) throws StoreException, SchemaException, IOException {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<data_schema_path> <store_schema_path> <store_properties_path> <"
+                    + "<comma separated schema paths> <store properties path> <"
                     + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
                     + ">");
             System.exit(1);
         }
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(DataSchema.fromJson(getDataSchemaPath(args)),
-                StoreSchema.fromJson(getStoreSchemaPath(args)),
+        store.initialise(Schema.fromJson(getSchemaPaths(args)),
                 AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
 
         final String modifyKey = getModifyKey(args);
@@ -196,18 +194,20 @@ public final class AddUpdateTableIterator {
     }
 
     private static String getModifyKey(final String[] arg) {
-        return arg[3];
+        return arg[2];
     }
 
     private static Path getAccumuloPropertiesPath(final String[] args) {
-        return Paths.get(args[2]);
-    }
-
-    private static Path getStoreSchemaPath(final String[] args) {
         return Paths.get(args[1]);
     }
 
-    private static Path getDataSchemaPath(final String[] args) {
-        return Paths.get(args[0]);
+    private static Path[] getSchemaPaths(final String[] args) {
+        final String[] pathStrs = args[0].split(",");
+        final Path[] paths = new Path[pathStrs.length];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = Paths.get(pathStrs[i]);
+        }
+
+        return paths;
     }
 }

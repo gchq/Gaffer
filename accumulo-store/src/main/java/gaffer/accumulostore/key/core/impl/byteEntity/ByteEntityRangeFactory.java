@@ -18,8 +18,8 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.exception.SerialisationException;
 import gaffer.operation.GetOperation;
@@ -28,7 +28,7 @@ import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import java.util.Arrays;
@@ -37,16 +37,16 @@ import java.util.List;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
-    private final StoreSchema storeSchema;
+    private final Schema schema;
 
-    public ByteEntityRangeFactory(final StoreSchema storeSchema) {
-        this.storeSchema = storeSchema;
+    public ByteEntityRangeFactory(final Schema schema) {
+        this.schema = schema;
     }
 
     @Override
     protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-            final boolean endKey) throws RangeFactoryException {
-        final Serialisation vertexSerialiser = storeSchema.getVertexSerialiser();
+                                                                    final boolean endKey) throws RangeFactoryException {
+        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
@@ -85,7 +85,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-            final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
+                                                                  final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
         final IncludeEdgeType includeEdges;
         final boolean includeEntities;
@@ -99,7 +99,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(storeSchema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
