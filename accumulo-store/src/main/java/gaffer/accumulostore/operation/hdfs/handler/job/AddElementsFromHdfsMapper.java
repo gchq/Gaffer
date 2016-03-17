@@ -28,7 +28,6 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
 import gaffer.store.schema.StoreSchema;
 
@@ -43,7 +42,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         final StoreSchema storeSchema;
         try {
             storeSchema = StoreSchema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                    .get(AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Store Schema from JSON");
         }

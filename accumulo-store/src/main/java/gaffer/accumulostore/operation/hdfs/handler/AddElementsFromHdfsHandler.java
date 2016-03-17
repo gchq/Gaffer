@@ -19,7 +19,7 @@ package gaffer.accumulostore.operation.hdfs.handler;
 import org.apache.hadoop.util.ToolRunner;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.handler.tool.ImportElementsToAccumulo;
+import gaffer.accumulostore.operation.hdfs.handler.tool.ImportElementsToAccumulo;
 import gaffer.accumulostore.operation.hdfs.handler.tool.FetchElementsFromHdfs;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;

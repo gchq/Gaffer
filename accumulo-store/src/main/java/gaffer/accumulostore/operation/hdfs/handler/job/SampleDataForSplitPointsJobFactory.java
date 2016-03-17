@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.simple.hdfs.handler;
+package gaffer.accumulostore.operation.hdfs.handler.job;
 
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
 import gaffer.store.Store;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 import java.io.IOException;
 
-public abstract class AbstractAddElementsFromHdfsJobFactory {
+public class SampleDataForSplitPointsJobFactory {
 
+    public static final String PROPORTION_TO_SAMPLE = "proportion_to_sample";
     public static final String UTF_8_CHARSET = "UTF-8";
     public static final String DATA_SCHEMA = "dataSchema";
     public static final String STORE_SCHEMA = "storeSchema";
@@ -41,7 +47,7 @@ public abstract class AbstractAddElementsFromHdfsJobFactory {
      * @return the created job
      * @throws IOException for IO issues
      */
-    public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
+    public Job createJob(final SampleDataForSplitPoints operation, final Store store) throws IOException {
         final JobConf jobConf = createJobConf(operation, store);
         setupJobConf(jobConf, operation, store);
 
@@ -56,15 +62,16 @@ public abstract class AbstractAddElementsFromHdfsJobFactory {
         return job;
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected JobConf createJobConf(final SampleDataForSplitPoints operation, final Store store) throws IOException {
         return new JobConf(new Configuration());
     }
 
-    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected void setupJobConf(final JobConf jobConf, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
+        jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
         Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
@@ -75,13 +82,36 @@ public abstract class AbstractAddElementsFromHdfsJobFactory {
         }
     }
 
-    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(operation.getInputPath(), operation.getOutputPath()));
+        setupMapper(job, operation, store);
+        setupReducer(job, operation, store);
+        setupOutput(job, operation, store);
     }
 
     protected String getJobName(final Path inputPath, final Path outputPath) {
-        return "Ingest HDFS data: input=" + inputPath + ", output=" + outputPath;
+        return "Split Table: input=" + inputPath + ", output=" + outputPath;
     }
 
+    private void setupMapper(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+        job.setMapperClass(SampleDataForSplitPointsMapper.class);
+        job.setMapOutputKeyClass(Key.class);
+        job.setMapOutputValueClass(Value.class);
+    }
+
+    private void setupReducer(final Job job, final SampleDataForSplitPoints operation, final Store store)
+            throws IOException {
+        job.setReducerClass(AccumuloKeyValueReducer.class);
+        job.setOutputKeyClass(Key.class);
+        job.setOutputValueClass(Value.class);
+    }
+
+    private void setupOutput(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        SequenceFileOutputFormat.setOutputPath(job, operation.getOutputPath());
+        SequenceFileOutputFormat.setCompressOutput(job, true);
+        SequenceFileOutputFormat.setOutputCompressorClass(job, GzipCodec.class);
+        SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
+    }
 }

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package gaffer.accumulostore.operation.handler.tool;
+package gaffer.accumulostore.operation.hdfs.handler.tool;
 
 import org.apache.accumulo.core.client.Connector;
 import org.apache.hadoop.conf.Configuration;
@@ -63,9 +62,6 @@ public class ImportElementsToAccumulo extends Configured implements Tool {
         // Import the files
         connector.tableOperations().importDirectory(table, operation.getOutputPath().toString(),
                 operation.getFailurePath().toString(), false);
-
-        // Delete the temporary directories
-        fs.delete(operation.getFailurePath(), true);
 
         return SUCCESS_RESPONSE;
     }
