@@ -36,8 +36,10 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.LazyEntity;
 import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
+import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -58,6 +60,7 @@ import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.ViewValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -177,6 +180,33 @@ public class StoreTest {
 
         // Then
         verify(addElementsHandler).doOperation(addElements, store);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfOperationViewIsInvalid() throws OperationException, StoreException {
+        // Given
+        // Given
+        final Schema schema = mock(Schema.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+        final AddElements addElements = new AddElements();
+        final View view = mock(View.class);
+        final ViewValidator viewValidator = mock(ViewValidator.class);
+        final StoreImpl store = new StoreImpl();
+
+        addElements.setView(view);
+        given(schema.validate()).willReturn(true);
+        given(viewValidator.validate(view, schema)).willReturn(false);
+        store.initialise(schema, properties);
+        store.setViewValidator(viewValidator);
+
+        // When / Then
+        try {
+            store.execute(addElements);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            verify(viewValidator).validate(view, schema);
+            assertTrue(e.getMessage().contains("View"));
+        }
     }
 
     @Test

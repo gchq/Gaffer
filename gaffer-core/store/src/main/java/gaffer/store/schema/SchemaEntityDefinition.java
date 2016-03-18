@@ -20,8 +20,6 @@ import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 
 public class SchemaEntityDefinition extends SchemaElementDefinition {
-    private static final long serialVersionUID = 5810237134790726020L;
-
     public void setVertex(final String className) {
         getIdentifierMap().put(IdentifierType.VERTEX, className);
     }

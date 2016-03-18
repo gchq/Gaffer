@@ -22,6 +22,8 @@ import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -44,7 +46,7 @@ import java.util.Map.Entry;
  */
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> {
     private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
-    private static final long serialVersionUID = 4593579100621117269L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
 
     /**
      * The {@link gaffer.serialisation.Serialisation} for all identifiers. By default it is set to
@@ -83,6 +85,46 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return fromJson(Schema.class, jsonBytes);
+    }
+
+    /**
+     * Validates the schema to ensure all element definitions are valid.
+     * Throws a SchemaException if it is not valid.
+     *
+     * @return true if valid, otherwise false.
+     * @throws SchemaException if validation fails then a SchemaException is thrown.
+     */
+    public boolean validate() throws SchemaException {
+        for (String edgeGroup : getEdgeGroups()) {
+            if (null != getEntity(edgeGroup)) {
+                LOGGER.warn("Groups must not be shared between Entity definitions and Edge definitions."
+                        + "Found edgeGroup '" + edgeGroup + "' in the collection of entities");
+                return false;
+            }
+        }
+
+        for (Map.Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
+            if (null == elementDefEntry.getValue()) {
+                throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
+            }
+
+            if (!elementDefEntry.getValue().validate()) {
+                LOGGER.warn("VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
+                return false;
+            }
+        }
+
+        for (Map.Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
+            if (null == elementDefEntry.getValue()) {
+                throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
+            }
+
+            if (!elementDefEntry.getValue().validate()) {
+                LOGGER.warn("VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
+                return false;
+            }
+        }
+        return true;
     }
 
     public TypeDefinitions getTypes() {
@@ -334,7 +376,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         @Override
         public Schema build() {
-            return (Schema) super.build();
+            final Schema schema = (Schema) super.build();
+            if (!schema.validate()) {
+                throw new SchemaException("The schema is not valid. Check the logs for more information.");
+            }
+
+            return schema;
         }
 
         @Override

@@ -21,8 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -30,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.Operation;
@@ -135,14 +132,12 @@ public class GraphTest {
 
         for (ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
         for (ViewElementDefinition resultElementDef : resultView.getEdges().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
     }
@@ -152,7 +147,6 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final View view = mock(View.class);
-        given(view.validate()).willReturn(true);
 
         final Graph graph = new Graph(store, view);
         final int expectedResult = 5;
@@ -176,10 +170,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final View opView = mock(View.class);
-        given(opView.validate()).willReturn(true);
-
         final View view = mock(View.class);
-        given(view.validate()).willReturn(true);
 
         final Graph graph = new Graph(store, view);
         final int expectedResult = 5;
@@ -196,49 +187,6 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain);
         verify(operation, Mockito.never()).setView(view);
-    }
-
-    @Test
-    public void shouldNThrowExceptionIfGraphViewIsInvalid() throws OperationException {
-        // Given
-        final Store store = mock(Store.class);
-        final View view = mock(View.class);
-        given(view.validate()).willReturn(false);
-
-        // When / Then
-        try {
-            new Graph(store, view);
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("view"));
-        }
-    }
-
-    @Test
-    public void shouldNThrowExceptionIfOperationViewIsInvalid() throws OperationException {
-        // Given
-        final Store store = mock(Store.class);
-        final View opView = mock(View.class);
-        given(opView.validate()).willReturn(false);
-
-        final View view = mock(View.class);
-        given(view.validate()).willReturn(true);
-
-        final Graph graph = new Graph(store, view);
-        final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
-        given(operation.getView()).willReturn(opView);
-
-        final OperationChain<Integer> opChain = new OperationChain<>(operation);
-        given(store.execute(opChain)).willReturn(expectedResult);
-
-        // When / Then
-        try {
-            graph.execute(opChain);
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("View"));
-        }
     }
 
     static class StoreImpl extends Store {

@@ -20,36 +20,108 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.data.element.ElementComponentKey;
-import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.ElementDefinition;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.FilterFunction;
 import gaffer.function.TransformFunction;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.ConsumerProducerFunctionContext;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
- * A <code>ViewElementDefinition</code> extends {@link ElementDefinition} and adds
- * the ability to specify a {@link gaffer.data.element.function.ElementTransformer} and a
- * {@link gaffer.data.element.function.ElementFilter}.
+ * A <code>ViewElementDefinition</code> is an {@link ElementDefinition} containing
+ * transient properties, an {@link ElementTransformer} and a {@link ElementFilter}.
  */
-public abstract class ViewElementDefinition extends ElementDefinition {
+public class ViewElementDefinition implements ElementDefinition {
     private ElementTransformer transformer;
     private ElementFilter filter;
 
-    public ViewElementDefinition() {
-        super(new ViewElementDefinitionValidator());
+    /**
+     * Transient property map of property name to class.
+     */
+    private LinkedHashMap<String, Class<?>> transientProperties = new LinkedHashMap<>();
+
+    @Override
+    public void merge(final ElementDefinition elementDef) {
+        if (elementDef instanceof ViewElementDefinition) {
+            merge(((ViewElementDefinition) elementDef));
+        } else {
+            throw new IllegalArgumentException("Cannot merge a schema element definition with a " + elementDef.getClass());
+        }
+    }
+
+    public void merge(final ViewElementDefinition elementDef) {
+        for (Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
+            final String newProp = entry.getKey();
+            final Class<?> newPropClass = entry.getValue();
+            if (!transientProperties.containsKey(newProp)) {
+                transientProperties.put(newProp, newPropClass);
+            } else {
+                final Class<?> clazz = transientProperties.get(newProp);
+                if (!clazz.equals(newPropClass)) {
+                    throw new SchemaException("Unable to merge schemas. Conflict of transient property classes for " + newProp
+                            + ". Classes are: " + clazz.getName() + " and " + newPropClass.getName());
+                }
+            }
+        }
+    }
+
+    public Class<?> getTransientPropertyClass(final String propertyName) {
+        return transientProperties.get(propertyName);
     }
 
     @JsonIgnore
-    public ElementTransformer getTransformer() {
-        return transformer;
+    public Collection<Class<?>> getTransientPropertyClasses() {
+        return transientProperties.values();
     }
 
-    public void setTransformer(final ElementTransformer transformer) {
-        this.transformer = transformer;
+    public Set<String> getTransientProperties() {
+        return transientProperties.keySet();
+    }
+
+    public boolean containsTransientProperty(final String propertyName) {
+        return transientProperties.containsKey(propertyName);
+    }
+
+    /**
+     * @return the transient property map. {@link LinkedHashMap} of transient property name to class name.
+     */
+    @JsonIgnore
+    public Map<String, Class<?>> getTransientPropertyMap() {
+        return Collections.unmodifiableMap(transientProperties);
+    }
+
+    @JsonGetter("transientProperties")
+    public Map<String, String> getTransientPropertyMapWithClassNames() {
+        Map<String, String> propertyMap = new HashMap<>();
+        for (Entry<String, Class<?>> entry : transientProperties.entrySet()) {
+            propertyMap.put(entry.getKey(), entry.getValue().getName());
+        }
+
+        return propertyMap;
+    }
+
+    /**
+     * Set the transient properties.
+     *
+     * @param newTransientProperties {@link LinkedHashMap} of transient property name to class name.
+     * @throws ClassNotFoundException thrown if any of the property class names could not be found.
+     */
+    @JsonSetter("transientProperties")
+    public void setTransientPropertyMapWithClassNames(final LinkedHashMap<String, String> newTransientProperties) throws ClassNotFoundException {
+        transientProperties = new LinkedHashMap<>();
+        for (Entry<String, String> entry : newTransientProperties.entrySet()) {
+            transientProperties.put(entry.getKey(), Class.forName(entry.getValue()));
+        }
     }
 
     @JsonIgnore
@@ -75,6 +147,15 @@ public abstract class ViewElementDefinition extends ElementDefinition {
         filter.addFunctions(functions);
     }
 
+    @JsonIgnore
+    public ElementTransformer getTransformer() {
+        return transformer;
+    }
+
+    public void setTransformer(final ElementTransformer transformer) {
+        this.transformer = transformer;
+    }
+
     @JsonGetter("transformFunctions")
     public List<ConsumerProducerFunctionContext<ElementComponentKey, TransformFunction>> getTransformFunctions() {
         return null != transformer ? transformer.getFunctions() : null;
@@ -86,37 +167,34 @@ public abstract class ViewElementDefinition extends ElementDefinition {
         transformer.addFunctions(functions);
     }
 
-    public abstract static class Builder extends ElementDefinition.Builder {
-        public Builder(final ViewElementDefinition elDef) {
-            super(elDef);
+    public static class Builder {
+        private final ViewElementDefinition elDef;
+
+        public Builder() {
+            this.elDef = new ViewElementDefinition();
         }
 
-        protected Builder property(final String propertyName, final Class<?> clazz) {
-            return (Builder) super.property(propertyName, clazz.getName());
+        public Builder transientProperty(final String propertyName, final Class<?> clazz) {
+            elDef.transientProperties.put(propertyName, clazz);
+            return this;
         }
 
-        protected Builder identifier(final IdentifierType identifierType, final Class<?> clazz) {
-            return (Builder) super.identifier(identifierType, clazz.getName());
-        }
-
-        protected Builder filter(final ElementFilter filter) {
+        public Builder filter(final ElementFilter filter) {
             getElementDef().setFilter(filter);
             return this;
         }
 
-        protected Builder transformer(final ElementTransformer transformer) {
+        public Builder transformer(final ElementTransformer transformer) {
             getElementDef().setTransformer(transformer);
             return this;
         }
 
-        @Override
-        protected ViewElementDefinition build() {
-            return (ViewElementDefinition) super.build();
+        public ViewElementDefinition build() {
+            return elDef;
         }
 
-        @Override
-        protected ViewElementDefinition getElementDef() {
-            return (ViewElementDefinition) super.getElementDef();
+        public ViewElementDefinition getElementDef() {
+            return elDef;
         }
     }
 }

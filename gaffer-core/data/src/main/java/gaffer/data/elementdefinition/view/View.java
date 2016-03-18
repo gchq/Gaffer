@@ -30,29 +30,16 @@ import java.util.Collection;
  * The {@link gaffer.function.FilterFunction}s within the ElementFilter describe the how the elements should be filtered.
  * The {@link gaffer.function.TransformFunction}s within ElementTransformer allow transient properties to be created
  * from other properties and identifiers.
- * Any identifiers, properties or transient properties used in filters and transforms must be listed within the element
- * definition along with its type.
+ * It also contains any transient properties that are created in transform functions.
  *
  * @see gaffer.data.elementdefinition.view.View.Builder
  * @see gaffer.data.elementdefinition.view.ViewElementDefinition
  * @see gaffer.data.element.function.ElementFilter
  * @see gaffer.data.element.function.ElementTransformer
  */
-public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefinition> {
-    private static final long serialVersionUID = 3056841284342147461L;
-
+public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> {
     public View() {
         super();
-    }
-
-    public View(final Collection<String> entityGroups, final Collection<String> edgeGroups) {
-        super();
-        for (String group : entityGroups) {
-            addEntity(group, new ViewEntityDefinition());
-        }
-        for (String group : edgeGroups) {
-            addEdge(group, new ViewEdgeDefinition());
-        }
     }
 
     public static View fromJson(final InputStream inputStream) throws SchemaException {
@@ -72,7 +59,7 @@ public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefin
         return (ViewElementDefinition) super.getElement(group);
     }
 
-    public static class Builder extends ElementDefinitions.Builder<ViewEntityDefinition, ViewEdgeDefinition> {
+    public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
         public Builder() {
             this(new View());
         }
@@ -82,21 +69,37 @@ public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefin
         }
 
         @Override
-        public Builder edge(final String group, final ViewEdgeDefinition elementDef) {
+        public Builder edge(final String group, final ViewElementDefinition elementDef) {
             return (Builder) super.edge(group, elementDef);
         }
 
         public Builder edge(final String group) {
-            return edge(group, new ViewEdgeDefinition());
+            return edge(group, new ViewElementDefinition());
+        }
+
+        public Builder edges(final Collection<String> groups) {
+            for (String group : groups) {
+                edge(group);
+            }
+
+            return this;
         }
 
         @Override
-        public Builder entity(final String group, final ViewEntityDefinition elementDef) {
+        public Builder entity(final String group, final ViewElementDefinition elementDef) {
             return (Builder) super.entity(group, elementDef);
         }
 
         public Builder entity(final String group) {
-            return entity(group, new ViewEntityDefinition());
+            return entity(group, new ViewElementDefinition());
+        }
+
+        public Builder entities(final Collection<String> groups) {
+            for (String group : groups) {
+                entity(group);
+            }
+
+            return this;
         }
 
         @Override

@@ -27,24 +27,192 @@ import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.data.elementdefinition.ElementDefinitionValidator;
-import gaffer.data.elementdefinition.ElementDefinitionValidatorTest;
 import gaffer.function.AggregateFunction;
+import gaffer.function.ConsumerFunction;
+import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
+import gaffer.function.processor.Processor;
 import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-public class SchemaElementDefinitionValidatorTest extends ElementDefinitionValidatorTest {
+public class SchemaElementDefinitionValidatorTest {
+    @Test
+    public void shouldValidateComponentTypesAndReturnTrueWhenNoIdentifiersOrProperties() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
+        given(elementDef.getProperties()).willReturn(new HashSet<String>());
+
+        // When
+        final boolean isValid = validator.validateComponentTypes(elementDef);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateComponentTypesAndReturnTrueWhenIdentifiersAndPropertiesHaveClasses() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(Sets.newSet(IdentifierType.DESTINATION, IdentifierType.SOURCE));
+        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2));
+
+        given(elementDef.getIdentifierClass(IdentifierType.DESTINATION)).willReturn((Class) Double.class);
+        given(elementDef.getIdentifierClass(IdentifierType.SOURCE)).willReturn((Class) Long.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
+
+        // When
+        final boolean isValid = validator.validateComponentTypes(elementDef);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateComponentTypesAndReturnFalseForInvalidPropertyClass() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
+        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1));
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willThrow(new IllegalArgumentException());
+
+        // When
+        final boolean isValid = validator.validateComponentTypes(elementDef);
+
+        // Then
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void shouldValidateFunctionSelectionsAndReturnFalseWhenAFunctionIsNull() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        final List<ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> functions = new ArrayList<>();
+        final ConsumerFunctionContext<ElementComponentKey, ConsumerFunction> function = mock(ConsumerFunctionContext.class);
+        functions.add(function);
+        given(function.getFunction()).willReturn(null);
+
+        given(processor.getFunctions()).willReturn(functions);
+
+        // When
+        final boolean isValid = validator.validateFunctionArgumentTypes(processor, elementDef);
+
+        // Then
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void shouldValidateFunctionSelectionsAndReturnTrueWhenNoFunctionsSet() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(processor.getFunctions()).willReturn(null);
+
+        // When
+        final boolean isValid = validator.validateFunctionArgumentTypes(processor, elementDef);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateFunctionSelectionsAndReturnTrueWhenProcessorIsNull() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = null;
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        // When
+        final boolean isValid = validator.validateFunctionArgumentTypes(processor, elementDef);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateFunctionSelectionsAndReturnFalseWhenFunctionTypeDoesNotEqualSelectionType() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        final List<ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> functions = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            final ConsumerFunctionContext<ElementComponentKey, ConsumerFunction> context = mock(ConsumerFunctionContext.class);
+            final ConsumerFunction function = mock(ConsumerFunction.class);
+            given(function.getInputClasses()).willReturn(new Class<?>[]{String.class});
+
+            given(context.getFunction()).willReturn(function);
+            given(context.getSelection()).willReturn(
+                    Collections.singletonList(new ElementComponentKey("key" + i + "a")));
+            functions.add(context);
+
+            given(elementDef.getClass(context.getSelection().get(0))).willReturn((Class) Integer.class);
+        }
+
+        given(processor.getFunctions()).willReturn(functions);
+
+        // When
+        final boolean isValid = validator.validateFunctionArgumentTypes(processor, elementDef);
+
+        // Then
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void shouldValidateFunctionSelectionsAndReturnTrueWhenAllFunctionsAreValid() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final Processor<ElementComponentKey, ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> processor = mock(Processor.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        final List<ConsumerFunctionContext<ElementComponentKey, ConsumerFunction>> functions = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            final ConsumerFunctionContext<ElementComponentKey, ConsumerFunction> context = mock(ConsumerFunctionContext.class);
+            final ConsumerFunction function = mock(ConsumerFunction.class);
+            given(function.getInputClasses()).willReturn(new Class<?>[]{CharSequence.class, CharSequence.class});
+
+            given(context.getFunction()).willReturn(function);
+            given(context.getSelection()).willReturn(
+                    Arrays.asList(new ElementComponentKey("key" + i + "a"), new ElementComponentKey("key" + i + "b")));
+            functions.add(context);
+
+            given(elementDef.getClass(context.getSelection().get(0))).willReturn((Class) CharSequence.class);
+            given(elementDef.getClass(context.getSelection().get(1))).willReturn((Class) String.class);
+        }
+
+        given(processor.getFunctions()).willReturn(functions);
+
+        // When
+        final boolean isValid = validator.validateFunctionArgumentTypes(processor, elementDef);
+
+        // Then
+        assertTrue(isValid);
+    }
 
     @Test
     public void shouldValidateAndReturnTrueWhenNoPropertiesAggregated() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        ;
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<String>());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
@@ -121,10 +289,5 @@ public class SchemaElementDefinitionValidatorTest extends ElementDefinitionValid
 
         // Then
         assertFalse(isValid);
-    }
-
-    @Override
-    protected ElementDefinitionValidator newElementDefinitionValidator() {
-        return new SchemaElementDefinitionValidator();
     }
 }

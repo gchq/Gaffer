@@ -17,7 +17,6 @@
 package gaffer.integration;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -66,30 +65,6 @@ public class ViewIT {
     }
 
     @Test
-    public void shouldValidateJsonViewAndPass() throws IOException {
-        // Given
-        View view = loadView();
-
-        // When
-        boolean response = view.validate();
-
-        // Then
-        assertTrue(response);
-    }
-
-    @Test
-    public void shouldValidateJsonViewAndFail() throws IOException {
-        // Given
-        View view = loadInvalidView();
-
-        // When
-        boolean response = view.validate();
-
-        //then
-        assertFalse(response);
-    }
-
-    @Test
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws IOException {
         //Given
         final View view1 = loadView();
@@ -119,9 +94,5 @@ public class ViewIT {
 
     private View loadView() throws IOException {
         return View.fromJson(StreamUtil.view(getClass()));
-    }
-
-    private View loadInvalidView() throws IOException {
-        return View.fromJson(StreamUtil.openStream(getClass(), "/invalidView.json"));
     }
 }

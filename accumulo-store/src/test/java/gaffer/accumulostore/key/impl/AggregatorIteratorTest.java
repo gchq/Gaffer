@@ -28,8 +28,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -59,7 +57,10 @@ public class AggregatorIteratorTest {
         byteEntityStore.getProperties().setTable("Test");
         gaffer1KeyStore.getProperties().setTable("Test2");
 
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .build();
     }
 
     @AfterClass
