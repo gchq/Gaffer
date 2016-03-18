@@ -41,17 +41,17 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
-    private final Iterable<? extends SEED_TYPE> ids;
+    private final Iterator<? extends SEED_TYPE> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
-        this.ids = operation.getSeeds();
+        this.ids = operation.getSeeds().iterator();
     }
 
     @Override
     public Iterator<Element> iterator() {
-        if (!ids.iterator().hasNext()) {
+        if (!ids.hasNext()) {
             return Collections.emptyIterator();
         }
 
@@ -74,7 +74,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
 
         protected ElementIterator() throws RetrieverException {
-            idsIterator = ids.iterator();
+            idsIterator = ids;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
             while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
