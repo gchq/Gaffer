@@ -27,6 +27,8 @@ import gaffer.operation.data.EntitySeed;
  **/
 public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
 
+    public GetEdgesWithinSet() {}
+
     public GetEdgesWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
     }

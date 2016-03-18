@@ -30,6 +30,8 @@ import gaffer.operation.data.EntitySeed;
  **/
 public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetOperation<EntitySeed, ELEMENT_TYPE> {
 
+    public GetElementsWithinSet() {};
+
     public GetElementsWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
     }

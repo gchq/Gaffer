@@ -31,6 +31,8 @@ import gaffer.operation.data.ElementSeed;
 public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE> {
 
+    public GetElementsInRanges() {}
+
     public GetElementsInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
     }

@@ -29,6 +29,8 @@ import gaffer.operation.data.ElementSeed;
  */
 public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends GetElementsInRanges<SEED_TYPE, Edge> {
 
+    public GetEdgesInRanges() {}
+
     public GetEdgesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
         super.setIncludeEdges(IncludeEdgeType.ALL);

@@ -29,6 +29,8 @@ import gaffer.operation.data.ElementSeed;
  */
 public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends GetElementsInRanges<SEED_TYPE, Entity> {
 
+    public GetEntitiesInRanges() {}
+
     public GetEntitiesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
         super(seeds);
     }

@@ -24,6 +24,8 @@ import gaffer.operation.GetOperation;
 public class AbstractRangeOperation<SEED_TYPE, ELEMENT_TYPE extends Element>
         extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
 
+    public AbstractRangeOperation() {}
+
     public AbstractRangeOperation(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
     }
