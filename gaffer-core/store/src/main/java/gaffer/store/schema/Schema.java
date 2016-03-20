@@ -25,6 +25,7 @@ import gaffer.serialisation.implementation.JavaSerialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -286,6 +287,15 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     protected void addEntity(final String group, final SchemaEntityDefinition elementDef) {
         elementDef.setTypesLookup(types);
         super.addEntity(group, elementDef);
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return "Schema" + new String(toJson(true), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static class Builder extends ElementDefinitions.Builder<SchemaEntityDefinition, SchemaEdgeDefinition> {
