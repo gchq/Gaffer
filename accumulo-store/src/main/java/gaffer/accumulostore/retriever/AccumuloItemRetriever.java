@@ -41,22 +41,23 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
-    private final Iterator<? extends SEED_TYPE> ids;
+    private final Iterable<? extends SEED_TYPE> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, iteratorSettings);
-        this.ids = operation.getSeeds().iterator();
+        this.ids = operation.getSeeds();
     }
 
     @Override
     public Iterator<Element> iterator() {
-        if (!ids.hasNext()) {
+        Iterator<? extends SEED_TYPE> idIterator = ids.iterator();
+        if (!idIterator.hasNext()) {
             return Collections.emptyIterator();
         }
 
         try {
-            iterator = new ElementIterator();
+            iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
             LOGGER.error(e.getMessage() + " returning empty iterator", e);
             return Collections.emptyIterator();
@@ -73,8 +74,8 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         private BatchScanner scanner;
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
 
-        protected ElementIterator() throws RetrieverException {
-            idsIterator = ids;
+        protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
+            idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
             while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
@@ -128,8 +129,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
             }
             if (!scannerIterator.hasNext()) {
                 scanner.close();
+                return false;
             }
-            return scannerIterator.hasNext();
+            return true;
         }
 
         @Override
