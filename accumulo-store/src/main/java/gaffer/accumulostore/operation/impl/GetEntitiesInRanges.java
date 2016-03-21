@@ -27,11 +27,11 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
-public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends GetElementsInRanges<SEED_TYPE, Entity> {
+public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> extends GetElementsInRanges<SEED_TYPE, Entity> {
 
-    public GetEntitiesInRanges() {}
+    public GetEntitiesInRanges() { }
 
-    public GetEntitiesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
+    public GetEntitiesInRanges(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
@@ -39,11 +39,11 @@ public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends GetEleme
         super(view);
     }
 
-    public GetEntitiesInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+    public GetEntitiesInRanges(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
-    public GetEntitiesInRanges(final GetOperation<Pair<SEED_TYPE>, Entity> operation) {
+    public GetEntitiesInRanges(final GetOperation<SEED_TYPE, Entity> operation) {
         super(operation);
     }
 
@@ -71,7 +71,7 @@ public class GetEntitiesInRanges<SEED_TYPE extends ElementSeed> extends GetEleme
         }
     }
 
-    public static class Builder<OP_TYPE extends GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
+    public static class Builder<OP_TYPE extends GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE extends Pair<? extends ElementSeed>>
             extends GetElementsInRanges.Builder<OP_TYPE, SEED_TYPE, Entity> {
 
         protected Builder(final OP_TYPE op) {

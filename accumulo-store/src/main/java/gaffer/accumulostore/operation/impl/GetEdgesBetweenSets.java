@@ -28,7 +28,7 @@ import gaffer.operation.data.EntitySeed;
  */
 public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
 
-    public GetEdgesBetweenSets() {}
+    public GetEdgesBetweenSets() { }
 
     public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
         super(seedsA, seedsB);

@@ -26,7 +26,7 @@ import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.operation.GetOperation;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -34,9 +34,10 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
+public abstract class AccumuloRetriever<OP_TYPE extends AbstractGetOperation<?, ?>> implements CloseableIterable<Element> {
     private static final String AUTHORISATIONS_SEPERATOR = ",";
     protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;

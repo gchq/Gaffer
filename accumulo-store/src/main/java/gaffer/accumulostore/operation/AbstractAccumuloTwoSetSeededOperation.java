@@ -35,7 +35,7 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
 
     private Iterable<SEED_TYPE> seedsB;
 
-    public AbstractAccumuloTwoSetSeededOperation() {}
+    public AbstractAccumuloTwoSetSeededOperation() { }
 
     public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
         super(seedsA);
@@ -50,13 +50,13 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonGetter(value = "seedsB")
-    List<SEED_TYPE> getSeedArray() {
+    List<SEED_TYPE> getSeedBArray() {
         final Iterable<SEED_TYPE> seedsB = getSeedsB();
         return null != seedsB ? Lists.newArrayList(seedsB) : null;
     }
 
     @JsonSetter(value = "seedsB")
-    void setSeedArray(final SEED_TYPE[] seedsB) {
+    void setSeedBArray(final SEED_TYPE[] seedsB) {
         setSeedsB(Arrays.asList(seedsB));
     }
 
