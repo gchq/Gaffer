@@ -17,8 +17,7 @@
 package gaffer.data.elementdefinition.view;
 
 import gaffer.data.elementdefinition.ElementDefinitions;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-
+import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -57,15 +56,15 @@ public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefin
     }
 
     public static View fromJson(final InputStream inputStream) throws SchemaException {
-        return fromJson(inputStream, View.class);
+        return fromJson(View.class, inputStream);
     }
 
     public static View fromJson(final Path filePath) throws SchemaException {
-        return fromJson(filePath, View.class);
+        return fromJson(View.class, filePath);
     }
 
     public static View fromJson(final byte[] jsonBytes) throws SchemaException {
-        return fromJson(jsonBytes, View.class);
+        return fromJson(View.class, jsonBytes);
     }
 
     @Override

@@ -15,20 +15,19 @@
  */
 package gaffer.function.simple.filter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunction;
 import gaffer.function.FilterFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
-
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
 
 public class MultiRegexTest extends FilterFunctionTest {
 
@@ -41,7 +40,7 @@ public class MultiRegexTest extends FilterFunctionTest {
         final MultiRegex filter = new MultiRegex(patterns);
 
         // When
-        boolean accepted = filter._isValid("pass");
+        boolean accepted = filter.isValid("pass");
 
         // Then
         assertTrue(accepted);
@@ -56,7 +55,7 @@ public class MultiRegexTest extends FilterFunctionTest {
         final MultiRegex filter = new MultiRegex(patterns);
 
         // When
-        boolean accepted = filter._isValid("pass");
+        boolean accepted = filter.isValid("pass");
 
         // Then
         assertFalse(accepted);
@@ -111,11 +110,6 @@ public class MultiRegexTest extends FilterFunctionTest {
         patterns[1] = Pattern.compile("[t,T].*[t,T]");
         MultiRegex multi = new MultiRegex(patterns);
         return multi;
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{"testingthisexpressionT"};
     }
 
     @Override

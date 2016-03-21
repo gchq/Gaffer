@@ -27,6 +27,8 @@ import gaffer.operation.data.EntitySeed;
  **/
 public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
 
+    public GetEdgesWithinSet() { }
+
     public GetEdgesWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
     }
@@ -41,6 +43,27 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
 
     public GetEdgesWithinSet(final GetOperation<EntitySeed, ?> operation) {
         super(operation);
+    }
+
+    @Override
+    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
+        if (IncludeEdgeType.NONE == includeEdges) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " requires edges to be included");
+        }
+
+        super.setIncludeEdges(includeEdges);
+    }
+
+    @Override
+    public boolean isIncludeEntities() {
+        return false;
+    }
+
+    @Override
+    public void setIncludeEntities(final boolean includeEntities) {
+        if (includeEntities) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including entities");
+        }
     }
 
     public static class Builder<OP_TYPE extends GetEdgesWithinSet> extends GetElementsWithinSet.Builder<OP_TYPE, Edge> {

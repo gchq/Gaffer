@@ -36,15 +36,15 @@ public class ViewEdgeDefinition extends ViewElementDefinition {
     }
 
     public String getSource() {
-        return getIdentifierClassName(IdentifierType.SOURCE);
+        return getIdentifierTypeName(IdentifierType.SOURCE);
     }
 
     public String getDestination() {
-        return getIdentifierClassName(IdentifierType.DESTINATION);
+        return getIdentifierTypeName(IdentifierType.DESTINATION);
     }
 
     public String getDirected() {
-        return getIdentifierClassName(IdentifierType.DIRECTED);
+        return getIdentifierTypeName(IdentifierType.DIRECTED);
     }
 
     public static class Builder extends ViewElementDefinition.Builder {

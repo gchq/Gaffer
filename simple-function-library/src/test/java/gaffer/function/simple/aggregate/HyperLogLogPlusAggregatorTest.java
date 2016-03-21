@@ -15,20 +15,20 @@
  */
 package gaffer.function.simple.aggregate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.exception.SerialisationException;
-import gaffer.function.ConsumerProducerFunction;
-import gaffer.function.ConsumerProducerFunctionTest;
+import gaffer.function.AggregateFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-
-public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest {
+public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     private HyperLogLogPlus hyperLogLogPlus1;
     private HyperLogLogPlus hyperLogLogPlus2;
 
@@ -47,7 +47,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
     public void testExecute() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
-        assertEquals(0l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
+        assertNull((hyperLogLogPlusAggregator.state()[0]));
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         assertEquals(2l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus2);
@@ -85,7 +85,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
+        assertNull((clone.state()[0]));
         clone._aggregate(hyperLogLogPlus2);
         assertEquals(hyperLogLogPlus2.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
@@ -96,7 +96,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
         hyperLogLogPlusAggregator.init();
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
+        assertNull((clone.state()[0]));
         clone._aggregate(hyperLogLogPlus1);
         assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
@@ -114,7 +114,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
         }
         HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
         assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertEquals(0l, ((HyperLogLogPlus) clone.state()[0]).cardinality());
+        assertNull((clone.state()[0]));
         clone._aggregate(hyperLogLogPlus1);
         assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
     }
@@ -148,7 +148,7 @@ public class HyperLogLogPlusAggregatorTest extends ConsumerProducerFunctionTest 
     }
 
     @Override
-    protected ConsumerProducerFunction getInstance() {
+    protected HyperLogLogPlusAggregator getInstance() {
         return new HyperLogLogPlusAggregator();
     }
 }

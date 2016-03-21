@@ -16,59 +16,7 @@
 
 package gaffer.function;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public abstract class FilterFunctionTest extends ConsumerFunctionTest {
-    @Test
-    public void shouldSetAndGetIsNot() {
-        // Given
-        final FilterFunction function = getInstance();
-
-        // When 1
-        function.setNot(true);
-        final boolean isNot1 = function.isNot();
-
-        // Then 2
-        assertTrue(isNot1);
-
-        // When 2
-        function.setNot(false);
-        final boolean isNot2 = function.isNot();
-
-        // Then 3
-        assertFalse(isNot2);
-    }
-
-    @Test
-    public void shouldReturnFilterValueWhenIsNotIsFalse() {
-        // Given
-        final FilterFunction function = getInstance();
-        function.setNot(false);
-
-        // When
-        final boolean result = function.isValid(getSomeAcceptedInput());
-
-        // Then
-        assertTrue(result);
-    }
-
-    @Test
-    public void shouldReturnOppositeFilterValueWhenIsNotIsTrue() {
-        // Given
-        final FilterFunction function = getInstance();
-        function.setNot(true);
-
-        // When
-        final boolean result = function.isValid(getSomeAcceptedInput());
-
-        // Then
-        assertFalse(result);
-    }
-
+    @Override
     protected abstract FilterFunction getInstance();
-
-    protected abstract Object[] getSomeAcceptedInput();
 }

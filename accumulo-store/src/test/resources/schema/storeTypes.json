@@ -1,0 +1,25 @@
+{
+  "types": {
+    "colQualProperty": {
+      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "position": "COLUMN_QUALIFIER",
+      "aggregateFunction": {
+        "class": "gaffer.accumulostore.test.function.ExampleSum"
+      }
+    },
+    "timestamp": {
+      "serialiserClass": "gaffer.serialisation.simple.LongSerialiser",
+      "position": "TIMESTAMP",
+      "aggregateFunction": {
+        "class": "gaffer.accumulostore.test.function.ExampleSumLong"
+      }
+    },
+    "simpleProperty": {
+      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.accumulostore.test.function.ExampleSum"
+      }
+    }
+  }
+}

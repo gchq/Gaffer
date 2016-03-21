@@ -19,7 +19,8 @@ package gaffer.accumulostore.utils;
 import org.apache.hadoop.io.Text;
 
 public final class AccumuloStoreConstants {
-    // Iterator names
+    //Iterator names
+    public static final String VALIDATOR_ITERATOR_NAME = "Validator";
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
     public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
@@ -33,8 +34,7 @@ public final class AccumuloStoreConstants {
 
     // Iterator options
     public static final String VIEW = "View";
-    public static final String DATA_SCHEMA = "Data_Schema";
-    public static final String STORE_SCHEMA = "Store_Schema";
+    public static final String SCHEMA = "Schema";
     public static final String INCLUDE_ENTITIES = "Include_All_Entities";
     public static final String INCLUDE_ALL_EDGES = "Include_All_Edges";
     public static final String NO_EDGES = "No_Edges";
@@ -47,9 +47,9 @@ public final class AccumuloStoreConstants {
 
     // Iterator priorities
     // Applied during major compactions, minor compactions  and scans.
-    public static final int AGE_OFF_ITERATOR_PRIORITY = 10;
-    // Applied during major compactions, minor compactions  and scans.
-    public static final int AGGREGATOR_ITERATOR_PRIORITY = 20;
+    public static final int AGGREGATOR_ITERATOR_PRIORITY = 10;
+    // Applied during major compactions, minor compactions and scans.
+    public static final int VALIDATOR_ITERATOR_PRIORITY = 20;
     // Applied only during scans.
     public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31;
     // Applied only during scans.
@@ -71,8 +71,7 @@ public final class AccumuloStoreConstants {
 
     // Store factory constants
     public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
-    public static final Text DATA_SCHEMA_KEY = new Text("dataSchema");
-    public static final Text STORE_SCHEMA_KEY = new Text("storeSchema");
+    public static final Text SCHEMA_KEY = new Text("schema");
     public static final Text KEY_PACKAGE_KEY = new Text("keyPackage");
 
     // General use constants

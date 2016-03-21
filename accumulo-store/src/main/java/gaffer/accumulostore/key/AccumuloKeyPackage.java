@@ -16,7 +16,7 @@
 
 package gaffer.accumulostore.key;
 
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
 
 /**
@@ -66,16 +66,16 @@ public abstract class AccumuloKeyPackage {
         this.bloomFunctor = bloomFunctor;
     }
 
-    public abstract void setStoreSchema(final StoreSchema storeSchema);
+    public abstract void setSchema(final Schema schema);
 
     /**
      * This method is here so that users schemas can be checked for
      * compatibility against current key implementation. A
      * runtime Exception of
-     * {@link gaffer.data.elementdefinition.schema.exception.SchemaException}
+     * {@link gaffer.data.elementdefinition.exception.SchemaException}
      * should be thrown if incompatibilities are found.
      *
-     * @param storeSchema the store schema to validate
+     * @param schema the schema to validate
      */
-    public abstract void validateSchema(final StoreSchema storeSchema);
+    public abstract void validateSchema(final Schema schema);
 }

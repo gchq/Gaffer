@@ -65,7 +65,7 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
     }
 
     @Override
-    protected boolean _isValid(final HyperLogLogPlus input) {
+    public boolean isValid(final HyperLogLogPlus input) {
         if (input == null) {
             return false;
         }

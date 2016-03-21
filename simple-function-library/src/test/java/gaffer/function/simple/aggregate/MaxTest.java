@@ -15,12 +15,6 @@
  */
 package gaffer.function.simple.aggregate;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.ConsumerProducerFunctionTest;
-import gaffer.function.Function;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -28,63 +22,25 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class MaxTest extends ConsumerProducerFunctionTest {
+import gaffer.exception.SerialisationException;
+import gaffer.function.AggregateFunctionTest;
+import gaffer.function.Function;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
+public class MaxTest extends AggregateFunctionTest {
 
     @Test
-    public void testInitialiseInAutoMode() {
-        final Max max = new Max();
-
-        assertEquals(NumericAggregateFunction.NumberType.AUTO, max.getMode());
-
-        assertNull(max.state()[0]);
-    }
-
-
-    @Test
-    public void testInitialiseInIntMode() {
+    public void testInitialise() {
         // Given 1
         final Max intMax = new Max();
-        intMax.setMode(NumericAggregateFunction.NumberType.INT);
-
-        assertEquals(NumericAggregateFunction.NumberType.INT, intMax.getMode());
 
         // When 1
         intMax.init();
 
         // Then
-        assertEquals(Integer.MIN_VALUE, intMax.state()[0]);
+        assertNull(intMax.state()[0]);
     }
-
-    @Test
-    public void testInitialiseInLongMode() {
-        // Given 1
-        final Max longMax = new Max();
-        longMax.setMode(NumericAggregateFunction.NumberType.LONG);
-
-        assertEquals(NumericAggregateFunction.NumberType.LONG, longMax.getMode());
-
-        // When 1
-        longMax.init();
-
-        // Then
-        assertEquals(Long.MIN_VALUE, longMax.state()[0]);
-    }
-
-    @Test
-    public void testInitialiseInDoubleMode() {
-        // Given 1
-        final Max doubleMax = new Max();
-        doubleMax.setMode(NumericAggregateFunction.NumberType.DOUBLE);
-
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, doubleMax.getMode());
-
-        // When 1
-        doubleMax.init();
-
-        // Then
-        assertEquals(Double.MIN_VALUE, doubleMax.state()[0]);
-    }
-
 
     @Test
     public void testAggregateInIntMode() {
@@ -200,8 +156,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         }
 
         // Then 1
-        assertTrue(longMax.state()[0] instanceof Long);
-        assertEquals(Long.MIN_VALUE, longMax.state()[0]);
+        assertNull(longMax.state()[0]);
 
         // When 2
         longMax._aggregate(3l);
@@ -268,8 +223,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         }
 
         // Then 1
-        assertTrue(doubleMax.state()[0] instanceof Double);
-        assertEquals(Double.MIN_VALUE, doubleMax.state()[0]);
+        assertNull(doubleMax.state()[0]);
 
         // When 2
         try {
@@ -279,8 +233,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         }
 
         // Then 2
-        assertTrue(doubleMax.state()[0] instanceof Double);
-        assertEquals(Double.MIN_VALUE, doubleMax.state()[0]);
+        assertNull(doubleMax.state()[0]);
 
         // When 3
         doubleMax._aggregate(2.1d);
@@ -424,7 +377,7 @@ public class MaxTest extends ConsumerProducerFunctionTest {
     }
 
     @Test
-    public void testAggregateInIntModeNullFirst() {
+    public void testAggregateNullFirst() {
         // Given
         final Max intMax = new Max();
         intMax.setMode(NumericAggregateFunction.NumberType.INT);
@@ -432,37 +385,9 @@ public class MaxTest extends ConsumerProducerFunctionTest {
 
         // When 1
         intMax.aggregate(new Object[]{null});
+
         // Then 1
-        assertTrue(intMax.state()[0] instanceof Integer);
-        assertEquals(Integer.MIN_VALUE, intMax.state()[0]);
-    }
-
-    @Test
-    public void testAggregateInLongModeNullFirst() {
-        // Given
-        final Max longMax = new Max();
-        longMax.setMode(NumericAggregateFunction.NumberType.LONG);
-        longMax.init();
-
-        // When 1
-        longMax.aggregate(new Object[]{null});
-        // Then 1
-        assertTrue(longMax.state()[0] instanceof Long);
-        assertEquals(Long.MIN_VALUE, longMax.state()[0]);
-    }
-
-    @Test
-    public void testAggregateInDoubleModeNullFirst() {
-        // Given
-        final Max doubleMax = new Max();
-        doubleMax.setMode(NumericAggregateFunction.NumberType.DOUBLE);
-        doubleMax.init();
-
-        // When 1
-        doubleMax.aggregate(new Object[]{null});
-        // Then 1
-        assertTrue(doubleMax.state()[0] instanceof Double);
-        assertEquals(Double.MIN_VALUE, doubleMax.state()[0]);
+        assertNull(intMax.state()[0]);
     }
 
     @Test
@@ -474,15 +399,15 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         // When 1
         int firstValue = 1;
         max._aggregate(firstValue);
+
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, max.getMode());
         assertTrue(max.state()[0] instanceof Integer);
         assertEquals(firstValue, max.state()[0]);
 
         // When 2
         max.aggregate(new Object[]{null});
+
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.INT, max.getMode());
         assertTrue(max.state()[0] instanceof Integer);
         assertEquals(firstValue, max.state()[0]);
     }
@@ -497,14 +422,12 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         long firstValue = 1l;
         max._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, max.getMode());
         assertTrue(max.state()[0] instanceof Long);
         assertEquals(firstValue, max.state()[0]);
 
         // When 2
         max.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.LONG, max.getMode());
         assertTrue(max.state()[0] instanceof Long);
         assertEquals(firstValue, max.state()[0]);
     }
@@ -519,14 +442,12 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         double firstValue = 1.0f;
         max._aggregate(firstValue);
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, max.getMode());
         assertTrue(max.state()[0] instanceof Double);
         assertEquals(firstValue, max.state()[0]);
 
         // When 2
         max.aggregate(new Object[]{null});
         // Then
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, max.getMode());
         assertTrue(max.state()[0] instanceof Double);
         assertEquals(firstValue, max.state()[0]);
     }
@@ -612,11 +533,12 @@ public class MaxTest extends ConsumerProducerFunctionTest {
         final Max max = new Max();
         max.setMode(NumericAggregateFunction.NumberType.INT);
         max.init();
-        int initialState = (int) max.state()[0];
+        final Integer initialState = (Integer) max.state()[0];
         max._aggregate(1);
 
         // When
         final Max clone = max.statelessClone();
+
         // Then
         assertEquals(initialState, clone.state()[0]);
     }

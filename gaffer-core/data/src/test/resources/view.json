@@ -16,31 +16,29 @@
         "property1": "java.lang.String",
         "concatProperty": "java.lang.String"
       },
-      "transformer": {
-        "functions": [
-          {
-            "selection": [
-              {
-                "key": "property1",
-                "isId": false
-              },
-              {
-                "key": "SOURCE",
-                "isId": true
-              }
-            ],
-            "projection": [
-              {
-                "key": "concatProperty",
-                "isId": false
-              }
-            ],
-            "function": {
-              "class": "gaffer.function.ExampleTransformFunction"
+      "transformFunctions": [
+        {
+          "selection": [
+            {
+              "key": "property1",
+              "isId": false
+            },
+            {
+              "key": "SOURCE",
+              "isId": true
             }
+          ],
+          "projection": [
+            {
+              "key": "concatProperty",
+              "isId": false
+            }
+          ],
+          "function": {
+            "class": "gaffer.function.ExampleTransformFunction"
           }
-        ]
-      }
+        }
+      ]
     }
   }
 }

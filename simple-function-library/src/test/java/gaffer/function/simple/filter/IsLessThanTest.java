@@ -15,16 +15,16 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class IsLessThanTest extends FilterFunctionTest {
     @Test
@@ -33,7 +33,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5);
 
         // When
-        boolean accepted = filter._isValid(4);
+        boolean accepted = filter.isValid(4);
 
         // Then
         assertTrue(accepted);
@@ -45,7 +45,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5, true);
 
         // When
-        boolean accepted = filter._isValid(4);
+        boolean accepted = filter.isValid(4);
 
         // Then
         assertTrue(accepted);
@@ -57,7 +57,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5);
 
         // When
-        boolean accepted = filter._isValid(6);
+        boolean accepted = filter.isValid(6);
 
         // Then
         assertFalse(accepted);
@@ -69,7 +69,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5, true);
 
         // When
-        boolean accepted = filter._isValid(6);
+        boolean accepted = filter.isValid(6);
 
         // Then
         assertFalse(accepted);
@@ -82,7 +82,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5);
 
         // When
-        boolean accepted = filter._isValid(5);
+        boolean accepted = filter.isValid(5);
 
         // Then
         assertFalse(accepted);
@@ -94,7 +94,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5, true);
 
         // When
-        boolean accepted = filter._isValid(5);
+        boolean accepted = filter.isValid(5);
 
         // Then
         assertTrue(accepted);
@@ -106,7 +106,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         final IsLessThan filter = new IsLessThan(5);
 
         // When
-        boolean accepted = filter._isValid(5);
+        boolean accepted = filter.isValid(5);
 
         // Then
         assertFalse(accepted);
@@ -156,10 +156,5 @@ public class IsLessThanTest extends FilterFunctionTest {
     @Override
     protected IsLessThan getInstance() {
         return new IsLessThan(5);
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{4};
     }
 }

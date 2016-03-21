@@ -17,6 +17,7 @@
 package gaffer.example;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
@@ -30,6 +31,7 @@ import gaffer.example.data.schema.TransientProperty;
 import gaffer.example.function.transform.StarRatingTransform;
 import gaffer.example.generator.DataGenerator;
 import gaffer.function.simple.filter.IsEqual;
+import gaffer.function.simple.filter.Not;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -86,9 +88,10 @@ public class ComplexQuery {
      */
     public Iterable<Entity> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(SimpleQuery.class.getResourceAsStream("/dataSchema.json"),
-                SimpleQuery.class.getResourceAsStream("/storeSchema.json"),
-                SimpleQuery.class.getResourceAsStream("/store.properties"));
+        final Graph graph = new Graph(StreamUtil.storeProps(this.getClass(), true),
+                StreamUtil.dataSchema(this.getClass(), true),
+                StreamUtil.dataTypes(this.getClass(), true),
+                StreamUtil.storeTypes(this.getClass(), true));
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.
@@ -126,7 +129,7 @@ public class ComplexQuery {
                                         .property(TransientProperty.FIVE_STAR_RATING, Float.class)
                                         .filter(new ElementFilter.Builder()
                                                 .select(Property.USER_ID)
-                                                .execute(new IsEqual("user02").not())
+                                                .execute(new Not(new IsEqual("user02")))
                                                 .build())
                                         .transformer(new ElementTransformer.Builder()
                                                 .select(Property.RATING, Property.COUNT)

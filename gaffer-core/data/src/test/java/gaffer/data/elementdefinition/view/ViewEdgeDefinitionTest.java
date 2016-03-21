@@ -38,9 +38,9 @@ public class ViewEdgeDefinitionTest {
 
         // When
         final ViewEdgeDefinition elementDef = new ViewEdgeDefinition.Builder()
-                .property(TestPropertyNames.F1, String.class)
+                .property(TestPropertyNames.PROP_1, String.class)
                 .source(String.class)
-                .property(TestPropertyNames.F2, String.class)
+                .property(TestPropertyNames.PROP_2, String.class)
                 .destination(Date.class)
                 .transformer(transformer)
                 .filter(filter)
@@ -48,8 +48,8 @@ public class ViewEdgeDefinitionTest {
 
         // Then
         assertEquals(2, elementDef.getProperties().size());
-        assertTrue(elementDef.containsProperty(TestPropertyNames.F1));
-        assertTrue(elementDef.containsProperty(TestPropertyNames.F2));
+        assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_1));
+        assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_2));
 
         assertEquals(2, elementDef.getIdentifiers().size());
         assertEquals(String.class, elementDef.getIdentifierClass(IdentifierType.SOURCE));

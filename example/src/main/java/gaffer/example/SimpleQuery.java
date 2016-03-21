@@ -17,6 +17,7 @@
 package gaffer.example;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.data.Certificate;
@@ -78,10 +79,11 @@ public class SimpleQuery {
      * @throws OperationException if operation chain fails to be executed on the graph
      */
     public Iterable<Viewing> run() throws OperationException {
-        // Create Graph
-        final Graph graph = new Graph(SimpleQuery.class.getResourceAsStream("/dataSchema.json"),
-                SimpleQuery.class.getResourceAsStream("/storeSchema.json"),
-                SimpleQuery.class.getResourceAsStream("/store.properties"));
+        // Setup graph
+        final Graph graph = new Graph(StreamUtil.storeProps(this.getClass(), true),
+                StreamUtil.dataSchema(this.getClass(), true),
+                StreamUtil.dataTypes(this.getClass(), true),
+                StreamUtil.storeTypes(this.getClass(), true));
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.

@@ -23,7 +23,7 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.2</version>
+    <version>0.3.3-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
@@ -182,6 +182,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/*$*</exclude>
+                        <exclude>**/performance/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

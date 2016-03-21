@@ -20,11 +20,12 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import gaffer.accumulostore.retriever.RetrieverException;
 import gaffer.accumulostore.utils.BloomFilterUtils;
-import gaffer.operation.GetOperation;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
+
 import java.util.Set;
 
 /**
@@ -65,12 +66,12 @@ import java.util.Set;
 public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seeds;
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final AbstractGetOperation<EntitySeed, ?> operation,
                                         final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, false, iteratorSettings);
     }
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final AbstractGetOperation<EntitySeed, ?> operation,
                                         final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, readEntriesIntoMemory, iteratorSettings);
         setSeeds(operation.getSeeds());

@@ -1,0 +1,30 @@
+{
+  "types": {
+    "id.string": {
+      "class": "java.lang.String"
+    },
+    "directed.true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.ExampleFilterFunction"
+          }
+        }
+      ]
+    },
+    "prop.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.ExampleFilterFunction"
+          }
+        }
+      ]
+    },
+    "prop.date": {
+      "class": "java.util.Date"
+    }
+  }
+}

@@ -20,99 +20,88 @@ public class GraphIT {
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithStoreProperties() throws IOException {
         // Given
-        final InputStream dataStream = mock(InputStream.class);
-        final InputStream storeStream = mock(InputStream.class);
         final InputStream storePropertiesStream = mock(InputStream.class);
-        final InputStream typesStream = mock(InputStream.class);
+        final InputStream dataStream = mock(InputStream.class);
+        final InputStream dataTypesStream = mock(InputStream.class);
+        final InputStream storeStream = mock(InputStream.class);
+        final InputStream storeTypesStream = mock(InputStream.class);
 
         // When
         try {
-            new Graph(dataStream, storeStream, storePropertiesStream, typesStream);
+            new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
             fail("Exception expected");
         } catch (final Exception e) {
             // Then
             assertNotNull(e.getMessage());
-            verify(dataStream, atLeastOnce()).close();
-            verify(storeStream, atLeastOnce()).close();
             verify(storePropertiesStream, atLeastOnce()).close();
-            verify(typesStream, atLeastOnce()).close();
+            verify(dataStream, atLeastOnce()).close();
+            verify(dataTypesStream, atLeastOnce()).close();
+            verify(storeStream, atLeastOnce()).close();
+            verify(storeTypesStream, atLeastOnce()).close();
         }
     }
 
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithDataSchema() throws IOException {
         // Given
-        final InputStream dataStream = mock(InputStream.class);
-        final InputStream storeStream = mock(InputStream.class);
         final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
-        final InputStream typesStream = mock(InputStream.class);
+        final InputStream dataStream = mock(InputStream.class);
+        final InputStream dataTypesStream = mock(InputStream.class);
+        final InputStream storeStream = mock(InputStream.class);
+        final InputStream storeTypesStream = mock(InputStream.class);
 
         // When
         try {
-            new Graph(dataStream, storeStream, storePropertiesStream, typesStream);
+            new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
             fail("Exception expected");
         } catch (final Exception e) {
             // Then
             assertNotNull(e.getMessage());
             verify(dataStream, atLeastOnce()).close();
+            verify(dataTypesStream, atLeastOnce()).close();
             verify(storeStream, atLeastOnce()).close();
-            verify(typesStream, atLeastOnce()).close();
+            verify(storeTypesStream, atLeastOnce()).close();
         }
     }
 
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithDataTypes() throws IOException {
         // Given
-        final InputStream dataStream = StreamUtil.dataSchema(getClass());
-        final InputStream storeStream = mock(InputStream.class);
         final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
-        final InputStream typesStream = mock(InputStream.class);
+        final InputStream dataStream = StreamUtil.dataSchema(getClass());
+        final InputStream dataTypesStream = mock(InputStream.class);
+        final InputStream storeStream = mock(InputStream.class);
+        final InputStream storeTypesStream = mock(InputStream.class);
 
         // When
         try {
-            new Graph(dataStream, storeStream, storePropertiesStream, typesStream);
+            new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
             fail("Exception expected");
         } catch (final Exception e) {
             // Then
             assertNotNull(e.getMessage());
+            verify(dataTypesStream, atLeastOnce()).close();
             verify(storeStream, atLeastOnce()).close();
-            verify(typesStream, atLeastOnce()).close();
-        }
-    }
-
-    @Test
-    public void shouldCloseStreamsIfExceptionThrownWithStoreSchema() throws IOException {
-        // Given
-        final InputStream dataStream = StreamUtil.dataSchema(getClass());
-        final InputStream storeStream = mock(InputStream.class);
-        final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
-        final InputStream typesStream = StreamUtil.schemaTypes(getClass());
-
-        // When
-        try {
-            new Graph(dataStream, storeStream, storePropertiesStream, typesStream);
-            fail("Exception expected");
-        } catch (final Exception e) {
-            // Then
-            assertNotNull(e.getMessage());
-            verify(storeStream, atLeastOnce()).close();
+            verify(storeTypesStream, atLeastOnce()).close();
         }
     }
 
     @Test
     public void shouldCloseStreamsWhenSuccessful() throws IOException {
         // Given
-        final InputStream dataStream = StreamUtil.dataSchema(getClass());
-        final InputStream storeStream = StreamUtil.storeSchema(getClass());
         final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
-        final InputStream typesStream = StreamUtil.schemaTypes(getClass());
+        final InputStream dataStream = StreamUtil.dataSchema(getClass());
+        final InputStream dataTypesStream = StreamUtil.dataTypes(getClass());
+        final InputStream storeStream = StreamUtil.storeSchema(getClass());
+        final InputStream storeTypesStream = StreamUtil.storeTypes(getClass());
 
         // When
-        new Graph(dataStream, storeStream, storePropertiesStream, typesStream);
-        checkClosed(dataStream);
-        checkClosed(storeStream);
+        new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
         checkClosed(storePropertiesStream);
-        checkClosed(typesStream);
+        checkClosed(dataStream);
+        checkClosed(dataTypesStream);
+        checkClosed(storeStream);
+        checkClosed(storeTypesStream);
     }
 
     private void checkClosed(final InputStream stream) {

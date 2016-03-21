@@ -21,6 +21,7 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
+import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
@@ -29,15 +30,15 @@ import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 
 public class GetElementsInRangesHandler
-        implements OperationHandler<GetElementsInRanges<ElementSeed, Element>, Iterable<Element>> {
+        implements OperationHandler<GetElementsInRanges<Pair<ElementSeed>, Element>, Iterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation, final Store store)
+    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation, final Store store)
             throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsInRanges<ElementSeed, Element> operation,
+    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
             final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {

@@ -29,7 +29,7 @@ public class IsFalse extends SimpleFilterFunction<Boolean> {
     }
 
     @Override
-    protected boolean _isValid(final Boolean input) {
+    public boolean isValid(final Boolean input) {
         return null != input && Boolean.FALSE.equals(input);
     }
 }
