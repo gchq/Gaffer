@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -29,12 +29,12 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final AbstractGetOperation<?, ?> operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
         return null;
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final AbstractGetOperation<?, ?> operation) {
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GetOperation<?, ?> operation) {
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();

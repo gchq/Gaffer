@@ -18,7 +18,7 @@ package gaffer.accumulostore.key.core.impl.classic;
 import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -30,7 +30,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final AbstractGetOperation<?, ?> operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
         if (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.BOTH
                 && operation.getIncludeEdges() == IncludeEdgeType.ALL) {
             return null;
@@ -45,7 +45,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final AbstractGetOperation<?, ?> operation) {
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GetOperation<?, ?> operation) {
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         if (includeEdgeType != IncludeEdgeType.NONE && includeEntities) {

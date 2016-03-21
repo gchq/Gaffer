@@ -21,7 +21,7 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
-import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends AbstractGetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
+public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
         extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
