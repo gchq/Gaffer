@@ -17,8 +17,14 @@
 package gaffer.accumulostore.operation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
@@ -28,6 +34,8 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
 
     private Iterable<SEED_TYPE> seedsB;
+
+    public AbstractAccumuloTwoSetSeededOperation() { }
 
     public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
         super(seedsA);
@@ -40,6 +48,19 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         this.setSeedsB(seedsB);
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonGetter(value = "seedsB")
+    List<SEED_TYPE> getSeedBArray() {
+        final Iterable<SEED_TYPE> seedsB = getSeedsB();
+        return null != seedsB ? Lists.newArrayList(seedsB) : null;
+    }
+
+    @JsonSetter(value = "seedsB")
+    void setSeedBArray(final SEED_TYPE[] seedsB) {
+        setSeedsB(Arrays.asList(seedsB));
+    }
+
+    @JsonIgnore
     public Iterable<SEED_TYPE> getSeedsB() {
         return seedsB;
     }
