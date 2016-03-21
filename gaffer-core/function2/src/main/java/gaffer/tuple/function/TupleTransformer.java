@@ -19,7 +19,7 @@ package gaffer.tuple.function;
 import gaffer.tuple.Tuple;
 import gaffer.function2.Transformer;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.function.context.TupleFunctionValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,16 +70,6 @@ public class TupleTransformer<R> extends Transformer<Tuple<R>, Tuple<R>> {
     }
 
     /**
-     * @param selection Transformer input selection criteria.
-     * @param transform Transformer function.
-     * @param projection Transformer output projection criteria.
-     */
-    public void addTransform(final TupleView<R> selection, final Transformer transform, final TupleView<R> projection) {
-        FunctionContext<Transformer, R> context = new FunctionContext<Transformer, R>(selection, transform, projection);
-        addTransform(context);
-    }
-
-    /**
      * Transform an input tuple.
      * @param input Input tuple.
      * @return Input tuple with transformed content.
@@ -91,6 +81,16 @@ public class TupleTransformer<R> extends Transformer<Tuple<R>, Tuple<R>> {
             }
         }
         return input;
+    }
+
+    @Override
+    public boolean validateInput(final Object schemaTuple) {
+        return TupleFunctionValidator.validateInput(transforms, schemaTuple);
+    }
+
+    @Override
+    public boolean validateOutput(final Object schemaTuple) {
+        return TupleFunctionValidator.validateOutput(transforms, schemaTuple);
     }
 
     /**

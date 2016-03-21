@@ -24,25 +24,25 @@ package gaffer.function2;
  * @param <I> Function input type
  * @param <O> Function output type
  */
-public interface StatefulFunction<I, O> extends Function<I, O> {
+public abstract class StatefulFunction<I, O> extends Function<I, O> {
     /**
      * Resets the state of this <code>StatefulFunction</code>.
      */
-    void init();
+    public abstract void init();
 
     /**
      * Updates the state of this <code>StatefulFunction</code>.
      * @param input Input value
      */
-    void execute(I input);
+    public abstract void execute(I input);
 
     /**
      * @return Current state of this <code>StatefulFunction</code>
      */
-    O state();
+    public abstract O state();
 
     /**
      * @return New <code>StatefulFunction</code> of the same type.
      */
-    StatefulFunction<I, O> copy();
+    public abstract StatefulFunction<I, O> copy();
 }

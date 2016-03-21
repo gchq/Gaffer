@@ -18,29 +18,9 @@ package gaffer.tuple.view;
 
 import gaffer.tuple.Tuple;
 
-import java.util.List;
-
-/**
- * A <code>ReferenceHandler</code> allows the selection and projection of tuple values.
- * @param <R> The type of reference used to select from and project into tuples.
- */
-public interface ReferenceHandler<R> {
-    /**
-     * Select a value from the source {@link gaffer.tuple.Tuple}.
-     * @param source Source tuple.
-     * @return Selected value.
-     */
+public interface View<R> {
     Object select(Tuple<R> source);
-
-    /**
-     * Project a value into the target {@link gaffer.tuple.Tuple}.
-     * @param target Target tuple.
-     * @param value Value to project.
-     */
     void project(Tuple<R> target, Object value);
-
-    /**
-     * @return References used by this <code>ReferenceHandler</code>.
-     */
-    List<R> getReferences();
+    Reference<R> getReference();
+    void setReference(Reference<R> reference);
 }

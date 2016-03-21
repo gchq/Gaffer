@@ -21,7 +21,7 @@ package gaffer.function2;
  * @param <I> Function input type
  * @param <O> Function output type
  */
-public abstract class Buffer<I, O> implements StatefulFunction<I, O> {
+public abstract class Buffer<I, O> extends StatefulFunction<I, O> {
     public void execute(final I input) {
         accept(input);
     }

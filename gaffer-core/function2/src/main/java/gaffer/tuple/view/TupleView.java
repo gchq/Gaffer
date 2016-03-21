@@ -24,155 +24,144 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A <code>TupleView</code> acts as a mask for a wrapped {@link gaffer.tuple.Tuple}. It allows the
- * selection of just a subset of the values, and also allows the flat data structure of a
- * {@link gaffer.tuple.Tuple} to be presented in two dimensions.
- * <p/>
- * A simple case is the execution of a {@link gaffer.function2.Function} that accepts a single input,
- * that we want to execute using one of the values from a {@link gaffer.tuple.Tuple} - for example:
- * <p/>
- * <code>
- *     StatelessFunction&lt;Integer, ?&gt; function; //function accepts single integer input.<br/>
- *     TupleView&lt;String&gt; view = new TupleView().addHandler("a");<br/>
- *     Object output = function.execute(view.select(tuple));<br/>
- * </code>
- * <p/>
- * But the <code>TupleView</code> can also be used to select the input to a
- * {@link gaffer.function2.Function} with a more complicated input signature, such as a collection
- * of <code>String</code>s, an <code>Integer</code>, and a <code>Tuple2&lt;Double, String&gt;</code>:
- * <p/>
- * <code>
- *     StatelessFunction&lt;Tuple3&lt;Iterable&lt;String&gt;, Integer, Tuple2&lt;Double, String&gt;&gt;, ?&gt; function;
- *     <br/>
- *     //select "a", "b" and "c" into the first argument, "d" into the second and "e" and "f" into the third.<br/>
- *     TupleView&lt;String&gt; view = new TupleView().addHandler("a", "b", "c").addHandler("d").addHandler("e", "f");<br/>
- *     Object output = function.execute(view.select(tuple));<br/>
- * </code>
- * <p/>
- * A <code>TupleView</code> can also be used to project values into an output tuple in a similar way:
- * <p/>
- * <code>
- *     StatelessFunction&lt;String, Tuple2&lt;String, Integer&gt;&gt; function;<br/>
- *     //project first result value into "a" and the second into "b".<br/>
- *     TupleView&lt;String&gt; view = new TupleView().addHandler("a").addHandler("b");<br/>
- *     view.project(tuple, function.execute("in"));<br/>
- * </code>
- * @param <R> The type of reference used to select from and project into tuples.
- * @see gaffer.tuple.view.SingleReferenceHandler
- * @see gaffer.tuple.view.MultiReferenceHandler
+ * A <code>TupleView</code> allows the selection of multiple values from a {@link gaffer.tuple.Tuple}. Each value is
+ * selected by a {@link gaffer.tuple.view.View}, so can be either a single or multiple values. This allows the tuple to
+ * be viewed as a multi-dimensional data structure.
+ * @param <R> The type of reference used by tuples.
  */
-public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object> {
+public class TupleView<R> extends Tuple5<Object, Object, Object, Object, Object> implements View<R> {
+    private List<View<R>> views;
     private Tuple<R> tuple;
-    private List<ReferenceHandler<R>> handlers;
 
     /**
-     * Create a new <code>TupleView</code>.
+     * Create a <code>TupleView</code> from multiple references.
+     * @param reference Tuple references.
      */
-    public TupleView() { }
+    public TupleView(final Reference<R> reference) {
+        setReference(reference);
+    }
 
     /**
-     * @param tuple Tuple to be viewed.
+     * @param tuple The tuple viewed by this <code>TupleView</code>.
      */
     public void setTuple(final Tuple<R> tuple) {
         this.tuple = tuple;
     }
 
     /**
-     * Add a {@link ReferenceHandler} to this <code>TupleView</code>.
-     * @param handler Handler to add.
-     * @return This view.
+     * @return The tuple viewed by this <code>TupleView</code>.
      */
-    public TupleView<R> addHandler(final ReferenceHandler<R> handler) {
-        if (handlers == null) {
-            handlers = new ArrayList<>();
-        }
-        handlers.add(handler);
-        return this;
+    public Tuple<R> getTuple() {
+        return tuple;
     }
 
-   /**
-     * Add a {@link ReferenceHandler} to this <code>TupleView</code> using the specified references.
-     * @param references The references to add.
-     * @return This view.
+    /**
+     * Sets the {@link Reference} to be used by this <code>TupleView</code>.
+     * @param reference Multiple references.
+     * @throws IllegalArgumentException If reference is null or is a singleton.
      */
-    public TupleView<R> addHandler(final R... references) {
-        if (references.length == 1) {
-            return addHandler(new SingleReferenceHandler<R>(references[0]));
+    public void setReference(final Reference<R> reference) {
+        if (reference == null || reference.getTupleReferences() == null) {
+            throw new IllegalArgumentException("Reference passed to TupleView must be a non-null tuple reference.");
         } else {
-            return addHandler(new MultiReferenceHandler<R>(references));
-        }
-    }
-
-    /**
-     * @return {@link ReferenceHandler}s used by this <code>TupleView</code>.
-     */
-    public List<ReferenceHandler<R>> getHandlers() {
-        return handlers;
-    }
-
-    /**
-     * @return References used by this <code>TupleView</code>.
-     */
-    public List<List<R>> getReferences() {
-        List<List<R>> references = new ArrayList(handlers.size());
-        for (ReferenceHandler<R> handler : handlers) {
-            references.add(handler.getReferences());
-        }
-        return references;
-    }
-
-    /**
-     * Select the value(s) referenced by this <code>TupleView</code> from the viewed {@link gaffer.tuple.Tuple}.
-     * @param source Tuple to select from.
-     * @return Selected value(s).
-     */
-    public Object select(final Tuple<R> source) {
-        setTuple(source);
-        if (handlers.size() == 1) {
-            return get(0);
-        } else {
-            return this;
-        }
-    }
-
-    /**
-     * Project value(s) into the viewed {@link gaffer.tuple.Tuple} using this <code>TupleView</code>'s references.
-     * @param target Tuple to project into.
-     * @param values Value(s) to project.
-     */
-    public void project(final Tuple<R> target, final Object values) {
-        setTuple(target);
-        if (handlers.size() == 1) {
-            put(0, values);
-        } else {
-            int i = 0;
-            for (Object value : (Iterable) values) {
-                put(i++, value);
+            List<View<R>> views = new ArrayList<View<R>>();
+            for (Reference<R> ref : reference.getTupleReferences()) {
+                views.add(ref.createView());
             }
+            setViews(views);
         }
     }
 
-    @Override
-    public Object get(final Integer index) {
-        return handlers.get(index).select(tuple);
+    /**
+     * Get the {@link Reference} used by this <code>TupleView</code>.
+     * @return Multiple references.
+     */
+    public Reference<R> getReference() {
+        if (views == null) {
+            return null;
+        } else {
+            Reference<R> reference = new Reference<>();
+            Reference<R>[] references = new Reference[views.size()];
+            int i = 0;
+            for (View<R> view : views) {
+                references[i++] = view.getReference();
+            }
+            reference.setTupleReferences(references);
+            return reference;
+        }
     }
 
-    @Override
+    /**
+     * @param views {@link gaffer.tuple.view.View}s to be used by this <code>TupleView</code>.
+     */
+    public void setViews(final List<View<R>> views) {
+        this.views = views;
+    }
+
+    /**
+     * @return {@link gaffer.tuple.view.View}s to be used by this <code>TupleView</code>.
+     */
+    public List<View<R>> getViews() {
+        return views;
+    }
+
+    /**
+     * Project a value into the viewed {@link gaffer.tuple.Tuple} using the reference at the given index.
+     * @param index Index of reference used to project.
+     * @param value Value to put.
+     */
     public void put(final Integer index, final Object value) {
-        handlers.get(index).project(tuple, value);
+        views.get(index).project(tuple, value);
     }
 
-    @Override
+    /**
+     * Get a value from the viewed {@link gaffer.tuple.Tuple} using the reference at the given index.
+     * @param index Index of the reference used to get.
+     * @return Value at reference.
+     */
+    public Object get(final Integer index) {
+        return views.get(index).select(tuple);
+    }
+
+    /**
+     * @return Ordered {@link java.lang.Iterable} of the values selected by this <code>TupleView</code>.
+     */
     public Iterable<Object> values() {
-        List<Object> values = new ArrayList<Object>(handlers.size());
-        for (int i = 0; i < handlers.size(); i++) {
-            values.add(handlers.get(i).select(tuple));
+        List<Object> values = new ArrayList(views.size());
+        for (View<R> view : views) {
+            values.add(view.select(tuple));
         }
         return values;
     }
 
-    @Override
+    /**
+     * @return Iterator over the values selected by this <code>TupleView</code>.
+     */
     public Iterator<Object> iterator() {
         return values().iterator();
+    }
+
+    /**
+     * Get a {@link gaffer.tuple.Tuple} containing the values selected by this <code>TupleView</code>.
+     * @param source Tuple to select from.
+     * @return Tuple containing the selected values.
+     */
+    public Object select(final Tuple<R> source) {
+        tuple = source;
+        return this;
+    }
+
+    /**
+     * Project an {@link java.lang.Iterable} of values into a target {@link gaffer.tuple.Tuple}.
+     * @param target Tuple to project into.
+     * @param values Values to project.
+     */
+    public void project(final Tuple<R> target, final Object values) {
+        //values assumed to be iterable
+        tuple = target;
+        int i = 0;
+        for (Object value : (Iterable) values) {
+            put(i++, value);
+        }
     }
 }

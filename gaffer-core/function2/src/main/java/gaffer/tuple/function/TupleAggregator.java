@@ -21,7 +21,7 @@ import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.function.context.TupleFunctionValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,16 +74,6 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
             functions = new ArrayList<FunctionContext<F, R>>();
         }
         functions.add(function);
-    }
-
-    /**
-     * @param selection Function input selection criteria.
-     * @param function The function to aggregate tuple values.
-     * @param projection Function output projection criteria.
-     */
-    public void addFunction(final TupleView<R> selection, final F function, final TupleView<R> projection) {
-        FunctionContext<F, R> context = new FunctionContext<F, R>(selection, function, projection);
-        addFunction(context);
     }
 
     /**
@@ -146,6 +136,16 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
             }
         }
         return outputTuple;
+    }
+
+    @Override
+    public boolean validateInput(final Object schemaTuple) {
+        return TupleFunctionValidator.validateInput(functions, schemaTuple);
+    }
+
+    @Override
+    public boolean validateOutput(final Object schemaTuple) {
+        return TupleFunctionValidator.validateOutput(functions, schemaTuple);
     }
 
     /**

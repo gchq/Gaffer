@@ -22,7 +22,7 @@ package gaffer.function2;
  * @param <I> Function input type
  * @param <O> Function output type
  */
-public abstract class Transformer<I, O> implements StatelessFunction<I, O> {
+public abstract class Transformer<I, O> extends StatelessFunction<I, O> {
     public O execute(final I input) {
         return transform(input);
     }

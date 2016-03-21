@@ -19,7 +19,7 @@ package gaffer.tuple.function;
 import gaffer.function2.Validator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.function.context.TupleFunctionValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,15 +70,6 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
     }
 
     /**
-     * @param selection Validator input selection criteria.
-     * @param validator Validator function.
-     */
-    public void addValidator(final TupleView<R> selection, final Validator validator) {
-        FunctionContext<Validator, R> context = new FunctionContext<Validator, R>(selection, validator, null);
-        addValidator(context);
-    }
-
-    /**
      * Validate an input tuple.
      * @param input Input value
      * @return true if all {@link gaffer.function2.Validator}s are successful, otherwise false.
@@ -93,6 +84,16 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean validateInput(final Object schemaTuple) {
+        return TupleFunctionValidator.validateInput(validators, schemaTuple);
+    }
+
+    @Override
+    public boolean validateOutput(final Object schemaTuple) {
+        return TupleFunctionValidator.validateOutput(validators, schemaTuple);
     }
 
     /**

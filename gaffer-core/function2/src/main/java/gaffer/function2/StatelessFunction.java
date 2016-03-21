@@ -22,16 +22,16 @@ package gaffer.function2;
  * @param <I> Function input type
  * @param <O> Function output type
  */
-public interface StatelessFunction<I, O> extends Function<I, O> {
+public abstract class StatelessFunction<I, O> extends Function<I, O> {
     /**
      * Execute this <code>StatelessFunction</code>.
      * @param input Input value
      * @return Output value
      */
-    O execute(I input);
+    public abstract O execute(I input);
 
     /**
      * @return New <code>StatelessFunction</code> of the same type.
      */
-    StatelessFunction<I, O> copy();
+    public abstract StatelessFunction<I, O> copy();
 }

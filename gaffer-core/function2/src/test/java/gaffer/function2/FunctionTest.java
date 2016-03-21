@@ -1,10 +1,7 @@
 package gaffer.function2;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import gaffer.function2.Function;
 
 import java.io.IOException;
 

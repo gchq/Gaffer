@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gaffer.function2.mock.MockTransform;
 import gaffer.tuple.MapTuple;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.view.Reference;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotSame;
@@ -35,11 +34,14 @@ public class FunctionContextTest {
     public void canSelectAndProject() {
         String outputValue = "O";
         String inputValue = "I";
-        FunctionContext<MockTransform, String> context = new FunctionContext<>();
+        MockFunctionContext context = new MockFunctionContext();
         MockTransform mock = new MockTransform(outputValue);
+        Reference<String> selection = new Reference("a");
+        Reference<String> projection = new Reference("b", "c");
+
         context.setFunction(mock);
-        context.setSelectionView(new TupleView<String>().addHandler("a"));
-        context.setProjectionView(new TupleView<String>().addHandler("b", "c"));
+        context.setSelectionView(selection.createView());
+        context.setProjectionView(projection.createView());
 
         MapTuple<String> tuple = new MapTuple<>();
         tuple.put("a", inputValue);
@@ -55,29 +57,31 @@ public class FunctionContextTest {
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         MockFunctionContext context = new MockFunctionContext();
         MockTransform mock = new MockTransform("a");
-        String[] selection = new String[]{"a"};
-        String[] projection = new String[]{"b", "c"};
+        Reference<String> selection = new Reference("a");
+        Reference<String> projection = new Reference("b", "c");
 
         context.setFunction(mock);
-        context.setSelectionView(new TupleView<String>().addHandler(selection[0]));
-        context.setProjectionView(new TupleView<String>().addHandler(projection[0]).addHandler(projection[1]));
+        context.setSelection(selection);
+        context.setProjection(projection);
 
         String json = serialise(context);
         MockFunctionContext deserialisedContext = deserialise(json, MockFunctionContext.class);
 
         // check deserialisation
         assertNotNull(deserialisedContext);
-        List<List<String>> deserialisedSelection = deserialisedContext.getSelection();
-        List<List<String>> deserialisedProjection = deserialisedContext.getProjection();
+        Reference<String> deserialisedSelection = deserialisedContext.getSelection();
+        Reference<String> deserialisedProjection = deserialisedContext.getProjection();
         assertNotNull(deserialisedContext.getFunction());
         assertNotSame(mock, deserialisedContext.getFunction());
         assertNotSame(context, deserialisedContext);
         assertNotSame(selection, deserialisedSelection);
         assertNotSame(projection, deserialisedProjection);
-        assertEquals(selection.length, deserialisedSelection.size());
-        assertEquals(selection[0], deserialisedSelection.get(0).get(0));
-        assertEquals(projection.length, deserialisedProjection.size());
-        assertEquals(projection[0], deserialisedProjection.get(0).get(0));
-        assertEquals(projection[1], deserialisedProjection.get(1).get(0));
+        assertTrue(deserialisedSelection.isFieldReference());
+        assertEquals("a", deserialisedSelection.getField());
+        assertTrue(deserialisedProjection.isTupleReference());
+        Reference<String>[] deserialisedProjectionFields = deserialisedProjection.getTupleReferences();
+        assertEquals(2, deserialisedProjectionFields.length);
+        assertEquals("b", deserialisedProjectionFields[0].getField());
+        assertEquals("c", deserialisedProjectionFields[1].getField());
     }
 }

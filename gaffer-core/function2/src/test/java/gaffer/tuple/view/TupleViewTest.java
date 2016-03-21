@@ -16,9 +16,7 @@ public class TupleViewTest {
         String b = "b";
         String c = "c";
 
-        TupleView<String> view = new TupleView<String>().addHandler(a)
-                                                        .addHandler(b)
-                                                        .addHandler(c);
+        TupleView<String> view = (TupleView) new Reference(a, b, c).createView();
 
         MapTuple<String> inputTuple = new MapTuple<>();
         inputTuple.put(a, a);
@@ -50,9 +48,9 @@ public class TupleViewTest {
         String c2 = "c2";
         String c3 = "c3";
 
-        TupleView<String> view = new TupleView<String>().addHandler(a1, a2)
-                                                        .addHandler(b1)
-                                                        .addHandler(c1, c2, c3);
+        Reference<String> reference = new Reference<>();
+        reference.setTupleReferences(new Reference(a1, a2), new Reference(b1), new Reference(c1, c2, c3));
+        TupleView<String> view = (TupleView) reference.createView();
 
         MapTuple<String> inputTuple = new MapTuple<>();
         inputTuple.put(a1, a1);
@@ -62,7 +60,7 @@ public class TupleViewTest {
         inputTuple.put(c2, c2);
         inputTuple.put(c3, c3);
 
-        Tuple3<Tuple2<String, String>, String, Tuple3<String, String, String>> selected = (Tuple3)view.select(inputTuple);
+        Tuple3<Tuple2<String, String>, String, Tuple3<String, String, String>> selected = (Tuple3) view.select(inputTuple);
         Tuple2<String, String> a = selected.get0();
         String b = selected.get1();
         Tuple3<String, String, String> c = selected.get2();
@@ -96,11 +94,7 @@ public class TupleViewTest {
         Float e = 4.0f;
 
         MapTuple<String> tuple = new MapTuple<>();
-        TupleView<String> view = new TupleView<String>().addHandler("a")
-                                                        .addHandler("b")
-                                                        .addHandler("c")
-                                                        .addHandler("d")
-                                                        .addHandler("e");
+        TupleView<String> view = (TupleView) new Reference("a", "b", "c", "d", "e").createView();
         view.setTuple(tuple);
 
         Tuple1<String> tuple1 = (Tuple1)view;

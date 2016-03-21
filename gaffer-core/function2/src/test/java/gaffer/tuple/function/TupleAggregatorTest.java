@@ -8,11 +8,10 @@ import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.function2.mock.MockSingleInputAggregator;
 import gaffer.tuple.MapTuple;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.view.TupleView;
+import gaffer.tuple.view.Reference;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -22,8 +21,8 @@ public class TupleAggregatorTest extends FunctionTest {
     public void testSingleInputAggregation() {
         TupleAggregator<Aggregator, String> tupleAggregator = new TupleAggregator<>();
         FunctionContext<Aggregator, String> aggregatorContext = new FunctionContext<>();
-        aggregatorContext.setSelectionView(new TupleView<String>().addHandler("a"));
-        aggregatorContext.setProjectionView(new TupleView<String>().addHandler("b"));
+        aggregatorContext.setSelection(new Reference("a"));
+        aggregatorContext.setProjection(new Reference("b"));
         aggregatorContext.setFunction(new MockSingleInputAggregator());
         tupleAggregator.addFunction(aggregatorContext);
 
@@ -43,8 +42,8 @@ public class TupleAggregatorTest extends FunctionTest {
     public void testMultiInputAggregation() {
         TupleAggregator<Aggregator, String> tupleAggregator = new TupleAggregator<>();
         FunctionContext<Aggregator, String> aggregatorContext = new FunctionContext<>();
-        aggregatorContext.setSelectionView(new TupleView<String>().addHandler("a", "b"));
-        aggregatorContext.setProjectionView(new TupleView<String>().addHandler("c", "d"));
+        aggregatorContext.setSelection(new Reference("a", "b"));
+        aggregatorContext.setProjection(new Reference("c", "d"));
         aggregatorContext.setFunction(new MockMultiInputAggregator());
         tupleAggregator.addFunction(aggregatorContext);
 
@@ -66,8 +65,17 @@ public class TupleAggregatorTest extends FunctionTest {
     public void testComplexInputAggregation() {
         TupleAggregator<Aggregator, String> tupleAggregator = new TupleAggregator<>();
         FunctionContext<Aggregator, String> aggregatorContext = new FunctionContext<>();
-        List<List<String>> selection = Arrays.asList(Arrays.asList("a", "b"), Arrays.asList("c"), Arrays.asList("d", "e", "f"));
-        List<List<String>> projection = Arrays.asList(Arrays.asList("g", "h"), Arrays.asList("i"), Arrays.asList("j", "k", "l"));
+        Reference<String> selection1 = new Reference("a", "b");
+        Reference<String> selection2 = new Reference("c");
+        Reference<String> selection3 = new Reference("d", "e", "f");
+        Reference<String> selection = new Reference<>();
+        selection.setTupleReferences(selection1, selection2, selection3);
+        Reference<String> projection1 = new Reference("g", "h");
+        Reference<String> projection2 = new Reference("i");
+        Reference<String> projection3 = new Reference("j", "k", "l");
+        Reference<String> projection = new Reference<>();
+        projection.setTupleReferences(projection1, projection2, projection3);
+
         aggregatorContext.setSelection(selection);
         aggregatorContext.setProjection(projection);
         aggregatorContext.setFunction(new MockComplexInputAggregator());
@@ -115,7 +123,8 @@ public class TupleAggregatorTest extends FunctionTest {
     public void shouldCopy() {
         TupleAggregator<Aggregator, String> aggregator = new TupleAggregator();
         MockSingleInputAggregator function = new MockSingleInputAggregator();
-        aggregator.addFunction(new TupleView<String>().addHandler("a"), function, new TupleView<String>().addHandler("b"));
+        FunctionContext<Aggregator, String> context = new FunctionContext<Aggregator, String>(new Reference("a"), function, new Reference("b"));
+        aggregator.addFunction(context);
 
         TupleAggregator aggregatorCopy = aggregator.copy();
         List<FunctionContext<Aggregator, String>> functionsCopy = aggregatorCopy.getFunctions();
@@ -130,7 +139,8 @@ public class TupleAggregatorTest extends FunctionTest {
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         TupleAggregator<Aggregator, String> aggregator = new TupleAggregator();
         MockSingleInputAggregator function = new MockSingleInputAggregator();
-        aggregator.addFunction(new TupleView<String>().addHandler("a"), function, new TupleView<String>().addHandler("b"));
+        FunctionContext<Aggregator, String> context = new FunctionContext<Aggregator, String>(new Reference("a"), function, new Reference("b"));
+        aggregator.addFunction(context);
 
         String json = serialise(aggregator);
         TupleAggregator<Aggregator, String> deserialisedAggregator = deserialise(json, TupleAggregator.class);
