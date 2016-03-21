@@ -19,6 +19,7 @@ package gaffer.example;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Edge;
+import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.data.Certificate;
 import gaffer.example.data.SampleData;
@@ -29,10 +30,10 @@ import gaffer.example.generator.ViewingGenerator;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
+import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +101,10 @@ public class SimpleQuery {
         // Execute the operation chain on the graph
         graph.execute(populateChain);
 
+        for (Entity entity : graph.execute(new GetEntitiesBySeed.Builder()
+                .build())) {
+            System.out.println(entity);
+        }
 
         // Create an operation chain.
         // So the chain operation will get related edges then generate domain objects from the edges.
@@ -108,7 +113,6 @@ public class SimpleQuery {
                         .view(new View.Builder()
                                 .edge(Group.VIEWING)
                                 .build())
-                        .addSeed(new EntitySeed("filmA"))
                         .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new GenerateObjects.Builder<Edge, Viewing>()
