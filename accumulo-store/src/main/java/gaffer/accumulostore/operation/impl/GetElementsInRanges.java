@@ -16,10 +16,10 @@
 
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
@@ -28,10 +28,12 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
-public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetRangeFromPair<SEED_TYPE, ELEMENT_TYPE> {
+public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
+        extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
 
-    public GetElementsInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
+    public GetElementsInRanges() { }
+
+    public GetElementsInRanges(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
@@ -39,16 +41,16 @@ public class GetElementsInRanges<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ext
         super(view);
     }
 
-    public GetElementsInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+    public GetElementsInRanges(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
-    public GetElementsInRanges(final GetOperation<Pair<SEED_TYPE>, ?> operation) {
+    public GetElementsInRanges(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 
-    public static class Builder<OP_TYPE extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends AbstractGetRangeFromPair.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
+    public static class Builder<OP_TYPE extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
+            extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
 
         protected Builder(final OP_TYPE op) {
             super(op);
