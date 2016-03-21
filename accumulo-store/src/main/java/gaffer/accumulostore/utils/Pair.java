@@ -16,6 +16,8 @@
 
 package gaffer.accumulostore.utils;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.io.Serializable;
 
 /**
@@ -28,11 +30,13 @@ public class Pair<T> implements Serializable {
     private T first;
     private T second;
 
+    public Pair() { }
+
     public Pair(final T first, final T second) {
         this.first = first;
         this.second = second;
     }
-
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     public T getFirst() {
         return first;
     }
@@ -41,6 +45,7 @@ public class Pair<T> implements Serializable {
         this.first = first;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     public T getSecond() {
         return second;
     }

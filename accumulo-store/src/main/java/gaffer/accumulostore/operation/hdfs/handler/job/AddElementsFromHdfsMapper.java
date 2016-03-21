@@ -15,21 +15,20 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.operation.simple.hdfs.handler.mapper.AbstractAddElementsFromHdfsMapper;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
@@ -39,19 +38,19 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
     protected void setup(final Context context) {
         super.setup(context);
 
-        final StoreSchema storeSchema;
+        final Schema schema;
         try {
-            storeSchema = StoreSchema.fromJson(context.getConfiguration()
-                    .get(AccumuloAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise Store Schema from JSON");
+            throw new SchemaException("Unable to deserialise the schema from JSON");
         }
 
         final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             final Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);

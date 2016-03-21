@@ -20,8 +20,8 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.PartialKey;
@@ -47,9 +47,10 @@ import java.util.NoSuchElementException;
  */
 public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extends WrappingIterator
         implements OptionDescriber {
-    protected StoreSchema storeSchema;
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
+    protected Schema schema;
 
-    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "elementConverter is initialised in init method, which is always called prior to this method")
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "elementConverter is initialised in init method, which is always called first")
     protected AccumuloElementConverter elementConverter;
 
     /**
@@ -253,13 +254,13 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public boolean validateOptions(final Map<String, String> options) {
-        if (!options.containsKey(AccumuloStoreConstants.STORE_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.STORE_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
         }
         try {
-            storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the store schema", e);
+            throw new SchemaException("Unable to deserialise the schema", e);
         }
         return true;
     }
@@ -268,6 +269,6 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
                 "Applies a reduce function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)")
-                .addStoreSchemaNamedOption().build();
+                .addSchemaNamedOption().build();
     }
 }

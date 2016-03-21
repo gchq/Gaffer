@@ -20,14 +20,12 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
-import gaffer.store.schema.StoreSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -43,27 +41,24 @@ import java.util.Iterator;
  * output it rather than incurring the cost of deserialising them and then
  * reserialising them.
  */
-public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
+public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> {
     private AccumuloElementConverter elementConverter;
-    private DataSchema dataSchema;
+    private Schema schema;
 
     @Override
     protected void setup(final Context context) {
-        final StoreSchema storeSchema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AbstractAddElementsFromHdfsJobFactory.DATA_SCHEMA)
-                    .getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(context.getConfiguration()
-                    .get(AbstractAddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
+            throw new SchemaException("Unable to deserialise schema from JSON");
         }
 
         try {
             final Class<?> elementConverterClass = Class
                     .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
@@ -97,7 +92,7 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
         Properties firstPropertySet;
         try {
             firstPropertySet = elementConverter.getPropertiesFromValue(group, firstValue);
-            aggregator = dataSchema.getElement(group).getAggregator();
+            aggregator = schema.getElement(group).getAggregator();
             aggregator.aggregate(firstPropertySet);
             while (iter.hasNext()) {
                 aggregator.aggregate(elementConverter.getPropertiesFromValue(group, iter.next()));

@@ -19,12 +19,12 @@ package gaffer.data.elementdefinition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -34,19 +34,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
  * Contains the full list of groups in the graph.
  * <p>
  * This class must be JSON serialisable.
- * A data schema should normally be written in JSON and then deserialised at runtime.
- * Examples of JSON data schemas can be found in the example projects.
+ * A schema should normally be written in JSON and then deserialised at runtime.
+ * Examples of JSON schemas can be found in the example projects.
  *
- * @param <EntityDef> the type of {@link ElementDefinition} for the entities
- * @param <EdgeDef>   the type of {@link ElementDefinition} for the edges
+ * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
+ * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges
  */
-public abstract class ElementDefinitions<EntityDef extends ElementDefinition, EdgeDef extends ElementDefinition> implements Serializable {
+public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> implements Serializable {
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
     private static final long serialVersionUID = -6997056863871610386L;
@@ -55,12 +56,12 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
     /**
      * Map of edge type to edge definition.
      */
-    private Map<String, EdgeDef> edges;
+    private Map<String, EDGE_DEF> edges;
 
     /**
      * Map of entity type to entity definition.
      */
-    private Map<String, EntityDef> entities;
+    private Map<String, ENTITY_DEF> entities;
 
     public ElementDefinitions() {
         edges = new HashMap<>();
@@ -68,28 +69,50 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
     }
 
 
-    public static <T extends ElementDefinitions> T fromJson(final Path filePath, final Class<T> clazz) throws SchemaException {
+    public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final Path... filePaths) throws SchemaException {
+        return fromJson(clazz, (Object[]) filePaths);
+    }
+
+    public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final InputStream... inputStreams) throws SchemaException {
         try {
-            return fromJson(Files.readAllBytes(filePath), clazz);
-        } catch (IOException e) {
-            throw new SchemaException("Failed to read file: " + filePath.getFileName(), e);
+            return fromJson(clazz, (Object[]) inputStreams);
+        } finally {
+            if (null != inputStreams) {
+                for (InputStream inputStream : inputStreams) {
+                    IOUtils.closeQuietly(inputStream);
+                }
+            }
         }
     }
 
-    public static <T extends ElementDefinitions> T fromJson(final InputStream inputStream, final Class<T> clazz) throws SchemaException {
-        try {
-            return JSON_SERIALISER.deserialise(inputStream, clazz);
-        } catch (SerialisationException e) {
-            throw new SchemaException("Failed to load element definitions from input stream", e);
-        }
+    public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final byte[]... jsonBytes) throws SchemaException {
+        return fromJson(clazz, (Object[]) jsonBytes);
     }
 
-    public static <T extends ElementDefinitions> T fromJson(final byte[] jsonBytes, final Class<T> clazz) throws SchemaException {
-        try {
-            return JSON_SERIALISER.deserialise(jsonBytes, clazz);
-        } catch (SerialisationException e) {
-            throw new SchemaException("Failed to load element definitions from input stream", e);
+    private static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final Object[] jsonItems) throws SchemaException {
+        T elementDefs = null;
+        for (Object jsonItem : jsonItems) {
+            final T elDefsTmp;
+            try {
+                if (jsonItem instanceof InputStream) {
+                    elDefsTmp = JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz);
+                } else if (jsonItem instanceof Path) {
+                    elDefsTmp = JSON_SERIALISER.deserialise(Files.readAllBytes((Path) jsonItem), clazz);
+                } else {
+                    elDefsTmp = JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz);
+                }
+            } catch (IOException e) {
+                throw new SchemaException("Failed to load element definitions from bytes", e);
+            }
+
+            if (null == elementDefs) {
+                elementDefs = elDefsTmp;
+            } else {
+                elementDefs.merge(elDefsTmp);
+            }
         }
+
+        return elementDefs;
     }
 
 
@@ -109,7 +132,7 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
             }
         }
 
-        for (Map.Entry<String, EdgeDef> elementDefEntry : edges.entrySet()) {
+        for (Map.Entry<String, EDGE_DEF> elementDefEntry : edges.entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
@@ -120,7 +143,7 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
             }
         }
 
-        for (Map.Entry<String, EntityDef> elementDefEntry : entities.entrySet()) {
+        for (Map.Entry<String, ENTITY_DEF> elementDefEntry : entities.entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
@@ -152,11 +175,11 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
         return isEntity(group) ? getEntity(group) : getEdge(group);
     }
 
-    public EdgeDef getEdge(final String group) {
+    public EDGE_DEF getEdge(final String group) {
         return edges.get(group);
     }
 
-    public EntityDef getEntity(final String group) {
+    public ENTITY_DEF getEntity(final String group) {
         return entities.get(group);
     }
 
@@ -182,40 +205,58 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
         return null != entities ? entities.keySet() : new HashSet<String>(0);
     }
 
-    public void setEdges(final Map<String, EdgeDef> edges) {
+    public void setEdges(final Map<String, EDGE_DEF> edges) {
         this.edges = edges;
     }
 
-    public void setEntities(final Map<String, EntityDef> entities) {
+    public void setEntities(final Map<String, ENTITY_DEF> entities) {
         this.entities = entities;
     }
 
-    public Map<String, EdgeDef> getEdges() {
+    public Map<String, EDGE_DEF> getEdges() {
         return Collections.unmodifiableMap(edges);
     }
 
-    public Map<String, EntityDef> getEntities() {
+    public Map<String, ENTITY_DEF> getEntities() {
         return Collections.unmodifiableMap(entities);
     }
 
-    protected void addEdge(final String group, final EdgeDef elementDef) {
+    protected void addEdge(final String group, final EDGE_DEF elementDef) {
         edges.put(group, elementDef);
     }
 
-    protected void addEntity(final String group, final EntityDef elementDef) {
+    protected void addEntity(final String group, final ENTITY_DEF elementDef) {
         entities.put(group, elementDef);
+    }
+
+    public void merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
+        for (Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
+            if (!edges.containsKey(entry.getKey())) {
+                addEntity(entry.getKey(), entry.getValue());
+            } else {
+                entities.get(entry.getKey()).merge(entry.getValue());
+            }
+        }
+
+        for (Entry<String, EDGE_DEF> entry : elementDefs.getEdges().entrySet()) {
+            if (!edges.containsKey(entry.getKey())) {
+                addEdge(entry.getKey(), entry.getValue());
+            } else {
+                edges.get(entry.getKey()).merge(entry.getValue());
+            }
+        }
     }
 
     /**
      * Builder for {@link gaffer.data.elementdefinition.ElementDefinitions}.
      *
-     * @param <EntityDef> the entity definition type.
-     * @param <EdgeDef>   the entity definition type.
+     * @param <ENTITY_DEF> the entity definition type.
+     * @param <EDGE_DEF>   the entity definition type.
      */
-    public static class Builder<EntityDef extends ElementDefinition, EdgeDef extends ElementDefinition> {
-        private final ElementDefinitions<EntityDef, EdgeDef> elementDefs;
+    public static class Builder<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
+        private final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs;
 
-        public Builder(final ElementDefinitions<EntityDef, EdgeDef> elementDefs) {
+        protected Builder(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
             this.elementDefs = elementDefs;
         }
 
@@ -226,7 +267,7 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
          * @param edgeDef the edge definition for the given edge type.
          * @return this Builder
          */
-        public Builder edge(final String group, final EdgeDef edgeDef) {
+        protected Builder edge(final String group, final EDGE_DEF edgeDef) {
             elementDefs.addEdge(group, edgeDef);
             return this;
         }
@@ -238,21 +279,34 @@ public abstract class ElementDefinitions<EntityDef extends ElementDefinition, Ed
          * @param entityDef the entity definition for the given entity type.
          * @return this Builder
          */
-        public Builder entity(final String group, final EntityDef entityDef) {
+        protected Builder entity(final String group, final ENTITY_DEF entityDef) {
             elementDefs.addEntity(group, entityDef);
             return this;
         }
 
         /**
-         * Builds the {@link gaffer.data.elementdefinition.ElementDefinitions} and returns it.
+         * Builds the {@link gaffer.data.elementdefinition.ElementDefinitions} validates it and returns it.
          *
          * @return the build {@link gaffer.data.elementdefinition.ElementDefinitions}.
          */
-        public ElementDefinitions<EntityDef, EdgeDef> build() {
+        protected ElementDefinitions<ENTITY_DEF, EDGE_DEF> build() {
+            if (!elementDefs.validate()) {
+                throw new SchemaException("The " + elementDefs.getClass().getSimpleName() + " is not valid. Check the logs for more information.");
+            }
+
             return elementDefs;
         }
 
-        protected ElementDefinitions<EntityDef, EdgeDef> getElementDefs() {
+        /**
+         * Builds the {@link gaffer.data.elementdefinition.ElementDefinitions} without validating it and returns it.
+         *
+         * @return the build {@link gaffer.data.elementdefinition.ElementDefinitions}.
+         */
+        protected ElementDefinitions<ENTITY_DEF, EDGE_DEF> buildModule() {
+            return elementDefs;
+        }
+
+        protected ElementDefinitions<ENTITY_DEF, EDGE_DEF> getElementDefs() {
             return elementDefs;
         }
     }

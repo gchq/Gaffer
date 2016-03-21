@@ -16,17 +16,15 @@
 
 package gaffer.data.elementdefinition.view;
 
-import gaffer.commonutil.TestGroups;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+
+import gaffer.commonutil.TestGroups;
+import org.junit.Test;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewTest {
 
@@ -80,10 +78,10 @@ public class ViewTest {
     @Test
     public void shouldBuildView() {
         // Given
-        final ViewEdgeDefinition edgeDef1 = mock(ViewEdgeDefinition.class);
-        final ViewEdgeDefinition edgeDef2 = mock(ViewEdgeDefinition.class);
-        final ViewEntityDefinition entityDef1 = mock(ViewEntityDefinition.class);
-        final ViewEntityDefinition entityDef2 = mock(ViewEntityDefinition.class);
+        final ViewEdgeDefinition edgeDef1 = new ViewEdgeDefinition();
+        final ViewEdgeDefinition edgeDef2 = new ViewEdgeDefinition();
+        final ViewEntityDefinition entityDef1 = new ViewEntityDefinition();
+        final ViewEntityDefinition entityDef2 = new ViewEntityDefinition();
 
         // When
         final View view = new View.Builder()

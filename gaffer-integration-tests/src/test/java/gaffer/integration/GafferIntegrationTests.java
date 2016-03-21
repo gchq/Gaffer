@@ -53,7 +53,11 @@ public abstract class GafferIntegrationTests {
      */
     @Before
     public void setup() throws Exception {
-        graph = new Graph(StreamUtil.dataSchema(getClass()), StreamUtil.storeSchema(getClass()), StreamUtil.openStream(GafferIntegrationTests.class, propertiesPath));
+        graph = new Graph(StreamUtil.openStream(getClass(), propertiesPath),
+                StreamUtil.dataSchema(getClass()),
+                StreamUtil.dataTypes(getClass()),
+                StreamUtil.storeSchema(getClass()),
+                StreamUtil.storeTypes(getClass()));
 
         final String originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))

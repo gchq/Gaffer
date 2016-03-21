@@ -19,34 +19,33 @@ package gaffer.data.elementdefinition.view;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
-import gaffer.data.elementdefinition.TypedElementDefinitionValidator;
+import gaffer.data.elementdefinition.ElementDefinitionValidator;
 import gaffer.function.TransformFunction;
 import gaffer.function.context.ConsumerProducerFunctionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * An <code>ViewElementDefinitionValidator</code> extends
- * {@link gaffer.data.elementdefinition.TypedElementDefinitionValidator} and adds additional validation for a
+ * {@link ElementDefinitionValidator} and adds additional validation for a
  * {@link gaffer.data.elementdefinition.view.ViewElementDefinition}. To be able to aggregate 2 similar elements
  * together ALL properties have to be aggregated together. So this validator checks that either no properties have
  * aggregator functions or all properties have aggregator functions defined.
  */
-public class ViewElementDefinitionValidator extends TypedElementDefinitionValidator<ViewElementDefinition> {
+public class ViewElementDefinitionValidator extends ElementDefinitionValidator<ViewElementDefinition> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewElementDefinitionValidator.class);
 
     /**
-     * Carries out the validation as per {@link gaffer.data.elementdefinition.TypedElementDefinitionValidator} and then
+     * Carries out the validation as per {@link ElementDefinitionValidator} and then
      * checks all {@link gaffer.function.FilterFunction}s and {@link gaffer.function.TransformFunction}s defined are
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
-     * @param elementDef the {@link gaffer.data.elementdefinition.TypedElementDefinition} to validate
+     * @param elementDef the {@link gaffer.data.elementdefinition.ElementDefinition} to validate
      * @return true if the element definition is valid, otherwise false and an error is logged
-     * @see gaffer.data.elementdefinition.TypedElementDefinitionValidator
+     * @see ElementDefinitionValidator
      */
     @Override
     public boolean validate(final ViewElementDefinition elementDef) {

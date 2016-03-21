@@ -18,27 +18,27 @@ package gaffer.accumulostore.key.core;
 
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.utils.StorePositions;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StorePropertyDefinition;
-import gaffer.store.schema.StoreSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.TypeDefinition;
 
 public abstract class AbstractCoreKeyPackage extends AccumuloKeyPackage {
     @Override
-    public void validateSchema(final StoreSchema storeSchema) {
-        for (final StoreElementDefinition storeElDef : storeSchema.getEdges().values()) {
+    public void validateSchema(final Schema schema) {
+        for (final SchemaElementDefinition storeElDef : schema.getEdges().values()) {
             validateElementDef(storeElDef);
         }
 
-        for (final StoreElementDefinition storeElDef : storeSchema.getEntities().values()) {
+        for (final SchemaElementDefinition storeElDef : schema.getEntities().values()) {
             validateElementDef(storeElDef);
         }
     }
 
-    private void validateElementDef(final StoreElementDefinition storeElDef) {
+    private void validateElementDef(final SchemaElementDefinition storeElDef) {
         boolean seenVisibility = false;
         boolean seenTimestamp = false;
-        for (final StorePropertyDefinition storePropertyDef : storeElDef.getPropertyDefinitions()) {
+        for (final TypeDefinition storePropertyDef : storeElDef.getPropertyTypeDefs()) {
             if (StorePositions.VISIBILITY.isEqual(storePropertyDef.getPosition())) {
                 if (!seenVisibility) {
                     seenVisibility = true;
