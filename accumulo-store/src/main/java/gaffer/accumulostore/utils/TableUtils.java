@@ -104,7 +104,7 @@ public final class TableUtils {
         // Create table
         final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
-        if(connector.tableOperations().exists(tableName)) {
+        if (connector.tableOperations().exists(tableName)) {
             return;
         }
         try {
