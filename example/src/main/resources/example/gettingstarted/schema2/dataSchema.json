@@ -1,0 +1,28 @@
+{
+  "edges": {
+    "red": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int"
+      }
+    },
+    "yellow": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int"
+      }
+    },
+    "green": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int"
+      }
+    }
+  }
+}
