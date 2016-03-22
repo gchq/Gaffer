@@ -19,6 +19,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.Schema;
@@ -44,7 +45,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends Mapper<KEY
        final Schema schema;
        try {
            schema = Schema.fromJson(context.getConfiguration()
-                   .get(SampleDataForSplitPointsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                   .get(SampleDataForSplitPointsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
        } catch (final UnsupportedEncodingException e) {
            throw new SchemaException("Unable to deserialise Store Schema from JSON");
        }

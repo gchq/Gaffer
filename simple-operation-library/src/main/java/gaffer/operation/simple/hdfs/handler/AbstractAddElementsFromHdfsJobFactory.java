@@ -25,12 +25,7 @@ import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
 
-public abstract class AbstractAddElementsFromHdfsJobFactory {
-
-    public static final String UTF_8_CHARSET = "UTF-8";
-    public static final String SCHEMA = "schema";
-    public static final String MAPPER_GENERATOR = "mapperGenerator";
-    public static final String VALIDATE = "validate";
+public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
 
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific

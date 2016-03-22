@@ -17,7 +17,7 @@ package gaffer.accumulostore.operation.hdfs.handler.tool;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.CommonConstants;
 import gaffer.operation.OperationException;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -56,7 +56,7 @@ public class SplitTableTool extends Configured implements Tool {
             throw new OperationException("Failed to get Filesystem from configuraiton : " + e.getMessage(), e);
         }
         SortedSet<Text> splits = new TreeSet<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(operation.getInputPath()), AccumuloStoreConstants.UTF_8_CHARSET))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(operation.getInputPath()), CommonConstants.UTF_8))) {
             String line = br.readLine();
             while (line != null) {
                 splits.add(new Text(br.readLine()));

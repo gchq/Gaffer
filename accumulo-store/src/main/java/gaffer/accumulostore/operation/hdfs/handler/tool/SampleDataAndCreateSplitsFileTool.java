@@ -18,7 +18,7 @@ package gaffer.accumulostore.operation.hdfs.handler.tool;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.handler.job.SampleDataForSplitPointsJobFactory;
 import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.CommonConstants;
 import gaffer.operation.OperationException;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.data.Key;
@@ -106,13 +106,13 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         long count = 0;
         int numberSplitPointsOutput = 0;
         try (SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, conf);
-             PrintStream splitsWriter = new PrintStream(new BufferedOutputStream(fs.create(operation.getResultingSplitsFilePath(), true)), false, AccumuloStoreConstants.UTF_8_CHARSET)
+             PrintStream splitsWriter = new PrintStream(new BufferedOutputStream(fs.create(operation.getResultingSplitsFilePath(), true)), false, CommonConstants.UTF_8)
         ) {
             while (reader.next(key, value) && numberSplitPointsOutput < numberTabletServers - 1) {
                 count++;
                 if (count % outputEveryNthRecord == 0) {
                     numberSplitPointsOutput++;
-                    splitsWriter.println(new String(Base64.encodeBase64(key.getRow().getBytes()), AccumuloStoreConstants.UTF_8_CHARSET));
+                    splitsWriter.println(new String(Base64.encodeBase64(key.getRow().getBytes()), CommonConstants.UTF_8));
                 }
             }
         } catch (IOException e) {
