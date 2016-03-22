@@ -23,7 +23,7 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.3</version>
+    <version>0.3.4-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
