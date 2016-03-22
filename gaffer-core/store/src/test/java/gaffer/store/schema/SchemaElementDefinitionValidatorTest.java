@@ -212,7 +212,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-        ;
+
         given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
         given(elementDef.getProperties()).willReturn(new HashSet<String>());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
