@@ -294,7 +294,10 @@ public class ArrayListStoreTest {
     }
 
     private Graph createGraph() {
-        return new Graph(StreamUtil.storeProps(getClass()), StreamUtil.schema(getClass()));
+        return new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(StreamUtil.schema(getClass()))
+                .build();
     }
 
     private void addElementsToGraph(final Graph graph) throws OperationException {

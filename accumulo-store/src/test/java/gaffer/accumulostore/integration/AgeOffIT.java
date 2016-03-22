@@ -3,7 +3,6 @@ package gaffer.accumulostore.integration;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
-import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.utils.StorePositions;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
@@ -45,7 +44,10 @@ public class AgeOffIT {
                         .build())
                 .build();
 
-        final Graph graph = new Graph(AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass())), schema);
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(schema)
+                .build();
 
         final Entity entity = new Entity(TestGroups.ENTITY, vertex);
         entity.putProperty(TestPropertyNames.TIMESTAMP, now);
