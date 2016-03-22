@@ -16,6 +16,7 @@
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
 import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
+import gaffer.commonutil.CommonConstants;
 import gaffer.store.Store;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -32,7 +33,6 @@ import java.io.IOException;
 public class SampleDataForSplitPointsJobFactory {
 
     public static final String PROPORTION_TO_SAMPLE = "proportion_to_sample";
-    public static final String UTF_8_CHARSET = "UTF-8";
     public static final String SCHEMA = "schema";
     public static final String MAPPER_GENERATOR = "mapperGenerator";
     public static final String VALIDATE = "validate";
@@ -66,7 +66,7 @@ public class SampleDataForSplitPointsJobFactory {
     }
 
     protected void setupJobConf(final JobConf jobConf, final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
