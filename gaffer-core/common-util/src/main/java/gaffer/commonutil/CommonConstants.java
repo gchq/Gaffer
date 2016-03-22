@@ -14,32 +14,12 @@
  * limitations under the License.
  */
 
-package gaffer.function;
+package gaffer.commonutil;
 
-import gaffer.function.annotation.Inputs;
-import gaffer.function.annotation.Outputs;
+public final class CommonConstants {
+    public static final String UTF_8 = "UTF-8";
 
-@Inputs(Object.class)
-@Outputs(Object.class)
-public class ExampleAggregateFunction extends SimpleAggregateFunction<Object> {
-    private Object input;
-
-    @Override
-    public void init() {
-    }
-
-    @Override
-    protected void _aggregate(Object input) {
-        this.input = input;
-    }
-
-    @Override
-    protected Object _state() {
-        return input;
-    }
-
-    @Override
-    public ExampleAggregateFunction statelessClone() {
-        return new ExampleAggregateFunction();
+    private CommonConstants() {
+        // constants class so it should not be constructed
     }
 }

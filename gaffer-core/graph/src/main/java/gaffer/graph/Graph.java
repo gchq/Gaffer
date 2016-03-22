@@ -173,7 +173,10 @@ public final class Graph {
     public Graph(final Store store, final View view) {
         this.store = store;
         if (null == view) {
-            this.view = new View(store.getSchema().getEntityGroups(), store.getSchema().getEdgeGroups());
+            this.view = new View.Builder()
+                    .entities(getSchema().getEntityGroups())
+                    .edges(getSchema().getEdgeGroups())
+                    .build();
         } else {
             this.view = view;
         }

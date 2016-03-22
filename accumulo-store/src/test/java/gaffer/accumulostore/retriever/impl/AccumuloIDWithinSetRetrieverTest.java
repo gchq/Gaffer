@@ -20,18 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.accumulo.core.client.TableExistsException;
-import org.apache.hadoop.util.bloom.BloomFilter;
-import org.apache.hadoop.util.hash.Hash;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -44,8 +32,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
@@ -55,6 +41,16 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.hadoop.util.bloom.BloomFilter;
+import org.apache.hadoop.util.hash.Hash;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AccumuloIDWithinSetRetrieverTest {
 
@@ -85,7 +81,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
     }
 
     /**
@@ -449,8 +445,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data)
-        View view = new View.Builder()
-                .edge("X", new ViewEdgeDefinition()).build();
+        View view = new View.Builder().edge("X").build();
         op = new GetRelatedElements<>(view, seeds);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(true);

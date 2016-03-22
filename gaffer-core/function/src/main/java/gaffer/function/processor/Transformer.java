@@ -184,7 +184,7 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
          * @return This <code>Builder</code>.
          */
         private Builder<R> buildContext() {
-            if (contextBuilder.isSelected() || contextBuilder.isExecuted()) {
+            if (contextBuilder.isSelected() || contextBuilder.isProjected() || contextBuilder.isExecuted()) {
                 transformer.addFunction(contextBuilder.build());
                 contextBuilder = new ConsumerProducerFunctionContext.Builder<>();
             }

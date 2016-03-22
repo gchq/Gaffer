@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.commonutil.CommonConstants;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -241,7 +242,7 @@ public final class TableUtils {
         final BatchWriter writer = createBatchWriter(store, AccumuloStoreConstants.GAFFER_UTILS_TABLE);
         final Key key;
         try {
-            key = new Key(store.getProperties().getTable().getBytes(AccumuloStoreConstants.UTF_8_CHARSET), AccumuloStoreConstants.EMPTY_BYTES,
+            key = new Key(store.getProperties().getTable().getBytes(CommonConstants.UTF_8), AccumuloStoreConstants.EMPTY_BYTES,
                     AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
@@ -286,8 +287,8 @@ public final class TableUtils {
 
     private static Range getTableSetupRange(final String table) {
         try {
-            return new Range(getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), false),
-                    getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), true));
+            return new Range(getTableSetupKey(table.getBytes(CommonConstants.UTF_8), false),
+                    getTableSetupKey(table.getBytes(CommonConstants.UTF_8), true));
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -310,7 +311,7 @@ public final class TableUtils {
         map.put(AccumuloStoreConstants.SCHEMA_KEY, new BytesWritable(schema.toJson(false)));
         try {
             map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
-                    new BytesWritable(keyPackage.getClass().getName().getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
+                    new BytesWritable(keyPackage.getClass().getName().getBytes(CommonConstants.UTF_8)));
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
         }

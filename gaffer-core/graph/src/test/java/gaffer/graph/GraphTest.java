@@ -42,9 +42,9 @@ import gaffer.store.Store;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
-import gaffer.store.schema.Schema;
 import gaffer.store.schema.TypeDefinition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,14 +132,12 @@ public class GraphTest {
 
         for (ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
         for (ViewElementDefinition resultElementDef : resultView.getEdges().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
     }
@@ -149,6 +147,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final View view = mock(View.class);
+
         final Graph graph = new Graph(store, view);
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
@@ -172,6 +171,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         final View opView = mock(View.class);
         final View view = mock(View.class);
+
         final Graph graph = new Graph(store, view);
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);

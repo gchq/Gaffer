@@ -15,6 +15,7 @@
  */
 package gaffer.operation.simple.hdfs.handler.mapper;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.store.ElementValidator;
@@ -50,7 +51,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
 
         final Schema schema;
         try {
-            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AddElementsFromHdfsJobFactory.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
