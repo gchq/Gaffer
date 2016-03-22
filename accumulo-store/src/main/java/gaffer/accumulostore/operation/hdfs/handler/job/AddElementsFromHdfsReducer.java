@@ -17,13 +17,13 @@ package gaffer.accumulostore.operation.hdfs.handler.job;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -44,25 +44,22 @@ import java.util.Iterator;
  */
 public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> {
     private AccumuloElementConverter elementConverter;
-    private DataSchema dataSchema;
+    private Schema schema;
 
     @Override
     protected void setup(final Context context) {
-        final StoreSchema storeSchema;
         try {
-            dataSchema = DataSchema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.DATA_SCHEMA)
-                    .getBytes(Constants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration()
+                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise Data/Store Schema from JSON");
+            throw new SchemaException("Unable to deserialise schema from JSON");
         }
 
         try {
             final Class<?> elementConverterClass = Class
-                    .forName(context.getConfiguration().get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
@@ -88,7 +85,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     private Value reduceMultiValue(final Key key, final Iterator<Value> iter, final Value firstValue) {
         final String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), Constants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -96,7 +93,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
         Properties firstPropertySet;
         try {
             firstPropertySet = elementConverter.getPropertiesFromValue(group, firstValue);
-            aggregator = dataSchema.getElement(group).getAggregator();
+            aggregator = schema.getElement(group).getAggregator();
             aggregator.aggregate(firstPropertySet);
             while (iter.hasNext()) {
                 aggregator.aggregate(elementConverter.getPropertiesFromValue(group, iter.next()));

@@ -2,9 +2,6 @@
   "operations": [
     {
       "class": "gaffer.operation.impl.generate.GenerateElements",
-      "options": {
-        "authorisations": "U,PG,_12A,_15,_18"
-      },
       "elementGenerator": {
         "class": "gaffer.example.generator.DataGenerator"
       },
@@ -38,7 +35,8 @@
           "filmId": "filmC",
           "userId": "user02",
           "startTime": 1407000000000
-        }, {
+        },
+        {
           "class": "gaffer.example.data.Viewing",
           "filmId": "filmA",
           "userId": "user03",
@@ -117,11 +115,9 @@
           "certificate": "_15"
         }
       ]
-    }, {
-      "class": "gaffer.operation.impl.add.AddElements",
-      "options": {
-        "authorisations": "U,PG,_12A,_15,_18"
-      }
+    },
+    {
+      "class": "gaffer.operation.impl.add.AddElements"
     }
   ]
 }

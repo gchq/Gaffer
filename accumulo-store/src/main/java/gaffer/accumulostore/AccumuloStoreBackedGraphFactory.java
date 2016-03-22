@@ -16,21 +16,17 @@
 
 package gaffer.accumulostore;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.CommonConstants;
+import gaffer.graph.Graph;
+import gaffer.store.StoreException;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gaffer.accumulostore.utils.Constants;
-import gaffer.accumulostore.utils.TableUtilException;
-import gaffer.accumulostore.utils.TableUtils;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.graph.Graph;
-import gaffer.store.StoreException;
-import gaffer.store.schema.StoreSchema;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 
 /**
  * Factory for creating new {@link gaffer.graph.Graph} instances of
@@ -55,21 +51,11 @@ public final class AccumuloStoreBackedGraphFactory {
      */
     public static Graph getGraph(final Path propertiesFileLocation) throws StoreException {
         final AccumuloProperties props = new AccumuloProperties(propertiesFileLocation);
-        final MapWritable map;
-        try {
-            map = TableUtils.getStoreConstructorInfo(props);
-        } catch (final TableUtilException e) {
-            throw new StoreException(e);
-        }
-
-        final DataSchema dataSchema = DataSchema
-                .fromJson(((BytesWritable) map.get(Constants.DATA_SCHEMA_KEY)).getBytes());
-        final StoreSchema storeSchema = StoreSchema
-                .fromJson(((BytesWritable) map.get(Constants.STORE_SCHEMA_KEY)).getBytes());
+        final MapWritable map = TableUtils.getStoreConstructorInfo(props);
         final String keyPackageClass;
         try {
-            keyPackageClass = new String(((BytesWritable) map.get(Constants.KEY_PACKAGE_KEY)).getBytes(),
-                    Constants.UTF_8_CHARSET);
+            keyPackageClass = new String(((BytesWritable) map.get(AccumuloStoreConstants.KEY_PACKAGE_KEY)).getBytes(),
+                    CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
         }
@@ -80,6 +66,9 @@ public final class AccumuloStoreBackedGraphFactory {
             props.setKeyPackageClass(keyPackageClass);
         }
 
-        return new Graph(dataSchema, storeSchema, props);
+        return new Graph.Builder()
+                .storeProperties(props)
+                .addSchema(((BytesWritable) map.get(AccumuloStoreConstants.SCHEMA_KEY)).getBytes())
+                .build();
     }
 }

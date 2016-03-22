@@ -23,14 +23,11 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
 
-    <properties>
-        <skipITs>true</skipITs>
-    </properties>
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
         <dependency>
@@ -69,6 +66,11 @@
             <artifactId>simple-operation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- External libraries -->
         <dependency>
@@ -100,7 +102,20 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
+            <artifactId>operation</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
             <artifactId>simple-serialisation-library</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>simple-function-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
@@ -149,5 +164,5 @@
         </plugins>
     </build>
 
-   
+
 </project>

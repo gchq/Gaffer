@@ -20,9 +20,9 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.RangeFactory;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.CloseableIterable;
 import gaffer.accumulostore.utils.CloseableIterator;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -34,6 +34,7 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+
 import java.util.Set;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
@@ -55,8 +56,12 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         this.elementConverter = store.getKeyPackage().getKeyConverter();
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
-        this.authorisations = new Authorizations(
-                this.operation.getOptions().get(Constants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+        if (null != this.operation.getOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS)) {
+            this.authorisations = new Authorizations(
+                    this.operation.getOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+        } else {
+            this.authorisations = new Authorizations();
+        }
     }
 
     /**

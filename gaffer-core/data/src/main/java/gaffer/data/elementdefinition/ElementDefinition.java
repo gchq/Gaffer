@@ -16,29 +16,10 @@
 
 package gaffer.data.elementdefinition;
 
-import java.io.Serializable;
-import java.util.Collection;
-
 /**
- * An <code>ElementDefinition</code> contains the definition for an {@link gaffer.data.element.Element} type.
- * Element definitions should have a collection of property names that are valid for the group.
+ * An <code>ElementDefinition</code> defines information about an element.
+ * This interface requires element definitions to able to be merged.
  */
-public interface ElementDefinition extends Serializable {
-    /**
-     * Validates this {@link gaffer.data.elementdefinition.ElementDefinition}.
-     *
-     * @return true if valid, otherwise false.
-     */
-    boolean validate();
-
-    /**
-     * @param propertyName the property name to check
-     * @return true if this {@link gaffer.data.elementdefinition.ElementDefinition} contains the provided property name
-     */
-    boolean containsProperty(final String propertyName);
-
-    /**
-     * @return the property names in this {@link gaffer.data.elementdefinition.ElementDefinition}
-     */
-    Collection<String> getProperties();
+public interface ElementDefinition {
+    void merge(ElementDefinition elDef);
 }

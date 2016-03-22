@@ -16,27 +16,26 @@
 package gaffer.accumulostore.key.core.impl;
 
 
+import static org.junit.Assert.assertEquals;
+
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.PathUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractAccumuloElementConverterTest {
 
@@ -44,11 +43,15 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        StoreSchema storeSchema = StoreSchema.fromJson(PathUtil.storeSchema(getClass()));
-        converter = createConverter(storeSchema);
+        final Schema schema = Schema.fromJson(
+                StreamUtil.dataSchema(getClass()),
+                StreamUtil.dataTypes(getClass()),
+                StreamUtil.storeSchema(getClass()),
+                StreamUtil.storeTypes(getClass()));
+        converter = createConverter(schema);
     }
 
-    protected abstract AccumuloElementConverter createConverter(final StoreSchema storeSchema);
+    protected abstract AccumuloElementConverter createConverter(final Schema schema);
 
     //TEST WE CAN RETRIEVE AN ELEMENT FROM A KEY THAT HAS BEEN CREATED CORRECTLY
     @Test
@@ -158,7 +161,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         final Pair<Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
-        options.put(Constants.OPERATION_MATCH_AS_SOURCE, "true");
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
         // When
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), options);

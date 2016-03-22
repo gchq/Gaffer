@@ -18,20 +18,20 @@ package gaffer.accumulostore.key.core.impl.classic;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import java.util.Arrays;
 import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
-    public ClassicAccumuloElementConverter(final StoreSchema storeSchema) {
-        super(storeSchema);
+    public ClassicAccumuloElementConverter(final Schema schema) {
+        super(schema);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
 
     @Override
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
-            final Map<String, String> options) throws AccumuloElementConversionException {
+                                                        final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
         final int[] positionsOfDelimiters = new int[2];
@@ -171,8 +171,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
             // Edge is directed and the second identifier is the source of the edge
             int src = 1;
             int dst = 0;
-            if (options != null && options.containsKey(Constants.OPERATION_MATCH_AS_SOURCE)
-                    && "true".equalsIgnoreCase(options.get(Constants.OPERATION_MATCH_AS_SOURCE))) {
+            if (options != null && options.containsKey(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
+                    && "true".equalsIgnoreCase(options.get(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE))) {
                 src = 0;
                 dst = 1;
             }

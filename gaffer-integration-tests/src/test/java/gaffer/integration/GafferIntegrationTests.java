@@ -15,7 +15,9 @@
  */
 package gaffer.integration;
 
-import gaffer.commonutil.PathUtil;
+import static org.junit.Assume.assumeTrue;
+
+import gaffer.commonutil.StreamUtil;
 import gaffer.graph.Graph;
 import gaffer.store.StoreTrait;
 import org.junit.After;
@@ -24,16 +26,12 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
-import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public abstract class GafferIntegrationTests {
@@ -45,7 +43,7 @@ public abstract class GafferIntegrationTests {
     @Parameterized.Parameter(0)
     public String storeName;
     @Parameterized.Parameter(1)
-    public Path propertiesPath;
+    public String propertiesPath;
 
     /**
      * Setup the Parameterised Graph for each type of Store.
@@ -55,7 +53,13 @@ public abstract class GafferIntegrationTests {
      */
     @Before
     public void setup() throws Exception {
-        graph = new Graph(PathUtil.dataSchema(getClass()), PathUtil.storeSchema(getClass()), propertiesPath);
+        graph = new Graph.Builder()
+                .storeProperties(StreamUtil.openStream(getClass(), propertiesPath))
+                .addSchema(StreamUtil.dataSchema(getClass()))
+                .addSchema(StreamUtil.dataTypes(getClass()))
+                .addSchema(StreamUtil.storeSchema(getClass()))
+                .addSchema(StreamUtil.storeTypes(getClass()))
+                .build();
 
         final String originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
@@ -86,8 +90,8 @@ public abstract class GafferIntegrationTests {
         // Different Stores/Graphs
         return Arrays.asList(
                 new Object[][]{
-                        {"AccumuloStore", PathUtil.path(GafferIntegrationTests.class, "/accumulo.properties")},
-                        {"ArrayListStore", PathUtil.path(GafferIntegrationTests.class, "/arraylist.properties")}
+                        {"AccumuloStore", "/accumulo.properties"},
+                        {"ArrayListStore", "/arraylist.properties"}
                 }
         );
     }

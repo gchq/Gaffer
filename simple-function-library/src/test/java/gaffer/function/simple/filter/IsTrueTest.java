@@ -15,16 +15,16 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class IsTrueTest extends FilterFunctionTest {
     @Test
@@ -33,7 +33,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter._isValid(true);
+        boolean accepted = filter.isValid(true);
 
         // Then
         assertTrue(accepted);
@@ -45,7 +45,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter._isValid(Boolean.TRUE);
+        boolean accepted = filter.isValid(Boolean.TRUE);
 
         // Then
         assertTrue(accepted);
@@ -57,19 +57,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter._isValid(null);
-
-        // Then
-        assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldRejectTheValueWhenNullItemInArray() {
-        // Given
-        final IsTrue filter = new IsTrue();
-
-        // When
-        boolean accepted = filter._isValid(null);
+        boolean accepted = filter.isValid((Boolean) null);
 
         // Then
         assertFalse(accepted);
@@ -81,7 +69,7 @@ public class IsTrueTest extends FilterFunctionTest {
         final IsTrue filter = new IsTrue();
 
         // When
-        boolean accepted = filter._isValid(false);
+        boolean accepted = filter.isValid(false);
 
         // Then
         assertFalse(accepted);
@@ -127,10 +115,5 @@ public class IsTrueTest extends FilterFunctionTest {
     @Override
     protected IsTrue getInstance() {
         return new IsTrue();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{true};
     }
 }

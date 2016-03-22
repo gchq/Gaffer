@@ -1,16 +1,16 @@
 package gaffer.function.simple.aggregate;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.ConsumerProducerFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
-public class StringConcatTest extends ConsumerProducerFunctionTest {
+import gaffer.exception.SerialisationException;
+import gaffer.function.AggregateFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
+public class StringConcatTest extends AggregateFunctionTest {
     @Test
     public void shouldConcatStringsTogether() {
         // Given
@@ -24,7 +24,7 @@ public class StringConcatTest extends ConsumerProducerFunctionTest {
         aggregator.aggregate(new Object[]{null});
 
         // Then
-        assertEquals("1;2;", aggregator.state()[0]);
+        assertEquals("1;2", aggregator.state()[0]);
     }
 
     @Test

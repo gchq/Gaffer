@@ -1,0 +1,21 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "id.string",
+      "properties": {
+        "property1": "prop.string"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "id.string",
+      "destination": "id.string",
+      "directed": "directed.true",
+      "properties": {
+        "property2": "prop.string",
+        "dateProperty": "prop.date"
+      }
+    }
+  }
+}

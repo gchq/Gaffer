@@ -24,17 +24,13 @@ import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
-import gaffer.operation.OperationChain;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -52,7 +48,6 @@ import java.util.Set;
 public class AccumuloRangeIDRetrieverTest {
 
     private static final int numEntries = 1000;
-    private static final String AUTHS = "Test";
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
@@ -61,7 +56,7 @@ public class AccumuloRangeIDRetrieverTest {
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
     }
@@ -72,7 +67,7 @@ public class AccumuloRangeIDRetrieverTest {
         gaffer1KeyStore = null;
         defaultView = null;
     }
-    
+
     @Test
     public void test() throws StoreException {
         test(byteEntityStore);
@@ -86,8 +81,7 @@ public class AccumuloRangeIDRetrieverTest {
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         AccumuloRangeIDRetriever retriever = null;
-        AbstractGetRangeFromPair<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        AbstractGetOperation<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         try {
             retriever = new AccumuloRangeIDRetriever(store, operation);
         } catch (IteratorSettingException e) {
@@ -113,10 +107,8 @@ public class AccumuloRangeIDRetrieverTest {
             edge.setDirected(false);
             elements.add(edge);
         }
-        AddElements add = new AddElements(elements);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
         try {
-            store.execute(new OperationChain<>(add));
+            store.execute(new AddElements(elements));
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

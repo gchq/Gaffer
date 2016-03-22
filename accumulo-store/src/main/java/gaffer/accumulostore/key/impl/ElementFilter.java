@@ -19,13 +19,14 @@ package gaffer.accumulostore.key.impl;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.data.ElementValidator;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.ElementValidator;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -51,14 +52,14 @@ public class ElementFilter extends Filter {
             element = elementConverter.getFullElement(key, value);
         } catch (final AccumuloElementConversionException e) {
             throw new ElementFilterException(
-                    "Element filter iterator failed to crete an element from an accumulo key value pair", e);
+                    "Element filter iterator failed to create an element from an accumulo key value pair", e);
         }
         return validator.validate(element);
     }
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -68,47 +69,51 @@ public class ElementFilter extends Filter {
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (!options.containsKey(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
+        if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
-        if (!options.containsKey(Constants.STORE_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.STORE_SCHEMA);
-        }
-        if (!options.containsKey(Constants.VIEW)) {
-            throw new IllegalArgumentException("Must specify the " + Constants.VIEW);
-        }
-        try {
-            validator = new ElementValidator(
-                    View.fromJson(options.get(Constants.VIEW).getBytes(Constants.UTF_8_CHARSET)));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise view from JSON", e);
-
+        if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
         }
 
-        final StoreSchema storeSchema;
+        validator = getElementValidator(options);
+
+        final Schema schema;
         try {
-            storeSchema = StoreSchema.fromJson(options.get(Constants.STORE_SCHEMA).getBytes(Constants.UTF_8_CHARSET));
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
-            throw new ElementFilterException(e.getMessage(), e);
+            throw new SchemaException("Unable to deserialise the schema from JSON", e);
         }
 
         try {
             final Class<?> elementConverterClass = Class
-                    .forName(options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new ElementFilterException("Failed to load element converter from class name provided : "
-                    + options.get(Constants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }
         return true;
     }
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addStoreSchemaNamedOption()
-                .addElementConverterClassNamedOption().setIteratorName(Constants.ELEMENT_FILTER_ITERATOR_NAME)
+        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
+                .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME)
                 .setIteratorDescription("Only returns elements that pass validation against the given view").build();
+    }
+
+    protected ElementValidator getElementValidator(final Map<String, String> options) {
+        if (!options.containsKey(AccumuloStoreConstants.VIEW)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
+        }
+
+        try {
+            return new ElementValidator(View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8)));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise view from JSON", e);
+        }
     }
 }

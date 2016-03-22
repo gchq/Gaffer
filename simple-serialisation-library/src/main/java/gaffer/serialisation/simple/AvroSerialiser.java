@@ -28,11 +28,11 @@ import org.apache.avro.reflect.ReflectDatumReader;
 import org.apache.avro.reflect.ReflectDatumWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class is used to serialise and deserialise avro files
@@ -60,18 +60,13 @@ public class AvroSerialiser implements Serialisation {
     }
 
     public Object deserialise(final byte[] bytes) throws SerialisationException {
-        DatumReader<Object> datumReader = new ReflectDatumReader<>();
-        DataFileStream<Object> in = null;
-        Object ret = null;
-        try {
-            in = new DataFileStream<>(new ByteArrayInputStream(bytes), datumReader);
-            ret = in.next();
+        final DatumReader<Object> datumReader = new ReflectDatumReader<>();
+        try (final InputStream inputStream = new ByteArrayInputStream(bytes);
+             final DataFileStream<Object> in = new DataFileStream<>(inputStream, datumReader)) {
+            return in.next();
         } catch (IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
-        } finally {
-            close(in);
         }
-        return ret;
     }
 
     public boolean canHandle(final Class clazz) {

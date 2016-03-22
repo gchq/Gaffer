@@ -15,21 +15,20 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class IsInTest extends FilterFunctionTest {
     @Test
@@ -38,7 +37,7 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter._isValid("B");
+        boolean accepted = filter.isValid("B");
 
         // Then
         assertTrue(accepted);
@@ -50,7 +49,7 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter._isValid("D");
+        boolean accepted = filter.isValid("D");
 
         // Then
         assertFalse(accepted);
@@ -102,10 +101,5 @@ public class IsInTest extends FilterFunctionTest {
     @Override
     protected IsIn getInstance() {
         return new IsIn(Collections.singletonList((Object) "someValue"));
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{"someValue"};
     }
 }

@@ -16,18 +16,18 @@
 
 package gaffer.rest.service;
 
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.graph.Graph;
-import gaffer.rest.GraphFactory;
-import gaffer.store.Store;
-import java.io.IOException;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
+import gaffer.graph.Graph;
+import gaffer.rest.GraphFactory;
+import gaffer.store.Store;
+import gaffer.store.schema.Schema;
+import org.junit.Before;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.List;
 
 
 public class SimpleGraphConfigurationServiceTest {
@@ -37,9 +37,9 @@ public class SimpleGraphConfigurationServiceTest {
     public void setup() {
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
-        final DataSchema dataSchema = mock(DataSchema.class);
-        given(store.getDataSchema()).willReturn(dataSchema);
-        final Graph graph = new Graph(store);
+        final Schema schema = mock(Schema.class);
+        given(store.getSchema()).willReturn(schema);
+        final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
 
         service = new SimpleGraphConfigurationService(graphFactory);

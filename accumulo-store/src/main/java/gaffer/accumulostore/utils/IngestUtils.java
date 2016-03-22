@@ -16,6 +16,7 @@
 package gaffer.accumulostore.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.commonutil.CommonConstants;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -71,7 +72,7 @@ public final class IngestUtils {
         }
 
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
-                Constants.UTF_8_CHARSET)) {
+                CommonConstants.UTF_8)) {
             // Write the splits to file
             if (splits.isEmpty()) {
                 out.close();
@@ -79,7 +80,7 @@ public final class IngestUtils {
             }
 
             for (final Text split : splits) {
-                out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
+                out.println(new String(Base64.encodeBase64(split.getBytes()), CommonConstants.UTF_8));
             }
         }
         return splits.size();
@@ -97,9 +98,9 @@ public final class IngestUtils {
     public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile)
             throws IOException {
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
-                Constants.UTF_8_CHARSET)) {
+                CommonConstants.UTF_8)) {
             for (final Text split : splits) {
-                out.println(new String(Base64.encodeBase64(split.getBytes()), Constants.UTF_8_CHARSET));
+                out.println(new String(Base64.encodeBase64(split.getBytes()), CommonConstants.UTF_8));
             }
         }
     }
@@ -116,7 +117,8 @@ public final class IngestUtils {
     public static int getNumSplits(final FileSystem fs, final Path splitsFile) throws IOException {
         int numSplits = 0;
         try (final FSDataInputStream fis = fs.open(splitsFile);
-             final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+             final InputStreamReader streamReader = new InputStreamReader(fis, CommonConstants.UTF_8);
+             final BufferedReader reader = new BufferedReader(streamReader)) {
             while (reader.readLine() != null) {
                 ++numSplits;
             }
@@ -140,7 +142,8 @@ public final class IngestUtils {
         final SortedSet<Text> splits = new TreeSet<>();
 
         try (final FSDataInputStream fis = fs.open(splitsFile);
-             final BufferedReader reader = new BufferedReader(new InputStreamReader(fis, Constants.UTF_8_CHARSET))) {
+             final InputStreamReader streamReader = new InputStreamReader(fis, CommonConstants.UTF_8);
+             final BufferedReader reader = new BufferedReader(streamReader)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 splits.add(new Text(Base64.decodeBase64(line)));

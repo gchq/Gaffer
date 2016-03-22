@@ -25,9 +25,9 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementCo
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.TestGroups;
@@ -69,17 +69,17 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         byteEntityStore.getProperties().setTable("Test");
         gaffer1KeyStore.getProperties().setTable("Test2");
 
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getStoreSchema());
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getStoreSchema());
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getSchema());
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getSchema());
     }
 
     @Test
-    public void testAggregatingMultiplePropertySets() throws IteratorSettingException {
+    public void testAggregatingMultiplePropertySets() throws StoreException, AccumuloElementConversionException {
         testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
+    public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -153,11 +153,10 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             Authorizations authorizations = new Authorizations(visibilityString);
             Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            IteratorSetting iteratorSetting = new IteratorSettingBuilder(Constants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -179,12 +178,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
 
     @Test
-    public void testAggregatingSinglePropertySet() throws IteratorSettingException {
+    public void testAggregatingSinglePropertySet() throws StoreException, AccumuloElementConversionException {
         testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
+    public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -223,11 +222,10 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             Authorizations authorizations = new Authorizations(visibilityString);
             Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            IteratorSetting iteratorSetting = new IteratorSettingBuilder(Constants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -248,12 +246,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingEmptyColumnQualifier() throws IteratorSettingException {
+    public void testAggregatingEmptyColumnQualifier() throws StoreException, AccumuloElementConversionException {
         testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws IteratorSettingException {
+    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -325,11 +323,10 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             Authorizations authorizations = new Authorizations(visibilityString);
             Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            IteratorSetting iteratorSetting = new IteratorSettingBuilder(Constants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);

@@ -18,7 +18,7 @@ package gaffer.accumulostore.key.core.impl.gaffer1;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.AbstractAccumuloElementConverterTest;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.
@@ -26,7 +26,7 @@ import gaffer.store.schema.StoreSchema;
 public class Gaffer1AccumuloElementConverterTest extends AbstractAccumuloElementConverterTest {
 
     @Override
-    protected AccumuloElementConverter createConverter(final StoreSchema storeSchema) {
-        return new ClassicAccumuloElementConverter(storeSchema);
+    protected AccumuloElementConverter createConverter(final Schema schema) {
+        return new ClassicAccumuloElementConverter(schema);
     }
 }

@@ -17,7 +17,7 @@ package gaffer.accumulostore.key.core.impl.classic;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 
 public class ClassicKeyPackage extends AbstractCoreKeyPackage {
     public ClassicKeyPackage() {
@@ -25,13 +25,13 @@ public class ClassicKeyPackage extends AbstractCoreKeyPackage {
         setKeyFunctor(new CoreKeyBloomFunctor());
     }
 
-    public ClassicKeyPackage(final StoreSchema schema) {
+    public ClassicKeyPackage(final Schema schema) {
         this();
-        setStoreSchema(schema);
+        setSchema(schema);
     }
 
     @Override
-    public void setStoreSchema(final StoreSchema schema) {
+    public void setSchema(final Schema schema) {
         setRangeFactory(new ClassicRangeFactory(schema));
         setKeyConverter(new ClassicAccumuloElementConverter(schema));
     }

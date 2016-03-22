@@ -16,19 +16,16 @@
 
 package gaffer.store;
 
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.data.ElementSeed;
-import gaffer.data.elementdefinition.schema.DataElementDefinition;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
@@ -46,15 +43,15 @@ import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
-import gaffer.store.schema.StoreElementDefinition;
-import gaffer.store.schema.StoreSchema;
-import org.apache.commons.lang.StringUtils;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.ViewValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -71,14 +68,9 @@ public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
 
     /**
-     * The data schema - contains the type of {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
+     * The schema - contains the type of {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    private DataSchema dataSchema;
-
-    /**
-     * The store schema - contains information on how to store and process the graph elements, such as position and serialisers.
-     */
-    private StoreSchema storeSchema;
+    private Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
@@ -87,12 +79,14 @@ public abstract class Store {
 
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
-    public void initialise(final DataSchema dataSchema, final StoreSchema storeSchema,
-                           final StoreProperties properties) throws StoreException {
-        this.storeSchema = storeSchema;
-        this.dataSchema = dataSchema;
+    private ViewValidator viewValidator;
+
+    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+        this.schema = schema;
         this.properties = properties;
+        viewValidator = new ViewValidator();
         addOpHandlers();
+        optimiseSchemas();
         validateSchemas();
     }
 
@@ -107,9 +101,8 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support VALIDATION and FILTERING.
+     * Returns the {@link gaffer.store.StoreTrait}s for this store. Most stores should support FILTERING.
      * <p>
-     * This abstract store handles validation automatically using {@link gaffer.store.operation.handler.ValidateHandler}.
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
      *
      * @return the {@link gaffer.store.StoreTrait}s for this store.
@@ -122,6 +115,19 @@ public abstract class Store {
     protected abstract boolean isValidationRequired();
 
     /**
+     * Executes a given operation and returns the result.
+     *
+     * @param operation   the operation to execute.
+     * @param <OPERATION> the operation type
+     * @param <OUTPUT>    the output type.
+     * @return the result from the operation
+     * @throws OperationException thrown by the operation handler if the operation fails.
+     */
+    public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(final OPERATION operation) throws OperationException {
+        return execute(new OperationChain<>(operation));
+    }
+
+    /**
      * Executes a given operation chain and returns the result.
      *
      * @param operationChain the operation chain to execute.
@@ -130,13 +136,7 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
-        final Iterator<Operation> opsItr;
-
-        if (hasTrait(StoreTrait.VALIDATION)) {
-            opsItr = getValidatedOperations(operationChain).iterator();
-        } else {
-            opsItr = operationChain.getOperations().iterator();
-        }
+        final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
 
         if (!opsItr.hasNext()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
@@ -168,7 +168,7 @@ public abstract class Store {
 
     /**
      * Ensures all identifier and property values are populated on an element by triggering getters on the element for
-     * all identifier and properties in the {@link DataSchema} forcing a lazy element to load all of its values.
+     * all identifier and properties in the {@link Schema} forcing a lazy element to load all of its values.
      *
      * @param lazyElement the lazy element
      * @return the fully populated unwrapped element
@@ -176,7 +176,7 @@ public abstract class Store {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
-        final DataElementDefinition elementDefinition = getDataSchema().getElement(lazyElement.getGroup());
+        final SchemaElementDefinition elementDefinition = getSchema().getElement(lazyElement.getGroup());
         if (null != elementDefinition) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
                 lazyElement.getIdentifier(identifierType);
@@ -191,23 +191,13 @@ public abstract class Store {
     }
 
     /**
-     * Get this Store's {@link gaffer.data.elementdefinition.schema.DataSchema}.
+     * Get this Store's {@link Schema}.
      *
-     * @return the instance of {@link gaffer.data.elementdefinition.schema.DataSchema} used for describing the type of
+     * @return the instance of {@link Schema} used for describing the type of
      * {@link gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    public DataSchema getDataSchema() {
-        return dataSchema;
-    }
-
-    /**
-     * Get this Store's {@link gaffer.store.schema.StoreSchema}
-     *
-     * @return the instance of {@link gaffer.store.schema.StoreSchema} used for describing how to store the
-     * {@link gaffer.data.element.Element}s, e.g the positions and serialisers to use.
-     */
-    public StoreSchema getStoreSchema() {
-        return storeSchema;
+    public Schema getSchema() {
+        return schema;
     }
 
     /**
@@ -219,61 +209,56 @@ public abstract class Store {
         return properties;
     }
 
-    protected void validateSchemas() {
-        boolean valid = validateTwoSetsContainSameElements(getDataSchema().getEdgeGroups(), getStoreSchema().getEdgeGroups(), "edges")
-                && validateTwoSetsContainSameElements(getDataSchema().getEntityGroups(), getStoreSchema().getEntityGroups(), "entities");
-
-        if (!valid) {
-            throw new SchemaException("ERROR: the store schema did not pass validation because the store schema and data schema contain different numbers of elements. Please check the logs for more detailed information");
+    /**
+     * Removes any types in the schema that are not used.
+     */
+    public void optimiseSchemas() {
+        final Set<String> usedTypeNames = new HashSet<>();
+        final Set<SchemaElementDefinition> schemaElements = new HashSet<>();
+        schemaElements.addAll(getSchema().getEdges().values());
+        schemaElements.addAll(getSchema().getEntities().values());
+        for (SchemaElementDefinition elDef : schemaElements) {
+            usedTypeNames.addAll(elDef.getIdentifierTypeNames());
+            usedTypeNames.addAll(elDef.getPropertyTypeNames());
         }
 
-        for (String group : getDataSchema().getEdgeGroups()) {
-            valid &= validateTwoSetsContainSameElements(getDataSchema().getEdge(group).getProperties(), getStoreSchema().getEdge(group).getProperties(), "properties in the edge \"" + group + "\"");
+        if (null != getSchema().getTypes()) {
+            for (String typeName : new HashSet<>(getSchema().getTypes().keySet())) {
+                if (!usedTypeNames.contains(typeName)) {
+                    getSchema().getTypes().remove(typeName);
+                }
+            }
         }
+    }
 
-        for (String group : getDataSchema().getEntityGroups()) {
-            valid &= validateTwoSetsContainSameElements(getDataSchema().getEntity(group).getProperties(), getStoreSchema().getEntity(group).getProperties(), "properties in the entity \"" + group + "\"");
-        }
+    public void validateSchemas() {
+        boolean valid = schema.validate();
 
-        if (!valid) {
-            throw new SchemaException("ERROR: the store schema did not pass validation because at least one of the elements in the store schema and data schema contain different numbers of properties. Please check the logs for more detailed information");
-        }
-        HashMap<String, StoreElementDefinition> storeSchemaElements = new HashMap<>();
-        storeSchemaElements.putAll(getStoreSchema().getEdges());
-        storeSchemaElements.putAll(getStoreSchema().getEntities());
-        for (Map.Entry<String, StoreElementDefinition> storeElementDefinitionEntry : storeSchemaElements.entrySet()) {
-            DataElementDefinition dataElementDefinition = getDataSchema().getElement(storeElementDefinitionEntry.getKey());
-            for (String propertyName : storeElementDefinitionEntry.getValue().getProperties()) {
-                Class propertyClass = dataElementDefinition.getPropertyClass(propertyName);
-                Serialisation serialisation = storeElementDefinitionEntry.getValue().getProperty(propertyName).getSerialiser();
+        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+        schemaElements.putAll(getSchema().getEdges());
+        schemaElements.putAll(getSchema().getEntities());
+        for (Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+            for (String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
+                Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
 
                 if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
-                    LOGGER.error("Store schema serialiser for property '" + propertyName + "' in the group '" + storeElementDefinitionEntry.getKey() + "' cannot handle property found in the data schema");
+                    LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
                 }
             }
         }
         if (!valid) {
-            throw new SchemaException("ERROR: Store schema property serialiser cannot handle a property in the data schema");
+            throw new SchemaException("Schema is not valid. Check the logs for more information.");
         }
-
     }
 
-    protected boolean validateTwoSetsContainSameElements(final Set<String> firstSet, final Set<String> secondSet, final String type) {
-        final Set<String> firstSetCopy = Sets.newHashSet(firstSet);
-        final Set<String> secondSetCopy = Sets.newHashSet(secondSet);
-        firstSetCopy.removeAll(secondSetCopy);
-        secondSetCopy.removeAll(firstSet);
-        boolean valid = true;
-        if (!firstSetCopy.isEmpty()) {
-            valid = false;
-            LOGGER.warn("the data schema contains the following " + type + " which are not in the store schema: {" + StringUtils.join(firstSetCopy, ", ") + " }");
-        }
-        if (!secondSetCopy.isEmpty()) {
-            valid = false;
-            LOGGER.warn("the store schema contains the following " + type + " which are not in the data schema: {" + StringUtils.join(secondSetCopy, ", ") + " }");
-        }
-        return valid;
+    protected ViewValidator getViewValidator() {
+        return viewValidator;
+    }
+
+    protected void setViewValidator(final ViewValidator viewValidator) {
+        this.viewValidator = viewValidator;
     }
 
     /**
@@ -312,7 +297,7 @@ public abstract class Store {
      */
     protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation);
 
-    protected final <OPERATION extends Operation<?, OUTPUT>, OUTPUT> void addOperationHandler(final Class<OPERATION> opClass, final OperationHandler handler) {
+    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         operationHandlers.put(opClass, handler);
     }
 
@@ -321,17 +306,12 @@ public abstract class Store {
     }
 
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
+        final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
-
-        if (!hasTrait(StoreTrait.VALIDATION) && operation instanceof Validate) {
-            result = (OUTPUT) ((Validate) operation).getElements();
+        if (null != handler) {
+            result = handler.doOperation(operation, this);
         } else {
-            final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
-            if (null != handler) {
-                result = handler.doOperation(operation, this);
-            } else {
-                result = doUnhandledOperation(operation);
-            }
+            result = doUnhandledOperation(operation);
         }
 
         return result;
@@ -367,6 +347,12 @@ public abstract class Store {
 
         boolean isParentAValidateOp = false;
         for (Operation<?, ?> op : operationChain.getOperations()) {
+            if (!viewValidator.validate(op.getView(), schema)) {
+                throw new SchemaException("View for operation "
+                        + op.getClass().getName()
+                        + " is not valid. See the logs for more information.");
+            }
+
             if (doesOperationNeedValidating(op, isParentAValidateOp)) {
                 final Validatable<?> validatable = (Validatable) op;
                 final Validate validate = new Validate(validatable.isSkipInvalidElements());

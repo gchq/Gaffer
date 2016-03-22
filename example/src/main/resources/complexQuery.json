@@ -8,7 +8,7 @@
         }
       },
       "options": {
-        "authorisations": "U,PG,_12A,_15,_18"
+        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
       },
       "seeds": [
         {
@@ -23,54 +23,51 @@
       "view": {
         "entities": {
           "review": {
-            "properties": {
-              "rating": "java.lang.Long",
-              "count": "java.lang.Integer",
-              "userId": "java.lang.String",
+            "transientProperties": {
               "starRating": "java.lang.Float"
             },
-            "transformer": {
-              "functions": [
-                {
-                  "function": {
-                    "class": "gaffer.example.function.transform.StarRatingTransform"
-                  },
-                  "selection": [
-                    {
-                      "key": "rating"
-                    },
-                    {
-                      "key": "count"
-                    }
-                  ],
-                  "projection": [
-                    {
-                      "key": "starRating"
-                    }
-                  ]
-                }
-              ]
-            },
-            "filter": {
-              "functions": [
-                {
+            "filterFunctions": [
+              {
+                "function": {
+                  "class": "gaffer.function.simple.filter.Not",
                   "function": {
                     "class": "gaffer.function.simple.filter.IsEqual",
-                    "not": true,
                     "value": "user02"
+                  }
+                },
+                "selection": [
+                  {
+                    "key": "userId"
+                  }
+                ]
+              }
+            ],
+            "transformFunctions": [
+              {
+                "function": {
+                  "class": "gaffer.example.function.transform.StarRatingTransform"
+                },
+                "selection": [
+                  {
+                    "key": "rating"
                   },
-                  "selection": [
-                    {
-                      "key": "userId"
-                    }
-                  ]
-                }
-              ]
-            }
+                  {
+                    "key": "count"
+                  }
+                ],
+                "projection": [
+                  {
+                    "key": "starRating"
+                  }
+                ]
+              }
+            ]
           }
         }
       },
-      "options": {"authorisations": "U,PG,_12A,_15,_18"},
+      "options": {
+        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
+      },
       "summarise": true
     }
   ]

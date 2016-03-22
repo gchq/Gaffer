@@ -16,21 +16,6 @@
 
 package gaffer.graph;
 
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.operation.Operation;
-import gaffer.operation.OperationChain;
-import gaffer.operation.OperationException;
-import gaffer.store.Store;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,46 +25,127 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.operation.Operation;
+import gaffer.operation.OperationChain;
+import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.add.AddElements;
+import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetElements;
+import gaffer.store.Store;
+import gaffer.store.StoreProperties;
+import gaffer.store.StoreTrait;
+import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.TypeDefinition;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
+    @Test
+    public void shouldConstructGraphFromSchemaModules() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties(StoreImpl.class);
+        final Schema schemaModule1 = new Schema.Builder()
+                .type("prop.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .build())
+                .buildModule();
+
+        final Schema schemaModule2 = new Schema.Builder()
+                .type("prop.integer", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .build())
+                .buildModule();
+
+        final Schema schemaModule3 = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .build())
+                .buildModule();
+
+        final Schema schemaModule4 = new Schema.Builder()
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .build())
+                .buildModule();
+
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .storeProperties(storeProperties)
+                .addSchema(schemaModule1)
+                .addSchema(schemaModule2)
+                .addSchema(schemaModule3)
+                .addSchema(schemaModule4)
+                .build();
+
+        // Then
+        final Schema schema = graph.getSchema();
+        schema.getEntity(TestGroups.ENTITY);
+
+    }
+
     @Test
     public void shouldConstructGraphAndCreateViewWithGroups() {
         // Given
         final Store store = mock(Store.class);
-        final DataSchema graphDataSchema = mock(DataSchema.class);
-        given(store.getDataSchema()).willReturn(graphDataSchema);
+        final Schema schema = mock(Schema.class);
+        given(store.getSchema()).willReturn(schema);
         final Set<String> edgeGroups = new HashSet<>();
         edgeGroups.add("edge1");
         edgeGroups.add("edge2");
         edgeGroups.add("edge3");
         edgeGroups.add("edge4");
-        given(graphDataSchema.getEdgeGroups()).willReturn(edgeGroups);
+        given(schema.getEdgeGroups()).willReturn(edgeGroups);
 
         final Set<String> entityGroups = new HashSet<>();
         entityGroups.add("entity1");
         entityGroups.add("entity2");
         entityGroups.add("entity3");
         entityGroups.add("entity4");
-        given(graphDataSchema.getEntityGroups()).willReturn(entityGroups);
+        given(schema.getEntityGroups()).willReturn(entityGroups);
 
         // When
-        final View resultView = new Graph(store).getView();
+        final View resultView = new Graph.Builder()
+                .store(store)
+                .build()
+                .getView();
 
         // Then
-        assertNotSame(graphDataSchema, resultView);
+        assertNotSame(schema, resultView);
         assertArrayEquals(entityGroups.toArray(), resultView.getEntityGroups().toArray());
         assertArrayEquals(edgeGroups.toArray(), resultView.getEdgeGroups().toArray());
 
         for (ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
         for (ViewElementDefinition resultElementDef : resultView.getEdges().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
     }
@@ -89,7 +155,11 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final View view = mock(View.class);
-        final Graph graph = new Graph(store, view);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
+
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
@@ -112,7 +182,11 @@ public class GraphTest {
         final Store store = mock(Store.class);
         final View opView = mock(View.class);
         final View view = mock(View.class);
-        final Graph graph = new Graph(store, view);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
+
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);
@@ -127,5 +201,43 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain);
         verify(operation, Mockito.never()).setView(view);
+    }
+
+    static class StoreImpl extends Store {
+
+        @Override
+        protected Collection<StoreTrait> getTraits() {
+            return new ArrayList<>(0);
+        }
+
+        @Override
+        protected boolean isValidationRequired() {
+            return false;
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+
+        }
+
+        @Override
+        protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation) {
+            return null;
+        }
     }
 }

@@ -20,9 +20,9 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.DataSchema;
+import gaffer.commonutil.CommonConstants;
 import gaffer.store.StoreException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchScanner;
@@ -30,7 +30,6 @@ import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -42,7 +41,6 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
-import org.apache.accumulo.core.iterators.user.AgeOffFilter;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.io.BytesWritable;
@@ -53,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,7 +64,6 @@ import java.util.concurrent.TimeUnit;
  * Static utilities used in the creation and maintenance of accumulo tables.
  */
 public final class TableUtils {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
 
     private TableUtils() {
@@ -76,22 +74,16 @@ public final class TableUtils {
      * receive Gaffer data
      *
      * @param store the accumulo store
-     * @throws AccumuloException if a connection to accumulo could not be created or a failure to create a table
+     * @throws StoreException if a connection to accumulo could not be created or there is a failure to create a table/iterator
      */
-    public static void ensureTableExists(final AccumuloStore store) throws AccumuloException {
+    public static void ensureTableExists(final AccumuloStore store) throws StoreException {
         final Connector conn;
-        try {
-            conn = store.getConnection();
-        } catch (final StoreException e) {
-            throw new AccumuloException(e);
-        }
+        conn = store.getConnection();
         if (!conn.tableOperations().exists(store.getProperties().getTable())) {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
                 // Someone else got there first, never mind...
-            } catch (final IteratorSettingException e) {
-                throw new AccumuloException(e);
             }
         }
     }
@@ -103,19 +95,13 @@ public final class TableUtils {
      * specified time period.
      *
      * @param store the accumulo store
-     * @throws AccumuloException        failure to create accumulo connection
-     * @throws IteratorSettingException failure to add iterator settings
-     * @throws TableExistsException     failure to create table
+     * @throws StoreException       failure to create accumulo connection or  add iterator settings
+     * @throws TableExistsException failure to create table
      */
     public static void createTable(final AccumuloStore store)
-            throws AccumuloException, IteratorSettingException, TableExistsException {
+            throws StoreException, TableExistsException {
         // Create table
-        final Connector connector;
-        try {
-            connector = store.getConnection();
-        } catch (final StoreException e) {
-            throw new AccumuloException(e);
-        }
+        final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
         try {
             connector.tableOperations().create(tableName);
@@ -143,20 +129,19 @@ public final class TableUtils {
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
             LOGGER.info("Combiner iterator to table for all scopes");
 
-            // Add age off iterator to table for all scopes
-            LOGGER.info("Adding age off iterator to table for all scopes");
-            final Long ageOfTimeInMils = 24L * 60L * 60L * 1000L * store.getProperties().getAgeOffTimeInDays();
-            connector.tableOperations().attachIterator(tableName, getAgeOffIteratorSetting(ageOfTimeInMils));
-        } catch (AccumuloSecurityException | TableNotFoundException e) {
-            throw new AccumuloException(e);
+            if (store.getProperties().getEnableValidatorIterator()) {
+                // Add validator iterator to table for all scopes
+                LOGGER.info("Adding validator iterator to table for all scopes");
+                connector.tableOperations().attachIterator(tableName,
+                        store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
+                LOGGER.info("Added validator iterator to table for all scopes");
+            } else {
+                LOGGER.info("Validator iterator has been disabled");
+            }
+        } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
+            throw new StoreException(e.getMessage(), e);
         }
-        LOGGER.info("Added age off iterator to table for all scopes");
-
-        try {
-            addUpdateUtilsTable(store);
-        } catch (final TableUtilException e) {
-            throw new AccumuloException(e);
-        }
+        addUpdateUtilsTable(store);
     }
 
     /**
@@ -166,9 +151,9 @@ public final class TableUtils {
      * @param store the accumulo store
      * @return A new BatchWriter with the settings defined in the
      * gaffer.accumulostore properties
-     * @throws TableUtilException if the table could not be found or other table issues
+     * @throws StoreException if the table could not be found or other table issues
      */
-    public static BatchWriter createBatchWriter(final AccumuloStore store) throws TableUtilException {
+    public static BatchWriter createBatchWriter(final AccumuloStore store) throws StoreException {
         return createBatchWriter(store, store.getProperties().getTable());
     }
 
@@ -180,17 +165,17 @@ public final class TableUtils {
      * @param properties the accumulo properties
      * @return A MapWritable containing all the required information to
      * construct an accumulo gaffer.accumulostore instance
-     * @throws TableUtilException if a table could not be found or other table issues
+     * @throws StoreException if a table could not be found or other table issues
      */
-    public static MapWritable getStoreConstructorInfo(final AccumuloProperties properties) throws TableUtilException {
+    public static MapWritable getStoreConstructorInfo(final AccumuloProperties properties) throws StoreException {
         final Connector connection = getConnector(properties.getInstanceName(), properties.getZookeepers(),
                 properties.getUserName(), properties.getPassword());
         BatchScanner scanner;
         try {
-            scanner = connection.createBatchScanner(Constants.GAFFER_UTILS_TABLE, getCurrentAuthorizations(connection),
+            scanner = connection.createBatchScanner(AccumuloStoreConstants.GAFFER_UTILS_TABLE, getCurrentAuthorizations(connection),
                     properties.getThreadsForBatchScanner());
         } catch (final TableNotFoundException e) {
-            throw new TableUtilException(e);
+            throw new StoreException(e.getMessage(), e);
         }
         scanner.setRanges(Collections.singleton(getTableSetupRange(properties.getTable())));
         final Iterator<Entry<Key, Value>> iter = scanner.iterator();
@@ -210,15 +195,15 @@ public final class TableUtils {
      * @param userName     the user name
      * @param password     the password
      * @return A connection to an accumulo instance
-     * @throws TableUtilException failure to create an accumulo connection
+     * @throws StoreException failure to create an accumulo connection
      */
     public static Connector getConnector(final String instanceName, final String zookeepers, final String userName,
-                                         final String password) throws TableUtilException {
+                                         final String password) throws StoreException {
         final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
         try {
             return instance.getConnector(userName, new PasswordToken(password));
         } catch (AccumuloException | AccumuloSecurityException e) {
-            throw new TableUtilException("Failed to create accumulo connection", e);
+            throw new StoreException("Failed to create accumulo connection", e);
         }
     }
 
@@ -228,48 +213,44 @@ public final class TableUtils {
      *
      * @param connection the connection to an accumulo instance
      * @return The accumulo Authorisations of the current user specified in the properties file
-     * @throws TableUtilException if the table could not be found or other table/security issues
+     * @throws StoreException if the table could not be found or other table/security issues
      */
-    public static Authorizations getCurrentAuthorizations(final Connector connection) throws TableUtilException {
+    public static Authorizations getCurrentAuthorizations(final Connector connection) throws StoreException {
         try {
             return connection.securityOperations().getUserAuthorizations(connection.whoami());
         } catch (AccumuloException | AccumuloSecurityException e) {
-            throw new TableUtilException(e.getMessage(), e);
+            throw new StoreException(e.getMessage(), e);
         }
     }
 
-    private static void ensureUtilsTableExists(final AccumuloStore store) throws TableUtilException {
-        final Connector conn;
-        try {
-            conn = store.getConnection();
-        } catch (final StoreException e) {
-            throw new TableUtilException(e);
-        }
-        if (!conn.tableOperations().exists(Constants.GAFFER_UTILS_TABLE)) {
+    private static void ensureUtilsTableExists(final AccumuloStore store) throws StoreException {
+        final Connector conn = store.getConnection();
+
+        if (!conn.tableOperations().exists(AccumuloStoreConstants.GAFFER_UTILS_TABLE)) {
             try {
-                conn.tableOperations().create(Constants.GAFFER_UTILS_TABLE);
+                conn.tableOperations().create(AccumuloStoreConstants.GAFFER_UTILS_TABLE);
             } catch (final TableExistsException e) {
                 // Someone else got there first, never mind...
             } catch (AccumuloException | AccumuloSecurityException e) {
-                throw new TableUtilException("Failed to create : " + Constants.GAFFER_UTILS_TABLE + " table", e);
+                throw new StoreException("Failed to create : " + AccumuloStoreConstants.GAFFER_UTILS_TABLE + " table", e);
             }
         }
     }
 
-    public static void addUpdateUtilsTable(final AccumuloStore store) throws TableUtilException {
+    public static void addUpdateUtilsTable(final AccumuloStore store) throws StoreException {
         ensureUtilsTableExists(store);
-        final BatchWriter writer = createBatchWriter(store, Constants.GAFFER_UTILS_TABLE);
+        final BatchWriter writer = createBatchWriter(store, AccumuloStoreConstants.GAFFER_UTILS_TABLE);
         final Key key;
         try {
-            key = new Key(store.getProperties().getTable().getBytes(Constants.UTF_8_CHARSET), Constants.EMPTY_BYTES,
-                    Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+            key = new Key(store.getProperties().getTable().getBytes(CommonConstants.UTF_8), AccumuloStoreConstants.EMPTY_BYTES,
+                    AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
         } catch (final UnsupportedEncodingException e) {
-            throw new TableUtilException(e.getMessage(), e);
+            throw new StoreException(e.getMessage(), e);
         }
         final Mutation m = new Mutation(key.getRow());
         m.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()),
                 key.getTimestamp(),
-                getValueFromSchemas(store.getDataSchema(), store.getStoreSchema(), store.getKeyPackage()));
+                getValueFromSchemas(store.getSchema(), store.getKeyPackage()));
         try {
             writer.addMutation(m);
         } catch (final MutationsRejectedException e) {
@@ -286,11 +267,11 @@ public final class TableUtils {
      * @param tableName the table name
      * @return A new BatchWriter with the settings defined in the
      * gaffer.accumulostore properties
-     * @throws TableUtilException if the table could not be found or other table issues
+     * @throws StoreException if the table could not be found or other table issues
      */
 
     private static BatchWriter createBatchWriter(final AccumuloStore store, final String tableName)
-            throws TableUtilException {
+            throws StoreException {
         final BatchWriterConfig batchConfig = new BatchWriterConfig();
         batchConfig.setMaxMemory(store.getProperties().getMaxBufferSizeForBatchWriterInBytes());
         batchConfig.setMaxLatency(store.getProperties().getMaxTimeOutForBatchWriterInMilliseconds(),
@@ -299,29 +280,15 @@ public final class TableUtils {
         try {
             return store.getConnection().createBatchWriter(tableName, batchConfig);
         } catch (final TableNotFoundException e) {
-            throw new TableUtilException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
+            throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
                     + store.getProperties().getTable(), e);
-        } catch (final StoreException e) {
-            throw new TableUtilException(e);
         }
-    }
-
-    /**
-     * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that
-     * specifies the age off iterator.
-     *
-     * @param ageOffTimeInMilliseconds the age off time in milliseconds
-     * @return An iterator setting describing an age off iterator
-     */
-    private static IteratorSetting getAgeOffIteratorSetting(final long ageOffTimeInMilliseconds) {
-        return new IteratorSettingBuilder(Constants.AGE_OFF_ITERATOR_PRIORITY, "ageoff", AgeOffFilter.class)
-                .option("ttl", "" + ageOffTimeInMilliseconds).build();
     }
 
     private static Range getTableSetupRange(final String table) {
         try {
-            return new Range(getTableSetupKey(table.getBytes(Constants.UTF_8_CHARSET), false),
-                    getTableSetupKey(table.getBytes(Constants.UTF_8_CHARSET), true));
+            return new Range(getTableSetupKey(table.getBytes(CommonConstants.UTF_8), false),
+                    getTableSetupKey(table.getBytes(CommonConstants.UTF_8), true));
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -335,29 +302,29 @@ public final class TableUtils {
         } else {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length);
         }
-        return new Key(key, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Constants.EMPTY_BYTES, Long.MAX_VALUE);
+        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
-    private static Value getValueFromSchemas(final DataSchema dataSchema, final StoreSchema storeSchema,
-                                             final AccumuloKeyPackage keyPackage) throws TableUtilException {
+    private static Value getValueFromSchemas(final Schema schema,
+                                             final AccumuloKeyPackage keyPackage) throws StoreException {
         final MapWritable map = new MapWritable();
-        map.put(Constants.DATA_SCHEMA_KEY, new BytesWritable(dataSchema.toJson(false)));
-        map.put(Constants.STORE_SCHEMA_KEY, new BytesWritable(storeSchema.toJson(false)));
+        map.put(AccumuloStoreConstants.SCHEMA_KEY, new BytesWritable(schema.toJson(false)));
         try {
-            map.put(Constants.KEY_PACKAGE_KEY,
-                    new BytesWritable(keyPackage.getClass().getName().getBytes(Constants.UTF_8_CHARSET)));
+            map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
+                    new BytesWritable(keyPackage.getClass().getName().getBytes(CommonConstants.UTF_8)));
         } catch (final UnsupportedEncodingException e) {
-            throw new TableUtilException(e.getMessage(), e);
+            throw new StoreException(e.getMessage(), e);
         }
         return new Value(WritableUtils.toByteArray(map));
     }
 
-    private static MapWritable getSchemasFromValue(final Value value) throws TableUtilException {
+    private static MapWritable getSchemasFromValue(final Value value) throws StoreException {
         final MapWritable map = new MapWritable();
-        try {
-            map.readFields(new DataInputStream(new ByteArrayInputStream(value.get())));
+        try (final InputStream inStream = new ByteArrayInputStream(value.get());
+             final DataInputStream dataStream = new DataInputStream(inStream)) {
+            map.readFields(dataStream);
         } catch (final IOException e) {
-            throw new TableUtilException("Failed to read map writable from value", e);
+            throw new StoreException("Failed to read map writable from value", e);
         }
         return map;
     }

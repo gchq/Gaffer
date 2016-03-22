@@ -25,17 +25,14 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Constants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -52,7 +49,6 @@ import java.util.Set;
 
 public class GetElementsinRangesHandlerTest {
 
-    private static final String AUTHS = "Test";
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
@@ -61,7 +57,7 @@ public class GetElementsinRangesHandlerTest {
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         setupGraph(byteEntityStore, 1000);
         setupGraph(gaffer1KeyStore, 1000);
     }
@@ -75,8 +71,8 @@ public class GetElementsinRangesHandlerTest {
 
     @Test
     public void testNoSummarisation() throws OperationException {
-    	testNoSummarisation(byteEntityStore);
-    	testNoSummarisation(gaffer1KeyStore);
+        testNoSummarisation(byteEntityStore);
+        testNoSummarisation(gaffer1KeyStore);
     }
 
     public void testNoSummarisation(final AccumuloStore store) throws OperationException {
@@ -85,8 +81,8 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         Iterable<Element> elements = handler.doOperation(operation, store);
         int count = 0;
@@ -111,18 +107,17 @@ public class GetElementsinRangesHandlerTest {
 
     @Test
     public void testShouldSummarise() throws OperationException {
-    	testShouldSummarise(byteEntityStore);
-    	testShouldSummarise(gaffer1KeyStore);
+        testShouldSummarise(byteEntityStore);
+        testShouldSummarise(gaffer1KeyStore);
     }
-    
+
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         Iterable<Element> elements = handler.doOperation(operation, store);
@@ -152,19 +147,19 @@ public class GetElementsinRangesHandlerTest {
 
     @Test
     public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
-    	testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
-    	testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+        testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
+        testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
     }
-    
+
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
+
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
@@ -195,18 +190,18 @@ public class GetElementsinRangesHandlerTest {
 
     @Test
     public void testShouldHaveNoIncomingEdges() throws OperationException {
-    	testShouldHaveNoIncomingEdges(byteEntityStore);
-    	testShouldHaveNoIncomingEdges(gaffer1KeyStore);
+        testShouldHaveNoIncomingEdges(byteEntityStore);
+        testShouldHaveNoIncomingEdges(gaffer1KeyStore);
     }
-    
+
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         operation.setSummarise(true);
@@ -222,18 +217,18 @@ public class GetElementsinRangesHandlerTest {
 
     @Test
     public void testShouldReturnNothingWhenNoEdgesSet() throws OperationException {
-    	testShouldReturnNothingWhenNoEdgesSet(byteEntityStore);
-    	testShouldReturnNothingWhenNoEdgesSet(gaffer1KeyStore);
+        testShouldReturnNothingWhenNoEdgesSet(byteEntityStore);
+        testShouldReturnNothingWhenNoEdgesSet(gaffer1KeyStore);
     }
-    
+
     public void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         operation.setSummarise(true);
@@ -276,10 +271,9 @@ public class GetElementsinRangesHandlerTest {
             elements.add(edge2);
             elements.add(edge3);
         }
-        AddElements add = new AddElements(elements);
-        add.addOption(Constants.OPERATION_AUTHORISATIONS, AUTHS);
+
         try {
-            store.execute(new OperationChain<>(add));
+            store.execute(new AddElements(elements));
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

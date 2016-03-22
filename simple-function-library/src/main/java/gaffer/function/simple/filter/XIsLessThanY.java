@@ -28,7 +28,7 @@ public class XIsLessThanY extends FilterFunction {
     }
 
     @Override
-    protected boolean _isValid(final Object[] input) {
+    public boolean isValid(final Object[] input) {
         return !(null == input
                 || input.length != 2
                 || null == input[0]

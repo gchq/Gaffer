@@ -15,10 +15,9 @@
  */
 package gaffer.serialisation.simple;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.Constants;
-
 import java.io.UnsupportedEncodingException;
 
 public class StringSerialiser implements Serialisation {
@@ -34,7 +33,7 @@ public class StringSerialiser implements Serialisation {
     public byte[] serialise(final Object object) throws SerialisationException {
         String value = (String) object;
         try {
-            return value.getBytes(Constants.UTF_8_ENCODING);
+            return value.getBytes(CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -43,7 +42,7 @@ public class StringSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return new String(bytes, Constants.UTF_8_ENCODING);
+            return new String(bytes, CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

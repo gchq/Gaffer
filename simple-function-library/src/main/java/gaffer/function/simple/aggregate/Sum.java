@@ -30,21 +30,6 @@ import gaffer.function.annotation.Outputs;
 @Outputs(Number.class)
 public class Sum extends NumericAggregateFunction {
     @Override
-    protected void initInt() {
-        aggregate = 0;
-    }
-
-    @Override
-    protected void initLong() {
-        aggregate = 0L;
-    }
-
-    @Override
-    protected void initDouble() {
-        aggregate = 0.0d;
-    }
-
-    @Override
     protected void aggregateInt(final Integer input) {
         aggregate = (Integer) aggregate + input;
     }
