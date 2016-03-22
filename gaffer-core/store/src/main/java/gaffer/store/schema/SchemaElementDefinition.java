@@ -26,14 +26,20 @@ import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.ElementDefinition;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * A <code>SchemaElementDefinition</code> is the representation of a single group in a
@@ -42,8 +48,24 @@ import java.util.Map;
  *
  * @see SchemaElementDefinition.Builder
  */
-public abstract class SchemaElementDefinition extends ElementDefinition {
-    private static final long serialVersionUID = -8077961120272676568L;
+public abstract class SchemaElementDefinition implements ElementDefinition {
+    private static final Map<String, Class<?>> CLASSES = new HashMap<>();
+
+    /**
+     * A validator to validate the element definition
+     */
+    private final SchemaElementDefinitionValidator elementDefValidator;
+
+    /**
+     * Property map of property name to accepted type.
+     */
+    private LinkedHashMap<String, String> properties;
+
+    /**
+     * Identifier map of identifier type to accepted type.
+     */
+    private LinkedHashMap<IdentifierType, String> identifiers;
+
     private ElementFilter validator;
 
     /**
@@ -53,14 +75,141 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
      */
     private TypeDefinitions typesLookup;
 
-    /**
-     * Constructs a <code>SchemaElementDefinition</code> with a <code>SchemaElementDefinitionValidator</code> to validate
-     * this <code>SchemaElementDefinition</code>.
-     *
-     * @see SchemaElementDefinitionValidator
-     */
     public SchemaElementDefinition() {
-        super(new SchemaElementDefinitionValidator());
+        this.elementDefValidator = new SchemaElementDefinitionValidator();
+        properties = new LinkedHashMap<>();
+        identifiers = new LinkedHashMap<>();
+    }
+
+    /**
+     * Uses the element definition validator to validate the element definition.
+     *
+     * @return true if the element definition is valid, otherwise false.
+     */
+    public boolean validate() {
+        return elementDefValidator.validate(this);
+    }
+
+    @Override
+    public void merge(final ElementDefinition elementDef) {
+        if (elementDef instanceof SchemaElementDefinition) {
+            merge(((SchemaElementDefinition) elementDef));
+        } else {
+            throw new IllegalArgumentException("Cannot merge a schema element definition with a " + elementDef.getClass());
+        }
+    }
+
+    public void merge(final SchemaElementDefinition elementDef) {
+        for (Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+            final String newProp = entry.getKey();
+            final String newPropTypeName = entry.getValue();
+            if (!properties.containsKey(newProp)) {
+                properties.put(newProp, newPropTypeName);
+            } else {
+                final String typeName = properties.get(newProp);
+                if (!typeName.equals(newPropTypeName)) {
+                    throw new SchemaException("Unable to merge schemas. Conflict of types with property " + newProp
+                            + ". Type names are: " + typeName + " and " + newPropTypeName);
+                }
+            }
+        }
+
+        for (Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+            final IdentifierType newId = entry.getKey();
+            final String newIdTypeName = entry.getValue();
+            if (!identifiers.containsKey(newId)) {
+                identifiers.put(newId, newIdTypeName);
+            } else {
+                final String typeName = identifiers.get(newId);
+                if (!typeName.equals(newIdTypeName)) {
+                    throw new SchemaException("Unable to merge schemas. Conflict of types with identifier " + newId
+                            + ". Type names are: " + typeName + " and " + newIdTypeName);
+                }
+            }
+        }
+
+        if (null == validator) {
+            validator = elementDef.validator;
+        } else if (null != elementDef.getOriginalValidateFunctions()) {
+            validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
+        }
+    }
+
+    public Set<String> getProperties() {
+        return properties.keySet();
+    }
+
+    public boolean containsProperty(final String propertyName) {
+        return properties.containsKey(propertyName);
+    }
+
+
+    @JsonGetter("properties")
+    public Map<String, String> getPropertyMap() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    @JsonSetter("properties")
+    protected void setPropertyMap(final LinkedHashMap<String, String> properties) {
+        this.properties = properties;
+    }
+
+    @JsonIgnore
+    public Collection<IdentifierType> getIdentifiers() {
+        return identifiers.keySet();
+    }
+
+    @JsonIgnore
+    public Map<IdentifierType, String> getIdentifierMap() {
+        return identifiers;
+    }
+
+    public boolean containsIdentifier(final IdentifierType identifierType) {
+        return identifiers.containsKey(identifierType);
+    }
+
+    public String getPropertyTypeName(final String propertyName) {
+        return properties.get(propertyName);
+    }
+
+    public String getIdentifierTypeName(final IdentifierType idType) {
+        return identifiers.get(idType);
+    }
+
+    @JsonIgnore
+    public Collection<String> getPropertyTypeNames() {
+        return properties.values();
+    }
+
+    @JsonIgnore
+    public Collection<String> getIdentifierTypeNames() {
+        return identifiers.values();
+    }
+
+    public Class<?> getClass(final ElementComponentKey key) {
+        if (key.isId()) {
+            return getIdentifierClass(key.getIdentifierType());
+        }
+
+        return getPropertyClass(key.getPropertyName());
+    }
+
+    public Class<?> getClass(final String className) {
+        if (null == className) {
+            return null;
+        }
+
+        Class<?> clazz = CLASSES.get(className);
+        if (null == clazz) {
+            try {
+                clazz = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Class could not be found: " + className, e);
+            }
+            CLASSES.put(className, clazz);
+        }
+
+        return clazz;
     }
 
     /**
@@ -155,16 +304,6 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
         };
     }
 
-    @JsonIgnore
-    public Iterable<TypeDefinition> getIdentifierTypeDefs() {
-        return new TransformIterable<String, TypeDefinition>(getIdentifierMap().values()) {
-            @Override
-            protected TypeDefinition transform(final String typeName) {
-                return getTypeDef(typeName);
-            }
-        };
-    }
-
     public TypeDefinition getPropertyTypeDef(final String property) {
         if (containsProperty(property)) {
             return getTypeDef(getPropertyMap().get(property));
@@ -173,42 +312,14 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
         return null;
     }
 
-    public TypeDefinition getIdentifierTypeDef(final IdentifierType idType) {
-        if (containsIdentifier(idType)) {
-            return getTypeDef(getIdentifierMap().get(idType));
-        }
-
-        return null;
-    }
-
-    @Override
     public Class<?> getPropertyClass(final String propertyName) {
-        final String typeName = super.getPropertyTypeName(propertyName);
+        final String typeName = getPropertyTypeName(propertyName);
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
-    @Override
     public Class<?> getIdentifierClass(final IdentifierType idType) {
-        final String typeName = super.getIdentifierTypeName(idType);
+        final String typeName = getIdentifierTypeName(idType);
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
-    }
-
-    @Override
-    public void merge(final ElementDefinition elementDef) {
-        if (elementDef instanceof SchemaElementDefinition) {
-            merge(((SchemaElementDefinition) elementDef));
-        } else {
-            super.merge(elementDef);
-        }
-    }
-
-    public void merge(final SchemaElementDefinition elementDef) {
-        super.merge(elementDef);
-        if (null == validator) {
-            validator = elementDef.validator;
-        } else if (null != elementDef.getOriginalValidateFunctions()) {
-            validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
-        }
     }
 
     @JsonIgnore
@@ -252,13 +363,25 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
         return getTypesLookup().getType(typeName);
     }
 
-    protected static class Builder extends ElementDefinition.Builder {
+    protected static class Builder {
+        private final SchemaElementDefinition elDef;
+
         protected Builder(final SchemaElementDefinition elDef) {
-            super(elDef);
+            this.elDef = elDef;
+        }
+
+        protected Builder property(final String propertyName, final String typeName) {
+            elDef.properties.put(propertyName, typeName);
+            return this;
+        }
+
+        protected Builder identifier(final IdentifierType identifierType, final String typeName) {
+            elDef.identifiers.put(identifierType, typeName);
+            return this;
         }
 
         protected Builder validator(final ElementFilter validator) {
-            getElementDef().setValidator(validator);
+            elDef.setValidator(validator);
             return this;
         }
 
@@ -268,7 +391,7 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
 
         protected Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
             type(typeName, type);
-            return (Builder) property(propertyName, typeName);
+            return property(propertyName, typeName);
         }
 
         protected Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
@@ -288,11 +411,11 @@ public abstract class SchemaElementDefinition extends ElementDefinition {
         }
 
         protected SchemaElementDefinition build() {
-            return (SchemaElementDefinition) super.build();
+            return elDef;
         }
 
         protected SchemaElementDefinition getElementDef() {
-            return (SchemaElementDefinition) super.getElementDef();
+            return elDef;
         }
     }
 }

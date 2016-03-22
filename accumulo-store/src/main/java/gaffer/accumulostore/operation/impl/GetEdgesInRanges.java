@@ -27,26 +27,24 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.operation.data.ElementSeed}s.
  *
  */
-public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends GetElementsInRanges<SEED_TYPE, Edge> {
+public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> extends GetElementsInRanges<SEED_TYPE, Edge> {
 
-    public GetEdgesInRanges(final Iterable<Pair<SEED_TYPE>> seeds) {
+    public GetEdgesInRanges() { }
+
+    public GetEdgesInRanges(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
-        super.setIncludeEdges(IncludeEdgeType.ALL);
     }
 
     public GetEdgesInRanges(final View view) {
         super(view);
-        super.setIncludeEdges(IncludeEdgeType.ALL);
     }
 
-    public GetEdgesInRanges(final View view, final Iterable<Pair<SEED_TYPE>> seeds) {
+    public GetEdgesInRanges(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
-        super.setIncludeEdges(IncludeEdgeType.ALL);
     }
 
-    public GetEdgesInRanges(final GetOperation<Pair<SEED_TYPE>, Edge> operation) {
+    public GetEdgesInRanges(final GetOperation<SEED_TYPE, Edge> operation) {
         super(operation);
-        super.setIncludeEdges(IncludeEdgeType.ALL);
     }
 
     @Override
@@ -70,7 +68,7 @@ public class GetEdgesInRanges<SEED_TYPE extends ElementSeed> extends GetElements
         super.setIncludeEdges(includeEdges);
     }
 
-    public static class Builder<OP_TYPE extends GetEdgesInRanges<SEED_TYPE>, SEED_TYPE extends ElementSeed>
+    public static class Builder<OP_TYPE extends GetEdgesInRanges<SEED_TYPE>, SEED_TYPE extends Pair<? extends ElementSeed>>
             extends GetElementsInRanges.Builder<OP_TYPE, SEED_TYPE, Edge> {
 
         protected Builder(final OP_TYPE op) {

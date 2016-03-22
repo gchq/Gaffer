@@ -50,7 +50,13 @@ public class GraphFactory {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
         }
 
-        return new Graph(storePropertiesPath, getSchemaPaths());
+        final Graph.Builder builder = new Graph.Builder();
+        builder.storeProperties(storePropertiesPath);
+        for (Path path : getSchemaPaths()) {
+            builder.addSchema(path);
+        }
+
+        return builder.build();
     }
 
     private static void setGraph(final Graph graph) {

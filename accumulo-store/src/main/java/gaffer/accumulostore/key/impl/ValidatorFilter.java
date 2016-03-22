@@ -17,6 +17,7 @@
 package gaffer.accumulostore.key.impl;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.ElementValidator;
 import gaffer.store.schema.Schema;
@@ -47,7 +48,7 @@ public class ValidatorFilter extends ElementFilter {
         }
 
         try {
-            return new ElementValidator(Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)), false);
+            return new ElementValidator(Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)), false);
         } catch (UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON", e);
         }

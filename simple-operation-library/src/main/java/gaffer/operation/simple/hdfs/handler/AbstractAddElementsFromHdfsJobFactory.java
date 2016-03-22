@@ -15,6 +15,7 @@
  */
 package gaffer.operation.simple.hdfs.handler;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
@@ -54,7 +55,7 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     }
 
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
-        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         Integer numTasks = operation.getNumMapTasks();
