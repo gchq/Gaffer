@@ -229,7 +229,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected void validateSchemas() {
+    public void validateSchemas() {
         super.validateSchemas();
         final Map<String, String> positions = this.getSchema().getPositions();
         if (positions != null && !positions.isEmpty()) {

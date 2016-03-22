@@ -75,7 +75,6 @@ public final class AccumuloStoreConstants {
     public static final Text KEY_PACKAGE_KEY = new Text("keyPackage");
 
     // General use constants
-    public static final String UTF_8_CHARSET = "UTF-8";
     public static final byte[] EMPTY_BYTES = new byte[0];
 
     private AccumuloStoreConstants() {

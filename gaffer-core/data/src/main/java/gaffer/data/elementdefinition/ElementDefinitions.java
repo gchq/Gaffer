@@ -23,11 +23,8 @@ import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -47,11 +44,8 @@ import java.util.Set;
  * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
  * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges
  */
-public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> implements Serializable {
+public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
-    private static final long serialVersionUID = -6997056863871610386L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
 
     /**
      * Map of edge type to edge definition.
@@ -115,46 +109,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return elementDefs;
     }
 
-
-    /**
-     * Validates the schema to ensure all element definitions are valid.
-     * Throws a SchemaException if it is not valid.
-     *
-     * @return true if valid, otherwise false.
-     * @throws SchemaException if validation fails then a SchemaException is thrown.
-     */
-    public boolean validate() throws SchemaException {
-        for (String edgeGroup : edges.keySet()) {
-            if (entities.containsKey(edgeGroup)) {
-                LOGGER.warn("Groups must not be shared between Entity definitions and Edge definitions."
-                        + "Found edgeGroup '" + edgeGroup + "' in the collection of entities");
-                return false;
-            }
-        }
-
-        for (Map.Entry<String, EDGE_DEF> elementDefEntry : edges.entrySet()) {
-            if (null == elementDefEntry.getValue()) {
-                throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
-            }
-
-            if (!elementDefEntry.getValue().validate()) {
-                LOGGER.warn("VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
-                return false;
-            }
-        }
-
-        for (Map.Entry<String, ENTITY_DEF> elementDefEntry : entities.entrySet()) {
-            if (null == elementDefEntry.getValue()) {
-                throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
-            }
-
-            if (!elementDefEntry.getValue().validate()) {
-                LOGGER.warn("VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
-                return false;
-            }
-        }
-        return true;
-    }
 
     public byte[] toJson(final boolean prettyPrint) throws SchemaException {
         try {
@@ -290,10 +244,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return the build {@link gaffer.data.elementdefinition.ElementDefinitions}.
          */
         protected ElementDefinitions<ENTITY_DEF, EDGE_DEF> build() {
-            if (!elementDefs.validate()) {
-                throw new SchemaException("The " + elementDefs.getClass().getSimpleName() + " is not valid. Check the logs for more information.");
-            }
-
             return elementDefs;
         }
 

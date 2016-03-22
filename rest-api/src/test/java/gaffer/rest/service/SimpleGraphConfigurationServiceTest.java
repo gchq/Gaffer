@@ -39,7 +39,7 @@ public class SimpleGraphConfigurationServiceTest {
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
-        final Graph graph = new Graph(store);
+        final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
 
         service = new SimpleGraphConfigurationService(graphFactory);

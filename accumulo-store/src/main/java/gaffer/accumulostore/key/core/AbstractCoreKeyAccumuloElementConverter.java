@@ -22,14 +22,15 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.StorePositions;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -194,7 +195,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] buildColumnFamily(final String group) throws AccumuloElementConversionException {
         try {
-            return group.getBytes(AccumuloStoreConstants.UTF_8_CHARSET);
+            return group.getBytes(CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
@@ -203,7 +204,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public String getGroupFromColumnFamily(final byte[] columnFamily) throws AccumuloElementConversionException {
         try {
-            return new String(columnFamily, AccumuloStoreConstants.UTF_8_CHARSET);
+            return new String(columnFamily, CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
@@ -280,7 +281,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                         bytes.add(DELIMITER_ARRAY);
                     }
                     try {
-                        byteHolder = ByteArrayEscapeUtils.escape(propertyName.getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                        byteHolder = ByteArrayEscapeUtils.escape(propertyName.getBytes(CommonConstants.UTF_8));
                     } catch (final UnsupportedEncodingException e) {
                         throw new AccumuloElementConversionException(
                                 "Failed to serialise Value for property " + propertyName, e);
@@ -291,7 +292,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     final Serialisation serialiser = property.getSerialiser();
                     if (serialiser == null) {
                         try {
-                            bytes.add(value.toString().getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                            bytes.add(value.toString().getBytes(CommonConstants.UTF_8));
                         } catch (final UnsupportedEncodingException e) {
                             throw new AccumuloElementConversionException(
                                     "Failed to serialise Value for property " + propertyName, e);
@@ -340,7 +341,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             Integer last = delimiters.next();
             try {
                 propertyName = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, 0, last)),
-                        AccumuloStoreConstants.UTF_8_CHARSET);
+                        CommonConstants.UTF_8);
             } catch (final UnsupportedEncodingException e) {
                 throw new AccumuloElementConversionException("Failed to get properties from column qualifier", e);
             }
@@ -363,7 +364,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     propertyName = new String(
                             ByteArrayEscapeUtils
                                     .unEscape(Arrays.copyOfRange(keyPortion, last + 1, last = delimiters.next())),
-                            AccumuloStoreConstants.UTF_8_CHARSET);
+                            CommonConstants.UTF_8);
                 } catch (final UnsupportedEncodingException e) {
                     throw new AccumuloElementConversionException(e.getMessage(), e);
                 }
@@ -457,7 +458,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
         String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
@@ -489,7 +490,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected String getGroupFromKey(final Key key) throws AccumuloElementConversionException {
         try {
-            return new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
+            return new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new AccumuloElementConversionException("Failed to get element group from key", e);
         }

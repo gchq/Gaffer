@@ -23,8 +23,7 @@ import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -46,8 +45,8 @@ import gaffer.rest.example.ExampleDomainObject;
 import gaffer.rest.example.ExampleDomainObjectGenerator;
 import gaffer.rest.example.ExampleFilterFunction;
 import gaffer.rest.example.ExampleTransformFunction;
-import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaElementDefinition;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -254,9 +253,9 @@ public class SimpleExamplesService implements IExamplesService {
         populateOperation((Operation) operation);
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
-            viewBuilder.entity(getAnEntityGroup(), new ViewEntityDefinition.Builder()
-                    .property(getAnEntityPropertyName(), String.class)
-                    .property("transformedProperties", String.class)
+            viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
+                    .transientProperty(getAnEntityPropertyName(), String.class)
+                    .transientProperty("transformedProperties", String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEntityPropertyName())
                             .execute(new ExampleFilterFunction())
@@ -270,9 +269,9 @@ public class SimpleExamplesService implements IExamplesService {
         }
 
         if (hasEdges()) {
-            viewBuilder.edge(getAnEdgeGroup(), new ViewEdgeDefinition.Builder()
-                    .property(getAnEdgePropertyName(), String.class)
-                    .property("transformedProperties", String.class)
+            viewBuilder.edge(getAnEdgeGroup(), new ViewElementDefinition.Builder()
+                    .transientProperty(getAnEdgePropertyName(), String.class)
+                    .transientProperty("transformedProperties", String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEdgePropertyName())
                             .execute(new ExampleFilterFunction())

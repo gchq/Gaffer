@@ -21,10 +21,11 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.store.schema.Schema;
 import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Combiner;
@@ -56,7 +57,7 @@ public class AggregatorIterator extends Combiner {
         }
         final String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
@@ -108,7 +109,7 @@ public class AggregatorIterator extends Combiner {
         }
 
         try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema from json", e);
         }

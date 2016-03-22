@@ -19,6 +19,7 @@ package gaffer.store;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -42,9 +43,9 @@ import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
-import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.Schema;
-import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.ViewValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
@@ -78,9 +79,12 @@ public abstract class Store {
 
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
+    private ViewValidator viewValidator;
+
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        viewValidator = new ViewValidator();
         addOpHandlers();
         optimiseSchemas();
         validateSchemas();
@@ -208,7 +212,7 @@ public abstract class Store {
     /**
      * Removes any types in the schema that are not used.
      */
-    protected void optimiseSchemas() {
+    public void optimiseSchemas() {
         final Set<String> usedTypeNames = new HashSet<>();
         final Set<SchemaElementDefinition> schemaElements = new HashSet<>();
         schemaElements.addAll(getSchema().getEdges().values());
@@ -227,7 +231,7 @@ public abstract class Store {
         }
     }
 
-    protected void validateSchemas() {
+    public void validateSchemas() {
         boolean valid = schema.validate();
 
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
@@ -247,6 +251,14 @@ public abstract class Store {
         if (!valid) {
             throw new SchemaException("Schema is not valid. Check the logs for more information.");
         }
+    }
+
+    protected ViewValidator getViewValidator() {
+        return viewValidator;
+    }
+
+    protected void setViewValidator(final ViewValidator viewValidator) {
+        this.viewValidator = viewValidator;
     }
 
     /**
@@ -335,6 +347,12 @@ public abstract class Store {
 
         boolean isParentAValidateOp = false;
         for (Operation<?, ?> op : operationChain.getOperations()) {
+            if (!viewValidator.validate(op.getView(), schema)) {
+                throw new SchemaException("View for operation "
+                        + op.getClass().getName()
+                        + " is not valid. See the logs for more information.");
+            }
+
             if (doesOperationNeedValidating(op, isParentAValidateOp)) {
                 final Validatable<?> validatable = (Validatable) op;
                 final Validate validate = new Validate(validatable.isSkipInvalidElements());

@@ -21,11 +21,12 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.ElementValidator;
 import gaffer.store.schema.Schema;
-import gaffer.data.elementdefinition.exception.SchemaException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -79,7 +80,7 @@ public class ElementFilter extends Filter {
 
         final Schema schema;
         try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema from JSON", e);
         }
@@ -110,7 +111,7 @@ public class ElementFilter extends Filter {
         }
 
         try {
-            return new ElementValidator(View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
+            return new ElementValidator(View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8)));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise view from JSON", e);
         }

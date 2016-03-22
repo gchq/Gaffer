@@ -16,20 +16,17 @@
 
 package gaffer.data.elementdefinition.view;
 
-import gaffer.commonutil.TestPropertyNames;
-import gaffer.data.element.IdentifierType;
-import gaffer.data.element.function.ElementFilter;
-import gaffer.data.element.function.ElementTransformer;
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class ViewEdgeDefinitionTest {
+import gaffer.commonutil.TestPropertyNames;
+import gaffer.data.element.function.ElementFilter;
+import gaffer.data.element.function.ElementTransformer;
+import org.junit.Test;
+
+public class ViewElementDefinitionTest {
     @Test
     public void shouldBuildElementDefinition() {
         // Given
@@ -37,23 +34,17 @@ public class ViewEdgeDefinitionTest {
         final ElementFilter filter = mock(ElementFilter.class);
 
         // When
-        final ViewEdgeDefinition elementDef = new ViewEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, String.class)
-                .source(String.class)
-                .property(TestPropertyNames.PROP_2, String.class)
-                .destination(Date.class)
+        final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
+                .transientProperty(TestPropertyNames.PROP_1, String.class)
+                .transientProperty(TestPropertyNames.PROP_2, String.class)
                 .transformer(transformer)
                 .filter(filter)
                 .build();
 
         // Then
-        assertEquals(2, elementDef.getProperties().size());
-        assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_1));
-        assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_2));
-
-        assertEquals(2, elementDef.getIdentifiers().size());
-        assertEquals(String.class, elementDef.getIdentifierClass(IdentifierType.SOURCE));
-        assertEquals(Date.class, elementDef.getIdentifierClass(IdentifierType.DESTINATION));
+        assertEquals(2, elementDef.getTransientProperties().size());
+        assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_1));
+        assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_2));
 
         assertSame(filter, elementDef.getFilter());
         assertSame(transformer, elementDef.getTransformer());

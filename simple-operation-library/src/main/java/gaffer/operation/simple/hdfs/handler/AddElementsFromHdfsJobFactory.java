@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.constants;
+package gaffer.operation.simple.hdfs.handler;
 
-/**
- * Serialisation constants.
- */
-public final class SimpleSerialisationConstants {
-    public static final String ISO_8859_1_ENCODING = "ISO-8859-1";
+import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.store.Store;
+import org.apache.hadoop.mapreduce.Job;
+import java.io.IOException;
 
-    private SimpleSerialisationConstants() {
-        // private constructor to prevent users instantiating this class as it only contains constants.
-    }
+public interface AddElementsFromHdfsJobFactory {
+    String SCHEMA = "schema";
+    String MAPPER_GENERATOR = "mapperGenerator";
+    String VALIDATE = "validate";
+
+    Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException;
 }

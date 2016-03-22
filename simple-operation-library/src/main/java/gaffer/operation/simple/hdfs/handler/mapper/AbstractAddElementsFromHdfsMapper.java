@@ -15,14 +15,14 @@
  */
 package gaffer.operation.simple.hdfs.handler.mapper;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
-import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
+import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
 import gaffer.store.ElementValidator;
 import gaffer.store.schema.Schema;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -47,17 +47,17 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     private ElementValidator elementValidator;
 
     protected void setup(final Context context) {
-        doValidation = Boolean.parseBoolean(context.getConfiguration().get(AbstractAddElementsFromHdfsJobFactory.VALIDATE));
+        doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
 
         final Schema schema;
         try {
-            schema = Schema.fromJson(context.getConfiguration().get(AbstractAddElementsFromHdfsJobFactory.SCHEMA).getBytes(AbstractAddElementsFromHdfsJobFactory.UTF_8_CHARSET));
+            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         elementValidator = new ElementValidator(schema);
 
-        final String generatorClass = context.getConfiguration().get(AbstractAddElementsFromHdfsJobFactory.MAPPER_GENERATOR);
+        final String generatorClass = context.getConfiguration().get(AddElementsFromHdfsJobFactory.MAPPER_GENERATOR);
         try {
             mapperGenerator = Class.forName(generatorClass).asSubclass(MapperGenerator.class).newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
