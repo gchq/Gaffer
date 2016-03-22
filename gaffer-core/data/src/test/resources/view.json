@@ -1,19 +1,10 @@
 {
   "entities": {
-    "entityGroup": {
-      "vertex": "java.lang.String",
-      "properties": {
-        "testProperty2": "java.lang.String"
-      }
-    }
+    "entityGroup": {}
   },
   "edges": {
     "BasicEdge": {
-      "source": "java.lang.String",
-      "destination": "java.lang.String",
-      "directed": "java.lang.String",
-      "properties": {
-        "property1": "java.lang.String",
+      "transientProperties": {
         "concatProperty": "java.lang.String"
       },
       "transformFunctions": [

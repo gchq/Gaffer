@@ -18,6 +18,7 @@ package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
@@ -107,7 +108,7 @@ public class IteratorSettingBuilder {
 
     public IteratorSettingBuilder schema(final Schema schema) {
         try {
-            setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
+            setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toJson(false), CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON", e);
         }
@@ -116,7 +117,7 @@ public class IteratorSettingBuilder {
 
     public IteratorSettingBuilder view(final View view) {
         try {
-            setting.addOption(AccumuloStoreConstants.VIEW, new String(view.toJson(false), AccumuloStoreConstants.UTF_8_CHARSET));
+            setting.addOption(AccumuloStoreConstants.VIEW, new String(view.toJson(false), CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise view from JSON", e);
         }

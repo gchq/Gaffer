@@ -33,8 +33,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsLessThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
@@ -65,8 +64,7 @@ public class ArrayListStoreTest {
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .view(new View.Builder()
-                                .edge(TestGroups.EDGE, new ViewEdgeDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -123,8 +121,7 @@ public class ArrayListStoreTest {
                 .first(new GetRelatedEntities.Builder()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
-                                .entity(TestGroups.ENTITY, new ViewEntityDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -171,8 +168,7 @@ public class ArrayListStoreTest {
                 .first(new GetEntitiesBySeed.Builder()
                         .addSeed(new EntitySeed(1))
                         .view(new View.Builder()
-                                .entity(TestGroups.ENTITY, new ViewEntityDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -215,8 +211,7 @@ public class ArrayListStoreTest {
                 .first(new GetEdgesBySeed.Builder()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
-                                .edge(TestGroups.EDGE, new ViewEdgeDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -267,8 +262,7 @@ public class ArrayListStoreTest {
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
-                                .entity(TestGroups.ENTITY, new ViewEntityDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())

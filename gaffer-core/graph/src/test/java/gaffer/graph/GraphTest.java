@@ -140,14 +140,12 @@ public class GraphTest {
 
         for (ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
         for (ViewElementDefinition resultElementDef : resultView.getEdges().values()) {
             assertNotNull(resultElementDef);
-            assertEquals(0, resultElementDef.getProperties().size());
-            assertEquals(0, resultElementDef.getIdentifiers().size());
+            assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
     }
@@ -161,6 +159,7 @@ public class GraphTest {
                 .store(store)
                 .view(view)
                 .build();
+
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
@@ -187,6 +186,7 @@ public class GraphTest {
                 .store(store)
                 .view(view)
                 .build();
+
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);

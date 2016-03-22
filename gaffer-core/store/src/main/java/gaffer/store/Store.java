@@ -45,6 +45,7 @@ import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.ViewValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
@@ -78,9 +79,12 @@ public abstract class Store {
 
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
+    private ViewValidator viewValidator;
+
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        viewValidator = new ViewValidator();
         addOpHandlers();
         optimiseSchemas();
         validateSchemas();
@@ -249,6 +253,14 @@ public abstract class Store {
         }
     }
 
+    protected ViewValidator getViewValidator() {
+        return viewValidator;
+    }
+
+    protected void setViewValidator(final ViewValidator viewValidator) {
+        this.viewValidator = viewValidator;
+    }
+
     /**
      * Any additional operations that a store can handle should be registered in this method by calling addOperationHandler(...)
      */
@@ -335,6 +347,12 @@ public abstract class Store {
 
         boolean isParentAValidateOp = false;
         for (Operation<?, ?> op : operationChain.getOperations()) {
+            if (!viewValidator.validate(op.getView(), schema)) {
+                throw new SchemaException("View for operation "
+                        + op.getClass().getName()
+                        + " is not valid. See the logs for more information.");
+            }
+
             if (doesOperationNeedValidating(op, isParentAValidateOp)) {
                 final Validatable<?> validatable = (Validatable) op;
                 final Validate validate = new Validate(validatable.isSkipInvalidElements());

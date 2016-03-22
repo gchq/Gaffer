@@ -18,6 +18,7 @@ package gaffer.accumulostore;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.CommonConstants;
 import gaffer.graph.Graph;
 import gaffer.store.StoreException;
 import org.apache.hadoop.io.BytesWritable;
@@ -54,7 +55,7 @@ public final class AccumuloStoreBackedGraphFactory {
         final String keyPackageClass;
         try {
             keyPackageClass = new String(((BytesWritable) map.get(AccumuloStoreConstants.KEY_PACKAGE_KEY)).getBytes(),
-                    AccumuloStoreConstants.UTF_8_CHARSET);
+                    CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
         }

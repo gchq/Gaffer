@@ -22,7 +22,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.example.data.Certificate;
 import gaffer.example.data.SampleData;
 import gaffer.example.data.schema.Group;
@@ -124,11 +124,8 @@ public class ComplexQuery {
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
-                                .entity(Group.REVIEW, new ViewEntityDefinition.Builder()
-                                        .property(Property.RATING, Long.class)
-                                        .property(Property.COUNT, Integer.class)
-                                        .property(Property.USER_ID, String.class)
-                                        .property(TransientProperty.FIVE_STAR_RATING, Float.class)
+                                .entity(Group.REVIEW, new ViewElementDefinition.Builder()
+                                        .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)
                                         .filter(new ElementFilter.Builder()
                                                 .select(Property.USER_ID)
                                                 .execute(new Not(new IsEqual("user02")))

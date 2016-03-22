@@ -50,7 +50,6 @@ import java.util.List;
  * @see gaffer.graph.Graph.Builder
  */
 public final class Graph {
-
     /**
      * The instance of the store.
      */
@@ -278,7 +277,10 @@ public final class Graph {
 
         private void updateView() {
             if (null == view) {
-                view = new View(store.getSchema().getEntityGroups(), store.getSchema().getEdgeGroups());
+                this.view = new View.Builder()
+                        .entities(store.getSchema().getEntityGroups())
+                        .edges(store.getSchema().getEdgeGroups())
+                        .build();
             }
         }
     }
