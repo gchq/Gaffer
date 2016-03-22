@@ -83,6 +83,7 @@ public final class TableUtils {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
+                // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
                 // Someone else got there first, never mind...
             }
         }
@@ -98,11 +99,14 @@ public final class TableUtils {
      * @throws StoreException       failure to create accumulo connection or  add iterator settings
      * @throws TableExistsException failure to create table
      */
-    public static void createTable(final AccumuloStore store)
+    public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
         // Create table
         final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
+        if(connector.tableOperations().exists(tableName)) {
+            return;
+        }
         try {
             connector.tableOperations().create(tableName);
             final String repFactor = store.getProperties().getTableFileReplicationFactor();
