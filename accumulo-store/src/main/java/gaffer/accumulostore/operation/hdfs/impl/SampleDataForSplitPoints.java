@@ -13,29 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.simple.hdfs;
+package gaffer.accumulostore.operation.hdfs.impl;
 
 import gaffer.operation.VoidInput;
-import gaffer.operation.VoidOutput;
+import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
+import org.apache.hadoop.fs.Path;
 
 
 /**
- * An <code>AddElementsFromHdfs</code> operation is for adding {@link gaffer.data.element.Element}s from HDFS.
- * This operation requires an input, output and failure path.
+ * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link gaffer.accumulostore.operation.hdfs.impl.SplitTable} operation or an
+ * {@link gaffer.operation.simple.hdfs.AddElementsFromHdfs} operation.
+ *
+ * This operation requires an input, output and failure path as well as a path to a file to use as the resulitngSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
- * {@link gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator} class name and a
+ * {@link MapperGenerator} class name and a
  * {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser}.
  * <p>
  * For normal operation handlers the operation {@link gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
- * @see gaffer.operation.simple.hdfs.AddElementsFromHdfs.Builder
+ * @see SampleDataForSplitPoints.Builder
  */
-public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
+public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> implements VoidInput<Path> {
 
+    private Path resultingSplitsFilePath;
     private boolean validate = true;
+    private float proportionToSample;
+
+    public SampleDataForSplitPoints() {
+
+    }
 
     /**
      * Used to generate elements from the Hdfs files.
@@ -43,7 +52,6 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
      * For Text data see {@link gaffer.operation.simple.hdfs.handler.mapper.TextMapperGenerator}.
      */
     private String mapperGeneratorClassName;
-
 
     public boolean isValidate() {
         return validate;
@@ -65,9 +73,30 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    public static class Builder extends MapReduceOperation.Builder<AddElementsFromHdfs, Void, Void> {
+    public Path getResultingSplitsFilePath() {
+        return resultingSplitsFilePath;
+    }
+
+    public void setResultingSplitsFilePath(final Path resultingSplitsFilePath) {
+        this.resultingSplitsFilePath = resultingSplitsFilePath;
+    }
+
+    public float getProportionToSample() {
+        return proportionToSample;
+    }
+
+    public void setProportionToSample(final float proportionToSample) {
+        this.proportionToSample = proportionToSample;
+    }
+
+    public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, Path> {
         public Builder() {
-            super(new AddElementsFromHdfs());
+            super(new SampleDataForSplitPoints());
+        }
+
+        public Builder resultingSplitsFilePath(final Path resultingSplitsFilePath) {
+            op.setResultingSplitsFilePath(resultingSplitsFilePath);
+            return this;
         }
 
         public Builder validate(final boolean validate) {
@@ -77,6 +106,11 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
 
         public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             op.setMapperGeneratorClassName(mapperGeneratorClass);
+            return this;
+        }
+
+        public Builder proportionToSample(final float proportionToSample) {
+            op.setProportionToSample(proportionToSample);
             return this;
         }
 

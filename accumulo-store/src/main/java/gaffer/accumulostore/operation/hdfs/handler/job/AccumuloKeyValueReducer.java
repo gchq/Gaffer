@@ -27,6 +27,7 @@ import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -42,7 +43,7 @@ import java.util.Iterator;
  * output it rather than incurring the cost of deserialising them and then
  * reserialising them.
  */
-public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> {
+public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
     private AccumuloElementConverter elementConverter;
     private Schema schema;
 

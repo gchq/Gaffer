@@ -15,7 +15,7 @@
  */
 package gaffer.operation.simple.hdfs.handler.jobfactory;
 
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.store.Store;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Parser;
@@ -41,12 +41,12 @@ public class AvroJobInitialiser implements JobInitialiser {
     }
 
     @Override
-    public void initialiseJob(final Job job, final AddElementsFromHdfs operation, final Store store)
+    public void initialiseJob(final Job job, final MapReduceOperation operation, final Store store)
             throws IOException {
         initialiseInput(job, operation);
     }
 
-    private void initialiseInput(final Job job, final AddElementsFromHdfs operation) throws IOException {
+    private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
         if (null == avroSchemaFilePath) {
             throw new IllegalArgumentException("Avro schema file path has not been set");
         }
