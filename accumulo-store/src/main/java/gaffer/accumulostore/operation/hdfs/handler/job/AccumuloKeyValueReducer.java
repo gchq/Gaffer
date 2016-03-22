@@ -21,11 +21,12 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.exception.SchemaException;
-import gaffer.operation.simple.hdfs.handler.AddElementsFromHdfsJobFactory;
+import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Reducer;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -41,7 +42,7 @@ import java.util.Iterator;
  * output it rather than incurring the cost of deserialising them and then
  * reserialising them.
  */
-public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> {
+public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
     private AccumuloElementConverter elementConverter;
     private Schema schema;
 
@@ -49,7 +50,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     protected void setup(final Context context) {
         try {
             schema = Schema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                    .get(AbstractAddElementsFromHdfsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON");
         }

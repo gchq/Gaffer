@@ -33,8 +33,7 @@ public class SampleDataForSplitPointsJobFactory {
 
     public static final String PROPORTION_TO_SAMPLE = "proportion_to_sample";
     public static final String UTF_8_CHARSET = "UTF-8";
-    public static final String DATA_SCHEMA = "dataSchema";
-    public static final String STORE_SCHEMA = "storeSchema";
+    public static final String SCHEMA = "schema";
     public static final String MAPPER_GENERATOR = "mapperGenerator";
     public static final String VALIDATE = "validate";
 
@@ -67,8 +66,7 @@ public class SampleDataForSplitPointsJobFactory {
     }
 
     protected void setupJobConf(final JobConf jobConf, final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        jobConf.set(DATA_SCHEMA, new String(store.getDataSchema().toJson(false), UTF_8_CHARSET));
-        jobConf.set(STORE_SCHEMA, new String(store.getStoreSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), UTF_8_CHARSET));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));

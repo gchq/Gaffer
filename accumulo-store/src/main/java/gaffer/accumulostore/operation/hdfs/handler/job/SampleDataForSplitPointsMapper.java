@@ -20,8 +20,8 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -41,10 +41,10 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends Mapper<KEY
 
     protected void setup(final Context context) {
        proportionToSample = context.getConfiguration().getFloat(SampleDataForSplitPointsJobFactory.PROPORTION_TO_SAMPLE, 0.001f);
-       final StoreSchema storeSchema;
+       final Schema schema;
        try {
-           storeSchema = StoreSchema.fromJson(context.getConfiguration()
-                   .get(SampleDataForSplitPointsJobFactory.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+           schema = Schema.fromJson(context.getConfiguration()
+                   .get(SampleDataForSplitPointsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
        } catch (final UnsupportedEncodingException e) {
            throw new SchemaException("Unable to deserialise Store Schema from JSON");
        }
@@ -52,8 +52,8 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends Mapper<KEY
        final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
        try {
            final Class<?> elementConverterClass = Class.forName(converterClass);
-           elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                   .newInstance(storeSchema);
+           elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                   .newInstance(schema);
        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
            throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);

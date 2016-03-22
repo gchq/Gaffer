@@ -21,13 +21,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+
 import java.io.IOException;
 
 public abstract class AbstractAddElementsFromHdfsJobFactory {
 
     public static final String UTF_8_CHARSET = "UTF-8";
-    public static final String DATA_SCHEMA = "dataSchema";
-    public static final String STORE_SCHEMA = "storeSchema";
+    public static final String SCHEMA = "schema";
     public static final String MAPPER_GENERATOR = "mapperGenerator";
     public static final String VALIDATE = "validate";
 
