@@ -18,6 +18,7 @@ package gaffer.accumulostore.operation.hdfs.handler.job;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -49,7 +50,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     protected void setup(final Context context) {
         try {
             schema = Schema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON");
         }
@@ -84,7 +85,7 @@ public class AddElementsFromHdfsReducer extends Reducer<Key, Value, Key, Value> 
     private Value reduceMultiValue(final Key key, final Iterator<Value> iter, final Value firstValue) {
         final String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
