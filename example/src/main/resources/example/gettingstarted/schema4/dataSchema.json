@@ -1,11 +1,12 @@
 {
   "edges": {
-    "data1": {
+    "data": {
       "source": "vertex.string",
       "destination": "vertex.string",
       "directed": "false",
       "properties": {
-        "count": "count.int"
+        "count": "count.int",
+        "thing": "count.int"
       }
     }
   }

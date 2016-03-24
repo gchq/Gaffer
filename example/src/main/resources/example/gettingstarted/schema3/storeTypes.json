@@ -5,13 +5,6 @@
       "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Sum"
       }
-    },
-    "visibility.string": {
-      "position": "VISIBILITY",
-      "serialiserClass": "gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
-      "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.ComparableMax"
-      }
     }
   }
 }

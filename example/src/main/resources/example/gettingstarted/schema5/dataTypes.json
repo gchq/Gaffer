@@ -31,6 +31,16 @@
           }
         }
       ]
+    },
+    "visibility.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.Exists"
+          }
+        }
+      ]
     }
   }
 }

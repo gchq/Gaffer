@@ -21,15 +21,15 @@ import gaffer.data.element.Element;
 import gaffer.data.generator.OneToOneElementGenerator;
 
 public class DataGenerator5 extends OneToOneElementGenerator<String> {
+
     @Override
     public Element getElement(final String line) {
         String[] t = line.split(",");
-        Edge edge = new Edge("data");
+        Edge edge = new Edge(t[2]);
         edge.setSource(t[0]);
         edge.setDestination(t[1]);
-        edge.setDirected(false);
         edge.putProperty("count", 1);
-        edge.putProperty("thing", Integer.parseInt(t[2]));
+        edge.putProperty("visibility", t[3]);
         return edge;
     }
 

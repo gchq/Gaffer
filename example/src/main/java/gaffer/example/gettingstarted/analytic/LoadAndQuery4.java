@@ -17,12 +17,12 @@
 package gaffer.example.gettingstarted.analytic;
 
 import gaffer.data.element.Element;
-import gaffer.data.element.function.ElementFilter;
+import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.example.gettingstarted.function.MeanTransform;
 import gaffer.example.gettingstarted.generator.DataGenerator4;
 import gaffer.example.gettingstarted.util.DataUtils;
-import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
@@ -44,13 +44,6 @@ public class LoadAndQuery4 extends LoadAndQuery {
         setStoreTypesLocation("/example/gettingstarted/schema4/storeTypes.json");
         setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
 
-        Graph graph4 = new Graph.Builder()
-                .addSchema(getDataSchema())
-                .addSchema(getDataTypes())
-                .addSchema(getStoreTypes())
-                .storeProperties(getStoreProperties())
-                .build();
-
         List<Element> elements = new ArrayList<>();
         DataGenerator4 dataGenerator4 = new DataGenerator4();
         for (String s : DataUtils.loadData(getData())) {
@@ -58,6 +51,13 @@ public class LoadAndQuery4 extends LoadAndQuery {
             System.out.println(dataGenerator4.getElement(s).toString());
         }
         System.out.println("");
+
+        Graph graph4 = new Graph.Builder()
+                .addSchema(getDataSchema())
+                .addSchema(getDataTypes())
+                .addSchema(getStoreTypes())
+                .storeProperties(getStoreProperties())
+                .build();
 
         AddElements addElements = new AddElements.Builder()
                 .elements(elements)
@@ -69,27 +69,29 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .build();
 
-        System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        System.out.println("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
         for (Element e : graph4.execute(getRelatedEdges)) {
             System.out.println(e.toString());
         }
 
-        ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
-                .filter(new ElementFilter.Builder()
-                        .select("count")
-                        .execute(new IsMoreThan(3))
-                        .build())
+        ElementTransformer mean = new ElementTransformer.Builder()
+                .select("thing", "count")
+                .project("mean")
+                .execute(new MeanTransform())
                 .build();
 
+        ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
+                .transientProperty("mean", Float.class)
+                .transformer(mean)
+                .build();
 
         View view = new View.Builder()
-                .edge("data1", viewElementDefinition)
+                .edge("data", viewElementDefinition)
                 .build();
 
         getRelatedEdges.setView(view);
 
-        System.out.println("\nAll edges containing the vertex 1. "
-                + "\nThe counts have been aggregated and we have filtered out edges where the count is less than or equal to 3\n");
+        System.out.println("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (Element e : graph4.execute(getRelatedEdges)) {
             System.out.println(e.toString());
         }
