@@ -33,21 +33,28 @@ public class LoadAndQuery1 extends LoadAndQuery {
     }
 
     public void run() throws OperationException {
+
+        setDataFileLocation("/example/gettingstarted/data/data1.txt");
+
         //create some edges from the data file using our data generator class
         List<Element> elements = new ArrayList<>();
         DataGenerator1 data1Generator = new DataGenerator1();
         System.out.println("Turn the data into Graph Edges\n");
-        for (String s : DataUtils.loadData(getData(1))) {
+        for (String s : DataUtils.loadData(getData())) {
             System.out.println(data1Generator.getElement(s).toString());
             elements.add(data1Generator.getElement(s));
         }
         System.out.println("");
 
+        setDataSchemaLocation("/example/gettingstarted/schema1/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/schema1/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/schema1/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
         //create a graph using our schema and store properties
         Graph graph1 = new Graph.Builder()
-                .addSchema(getDataSchema(1))
-                .addSchema(getDataTypes(1))
-                .addSchema(getStoreTypes(1))
+                .addSchema(getDataSchema())
+                .addSchema(getDataTypes())
+                .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 

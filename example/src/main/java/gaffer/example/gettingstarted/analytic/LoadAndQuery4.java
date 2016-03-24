@@ -37,18 +37,27 @@ public class LoadAndQuery4 extends LoadAndQuery {
     }
 
     public void run() throws OperationException {
+
+        setDataFileLocation("/example/gettingstarted/data/data4.txt");
+        setDataSchemaLocation("/example/gettingstarted/schema4/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/schema4/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/schema4/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+
         Graph graph4 = new Graph.Builder()
-                .addSchema(getDataSchema(4))
-                .addSchema(getDataTypes(4))
-                .addSchema(getStoreTypes(4))
+                .addSchema(getDataSchema())
+                .addSchema(getDataTypes())
+                .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
         List<Element> elements = new ArrayList<>();
-        DataGenerator4 data4Generator = new DataGenerator4();
-        for (String s : DataUtils.loadData(getData(4))) {
-            elements.add(data4Generator.getElement(s));
+        DataGenerator4 dataGenerator4 = new DataGenerator4();
+        for (String s : DataUtils.loadData(getData())) {
+            elements.add(dataGenerator4.getElement(s));
+            System.out.println(dataGenerator4.getElement(s).toString());
         }
+        System.out.println("");
 
         AddElements addElements = new AddElements.Builder()
                 .elements(elements)

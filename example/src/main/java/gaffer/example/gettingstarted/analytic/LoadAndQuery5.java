@@ -17,14 +17,12 @@
 package gaffer.example.gettingstarted.analytic;
 
 import gaffer.data.element.Element;
-import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.example.gettingstarted.function.MeanTransform;
 import gaffer.example.gettingstarted.generator.DataGenerator5;
 import gaffer.example.gettingstarted.util.DataUtils;
-import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
@@ -39,18 +37,27 @@ public class LoadAndQuery5 extends LoadAndQuery {
     }
 
     public void run() throws OperationException {
+
+        setDataFileLocation("/example/gettingstarted/data/data5.txt");
+        setDataSchemaLocation("/example/gettingstarted/schema5/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/schema5/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/schema5/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+
         Graph graph5 = new Graph.Builder()
-                .addSchema(getDataSchema(5))
-                .addSchema(getDataTypes(5))
-                .addSchema(getStoreTypes(5))
+                .addSchema(getDataSchema())
+                .addSchema(getDataTypes())
+                .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
         List<Element> elements = new ArrayList<>();
         DataGenerator5 dataGenerator5 = new DataGenerator5();
-        for (String s : DataUtils.loadData(getData(5))) {
+        for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator5.getElement(s));
+            System.out.println(dataGenerator5.getElement(s).toString());
         }
+        System.out.println("");
 
         AddElements addElements = new AddElements.Builder()
                 .elements(elements)
@@ -73,15 +80,9 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .execute(new MeanTransform())
                 .build();
 
-        ElementFilter filter = new ElementFilter.Builder()
-                .select("mean")
-                .execute(new IsMoreThan(30))
-                .build();
-
         ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
                 .transientProperty("mean", Float.class)
                 .transformer(mean)
-                .filter(filter)
                 .build();
 
         View view = new View.Builder()
@@ -90,12 +91,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
 
         getRelatedEdges.setView(view);
 
-        System.out.println("\nAll edges containing the vertex 1. We can add a new property to the edges that is calculated from the aggregated values of other properties\n");
-        for (Element e : graph5.execute(getRelatedEdges)) {
-            System.out.println(e.toString());
-        }
-
-        System.out.println("\nAll edges containing the vertex 1. We can add a new property to the edges that is calculated from the aggregated values of other properties\n");
+        System.out.println("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (Element e : graph5.execute(getRelatedEdges)) {
             System.out.println(e.toString());
         }

@@ -19,23 +19,50 @@ import gaffer.commonutil.StreamUtil;
 import java.io.InputStream;
 
 public class LoadAndQuery {
-    protected InputStream getData(final int id) {
-        return StreamUtil.openStream(LoadAndQuery.class, "/example/gettingstarted/data/data" + id + ".txt", true);
+
+    public String dataFileLocation;
+    public String dataSchemaLocation;
+    public String dataTypesLocation;
+    public String storeTypesLocation;
+    public String storePropertiesLocation;
+
+    protected InputStream getData() {
+        return StreamUtil.openStream(LoadAndQuery.class, dataFileLocation, true);
     }
 
-    protected InputStream getDataSchema(final int id) {
-        return StreamUtil.openStream(LoadAndQuery.class, "/example/gettingstarted/schema" + id + "/dataSchema.json", true);
+    protected InputStream getDataSchema() {
+        return StreamUtil.openStream(LoadAndQuery.class, dataSchemaLocation, true);
     }
 
-    protected InputStream getDataTypes(final int id) {
-        return StreamUtil.openStream(LoadAndQuery.class, "/example/gettingstarted/schema" + id + "/dataTypes.json", true);
+    protected InputStream getDataTypes() {
+        return StreamUtil.openStream(LoadAndQuery.class, dataTypesLocation, true);
     }
 
-    protected InputStream getStoreTypes(final int id) {
-        return StreamUtil.openStream(LoadAndQuery.class, "/example/gettingstarted/schema" + id + "/storeTypes.json", true);
+    protected InputStream getStoreTypes() {
+        return StreamUtil.openStream(LoadAndQuery.class, storeTypesLocation, true);
     }
 
     protected InputStream getStoreProperties() {
-        return StreamUtil.openStream(LoadAndQuery.class, "/example/gettingstarted/properties/mockaccumulostore.properties", true);
+        return StreamUtil.openStream(LoadAndQuery.class, storePropertiesLocation, true);
+    }
+
+    public void setDataFileLocation(final String dataFileLocation) {
+        this.dataFileLocation = dataFileLocation;
+    }
+
+    public void setDataSchemaLocation(final String dataSchemaLocation) {
+        this.dataSchemaLocation = dataSchemaLocation;
+    }
+
+    public void setDataTypesLocation(final String dataTypesLocation) {
+        this.dataTypesLocation = dataTypesLocation;
+    }
+
+    public void setStoreTypesLocation(final String storeTypesLocation) {
+        this.storeTypesLocation = storeTypesLocation;
+    }
+
+    public void setStorePropertiesLocation(final String storePropertiesLocation) {
+        this.storePropertiesLocation = storePropertiesLocation;
     }
 }
