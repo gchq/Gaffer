@@ -25,23 +25,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A <code>TupleValidator</code> validates input {@link gaffer.tuple.Tuple}s by applying
- * {@link gaffer.function2.Validator}s to the tuple values. Returns the logical AND of the function results.
+ * A <code>TupleFilter</code> validates input {@link gaffer.tuple.Tuple}s by applying {@link gaffer.function2.Validator}s
+ * to the tuple values. It calculates the logical AND of the function results, and if true, the input tuple is returned,
+ * otherwise <code>null</code>.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleValidator<R> extends Validator<Tuple<R>> {
+public class TupleFilter<R> extends StatelessTupleFunction<R> {
     private List<FunctionContext<Validator, R>> validators;
 
     /**
      * Default constructor - for serialisation.
      */
-    public TupleValidator() { }
+    public TupleFilter() { }
 
     /**
-     * Create a <code>TupleValidator</code> that applies the given functions.
+     * Create a <code>TupleFilter</code> that applies the given functions.
      * @param validators {@link gaffer.function2.Validator}s to validate tuple values.
      */
-    public TupleValidator(final List<FunctionContext<Validator, R>> validators) {
+    public TupleFilter(final List<FunctionContext<Validator, R>> validators) {
         setValidators(validators);
     }
 
@@ -77,8 +78,7 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
     public boolean validate(final Tuple<R> input) {
         if (validators != null) {
             for (FunctionContext<Validator, R> validator : validators) {
-                boolean valid = validator.getFunction().validate(validator.select(input));
-                if (!valid) {
+                if (!(validator.getFunction().validate(validator.select(input)))) {
                     return false;
                 }
             }
@@ -96,11 +96,16 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
         return TupleFunctionValidator.validateOutput(validators, schemaTuple);
     }
 
+    @Override
+    public Tuple<R> execute(final Tuple<R> input) {
+        return validate(input) ? input : null;
+    }
+
     /**
-     * @return New <code>TupleValidator</code> with new {@link gaffer.function2.Validator}s.
+     * @return New <code>TupleFilter</code> with new {@link gaffer.function2.Validator}s.
      */
-    public TupleValidator<R> copy() {
-        TupleValidator<R> copy = new TupleValidator<R>();
+    public TupleFilter<R> copy() {
+        TupleFilter<R> copy = new TupleFilter<R>();
         for (FunctionContext<Validator, R> validator : this.validators) {
             copy.addValidator(validator.copy());
         }

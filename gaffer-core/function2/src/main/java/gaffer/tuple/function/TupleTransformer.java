@@ -29,7 +29,7 @@ import java.util.List;
  * <code>Transformer</code>s to the tuple values. Outputs the input tuple, but with it's values updated.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleTransformer<R> extends Transformer<Tuple<R>, Tuple<R>> {
+public class TupleTransformer<R> extends StatelessTupleFunction<R> {
     private List<FunctionContext<Transformer, R>> transforms;
 
     /**
@@ -91,6 +91,11 @@ public class TupleTransformer<R> extends Transformer<Tuple<R>, Tuple<R>> {
     @Override
     public boolean validateOutput(final Object schemaTuple) {
         return TupleFunctionValidator.validateOutput(transforms, schemaTuple);
+    }
+
+    @Override
+    public Tuple<R> execute(final Tuple<R> input) {
+        return transform(input);
     }
 
     /**
