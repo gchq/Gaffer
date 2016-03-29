@@ -53,9 +53,11 @@ public class Reference<R> {
      * @param field Single field reference.
      */
     public void setField(final R field) {
-        referenceType = Type.FIELD;
-        this.field = field;
-        tuple = null;
+        if (field != null) {
+            referenceType = Type.FIELD;
+            this.field = field;
+            tuple = null;
+        }
     }
 
     /**
@@ -74,9 +76,7 @@ public class Reference<R> {
      * @param fields Field references.
      */
     public void setFields(final R... fields) {
-        if (fields == null) {
-            tuple = null;
-        } else {
+        if (fields != null) {
             Reference<R>[] references = new Reference[fields.length];
             int i = 0;
             for (R field : fields) {
@@ -84,9 +84,9 @@ public class Reference<R> {
                 references[i++] = reference;
             }
             setTupleReferences(references);
+            field = null;
+            referenceType = Type.FIELDS;
         }
-        field = null;
-        referenceType = Type.FIELDS;
     }
 
     /**
@@ -112,13 +112,11 @@ public class Reference<R> {
      * @param tuple Tuple of references.
      */
     public void setTuple(final Reference... tuple) {
-        if (tuple == null) {
-            this.tuple = null;
-        } else {
+        if (tuple != null) {
             setTupleReferences(tuple);
+            field = null;
+            referenceType = Type.TUPLE;
         }
-        field = null;
-        referenceType = Type.TUPLE;
     }
 
     /**
@@ -140,12 +138,14 @@ public class Reference<R> {
      * @param references Tuple references.
      */
     public void setTupleReferences(final Reference... references) {
-        boolean allFields = true;
-        for (Reference reference : references) {
-            allFields = allFields && reference.isFieldReference();
+        if (references != null) {
+            boolean allFields = true;
+            for (Reference reference : references) {
+                allFields = allFields && reference.isFieldReference();
+            }
+            referenceType = allFields ? Type.FIELDS : Type.TUPLE;
+            this.tuple = references;
         }
-        referenceType = allFields ? Type.FIELDS : Type.TUPLE;
-        this.tuple = references;
     }
 
     /**
