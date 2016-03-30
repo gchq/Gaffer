@@ -170,6 +170,24 @@ public class FunctionContext<F extends Function, R> {
     }
 
     /**
+     * Tests whether the function can be executed in this context with the supplied data schema.
+     * @param schemaTuple Tuple containing classes.
+     * @return True if this context's function can be called with the selected types.
+     */
+    public boolean assignableFrom(final Tuple<R> schemaTuple) {
+        return function.assignableFrom(select(schemaTuple));
+    }
+
+    /**
+     * Tests whether the function output can be used in this context with the supplied data schema.
+     * @param schemaTuple Tuple containing classes.
+     * @return True if this context's function produces data with the projected types.
+     */
+    public boolean assignableTo(final Tuple<R> schemaTuple) {
+        return function.assignableTo(projectionView.select(schemaTuple));
+    }
+
+    /**
      * @return New <code>FunctionContext</code> with the same selection criteria, function and
      * projection criteria.
      */

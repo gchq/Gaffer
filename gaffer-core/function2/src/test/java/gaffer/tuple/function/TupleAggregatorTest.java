@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gaffer.tuple.function;
 
 import gaffer.function2.Aggregator;
@@ -6,7 +22,11 @@ import gaffer.function2.StatefulFunction;
 import gaffer.function2.mock.MockComplexInputAggregator;
 import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.function2.mock.MockSingleInputAggregator;
+import gaffer.function2.signature.IterableSignature;
+import gaffer.function2.signature.Signature;
+import gaffer.function2.signature.SingletonSignature;
 import gaffer.tuple.MapTuple;
+import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
 import gaffer.tuple.view.Reference;
 import org.junit.Test;
@@ -153,5 +173,40 @@ public class TupleAggregatorTest extends FunctionTest {
         assertTrue(deserialisedFunction instanceof MockSingleInputAggregator);
         assertNotSame(aggregator, deserialisedAggregator);
         assertNotSame(function, deserialisedFunction);
+    }
+
+    @Test
+    public void shouldValidateInputAndOutput() {
+        TupleAggregator<Aggregator, String> aggregator = new TupleAggregator<>();
+        MockMultiInputAggregator function = new MockMultiInputAggregator();
+        FunctionContext<Aggregator, String> context = new FunctionContext<>(new Reference("a", "b"), function, new Reference("d", "e"));
+        aggregator.addFunction(context);
+        MockSingleInputAggregator function2 = new MockSingleInputAggregator();
+        context = new FunctionContext<>(new Reference("c"), function2, new Reference("f"));
+        aggregator.addFunction(context);
+
+        MapTuple<String> mapTuple = new MapTuple<>();
+        mapTuple.put("a", Integer.class);
+        mapTuple.put("b", Integer.class);
+        mapTuple.put("c", Integer.class);
+        mapTuple.put("d", Integer.class);
+        mapTuple.put("e", Integer.class);
+        mapTuple.put("f", Integer.class);
+
+        Signature inputSignature = aggregator.getInputSignature(); //Tuple is an IterableSignature, not a TupleSignature
+        assertTrue(inputSignature instanceof IterableSignature);
+        Signature outputSignature = aggregator.getOutputSignature();
+        assertTrue(outputSignature instanceof IterableSignature);
+
+        assertTrue(aggregator.assignableFrom(mapTuple));
+        assertTrue(aggregator.assignableTo(mapTuple));
+
+        mapTuple.put("b", String.class);
+        assertFalse(aggregator.assignableFrom(mapTuple));
+        assertTrue(aggregator.assignableTo(mapTuple));
+
+        mapTuple.put("d", String.class);
+        assertFalse(aggregator.assignableFrom(mapTuple));
+        assertFalse(aggregator.assignableTo(mapTuple));
     }
 }

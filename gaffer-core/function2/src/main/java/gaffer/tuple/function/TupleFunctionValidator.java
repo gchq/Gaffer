@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.function.context;
+package gaffer.tuple.function;
 
 import gaffer.tuple.Tuple;
+import gaffer.tuple.function.context.FunctionContext;
 
 import java.util.List;
 
@@ -27,29 +28,27 @@ import java.util.List;
 public final class TupleFunctionValidator {
     private TupleFunctionValidator() { }
 
-    public static boolean validateInput(final List<? extends FunctionContext> contexts, final Object schemaTuple) {
+    public static boolean assignableFrom(final List<? extends FunctionContext> contexts, final Object schemaTuple) {
         if (!(schemaTuple instanceof Tuple)) {
             throw new IllegalArgumentException("Tuple functions must be supplied with tuple of types.");
         }
-        Tuple tuple = (Tuple) schemaTuple;
-        boolean valid = true;
         for (FunctionContext context : contexts) {
-            Object selected = context.select(tuple);
-            valid = valid && context.getFunction().validateInput(selected);
+            if (!context.assignableFrom((Tuple) schemaTuple)) {
+                return false;
+            }
         }
-        return valid;
+        return true;
     }
 
-    public static boolean validateOutput(final List<? extends FunctionContext> contexts, final Object schemaTuple) {
+    public static boolean assignableTo(final List<? extends FunctionContext> contexts, final Object schemaTuple) {
         if (!(schemaTuple instanceof Tuple)) {
             throw new IllegalArgumentException("Tuple functions must be supplied with tuple of types.");
         }
-        Tuple tuple = (Tuple) schemaTuple;
-        boolean valid = true;
         for (FunctionContext context : contexts) {
-            Object selected = context.getProjectionView().select(tuple);
-            valid = valid && context.getFunction().validateOutput(selected);
+            if (!context.assignableTo((Tuple) schemaTuple)) {
+                return false;
+            }
         }
-        return valid;
+        return true;
     }
 }

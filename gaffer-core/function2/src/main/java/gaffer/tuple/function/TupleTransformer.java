@@ -19,7 +19,6 @@ package gaffer.tuple.function;
 import gaffer.tuple.Tuple;
 import gaffer.function2.Transformer;
 import gaffer.tuple.function.context.FunctionContext;
-import gaffer.tuple.function.context.TupleFunctionValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,13 +83,13 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
     }
 
     @Override
-    public boolean validateInput(final Object schemaTuple) {
-        return TupleFunctionValidator.validateInput(transforms, schemaTuple);
+    public boolean assignableFrom(final Object schemaTuple) {
+        return TupleFunctionValidator.assignableFrom(transforms, schemaTuple);
     }
 
     @Override
-    public boolean validateOutput(final Object schemaTuple) {
-        return TupleFunctionValidator.validateOutput(transforms, schemaTuple);
+    public boolean assignableTo(final Object schemaTuple) {
+        return TupleFunctionValidator.assignableTo(transforms, schemaTuple);
     }
 
     @Override
