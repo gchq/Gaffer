@@ -44,6 +44,6 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
             throw new OperationException(e.getMessage(), e);
         }
 
-        return operation.getOutputPath();
+        return operation.getResultingSplitsFilePath();
     }
 }
