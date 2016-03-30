@@ -71,11 +71,11 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
 
     protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getInputPath(), operation.getOutputPath()));
+        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
     }
 
-    protected String getJobName(final Path inputPath, final Path outputPath) {
-        return "Ingest HDFS data: input=" + inputPath + ", output=" + outputPath;
+    protected String getJobName(final String mapperGenerator, final Path outputPath) {
+        return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
 
 }
