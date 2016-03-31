@@ -18,6 +18,7 @@ package gaffer.operation.simple.hdfs;
 import gaffer.operation.VoidInput;
 import gaffer.operation.VoidOutput;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
+import org.apache.hadoop.fs.Path;
 
 
 /**
@@ -35,6 +36,7 @@ import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
  */
 public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
 
+    private Path failurePath;
     private boolean validate = true;
 
     /**
@@ -44,6 +46,13 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
      */
     private String mapperGeneratorClassName;
 
+    public Path getFailurePath() {
+        return failurePath;
+    }
+
+    public void setFailurePath(final Path failurePath) {
+        this.failurePath = failurePath;
+    }
 
     public boolean isValidate() {
         return validate;
@@ -77,6 +86,11 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
 
         public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             op.setMapperGeneratorClassName(mapperGeneratorClass);
+            return this;
+        }
+
+        public Builder failurePath(final Path failurePath) {
+            op.setFailurePath(failurePath);
             return this;
         }
 

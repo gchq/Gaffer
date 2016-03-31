@@ -35,7 +35,6 @@ import org.apache.hadoop.mapreduce.Partitioner;
 public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperation<INPUT, OUTPUT> {
     private Path inputPath;
     private Path outputPath;
-    private Path failurePath;
     private Integer numReduceTasks = null;
     private Integer numMapTasks = null;
 
@@ -64,14 +63,6 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
 
     public void setOutputPath(final Path outputPath) {
         this.outputPath = outputPath;
-    }
-
-    public Path getFailurePath() {
-        return failurePath;
-    }
-
-    public void setFailurePath(final Path failurePath) {
-        this.failurePath = failurePath;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
@@ -120,11 +111,6 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
 
         public Builder outputPath(final Path outputPath) {
             op.setOutputPath(outputPath);
-            return this;
-        }
-
-        public Builder failurePath(final Path failurePath) {
-            op.setFailurePath(failurePath);
             return this;
         }
 
