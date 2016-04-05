@@ -25,7 +25,7 @@ import org.apache.hadoop.fs.Path;
  * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link gaffer.accumulostore.operation.hdfs.impl.SplitTable} operation or an
  * {@link gaffer.operation.simple.hdfs.AddElementsFromHdfs} operation.
  *
- * This operation requires an input, output and failure path as well as a path to a file to use as the resulitngSplitsFile.
+ * This operation requires an input and output path as well as a path to a file to use as the resulitngSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
  * {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser}.
