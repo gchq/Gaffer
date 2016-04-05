@@ -21,6 +21,9 @@ import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Partitioner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * The <code>MapReduceOperation</code> operation is the base operation that should be extended for any Operations that run map reduce jobs.
@@ -33,7 +36,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
  * @see MapReduceOperation.Builder
  */
 public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperation<INPUT, OUTPUT> {
-    private Path inputPath;
+    private List<Path> inputPaths = new ArrayList<>();
     private Path outputPath;
     private Integer numReduceTasks = null;
     private Integer numMapTasks = null;
@@ -49,12 +52,20 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
     private JobInitialiser jobInitialiser;
     private Class<? extends Partitioner> partitioner;
 
-    public Path getInputPath() {
-        return inputPath;
+    public List<Path> getInputPaths() {
+        return inputPaths;
     }
 
-    public void setInputPath(final Path inputPath) {
-        this.inputPath = inputPath;
+    public void setInputPaths(final List<Path> inputPaths) {
+        this.inputPaths = inputPaths;
+    }
+
+    public void addInputPaths(final List<Path> inputPaths) {
+        this.inputPaths.addAll(inputPaths);
+    }
+
+    public void addInputPath(final Path inputPath) {
+        this.inputPaths.add(inputPath);
     }
 
     public Path getOutputPath() {
@@ -104,8 +115,18 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
             super(op);
         }
 
-        public Builder inputPath(final Path inputPath) {
-            op.setInputPath(inputPath);
+        public Builder setInputPaths(final List<Path> inputPaths) {
+            op.setInputPaths(inputPaths);
+            return this;
+        }
+
+        public Builder addInputPaths(final List<Path> inputPaths) {
+            op.addInputPaths(inputPaths);
+            return this;
+        }
+
+        public Builder addInputPath(final Path inputPath) {
+            op.addInputPath(inputPath);
             return this;
         }
 
