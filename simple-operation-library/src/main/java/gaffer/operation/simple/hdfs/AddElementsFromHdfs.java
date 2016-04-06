@@ -17,7 +17,10 @@ package gaffer.operation.simple.hdfs;
 
 import gaffer.operation.VoidInput;
 import gaffer.operation.VoidOutput;
+import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 
 /**
@@ -34,7 +37,6 @@ import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
  * @see gaffer.operation.simple.hdfs.AddElementsFromHdfs.Builder
  */
 public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
-
     private boolean validate = true;
 
     /**
@@ -43,7 +45,6 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
      * For Text data see {@link gaffer.operation.simple.hdfs.handler.mapper.TextMapperGenerator}.
      */
     private String mapperGeneratorClassName;
-
 
     public boolean isValidate() {
         return validate;
@@ -80,5 +81,44 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
             return this;
         }
 
+        @Override
+        public Builder option(final String name, final String value) {
+            return (Builder) super.option(name, value);
+        }
+
+        @Override
+        public Builder inputPath(final Path inputPath) {
+            return (Builder) super.inputPath(inputPath);
+        }
+
+        @Override
+        public Builder outputPath(final Path outputPath) {
+            return (Builder) super.outputPath(outputPath);
+        }
+
+        @Override
+        public Builder failurePath(final Path failurePath) {
+            return (Builder) super.failurePath(failurePath);
+        }
+
+        @Override
+        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
+            return (Builder) super.jobInitialiser(jobInitialiser);
+        }
+
+        @Override
+        public Builder reducers(final Integer numReduceTasks) {
+            return (Builder) super.reducers(numReduceTasks);
+        }
+
+        @Override
+        public Builder mappers(final Integer numMapTasks) {
+            return (Builder) super.mappers(numMapTasks);
+        }
+
+        @Override
+        public Builder partioner(final Class<? extends Partitioner> partitioner) {
+            return (Builder) super.partioner(partitioner);
+        }
     }
 }
