@@ -16,20 +16,20 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.operation.data.EdgeSeed;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
+import gaffer.operation.data.EdgeSeed;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
+import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 
 public class GetElementsSeedTest implements OperationTest {

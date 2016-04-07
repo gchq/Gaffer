@@ -15,12 +15,14 @@
  */
 package gaffer.operation.simple.hdfs.handler;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+
 import java.io.IOException;
 
 public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
@@ -54,7 +56,7 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     }
 
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
-        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), UTF_8_CHARSET));
+        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         Integer numTasks = operation.getNumMapTasks();
@@ -69,10 +71,11 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
 
     protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getInputPath(), operation.getOutputPath()));
+        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
     }
 
-    protected String getJobName(final Path inputPath, final Path outputPath) {
-        return "Ingest HDFS data: input=" + inputPath + ", output=" + outputPath;
+    protected String getJobName(final String mapperGenerator, final Path outputPath) {
+        return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
+
 }

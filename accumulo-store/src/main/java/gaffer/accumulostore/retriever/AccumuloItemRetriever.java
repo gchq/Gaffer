@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.retriever;
 
+import com.google.common.collect.Iterators;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -29,7 +30,6 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
-import org.apache.commons.collections.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Collections;
@@ -52,8 +52,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
     @Override
     public Iterator<Element> iterator() {
+        Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : null;
         try {
-            iterator = new ElementIterator();
+            iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
             LOGGER.error(e.getMessage() + " returning empty iterator", e);
             return Collections.emptyIterator();
@@ -70,13 +71,14 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         private BatchScanner scanner;
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
 
-        protected ElementIterator() throws RetrieverException {
+        protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
+            count = 0;
             final Set<Range> ranges = new HashSet<>();
-            if (null == ids) {
-                idsIterator = IteratorUtils.emptyIterator();
+            if (null == idIterator) {
+                idsIterator = Iterators.emptyIterator();
                 ranges.add(new Range());
             } else {
-                idsIterator = ids.iterator();
+                idsIterator = idIterator;
                 if (idsIterator.hasNext()) {
                     count = 0;
                     while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
@@ -132,8 +134,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
             }
             if (!scannerIterator.hasNext()) {
                 scanner.close();
+                return false;
             }
-            return scannerIterator.hasNext();
+            return true;
         }
 
         @Override

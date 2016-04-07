@@ -93,8 +93,13 @@ public class GraphTest {
 
 
         // When
-        final Graph graph = new Graph(storeProperties,
-                schemaModule1, schemaModule2, schemaModule3, schemaModule4);
+        final Graph graph = new Graph.Builder()
+                .storeProperties(storeProperties)
+                .addSchema(schemaModule1)
+                .addSchema(schemaModule2)
+                .addSchema(schemaModule3)
+                .addSchema(schemaModule4)
+                .build();
 
         // Then
         final Schema schema = graph.getSchema();
@@ -123,7 +128,10 @@ public class GraphTest {
         given(schema.getEntityGroups()).willReturn(entityGroups);
 
         // When
-        final View resultView = new Graph(store).getView();
+        final View resultView = new Graph.Builder()
+                .store(store)
+                .build()
+                .getView();
 
         // Then
         assertNotSame(schema, resultView);
@@ -147,8 +155,11 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
 
-        final Graph graph = new Graph(store, view);
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
@@ -171,8 +182,11 @@ public class GraphTest {
         final Store store = mock(Store.class);
         final View opView = mock(View.class);
         final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
 
-        final Graph graph = new Graph(store, view);
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);

@@ -16,6 +16,7 @@
 
 package gaffer.data.elementdefinition.view;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @Override
     public String toString() {
         try {
-            return "View" + new String(toJson(true), "UTF-8");
+            return "View" + new String(toJson(true), CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

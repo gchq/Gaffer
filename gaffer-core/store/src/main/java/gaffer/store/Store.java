@@ -212,7 +212,7 @@ public abstract class Store {
     /**
      * Removes any types in the schema that are not used.
      */
-    protected void optimiseSchemas() {
+    public void optimiseSchemas() {
         final Set<String> usedTypeNames = new HashSet<>();
         final Set<SchemaElementDefinition> schemaElements = new HashSet<>();
         schemaElements.addAll(getSchema().getEdges().values());
@@ -231,7 +231,7 @@ public abstract class Store {
         }
     }
 
-    protected void validateSchemas() {
+    public void validateSchemas() {
         boolean valid = schema.validate();
 
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();

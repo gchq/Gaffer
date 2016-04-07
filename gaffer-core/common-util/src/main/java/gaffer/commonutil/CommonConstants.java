@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.simple.hdfs.handler;
 
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
-import gaffer.store.Store;
-import org.apache.hadoop.mapreduce.Job;
-import java.io.IOException;
+package gaffer.commonutil;
 
-public interface AddElementsFromHdfsJobFactory {
-    String SCHEMA = "schema";
-    String MAPPER_GENERATOR = "mapperGenerator";
-    String VALIDATE = "validate";
+public final class CommonConstants {
+    public static final String UTF_8 = "UTF-8";
 
-    Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException;
+    private CommonConstants() {
+        // constants class so it should not be constructed
+    }
 }

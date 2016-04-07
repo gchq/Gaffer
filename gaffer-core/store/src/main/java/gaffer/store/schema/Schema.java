@@ -18,6 +18,7 @@ package gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
@@ -292,7 +293,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     @Override
     public String toString() {
         try {
-            return "Schema" + new String(toJson(true), "UTF-8");
+            return "Schema" + new String(toJson(true), CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
