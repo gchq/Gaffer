@@ -20,6 +20,9 @@ import gaffer.operation.AbstractOperation;
 import gaffer.operation.cache.CacheOperation;
 import java.util.Map;
 
+/**
+ * A <code>FetchCache</code> fetches the entire cache {@link Map}.
+ */
 public class FetchCache extends AbstractOperation<Void, Map<String, Iterable<?>>> implements CacheOperation {
     public static class Builder extends AbstractOperation.Builder<FetchCache, Void, Map<String, Iterable<?>>> {
         public Builder() {

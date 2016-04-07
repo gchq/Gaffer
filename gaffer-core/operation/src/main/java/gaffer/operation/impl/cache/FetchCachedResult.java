@@ -19,13 +19,25 @@ package gaffer.operation.impl.cache;
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.cache.CacheOperation;
 
+/**
+ * A <code>FetchCachedResult</code> fetches a cached result {@link Iterable} for a
+ * provided key. If a key is not provided the default key is 'ALL'.
+ */
 public class FetchCachedResult extends AbstractOperation<Void, Iterable<?>> implements CacheOperation {
     private String key;
 
+    /**
+     * Constructs an <code>FetchCachedResult</code> with the key set to 'ALL'.
+     */
     public FetchCachedResult() {
         this(UpdateCache.ALL);
     }
 
+    /**
+     * Constructs an <code>FetchCachedResult</code> with the provided key.
+     *
+     * @param key the key to use to fetch results from the cache.
+     */
     public FetchCachedResult(final String key) {
         this.key = key;
     }

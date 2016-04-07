@@ -15,5 +15,9 @@
  */
 package gaffer.operation.cache;
 
+/**
+ * A <code>CacheOperation</code> is a marker interface for identifying a operation
+ * that interacts with the cache.
+ */
 public interface CacheOperation {
 }

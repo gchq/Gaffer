@@ -20,14 +20,27 @@ import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.cache.CacheOperation;
 
+/**
+ * A <code>UpdateCache</code> allows the results of a previous operation in an
+ * {@link gaffer.operation.OperationChain} to be added to a cache, keyed on
+ * an optional key. If a key is not provided the default key is 'ALL'.
+ */
 public class UpdateCache extends AbstractGetOperation<Object, Object> implements CacheOperation {
     public static final String ALL = "ALL";
     private String key;
 
+    /**
+     * Constructs an <code>UpdateCache</code> with the key set to 'ALL'.
+     */
     public UpdateCache() {
         this(ALL);
     }
 
+    /**
+     * Constructs an <code>UpdateCache</code> with the provided key.
+     *
+     * @param key the key to use to store the results in the cache.
+     */
     public UpdateCache(final String key) {
         this.key = key;
     }
