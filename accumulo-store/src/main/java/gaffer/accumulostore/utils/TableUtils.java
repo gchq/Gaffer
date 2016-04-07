@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.commonutil.CommonConstants;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -82,6 +83,7 @@ public final class TableUtils {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
+                // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
                 // Someone else got there first, never mind...
             }
         }
@@ -97,11 +99,14 @@ public final class TableUtils {
      * @throws StoreException       failure to create accumulo connection or  add iterator settings
      * @throws TableExistsException failure to create table
      */
-    public static void createTable(final AccumuloStore store)
+    public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
         // Create table
         final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
+        if (connector.tableOperations().exists(tableName)) {
+            return;
+        }
         try {
             connector.tableOperations().create(tableName);
             final String repFactor = store.getProperties().getTableFileReplicationFactor();
@@ -120,20 +125,20 @@ public final class TableUtils {
             LOGGER.info("Removing versioning iterator");
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
-            LOGGER.info("Versioning iterator removed");
+            LOGGER.info("Removed Versioning iterator");
 
             // Add Combiner iterator to table for all scopes
-            LOGGER.info("Combiner iterator to table for all scopes");
+            LOGGER.info("Adding Aggregator iterator to table for all scopes");
             connector.tableOperations().attachIterator(tableName,
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-            LOGGER.info("Combiner iterator to table for all scopes");
+            LOGGER.info("Added Aggregator iterator to table for all scopes");
 
             if (store.getProperties().getEnableValidatorIterator()) {
                 // Add validator iterator to table for all scopes
-                LOGGER.info("Adding validator iterator to table for all scopes");
+                LOGGER.info("Adding Validator iterator to table for all scopes");
                 connector.tableOperations().attachIterator(tableName,
                         store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
-                LOGGER.info("Added validator iterator to table for all scopes");
+                LOGGER.info("Added Validator iterator to table for all scopes");
             } else {
                 LOGGER.info("Validator iterator has been disabled");
             }
@@ -241,7 +246,7 @@ public final class TableUtils {
         final BatchWriter writer = createBatchWriter(store, AccumuloStoreConstants.GAFFER_UTILS_TABLE);
         final Key key;
         try {
-            key = new Key(store.getProperties().getTable().getBytes(AccumuloStoreConstants.UTF_8_CHARSET), AccumuloStoreConstants.EMPTY_BYTES,
+            key = new Key(store.getProperties().getTable().getBytes(CommonConstants.UTF_8), AccumuloStoreConstants.EMPTY_BYTES,
                     AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
@@ -286,8 +291,8 @@ public final class TableUtils {
 
     private static Range getTableSetupRange(final String table) {
         try {
-            return new Range(getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), false),
-                    getTableSetupKey(table.getBytes(AccumuloStoreConstants.UTF_8_CHARSET), true));
+            return new Range(getTableSetupKey(table.getBytes(CommonConstants.UTF_8), false),
+                    getTableSetupKey(table.getBytes(CommonConstants.UTF_8), true));
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -310,7 +315,7 @@ public final class TableUtils {
         map.put(AccumuloStoreConstants.SCHEMA_KEY, new BytesWritable(schema.toJson(false)));
         try {
             map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
-                    new BytesWritable(keyPackage.getClass().getName().getBytes(AccumuloStoreConstants.UTF_8_CHARSET)));
+                    new BytesWritable(keyPackage.getClass().getName().getBytes(CommonConstants.UTF_8)));
         } catch (final UnsupportedEncodingException e) {
             throw new StoreException(e.getMessage(), e);
         }

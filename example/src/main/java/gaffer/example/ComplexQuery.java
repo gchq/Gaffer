@@ -22,7 +22,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.example.data.Certificate;
 import gaffer.example.data.SampleData;
 import gaffer.example.data.schema.Group;
@@ -88,10 +88,12 @@ public class ComplexQuery {
      */
     public Iterable<Entity> run() throws OperationException {
         // Setup graph
-        final Graph graph = new Graph(StreamUtil.storeProps(this.getClass(), true),
-                StreamUtil.dataSchema(this.getClass(), true),
-                StreamUtil.dataTypes(this.getClass(), true),
-                StreamUtil.storeTypes(this.getClass(), true));
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(this.getClass(), true))
+                .addSchema(StreamUtil.dataSchema(this.getClass(), true))
+                .addSchema(StreamUtil.dataTypes(this.getClass(), true))
+                .addSchema(StreamUtil.storeTypes(this.getClass(), true))
+                .build();
 
         // Populate the graph with some example data
         // Create an operation chain. The output from the first operation is passed in as the input the second operation.
@@ -122,11 +124,8 @@ public class ComplexQuery {
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
-                                .entity(Group.REVIEW, new ViewEntityDefinition.Builder()
-                                        .property(Property.RATING, Long.class)
-                                        .property(Property.COUNT, Integer.class)
-                                        .property(Property.USER_ID, String.class)
-                                        .property(TransientProperty.FIVE_STAR_RATING, Float.class)
+                                .entity(Group.REVIEW, new ViewElementDefinition.Builder()
+                                        .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)
                                         .filter(new ElementFilter.Builder()
                                                 .select(Property.USER_ID)
                                                 .execute(new Not(new IsEqual("user02")))

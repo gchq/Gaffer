@@ -26,9 +26,9 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
+import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
-import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class ExamplesServiceTest {
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
-        final Graph graph = new Graph(store);
+        final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
 
         service = new SimpleExamplesService(graphFactory);

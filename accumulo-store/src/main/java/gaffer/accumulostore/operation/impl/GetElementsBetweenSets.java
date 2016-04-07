@@ -32,6 +32,8 @@ import gaffer.operation.data.EntitySeed;
 public class GetElementsBetweenSets<ELEMENT_TYPE extends Element>
         extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, ELEMENT_TYPE> {
 
+    public GetElementsBetweenSets() { }
+
     public GetElementsBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
         super(seedsA, seedsB);
     }

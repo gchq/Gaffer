@@ -20,8 +20,6 @@ import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 
 public class SchemaEdgeDefinition extends SchemaElementDefinition {
-    private static final long serialVersionUID = -5054720501112437147L;
-
     public void setSource(final String typeName) {
         getIdentifierMap().put(IdentifierType.SOURCE, typeName);
     }

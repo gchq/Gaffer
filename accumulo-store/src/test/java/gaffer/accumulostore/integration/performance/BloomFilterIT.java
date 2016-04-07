@@ -35,8 +35,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
@@ -246,8 +244,9 @@ public class BloomFilterIT {
 
     private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         View view = new View.Builder()
-                .edge(TestGroups.EDGE, new ViewEdgeDefinition())
-                .entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .build();
 
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
         List<Range> range = rangeFactory.getRange(seed, operation);

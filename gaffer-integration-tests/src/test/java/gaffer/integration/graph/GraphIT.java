@@ -28,7 +28,13 @@ public class GraphIT {
 
         // When
         try {
-            new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
+            new Graph.Builder()
+                    .storeProperties(storePropertiesStream)
+                    .addSchema(dataStream)
+                    .addSchema(dataTypesStream)
+                    .addSchema(storeStream)
+                    .addSchema(storeTypesStream)
+                    .build();
             fail("Exception expected");
         } catch (final Exception e) {
             // Then
@@ -52,7 +58,13 @@ public class GraphIT {
 
         // When
         try {
-            new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
+            new Graph.Builder()
+                    .storeProperties(storePropertiesStream)
+                    .addSchema(dataStream)
+                    .addSchema(dataTypesStream)
+                    .addSchema(storeStream)
+                    .addSchema(storeTypesStream)
+                    .build();
             fail("Exception expected");
         } catch (final Exception e) {
             // Then
@@ -75,7 +87,13 @@ public class GraphIT {
 
         // When
         try {
-            new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
+            new Graph.Builder()
+                    .storeProperties(storePropertiesStream)
+                    .addSchema(dataStream)
+                    .addSchema(dataTypesStream)
+                    .addSchema(storeStream)
+                    .addSchema(storeTypesStream)
+                    .build();
             fail("Exception expected");
         } catch (final Exception e) {
             // Then
@@ -96,7 +114,13 @@ public class GraphIT {
         final InputStream storeTypesStream = StreamUtil.storeTypes(getClass());
 
         // When
-        new Graph(storePropertiesStream, dataStream, dataTypesStream, storeStream, storeTypesStream);
+        new Graph.Builder()
+                .storeProperties(storePropertiesStream)
+                .addSchema(dataStream)
+                .addSchema(dataTypesStream)
+                .addSchema(storeStream)
+                .addSchema(storeTypesStream)
+                .build();
         checkClosed(storePropertiesStream);
         checkClosed(dataStream);
         checkClosed(dataTypesStream);

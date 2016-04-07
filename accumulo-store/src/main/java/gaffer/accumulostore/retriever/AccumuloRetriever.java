@@ -34,6 +34,7 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+
 import java.util.Set;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {

@@ -24,15 +24,13 @@ import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.operation.AbstractGetRangeFromPair;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -58,7 +56,7 @@ public class AccumuloRangeIDRetrieverTest {
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
     }
@@ -83,7 +81,7 @@ public class AccumuloRangeIDRetrieverTest {
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         AccumuloRangeIDRetriever retriever = null;
-        AbstractGetRangeFromPair<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        AbstractGetOperation<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         try {
             retriever = new AccumuloRangeIDRetriever(store, operation);
         } catch (IteratorSettingException e) {

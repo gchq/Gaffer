@@ -27,7 +27,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsLessThan;
 import gaffer.integration.GafferIntegrationTests;
 import gaffer.integration.TraitRequirement;
@@ -180,8 +180,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
     public void testFilteringProperties() throws OperationException {
         // BUILD
         final View view = new View.Builder()
-                .edge(TestGroups.EDGE, new ViewEdgeDefinition.Builder()
-                        .property(TestPropertyNames.INT, Integer.class)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .filter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.INT)
                                 .execute(new IsLessThan(4))
@@ -209,8 +208,7 @@ public class GraphFunctionalityIT extends GafferIntegrationTests {
     public void testFilteringAggregatedPropertiesPartiallyMatches() throws OperationException {
         // BUILD
         final View view = new View.Builder()
-                .edge(TestGroups.EDGE, new ViewEdgeDefinition.Builder()
-                        .property(TestPropertyNames.INT, Integer.class)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .filter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.INT)
                                 .execute(new IsLessThan(5))
