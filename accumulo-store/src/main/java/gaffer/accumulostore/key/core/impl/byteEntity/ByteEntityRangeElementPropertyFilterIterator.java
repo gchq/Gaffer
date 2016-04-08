@@ -16,17 +16,15 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import java.io.IOException;
-import java.util.Map;
-
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import java.io.IOException;
+import java.util.Map;
 
 public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
 
@@ -36,6 +34,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     private boolean directedEdges = false;
     private boolean incomingEdges = false;
     private boolean outgoingEdges = false;
+    private boolean correctWayEdges = false;
 
     @Override
     public boolean accept(final Key key, final Value value) {
@@ -46,7 +45,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         } else if (!entities && !isEdge) {
             return false;
         }
-        return checkEdge(flag);
+        return !isEdge || checkEdge(flag);
     }
 
     private byte getFlag(final Key key) {
@@ -55,10 +54,16 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     }
 
     private boolean checkEdge(final byte flag) {
-        if (unDirectedEdges) {
-            return flag == ByteEntityPositions.UNDIRECTED_EDGE;
+        if (correctWayEdges) {
+            return (!directedEdges && ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE == flag)
+                    || (!unDirectedEdges && ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag);
+        } else if (unDirectedEdges) {
+            return ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE == flag
+                    || ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE == flag;
         } else if (directedEdges) {
-            return flag != ByteEntityPositions.UNDIRECTED_EDGE && checkDirection(flag);
+            return (ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag
+                    || ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE == flag)
+                    && checkDirection(flag);
         } else {
             return checkDirection(flag);
         }
@@ -79,7 +84,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -112,6 +117,9 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         }
         if (!options.containsKey(AccumuloStoreConstants.NO_EDGES)) {
             edges = true;
+        }
+        if (options.containsKey(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY)) {
+            correctWayEdges = true;
         }
         return true;
     }

@@ -22,6 +22,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
+import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -129,17 +130,27 @@ public abstract class AbstractGetElementsHandlerTest {
 
     protected abstract Store createMockStore();
 
-    protected abstract String getEdgeGroup();
-
-    protected abstract String getEntityGroup();
-
     protected abstract void addEdges(Collection<Edge> edges, Store mockStore);
 
     protected abstract void addEntities(Collection<Entity> entities, Store mockStore);
 
     protected abstract OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> createHandler();
 
-    protected abstract View createView();
+    protected String getEdgeGroup() {
+        return TestGroups.EDGE;
+    }
+
+    protected String getEntityGroup() {
+        return TestGroups.ENTITY;
+    }
+
+    protected View createView() {
+        return new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build();
+
+    }
 
     protected void shouldGetElementsBySeed(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {
         final List<ElementSeed> expectedSeeds = new ArrayList<>();
@@ -243,9 +254,25 @@ public abstract class AbstractGetElementsHandlerTest {
 
     protected Map<EdgeSeed, Edge> getEdges() {
         final Map<EdgeSeed, Edge> edges = new HashMap<>();
+        edges.putAll(getDirEdges());
+        edges.putAll(getUndirEdges());
+
+        return edges;
+    }
+
+    protected Map<EdgeSeed, Edge> getDirEdges() {
+        final Map<EdgeSeed, Edge> edges = new HashMap<>();
+        for (int i = 0; i <= 10; i++) {
+            addEdge(new Edge(getEdgeGroup(), SOURCE_DIR + i, DEST_DIR + i, true), edges);
+        }
+
+        return edges;
+    }
+
+    protected Map<EdgeSeed, Edge> getUndirEdges() {
+        final Map<EdgeSeed, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             addEdge(new Edge(getEdgeGroup(), SOURCE + i, DEST + i, false), edges);
-            addEdge(new Edge(getEdgeGroup(), SOURCE_DIR + i, DEST_DIR + i, true), edges);
         }
 
         return edges;

@@ -42,6 +42,7 @@ public final class AccumuloStoreConstants {
     public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
     public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";
     public static final String OUTGOING_EDGE_ONLY = "Outgoing_Edges_Only";
+    public static final String CORRECT_WAY_EDGES_ONLY = "Correct_Way_Edges_Only";
     public static final String BLOOM_FILTER = "Bloom_Filter";
     public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
 

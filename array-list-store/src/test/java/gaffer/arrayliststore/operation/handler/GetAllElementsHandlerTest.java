@@ -20,15 +20,17 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.arrayliststore.ArrayListStore;
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.operation.data.EntitySeed;
-import gaffer.operation.handler.AbstractGetAdjacentEntitySeedsHandlerTest;
-import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.data.element.Entity;
+import gaffer.operation.handler.AbstractGetAllElementsHandlerTest;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
-public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntitySeedsHandlerTest {
+public class GetAllElementsHandlerTest extends AbstractGetAllElementsHandlerTest {
 
     @Override
     protected ArrayListStore createMockStore() {
@@ -36,12 +38,17 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
     }
 
     @Override
-    protected void addEdges(final List<Element> edges, final Store mockStore) {
-        given((((ArrayListStore) mockStore)).getEdges()).willReturn((List) edges);
+    protected void addEdges(final Collection<Edge> edges, final Store mockStore) {
+        given((((ArrayListStore) mockStore)).getEdges()).willReturn(new ArrayList<>(edges));
     }
 
     @Override
-    protected OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> createHandler() {
-        return new GetAdjacentEntitySeedsHandler();
+    protected void addEntities(final Collection<Entity> entities, final Store mockStore) {
+        given((((ArrayListStore) mockStore)).getEntities()).willReturn(new ArrayList<>(entities));
+    }
+
+    @Override
+    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> createGetAllElementsHandler() {
+        return new GetAllElementsHandler();
     }
 }

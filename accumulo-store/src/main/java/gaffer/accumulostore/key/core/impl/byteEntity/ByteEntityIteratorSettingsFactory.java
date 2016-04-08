@@ -22,6 +22,7 @@ import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import gaffer.operation.impl.get.GetAllElements;
 import org.apache.accumulo.core.client.IteratorSetting;
 
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
@@ -38,14 +39,21 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+
         if (includeEdgeType == IncludeEdgeType.ALL && includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
                 && includeEntities) {
             return null;
         }
+
+        final boolean correctWayEdges = operation instanceof GetAllElements;
         return new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
-                        .includeIncomingOutgoing(includeIncomingOutgoingType).includeEdges(includeEdgeType)
-                        .includeEntities(includeEntities).build();
+                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
+                .all()
+                .includeIncomingOutgoing(includeIncomingOutgoingType)
+                .includeEdges(includeEdgeType)
+                .includeEntities(includeEntities)
+                .correctWayEdges(correctWayEdges)
+                .build();
     }
 
 }

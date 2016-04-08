@@ -106,6 +106,13 @@ public class IteratorSettingBuilder {
         return this;
     }
 
+    public IteratorSettingBuilder correctWayEdges(final boolean correctWayEdges) {
+        if (correctWayEdges) {
+            setting.addOption(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+        }
+        return this;
+    }
+
     public IteratorSettingBuilder schema(final Schema schema) {
         try {
             setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toJson(false), CommonConstants.UTF_8));

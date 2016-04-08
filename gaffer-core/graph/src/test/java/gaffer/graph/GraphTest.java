@@ -37,6 +37,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreProperties;
@@ -222,6 +223,11 @@ public class GraphTest {
 
         @Override
         protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
             return null;
         }
 

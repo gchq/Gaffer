@@ -82,8 +82,8 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
             directionFlag1 = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
             directionFlag2 = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
         } else {
-            directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
+            directionFlag1 = ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE;
+            directionFlag2 = ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE;
         }
         final byte[] source = getSerialisedSource(edge);
         final byte[] destination = getSerialisedDestination(edge);
@@ -159,11 +159,25 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         } catch (final NumberFormatException e) {
             throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
         }
-        if (directionFlag == ByteEntityPositions.UNDIRECTED_EDGE) {
-            // Edge is undirected
+        if (directionFlag == ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE) {
+            // Edge is undirected and the first identifier is the source of the edge
             sourceValueDestinationValue[0] = ByteArrayEscapeUtils
                     .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
             sourceValueDestinationValue[1] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
+            return false;
+        } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE) {
+            // Edge is undirected and the second identifier is the source of the edge
+            int src = 1;
+            int dst = 0;
+            if (options != null && options.containsKey(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
+                    && "true".equalsIgnoreCase(options.get(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE))) {
+                src = 0;
+                dst = 1;
+            }
+            sourceValueDestinationValue[src] = ByteArrayEscapeUtils
+                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+            sourceValueDestinationValue[dst] = ByteArrayEscapeUtils
                     .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
             return false;
         } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {

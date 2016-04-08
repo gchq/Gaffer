@@ -48,6 +48,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
@@ -74,6 +77,7 @@ import java.util.Map;
 public class StoreTest {
     private OperationHandler<AddElements, Void> addElementsHandler;
     private OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getElementsHandler;
+    private OperationHandler<GetAllElements<Element>, Iterable<Element>> getAllElementsHandler;
     private OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler;
     private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
     private OperationHandler<Validate, Iterable<Element>> validateHandler;
@@ -83,6 +87,7 @@ public class StoreTest {
     public void setup() {
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OperationHandler.class);
+        getAllElementsHandler = mock(OperationHandler.class);
         getAdjacentEntitySeedsHandler = mock(OperationHandler.class);
         validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
@@ -154,6 +159,9 @@ public class StoreTest {
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetEdgesBySeed.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEntities.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEdges.class));
         assertSame(getAdjacentEntitySeedsHandler, store.getOperationHandlerExposed(GetAdjacentEntitySeeds.class));
 
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
@@ -465,6 +473,11 @@ public class StoreTest {
         @Override
         protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
             return getElementsHandler;
+        }
+
+        @Override
+        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
         }
 
         @Override

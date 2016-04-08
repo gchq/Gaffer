@@ -14,42 +14,47 @@
  * limitations under the License.
  */
 
-package gaffer.arrayliststore.operation.handler;
+package gaffer.accumulostore.operation.handler;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
-import gaffer.arrayliststore.ArrayListStore;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.MockAccumuloStore;
+import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.handler.AbstractGetElementsHandlerTest;
-import gaffer.operation.impl.get.GetElements;
+import gaffer.operation.handler.AbstractGetAllElementsHandlerTest;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.Store;
+import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import java.util.ArrayList;
 import java.util.Collection;
 
-public class GetElementsHandlerTest extends AbstractGetElementsHandlerTest {
-
+public class GetAllElementsHandlerTest extends AbstractGetAllElementsHandlerTest {
     @Override
-    protected ArrayListStore createMockStore() {
-        return mock(ArrayListStore.class);
+    protected MockAccumuloStore createMockStore() {
+        return new MockAccumuloStoreForTest();
     }
 
     @Override
     protected void addEdges(final Collection<Edge> edges, final Store mockStore) {
-        given((((ArrayListStore) mockStore)).getEdges()).willReturn(new ArrayList<>(edges));
+        try {
+            ((AccumuloStore) mockStore).addElements((Collection) edges);
+        } catch (StoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void addEntities(final Collection<Entity> entities, final Store mockStore) {
-        given((((ArrayListStore) mockStore)).getEntities()).willReturn(new ArrayList<>(entities));
+        try {
+            ((AccumuloStore) mockStore).addElements((Collection) entities);
+        } catch (StoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> createHandler() {
-        return new GetElementsHandler();
+    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> createGetAllElementsHandler() {
+        return new GetAllElementsHandler();
     }
 }

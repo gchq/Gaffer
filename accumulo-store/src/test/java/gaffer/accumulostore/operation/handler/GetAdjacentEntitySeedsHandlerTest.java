@@ -22,10 +22,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.commonutil.StreamUtil;
-import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.handler.AbstractGetAdjacentEntitySeedsHandlerTest;
@@ -45,11 +42,6 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
     }
 
     @Override
-    protected String getEdgeGroup() {
-        return TestGroups.EDGE;
-    }
-
-    @Override
     protected void addEdges(final List<Element> edges, final Store mockStore) {
         try {
             ((AccumuloStore) mockStore).addElements(edges);
@@ -61,11 +53,6 @@ public class GetAdjacentEntitySeedsHandlerTest extends AbstractGetAdjacentEntity
     @Override
     protected OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> createHandler() {
         return new GetAdjacentEntitySeedsHandler();
-    }
-
-    @Override
-    protected View createView() {
-        return View.fromJson(StreamUtil.view(getClass()));
     }
 
     @Override

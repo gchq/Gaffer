@@ -16,6 +16,11 @@
 
 package gaffer.operation.handler;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -28,7 +33,6 @@ import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,10 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 public abstract class AbstractGetAdjacentEntitySeedsHandlerTest {
     private static final List<String> SEEDS = Arrays.asList(
@@ -87,13 +87,20 @@ public abstract class AbstractGetAdjacentEntitySeedsHandlerTest {
 
     protected abstract Store createMockStore();
 
-    protected abstract String getEdgeGroup();
+    protected String getEdgeGroup() {
+        return TestGroups.EDGE;
+    }
 
     protected abstract void addEdges(final List<Element> edges, final Store mockStore);
 
     protected abstract OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> createHandler();
 
-    protected abstract View createView();
+    protected View createView() {
+        return new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build();
+    }
 
     protected void shouldGetEntitySeeds(final List<String> expectedResultSeeds, final GetOperation.IncludeIncomingOutgoingType inOutType)
             throws IOException, OperationException {

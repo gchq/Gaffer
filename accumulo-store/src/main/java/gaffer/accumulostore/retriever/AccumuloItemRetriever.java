@@ -23,6 +23,7 @@ import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -52,7 +53,11 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
     @Override
     public Iterator<Element> iterator() {
-        Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : null;
+        final Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : Iterators.<SEED_TYPE>emptyIterator();
+        if (!idIterator.hasNext() && !(operation instanceof GetAllElements)) {
+            return Collections.emptyIterator();
+        }
+
         try {
             iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
@@ -72,22 +77,18 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
 
         protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
+            idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
-            if (null == idIterator) {
-                idsIterator = Iterators.emptyIterator();
+            if (operation instanceof GetAllElements) {
                 ranges.add(new Range());
             } else {
-                idsIterator = idIterator;
-                if (idsIterator.hasNext()) {
-                    count = 0;
-                    while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
-                        count++;
-                        try {
-                            addToRanges(idsIterator.next(), ranges);
-                        } catch (final RangeFactoryException e) {
-                            LOGGER.error("Failed to create a range from given seed pair", e);
-                        }
+                while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
+                    count++;
+                    try {
+                        addToRanges(idsIterator.next(), ranges);
+                    } catch (final RangeFactoryException e) {
+                        LOGGER.error("Failed to create a range from given seed pair", e);
                     }
                 }
             }
