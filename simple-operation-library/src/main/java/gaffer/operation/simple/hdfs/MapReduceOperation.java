@@ -108,50 +108,48 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
     }
 
     public static class Builder<OP_TYPE extends MapReduceOperation<INPUT, OUTPUT>, INPUT, OUTPUT> extends AbstractOperation.Builder<OP_TYPE, INPUT, OUTPUT> {
-
-        public Builder(final OP_TYPE op) {
+        protected Builder(final OP_TYPE op) {
             super(op);
         }
 
-        public Builder inputPath(final Path inputPath) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> inputPath(final Path inputPath) {
             op.setInputPath(inputPath);
             return this;
         }
 
-        public Builder outputPath(final Path outputPath) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> outputPath(final Path outputPath) {
             op.setOutputPath(outputPath);
             return this;
         }
 
-        public Builder failurePath(final Path failurePath) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> failurePath(final Path failurePath) {
             op.setFailurePath(failurePath);
             return this;
         }
 
-        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> jobInitialiser(final JobInitialiser jobInitialiser) {
             op.setJobInitialiser(jobInitialiser);
             return this;
         }
 
-        public Builder reducers(final Integer numReduceTasks) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> reducers(final Integer numReduceTasks) {
             op.setNumReduceTasks(numReduceTasks);
             return this;
         }
 
-        public Builder mappers(final Integer numMapTasks) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> mappers(final Integer numMapTasks) {
             op.setNumMapTasks(numMapTasks);
             return this;
         }
 
-        public Builder partioner(final Class<? extends Partitioner> partitioner) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> partioner(final Class<? extends Partitioner> partitioner) {
             op.setPartitioner(partitioner);
             return this;
         }
 
         @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
+        protected Builder<OP_TYPE, INPUT, OUTPUT> option(final String name, final String value) {
+            return (Builder<OP_TYPE, INPUT, OUTPUT>) super.option(name, value);
         }
     }
 }
