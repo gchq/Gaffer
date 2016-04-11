@@ -65,8 +65,11 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
-        <!-- Accumulo - required for MockInstance -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9-RC1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>

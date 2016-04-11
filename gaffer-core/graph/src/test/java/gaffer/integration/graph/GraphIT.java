@@ -107,22 +107,16 @@ public class GraphIT {
         final InputStream storePropertiesStream = StreamUtil.storeProps(getClass());
         final InputStream dataStream = StreamUtil.dataSchema(getClass());
         final InputStream dataTypesStream = StreamUtil.dataTypes(getClass());
-        final InputStream storeStream = StreamUtil.storeSchema(getClass());
-        final InputStream storeTypesStream = StreamUtil.storeTypes(getClass());
 
         // When
         new Graph.Builder()
                 .storeProperties(storePropertiesStream)
                 .addSchema(dataStream)
                 .addSchema(dataTypesStream)
-                .addSchema(storeStream)
-                .addSchema(storeTypesStream)
                 .build();
         checkClosed(storePropertiesStream);
         checkClosed(dataStream);
         checkClosed(dataTypesStream);
-        checkClosed(storeStream);
-        checkClosed(storeTypesStream);
     }
 
     private void checkClosed(final InputStream stream) {
