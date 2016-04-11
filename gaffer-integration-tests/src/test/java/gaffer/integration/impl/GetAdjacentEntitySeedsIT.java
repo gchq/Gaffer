@@ -22,7 +22,6 @@ import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,10 +41,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEdges().values())
-                .build());
+        addDefaultElements();
     }
 
     @Test

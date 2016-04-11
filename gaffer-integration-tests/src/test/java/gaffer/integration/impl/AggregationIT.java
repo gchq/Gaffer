@@ -49,14 +49,7 @@ public class AggregationIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEntities().values())
-                .build());
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEdges().values())
-                .build());
+        addDefaultElements();
 
         // Add duplicate elements
         graph.execute(new AddElements.Builder()

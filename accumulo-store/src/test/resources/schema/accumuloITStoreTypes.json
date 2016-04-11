@@ -8,6 +8,9 @@
     },
     "prop.count": {
       "position": "VALUE"
+    },
+    "timestamp": {
+      "position": "VALUE"
     }
   }
 }

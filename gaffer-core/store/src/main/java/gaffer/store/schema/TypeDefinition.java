@@ -51,7 +51,6 @@ public class TypeDefinition {
         this.clazz = clazz;
     }
 
-
     @JsonIgnore
     public Class<?> getClazz() {
         return clazz;

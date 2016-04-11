@@ -25,9 +25,11 @@ import gaffer.function.simple.aggregate.Max;
 import gaffer.function.simple.aggregate.StringConcat;
 import gaffer.function.simple.aggregate.Sum;
 import gaffer.graph.Graph;
+import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.add.AddElements;
 import gaffer.serialisation.implementation.JavaSerialiser;
 import gaffer.serialisation.simple.IntegerSerialiser;
 import gaffer.serialisation.simple.LongSerialiser;
@@ -61,7 +63,11 @@ public abstract class AbstractStoreIT {
     protected static final String DEST = "dest";
     protected static final String SOURCE_DIR = "sourceDir";
     protected static final String DEST_DIR = "destDir";
-    protected static final String[] VERTEX_PREFIXES = new String[]{"A", "B", "C", "D"};
+    protected static final String A = "A";
+    protected static final String B = "B";
+    protected static final String C = "C";
+    protected static final String D = "D";
+    protected static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     // Identifiers
     protected static final String SOURCE_1 = SOURCE + 1;
@@ -121,41 +127,7 @@ public abstract class AbstractStoreIT {
 
         graph = new Graph.Builder()
                 .storeProperties(storeProperties)
-                .addSchema(new Schema.Builder()
-                        .type("id.string", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .type("directed.either", new TypeDefinition.Builder()
-                                .clazz(Boolean.class)
-                                .build())
-                        .type("prop.string", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .serialiser(new JavaSerialiser())
-                                .build())
-                        .type("prop.integer", new TypeDefinition.Builder()
-                                .clazz(Integer.class)
-                                .aggregateFunction(new Max())
-                                .serialiser(new IntegerSerialiser())
-                                .build())
-                        .type("prop.count", new TypeDefinition.Builder()
-                                .clazz(Long.class)
-                                .aggregateFunction(new Sum())
-                                .serialiser(new LongSerialiser())
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("id.string")
-                                .property(TestPropertyNames.STRING, "prop.string")
-                                .build())
-                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                                .source("id.string")
-                                .destination("id.string")
-                                .directed("directed.either")
-                                .property(TestPropertyNames.INT, "prop.integer")
-                                .property(TestPropertyNames.COUNT, "prop.count")
-                                .build())
-                        .vertexSerialiser(new StringSerialiser())
-                        .build())
+                .addSchema(createSchema())
                 .addSchema(storeSchema)
                 .build();
 
@@ -177,9 +149,57 @@ public abstract class AbstractStoreIT {
         }
     }
 
+    protected Schema createSchema() {
+        return new Schema.Builder()
+                .type("id.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("directed.either", new TypeDefinition.Builder()
+                        .clazz(Boolean.class)
+                        .build())
+                .type("prop.string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(new StringConcat())
+                        .serialiser(new JavaSerialiser())
+                        .build())
+                .type("prop.integer", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(new Max())
+                        .serialiser(new IntegerSerialiser())
+                        .build())
+                .type("prop.count", new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Sum())
+                        .serialiser(new LongSerialiser())
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id.string")
+                        .property(TestPropertyNames.STRING, "prop.string")
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("id.string")
+                        .destination("id.string")
+                        .directed("directed.either")
+                        .property(TestPropertyNames.INT, "prop.integer")
+                        .property(TestPropertyNames.COUNT, "prop.count")
+                        .build())
+                .vertexSerialiser(new StringSerialiser())
+                .build();
+    }
+
     @After
     public void tearDown() {
         graph = null;
+    }
+
+    public void addDefaultElements() throws OperationException {
+        graph.execute(new AddElements.Builder()
+                .elements((Iterable) getEntities().values())
+                .build());
+
+        graph.execute(new AddElements.Builder()
+                .elements((Iterable) getEdges().values())
+                .build());
     }
 
     public Map<EntitySeed, Entity> getEntities() {
@@ -230,7 +250,7 @@ public abstract class AbstractStoreIT {
             final String prop = String.valueOf(i);
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
                 entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
-                entity.putProperty(TestPropertyNames.INT, String.valueOf(j));
+                entity.putProperty(TestPropertyNames.STRING, String.valueOf(j));
                 addToMap(entity, entities);
             }
 

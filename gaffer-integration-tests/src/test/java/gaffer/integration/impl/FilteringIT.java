@@ -35,7 +35,6 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreTrait;
 import org.hamcrest.core.IsCollectionContaining;
@@ -50,14 +49,7 @@ public class FilteringIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEntities().values())
-                .build());
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEdges().values())
-                .build());
+        addDefaultElements();
     }
 
     @Test

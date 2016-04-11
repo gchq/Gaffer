@@ -33,7 +33,6 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetRelatedElements;
@@ -93,14 +92,7 @@ public class GetElementsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEntities().values())
-                .build());
-
-        graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEdges().values())
-                .build());
+        addDefaultElements();
     }
 
     @Test
@@ -129,7 +121,6 @@ public class GetElementsIT extends AbstractStoreIT {
             }
         }
     }
-
 
     private static List<Element> getElements(final List<ElementSeed> seeds) {
         final List<Element> elements = new ArrayList<>(seeds.size());
