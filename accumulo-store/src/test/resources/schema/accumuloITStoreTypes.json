@@ -1,0 +1,13 @@
+{
+  "types": {
+    "prop.string": {
+      "position": "VALUE"
+    },
+    "prop.integer": {
+      "position": "VALUE"
+    },
+    "prop.count": {
+      "position": "VALUE"
+    }
+  }
+}

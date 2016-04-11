@@ -14,9 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class GraphIT {
-
-    public static final String ARRAYLIST_PROPERTIES_PATH = "/arraylist.properties";
-
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithStoreProperties() throws IOException {
         // Given
@@ -50,7 +47,7 @@ public class GraphIT {
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithDataSchema() throws IOException {
         // Given
-        final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
+        final InputStream storePropertiesStream = StreamUtil.storeProps(getClass());
         final InputStream dataStream = mock(InputStream.class);
         final InputStream dataTypesStream = mock(InputStream.class);
         final InputStream storeStream = mock(InputStream.class);
@@ -79,7 +76,7 @@ public class GraphIT {
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithDataTypes() throws IOException {
         // Given
-        final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
+        final InputStream storePropertiesStream = StreamUtil.storeProps(getClass());
         final InputStream dataStream = StreamUtil.dataSchema(getClass());
         final InputStream dataTypesStream = mock(InputStream.class);
         final InputStream storeStream = mock(InputStream.class);
@@ -107,7 +104,7 @@ public class GraphIT {
     @Test
     public void shouldCloseStreamsWhenSuccessful() throws IOException {
         // Given
-        final InputStream storePropertiesStream = StreamUtil.openStream(getClass(), ARRAYLIST_PROPERTIES_PATH);
+        final InputStream storePropertiesStream = StreamUtil.storeProps(getClass());
         final InputStream dataStream = StreamUtil.dataSchema(getClass());
         final InputStream dataTypesStream = StreamUtil.dataTypes(getClass());
         final InputStream storeStream = StreamUtil.storeSchema(getClass());

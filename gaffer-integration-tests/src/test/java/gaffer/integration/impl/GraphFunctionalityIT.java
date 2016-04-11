@@ -27,7 +27,7 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsLessThan;
-import gaffer.integration.GafferIntegrationTests;
+import gaffer.integration.AbstractStoreIT;
 import gaffer.integration.TraitRequirement;
 import gaffer.integration.domain.EdgeDomainObject;
 import gaffer.integration.generators.BasicEdgeGenerator;
@@ -48,8 +48,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class GraphFunctionalityIT extends GafferIntegrationTests {
-
+public class GraphFunctionalityIT extends AbstractStoreIT {
     @Before
     public void data() throws OperationException {
         //BUILD

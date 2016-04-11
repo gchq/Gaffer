@@ -25,7 +25,7 @@ import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.integration.GafferIntegrationTests;
+import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -39,8 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class TransientPropertiesIT extends GafferIntegrationTests {
-
+public class TransientPropertiesIT extends AbstractStoreIT {
     /**
      * Adds simple graph data required for testing.
      *
