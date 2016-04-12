@@ -68,7 +68,7 @@ public class AggregationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.AGGREGATION)
-    public void testIdenticalEdgesAggregated() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
         final GetRelatedElements<ElementSeed, Element> getElements = new GetRelatedElements.Builder<>()
                 .addSeed(new EntitySeed(SOURCE + AGGREGATED_ID))
@@ -97,7 +97,7 @@ public class AggregationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.AGGREGATION)
-    public void testEdgesWithDifferentDirectionAreNotAggregated() throws OperationException {
+    public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
         final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed(SOURCE + NON_AGGREGATED_ID))
