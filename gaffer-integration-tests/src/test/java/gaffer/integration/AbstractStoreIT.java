@@ -19,6 +19,7 @@ import static org.junit.Assume.assumeTrue;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.function.simple.aggregate.Max;
@@ -151,37 +152,37 @@ public abstract class AbstractStoreIT {
 
     protected Schema createSchema() {
         return new Schema.Builder()
-                .type("id.string", new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
-                .type("directed.either", new TypeDefinition.Builder()
+                .type(TestTypes.DIRECTED_EITHER, new TypeDefinition.Builder()
                         .clazz(Boolean.class)
                         .build())
-                .type("prop.string", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
                         .serialiser(new JavaSerialiser())
                         .build())
-                .type("prop.integer", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
                         .serialiser(new IntegerSerialiser())
                         .build())
-                .type("prop.count", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Sum())
                         .serialiser(new LongSerialiser())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("id.string")
-                        .property(TestPropertyNames.STRING, "prop.string")
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source("id.string")
-                        .destination("id.string")
-                        .directed("directed.either")
-                        .property(TestPropertyNames.INT, "prop.integer")
-                        .property(TestPropertyNames.COUNT, "prop.count")
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_EITHER)
+                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();

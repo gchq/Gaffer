@@ -48,6 +48,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GeneratorsIT extends AbstractStoreIT {
+    private static final String NEW_SOURCE = "newSource";
+    private static final String NEW_DEST = "newDest";
+    private static final String NEW_VERTEX = "newVertex";
+
     @Override
     @Before
     public void setup() throws Exception {
@@ -88,8 +92,8 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .first(new GenerateElements.Builder<DomainObject>()
                         .generator(new BasicGenerator())
                         .objects(Arrays.asList(
-                                new EntityDomainObject("newVertex", "1", null),
-                                new EdgeDomainObject("newSource", "newDest", false, 1, 1L)
+                                new EntityDomainObject(NEW_VERTEX, "1", null),
+                                new EdgeDomainObject(NEW_SOURCE, NEW_DEST, false, 1, 1L)
                         ))
                         .build())
                 .then(new AddElements())
@@ -100,14 +104,14 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         // Then - check they were added correctly
         final List<Element> results = Lists.newArrayList(graph.execute(new GetElementsSeed.Builder<>()
-                .addSeed(new EntitySeed("newVertex"))
-                .addSeed(new EdgeSeed("newSource", "newDest", false))
+                .addSeed(new EntitySeed(NEW_VERTEX))
+                .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build()));
         assertNotNull(results);
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
-                new Entity(TestGroups.ENTITY, "newVertex"),
-                new Edge(TestGroups.EDGE, "newSource", "newDest", false)
+                new Entity(TestGroups.ENTITY, NEW_VERTEX),
+                new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false)
         ));
     }
 }

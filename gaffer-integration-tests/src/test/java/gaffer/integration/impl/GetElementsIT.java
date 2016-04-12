@@ -122,60 +122,6 @@ public class GetElementsIT extends AbstractStoreIT {
         }
     }
 
-    private static List<Element> getElements(final List<ElementSeed> seeds) {
-        final List<Element> elements = new ArrayList<>(seeds.size());
-        for (ElementSeed seed : seeds) {
-            if (seed instanceof EntitySeed) {
-                elements.add(new Entity(TestGroups.ENTITY, ((EntitySeed) seed).getVertex()));
-            } else {
-                elements.add(new Edge(TestGroups.EDGE, ((EdgeSeed) seed).getSource(), ((EdgeSeed) seed).getDestination(), ((EdgeSeed) seed).isDirected()));
-            }
-        }
-
-        return elements;
-    }
-
-    private static List<ElementSeed> getEntitySeeds() {
-        List<ElementSeed> allSeeds = new ArrayList<>();
-        allSeeds.addAll(ENTITY_SEEDS_EXIST);
-        allSeeds.addAll(ENTITY_SEEDS_DONT_EXIST);
-        return allSeeds;
-    }
-
-    private static List<ElementSeed> getEdgeSeeds() {
-        List<ElementSeed> allSeeds = new ArrayList<>();
-        allSeeds.addAll(EDGE_SEEDS_EXIST);
-        allSeeds.addAll(EDGE_DIR_SEEDS_EXIST);
-        allSeeds.addAll(EDGE_SEEDS_DONT_EXIST);
-        return allSeeds;
-    }
-
-    private static List<ElementSeed> getAllSeeds() {
-        List<ElementSeed> allSeeds = new ArrayList<>();
-        allSeeds.addAll(ENTITY_SEEDS);
-        allSeeds.addAll(EDGE_SEEDS);
-        return allSeeds;
-    }
-
-    private static List<Object> getAllSeededVertices() {
-        List<Object> allSeededVertices = new ArrayList<>();
-        for (ElementSeed elementSeed : ENTITY_SEEDS_EXIST) {
-            allSeededVertices.add(((EntitySeed) elementSeed).getVertex());
-        }
-
-        for (ElementSeed elementSeed : EDGE_SEEDS_EXIST) {
-            allSeededVertices.add(((EdgeSeed) elementSeed).getSource());
-            allSeededVertices.add(((EdgeSeed) elementSeed).getDestination());
-        }
-
-        for (ElementSeed elementSeed : EDGE_DIR_SEEDS_EXIST) {
-            allSeededVertices.add(((EdgeSeed) elementSeed).getSource());
-            allSeededVertices.add(((EdgeSeed) elementSeed).getDestination());
-        }
-
-        return allSeededVertices;
-    }
-
     private void shouldGetElementsBySeed(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
@@ -242,10 +188,25 @@ public class GetElementsIT extends AbstractStoreIT {
         // Given
         final Map<EdgeSeed, Edge> edges = getEdges();
         final Map<EntitySeed, Entity> entities = getEntities();
-        final GetElements<ElementSeed, Element> operation = createOperation(seedMatching, includeEdgeType, includeEntities, inOutType, seeds);
+
+        final GetElements<ElementSeed, Element> op;
+        if (SeedMatchingType.EQUAL.equals(seedMatching)) {
+            op = new GetElementsSeed<>();
+        } else {
+            op = new GetRelatedElements<>();
+        }
+        op.setSeeds(seeds);
+        op.setIncludeEntities(includeEntities);
+        op.setIncludeEdges(includeEdgeType);
+        op.setIncludeIncomingOutGoing(inOutType);
+        op.setView(new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build());
+
 
         // When
-        final Iterable<? extends Element> results = graph.execute(operation);
+        final Iterable<? extends Element> results = graph.execute(op);
 
         // Then
         Map<? extends ElementSeed, ? extends Element> elements = new HashMap<>(edges);
@@ -274,28 +235,57 @@ public class GetElementsIT extends AbstractStoreIT {
                 Lists.newArrayList(results).size());
     }
 
-    private GetElements<ElementSeed, Element> createOperation(final SeedMatchingType seedMatching,
-                                                              final IncludeEdgeType includeEdgeType,
-                                                              final Boolean includeEntities,
-                                                              final IncludeIncomingOutgoingType inOutType,
-                                                              final Iterable<ElementSeed> seeds) throws IOException {
-        final GetElements<ElementSeed, Element> op;
-        if (SeedMatchingType.EQUAL.equals(seedMatching)) {
-            op = new GetElementsSeed<>();
-        } else {
-            op = new GetRelatedElements<>();
+    private static List<Element> getElements(final List<ElementSeed> seeds) {
+        final List<Element> elements = new ArrayList<>(seeds.size());
+        for (ElementSeed seed : seeds) {
+            if (seed instanceof EntitySeed) {
+                elements.add(new Entity(TestGroups.ENTITY, ((EntitySeed) seed).getVertex()));
+            } else {
+                elements.add(new Edge(TestGroups.EDGE, ((EdgeSeed) seed).getSource(), ((EdgeSeed) seed).getDestination(), ((EdgeSeed) seed).isDirected()));
+            }
         }
 
-        op.setSeeds(seeds);
-        op.setIncludeEntities(includeEntities);
-        op.setIncludeEdges(includeEdgeType);
-        op.setIncludeIncomingOutGoing(inOutType);
+        return elements;
+    }
 
-        op.setView(new View.Builder()
-                .entity(TestGroups.ENTITY)
-                .edge(TestGroups.EDGE)
-                .build());
+    private static List<ElementSeed> getEntitySeeds() {
+        List<ElementSeed> allSeeds = new ArrayList<>();
+        allSeeds.addAll(ENTITY_SEEDS_EXIST);
+        allSeeds.addAll(ENTITY_SEEDS_DONT_EXIST);
+        return allSeeds;
+    }
 
-        return op;
+    private static List<ElementSeed> getEdgeSeeds() {
+        List<ElementSeed> allSeeds = new ArrayList<>();
+        allSeeds.addAll(EDGE_SEEDS_EXIST);
+        allSeeds.addAll(EDGE_DIR_SEEDS_EXIST);
+        allSeeds.addAll(EDGE_SEEDS_DONT_EXIST);
+        return allSeeds;
+    }
+
+    private static List<ElementSeed> getAllSeeds() {
+        List<ElementSeed> allSeeds = new ArrayList<>();
+        allSeeds.addAll(ENTITY_SEEDS);
+        allSeeds.addAll(EDGE_SEEDS);
+        return allSeeds;
+    }
+
+    private static List<Object> getAllSeededVertices() {
+        List<Object> allSeededVertices = new ArrayList<>();
+        for (ElementSeed elementSeed : ENTITY_SEEDS_EXIST) {
+            allSeededVertices.add(((EntitySeed) elementSeed).getVertex());
+        }
+
+        for (ElementSeed elementSeed : EDGE_SEEDS_EXIST) {
+            allSeededVertices.add(((EdgeSeed) elementSeed).getSource());
+            allSeededVertices.add(((EdgeSeed) elementSeed).getDestination());
+        }
+
+        for (ElementSeed elementSeed : EDGE_DIR_SEEDS_EXIST) {
+            allSeededVertices.add(((EdgeSeed) elementSeed).getSource());
+            allSeededVertices.add(((EdgeSeed) elementSeed).getDestination());
+        }
+
+        return allSeededVertices;
     }
 }

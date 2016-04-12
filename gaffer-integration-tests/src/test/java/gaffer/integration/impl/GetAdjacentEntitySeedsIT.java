@@ -86,7 +86,17 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     private void shouldGetEntitySeeds(final List<String> expectedResultSeeds, final GetOperation.IncludeIncomingOutgoingType inOutType)
             throws IOException, OperationException {
         // Given
-        final GetAdjacentEntitySeeds operation = createOperation(inOutType);
+        final List<EntitySeed> seeds = new ArrayList<>();
+        for (String seed : SEEDS) {
+            seeds.add(new EntitySeed(seed));
+        }
+
+        final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
+                .seeds(seeds)
+                .includeEntities(true)
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .build();
+        operation.setIncludeIncomingOutGoing(inOutType);
 
         // When
         final Iterable<EntitySeed> results = graph.execute(operation);
@@ -99,21 +109,5 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
         assertArrayEquals(expectedResultSeeds.toArray(), resultSeeds.toArray());
-    }
-
-    private GetAdjacentEntitySeeds createOperation(final GetOperation.IncludeIncomingOutgoingType inOutType) throws IOException {
-        List<EntitySeed> seeds = new ArrayList<>();
-        for (String seed : SEEDS) {
-            seeds.add(new EntitySeed(seed));
-        }
-
-        final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
-                .seeds(seeds)
-                .includeEntities(true)
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
-                .build();
-
-        operation.setIncludeIncomingOutGoing(inOutType);
-        return operation;
     }
 }

@@ -43,7 +43,12 @@ import java.util.List;
 
 public class AggregationIT extends AbstractStoreIT {
     private final int AGGREGATED_ID = 6;
+    private final String AGGREGATED_SOURCE = SOURCE + AGGREGATED_ID;
+    private final String AGGREGATED_DEST = DEST + AGGREGATED_ID;
+
     private final int NON_AGGREGATED_ID = 8;
+    private final String NON_AGGREGATED_SOURCE = SOURCE + NON_AGGREGATED_ID;
+    private final String NON_AGGREGATED_DEST = DEST + NON_AGGREGATED_ID;
 
     @Override
     @Before
@@ -53,16 +58,16 @@ public class AggregationIT extends AbstractStoreIT {
 
         // Add duplicate elements
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(getEntity(SOURCE + 6)))
+                .elements(Collections.<Element>singleton(getEntity(AGGREGATED_SOURCE)))
                 .build());
 
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(getEdge(SOURCE + 6, DEST + 6, false)))
+                .elements(Collections.<Element>singleton(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false)))
                 .build());
 
         // Edge with existing ids but directed
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(new Edge(TestGroups.EDGE, SOURCE + 8, DEST + 8, true)))
+                .elements(Collections.<Element>singleton(new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)))
                 .build());
     }
 
@@ -71,7 +76,7 @@ public class AggregationIT extends AbstractStoreIT {
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
         final GetRelatedElements<ElementSeed, Element> getElements = new GetRelatedElements.Builder<>()
-                .addSeed(new EntitySeed(SOURCE + AGGREGATED_ID))
+                .addSeed(new EntitySeed(AGGREGATED_SOURCE))
                 .build();
 
         // When
@@ -81,8 +86,8 @@ public class AggregationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
-                getEdge(SOURCE + AGGREGATED_ID, DEST + AGGREGATED_ID, false),
-                getEntity(SOURCE + AGGREGATED_ID)
+                getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false),
+                getEntity(AGGREGATED_SOURCE)
         ));
 
         for (Element result : results) {
@@ -100,7 +105,7 @@ public class AggregationIT extends AbstractStoreIT {
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
         final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()
-                .addSeed(new EntitySeed(SOURCE + NON_AGGREGATED_ID))
+                .addSeed(new EntitySeed(NON_AGGREGATED_SOURCE))
                 .build();
 
         // When
@@ -110,8 +115,8 @@ public class AggregationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
-                getEdge(SOURCE + NON_AGGREGATED_ID, DEST + NON_AGGREGATED_ID, false),
-                new Edge(TestGroups.EDGE, SOURCE + NON_AGGREGATED_ID, DEST + NON_AGGREGATED_ID, true)
+                getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
+                new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)
         ));
     }
 }

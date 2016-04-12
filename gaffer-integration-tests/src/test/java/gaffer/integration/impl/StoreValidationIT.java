@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
@@ -30,25 +31,26 @@ public class StoreValidationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
     private static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
+
     @Override
     protected Schema createSchema() {
         final Schema schema = super.createSchema();
         schema.merge(new Schema.Builder()
-                .type("timestamp", new TypeDefinition.Builder()
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .validator(new ElementFilter.Builder()
                                 .execute(new AgeOff(AGE_OFF_TIME))
                                 .build())
                         .aggregateFunction(new Max())
                         .build())
-                .type("prop.integer", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .validator(new ElementFilter.Builder()
                                 .execute(new IsLessThan(10))
                                 .build())
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.TIMESTAMP, "timestamp")
-                        .property(TestPropertyNames.INT, "prop.integer")
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
                         .build())
                 .buildModule());
 
