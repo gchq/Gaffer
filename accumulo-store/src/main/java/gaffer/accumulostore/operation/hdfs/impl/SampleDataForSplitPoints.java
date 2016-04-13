@@ -17,14 +17,16 @@ package gaffer.accumulostore.operation.hdfs.impl;
 
 import gaffer.operation.VoidInput;
 import gaffer.operation.simple.hdfs.MapReduceOperation;
+import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Partitioner;
+import java.util.List;
 
 
 /**
  * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link gaffer.accumulostore.operation.hdfs.impl.SplitTable} operation or an
  * {@link gaffer.operation.simple.hdfs.AddElementsFromHdfs} operation.
- *
  * This operation requires an input and output path as well as a path to a file to use as the resulitngSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
@@ -42,16 +44,15 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
     private boolean validate = true;
     private float proportionToSample;
 
-    public SampleDataForSplitPoints() {
-
-    }
-
     /**
      * Used to generate elements from the Hdfs files.
      * For Avro data see {@link gaffer.operation.simple.hdfs.handler.mapper.AvroMapperGenerator}.
      * For Text data see {@link gaffer.operation.simple.hdfs.handler.mapper.TextMapperGenerator}.
      */
     private String mapperGeneratorClassName;
+
+    public SampleDataForSplitPoints() {
+    }
 
     public boolean isValidate() {
         return validate;
@@ -114,5 +115,50 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
             return this;
         }
 
+        @Override
+        protected Builder inputPaths(final List<Path> inputPaths) {
+            return (Builder) super.inputPaths(inputPaths);
+        }
+
+        @Override
+        protected Builder addInputPaths(final List<Path> inputPaths) {
+            return (Builder) super.addInputPaths(inputPaths);
+        }
+
+        @Override
+        protected Builder addInputPath(final Path inputPath) {
+            return (Builder) super.addInputPath(inputPath);
+        }
+
+        @Override
+        public Builder option(final String name, final String value) {
+            return (Builder) super.option(name, value);
+        }
+
+
+        @Override
+        public Builder outputPath(final Path outputPath) {
+            return (Builder) super.outputPath(outputPath);
+        }
+
+        @Override
+        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
+            return (Builder) super.jobInitialiser(jobInitialiser);
+        }
+
+        @Override
+        public Builder reducers(final Integer numReduceTasks) {
+            return (Builder) super.reducers(numReduceTasks);
+        }
+
+        @Override
+        public Builder mappers(final Integer numMapTasks) {
+            return (Builder) super.mappers(numMapTasks);
+        }
+
+        @Override
+        public Builder partioner(final Class<? extends Partitioner> partitioner) {
+            return (Builder) super.partioner(partitioner);
+        }
     }
 }
