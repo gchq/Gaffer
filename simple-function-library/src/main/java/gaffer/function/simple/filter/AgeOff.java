@@ -23,7 +23,7 @@ import gaffer.function.annotation.Inputs;
  */
 @Inputs(Long.class)
 public class AgeOff extends SimpleFilterFunction<Long> {
-    public static final long HOURS_TO_MILLISECONDS = 24L * 60L * 60L * 1000L;
+    public static final long HOURS_TO_MILLISECONDS = 60L * 60L * 1000L;
     public static final long DAYS_TO_MILLISECONDS = 24L * HOURS_TO_MILLISECONDS;
 
     /**
