@@ -24,6 +24,12 @@ import gaffer.operation.cache.CacheOperation;
  * A <code>UpdateCache</code> allows the results of a previous operation in an
  * {@link gaffer.operation.OperationChain} to be added to a cache, keyed on
  * an optional key. If a key is not provided the default key is 'ALL'.
+ * The cache is maintained per single operation chain only. It cannot be used
+ * across multiple separate operation requests. So, it must be updated and
+ * fetched inside a single operation chain.
+ *
+ * @see FetchCache
+ * @see FetchCachedResult
  */
 public class UpdateCache extends AbstractGetOperation<Object, Object> implements CacheOperation {
     public static final String ALL = "ALL";

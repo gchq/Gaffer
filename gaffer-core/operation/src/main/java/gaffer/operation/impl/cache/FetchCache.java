@@ -22,6 +22,12 @@ import java.util.Map;
 
 /**
  * A <code>FetchCache</code> fetches the entire cache {@link Map}.
+ * The cache is maintained per single operation chain only. It cannot be used
+ * across multiple separate operation requests. So, it must be updated and
+ * fetched inside a single operation chain.
+ *
+ * @see UpdateCache
+ * @see FetchCachedResult
  */
 public class FetchCache extends AbstractOperation<Void, Map<String, Iterable<?>>> implements CacheOperation {
     public static class Builder extends AbstractOperation.Builder<FetchCache, Void, Map<String, Iterable<?>>> {
