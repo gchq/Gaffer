@@ -53,7 +53,7 @@ public class AgeOffTest extends FilterFunctionTest {
         final long ageOfTime = filter.getAgeOffTime();
 
         // Then
-        assertEquals(AgeOff.DAYS_TO_MILLISECONDS * ageOffInDays, ageOfTime);
+        assertEquals(ageOffInDays * 24 * 60 * 60 * 1000, ageOfTime);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AgeOffTest extends FilterFunctionTest {
         final long ageOfTime = filter.getAgeOffTime();
 
         // Then
-        assertEquals(AgeOff.HOURS_TO_MILLISECONDS * ageOffInHours, ageOfTime);
+        assertEquals(ageOffInHours * 60 * 60 * 1000, ageOfTime);
     }
 
     @Test
