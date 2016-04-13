@@ -16,11 +16,7 @@
 
 package gaffer.rest.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
-
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -41,6 +37,9 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
+import gaffer.rest.userrole.UserRoleHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -51,14 +50,21 @@ import gaffer.rest.GraphFactory;
  */
 public class SimpleOperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOperationService.class);
+
     private final GraphFactory graphFactory;
+    private final UserRoleHelper userRoleHelper;
 
     public SimpleOperationService() {
         this(new GraphFactory(true));
     }
 
     public SimpleOperationService(final GraphFactory graphFactory) {
+        this(graphFactory, new UserRoleHelper());
+    }
+
+    public SimpleOperationService(final GraphFactory graphFactory, final UserRoleHelper userRoleHelper) {
         this.graphFactory = graphFactory;
+        this.userRoleHelper = userRoleHelper;
     }
 
     @Override
@@ -132,7 +138,9 @@ public class SimpleOperationService implements IOperationService {
         return execute(new OperationChain<>(operation), false);
     }
 
-    protected <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> opChain, final boolean async) {
+    protected <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> opChain,
+                                      final boolean async) {
+        userRoleHelper.checkRoles(opChain);
         preOperationHook(opChain);
 
         if (async) {
@@ -163,5 +171,4 @@ public class SimpleOperationService implements IOperationService {
     protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
         return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
     }
-
 }

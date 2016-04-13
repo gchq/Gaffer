@@ -127,5 +127,7 @@ public interface Operation<INPUT, OUTPUT> {
      * @return the value of the option
      */
     String getOption(final String name);
+
+
 }
 
