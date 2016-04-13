@@ -1,16 +1,16 @@
-  Copyright 2016 Crown Copyright
+Copyright 2016 Crown Copyright
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 <img src="logos/logoWithText.png" width="300">
 
@@ -87,6 +87,6 @@ The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Aft
 
 Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
 
-[Javadoc] (http://governmentcommunicationsheadquarters.github.io/Gaffer/)
+There is a getting started guide on our wiki: [Getting Started](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
 
-We are working on a more detailed user guide.
+Our Javadoc can be found [here](http://governmentcommunicationsheadquarters.github.io/Gaffer/).
