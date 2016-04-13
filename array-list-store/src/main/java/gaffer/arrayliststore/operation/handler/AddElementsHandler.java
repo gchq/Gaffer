@@ -16,14 +16,14 @@
 
 package gaffer.arrayliststore.operation.handler;
 
-import gaffer.operation.impl.add.AddElements;
 import gaffer.arrayliststore.ArrayListStore;
 import gaffer.data.TransformIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
+import gaffer.operation.impl.add.AddElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.StoreElementDefinition;
+import gaffer.store.schema.SchemaElementDefinition;
 
 public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     @Override
@@ -38,6 +38,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
 
     private static final class ElementCleaner extends TransformIterable<Element, Element> {
         private final Store store;
+
         private ElementCleaner(final Iterable<Element> input, final Store store) {
             super(input);
             this.store = store;
@@ -46,7 +47,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         @Override
         protected Element transform(final Element element) {
             final Element cleanElement = element.emptyClone();
-            final StoreElementDefinition elementDefinition = store.getStoreSchema().getElement(element.getGroup());
+            final SchemaElementDefinition elementDefinition = store.getSchema().getElement(element.getGroup());
             for (String property : elementDefinition.getProperties()) {
                 cleanElement.putProperty(property, element.getProperty(property));
             }

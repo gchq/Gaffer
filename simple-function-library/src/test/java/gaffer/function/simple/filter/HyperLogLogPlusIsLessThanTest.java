@@ -15,6 +15,12 @@
  */
 package gaffer.function.simple.filter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunction;
@@ -23,12 +29,6 @@ import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
 
 public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
 
@@ -62,7 +62,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter._isValid(hyperLogLogPlusWithCardinality5);
+        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality5);
         // Then
         assertTrue(accepted);
     }
@@ -72,7 +72,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter._isValid(hyperLogLogPlusWithCardinality15);
+        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality15);
         // Then
         assertFalse(accepted);
     }
@@ -82,7 +82,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15, true);
         // When
-        boolean accepted = filter._isValid(hyperLogLogPlusWithCardinality15);
+        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality15);
         // Then
         assertTrue(accepted);
     }
@@ -92,7 +92,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter._isValid(hyperLogLogPlusWithCardinality31);
+        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality31);
         // Then
         assertFalse(accepted);
     }
@@ -102,7 +102,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter._isValid(null);
+        boolean accepted = filter.isValid((HyperLogLogPlus) null);
         // Then
         assertFalse(accepted);
     }
@@ -160,10 +160,5 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
     @Override
     protected FilterFunction getInstance() {
         return new HyperLogLogPlusIsLessThan(10);
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{hyperLogLogPlusWithCardinality5};
     }
 }

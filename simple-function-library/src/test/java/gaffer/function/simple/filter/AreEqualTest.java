@@ -15,16 +15,16 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class AreEqualTest extends FilterFunctionTest {
 
@@ -33,7 +33,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals._isValid(new String[]{"test", "test"});
+        boolean accepted = equals.isValid(new String[]{"test", "test"});
 
         assertTrue(accepted);
     }
@@ -43,7 +43,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals._isValid(new String[]{null, null});
+        boolean accepted = equals.isValid(new String[]{null, null});
 
         assertTrue(accepted);
     }
@@ -53,7 +53,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals._isValid(new String[]{null, "test"});
+        boolean accepted = equals.isValid(new String[]{null, "test"});
 
         assertFalse(accepted);
     }
@@ -63,7 +63,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals._isValid(new String[]{"test", "test2"});
+        boolean accepted = equals.isValid(new String[]{"test", "test2"});
 
         assertFalse(accepted);
     }
@@ -109,10 +109,5 @@ public class AreEqualTest extends FilterFunctionTest {
     @Override
     protected AreEqual getInstance() {
         return new AreEqual();
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[0];
     }
 }

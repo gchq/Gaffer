@@ -16,6 +16,9 @@
 
 package gaffer.arrayliststore;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.Lists;
 import gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import gaffer.arrayliststore.data.SimpleEntityDataObject;
@@ -30,8 +33,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsLessThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
@@ -47,12 +49,8 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ArrayListStoreTest {
     @Test
@@ -66,8 +64,7 @@ public class ArrayListStoreTest {
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .view(new View.Builder()
-                                .edge(TestGroups.EDGE, new ViewEdgeDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -124,8 +121,7 @@ public class ArrayListStoreTest {
                 .first(new GetRelatedEntities.Builder()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
-                                .entity(TestGroups.ENTITY, new ViewEntityDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -172,8 +168,7 @@ public class ArrayListStoreTest {
                 .first(new GetEntitiesBySeed.Builder()
                         .addSeed(new EntitySeed(1))
                         .view(new View.Builder()
-                                .entity(TestGroups.ENTITY, new ViewEntityDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -216,8 +211,7 @@ public class ArrayListStoreTest {
                 .first(new GetEdgesBySeed.Builder()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
-                                .edge(TestGroups.EDGE, new ViewEdgeDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -268,8 +262,7 @@ public class ArrayListStoreTest {
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
-                                .entity(TestGroups.ENTITY, new ViewEntityDefinition.Builder()
-                                        .property(TestPropertyNames.INT, Integer.class)
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .filter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
@@ -301,7 +294,10 @@ public class ArrayListStoreTest {
     }
 
     private Graph createGraph() {
-        return new Graph(StreamUtil.dataSchema(getClass()), StreamUtil.storeSchema(getClass()), StreamUtil.storeProps(getClass()));
+        return new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(StreamUtil.schema(getClass()))
+                .build();
     }
 
     private void addElementsToGraph(final Graph graph) throws OperationException {

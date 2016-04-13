@@ -15,7 +15,7 @@
  */
 package gaffer.operation.simple.hdfs.handler.jobfactory;
 
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.store.Store;
 import org.apache.hadoop.mapreduce.Job;
 
@@ -36,5 +36,5 @@ public interface JobInitialiser {
      * @param store     the {@link gaffer.store.Store} that will handle the {@link gaffer.operation.Operation}
      * @throws IOException if IO issues occur
      */
-    void initialiseJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException;
+    void initialiseJob(final Job job, final MapReduceOperation operation, final Store store) throws IOException;
 }

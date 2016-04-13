@@ -17,7 +17,6 @@
 package gaffer.integration;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -55,7 +54,7 @@ public class ViewIT {
 
         final List<ElementComponentKey> selection = contexts.get(0).getSelection();
         assertEquals(2, selection.size());
-        assertEquals(TestPropertyNames.F1, selection.get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_1, selection.get(0).getPropertyName());
         assertEquals(IdentifierType.SOURCE, selection.get(1).getIdentifierType());
 
         final List<ElementComponentKey> projection = contexts.get(0).getProjection();
@@ -63,30 +62,6 @@ public class ViewIT {
         assertEquals("concatProperty", projection.get(0).getPropertyName());
 
         assertTrue(contexts.get(0).getFunction() instanceof ExampleTransformFunction);
-    }
-
-    @Test
-    public void shouldValidateJsonViewAndPass() throws IOException {
-        // Given
-        View view = loadView();
-
-        // When
-        boolean response = view.validate();
-
-        // Then
-        assertTrue(response);
-    }
-
-    @Test
-    public void shouldValidateJsonViewAndFail() throws IOException {
-        // Given
-        View view = loadInvalidView();
-
-        // When
-        boolean response = view.validate();
-
-        //then
-        assertFalse(response);
     }
 
     @Test
@@ -119,9 +94,5 @@ public class ViewIT {
 
     private View loadView() throws IOException {
         return View.fromJson(StreamUtil.view(getClass()));
-    }
-
-    private View loadInvalidView() throws IOException {
-        return View.fromJson(StreamUtil.openStream(getClass(), "/invalidView.json"));
     }
 }

@@ -19,15 +19,13 @@ package gaffer.integration;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.VALIDATION;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.Operation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -39,7 +37,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,33 +49,32 @@ public class StoreIT {
     public void shouldCreateStoreAndValidateSchemas() throws IOException, SchemaException, StoreException {
         // Given
         final TestStore testStore = new TestStore();
-
-        final DataSchema dataSchema = DataSchema.fromJson(StreamUtil.dataSchema(getClass()));
-        dataSchema.addTypesFromStream(StreamUtil.schemaTypes(getClass()));
-
-        final StoreSchema storeSchema = StoreSchema.fromJson(StreamUtil.storeSchema(getClass()));
+        final Schema schema = Schema.fromJson(StreamUtil.dataSchema(getClass()),
+                StreamUtil.dataTypes(getClass()),
+                StreamUtil.storeSchema(getClass()),
+                StreamUtil.storeTypes(getClass()));
 
         // When
-        testStore.initialise(dataSchema, storeSchema, new StoreProperties());
+        testStore.initialise(schema, new StoreProperties());
 
         // Then
-        assertTrue(testStore.getStoreSchema().getEdges().containsKey(TestGroups.EDGE));
-        assertTrue(testStore.getDataSchema().getEdges().containsKey(TestGroups.EDGE));
+        assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
+        assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
 
-        assertTrue(testStore.getStoreSchema().getEntities().containsKey(TestGroups.ENTITY));
-        assertTrue(testStore.getDataSchema().getEntities().containsKey(TestGroups.ENTITY));
+        assertTrue(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY));
+        assertTrue(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY));
 
-        assertFalse(testStore.getStoreSchema().getEdges().containsKey(TestGroups.EDGE_2));
-        assertFalse(testStore.getStoreSchema().getEntities().containsKey(TestGroups.ENTITY_2));
+        assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
+        assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
 
-        assertFalse(testStore.getDataSchema().getEdges().containsKey(TestGroups.EDGE_2));
-        assertFalse(testStore.getDataSchema().getEntities().containsKey(TestGroups.ENTITY_2));
+        assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
+        assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
 
-        assertTrue(testStore.getDataSchema().validate());
+        assertTrue(testStore.getSchema().validate());
     }
 
     private class TestStore extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, VALIDATION);
+        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
 
         @Override
         protected Collection<StoreTrait> getTraits() {

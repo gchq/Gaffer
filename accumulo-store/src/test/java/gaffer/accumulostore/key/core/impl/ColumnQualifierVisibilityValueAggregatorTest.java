@@ -18,27 +18,6 @@ package gaffer.accumulostore.key.core.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.BatchWriterConfig;
-import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.accumulo.core.client.Scanner;
-import org.apache.accumulo.core.client.TableExistsException;
-import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.Before;
-import org.junit.Test;
-
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.AccumuloElementConverter;
@@ -56,6 +35,25 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
 import gaffer.store.StoreException;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.BatchWriterConfig;
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.Scanner;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.security.ColumnVisibility;
+import org.junit.Before;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 public class ColumnQualifierVisibilityValueAggregatorTest {
     private MockAccumuloStore byteEntityStore;
@@ -71,8 +69,8 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         byteEntityStore.getProperties().setTable("Test");
         gaffer1KeyStore.getProperties().setTable("Test2");
 
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getStoreSchema());
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getStoreSchema());
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getSchema());
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getSchema());
     }
 
     @Test
@@ -158,8 +156,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -228,8 +225,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -330,8 +326,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
-                    .dataSchema(store.getDataSchema())
-                    .storeSchema(store.getStoreSchema())
+                    .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);

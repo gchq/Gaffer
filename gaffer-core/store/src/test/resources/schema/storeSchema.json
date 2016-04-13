@@ -1,0 +1,10 @@
+{
+  "positions": {
+    "GROUP": "GROUP",
+    "VERTEX": "VERTEX",
+    "SOURCE": "SOURCE",
+    "DESTINATION": "DESTINATION",
+    "DIRECTED": "DIRECTED"
+  },
+  "vertexSerialiserClass": "gaffer.serialisation.implementation.JavaSerialiser"
+}

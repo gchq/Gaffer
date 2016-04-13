@@ -38,11 +38,12 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.NoSuchElementException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperation<EntitySeed, ?>> {

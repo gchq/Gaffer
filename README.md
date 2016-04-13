@@ -1,16 +1,16 @@
-  Copyright 2016 Crown Copyright
+Copyright 2016 Crown Copyright
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 <img src="logos/logoWithText.png" width="300">
 
@@ -28,9 +28,9 @@ Gaffer is different from other graph frameworks because:
  - Nodes and edges in the store can have statistics such as counts, histograms and sketches that represent their properties.
 Gaffer provides a pluggable way of using any suitable libraries to serialise, summarise, filter and transform these statistics.
  - Application developers can turn any database into a Gaffer store by implementing a small number of simple methods. This means that they can easily tailor the store to their particular needs by choosing a suitable underlying database.
- - A Gaffer graph is managed using simple schemas. The data schema describes the structure of the nodes and edges and the libraries used to summarise, filter,
- transform and validate them. The store schema describes how nodes and edges are serialised and mapped into the store. These schemas enable new node or edge types to be
- easily added to the graph and make it extremely simple to update the libraries used for managing existing data. Separation of the schemas also allows the same data
+ - A Gaffer graph is managed using a simple schema. The schema describes the structure of the nodes and edges and the libraries used to summarise, filter,
+ transform and validate them. It also describes how the nodes and edges are serialised and mapped into the store. This schema enable new node or edge types to be
+ easily added to the graph and make it extremely simple to update the libraries used for managing existing data. The schema can be split and modularised to allow the same data
  to be easily migrated or stored and queried across multiple different stores.
  - Query and processing of data in the Gaffer store is done using Gaffer Operations. These allow the user to specify flexible views on the data. For example, we may
  have a graph containing a range of edge types such as red, green and blue. At query time we can choose to view only red edges within a certain time window.
@@ -87,6 +87,6 @@ The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Aft
 
 Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
 
-[Javadoc] (http://governmentcommunicationsheadquarters.github.io/Gaffer/)
+There is a getting started guide on our wiki: [Getting Started](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
 
-We are working on a more detailed user guide.
+Our Javadoc can be found [here](http://governmentcommunicationsheadquarters.github.io/Gaffer/).

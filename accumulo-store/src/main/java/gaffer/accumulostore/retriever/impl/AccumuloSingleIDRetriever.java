@@ -25,6 +25,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
+
 import java.util.Set;
 
 /**
@@ -43,7 +44,7 @@ public class AccumuloSingleIDRetriever
 
     /**
      * Use of the varargs parameter here will mean the usual default iterators
-     * wont be applied, (Edge Direction,Edge/Entity Type and View Filtering) To
+     * wont be applied, (Edge Direction,Edge/Entity TypeDefinition and View Filtering) To
      * apply them pass them directly to the varargs via calling your
      * keyPackage.getIteratorFactory() and either
      * getElementFilterIteratorSetting and/Or

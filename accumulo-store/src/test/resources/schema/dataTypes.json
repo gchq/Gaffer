@@ -1,0 +1,19 @@
+{
+  "types": {
+    "id.object": {
+      "class": "java.lang.Object"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer"
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer"
+    },
+    "timestamp": {
+      "class": "java.lang.Long"
+    }
+  }
+}

@@ -46,8 +46,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -66,7 +64,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
@@ -467,8 +465,9 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data).
         View view = new View.Builder()
-                .edge("X", new ViewEdgeDefinition())
-                .entity("X", new ViewEntityDefinition()).build();
+                .edge("edgeX")
+                .entity("entityX")
+                .build();
         op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(true);
