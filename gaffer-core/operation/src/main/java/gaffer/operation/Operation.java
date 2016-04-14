@@ -20,7 +20,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-
 import java.util.Map;
 
 /**
@@ -123,11 +122,9 @@ public interface Operation<INPUT, OUTPUT> {
     /**
      * Gets an operation option by its given name.
      *
-     * @param name  the name of the option
+     * @param name the name of the option
      * @return the value of the option
      */
     String getOption(final String name);
-
-
 }
 
