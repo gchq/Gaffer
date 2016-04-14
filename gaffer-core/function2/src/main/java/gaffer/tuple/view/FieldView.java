@@ -18,6 +18,10 @@ package gaffer.tuple.view;
 
 import gaffer.tuple.Tuple;
 
+/**
+ * A view that selects from or projects into a tuple using a single field reference.
+ * @param <R> The type of reference used by the tuple.
+ */
 public class FieldView<R> extends View<R> {
     private R reference;
 

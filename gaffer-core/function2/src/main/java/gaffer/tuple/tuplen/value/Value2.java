@@ -16,7 +16,7 @@
 
 package gaffer.tuple.tuplen.value;
 
-import gaffer.tuple.impl.ArrayTuple;
+import gaffer.tuple.ArrayTuple;
 import gaffer.tuple.tuplen.Tuple2;
 
 public class Value2<A, B> extends ArrayTuple implements Tuple2<A, B> {

@@ -24,6 +24,11 @@ import gaffer.tuple.tuplen.view.View4;
 import gaffer.tuple.tuplen.view.View5;
 import gaffer.tuple.tuplen.view.ViewN;
 
+/**
+ * A <code>View</code> allows the selection or projection of a subset of values in a {@link gaffer.tuple.Tuple} based on
+ * a {@link gaffer.tuple.view.Reference}.
+ * @param <R> The type of reference used by the tuple.
+ */
 public abstract class View<R> {
     public abstract Object select(Tuple<R> tuple);
     public abstract void project(Tuple<R> tuple, Object value);

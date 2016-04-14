@@ -16,7 +16,7 @@
 
 package gaffer.tuple.view;
 
-import gaffer.tuple.impl.ArrayTuple;
+import gaffer.tuple.ArrayTuple;
 import gaffer.tuple.Tuple;
 
 import java.util.Iterator;
@@ -40,7 +40,7 @@ public class TupleView<R> extends View<R> implements Tuple<Integer> {
         }
     }
 
-    public TupleView(final Tuple<R> tuple, final Reference... references) {
+    public TupleView(final Tuple<R> tuple, final Reference<R>... references) {
         this(references);
         setTuple(tuple);
     }

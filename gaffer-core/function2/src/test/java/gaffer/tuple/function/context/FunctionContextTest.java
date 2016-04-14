@@ -3,9 +3,8 @@ package gaffer.tuple.function.context;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gaffer.function2.mock.MockTransform;
-import gaffer.tuple.impl.MapTuple;
+import gaffer.tuple.MapTuple;
 import gaffer.tuple.view.Reference;
-import gaffer.tuple.view.View;
 import org.junit.Test;
 
 import java.io.IOException;

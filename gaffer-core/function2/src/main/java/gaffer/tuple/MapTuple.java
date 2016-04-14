@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.impl;
-
-import gaffer.tuple.Tuple;
+package gaffer.tuple;
 
 import java.util.HashMap;
 import java.util.Iterator;

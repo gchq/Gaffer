@@ -19,7 +19,6 @@ package gaffer.tuple;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import gaffer.tuple.impl.ArrayTuple;
 import org.junit.Test;
 
 public class ArrayTupleTest {

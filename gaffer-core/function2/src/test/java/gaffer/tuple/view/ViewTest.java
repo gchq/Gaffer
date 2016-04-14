@@ -16,7 +16,7 @@
 
 package gaffer.tuple.view;
 
-import gaffer.tuple.impl.MapTuple;
+import gaffer.tuple.MapTuple;
 import gaffer.tuple.tuplen.*;
 import org.junit.Test;
 

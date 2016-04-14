@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.impl;
+package gaffer.tuple;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import gaffer.tuple.Tuple;
 
 import java.util.Arrays;
 import java.util.Iterator;
