@@ -25,11 +25,11 @@ import gaffer.tuple.view.Reference;
 /**
  * A <code>FunctionContext</code> wraps a {@link gaffer.function2.Function}. It appends application-specific
  * configuration data to the function so that it can be executed in the context of that application. The
- * <code>FunctionContext</code> uses a {@link gaffer.tuple.view.View} to select and project values into/out
+ * <code>FunctionContext</code> uses a {@link View} to select and project values into/out
  * of {@link gaffer.tuple.Tuple}s.
  * @param <F> The type of {@link gaffer.function2.Function} wrapped by the context.
  * @param <R> The type of reference used to select from and project into tuples.
- * @see gaffer.tuple.view.View
+ * @see View
  */
 public class FunctionContext<F extends Function, R> {
     protected F function;
@@ -110,7 +110,7 @@ public class FunctionContext<F extends Function, R> {
      */
     public void setSelection(final Reference<R> selection) {
         if (selection != null) {
-            setSelectionView(selection.createView());
+            setSelectionView(View.createView(selection));
         } else {
             setSelectionView(null);
         }
@@ -142,7 +142,7 @@ public class FunctionContext<F extends Function, R> {
      */
     public void setProjection(final Reference<R> projection) {
         if (projection != null) {
-            setProjectionView(projection.createView());
+            setProjectionView(View.createView(projection));
         } else {
             setProjectionView(null);
         }
@@ -193,5 +193,42 @@ public class FunctionContext<F extends Function, R> {
      */
     public FunctionContext<F, R> copy() {
         return new FunctionContext<F, R>(this.selectionView, (F) function.copy(), this.projectionView);
+    }
+
+    public static class Builder<F extends Function, R> {
+        private final FunctionContext<F, R> context;
+
+        public Builder() {
+            this.context = new FunctionContext<>();
+        }
+
+        public Builder<F, R> select(final Reference<R> reference) {
+            context.setSelection(reference);
+            return this;
+        }
+
+        public Builder<F, R> select(final R... references) {
+            context.setSelection(new Reference<R>(references));
+            return this;
+        }
+
+        public Builder<F, R> execute(final F function) {
+            context.setFunction(function);
+            return this;
+        }
+
+        public Builder<F, R> project(final Reference<R> reference) {
+            context.setProjection(reference);
+            return this;
+        }
+
+        public Builder<F, R> project(final R... references) {
+            context.setProjection(new Reference<R>(references));
+            return this;
+        }
+
+        public FunctionContext<F, R> build() {
+            return context.copy();
+        }
     }
 }

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package gaffer.tuple;
+package gaffer.tuple.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import gaffer.tuple.tuplen.Tuple5;
+import gaffer.tuple.Tuple;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,7 +26,7 @@ import java.util.Iterator;
  * An <code>ArrayTuple</code> is a simple implementation of the {@link gaffer.tuple.Tuple} interface, backed by an
  * array of {@link java.lang.Object}s, referenced by their index.
  */
-public class ArrayTuple extends Tuple5<Object, Object, Object, Object, Object> {
+public class ArrayTuple implements Tuple<Integer> {
     private final Object[] values;
 
     /**

@@ -18,6 +18,7 @@ package gaffer.function2.mock;
 
 import gaffer.function2.Transformer;
 import gaffer.tuple.tuplen.Tuple2;
+import gaffer.tuple.tuplen.impl.Value2;
 
 public class MockTransform extends Transformer<Object, Tuple2<Object, Object>> {
     private Tuple2<Object, Object> outputTuple;
@@ -26,7 +27,7 @@ public class MockTransform extends Transformer<Object, Tuple2<Object, Object>> {
     public MockTransform() {}
 
     public MockTransform(Object output) {
-        outputTuple = Tuple2.createTuple();
+        outputTuple = new Value2<>();
         this.output = output;
     }
 

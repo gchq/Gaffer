@@ -19,9 +19,7 @@ package gaffer.tuple.function;
 import gaffer.function2.Validator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-
-import java.util.ArrayList;
-import java.util.List;
+import gaffer.tuple.function.context.FunctionContexts;
 
 /**
  * A <code>TupleFilter</code> validates input {@link gaffer.tuple.Tuple}s by applying {@link gaffer.function2.Validator}s
@@ -30,7 +28,7 @@ import java.util.List;
  * @param <R> The type of reference used by tuples.
  */
 public class TupleFilter<R> extends StatelessTupleFunction<R> {
-    private List<FunctionContext<Validator, R>> validators;
+    private FunctionContexts<Validator, R> validators;
 
     /**
      * Default constructor - for serialisation.
@@ -41,21 +39,21 @@ public class TupleFilter<R> extends StatelessTupleFunction<R> {
      * Create a <code>TupleFilter</code> that applies the given functions.
      * @param validators {@link gaffer.function2.Validator}s to validate tuple values.
      */
-    public TupleFilter(final List<FunctionContext<Validator, R>> validators) {
+    public TupleFilter(final FunctionContexts<Validator, R> validators) {
         setValidators(validators);
     }
 
     /**
      * @param validators {@link gaffer.function2.Validator}s to validate tuple values.
      */
-    public void setValidators(final List<FunctionContext<Validator, R>> validators) {
+    public void setValidators(final FunctionContexts<Validator, R> validators) {
         this.validators = validators;
     }
 
     /**
      * @return {@link gaffer.function2.Validator}s to validate tuple values.
      */
-    public List<FunctionContext<Validator, R>> getValidators() {
+    public FunctionContexts<Validator, R> getValidators() {
         return validators;
     }
 
@@ -64,7 +62,7 @@ public class TupleFilter<R> extends StatelessTupleFunction<R> {
      */
     public void addValidator(final FunctionContext<Validator, R> validator) {
         if (validators == null) {
-            validators = new ArrayList<FunctionContext<Validator, R>>();
+            validators = new FunctionContexts<Validator, R>();
         }
         validators.add(validator);
     }
@@ -87,12 +85,12 @@ public class TupleFilter<R> extends StatelessTupleFunction<R> {
 
     @Override
     public boolean assignableFrom(final Object schemaTuple) {
-        return TupleFunctionValidator.assignableFrom(validators, schemaTuple);
+        return validators.assignableFrom(schemaTuple);
     }
 
     @Override
     public boolean assignableTo(final Object schemaTuple) {
-        return TupleFunctionValidator.assignableTo(validators, schemaTuple);
+        return validators.assignableTo(schemaTuple);
     }
 
     @Override

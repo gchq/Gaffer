@@ -19,6 +19,8 @@ package gaffer.function2.mock;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.Tuple3;
+import gaffer.tuple.tuplen.impl.Value2;
+import gaffer.tuple.tuplen.impl.Value3;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -55,8 +57,8 @@ public class MockComplexInputAggregator extends Aggregator<Tuple3<Tuple2<Integer
 
     @Override
     public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state() {
-        Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> result = Tuple3.createTuple();
-        Tuple2<Integer, String> result0 = Tuple2.createTuple();
+        Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> result = new Value3<>();
+        Tuple2<Integer, String> result0 = new Value2<>();
         result0.put0(total1);
         result0.put1(concat1);
         result.put0(result0);

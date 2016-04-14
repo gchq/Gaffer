@@ -21,9 +21,7 @@ import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
-
-import java.util.ArrayList;
-import java.util.List;
+import gaffer.tuple.function.context.FunctionContexts;
 
 /**
  * A <code>TupleAggregator</code> aggregates {@link gaffer.tuple.Tuple}s by applying
@@ -33,7 +31,7 @@ import java.util.List;
  * @param <R> The type of reference used by tuples.
  */
 public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<Tuple<R>> {
-    private List<FunctionContext<F, R>> functions;
+    private FunctionContexts<F, R> functions;
     @JsonIgnore
     private Tuple<R> outputTuple;
 
@@ -46,7 +44,7 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
      * Create a <code>TupleAggregator</code> that applies the given functions.
      * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
      */
-    public TupleAggregator(final List<FunctionContext<F, R>> functions) {
+    public TupleAggregator(final FunctionContexts<F, R> functions) {
         setFunctions(functions);
         outputTuple = null;
     }
@@ -54,14 +52,14 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
     /**
      * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
      */
-    public void setFunctions(final List<FunctionContext<F, R>> functions) {
+    public void setFunctions(final FunctionContexts<F, R> functions) {
         this.functions = functions;
     }
 
     /**
      * @return {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
      */
-    public List<FunctionContext<F, R>> getFunctions() {
+    public FunctionContexts<F, R> getFunctions() {
         return functions;
     }
 
@@ -70,7 +68,7 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
      */
     public void addFunction(final FunctionContext<F, R> function) {
         if (functions == null) {
-            functions = new ArrayList<FunctionContext<F, R>>();
+            functions = new FunctionContexts<F, R>();
         }
         functions.add(function);
     }
@@ -139,12 +137,12 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
 
     @Override
     public boolean assignableFrom(final Object schemaTuple) {
-        return TupleFunctionValidator.assignableFrom(functions, schemaTuple);
+        return functions.assignableFrom(schemaTuple);
     }
 
     @Override
     public boolean assignableTo(final Object schemaTuple) {
-        return TupleFunctionValidator.assignableTo(functions, schemaTuple);
+        return functions.assignableTo(schemaTuple);
     }
 
     /**

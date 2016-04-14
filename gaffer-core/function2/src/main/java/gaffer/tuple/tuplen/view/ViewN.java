@@ -14,29 +14,12 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.view;
+package gaffer.tuple.tuplen.view;
 
-import gaffer.tuple.Tuple;
+import gaffer.tuple.view.Reference;
 
-public class FieldView<R> extends View<R> {
-    private R reference;
-
-    public FieldView(final R reference) {
-        this.reference = reference;
-    }
-
-    @Override
-    public Object select(final Tuple<R> tuple) {
-        return tuple.get(reference);
-    }
-
-    @Override
-    public void project(final Tuple<R> tuple, final Object value) {
-        tuple.put(reference, value);
-    }
-
-    @Override
-    public Reference<R> getReference() {
-        return new Reference<>(reference);
+public class ViewN<R> extends View5<Object, Object, Object, Object, Object, R> {
+    public ViewN(final Reference<R>... references) {
+        super(references);
     }
 }

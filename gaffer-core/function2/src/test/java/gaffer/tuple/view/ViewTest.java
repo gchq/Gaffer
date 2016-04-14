@@ -16,7 +16,7 @@
 
 package gaffer.tuple.view;
 
-import gaffer.tuple.MapTuple;
+import gaffer.tuple.impl.MapTuple;
 import gaffer.tuple.tuplen.*;
 import org.junit.Test;
 
@@ -25,14 +25,14 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TupleViewTest {
+public class ViewTest {
     @Test
     public void testOneDimensionalReferences() {
         String a = "a";
         String b = "b";
         String c = "c";
 
-        TupleView<String> view = (TupleView) new Reference(a, b, c).createView();
+        View<String> view = View.createView(new Reference(a, b, c));
 
         MapTuple<String> inputTuple = new MapTuple<>();
         inputTuple.put(a, a);
@@ -66,7 +66,7 @@ public class TupleViewTest {
 
         Reference<String> reference = new Reference<>();
         reference.setTupleReferences(new Reference(a1, a2), new Reference(b1), new Reference(c1, c2, c3));
-        TupleView<String> view = (TupleView) reference.createView();
+        View<String> view = View.createView(reference);
 
         MapTuple<String> inputTuple = new MapTuple<>();
         inputTuple.put(a1, a1);
@@ -110,7 +110,7 @@ public class TupleViewTest {
         Float e = 4.0f;
 
         MapTuple<String> tuple = new MapTuple<>();
-        TupleView<String> view = (TupleView) new Reference("a", "b", "c", "d", "e").createView();
+        TupleView<String> view = (TupleView) View.createView(new Reference("a", "b", "c", "d", "e", "f"));
         view.setTuple(tuple);
 
         Tuple1<String> tuple1 = (Tuple1)view;

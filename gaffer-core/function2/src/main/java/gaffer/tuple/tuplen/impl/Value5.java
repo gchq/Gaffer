@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.view;
+package gaffer.tuple.tuplen.impl;
 
-import gaffer.tuple.Tuple;
+import gaffer.tuple.tuplen.Tuple5;
 
-public class FieldView<R> extends View<R> {
-    private R reference;
+public class Value5<A, B, C, D, E> extends Value4<A, B, C, D> implements Tuple5<A, B, C, D, E> {
+    public Value5() {
+        super(5);
+    }
 
-    public FieldView(final R reference) {
-        this.reference = reference;
+    /**
+     * Pass-through constructor for larger tuple sizes.
+     * @param size Tuple size.
+     */
+    protected Value5(final int size) {
+        super(size);
+        if (size < 5) {
+            throw new IllegalArgumentException("Invalid size");
+        }
     }
 
     @Override
-    public Object select(final Tuple<R> tuple) {
-        return tuple.get(reference);
+    public E get4() {
+        return (E) get(4);
     }
 
     @Override
-    public void project(final Tuple<R> tuple, final Object value) {
-        tuple.put(reference, value);
-    }
-
-    @Override
-    public Reference<R> getReference() {
-        return new Reference<>(reference);
+    public void put4(final E e) {
+        put(4, e);
     }
 }

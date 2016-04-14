@@ -16,34 +16,22 @@
 
 package gaffer.tuple.tuplen;
 
-import gaffer.tuple.ArrayTuple;
 import gaffer.tuple.Tuple;
 
 /**
  * A {@link gaffer.tuple.Tuple} with a single value of the specified generic type.
  * @param <A> Type of first tuple value.
  */
-public abstract class Tuple1<A> implements Tuple<Integer> {
+public interface Tuple1<A> extends Tuple<Integer> {
     /**
      * Get the value at index 0.
      * @return Value.
      */
-    public A get0() {
-        return (A) get(0);
-    }
+    A get0();
 
     /**
      * Put a value into index 0.
      * @param a Value to put.
      */
-    public void put0(final A a) {
-        put(0, a);
-    }
-
-    /**
-     * @return New {@link gaffer.tuple.ArrayTuple} of size 1.
-     */
-    public static Tuple1 createTuple() {
-        return new ArrayTuple(1);
-    }
+    void put0(final A a);
 }

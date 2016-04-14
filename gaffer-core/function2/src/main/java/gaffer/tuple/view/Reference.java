@@ -21,7 +21,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A <code>Reference</code> refers to either a single field or contains a tuple of other <code>Reference</code>s.
- * It can be used to create a {@link gaffer.tuple.view.View} for a {@link gaffer.tuple.Tuple} to present it's flat data
+ * It can be used to create a {@link TupleView} for a {@link gaffer.tuple.Tuple} to present it's flat data
  * structure in multi-dimensions.
  * @param <R> The type of reference used by tuples.
  */
@@ -157,20 +157,6 @@ public class Reference<R> {
     public Reference[] getTupleReferences() {
         if (isTupleReference()) {
             return tuple;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Create a new {@link gaffer.tuple.view.View} from this <code>Reference</code>.
-     * @return View for tuples based on this reference.
-     */
-    public View<R> createView() {
-        if (isFieldReference()) {
-            return field == null ? null : new FieldView<>(this);
-        } else if (isTupleReference()) {
-            return tuple == null ? null : new TupleView<>(this);
         } else {
             return null;
         }

@@ -14,38 +14,44 @@
  * limitations under the License.
  */
 
-package gaffer.function2.mock;
+package gaffer.tuple.tuplen.impl;
 
-import gaffer.function2.Aggregator;
+import gaffer.tuple.impl.ArrayTuple;
 import gaffer.tuple.tuplen.Tuple2;
-import gaffer.tuple.tuplen.impl.Value2;
 
-public class MockMultiInputAggregator extends Aggregator<Tuple2<Integer, Integer>> {
-    private int total1 = 0;
-    private int total2 = 0;
+public class Value2<A, B> extends ArrayTuple implements Tuple2<A, B> {
+    public Value2() {
+        super(2);
+    }
 
-    @Override
-    public void aggregate(Tuple2<Integer, Integer> input) {
-        total1 += input.get0();
-        total2 += input.get1();
+    /**
+     * Pass-through constructor for larger tuple sizes.
+     * @param size Size of tuple.
+     */
+    protected Value2(final int size) {
+        super(size);
+        if (size < 2) {
+            throw new IllegalArgumentException("Invalid size");
+        }
     }
 
     @Override
-    public void init() {
-        total1 = 0;
-        total2 = 0;
+    public B get1() {
+        return (B) get(1);
     }
 
     @Override
-    public Tuple2<Integer, Integer> state() {
-        Tuple2<Integer, Integer> out = new Value2<>();
-        out.put0(total1);
-        out.put1(total2);
-        return out;
+    public void put1(final B b) {
+        put(1, b);
     }
 
     @Override
-    public MockMultiInputAggregator copy() {
-        return new MockMultiInputAggregator();
+    public A get0() {
+        return (A) get(0);
+    }
+
+    @Override
+    public void put0(final A a) {
+        put(0, a);
     }
 }

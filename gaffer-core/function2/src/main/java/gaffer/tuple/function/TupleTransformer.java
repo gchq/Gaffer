@@ -19,9 +19,7 @@ package gaffer.tuple.function;
 import gaffer.tuple.Tuple;
 import gaffer.function2.Transformer;
 import gaffer.tuple.function.context.FunctionContext;
-
-import java.util.ArrayList;
-import java.util.List;
+import gaffer.tuple.function.context.FunctionContexts;
 
 /**
  * A <code>TupleTransformer</code> transforms input {@link gaffer.tuple.Tuple}s by applying
@@ -29,7 +27,7 @@ import java.util.List;
  * @param <R> The type of reference used by tuples.
  */
 public class TupleTransformer<R> extends StatelessTupleFunction<R> {
-    private List<FunctionContext<Transformer, R>> transforms;
+    private FunctionContexts<Transformer, R> transforms;
 
     /**
      * Default constructor - for serialisation.
@@ -40,21 +38,21 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
      * Create a <code>TupleTransformer</code> that applies the given functions.
      * @param transforms {@link gaffer.function2.Transformer}s to transform tuple values.
      */
-    public TupleTransformer(final List<FunctionContext<Transformer, R>> transforms) {
+    public TupleTransformer(final FunctionContexts<Transformer, R> transforms) {
         setTransforms(transforms);
     }
 
     /**
      * @param transforms {@link gaffer.function2.Transformer}s to transform tuple values.
      */
-    public void setTransforms(final List<FunctionContext<Transformer, R>> transforms) {
+    public void setTransforms(final FunctionContexts<Transformer, R> transforms) {
         this.transforms = transforms;
     }
 
     /**
      * @return {@link gaffer.function2.Transformer}s to transform tuple values.
      */
-    public List<FunctionContext<Transformer, R>> getTransforms() {
+    public FunctionContexts<Transformer, R> getTransforms() {
         return transforms;
     }
 
@@ -63,7 +61,7 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
      */
     public void addTransform(final FunctionContext<Transformer, R> transform) {
         if (transforms == null) {
-            transforms = new ArrayList<FunctionContext<Transformer, R>>();
+            transforms = new FunctionContexts<Transformer, R>();
         }
         transforms.add(transform);
     }
@@ -84,12 +82,12 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
 
     @Override
     public boolean assignableFrom(final Object schemaTuple) {
-        return TupleFunctionValidator.assignableFrom(transforms, schemaTuple);
+        return transforms.assignableFrom(schemaTuple);
     }
 
     @Override
     public boolean assignableTo(final Object schemaTuple) {
-        return TupleFunctionValidator.assignableTo(transforms, schemaTuple);
+        return transforms.assignableTo(schemaTuple);
     }
 
     @Override

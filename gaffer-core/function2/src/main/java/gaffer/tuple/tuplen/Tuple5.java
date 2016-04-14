@@ -16,8 +16,6 @@
 
 package gaffer.tuple.tuplen;
 
-import gaffer.tuple.ArrayTuple;
-
 /**
  * A {@link gaffer.tuple.Tuple} with five values of the specified generic types.
  * @param <A> Type of first tuple value.
@@ -26,27 +24,16 @@ import gaffer.tuple.ArrayTuple;
  * @param <D> Type of fourth tuple value.
  * @param <E> Type of fifth tuple value.
  */
-public abstract class Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
+public interface Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
     /**
      * Get the value at index 4.
      * @return Value.
      */
-    public E get4() {
-        return (E) get(4);
-    }
+    E get4();
 
     /**
      * Put a value into index 4.
      * @param e Value to put.
      */
-    public void put4(final E e) {
-        put(4, e);
-    }
-
-    /**
-     * @return New {@link gaffer.tuple.ArrayTuple} of size 5.
-     */
-    public static Tuple5 createTuple() {
-        return new ArrayTuple(5);
-    }
+    void put4(final E e);
 }

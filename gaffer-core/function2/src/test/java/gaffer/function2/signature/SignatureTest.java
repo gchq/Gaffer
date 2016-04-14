@@ -19,8 +19,11 @@ package gaffer.function2.signature;
 import gaffer.function2.Aggregator;
 import gaffer.function2.mock.MockComplexInputAggregator;
 import gaffer.tuple.tuplen.Tuple2;
-import gaffer.tuple.tuplen.Tuple3;
 import gaffer.tuple.tuplen.Tuple5;
+import gaffer.tuple.tuplen.Tuple3;
+import gaffer.tuple.tuplen.impl.Value2;
+import gaffer.tuple.tuplen.impl.Value5;
+import gaffer.tuple.tuplen.impl.Value3;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.junit.Test;
 
@@ -71,15 +74,15 @@ public class SignatureTest {
         assertTrue(s3s instanceof SingletonSignature);
         assertEquals(String.class, ((SingletonSignature) s3s).getType());
 
-        Tuple3 t3 = Tuple3.createTuple();
-        Tuple2 t2 = Tuple2.createTuple();
+        Tuple3 t3 = new Value3();
+        Tuple2 t2 = new Value2();
         t2.put0(Integer.class);
         t2.put1(String.class);
         t3.put0(t2);
 
         t3.put1(Integer.class);
 
-        Tuple5 iterable = Tuple5.createTuple();
+        Tuple5 iterable = new Value5();
         iterable.put0(String.class);
         iterable.put1(String.class);
         iterable.put2(String.class);

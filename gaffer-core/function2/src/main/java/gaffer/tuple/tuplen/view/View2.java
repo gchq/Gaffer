@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.view;
+package gaffer.tuple.tuplen.view;
 
-import gaffer.tuple.Tuple;
+import gaffer.tuple.view.Reference;
+import gaffer.tuple.tuplen.Tuple2;
 
-public class FieldView<R> extends View<R> {
-    private R reference;
+public class View2<A, B, R> extends View1<A, R> implements Tuple2<A, B> {
+    public View2(final Reference<R> first, final Reference<R> second) {
+        super(first, second);
+    }
 
-    public FieldView(final R reference) {
-        this.reference = reference;
+    protected View2(final Reference<R>... references) {
+        super(references);
+        if (references.length < 2) {
+            throw new IllegalStateException("Invalid number of references");
+        }
     }
 
     @Override
-    public Object select(final Tuple<R> tuple) {
-        return tuple.get(reference);
+    public B get1() {
+        return (B) get(1);
     }
 
     @Override
-    public void project(final Tuple<R> tuple, final Object value) {
-        tuple.put(reference, value);
-    }
-
-    @Override
-    public Reference<R> getReference() {
-        return new Reference<>(reference);
+    public void put1(final B b) {
+        put(1, b);
     }
 }

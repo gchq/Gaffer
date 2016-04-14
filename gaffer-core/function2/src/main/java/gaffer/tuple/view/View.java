@@ -17,10 +17,50 @@
 package gaffer.tuple.view;
 
 import gaffer.tuple.Tuple;
+import gaffer.tuple.tuplen.view.View1;
+import gaffer.tuple.tuplen.view.View2;
+import gaffer.tuple.tuplen.view.View3;
+import gaffer.tuple.tuplen.view.View4;
+import gaffer.tuple.tuplen.view.View5;
+import gaffer.tuple.tuplen.view.ViewN;
 
-public interface View<R> {
-    Object select(Tuple<R> source);
-    void project(Tuple<R> target, Object value);
-    Reference<R> getReference();
-    void setReference(Reference<R> reference);
+public abstract class View<R> {
+    public abstract Object select(Tuple<R> tuple);
+    public abstract void project(Tuple<R> tuple, Object value);
+    public abstract Reference<R> getReference();
+
+    /**
+     * Create a new {@link TupleView} from a <code>Reference</code>.
+     * @param reference Reference to create view for.
+     * @param <R> Type of reference used by the view.
+     * @return View for tuples based on the reference.
+     */
+    public static <R> View<R> createView(final Reference<R> reference) {
+        if (reference.isFieldReference()) {
+            R field = reference.getField();
+            return field == null ? null : new FieldView<>(field);
+        } else if (reference.isTupleReference()) {
+            Reference<R>[] tuple = reference.getTupleReferences();
+            if (tuple == null || tuple.length < 1) {
+                return null;
+            } else {
+                switch (tuple.length) {
+                    case 1:
+                        return new View1<>(tuple[0]);
+                    case 2:
+                        return new View2<>(tuple[0], tuple[1]);
+                    case 3:
+                        return new View3<>(tuple[0], tuple[1], tuple[2]);
+                    case 4:
+                        return new View4<>(tuple[0], tuple[1], tuple[2], tuple[3]);
+                    case 5:
+                        return new View5<>(tuple[0], tuple[1], tuple[2], tuple[3], tuple[4]);
+                    default:
+                        return new ViewN(tuple);
+                }
+            }
+        } else {
+            return null;
+        }
+    }
 }

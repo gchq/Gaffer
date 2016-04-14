@@ -24,11 +24,9 @@ import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.function2.mock.MockSingleInputAggregator;
 import gaffer.function2.signature.IterableSignature;
 import gaffer.function2.signature.Signature;
-import gaffer.function2.signature.SingletonSignature;
-import gaffer.tuple.MapTuple;
-import gaffer.tuple.Tuple;
-import gaffer.tuple.function.context.FunctionContext;
+import gaffer.tuple.impl.MapTuple;
 import gaffer.tuple.view.Reference;
+import gaffer.tuple.function.context.FunctionContext;
 import org.junit.Test;
 
 import java.io.IOException;

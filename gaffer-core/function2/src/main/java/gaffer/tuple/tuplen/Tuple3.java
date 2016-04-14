@@ -16,35 +16,22 @@
 
 package gaffer.tuple.tuplen;
 
-import gaffer.tuple.ArrayTuple;
-
 /**
  * A {@link gaffer.tuple.Tuple} with three values of the specified generic types.
  * @param <A> Type of first tuple value.
  * @param <B> Type of second tuple value.
  * @param <C> Type of third tuple value.
  */
-public abstract class Tuple3<A, B, C> extends Tuple2<A, B> {
+public interface Tuple3<A, B, C> extends Tuple2<A, B> {
     /**
      * Get the value at index 2.
      * @return Value.
      */
-    public C get2() {
-        return (C) get(2);
-    }
+    C get2();
 
     /**
      * Put a value into index 2.
      * @param c Value to put.
      */
-    public void put2(final C c) {
-        put(2, c);
-    }
-
-    /**
-     * @return New {@link gaffer.tuple.ArrayTuple} of size 3.
-     */
-    public static Tuple3 createTuple() {
-        return new ArrayTuple(3);
-    }
+    void put2(final C c);
 }

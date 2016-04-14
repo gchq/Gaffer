@@ -3,8 +3,9 @@ package gaffer.tuple.function.context;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gaffer.function2.mock.MockTransform;
-import gaffer.tuple.MapTuple;
+import gaffer.tuple.impl.MapTuple;
 import gaffer.tuple.view.Reference;
+import gaffer.tuple.view.View;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -40,8 +41,8 @@ public class FunctionContextTest {
         Reference<String> projection = new Reference("b", "c");
 
         context.setFunction(mock);
-        context.setSelectionView(selection.createView());
-        context.setProjectionView(projection.createView());
+        context.setSelection(selection);
+        context.setProjection(projection);
 
         MapTuple<String> tuple = new MapTuple<>();
         tuple.put("a", inputValue);
