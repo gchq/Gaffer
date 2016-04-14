@@ -50,6 +50,11 @@
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>simple-operation-library</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
