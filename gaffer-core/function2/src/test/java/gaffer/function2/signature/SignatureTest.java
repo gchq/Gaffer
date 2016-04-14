@@ -21,9 +21,9 @@ import gaffer.function2.mock.MockComplexInputAggregator;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.Tuple5;
 import gaffer.tuple.tuplen.Tuple3;
-import gaffer.tuple.tuplen.impl.Value2;
-import gaffer.tuple.tuplen.impl.Value5;
-import gaffer.tuple.tuplen.impl.Value3;
+import gaffer.tuple.tuplen.value.Value2;
+import gaffer.tuple.tuplen.value.Value5;
+import gaffer.tuple.tuplen.value.Value3;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.junit.Test;
 

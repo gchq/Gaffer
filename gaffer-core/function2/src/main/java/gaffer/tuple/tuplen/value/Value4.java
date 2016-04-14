@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.tuplen.impl;
+package gaffer.tuple.tuplen.value;
 
 import gaffer.tuple.tuplen.Tuple4;
 

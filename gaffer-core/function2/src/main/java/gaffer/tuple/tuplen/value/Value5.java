@@ -14,44 +14,33 @@
  * limitations under the License.
  */
 
-package gaffer.tuple.tuplen.impl;
+package gaffer.tuple.tuplen.value;
 
-import gaffer.tuple.impl.ArrayTuple;
-import gaffer.tuple.tuplen.Tuple2;
+import gaffer.tuple.tuplen.Tuple5;
 
-public class Value2<A, B> extends ArrayTuple implements Tuple2<A, B> {
-    public Value2() {
-        super(2);
+public class Value5<A, B, C, D, E> extends Value4<A, B, C, D> implements Tuple5<A, B, C, D, E> {
+    public Value5() {
+        super(5);
     }
 
     /**
      * Pass-through constructor for larger tuple sizes.
-     * @param size Size of tuple.
+     * @param size Tuple size.
      */
-    protected Value2(final int size) {
+    protected Value5(final int size) {
         super(size);
-        if (size < 2) {
+        if (size < 5) {
             throw new IllegalArgumentException("Invalid size");
         }
     }
 
     @Override
-    public B get1() {
-        return (B) get(1);
+    public E get4() {
+        return (E) get(4);
     }
 
     @Override
-    public void put1(final B b) {
-        put(1, b);
-    }
-
-    @Override
-    public A get0() {
-        return (A) get(0);
-    }
-
-    @Override
-    public void put0(final A a) {
-        put(0, a);
+    public void put4(final E e) {
+        put(4, e);
     }
 }

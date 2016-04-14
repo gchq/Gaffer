@@ -18,7 +18,7 @@ package gaffer.function2.mock;
 
 import gaffer.function2.Aggregator;
 import gaffer.tuple.tuplen.Tuple2;
-import gaffer.tuple.tuplen.impl.Value2;
+import gaffer.tuple.tuplen.value.Value2;
 
 public class MockMultiInputAggregator extends Aggregator<Tuple2<Integer, Integer>> {
     private int total1 = 0;

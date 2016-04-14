@@ -19,8 +19,8 @@ package gaffer.function2.mock;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.Tuple3;
-import gaffer.tuple.tuplen.impl.Value2;
-import gaffer.tuple.tuplen.impl.Value3;
+import gaffer.tuple.tuplen.value.Value2;
+import gaffer.tuple.tuplen.value.Value3;
 
 import java.util.Arrays;
 import java.util.Iterator;
