@@ -83,6 +83,11 @@ public abstract class Function<I, O> {
         return getOutputSignature().assignableTo(arguments);
     }
 
+    /**
+     * Create a {@link gaffer.function2.signature.Signature} for the type variable at the given index.
+     * @param typeVariableIndex 0 for I or 1 for O.
+     * @return Signature of the type variable.
+     */
     private Signature createSignatureFromTypeVariable(final int typeVariableIndex) {
         TypeVariable<?> tv = Function.class.getTypeParameters()[typeVariableIndex];
         Type type = TypeUtils.getTypeArguments(this.getClass(), Function.class).get(tv);

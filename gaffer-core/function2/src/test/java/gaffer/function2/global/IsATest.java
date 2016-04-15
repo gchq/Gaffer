@@ -32,7 +32,7 @@ public class IsATest extends FunctionTest {
         final IsA validator = new IsA(String.class);
 
         // When
-        boolean valid = validator.validate("Test");
+        boolean valid = validator.execute("Test");
 
         // Then
         assertTrue(valid);
@@ -44,7 +44,7 @@ public class IsATest extends FunctionTest {
         final IsA validator = new IsA(String.class);
 
         // When
-        boolean valid = validator.validate(5);
+        boolean valid = validator.execute(5);
 
         // Then
         assertFalse(valid);
@@ -56,7 +56,7 @@ public class IsATest extends FunctionTest {
         final IsA validator = new IsA(Number.class);
 
         // When
-        boolean valid = validator.validate(5);
+        boolean valid = validator.execute(5);
 
         // Then
         assertTrue(valid);
@@ -68,7 +68,7 @@ public class IsATest extends FunctionTest {
         final IsA validator = new IsA(String.class);
 
         // When
-        boolean valid = validator.validate(null);
+        boolean valid = validator.execute(null);
 
         // Then
         assertTrue(valid);

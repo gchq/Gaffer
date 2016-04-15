@@ -20,19 +20,4 @@ package gaffer.function2;
  * An <code>Aggregator</code> {@link gaffer.function2.StatefulFunction} has the same input and output types.
  * @param <T> Aggregated type
  */
-public abstract class Aggregator<T> extends StatefulFunction<T, T> {
-    public void execute(final T input) {
-        aggregate(input);
-    }
-
-    /**
-     * Aggregate a new input value.
-     * @param input Input value
-     */
-    public abstract void aggregate(T input);
-
-    /**
-     * @return New <code>Aggregator</code> of the same type.
-     */
-    public abstract Aggregator<T> copy();
-}
+public abstract class Aggregator<T> extends StatefulFunction<T, T> { }

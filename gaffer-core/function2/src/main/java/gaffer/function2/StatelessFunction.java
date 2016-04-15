@@ -29,9 +29,4 @@ public abstract class StatelessFunction<I, O> extends Function<I, O> {
      * @return Output value
      */
     public abstract O execute(I input);
-
-    /**
-     * @return New <code>StatelessFunction</code> of the same type.
-     */
-    public abstract StatelessFunction<I, O> copy();
 }

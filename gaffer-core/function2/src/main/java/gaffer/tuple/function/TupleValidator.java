@@ -22,24 +22,23 @@ import gaffer.tuple.function.context.FunctionContext;
 import gaffer.tuple.function.context.FunctionContexts;
 
 /**
- * A <code>TupleFilter</code> validates input {@link gaffer.tuple.Tuple}s by applying {@link gaffer.function2.Validator}s
- * to the tuple values. It calculates the logical AND of the function results, and if true, the input tuple is returned,
- * otherwise <code>null</code>.
+ * A <code>TupleValidator</code> validates input {@link gaffer.tuple.Tuple}s by applying {@link gaffer.function2.Validator}s
+ * to the tuple values. It calculates the logical AND of the function results.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleFilter<R> extends StatelessTupleFunction<R> {
+public class TupleValidator<R> extends Validator<Tuple<R>> {
     private FunctionContexts<Validator, R> validators;
 
     /**
      * Default constructor - for serialisation.
      */
-    public TupleFilter() { }
+    public TupleValidator() { }
 
     /**
-     * Create a <code>TupleFilter</code> that applies the given functions.
+     * Create a <code>TupleValidator</code> that applies the given functions.
      * @param validators {@link gaffer.function2.Validator}s to validate tuple values.
      */
-    public TupleFilter(final FunctionContexts<Validator, R> validators) {
+    public TupleValidator(final FunctionContexts<Validator, R> validators) {
         setValidators(validators);
     }
 
@@ -72,10 +71,10 @@ public class TupleFilter<R> extends StatelessTupleFunction<R> {
      * @param input Input value
      * @return true if all {@link gaffer.function2.Validator}s are successful, otherwise false.
      */
-    public boolean validate(final Tuple<R> input) {
+    public Boolean execute(final Tuple<R> input) {
         if (validators != null) {
             for (FunctionContext<Validator, R> validator : validators) {
-                if (!(validator.getFunction().validate(validator.select(input)))) {
+                if (!(Boolean) validator.getFunction().execute(validator.select(input))) {
                     return false;
                 }
             }
@@ -93,16 +92,11 @@ public class TupleFilter<R> extends StatelessTupleFunction<R> {
         return validators.assignableTo(schemaTuple);
     }
 
-    @Override
-    public Tuple<R> execute(final Tuple<R> input) {
-        return validate(input) ? input : null;
-    }
-
     /**
-     * @return New <code>TupleFilter</code> with new {@link gaffer.function2.Validator}s.
+     * @return New <code>TupleValidator</code> with new {@link gaffer.function2.Validator}s.
      */
-    public TupleFilter<R> copy() {
-        TupleFilter<R> copy = new TupleFilter<R>();
+    public TupleValidator<R> copy() {
+        TupleValidator<R> copy = new TupleValidator<R>();
         for (FunctionContext<Validator, R> validator : this.validators) {
             copy.addValidator(validator.copy());
         }

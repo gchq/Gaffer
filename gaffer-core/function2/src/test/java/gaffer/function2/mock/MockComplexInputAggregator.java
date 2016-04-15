@@ -27,45 +27,35 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MockComplexInputAggregator extends Aggregator<Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>>> {
-    private int total1 = 0;
-    private String concat1 = "";
-    private int total2 = 0;
-    private String concat2 = "";
-    private String concat3 = "";
-    private String concat4 = "";
-
     @Override
-    public void aggregate(Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input) {
-        total1 += input.get0().get0();
-        concat1 += input.get0().get1();
-        total2 += input.get1();
-        Iterator<String> in = input.get2().iterator();
-        concat2 += in.next();
-        concat3 += in.next();
-        concat4 += in.next();
-    }
+    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
+            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
+            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
+        if (state == null) {
+            return input;
+        } else {
+            int in0a = input.get0().get0();
+            String in0b = input.get0().get1();
+            int in1 = input.get1();
+            Iterator<String> in2 = input.get2().iterator();
+            String in2a = in2.next();
+            String in2b = in2.next();
+            String in2c = in2.next();
 
-    @Override
-    public void init() {
-        total1 = 0;
-        concat1 = "";
-        total2 = 0;
-        concat2 = "";
-        concat3 = "";
-        concat4 = "";
-    }
+            int s0a = state.get0().get0();
+            String s0b = state.get0().get1();
+            int s1 = state.get1();
+            Iterator<String> s2 = state.get2().iterator();
+            String s2a = s2.next();
+            String s2b = s2.next();
+            String s2c = s2.next();
 
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state() {
-        Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> result = new Value3<>();
-        Tuple2<Integer, String> result0 = new Value2<>();
-        result0.put0(total1);
-        result0.put1(concat1);
-        result.put0(result0);
-        result.put1(total2);
-        List<String> result2 = Arrays.asList(concat2, concat3, concat4);
-        result.put2(result2);
-        return result;
+            state.get0().put0(in0a + s0a);
+            state.get0().put1(in0b + s0b);
+            state.put1(in1 + s1);
+            state.put2(Arrays.asList(in2a + s2a, in2b + s2b, in2c + s2c));
+            return state;
+        }
     }
 
     @Override

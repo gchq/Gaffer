@@ -31,12 +31,14 @@ public class FieldView<R> extends View<R> {
 
     @Override
     public Object select(final Tuple<R> tuple) {
-        return tuple.get(reference);
+        return tuple == null ? null : tuple.get(reference);
     }
 
     @Override
     public void project(final Tuple<R> tuple, final Object value) {
-        tuple.put(reference, value);
+        if (tuple != null) {
+            tuple.put(reference, value);
+        }
     }
 
     @Override

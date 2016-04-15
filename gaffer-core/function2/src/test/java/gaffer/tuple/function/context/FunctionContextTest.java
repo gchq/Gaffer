@@ -46,7 +46,7 @@ public class FunctionContextTest {
         MapTuple<String> tuple = new MapTuple<>();
         tuple.put("a", inputValue);
 
-        context.project(tuple, context.getFunction().transform(context.select(tuple)));
+        context.project(tuple, context.getFunction().execute(context.select(tuple)));
 
         assertEquals("Unexpected value at reference a", inputValue, tuple.get("a"));
         assertEquals("Unexpected value at reference b", inputValue, tuple.get("b"));

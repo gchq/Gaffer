@@ -16,7 +16,6 @@
 
 package gaffer.tuple.function;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function2.StatefulFunction;
 import gaffer.function2.Aggregator;
 import gaffer.tuple.Tuple;
@@ -25,15 +24,12 @@ import gaffer.tuple.function.context.FunctionContexts;
 
 /**
  * A <code>TupleAggregator</code> aggregates {@link gaffer.tuple.Tuple}s by applying
- * {@link gaffer.function2.StatefulFunction}>s to aggregate the tuple values. Projects
- * aggregated values into a single output {@link gaffer.tuple.Tuple}, which, if not
- * externally specified, will be the first tuple supplied as input.
+ * {@link gaffer.function2.StatefulFunction}>s to aggregate the tuple values. Projects aggregated values into a single
+ * output {@link gaffer.tuple.Tuple}, which will be the first tuple supplied as input.
  * @param <R> The type of reference used by tuples.
  */
 public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<Tuple<R>> {
     private FunctionContexts<F, R> functions;
-    @JsonIgnore
-    private Tuple<R> outputTuple;
 
     /**
      * Default constructor - for serialisation.
@@ -46,7 +42,6 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
      */
     public TupleAggregator(final FunctionContexts<F, R> functions) {
         setFunctions(functions);
-        outputTuple = null;
     }
 
     /**
@@ -74,39 +69,20 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
     }
 
     /**
-     * @param outputTuple Tuple that the aggregated values should be projected into.
-     */
-    public void setOutputTuple(final Tuple<R> outputTuple) {
-        this.outputTuple = outputTuple;
-    }
-
-    /**
-     * Initialise this <code>TupleAggregator</code> and all of it's aggregation functions.
-     */
-    @Override
-    public void init() {
-        outputTuple = null;
-        if (functions != null) {
-            for (FunctionContext<F, R> function : functions) {
-                function.getFunction().init();
-            }
-        }
-    }
-
-    /**
-     * Aggregate an input tuple.
+     * Aggregate an input tuple with the current state tuple.
      * @param input Input tuple
+     * @param state State tuple
      */
     @Override
-    public void aggregate(final Tuple<R> input) {
+    public Tuple<R> execute(final Tuple<R> input, final Tuple<R> state) {
+        Tuple<R> result = state != null ? state : input;
         if (functions != null) {
-            if (outputTuple == null) {
-                setOutputTuple(input);
-            }
             for (FunctionContext<F, R> function : functions) {
-                function.getFunction().execute(function.select(input));
+                Object functionState = state == null ? null : function.getProjectionView().select(state);
+                function.project(result, function.getFunction().execute(function.select(input), functionState));
             }
         }
+        return result;
     }
 
     /**
@@ -114,25 +90,12 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
      * @param group Input tuples.
      * @return Output tuple.
      */
-    public Tuple<R> aggregateGroup(final Iterable<Tuple<R>> group) {
-        init();
+    public Tuple<R> executeGroup(final Iterable<Tuple<R>> group) {
+        Tuple<R> state = null;
         for (Tuple<R> input : group) {
-            aggregate(input);
+            state = execute(input, state);
         }
-        return state();
-    }
-
-    /**
-     * @return Project the current state of the functions into the output tuple.
-     */
-    @Override
-    public Tuple<R> state() {
-        if (outputTuple != null) {
-            for (FunctionContext<F, R> function : functions) {
-                function.project(outputTuple, function.getFunction().state());
-            }
-        }
-        return outputTuple;
+        return state;
     }
 
     @Override

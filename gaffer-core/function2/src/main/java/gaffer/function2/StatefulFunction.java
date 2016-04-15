@@ -17,32 +17,18 @@
 package gaffer.function2;
 
 /**
- * A <code>StatefulFunction</code> is a {@link gaffer.function2.Function} that updates state in response
- * to each input, and outputs the current state on request. The order in which Gaffer will provide input
- * values is undefined, so to provide consistent behaviour, all <code>StatefulFunction</code>s should be
- * commutative and associative.
+ * A <code>StatefulFunction</code> is a {@link gaffer.function2.Function} that updates state in response to each input,
+ * and outputs the current state. The order in which Gaffer will provide input values is undefined, so to provide
+ * consistent behaviour, all <code>StatefulFunction</code>s should be commutative and associative.
  * @param <I> Function input type
  * @param <O> Function output type
  */
 public abstract class StatefulFunction<I, O> extends Function<I, O> {
     /**
-     * Resets the state of this <code>StatefulFunction</code>.
+     * Combine next value into current state.
+     * @param input New input value.
+     * @param state Current state.
+     * @return Combined input and state.
      */
-    public abstract void init();
-
-    /**
-     * Updates the state of this <code>StatefulFunction</code>.
-     * @param input Input value
-     */
-    public abstract void execute(I input);
-
-    /**
-     * @return Current state of this <code>StatefulFunction</code>
-     */
-    public abstract O state();
-
-    /**
-     * @return New <code>StatefulFunction</code> of the same type.
-     */
-    public abstract StatefulFunction<I, O> copy();
+    public abstract O execute(I input, O state);
 }

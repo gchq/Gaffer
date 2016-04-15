@@ -83,7 +83,7 @@ public class IsA extends Validator<Object> {
      * @return true iff input is null or non-null and can be cast to the control class, otherwise false.
      */
     @Override
-    public boolean validate(final Object input) {
+    public Boolean execute(final Object input) {
         return null == input || type.isAssignableFrom(input.getClass());
     }
 }

@@ -16,18 +16,16 @@
 
 package gaffer.function2.mock;
 
-import gaffer.function2.Transformer;
+import gaffer.function2.StatelessFunction;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.value.Value2;
 
-public class MockTransform extends Transformer<Object, Tuple2<Object, Object>> {
-    private Tuple2<Object, Object> outputTuple;
+public class MockTransform extends StatelessFunction<Object, Tuple2<Object, Object>> {
     private Object output;
 
     public MockTransform() {}
 
     public MockTransform(Object output) {
-        outputTuple = new Value2<>();
         this.output = output;
     }
 
@@ -40,10 +38,11 @@ public class MockTransform extends Transformer<Object, Tuple2<Object, Object>> {
     }
 
     @Override
-    public Tuple2<Object, Object> transform(Object input) {
-        outputTuple.put0(input);
-        outputTuple.put1(output);
-        return outputTuple;
+    public Tuple2<Object, Object> execute(Object input) {
+        Value2<Object, Object> out = new Value2<Object, Object>();
+        out.put0(input);
+        out.put1(output);
+        return out;
     }
 
     @Override

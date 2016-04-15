@@ -16,18 +16,18 @@
 
 package gaffer.tuple.function;
 
+import gaffer.function2.StatelessFunction;
 import gaffer.tuple.Tuple;
-import gaffer.function2.Transformer;
 import gaffer.tuple.function.context.FunctionContext;
 import gaffer.tuple.function.context.FunctionContexts;
 
 /**
  * A <code>TupleTransformer</code> transforms input {@link gaffer.tuple.Tuple}s by applying
- * <code>Transformer</code>s to the tuple values. Outputs the input tuple, but with it's values updated.
+ * {@link gaffer.function2.StatelessFunction}s to the tuple values.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleTransformer<R> extends StatelessTupleFunction<R> {
-    private FunctionContexts<Transformer, R> transforms;
+public class TupleTransformer<R> extends StatelessFunction<Tuple<R>, Tuple<R>> {
+    private FunctionContexts<StatelessFunction, R> transforms;
 
     /**
      * Default constructor - for serialisation.
@@ -36,32 +36,32 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
 
     /**
      * Create a <code>TupleTransformer</code> that applies the given functions.
-     * @param transforms {@link gaffer.function2.Transformer}s to transform tuple values.
+     * @param transforms {@link gaffer.function2.StatelessFunction}s to transform tuple values.
      */
-    public TupleTransformer(final FunctionContexts<Transformer, R> transforms) {
+    public TupleTransformer(final FunctionContexts<StatelessFunction, R> transforms) {
         setTransforms(transforms);
     }
 
     /**
-     * @param transforms {@link gaffer.function2.Transformer}s to transform tuple values.
+     * @param transforms {@link gaffer.function2.StatelessFunction}s to transform tuple values.
      */
-    public void setTransforms(final FunctionContexts<Transformer, R> transforms) {
+    public void setTransforms(final FunctionContexts<StatelessFunction, R> transforms) {
         this.transforms = transforms;
     }
 
     /**
-     * @return {@link gaffer.function2.Transformer}s to transform tuple values.
+     * @return {@link gaffer.function2.StatelessFunction}s to transform tuple values.
      */
-    public FunctionContexts<Transformer, R> getTransforms() {
+    public FunctionContexts<StatelessFunction, R> getTransforms() {
         return transforms;
     }
 
     /**
-     * @param transform {@link gaffer.function2.Transformer} to transform tuple values.
+     * @param transform {@link gaffer.function2.StatelessFunction} to transform tuple values.
      */
-    public void addTransform(final FunctionContext<Transformer, R> transform) {
+    public void addTransform(final FunctionContext<StatelessFunction, R> transform) {
         if (transforms == null) {
-            transforms = new FunctionContexts<Transformer, R>();
+            transforms = new FunctionContexts<StatelessFunction, R>();
         }
         transforms.add(transform);
     }
@@ -71,9 +71,10 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
      * @param input Input tuple.
      * @return Input tuple with transformed content.
      */
-    public Tuple<R> transform(final Tuple<R> input) {
+    @Override
+    public Tuple<R> execute(final Tuple<R> input) {
         if (transforms != null) {
-            for (FunctionContext<Transformer, R> transform : transforms) {
+            for (FunctionContext<StatelessFunction, R> transform : transforms) {
                 transform.project(input, transform.getFunction().execute(transform.select(input)));
             }
         }
@@ -90,17 +91,12 @@ public class TupleTransformer<R> extends StatelessTupleFunction<R> {
         return transforms.assignableTo(schemaTuple);
     }
 
-    @Override
-    public Tuple<R> execute(final Tuple<R> input) {
-        return transform(input);
-    }
-
     /**
-     * @return New <code>TupleTransformer</code> with new {@link gaffer.function2.Transformer}s.
+     * @return New <code>TupleTransformer</code> with new {@link gaffer.function2.StatelessFunction}s.
      */
     public TupleTransformer<R> copy() {
         TupleTransformer<R> copy = new TupleTransformer<R>();
-        for (FunctionContext<Transformer, R> transform : this.transforms) {
+        for (FunctionContext<StatelessFunction, R> transform : this.transforms) {
             copy.addTransform(transform.copy());
         }
         return copy;

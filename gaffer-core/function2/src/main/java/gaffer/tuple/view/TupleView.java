@@ -55,16 +55,24 @@ public class TupleView<R> extends View<R> implements Tuple<Integer> {
 
     @Override
     public Object select(final Tuple<R> tuple) {
-        setTuple(tuple);
-        return this;
+        if (tuple == null) {
+            return null;
+        } else {
+            setTuple(tuple);
+            return this;
+        }
     }
 
     @Override
     public void project(final Tuple<R> tuple, final Object values) {
-        setTuple(tuple);
-        int i = 0;
-        for (Object value : (Iterable) values) {
-            put(i++, value);
+        if (tuple == null) {
+            return;
+        } else {
+            setTuple(tuple);
+            int i = 0;
+            for (Object value : (Iterable) values) {
+                put(i++, value);
+            }
         }
     }
 

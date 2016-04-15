@@ -25,6 +25,7 @@ import gaffer.function2.mock.MockSingleInputAggregator;
 import gaffer.function2.signature.IterableSignature;
 import gaffer.function2.signature.Signature;
 import gaffer.tuple.MapTuple;
+import gaffer.tuple.Tuple;
 import gaffer.tuple.view.Reference;
 import gaffer.tuple.function.context.FunctionContext;
 import org.junit.Test;
@@ -44,16 +45,16 @@ public class TupleAggregatorTest extends FunctionTest {
         aggregatorContext.setFunction(new MockSingleInputAggregator());
         tupleAggregator.addFunction(aggregatorContext);
 
-        MapTuple<String> tuple = new MapTuple<>();
-        tuple.put("a", 1);
-
         int executions = 5;
+        int value = 1;
+        Tuple<String> state = null;
         for (int i = 0; i < executions; i++) {
-            tupleAggregator.aggregate(tuple);
+            MapTuple<String> tuple = new MapTuple<>();
+            tuple.put("a", value);
+            state = tupleAggregator.execute(tuple, state);
         }
-        tupleAggregator.state();
 
-        assertEquals("Did not produce expected output at reference b", 5, tuple.get("b"));
+        assertEquals("Did not produce expected output at reference b", value * executions, state.get("b"));
     }
 
     @Test
@@ -65,18 +66,17 @@ public class TupleAggregatorTest extends FunctionTest {
         aggregatorContext.setFunction(new MockMultiInputAggregator());
         tupleAggregator.addFunction(aggregatorContext);
 
-        MapTuple<String> tuple = new MapTuple<>();
-        tuple.put("a", 1);
-        tuple.put("b", 2);
-
         int executions = 5;
+        Tuple<String> state = null;
         for (int i = 0; i < executions; i++) {
-            tupleAggregator.aggregate(tuple);
+            MapTuple<String> tuple = new MapTuple<>();
+            tuple.put("a", 1);
+            tuple.put("b", 2);
+            state = tupleAggregator.execute(tuple, state);
         }
-        tupleAggregator.state();
 
-        assertEquals("Did not produce expected output at reference c", executions, tuple.get("c"));
-        assertEquals("Did not produce expected output at reference d", executions * 2, tuple.get("d"));
+        assertEquals("Did not produce expected output at reference c", executions, state.get("c"));
+        assertEquals("Did not produce expected output at reference d", executions * 2, state.get("d"));
     }
 
     @Test
@@ -106,35 +106,26 @@ public class TupleAggregatorTest extends FunctionTest {
         String e = "e";
         String f = "f";
 
-        MapTuple<String> tuple = new MapTuple<>();
-        tuple.put("a", a);
-        tuple.put("b", b);
-        tuple.put("c", c);
-        tuple.put("d", d);
-        tuple.put("e", e);
-        tuple.put("f", f);
-
         int executions = 2;
+        Tuple<String> state = null;
         for (int i = 0; i < executions; i++) {
-            tupleAggregator.aggregate(tuple);
+            MapTuple<String> tuple = new MapTuple<>();
+            tuple.put("a", a);
+            tuple.put("b", b);
+            tuple.put("c", c);
+            tuple.put("d", d);
+            tuple.put("e", e);
+            tuple.put("f", f);
+            state = tupleAggregator.execute(tuple, state);
         }
-        tupleAggregator.state();
 
         // check aggregated fields
-        assertEquals("Did not produce expected output at reference g", executions * a, tuple.get("g"));
-        assertEquals("Did not produce expected output at reference h", b + b, tuple.get("h"));
-        assertEquals("Did not produce expected output at reference i", executions * c, tuple.get("i"));
-        assertEquals("Did not produce expected output at reference j", d + d, tuple.get("j"));
-        assertEquals("Did not produce expected output at reference k", e + e, tuple.get("k"));
-        assertEquals("Did not produce expected output at reference d", f + f, tuple.get("l"));
-
-        // check original fields are untouched
-        assertEquals("Did not produce expected output at reference a", a, tuple.get("a"));
-        assertEquals("Did not produce expected output at reference b", b, tuple.get("b"));
-        assertEquals("Did not produce expected output at reference c", c, tuple.get("c"));
-        assertEquals("Did not produce expected output at reference d", d, tuple.get("d"));
-        assertEquals("Did not produce expected output at reference e", e, tuple.get("e"));
-        assertEquals("Did not produce expected output at reference f", f, tuple.get("f"));
+        assertEquals("Did not produce expected output at reference g", executions * a, state.get("g"));
+        assertEquals("Did not produce expected output at reference h", b + b, state.get("h"));
+        assertEquals("Did not produce expected output at reference i", executions * c, state.get("i"));
+        assertEquals("Did not produce expected output at reference j", d + d, state.get("j"));
+        assertEquals("Did not produce expected output at reference k", e + e, state.get("k"));
+        assertEquals("Did not produce expected output at reference d", f + f, state.get("l"));
     }
 
     @Test

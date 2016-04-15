@@ -21,27 +21,15 @@ import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.value.Value2;
 
 public class MockMultiInputAggregator extends Aggregator<Tuple2<Integer, Integer>> {
-    private int total1 = 0;
-    private int total2 = 0;
-
     @Override
-    public void aggregate(Tuple2<Integer, Integer> input) {
-        total1 += input.get0();
-        total2 += input.get1();
-    }
-
-    @Override
-    public void init() {
-        total1 = 0;
-        total2 = 0;
-    }
-
-    @Override
-    public Tuple2<Integer, Integer> state() {
-        Tuple2<Integer, Integer> out = new Value2<>();
-        out.put0(total1);
-        out.put1(total2);
-        return out;
+    public Tuple2<Integer, Integer> execute(Tuple2<Integer, Integer> input, Tuple2<Integer, Integer> state) {
+        if (state == null) {
+            return input;
+        } else {
+            state.put0(input.get0() + state.get0());
+            state.put1(input.get1() + state.get1());
+            return state;
+        }
     }
 
     @Override
