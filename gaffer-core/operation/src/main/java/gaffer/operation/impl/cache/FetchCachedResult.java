@@ -22,9 +22,9 @@ import gaffer.operation.cache.CacheOperation;
 /**
  * A <code>FetchCachedResult</code> fetches a cached result {@link Iterable} for a
  * provided key. If a key is not provided the default key is 'ALL'.
- * The cache is maintained per single operation chain only. It cannot be used
- * across multiple separate operation requests. So, it must be updated and
- * fetched inside a single operation chain.
+ * The cache is maintained per single {@link gaffer.operation.OperationChain} only.
+ * It cannot be used across multiple separate operation requests.
+ * So, it must be updated and fetched inside a single operation chain.
  *
  * @see UpdateCache
  * @see FetchCache
