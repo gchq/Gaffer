@@ -81,6 +81,7 @@ public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
     private AccumuloKeyPackage keyPackage;
+    private Connector connection = null;
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
@@ -105,6 +106,9 @@ public class AccumuloStore extends Store {
      * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
+        if(null != connection) {
+            return connection;
+        }
         return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
                 getProperties().getUserName(), getProperties().getPassword());
     }
