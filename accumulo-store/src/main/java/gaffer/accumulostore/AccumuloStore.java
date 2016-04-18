@@ -30,6 +30,8 @@ import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
+import gaffer.accumulostore.operation.handler.UpdateElementsHandler;
+import gaffer.accumulostore.operation.handler.UpdateStoreHandler;
 import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
@@ -47,6 +49,8 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetElements;
+import gaffer.operation.simple.UpdateElements;
+import gaffer.operation.simple.UpdateStore;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -130,6 +134,9 @@ public class AccumuloStore extends Store {
         addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
+
+        addOperationHandler(UpdateStore.class, new UpdateStoreHandler());
+        addOperationHandler(UpdateElements.class, new UpdateElementsHandler());
     }
 
     @Override
@@ -209,6 +216,8 @@ public class AccumuloStore extends Store {
                 } catch (final MutationsRejectedException e) {
                     LOGGER.error("Failed to create an accumulo key mutation");
                 }
+
+
             }
         }
         try {

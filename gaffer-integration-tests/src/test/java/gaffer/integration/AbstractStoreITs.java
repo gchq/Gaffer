@@ -26,6 +26,7 @@ import org.reflections.Reflections;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -39,19 +40,21 @@ public abstract class AbstractStoreITs {
     private final StoreProperties storeProperties;
     private final Schema schema;
     private final Collection<? extends Class<? extends AbstractStoreIT>> extraTests;
+    private final boolean skipDefaultTests;
 
-    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
+    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests, final boolean skipDefaultTests) {
         this.schema = schema;
         this.storeProperties = storeProperties;
         this.extraTests = extraTests;
+        this.skipDefaultTests = skipDefaultTests;
     }
 
-    public AbstractStoreITs(final StoreProperties storeProperties, Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
-        this(storeProperties, new Schema(), extraTests);
+    public AbstractStoreITs(final StoreProperties storeProperties, Collection<? extends Class<? extends AbstractStoreIT>> extraTests, final boolean skipDefaultTests) {
+        this(storeProperties, new Schema(), extraTests, skipDefaultTests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this(storeProperties, schema, Collections.<Class<? extends AbstractStoreIT>>emptyList());
+        this(storeProperties, schema, Collections.<Class<? extends AbstractStoreIT>>emptyList(), false);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
@@ -85,10 +88,16 @@ public abstract class AbstractStoreITs {
         }
 
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
-            final Set<Class<? extends AbstractStoreIT>> classes = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
-            keepPublicConcreteClasses(classes);
-
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
+
+            final Set<Class<? extends AbstractStoreIT>> classes;
+            if (!runner.skipDefaultTests) {
+                classes = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
+                keepPublicConcreteClasses(classes);
+            } else {
+                classes = new HashSet<>();
+            }
+
             classes.addAll(runner.getExtraTests());
 
             return classes.toArray(new Class[classes.size()]);

@@ -20,25 +20,30 @@ import gaffer.arrayliststore.ArrayListStore;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
-import gaffer.operation.simple.MigrateElements;
+import gaffer.operation.simple.UpdateElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map.Entry;
 
-public class MigrateElementsHandler implements OperationHandler<MigrateElements, Void> {
+public class UpdateElementsHandler implements OperationHandler<UpdateElements, Void> {
     @Override
-    public Void doOperation(final MigrateElements operation, final Store store) {
-        doOperation(operation, (ArrayListStore) store);
+    public Void doOperation(final UpdateElements operation, final Store store) throws OperationException {
+        return doOperation(operation, (ArrayListStore) store);
+    }
+
+    private Void doOperation(final UpdateElements operation, final ArrayListStore store) throws OperationException {
+        updateElements(operation, store);
+
         return null;
     }
 
-    private List<Element> doOperation(final MigrateElements operation, final ArrayListStore store) {
+    private void updateElements(final UpdateElements operation, final ArrayListStore store) {
         final boolean hasSeeds = operation.getSeeds().iterator().hasNext();
-        final List<Element> result = new ArrayList<>();
         final View view = operation.getView();
         if (!operation.getView().getEntityGroups().isEmpty()) {
             for (final Entity entity : store.getEntities()) {
@@ -47,6 +52,7 @@ public class MigrateElementsHandler implements OperationHandler<MigrateElements,
                     final ViewElementDefinition elementDef = view.getEntity(entity.getGroup());
                     if (null != elementDef && null != elementDef.getTransformer()) {
                         elementDef.getTransformer().transform(entity);
+                        removeNullProperties(entity);
                     }
                 }
             }
@@ -59,12 +65,21 @@ public class MigrateElementsHandler implements OperationHandler<MigrateElements,
                     final ViewElementDefinition elementDef = view.getEdge(edge.getGroup());
                     if (null != elementDef && null != elementDef.getTransformer()) {
                         elementDef.getTransformer().transform(edge);
+                        removeNullProperties(edge);
                     }
                 }
             }
         }
+    }
 
-        return result;
+    private void removeNullProperties(final Element element) {
+        // remove any null properties
+        final Properties properties = element.getProperties();
+        for (final Entry<String, Object> entry : properties.entrySet()) {
+            if (null == entry.getValue()) {
+                properties.remove(entry.getKey());
+            }
+        }
     }
 
     private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds) {

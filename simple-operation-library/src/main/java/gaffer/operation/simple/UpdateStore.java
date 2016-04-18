@@ -24,19 +24,24 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.VoidOutput;
 import gaffer.operation.data.ElementSeed;
+import gaffer.store.StoreProperties;
+import gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * An <code>MigrateElements</code> operation will transform elements that
+ * An <code>UpdateStore</code> operation will transform elements that
  * match the provided {@link ElementSeed}s. If no seeds are provided all elements
  * that match the view will be updated.
  * A view should be provided with the appropriate transform functions.
  *
- * @see MigrateElements.Builder
+ * @see UpdateStore.Builder
  */
-public class MigrateElements extends AbstractOperation<Iterable<ElementSeed>, Void> implements VoidOutput<Iterable<ElementSeed>> {
+public class UpdateStore extends AbstractOperation<Iterable<ElementSeed>, Void> implements VoidOutput<Iterable<ElementSeed>> {
+    private StoreProperties newStoreProperties;
+    private Schema newSchema;
+
     public Iterable<ElementSeed> getSeeds() {
         return getInput();
     }
@@ -63,12 +68,27 @@ public class MigrateElements extends AbstractOperation<Iterable<ElementSeed>, Vo
         setInput(Arrays.asList(seeds));
     }
 
+    public StoreProperties getNewStoreProperties() {
+        return newStoreProperties;
+    }
 
-    public static class Builder extends AbstractOperation.Builder<MigrateElements, Iterable<ElementSeed>, Void> {
+    public void setNewStoreProperties(final StoreProperties newStoreProperties) {
+        this.newStoreProperties = newStoreProperties;
+    }
+
+    public Schema getNewSchema() {
+        return newSchema;
+    }
+
+    public void setNewSchema(final Schema newSchema) {
+        this.newSchema = newSchema;
+    }
+
+    public static class Builder extends AbstractOperation.Builder<UpdateStore, Iterable<ElementSeed>, Void> {
         private List<ElementSeed> seeds;
 
         public Builder() {
-            super(new MigrateElements());
+            super(new UpdateStore());
         }
 
         /**
@@ -105,6 +125,16 @@ public class MigrateElements extends AbstractOperation<Iterable<ElementSeed>, Vo
             }
 
             seeds.add(seed);
+            return this;
+        }
+
+        public Builder newSchema(final Schema schema) {
+            op.setNewSchema(schema);
+            return this;
+        }
+
+        public Builder newStoreProperties(final StoreProperties storeProperties) {
+            op.setNewStoreProperties(storeProperties);
             return this;
         }
 

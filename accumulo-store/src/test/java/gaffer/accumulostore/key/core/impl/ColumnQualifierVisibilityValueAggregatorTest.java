@@ -18,7 +18,6 @@ package gaffer.accumulostore.key.core.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -56,8 +55,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class ColumnQualifierVisibilityValueAggregatorTest {
-    private MockAccumuloStore byteEntityStore;
-    private MockAccumuloStore gaffer1KeyStore;
+    private MockAccumuloStoreForTest byteEntityStore;
+    private MockAccumuloStoreForTest gaffer1KeyStore;
     private AccumuloElementConverter byteEntityElementConverter;
     private AccumuloElementConverter gaffer1ElementConverter;
 
@@ -79,7 +78,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingMultiplePropertySets(final MockAccumuloStoreForTest store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -142,7 +141,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -152,7 +151,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
             // Read data back and check we get one merged element
             Authorizations authorizations = new Authorizations(visibilityString);
-            Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
+            Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
@@ -183,7 +182,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingSinglePropertySet(final MockAccumuloStoreForTest store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -215,13 +214,13 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.close();
 
             // Read data back and check we get one merged element
             Authorizations authorizations = new Authorizations(visibilityString);
-            Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
+            Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
@@ -251,7 +250,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStoreForTest store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
@@ -312,7 +311,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -322,7 +321,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
 
             // Read data back and check we get one merged element
             Authorizations authorizations = new Authorizations(visibilityString);
-            Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
+            Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
             IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()

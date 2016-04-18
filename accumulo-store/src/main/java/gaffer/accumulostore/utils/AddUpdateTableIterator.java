@@ -156,6 +156,24 @@ public final class AddUpdateTableIterator {
         }
     }
 
+    public static void removeIterators(final AccumuloStore store) throws StoreException {
+        for (String iterator : ITERATORS) {
+            removeIterator(store, iterator);
+        }
+    }
+
+    public static void addIterators(final AccumuloStore store) throws StoreException {
+        for (String iterator : ITERATORS) {
+            addIterator(store, iterator);
+        }
+    }
+
+    public static void updateIterators(final AccumuloStore store) throws StoreException {
+        for (String iterator : ITERATORS) {
+            updateIterator(store, iterator);
+        }
+    }
+
     public static void main(final String[] args) throws StoreException, SchemaException, IOException {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
@@ -172,19 +190,13 @@ public final class AddUpdateTableIterator {
         final String modifyKey = getModifyKey(args);
         switch (modifyKey) {
             case UPDATE_KEY:
-                for (String iterator : ITERATORS) {
-                    updateIterator(store, iterator);
-                }
+                updateIterators(store);
                 break;
             case ADD_KEY:
-                for (String iterator : ITERATORS) {
-                    addIterator(store, iterator);
-                }
+                addIterators(store);
                 break;
             case REMOVE_KEY:
-                for (String iterator : ITERATORS) {
-                    removeIterator(store, iterator);
-                }
+                removeIterators(store);
                 break;
             default:
                 throw new IllegalArgumentException("Supplied add or update key ("

@@ -27,14 +27,14 @@ import java.util.List;
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link gaffer.data.element.Element}s from HDFS.
  * This operation requires an input, output and failure path.
  * It order to be generic and deal with any type of input file you also need to provide a
- * {@link gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator} class name and a
- * {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser}.
+ * {@link MapperGenerator} class name and a
+ * {@link JobInitialiser}.
  * <p>
  * For normal operation handlers the operation {@link gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
- * @see gaffer.operation.simple.hdfs.AddElementsFromHdfs.Builder
+ * @see AddElementsFromHdfs.Builder
  */
 public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
     private Path failurePath;

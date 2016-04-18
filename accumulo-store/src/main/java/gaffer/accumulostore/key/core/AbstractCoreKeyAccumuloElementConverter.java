@@ -46,7 +46,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -109,15 +108,18 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throws AccumuloElementConversionException {
         final MapWritable map = new MapWritable();
         for (final Map.Entry<String, Object> entry : properties.entrySet()) {
-            final String propertyName = entry.getKey();
-            final TypeDefinition propertyDefinition = schema.getElement(group).getPropertyTypeDef(propertyName);
-            if (propertyDefinition != null) {
-                if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
-                    try {
-                        map.put(new Text(propertyName),
-                                new BytesWritable(propertyDefinition.getSerialiser().serialise(entry.getValue())));
-                    } catch (final SerialisationException e) {
-                        throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
+            // Skip any properties that have a null value
+            if (null != entry.getValue()) {
+                final String propertyName = entry.getKey();
+                final TypeDefinition propertyDefinition = schema.getElement(group).getPropertyTypeDef(propertyName);
+                if (propertyDefinition != null) {
+                    if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
+                        try {
+                            map.put(new Text(propertyName),
+                                    new BytesWritable(propertyDefinition.getSerialiser().serialise(entry.getValue())));
+                        } catch (final SerialisationException e) {
+                            throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
+                        }
                     }
                 }
             }
@@ -511,6 +513,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 }
             }
         }
-        return new Date().getTime();
+        return System.currentTimeMillis();
     }
 }

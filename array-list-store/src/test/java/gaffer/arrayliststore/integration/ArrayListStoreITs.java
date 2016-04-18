@@ -17,12 +17,15 @@ package gaffer.arrayliststore.integration;
 
 import gaffer.commonutil.StreamUtil;
 import gaffer.integration.AbstractStoreITs;
+import gaffer.operation.integration.simple.UpdateStoreIT;
+import gaffer.operation.integration.simple.UpdateElementsIT;
 import gaffer.store.StoreProperties;
+import java.util.Arrays;
 
 public class ArrayListStoreITs extends AbstractStoreITs {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ArrayListStoreITs.class));
 
     public ArrayListStoreITs() {
-        super(STORE_PROPERTIES);
+        super(STORE_PROPERTIES, Arrays.asList(UpdateElementsIT.class, UpdateStoreIT.class), false);
     }
 }

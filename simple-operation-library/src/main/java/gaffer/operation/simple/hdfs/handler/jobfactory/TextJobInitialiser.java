@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * An <code>AvroJobInitialiser</code> is an {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser} that
+ * An <code>AvroJobInitialiser</code> is an {@link JobInitialiser} that
  * initialises the provided {@link org.apache.hadoop.mapreduce.Job} to handle text input data.
  */
 public class TextJobInitialiser implements JobInitialiser {

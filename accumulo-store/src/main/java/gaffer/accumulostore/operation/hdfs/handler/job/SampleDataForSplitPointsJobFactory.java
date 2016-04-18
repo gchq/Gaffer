@@ -27,7 +27,6 @@ import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-
 import java.io.IOException;
 
 public class SampleDataForSplitPointsJobFactory {

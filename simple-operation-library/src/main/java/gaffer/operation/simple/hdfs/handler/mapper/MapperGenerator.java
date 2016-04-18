@@ -24,8 +24,8 @@ import org.apache.hadoop.mapreduce.MapContext;
  *
  * @param <KEY_IN>   the input key for the mapper
  * @param <VALUE_IN> the input value for the mapper
- * @see gaffer.operation.simple.hdfs.handler.mapper.AvroMapperGenerator
- * @see gaffer.operation.simple.hdfs.handler.mapper.TextMapperGenerator
+ * @see AvroMapperGenerator
+ * @see TextMapperGenerator
  */
 public interface MapperGenerator<KEY_IN, VALUE_IN> {
     Iterable<Element> getElements(final KEY_IN keyIn, final VALUE_IN valueIn, final MapContext<KEY_IN, VALUE_IN, ?, ?> context);

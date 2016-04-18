@@ -23,7 +23,6 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * The <code>MapReduceOperation</code> operation is the base operation that should be extended for any Operations that run map reduce jobs.
  * {@link JobInitialiser}.

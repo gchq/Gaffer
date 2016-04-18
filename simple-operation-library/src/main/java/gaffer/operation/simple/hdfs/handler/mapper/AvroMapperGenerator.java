@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An <code>AvroMapperGenerator</code> is an {@link gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator} that
+ * An <code>AvroMapperGenerator</code> is an {@link MapperGenerator} that
  * can handle Avro input data and convert it into an {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s.
  */
 public class AvroMapperGenerator<OBJ> implements MapperGenerator<AvroKey<OBJ>, NullWritable> {

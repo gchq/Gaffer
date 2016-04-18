@@ -18,14 +18,13 @@ package gaffer.operation.simple.hdfs.handler.jobfactory;
 import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.store.Store;
 import org.apache.hadoop.mapreduce.Job;
-
 import java.io.IOException;
 
 /**
  * A <code>JobInitialiser</code> initialises a job.
  *
- * @see gaffer.operation.simple.hdfs.handler.jobfactory.AvroJobInitialiser
- * @see gaffer.operation.simple.hdfs.handler.jobfactory.TextJobInitialiser
+ * @see AvroJobInitialiser
+ * @see TextJobInitialiser
  */
 public interface JobInitialiser {
     /**

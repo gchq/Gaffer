@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * An <code>AbstractAddElementsFromHdfsMapper</code> is a {@link org.apache.hadoop.mapreduce.Mapper} that uses a
- * {@link gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator} to map the input data into
+ * {@link MapperGenerator} to map the input data into
  * {@link gaffer.data.element.Element}s and then delegates the elements to an abstract map method to serialise them
  * and add them to the job map context.
  *

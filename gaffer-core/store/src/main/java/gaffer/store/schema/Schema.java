@@ -385,6 +385,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return this;
         }
 
+        public Builder merge(final Schema schema) {
+            getElementDefs().merge(schema);
+            return this;
+        }
+
         @Override
         public Schema build() {
             final Schema schema = (Schema) super.build();

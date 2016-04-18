@@ -10,7 +10,7 @@
       "position": "VALUE"
     },
     "timestamp": {
-      "position": "VALUE"
+      "position": "TIMESTAMP"
     }
   }
 }

@@ -17,14 +17,16 @@ package gaffer.accumulostore.integration;
 
 import gaffer.commonutil.StreamUtil;
 import gaffer.integration.AbstractStoreITs;
+import gaffer.operation.integration.simple.UpdateElementsIT;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
+import java.util.Collections;
 
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
     private static final Schema STORE_SCHEMA = Schema.fromJson(StreamUtil.openStream(AccumuloStoreITs.class, "/schema/accumuloITStoreTypes.json"));
 
     public AccumuloStoreITs() {
-        super(STORE_PROPERTIES, STORE_SCHEMA);
+        super(STORE_PROPERTIES, STORE_SCHEMA, Collections.singletonList(UpdateElementsIT.class), true);
     }
 }

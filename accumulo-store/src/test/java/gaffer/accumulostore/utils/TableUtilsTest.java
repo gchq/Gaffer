@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import gaffer.accumulostore.AccumuloProperties;
-import gaffer.accumulostore.MockAccumuloStore;
+import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ValidatorFilter;
@@ -45,7 +45,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final MockAccumuloStoreForTest store = new MockAccumuloStoreForTest();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, String.class)
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
