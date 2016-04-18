@@ -106,11 +106,11 @@ public class AccumuloStore extends Store {
      * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        if(null != connection) {
-            return connection;
+        if (null == connection) {
+            connection = TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
+                    getProperties().getUserName(), getProperties().getPassword());
         }
-        return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
-                getProperties().getUserName(), getProperties().getPassword());
+        return connection;
     }
 
     @Override
