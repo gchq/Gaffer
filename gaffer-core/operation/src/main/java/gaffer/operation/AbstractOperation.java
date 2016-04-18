@@ -23,7 +23,6 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -186,6 +185,10 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         protected Builder<OP_TYPE, INPUT, OUTPUT> option(final String name, final String value) {
             op.addOption(name, value);
             return this;
+        }
+
+        protected OP_TYPE getOp() {
+            return op;
         }
     }
 }

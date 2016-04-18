@@ -19,7 +19,7 @@ package gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import gaffer.operation.impl.cache.UpdateCache;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -94,7 +94,7 @@ public class OperationChain<OUT> {
      * For a full example see the Example module.
      */
     public static class Builder {
-        public <OUT> TypedBuilder<OUT> first(final Operation<?, OUT> op) {
+        public <NEXT_OUT> TypedBuilder<NEXT_OUT> first(final Operation<?, NEXT_OUT> op) {
             return new TypedBuilder<>(op);
         }
 
@@ -151,6 +151,11 @@ public class OperationChain<OUT> {
                 return new TypedBuilder<>(ops);
             }
 
+            public TypelessBuilder then(final UpdateCache op) {
+                getOps().add(op);
+                return new TypelessBuilder(getOps());
+            }
+
             public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
                 ops.add(op);
                 return new TypedBuilder<>(ops);
@@ -163,6 +168,10 @@ public class OperationChain<OUT> {
 
             public OperationChain<OUT> build() {
                 return new OperationChain<>(ops);
+            }
+
+            protected List<Operation> getOps() {
+                return ops;
             }
         }
     }
