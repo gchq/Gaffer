@@ -18,6 +18,10 @@ package gaffer.tuple.tuplen.view;
 
 import gaffer.tuple.view.Reference;
 
+/**
+ * A {@link gaffer.tuple.view.TupleView} that refers to more than 5 values in the wrapped tuple.
+ * @param <R> Type of reference used by wrapped tuple.
+ */
 public class ViewN<R> extends View5<Object, Object, Object, Object, Object, R> {
     public ViewN(final Reference<R>... references) {
         super(references);

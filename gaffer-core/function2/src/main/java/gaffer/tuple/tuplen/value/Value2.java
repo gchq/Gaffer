@@ -19,6 +19,11 @@ package gaffer.tuple.tuplen.value;
 import gaffer.tuple.ArrayTuple;
 import gaffer.tuple.tuplen.Tuple2;
 
+/**
+ * An {@link gaffer.tuple.ArrayTuple} containing 2 entries.
+ * @param <A> Type of the entry at index 0.
+ * @param <B> Type of the entry at index 1.
+ */
 public class Value2<A, B> extends ArrayTuple implements Tuple2<A, B> {
     public Value2() {
         super(2);

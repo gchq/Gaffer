@@ -22,8 +22,8 @@ import gaffer.tuple.function.context.FunctionContext;
 import gaffer.tuple.function.context.FunctionContexts;
 
 /**
- * A <code>TupleValidator</code> validates input {@link gaffer.tuple.Tuple}s by applying {@link gaffer.function2.Validator}s
- * to the tuple values. It calculates the logical AND of the function results.
+ * A <code>TupleValidator</code> validates input {@link gaffer.tuple.Tuple}s by applying
+ * {@link gaffer.function2.Validator}s to the tuple values. It calculates the logical AND of the function results.
  * @param <R> The type of reference used by tuples.
  */
 public class TupleValidator<R> extends Validator<Tuple<R>> {

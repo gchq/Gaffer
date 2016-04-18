@@ -19,6 +19,12 @@ package gaffer.tuple.tuplen.view;
 import gaffer.tuple.view.Reference;
 import gaffer.tuple.tuplen.Tuple2;
 
+/**
+ * A {@link gaffer.tuple.view.TupleView} that refers to 2 values in the wrapped tuple.
+ * @param <A> Type of value referred to at index 0.
+ * @param <B> Type of value referred to at index 1.
+ * @param <R> Type of reference used by wrapped tuple.
+ */
 public class View2<A, B, R> extends View1<A, R> implements Tuple2<A, B> {
     public View2(final Reference<R> first, final Reference<R> second) {
         super(first, second);

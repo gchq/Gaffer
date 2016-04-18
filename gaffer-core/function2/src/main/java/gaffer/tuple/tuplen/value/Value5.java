@@ -18,6 +18,14 @@ package gaffer.tuple.tuplen.value;
 
 import gaffer.tuple.tuplen.Tuple5;
 
+/**
+ * An {@link gaffer.tuple.ArrayTuple} containing 5 entries.
+ * @param <A> Type of the entry at index 0.
+ * @param <B> Type of the entry at index 1.
+ * @param <C> Type of the entry at index 2.
+ * @param <D> Type of the entry at index 3.
+ * @param <E> Type of the entry at index 4.
+ */
 public class Value5<A, B, C, D, E> extends Value4<A, B, C, D> implements Tuple5<A, B, C, D, E> {
     public Value5() {
         super(5);
