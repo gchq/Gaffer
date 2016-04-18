@@ -216,8 +216,6 @@ public class AccumuloStore extends Store {
                 } catch (final MutationsRejectedException e) {
                     LOGGER.error("Failed to create an accumulo key mutation");
                 }
-
-
             }
         }
         try {
