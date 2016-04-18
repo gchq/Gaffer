@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -513,6 +514,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 }
             }
         }
-        return System.currentTimeMillis();
+        return new Date().getTime();
     }
 }
