@@ -46,7 +46,7 @@
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
         <mockito.version>1.9.5</mockito.version>
-
+        <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
         <hadoop.version>2.6.0</hadoop.version>
@@ -170,9 +170,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>${failsafe.version}</version>
                 <executions>
                     <execution>
+                        <id>integration-test</id>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
@@ -184,6 +185,12 @@
                         <exclude>**/*$*</exclude>
                         <exclude>**/performance/**</exclude>
                     </excludes>
+                    <includes>
+                        <include>**/*IntegrationTest.java</include>
+                        <include>**/*IT.java</include>
+                        <include>**/*ITs.java</include>
+                        <include>**/*IntegrationTests.java</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
@@ -328,6 +335,19 @@
                         -XX:MaxPermSize=256m
                     </argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${failsafe.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <id>integration-tests</id>
+                        <reports>
+                            <report>failsafe-report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

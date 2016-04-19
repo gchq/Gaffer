@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gaffer.arrayliststore.integration;
 
-package gaffer.accumulostore.operation.handler;
+import gaffer.commonutil.StreamUtil;
+import gaffer.integration.AbstractStoreITs;
+import gaffer.store.StoreProperties;
 
-import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+public class ArrayListStoreITs extends AbstractStoreITs {
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ArrayListStoreITs.class));
 
-public class GetElementsHandlerClassicKeyTest extends GetElementsHandlerTest {
-    @Override
-    protected MockAccumuloStore createMockStore() {
-        return new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+    public ArrayListStoreITs() {
+        super(STORE_PROPERTIES);
     }
 }

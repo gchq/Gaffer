@@ -51,7 +51,6 @@ public class TypeDefinition {
         this.clazz = clazz;
     }
 
-
     @JsonIgnore
     public Class<?> getClazz() {
         return clazz;
@@ -182,7 +181,8 @@ public class TypeDefinition {
 
         if (DEFAULT_SERIALISER.getClass().equals(serialiser.getClass())) {
             setSerialiser(type.getSerialiser());
-        } else if (!serialiser.getClass().equals(type.getSerialiser().getClass())) {
+        } else if (!serialiser.getClass().equals(type.getSerialiser().getClass())
+                && !DEFAULT_SERIALISER.getClass().equals(type.getSerialiser().getClass())) {
             throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") serialiser, options are: "
                     + serialiser.getClass().getName() + " and " + type.getSerialiser().getClass().getName());
         }
