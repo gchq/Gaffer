@@ -55,18 +55,29 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
 
     private boolean checkEdge(final byte flag) {
         if (correctWayEdges) {
-            return (!directedEdges && ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE == flag)
-                    || (!unDirectedEdges && ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag);
+            return isCorrectWayEdge(flag);
         } else if (unDirectedEdges) {
-            return ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE == flag
-                    || ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE == flag;
+            return isUndirectedEdge(flag);
         } else if (directedEdges) {
-            return (ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag
-                    || ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE == flag)
-                    && checkDirection(flag);
+            return isDirectedEdge(flag) && checkDirection(flag);
         } else {
             return checkDirection(flag);
         }
+    }
+
+    private boolean isDirectedEdge(final byte flag) {
+        return ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag
+                || ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE == flag;
+    }
+
+    private boolean isUndirectedEdge(final byte flag) {
+        return ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE == flag
+                || ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE == flag;
+    }
+
+    private boolean isCorrectWayEdge(final byte flag) {
+        return (!directedEdges && ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE == flag)
+                || (!unDirectedEdges && ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag);
     }
 
     private boolean checkDirection(final byte flag) {
@@ -94,13 +105,18 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         if (!super.validateOptions(options)) {
             return false;
         }
-        if (options.containsKey(AccumuloStoreConstants.DIRECTED_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY)) {
+        if (options.containsKey(AccumuloStoreConstants.DIRECTED_EDGE_ONLY)
+                && options.containsKey(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY)) {
             throw new IllegalArgumentException("Must specify ONLY ONE of " + AccumuloStoreConstants.DIRECTED_EDGE_ONLY + " or "
                     + AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY);
         }
-        if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
+        if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY)
+                && options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
             throw new IllegalArgumentException(
-                    "Must specify ONLY ONE of " + AccumuloStoreConstants.INCOMING_EDGE_ONLY + " or " + AccumuloStoreConstants.OUTGOING_EDGE_ONLY);
+                    "Must specify ONLY ONE of "
+                            + AccumuloStoreConstants.INCOMING_EDGE_ONLY
+                            + " or "
+                            + AccumuloStoreConstants.OUTGOING_EDGE_ONLY);
         }
         if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY)) {
             incomingEdges = true;
@@ -131,10 +147,14 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
                         "Optional : Set if only directed edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY,
                         "Optional: Set if only undirected edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
-                .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.NO_EDGES, "Optional: Set if no edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES,
+                        "Optional: Set if entities should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY,
+                        "Optional: Set if only incoming edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY,
+                        "Optional: Set if only outgoing edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.NO_EDGES,
+                        "Optional: Set if no edges should be returned")
                 .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")

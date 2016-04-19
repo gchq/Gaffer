@@ -35,7 +35,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
     }
 
     private List<Element> doOperation(final GetAllElements<Element> operation, final ArrayListStore store) {
-        final ArrayList<Element> result = new ArrayList<>();
+        final List<Element> result = new ArrayList<>();
         if (operation.isIncludeEntities()) {
             for (final Entity entity : store.getEntities()) {
                 if (operation.validateFlags(entity) && operation.validateFilter(entity)) {

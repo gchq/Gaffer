@@ -17,6 +17,7 @@
 package gaffer.accumulostore.operation.handler;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
@@ -27,6 +28,8 @@ import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import org.apache.accumulo.core.client.IteratorSetting;
+import java.util.Arrays;
+import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
@@ -38,19 +41,16 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
     public Iterable<Element> doOperation(final GetAllElements<Element> operation, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
-            final IteratorSetting rangeFilter = store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation);
+            final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
+            final List<IteratorSetting> iteratorSettings = Arrays.asList(
+                    iteratorFactory.getElementPropertyRangeQueryFilter(operation),
+                    iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation)
+            );
             if (operation.isSummarise()) {
-                ret = new AccumuloSingleIDRetriever(store, operation,
-                        rangeFilter,
-                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
-                        store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
-                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
-            } else {
-                ret = new AccumuloSingleIDRetriever(store, operation,
-                        rangeFilter,
-                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
-                        store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+                iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(store));
             }
+            ret = new AccumuloSingleIDRetriever(store, operation, (IteratorSetting[]) iteratorSettings.toArray());
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
