@@ -16,10 +16,6 @@
 
 package gaffer.accumulostore.operation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -29,13 +25,17 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.impl.get.GetElements;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
 
     private Iterable<SEED_TYPE> seedsB;
 
-    public AbstractAccumuloTwoSetSeededOperation() { }
+    public AbstractAccumuloTwoSetSeededOperation() {
+    }
 
     public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
         super(seedsA);
@@ -43,7 +43,7 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
     }
 
     public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB,
-            final View view) {
+                                                 final View view) {
         super(view, seedsA);
         this.setSeedsB(seedsB);
     }
@@ -77,12 +77,12 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
             super(op);
         }
 
-        public Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> seedsB(final Iterable<SEED_TYPE> seedsB) {
+        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> seedsB(final Iterable<SEED_TYPE> seedsB) {
             this.op.setSeedsB(seedsB);
             return this;
         }
 
-        public Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> addSeedB(final SEED_TYPE seed) {
+        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> addSeedB(final SEED_TYPE seed) {
             this.seedsB.add(seed);
             return this;
         }
