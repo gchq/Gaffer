@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class MockComplexInputAggregator extends Aggregator<Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>>> {
+public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>>> {
     @Override
     public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
             Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,

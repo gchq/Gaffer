@@ -49,13 +49,13 @@ public class SignatureTest {
         Type complexType = TypeUtils.getTypeArguments(MockComplexInputAggregator.class, Aggregator.class).get(tv);
         Signature signature = Signature.createSignature(complexType);
 
-        assertTrue(signature instanceof TupleSignature);
-        List<Signature> tupleSignatures = ((TupleSignature) signature).getSignatures();
+        assertTrue(signature instanceof TupleNSignature);
+        List<Signature> tupleSignatures = ((TupleNSignature) signature).getSignatures();
         assertEquals(3, tupleSignatures.size());
 
         Signature s1 = tupleSignatures.get(0);
-        assertTrue(s1 instanceof TupleSignature);
-        List<Signature> s1Signatures = ((TupleSignature) s1).getSignatures();
+        assertTrue(s1 instanceof TupleNSignature);
+        List<Signature> s1Signatures = ((TupleNSignature) s1).getSignatures();
         assertEquals(2, s1Signatures.size());
         Signature s11 = s1Signatures.get(0);
         assertTrue(s11 instanceof SingletonSignature);

@@ -28,9 +28,7 @@ import gaffer.tuple.function.context.FunctionContexts;
  * output {@link gaffer.tuple.Tuple}, which will be the first tuple supplied as input.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<Tuple<R>> {
-    private FunctionContexts<F, R> functions;
-
+public class TupleAggregator<F extends StatefulFunction, R> extends TupleFunction<F, R> implements Aggregator<Tuple<R>> {
     /**
      * Default constructor - for serialisation.
      */
@@ -42,30 +40,6 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
      */
     public TupleAggregator(final FunctionContexts<F, R> functions) {
         setFunctions(functions);
-    }
-
-    /**
-     * @param functions {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
-     */
-    public void setFunctions(final FunctionContexts<F, R> functions) {
-        this.functions = functions;
-    }
-
-    /**
-     * @return {@link gaffer.function2.StatefulFunction}s to aggregate tuple values.
-     */
-    public FunctionContexts<F, R> getFunctions() {
-        return functions;
-    }
-
-    /**
-     * @param function {@link gaffer.function2.StatefulFunction} to aggregate tuple values.
-     */
-    public void addFunction(final FunctionContext<F, R> function) {
-        if (functions == null) {
-            functions = new FunctionContexts<F, R>();
-        }
-        functions.add(function);
     }
 
     /**
@@ -98,23 +72,13 @@ public class TupleAggregator<F extends StatefulFunction, R> extends Aggregator<T
         return state;
     }
 
-    @Override
-    public boolean assignableFrom(final Object schemaTuple) {
-        return functions.assignableFrom(schemaTuple);
-    }
-
-    @Override
-    public boolean assignableTo(final Object schemaTuple) {
-        return functions.assignableTo(schemaTuple);
-    }
-
     /**
      * @return New <code>TupleAggregator</code> with new {@link gaffer.function2.StatefulFunction}s.
      */
     public TupleAggregator<F, R> copy() {
         TupleAggregator<F, R> copy = new TupleAggregator<F, R>();
-        for (FunctionContext<F, R> function : this.functions) {
-            copy.addFunction(function.copy());
+        if (this.functions != null) {
+            copy.setFunctions(this.functions.copy());
         }
         return copy;
     }

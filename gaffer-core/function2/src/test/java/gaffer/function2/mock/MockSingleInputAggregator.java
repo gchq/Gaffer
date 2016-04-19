@@ -18,7 +18,7 @@ package gaffer.function2.mock;
 
 import gaffer.function2.Aggregator;
 
-public class MockSingleInputAggregator extends Aggregator<Integer> {
+public class MockSingleInputAggregator implements Aggregator<Integer> {
     @Override
     public Integer execute(Integer input, Integer state) {
         return state == null ? input : input + state;

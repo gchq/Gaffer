@@ -26,9 +26,7 @@ import gaffer.tuple.function.context.FunctionContexts;
  * {@link gaffer.function2.StatelessFunction}s to the tuple values.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleTransformer<R> extends StatelessFunction<Tuple<R>, Tuple<R>> {
-    private FunctionContexts<StatelessFunction, R> transforms;
-
+public class TupleTransformer<R> extends TupleFunction<StatelessFunction, R> implements StatelessFunction<Tuple<R>, Tuple<R>> {
     /**
      * Default constructor - for serialisation.
      */
@@ -39,31 +37,7 @@ public class TupleTransformer<R> extends StatelessFunction<Tuple<R>, Tuple<R>> {
      * @param transforms {@link gaffer.function2.StatelessFunction}s to transform tuple values.
      */
     public TupleTransformer(final FunctionContexts<StatelessFunction, R> transforms) {
-        setTransforms(transforms);
-    }
-
-    /**
-     * @param transforms {@link gaffer.function2.StatelessFunction}s to transform tuple values.
-     */
-    public void setTransforms(final FunctionContexts<StatelessFunction, R> transforms) {
-        this.transforms = transforms;
-    }
-
-    /**
-     * @return {@link gaffer.function2.StatelessFunction}s to transform tuple values.
-     */
-    public FunctionContexts<StatelessFunction, R> getTransforms() {
-        return transforms;
-    }
-
-    /**
-     * @param transform {@link gaffer.function2.StatelessFunction} to transform tuple values.
-     */
-    public void addTransform(final FunctionContext<StatelessFunction, R> transform) {
-        if (transforms == null) {
-            transforms = new FunctionContexts<StatelessFunction, R>();
-        }
-        transforms.add(transform);
+        setFunctions(transforms);
     }
 
     /**
@@ -73,22 +47,12 @@ public class TupleTransformer<R> extends StatelessFunction<Tuple<R>, Tuple<R>> {
      */
     @Override
     public Tuple<R> execute(final Tuple<R> input) {
-        if (transforms != null) {
-            for (FunctionContext<StatelessFunction, R> transform : transforms) {
+        if (functions != null) {
+            for (FunctionContext<StatelessFunction, R> transform : functions) {
                 transform.project(input, transform.getFunction().execute(transform.select(input)));
             }
         }
         return input;
-    }
-
-    @Override
-    public boolean assignableFrom(final Object schemaTuple) {
-        return transforms.assignableFrom(schemaTuple);
-    }
-
-    @Override
-    public boolean assignableTo(final Object schemaTuple) {
-        return transforms.assignableTo(schemaTuple);
     }
 
     /**
@@ -96,8 +60,8 @@ public class TupleTransformer<R> extends StatelessFunction<Tuple<R>, Tuple<R>> {
      */
     public TupleTransformer<R> copy() {
         TupleTransformer<R> copy = new TupleTransformer<R>();
-        for (FunctionContext<StatelessFunction, R> transform : this.transforms) {
-            copy.addTransform(transform.copy());
+        if (this.functions != null) {
+            copy.setFunctions(this.functions.copy());
         }
         return copy;
     }

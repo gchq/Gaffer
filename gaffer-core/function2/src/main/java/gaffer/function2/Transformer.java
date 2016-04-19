@@ -21,4 +21,4 @@ package gaffer.function2;
  * @param <I> Function input type.
  * @param <O> Function output type.
  */
-public abstract class Transformer<I, O> extends StatelessFunction<I, O> { }
+public interface Transformer<I, O> extends StatelessFunction<I, O> { }

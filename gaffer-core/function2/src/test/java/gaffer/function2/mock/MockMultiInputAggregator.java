@@ -20,7 +20,7 @@ import gaffer.function2.Aggregator;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.value.Value2;
 
-public class MockMultiInputAggregator extends Aggregator<Tuple2<Integer, Integer>> {
+public class MockMultiInputAggregator implements Aggregator<Tuple2<Integer, Integer>> {
     @Override
     public Tuple2<Integer, Integer> execute(Tuple2<Integer, Integer> input, Tuple2<Integer, Integer> state) {
         if (state == null) {

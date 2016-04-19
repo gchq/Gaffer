@@ -16,41 +16,28 @@
 
 package gaffer.function2.signature;
 
+import gaffer.function2.Function;
 import gaffer.tuple.Tuple;
-
-import java.util.List;
+import gaffer.tuple.function.context.FunctionContext;
+import gaffer.tuple.function.context.FunctionContexts;
 
 public class TupleSignature extends Signature {
-    private List<Signature> signatures;
+    private FunctionContexts<? extends Function, ?> contexts;
 
-    public TupleSignature(final List<Signature> signatures) {
-        this.signatures = signatures;
-    }
-
-    public List<Signature> getSignatures() {
-        return signatures;
+    public TupleSignature(final FunctionContexts contexts) {
+        this.contexts = contexts;
     }
 
     @Override
     public boolean assignable(final Object arguments, final boolean reverse) {
-        if (arguments instanceof Tuple) {
-            int i = 0;
-            for (Object argument : (Iterable) arguments) {
-                if (signatures.size() == i) {
-                    return false; // too many args
-                }
-                Signature signature = signatures.get(i++);
-                boolean compatible = signature.assignable(argument, reverse);
-                if (!compatible) {
-                    return false;
-                }
+        for (FunctionContext context : contexts) {
+            Function function = context.getFunction();
+            Signature functionSignature = reverse ? Signature.getOutputSignature(function) : Signature.getInputSignature(function);
+            Object selection = reverse ? context.getProjectionView().select((Tuple) arguments) : context.select((Tuple) arguments);
+            if (!functionSignature.assignable(selection, reverse)) {
+                return false;
             }
-            if (signatures.size() > i) {
-                return false; // too few args
-            }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     }
 }

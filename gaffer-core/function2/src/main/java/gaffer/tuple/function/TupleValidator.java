@@ -26,9 +26,7 @@ import gaffer.tuple.function.context.FunctionContexts;
  * {@link gaffer.function2.Validator}s to the tuple values. It calculates the logical AND of the function results.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleValidator<R> extends Validator<Tuple<R>> {
-    private FunctionContexts<Validator, R> validators;
-
+public class TupleValidator<R> extends TupleFunction<Validator, R> implements Validator<Tuple<R>> {
     /**
      * Default constructor - for serialisation.
      */
@@ -39,31 +37,7 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
      * @param validators {@link gaffer.function2.Validator}s to validate tuple values.
      */
     public TupleValidator(final FunctionContexts<Validator, R> validators) {
-        setValidators(validators);
-    }
-
-    /**
-     * @param validators {@link gaffer.function2.Validator}s to validate tuple values.
-     */
-    public void setValidators(final FunctionContexts<Validator, R> validators) {
-        this.validators = validators;
-    }
-
-    /**
-     * @return {@link gaffer.function2.Validator}s to validate tuple values.
-     */
-    public FunctionContexts<Validator, R> getValidators() {
-        return validators;
-    }
-
-    /**
-     * @param validator {@link gaffer.function2.Validator} to validate tuple values.
-     */
-    public void addValidator(final FunctionContext<Validator, R> validator) {
-        if (validators == null) {
-            validators = new FunctionContexts<Validator, R>();
-        }
-        validators.add(validator);
+        setFunctions(validators);
     }
 
     /**
@@ -72,8 +46,8 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
      * @return true if all {@link gaffer.function2.Validator}s are successful, otherwise false.
      */
     public Boolean execute(final Tuple<R> input) {
-        if (validators != null) {
-            for (FunctionContext<Validator, R> validator : validators) {
+        if (functions != null) {
+            for (FunctionContext<Validator, R> validator : functions) {
                 if (!(Boolean) validator.getFunction().execute(validator.select(input))) {
                     return false;
                 }
@@ -82,23 +56,13 @@ public class TupleValidator<R> extends Validator<Tuple<R>> {
         return true;
     }
 
-    @Override
-    public boolean assignableFrom(final Object schemaTuple) {
-        return validators.assignableFrom(schemaTuple);
-    }
-
-    @Override
-    public boolean assignableTo(final Object schemaTuple) {
-        return validators.assignableTo(schemaTuple);
-    }
-
     /**
      * @return New <code>TupleValidator</code> with new {@link gaffer.function2.Validator}s.
      */
     public TupleValidator<R> copy() {
         TupleValidator<R> copy = new TupleValidator<R>();
-        for (FunctionContext<Validator, R> validator : this.validators) {
-            copy.addValidator(validator.copy());
+        if (this.functions != null) {
+            copy.setFunctions(this.functions.copy());
         }
         return copy;
     }

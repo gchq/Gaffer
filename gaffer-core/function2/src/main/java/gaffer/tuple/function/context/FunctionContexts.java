@@ -17,7 +17,6 @@
 package gaffer.tuple.function.context;
 
 import gaffer.function2.Function;
-import gaffer.tuple.Tuple;
 import gaffer.tuple.view.Reference;
 
 import java.util.ArrayList;
@@ -27,30 +26,6 @@ import java.util.ArrayList;
  */
 public class FunctionContexts<F extends Function, R> extends ArrayList<FunctionContext<F, R>> {
     private static final long serialVersionUID = 43876759563583725L;
-
-    public boolean assignableFrom(final Object schemaTuple) {
-        if (!(schemaTuple instanceof Tuple)) {
-            throw new IllegalArgumentException("Tuple functions must be supplied with tuple of types.");
-        }
-        for (FunctionContext context : this) {
-            if (!context.assignableFrom((Tuple<R>) schemaTuple)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean assignableTo(final Object schemaTuple) {
-        if (!(schemaTuple instanceof Tuple)) {
-            throw new IllegalArgumentException("Tuple functions must be supplied with tuple of types.");
-        }
-        for (FunctionContext context : this) {
-            if (!context.assignableTo((Tuple<R>) schemaTuple)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     public FunctionContexts<F, R> copy() {
         FunctionContexts<F, R> newContexts = new FunctionContexts<>();

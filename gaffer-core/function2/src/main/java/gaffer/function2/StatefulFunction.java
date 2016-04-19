@@ -23,12 +23,12 @@ package gaffer.function2;
  * @param <I> Function input type
  * @param <O> Function output type
  */
-public abstract class StatefulFunction<I, O> extends Function<I, O> {
+public interface StatefulFunction<I, O> extends Function<I, O> {
     /**
      * Combine next value into current state.
      * @param input New input value.
      * @param state Current state.
      * @return Combined input and state.
      */
-    public abstract O execute(I input, O state);
+    O execute(I input, O state);
 }

@@ -24,6 +24,7 @@ import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.function2.mock.MockSingleInputAggregator;
 import gaffer.function2.signature.IterableSignature;
 import gaffer.function2.signature.Signature;
+import gaffer.function2.signature.TupleSignature;
 import gaffer.tuple.MapTuple;
 import gaffer.tuple.Tuple;
 import gaffer.tuple.view.Reference;
@@ -182,20 +183,22 @@ public class TupleAggregatorTest extends FunctionTest {
         mapTuple.put("e", Integer.class);
         mapTuple.put("f", Integer.class);
 
-        Signature inputSignature = aggregator.getInputSignature(); //Tuple is an IterableSignature, not a TupleSignature
-        assertTrue(inputSignature instanceof IterableSignature);
-        Signature outputSignature = aggregator.getOutputSignature();
-        assertTrue(outputSignature instanceof IterableSignature);
+        Signature inputSignature = Signature.getInputSignature(aggregator); //Tuple is an IterableSignature, not a TupleNSignature
+        assertTrue(inputSignature instanceof TupleSignature);
+        Signature outputSignature = Signature.getOutputSignature(aggregator);
+        assertTrue(outputSignature instanceof TupleSignature);
 
-        assertTrue(aggregator.assignableFrom(mapTuple));
-        assertTrue(aggregator.assignableTo(mapTuple));
+        assertTrue(inputSignature.assignableFrom(mapTuple));
+        assertTrue(outputSignature.assignableTo(mapTuple));
 
+        // functions select from a, b and c and expect integers... project into d, e and f so output should be unaffected
         mapTuple.put("b", String.class);
-        assertFalse(aggregator.assignableFrom(mapTuple));
-        assertTrue(aggregator.assignableTo(mapTuple));
+        assertFalse(inputSignature.assignableFrom(mapTuple));
+        assertTrue(outputSignature.assignableTo(mapTuple));
 
+        // now output should also fail
         mapTuple.put("d", String.class);
-        assertFalse(aggregator.assignableFrom(mapTuple));
-        assertFalse(aggregator.assignableTo(mapTuple));
+        assertFalse(inputSignature.assignableFrom(mapTuple));
+        assertFalse(outputSignature.assignableTo(mapTuple));
     }
 }

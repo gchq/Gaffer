@@ -22,7 +22,7 @@ import gaffer.function2.Validator;
  * An <code>IsA</code> {@link gaffer.function2.Validator} tests whether an input {@link java.lang.Object} is an
  * instance of a given control {@link java.lang.Class}.
  */
-public class IsA extends Validator<Object> {
+public class IsA implements Validator<Object> {
     private Class<?> type;
 
     /**

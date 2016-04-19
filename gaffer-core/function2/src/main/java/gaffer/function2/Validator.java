@@ -21,4 +21,4 @@ package gaffer.function2;
  * and outputs a <code>boolean</code> result.
  * @param <I> Function input type
  */
-public abstract class Validator<I> extends StatelessFunction<I, Boolean> { }
+public interface Validator<I> extends StatelessFunction<I, Boolean> { }

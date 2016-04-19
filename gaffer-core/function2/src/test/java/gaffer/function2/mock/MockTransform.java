@@ -16,11 +16,11 @@
 
 package gaffer.function2.mock;
 
-import gaffer.function2.StatelessFunction;
+import gaffer.function2.Transformer;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.value.Value2;
 
-public class MockTransform extends StatelessFunction<Object, Tuple2<Object, Object>> {
+public class MockTransform implements Transformer<Object, Tuple2<Object, Object>> {
     private Object output;
 
     public MockTransform() {}

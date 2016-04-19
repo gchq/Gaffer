@@ -16,6 +16,8 @@
 
 package gaffer.function2.signature;
 
+import gaffer.function2.Function;
+import gaffer.tuple.function.TupleFunction;
 import gaffer.tuple.tuplen.Tuple1;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.Tuple3;
@@ -61,6 +63,44 @@ public abstract class Signature {
     public abstract boolean assignable(final Object arguments, final boolean to);
 
     /**
+     * Get the input signature of a function.
+     * @param function Function.
+     * @return Input signature.
+     */
+    public static Signature getInputSignature(final Function function) {
+        if (function instanceof TupleFunction) {
+            return new TupleSignature(((TupleFunction) function).getFunctions());
+        } else {
+            return createSignatureFromTypeVariable(function, 0);
+        }
+    }
+
+    /**
+     * Get the output signature of a function.
+     * @param function Function.
+     * @return Output signature.
+     */
+    public static Signature getOutputSignature(final Function function) {
+        if (function instanceof TupleFunction) {
+            return new TupleSignature(((TupleFunction) function).getFunctions());
+        } else {
+            return createSignatureFromTypeVariable(function, 1);
+        }
+    }
+
+    /**
+     * Create a <code>Signature</code> for the type variable at the given index.
+     * @param function Function to create signature for.
+     * @param typeVariableIndex 0 for I or 1 for O.
+     * @return Signature of the type variable.
+     */
+    private static Signature createSignatureFromTypeVariable(final Function function, final int typeVariableIndex) {
+        TypeVariable<?> tv = Function.class.getTypeParameters()[typeVariableIndex];
+        Type type = TypeUtils.getTypeArguments(function.getClass(), Function.class).get(tv);
+        return createSignature(type);
+    }
+
+    /**
      * Create a <code>Signature</code> for the supplied {@link java.lang.reflect.Type}. This could be a singleton,
      * iterable or tuple signature depending on the type supplied.
      * @param type Type to create a signature for.
@@ -80,7 +120,7 @@ public abstract class Signature {
         Class nTupleClass = determineNTupleClass(clazz);
 
         if (nTupleClass != null) {
-            return new TupleSignature(createTupleSignatures(nTupleClass, type));
+            return new TupleNSignature(createTupleSignatures(nTupleClass, type));
         } else if (Iterable.class.isAssignableFrom(clazz)) {
             TypeVariable<?> tv = Iterable.class.getTypeParameters()[0];
             Type t = TypeUtils.getTypeArguments(type, Iterable.class).get(tv);
