@@ -22,6 +22,7 @@ import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
+import org.apache.commons.io.FileUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +36,7 @@ public class LocalMiniAccumuloStore extends AccumuloStore {
     public static final String TEMP_DIR_NAME = "accumuloMiniCluster";
 
     private MiniAccumuloCluster cluster;
-    private Path tempDirectory;
+    private Path clusterPath;
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be AccumuloProperties")
     @Override
@@ -48,15 +49,26 @@ public class LocalMiniAccumuloStore extends AccumuloStore {
         super.initialise(schema, properties);
     }
 
-    public Path getTempDirectory() {
-        return tempDirectory;
+    public Path getClusterPath() {
+        return clusterPath;
     }
 
     public void stop() {
         if (null != cluster) {
             try {
                 cluster.stop();
+                cluster = null;
+                System.out.println("Cluster stopped");
             } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (null != clusterPath) {
+            try {
+                FileUtils.deleteDirectory(clusterPath.toFile());
+                clusterPath = null;
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -65,10 +77,10 @@ public class LocalMiniAccumuloStore extends AccumuloStore {
     protected MiniAccumuloCluster createMiniCluster(final AccumuloProperties accProps) {
         final MiniAccumuloCluster newCluster;
         try {
-            tempDirectory = Files.createTempDirectory(TEMP_DIR_NAME);
-            tempDirectory.toFile().deleteOnExit();
+            clusterPath = Files.createTempDirectory(TEMP_DIR_NAME);
+            clusterPath.toFile().deleteOnExit();
 
-            final MiniAccumuloConfig config = new MiniAccumuloConfig(tempDirectory.toFile(), accProps.getPassword());
+            final MiniAccumuloConfig config = new MiniAccumuloConfig(clusterPath.toFile(), accProps.getPassword());
             config.setInstanceName(accProps.getInstanceName());
             newCluster = new MiniAccumuloCluster(config);
             newCluster.start();
