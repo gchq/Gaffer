@@ -26,11 +26,11 @@ import gaffer.operation.data.EntitySeed;
  * Retrieves {@link gaffer.data.element.Edge}s where both ends are in a given
  * set and/or {@link gaffer.data.element.Entity}s where the vertex is in the
  * set.
- *
  **/
 public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetOperation<EntitySeed, ELEMENT_TYPE> {
 
-    public GetElementsWithinSet() { };
+    public GetElementsWithinSet() {
+    }
 
     public GetElementsWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
@@ -62,10 +62,48 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
     public static class Builder<OP_TYPE extends GetElementsWithinSet<ELEMENT_TYPE>, ELEMENT_TYPE extends Element>
             extends AbstractGetOperation.Builder<OP_TYPE, EntitySeed, ELEMENT_TYPE> {
 
-        protected Builder(final OP_TYPE op) {
+        public Builder(final OP_TYPE op) {
             super(op);
         }
 
-    }
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> summarise(final boolean summarise) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.summarise(summarise);
+        }
 
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.populateProperties(populateProperties);
+        }
+
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> view(final View view) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.view(view);
+        }
+
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> option(final String name, final String value) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.option(name, value);
+        }
+
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> seeds(final Iterable<EntitySeed> newSeeds) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.seeds(newSeeds);
+        }
+
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> addSeed(final EntitySeed seed) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.addSeed(seed);
+        }
+
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.includeEdges(includeEdgeType);
+        }
+
+        @Override
+        public Builder<OP_TYPE, ELEMENT_TYPE> includeEntities(final boolean includeEntities) {
+            return (Builder<OP_TYPE, ELEMENT_TYPE>) super.includeEntities(includeEntities);
+        }
+    }
 }

@@ -24,11 +24,11 @@ import gaffer.operation.data.EntitySeed;
  * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B,
  * this retrieves all {@link gaffer.data.element.Edge}s where one end is in set
  * A and the other is in set B.
- *
  */
 public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
 
-    public GetEdgesBetweenSets() { }
+    public GetEdgesBetweenSets() {
+    }
 
     public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
         super(seedsA, seedsB);
@@ -63,10 +63,59 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
     public static class Builder<OP_TYPE extends GetEdgesBetweenSets>
             extends GetElementsBetweenSets.Builder<OP_TYPE, Edge> {
 
-        protected Builder(final OP_TYPE op) {
+        public Builder(final OP_TYPE op) {
             super(op);
         }
 
+        @Override
+        public Builder<OP_TYPE> seedsB(final Iterable<EntitySeed> seedsB) {
+            return (Builder<OP_TYPE>) super.seedsB(seedsB);
+        }
+
+        @Override
+        public Builder<OP_TYPE> addSeedB(final EntitySeed seed) {
+            return (Builder<OP_TYPE>) super.addSeedB(seed);
+        }
+
+        @Override
+        public Builder<OP_TYPE> seeds(final Iterable<EntitySeed> newSeeds) {
+            return (Builder<OP_TYPE>) super.seeds(newSeeds);
+        }
+
+        @Override
+        public Builder<OP_TYPE> addSeed(final EntitySeed seed) {
+            return (Builder<OP_TYPE>) super.addSeed(seed);
+        }
+
+        @Override
+        public Builder<OP_TYPE> summarise(final boolean summarise) {
+            return (Builder<OP_TYPE>) super.summarise(summarise);
+        }
+
+        @Override
+        public Builder<OP_TYPE> populateProperties(final boolean populateProperties) {
+            return (Builder<OP_TYPE>) super.populateProperties(populateProperties);
+        }
+
+        @Override
+        public Builder<OP_TYPE> view(final View view) {
+            return (Builder<OP_TYPE>) super.view(view);
+        }
+
+        @Override
+        public Builder<OP_TYPE> option(final String name, final String value) {
+            return (Builder<OP_TYPE>) super.option(name, value);
+        }
+
+        @Override
+        public Builder<OP_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
+            return (Builder<OP_TYPE>) super.includeEdges(includeEdgeType);
+        }
+
+        @Override
+        public Builder<OP_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
+            return (Builder<OP_TYPE>) super.inOutType(inOutType);
+        }
     }
 
 }

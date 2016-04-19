@@ -16,9 +16,9 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.ElementSeed;
 
 /**
  * Restricts {@link gaffer.operation.impl.get.GetEdges} to match seeds that are related.
@@ -89,6 +89,12 @@ public class GetRelatedEdges extends GetEdges<ElementSeed> {
         @Override
         public Builder summarise(final boolean summarise) {
             super.summarise(summarise);
+            return this;
+        }
+
+        @Override
+        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
+            super.inOutType(inOutType);
             return this;
         }
 
