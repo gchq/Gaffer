@@ -239,6 +239,16 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
+         * @param inOutType sets the includeIncomingOutGoing option on the operation.
+         * @return this Builder
+         * @see gaffer.operation.GetOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
+         */
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
+            op.setIncludeIncomingOutGoing(inOutType);
+            return this;
+        }
+
+        /**
          * @param summarise sets the summarise flag on the operation.
          * @return this Builder
          * @see gaffer.operation.GetOperation#setSummarise(boolean)

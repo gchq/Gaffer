@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.TestTypes;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
@@ -189,15 +190,15 @@ public class SchemaTest {
     private Schema createSchema() {
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, "property.string", String.class)
-                        .property(TestPropertyNames.PROP_2, "property.integer", Integer.class)
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING, String.class)
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER, Integer.class)
                         .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
-                .type("property.string", String.class)
-                .type("property.integer", Integer.class)
+                .type(TestTypes.PROP_STRING, String.class)
+                .type(TestTypes.PROP_INTEGER, Integer.class)
                 .build();
     }
 
@@ -208,8 +209,8 @@ public class SchemaTest {
                 "  \"edges\" : {\n" +
                 "    \"BasicEdge\" : {\n" +
                 "      \"properties\" : {\n" +
-                "        \"property1\" : \"property.string\",\n" +
-                "        \"property2\" : \"property.integer\"\n" +
+                "        \"property1\" : \"prop.string\",\n" +
+                "        \"property2\" : \"prop.integer\"\n" +
                 "      },\n" +
                 "      \"validateFunctions\" : [ {\n" +
                 "        \"function\" : {\n" +
@@ -222,11 +223,11 @@ public class SchemaTest {
                 "    }\n" +
                 "  },\n" +
                 "  \"types\" : {\n" +
-                "    \"property.string\" : {\n" +
-                "      \"class\" : \"java.lang.String\"\n" +
-                "    },\n" +
-                "    \"property.integer\" : {\n" +
+                "    \"prop.integer\" : {\n" +
                 "      \"class\" : \"java.lang.Integer\"\n" +
+                "    },\n" +
+                "    \"prop.string\" : {\n" +
+                "      \"class\" : \"java.lang.String\"\n" +
                 "    }\n" +
                 "  }\n" +
                 "}", new String(schema.toJson(true)));
@@ -235,12 +236,12 @@ public class SchemaTest {
     @Test
     public void testCorrectSerialiserRetrievableFromConfig() throws NotSerializableException {
         Schema store = new Schema.Builder()
-                .type("property.string", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .serialiser(new JavaSerialiser())
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, "property.string")
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .build())
                 .build();
 
@@ -254,16 +255,16 @@ public class SchemaTest {
     @Test
     public void testStoreConfigUsableWithSchemaInitialisationAndProgramaticListOfElements() {
         final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, "property.1.string")
+                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                 .build();
 
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_2, "property.2.string")
+                .property(TestPropertyNames.PROP_2, TestTypes.PROP_STRING)
                 .build();
 
         final Schema schema = new Schema.Builder()
-                .type("property.1.string", String.class)
-                .type("property.2.string", Integer.class)
+                .type(TestTypes.PROP_STRING, String.class)
+                .type(TestTypes.PROP_STRING, Integer.class)
                 .entity(TestGroups.ENTITY, entityDef)
                 .edge(TestGroups.EDGE, edgeDef)
                 .build();
@@ -316,7 +317,7 @@ public class SchemaTest {
                 .vertexSerialiser(vertexSerialiser)
                 .position(IdentifierType.VERTEX.name(), "position1")
                 .position(IdentifierType.SOURCE.name(), "position2")
-                .type("exampleType", String.class)
+                .type(TestTypes.PROP_STRING, String.class)
                 .build();
 
         // Then
@@ -330,7 +331,7 @@ public class SchemaTest {
 
         assertEquals("position1", schema.getPosition(IdentifierType.VERTEX.name()));
         assertEquals("position2", schema.getPosition(IdentifierType.SOURCE.name()));
-        assertEquals(String.class, schema.getType("exampleType").getClazz());
+        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
     }
 
@@ -431,7 +432,7 @@ public class SchemaTest {
                 .vertexSerialiser(vertexSerialiser)
                 .position(IdentifierType.VERTEX.name(), position1)
                 .position(IdentifierType.SOURCE.name(), position2)
-                .type("exampleType", String.class)
+                .type(TestTypes.PROP_STRING, String.class)
                 .build();
 
         // When
@@ -448,7 +449,7 @@ public class SchemaTest {
 
         assertEquals(position1, schema.getPosition(IdentifierType.VERTEX.name()));
         assertEquals(position2, schema.getPosition(IdentifierType.SOURCE.name()));
-        assertEquals(String.class, schema.getType("exampleType").getClazz());
+        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
     }
 

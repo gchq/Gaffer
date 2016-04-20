@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.operation.handler;
+package gaffer.commonutil;
 
-import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-
-public class GetAdjacentEntitySeedsHandlerClassicKeyTest extends GetAdjacentEntitySeedsHandlerTest {
-
-	@Override
-    protected MockAccumuloStore createMockStore() {
-        return new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-    }
+public class TestTypes {
+    public static final String TIMESTAMP = "timestamp";
+    public static final String ID_STRING = "id.string";
+    public static final String DIRECTED_EITHER = "directed.either";
+    public static final String DIRECTED_TRUE = "directed.true";
+    public static final String PROP_STRING = "prop.string";
+    public static final String PROP_INTEGER = "prop.integer";
+    public static final String PROP_COUNT = "prop.count";
 }

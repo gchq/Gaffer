@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8' ?>
 <!--
   ~ Copyright 2016 Crown Copyright
   ~
@@ -14,15 +15,16 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>gaffer</groupId>
-        <artifactId>gaffer-core</artifactId>
-        <version>0.3.5-SNAPSHOT</version>
-    </parent>
-
-    <artifactId>common-util</artifactId>
-</project>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
+                     debug="false">
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
+        </layout>
+    </appender>
+    <root>
+        <priority value="debug"></priority>
+        <appender-ref ref="console"></appender-ref>
+    </root>
+</log4j:configuration>

@@ -23,11 +23,11 @@ import gaffer.operation.data.EntitySeed;
 
 /**
  * Returns {@link gaffer.data.element.Edge}s where both ends are in a given set.
- *
  **/
 public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
 
-    public GetEdgesWithinSet() { }
+    public GetEdgesWithinSet() {
+    }
 
     public GetEdgesWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
@@ -67,11 +67,43 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
     }
 
     public static class Builder<OP_TYPE extends GetEdgesWithinSet> extends GetElementsWithinSet.Builder<OP_TYPE, Edge> {
-
-        protected Builder(final OP_TYPE op) {
+        public Builder(final OP_TYPE op) {
             super(op);
         }
 
-    }
+        @Override
+        public Builder<OP_TYPE> summarise(final boolean summarise) {
+            return (Builder<OP_TYPE>) super.summarise(summarise);
+        }
 
+        @Override
+        public Builder<OP_TYPE> populateProperties(final boolean populateProperties) {
+            return (Builder<OP_TYPE>) super.populateProperties(populateProperties);
+        }
+
+        @Override
+        public Builder<OP_TYPE> view(final View view) {
+            return (Builder<OP_TYPE>) super.view(view);
+        }
+
+        @Override
+        public Builder<OP_TYPE> option(final String name, final String value) {
+            return (Builder<OP_TYPE>) super.option(name, value);
+        }
+
+        @Override
+        public Builder<OP_TYPE> seeds(final Iterable<EntitySeed> newSeeds) {
+            return (Builder<OP_TYPE>) super.seeds(newSeeds);
+        }
+
+        @Override
+        public Builder<OP_TYPE> addSeed(final EntitySeed seed) {
+            return (Builder<OP_TYPE>) super.addSeed(seed);
+        }
+
+        @Override
+        public Builder<OP_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
+            return (Builder<OP_TYPE>) super.includeEdges(includeEdgeType);
+        }
+    }
 }

@@ -1,0 +1,32 @@
+/*
+ * Copyright 2016 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package gaffer.accumulostore.integration;
+
+import gaffer.commonutil.StreamUtil;
+import gaffer.integration.AbstractStoreITs;
+import gaffer.integration.impl.GetAllElementsIT;
+import gaffer.store.StoreProperties;
+import gaffer.store.schema.Schema;
+
+public class AccumuloStoreClassicKeysITs extends AbstractStoreITs {
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
+    private static final Schema STORE_SCHEMA = Schema.fromJson(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/schema/accumuloITStoreTypes.json"));
+
+    public AccumuloStoreClassicKeysITs() {
+        super(STORE_PROPERTIES, STORE_SCHEMA);
+        skipTest(GetAllElementsIT.class, "The key package used does not allow for removing the flipped undirected edges, so duplicate undirected edges are returned.");
+    }
+}

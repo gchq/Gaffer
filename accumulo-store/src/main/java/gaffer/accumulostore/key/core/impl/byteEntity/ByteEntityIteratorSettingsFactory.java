@@ -39,13 +39,13 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+        final boolean correctWayEdges = operation instanceof GetAllElements;
 
         if (includeEdgeType == IncludeEdgeType.ALL && includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
-                && includeEntities) {
+                && includeEntities && !correctWayEdges) {
             return null;
         }
 
-        final boolean correctWayEdges = operation instanceof GetAllElements;
         return new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
                 .all()

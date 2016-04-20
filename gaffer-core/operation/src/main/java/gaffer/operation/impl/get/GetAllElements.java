@@ -70,6 +70,18 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
         return null;
     }
 
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return IncludeIncomingOutgoingType.OUTGOING;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
+        if (!IncludeIncomingOutgoingType.OUTGOING.equals(includeIncomingOutGoing)) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support any direction apart from outgoing edges");
+        }
+    }
+
     public static class Builder<ELEMENT_TYPE extends Element>
             extends GetElements.Builder<GetAllElements<ELEMENT_TYPE>, ElementSeed, ELEMENT_TYPE> {
         public Builder() {
