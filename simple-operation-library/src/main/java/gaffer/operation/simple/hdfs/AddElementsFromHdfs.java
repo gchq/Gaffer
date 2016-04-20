@@ -101,17 +101,17 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         }
 
         @Override
-        protected Builder inputPaths(final List<Path> inputPaths) {
+        public Builder inputPaths(final List<Path> inputPaths) {
             return (Builder) super.inputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPaths(final List<Path> inputPaths) {
+        public Builder addInputPaths(final List<Path> inputPaths) {
             return (Builder) super.addInputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPath(final Path inputPath) {
+        public Builder addInputPath(final Path inputPath) {
             return (Builder) super.addInputPath(inputPath);
         }
 
