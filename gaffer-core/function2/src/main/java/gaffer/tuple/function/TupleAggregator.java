@@ -49,14 +49,18 @@ public class TupleAggregator<F extends StatefulFunction, R> extends TupleFunctio
      */
     @Override
     public Tuple<R> execute(final Tuple<R> input, final Tuple<R> state) {
-        Tuple<R> result = state != null ? state : input;
-        if (functions != null) {
-            for (FunctionContext<F, R> function : functions) {
-                Object functionState = state == null ? null : function.getProjectionView().select(state);
-                function.project(result, function.getFunction().execute(function.select(input), functionState));
+        if (input == null) {
+            return state;
+        } else {
+            Tuple<R> result = state != null ? state : input;
+            if (functions != null) {
+                for (FunctionContext<F, R> function : functions) {
+                    Object functionState = state == null ? null : function.getProjectionView().select(state);
+                    function.project(result, function.getFunction().execute(function.select(input), functionState));
+                }
             }
+            return result;
         }
-        return result;
     }
 
     /**
