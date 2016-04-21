@@ -21,15 +21,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
+import gaffer.commonutil.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Element;
-import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.function.ExampleStringTransformFunction;
 import gaffer.function.simple.aggregate.BooleanAnd;
-import gaffer.function.simple.transform.Remove;
 import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
@@ -43,6 +40,7 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.List;
 
 public class UpdateElementsIT extends AbstractStoreIT {
@@ -72,17 +70,13 @@ public class UpdateElementsIT extends AbstractStoreIT {
     @Test
     public void shouldTransformElements() throws OperationException, UnsupportedEncodingException {
         // Given
+        final Element oldElement = getEntity(UPDATED_ELEMENT_VERTEX);
+        final Element newElement = oldElement.emptyClone();
+        final String newPropValue = "transformed property";
+        newElement.putProperty(TestPropertyNames.STRING, newPropValue);
+
         final UpdateElements updateElements = new UpdateElements.Builder()
-                .addSeed(new EntitySeed(UPDATED_ELEMENT_VERTEX))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .transformer(new ElementTransformer.Builder()
-                                        .select(TestPropertyNames.STRING)
-                                        .project(TestPropertyNames.STRING)
-                                        .execute(new ExampleStringTransformFunction())
-                                        .build())
-                                .build())
-                        .build())
+                .elementPairs(Collections.singletonList(new Pair<>(oldElement, newElement)))
                 .build();
 
         // When
@@ -102,23 +96,18 @@ public class UpdateElementsIT extends AbstractStoreIT {
         assertThat(updatedElements, IsCollectionContaining.hasItems(
                 (Element) getEntity(UPDATED_ELEMENT_VERTEX)
         ));
-        assertEquals("0 transformed", updatedElements.get(0).getProperty(TestPropertyNames.STRING));
+        assertEquals(newPropValue, updatedElements.get(0).getProperty(TestPropertyNames.STRING));
     }
 
     @Test
     public void shouldRemoveElementProperty() throws OperationException, UnsupportedEncodingException {
         // Given
+        final Element oldElement = getEntity(UPDATED_ELEMENT_VERTEX);
+        final Element newElement = oldElement.emptyClone();
+        newElement.putProperty(TestPropertyNames.STRING, null);
+
         final UpdateElements updateElements = new UpdateElements.Builder()
-                .addSeed(new EntitySeed(UPDATED_ELEMENT_VERTEX))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .transformer(new ElementTransformer.Builder()
-                                        .select(TestPropertyNames.STRING)
-                                        .project(TestPropertyNames.STRING)
-                                        .execute(new Remove())
-                                        .build())
-                                .build())
-                        .build())
+                .elementPairs(Collections.singletonList(new Pair<>(oldElement, newElement)))
                 .build();
 
         // When

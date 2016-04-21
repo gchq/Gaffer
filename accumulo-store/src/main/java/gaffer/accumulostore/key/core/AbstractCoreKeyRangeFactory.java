@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.core;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.SeedMatchingType;

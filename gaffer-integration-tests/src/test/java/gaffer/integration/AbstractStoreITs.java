@@ -40,21 +40,20 @@ public abstract class AbstractStoreITs {
     private final StoreProperties storeProperties;
     private final Schema schema;
     private final Collection<? extends Class<? extends AbstractStoreIT>> extraTests;
-    private final boolean skipDefaultTests;
+    private boolean skipDefaultTests;
 
-    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests, final boolean skipDefaultTests) {
+    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
         this.schema = schema;
         this.storeProperties = storeProperties;
         this.extraTests = extraTests;
-        this.skipDefaultTests = skipDefaultTests;
     }
 
-    public AbstractStoreITs(final StoreProperties storeProperties, Collection<? extends Class<? extends AbstractStoreIT>> extraTests, final boolean skipDefaultTests) {
-        this(storeProperties, new Schema(), extraTests, skipDefaultTests);
+    public AbstractStoreITs(final StoreProperties storeProperties, Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
+        this(storeProperties, new Schema(), extraTests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this(storeProperties, schema, Collections.<Class<? extends AbstractStoreIT>>emptyList(), false);
+        this(storeProperties, schema, Collections.<Class<? extends AbstractStoreIT>>emptyList());
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
@@ -71,6 +70,14 @@ public abstract class AbstractStoreITs {
 
     public Collection<? extends Class<? extends AbstractStoreIT>> getExtraTests() {
         return extraTests;
+    }
+
+    public boolean isSkipDefaultTests() {
+        return skipDefaultTests;
+    }
+
+    public void setSkipDefaultTests(final boolean skipDefaultTests) {
+        this.skipDefaultTests = skipDefaultTests;
     }
 
     public static class StoreTestSuite extends Suite {

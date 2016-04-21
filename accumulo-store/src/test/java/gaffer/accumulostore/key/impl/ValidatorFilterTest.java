@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import gaffer.accumulostore.function.ExampleFilterFunction;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestTypes;

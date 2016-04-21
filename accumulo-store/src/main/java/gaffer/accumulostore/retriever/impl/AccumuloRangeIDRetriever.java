@@ -20,7 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;

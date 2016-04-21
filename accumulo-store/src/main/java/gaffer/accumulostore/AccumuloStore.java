@@ -40,7 +40,7 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
 import gaffer.operation.Operation;

@@ -17,7 +17,7 @@
 package gaffer.accumulostore.key;
 
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;

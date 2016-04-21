@@ -29,7 +29,7 @@ import gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Edge;

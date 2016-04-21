@@ -1,7 +1,7 @@
 package gaffer.accumulostore.operation.impl;
 
 
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;

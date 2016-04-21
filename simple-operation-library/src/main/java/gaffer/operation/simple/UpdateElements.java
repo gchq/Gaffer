@@ -15,101 +15,104 @@
  */
 package gaffer.operation.simple;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-import gaffer.data.elementdefinition.view.View;
+import gaffer.commonutil.Pair;
+import gaffer.data.element.Element;
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.VoidOutput;
-import gaffer.operation.data.ElementSeed;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
- * An <code>UpdateStore</code> operation will transform elements that
- * match the provided {@link ElementSeed}s. If no seeds are provided all elements
- * that match the view will be updated.
- * A view should be provided with the appropriate transform functions.
+ * An <code>UpdateStore</code> operation will update elements given an
+ * {@link Iterable} of {@link gaffer.commonutil.Pair}s of {@link gaffer.data.element.Element}s.
+ * The first element in the pair is used to look up the existing element - it
+ * does not have to be fully populated, just populated with sufficient
+ * information to uniquely identify a stored element.
+ * The second element in the pair is used to update the element.
+ * <p>
+ * Store handlers are responsible for validating the updated elements.
  *
  * @see UpdateElements.Builder
  */
-public class UpdateElements extends AbstractOperation<Iterable<ElementSeed>, Void> implements VoidOutput<Iterable<ElementSeed>> {
-    public Iterable<ElementSeed> getSeeds() {
+public class UpdateElements extends AbstractOperation<Iterable<Pair<Element>>, Void> implements VoidOutput<Iterable<Pair<Element>>> {
+    private boolean validate;
+    private boolean skipInvalidElements;
+    private boolean overrideProperties;
+
+    public Iterable<Pair<Element>> getElementPairs() {
         return getInput();
     }
 
-    public void setSeeds(final Iterable<ElementSeed> seeds) {
-        setInput(seeds);
+    public void setElementPairs(final Iterable<Pair<Element>> elements) {
+        setInput(elements);
     }
 
     @JsonIgnore
     @Override
-    public Iterable<ElementSeed> getInput() {
+    public Iterable<Pair<Element>> getInput() {
         return super.getInput();
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    @JsonGetter(value = "seeds")
-    List<ElementSeed> getSeedArray() {
-        final Iterable<ElementSeed> input = getInput();
+    @JsonProperty(value = "elementPairs")
+    List<Pair<Element>> getElementPairList() {
+        final Iterable<Pair<Element>> input = getInput();
         return null != input ? Lists.newArrayList(input) : null;
     }
 
-    @JsonSetter(value = "seeds")
-    void setSeedArray(final ElementSeed[] seeds) {
-        setInput(Arrays.asList(seeds));
+    @JsonProperty(value = "elementPairs")
+    void setElementList(final List<Pair<Element>> elements) {
+        setInput(elements);
     }
 
-    public static class Builder extends AbstractOperation.Builder<UpdateElements, Iterable<ElementSeed>, Void> {
-        private List<ElementSeed> seeds;
+    public boolean isSkipInvalidElements() {
+        return skipInvalidElements;
+    }
 
+    public boolean isValidate() {
+        return validate;
+    }
+
+    public void setSkipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+    }
+
+    public void setValidate(final boolean validate) {
+        this.validate = validate;
+    }
+
+    public boolean isOverrideProperties() {
+        return overrideProperties;
+    }
+
+    public void setOverrideProperties(final boolean overrideProperties) {
+        this.overrideProperties = overrideProperties;
+    }
+
+    public static class Builder extends AbstractOperation.Builder<UpdateElements, Iterable<Pair<Element>>, Void> {
         public Builder() {
             super(new UpdateElements());
         }
 
-        /**
-         * Sets an {@link Iterable} of ElementSeed on the operation.
-         * It should not be used in conjunction with addSeed(ElementSeed).
-         *
-         * @param newSeeds an {@link Iterable} of ElementSeed to set on the operation.
-         * @return this Builder
-         */
-        public Builder seeds(final Iterable<ElementSeed> newSeeds) {
-            if (null != seeds) {
-                throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
-            }
-            op.setSeeds(newSeeds);
+        public Builder elementPairs(final Iterable<Pair<Element>> elements) {
+            super.input(elements);
             return this;
         }
 
-        /**
-         * Adds a single ElementSeed to a {@link LinkedList} of seeds on the operation.
-         * It should not be used in conjunction with seeds(Iterable).
-         *
-         * @param seed a single ElementSeed to add to a {@link LinkedList} of seeds on the operation.
-         * @return this Builder
-         */
-        public Builder addSeed(final ElementSeed seed) {
-            if (null == seeds) {
-                if (null != op.getSeeds()) {
-                    throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
-                }
-                seeds = new LinkedList<>();
-                op.setInput(seeds);
-            } else if (seeds != op.getSeeds()) {
-                throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
-            }
-
-            seeds.add(seed);
+        public Builder skipInvalidElements(final boolean skipInvalidElements) {
+            getOp().setSkipInvalidElements(skipInvalidElements);
             return this;
         }
 
-        @Override
-        public Builder view(final View view) {
-            return (Builder) super.view(view);
+        public Builder validate(final boolean validate) {
+            getOp().setValidate(validate);
+            return this;
+        }
+
+        public Builder overrideProperties(final boolean overrideProperties) {
+            getOp().setOverrideProperties(overrideProperties);
+            return this;
         }
 
         @Override

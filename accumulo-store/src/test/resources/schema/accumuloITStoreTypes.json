@@ -10,7 +10,7 @@
       "position": "VALUE"
     },
     "timestamp": {
-      "position": "TIMESTAMP"
+      "position": "COLUMN_QUALIFIER"
     }
   }
 }

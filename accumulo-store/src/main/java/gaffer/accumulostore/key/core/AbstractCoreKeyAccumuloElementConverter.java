@@ -20,7 +20,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.accumulostore.utils.StorePositions;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Edge;

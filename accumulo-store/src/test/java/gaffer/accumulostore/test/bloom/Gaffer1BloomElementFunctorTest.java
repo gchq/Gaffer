@@ -26,7 +26,7 @@ import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;

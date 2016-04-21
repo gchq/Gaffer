@@ -19,14 +19,13 @@ package gaffer.accumulostore.operation.handler;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.Pair;
 import gaffer.data.element.Element;
+import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
-import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.simple.UpdateElements;
 import gaffer.store.ElementValidator;
 import gaffer.store.Store;
@@ -40,6 +39,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Map.Entry;
 
 public class UpdateElementsHandler implements OperationHandler<UpdateElements, Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateElementsHandler.class);
@@ -62,15 +62,11 @@ public class UpdateElementsHandler implements OperationHandler<UpdateElements, V
 
     private void updateElements(final UpdateElements operation, final AccumuloStore store) throws OperationException, StoreException {
         final BatchWriter writer = TableUtils.createBatchWriter(store);
-
+        final ElementValidator validator = new ElementValidator(store.getSchema());
         final AccumuloKeyPackage keyPackage = store.getKeyPackage();
-        final Iterable<Element> elements = getElements(operation, store);
-        for (final Element element : elements) {
-            final Pair<Key> keys = deleteElement(keyPackage, writer, element);
-            if (keys != null) {
-                final ElementValidator elementValidator = new ElementValidator(store.getSchema());
-                addTransformedElement(operation, elementValidator, keyPackage, writer, element, keys);
-            }
+        for (final Pair<Element> elementPair : operation.getElementPairs()) {
+            deleteElement(keyPackage, writer, elementPair.getFirst());
+            addElement(elementPair, operation, validator, keyPackage, writer);
         }
 
         try {
@@ -80,18 +76,7 @@ public class UpdateElementsHandler implements OperationHandler<UpdateElements, V
         }
     }
 
-    private Iterable<Element> getElements(final UpdateElements operation, final AccumuloStore store) throws OperationException {
-        final View transformlessView = createTransformlessView(operation.getView());
-        final Graph graph = new Graph.Builder()
-                .store(store)
-                .build();
-        return graph.execute(new GetElementsSeed.Builder<>()
-                .seeds(operation.getSeeds())
-                .view(transformlessView)
-                .build());
-    }
-
-    private Pair<Key> deleteElement(final AccumuloKeyPackage keyPackage, final BatchWriter writer, final Element element) {
+    private void deleteElement(final AccumuloKeyPackage keyPackage, final BatchWriter writer, final Element element) {
         Pair<Key> keys;
         try {
             keys = keyPackage.getKeyConverter().getKeysFromElement(element);
@@ -107,54 +92,37 @@ public class UpdateElementsHandler implements OperationHandler<UpdateElements, V
                 writeDelete(writer, keys.getSecond());
             }
         }
-        return keys;
     }
 
-    private void addTransformedElement(final UpdateElements operation, final ElementValidator elementValidator, final AccumuloKeyPackage keyPackage, final BatchWriter writer, final Element element, final Pair<Key> keys) {
-        if (transformElement(element, operation.getView(), elementValidator)) {
-            final Pair<Key> transformedKeys;
-            try {
-                transformedKeys = keyPackage.getKeyConverter().getKeysFromElement(element);
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
-                        + " when trying to insert elements");
-                return;
-            }
-            final Value transformedValue;
-            try {
-                transformedValue = keyPackage.getKeyConverter().getValueFromElement(element);
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo transformedValue from element of type " + element.getGroup()
-                        + " when trying to insert elements");
-                return;
-            }
-
-            final long newTimestamp = getNewTimestamp(keys, transformedKeys);
-            transformedKeys.getFirst().setTimestamp(newTimestamp);
-            writeAdd(writer, transformedKeys.getFirst(), transformedValue);
-            if (null != transformedKeys.getSecond()) {
-                transformedKeys.getSecond().setTimestamp(newTimestamp);
-                writeAdd(writer, transformedKeys.getFirst(), transformedValue);
-
-            }
-        }
-    }
-
-    private boolean transformElement(final Element element, final View view, final ElementValidator elementValidator) {
-        boolean success = false;
-        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        if (null != elementDef && null != elementDef.getTransformer()) {
-            elementDef.getTransformer().transform(element);
-            if (elementValidator.validate(element)) {
-                success = true;
-            } else {
-                LOGGER.warn("Invalid element: " + element);
+    private void addElement(final Pair<Element> elementPair, final UpdateElements operation, final ElementValidator elementValidator, final AccumuloKeyPackage keyPackage, final BatchWriter writer) {
+        final Element elementToAdd = elementPair.getSecond();
+        if (!operation.isOverrideProperties()) {
+            // Add existing properties that are not provided in new element.
+            final Properties newProps = elementToAdd.getProperties();
+            for (Entry<String, Object> prop : elementPair.getFirst().getProperties().entrySet()) {
+                if (!newProps.containsKey(prop.getKey())) {
+                    elementToAdd.putProperty(prop.getKey(), prop.getValue());
+                }
             }
         }
 
-        return success;
-    }
+        if (!operation.isValidate() || elementValidator.validate(elementToAdd)) {
+            try {
+                final Pair<Key> keys = keyPackage.getKeyConverter().getKeysFromElement(elementToAdd);
+                final Value value = keyPackage.getKeyConverter().getValueFromElement(elementToAdd);
+                writeAdd(writer, keys.getFirst(), value);
+                if (null != keys.getSecond()) {
+                    writeAdd(writer, keys.getFirst(), value);
 
+                }
+            } catch (final AccumuloElementConversionException e) {
+                LOGGER.error("Failed to create an accumulo value from element of type " + elementToAdd.getGroup()
+                        + " when trying to insert elements");
+            }
+        } else if (!operation.isSkipInvalidElements()) {
+            throw new IllegalArgumentException("Element is not valid: " + elementToAdd.toString());
+        }
+    }
 
     private long getNewTimestamp(final Pair<Key> keys, final Pair<Key> transformedKeys) {
         long newTimestamp = transformedKeys.getFirst().getTimestamp();

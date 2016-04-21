@@ -27,6 +27,7 @@ public class AccumuloStoreClassicKeysITs extends AbstractStoreITs {
     private static final Schema STORE_SCHEMA = Schema.fromJson(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/schema/accumuloITStoreTypes.json"));
 
     public AccumuloStoreClassicKeysITs() {
-        super(STORE_PROPERTIES, STORE_SCHEMA, Collections.singletonList(UpdateElementsIT.class), false);
+        super(STORE_PROPERTIES, STORE_SCHEMA, Collections.singletonList(UpdateElementsIT.class));
+        setSkipDefaultTests(false);
     }
 }

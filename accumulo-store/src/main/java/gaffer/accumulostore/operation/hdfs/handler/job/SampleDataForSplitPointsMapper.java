@@ -18,7 +18,7 @@ package gaffer.accumulostore.operation.hdfs.handler.job;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.Pair;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
