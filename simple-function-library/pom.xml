@@ -23,7 +23,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.4-SNAPSHOT</version>
+        <version>0.3.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>simple-function-library</artifactId>
@@ -82,12 +82,10 @@
                         </goals>
                         <configuration>
                             <finalName>
-                                Simple-Function-Library-${project.parent.version}
+                                simple-function-library-${project.parent.version}-functions
                             </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>function
-                            </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream

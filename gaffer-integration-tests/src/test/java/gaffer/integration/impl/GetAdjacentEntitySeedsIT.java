@@ -95,8 +95,8 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
                 .seeds(seeds)
                 .includeEntities(true)
                 .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .inOutType(inOutType)
                 .build();
-        operation.setIncludeIncomingOutGoing(inOutType);
 
         // When
         final Iterable<EntitySeed> results = graph.execute(operation);

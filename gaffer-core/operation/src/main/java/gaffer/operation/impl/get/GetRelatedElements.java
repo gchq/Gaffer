@@ -125,5 +125,11 @@ public class GetRelatedElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exte
             super.includeEdges(includeEdgeType);
             return this;
         }
+
+        @Override
+        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
+            super.inOutType(inOutType);
+            return this;
+        }
     }
 }
