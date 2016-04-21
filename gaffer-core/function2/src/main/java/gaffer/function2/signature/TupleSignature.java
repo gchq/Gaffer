@@ -21,10 +21,17 @@ import gaffer.tuple.Tuple;
 import gaffer.tuple.function.context.FunctionContext;
 import gaffer.tuple.function.context.FunctionContexts;
 
+/**
+ * A <code>TupleSignature</code> allows the {@link Signature}s of a number of {@link Function}s to be tested in context.
+ */
 public class TupleSignature extends Signature {
     private FunctionContexts<? extends Function, ?> contexts;
 
-    public TupleSignature(final FunctionContexts contexts) {
+    /**
+     * Create a <code>TupleSignature</code> with the given {@link FunctionContexts}.
+     * @param contexts Functions to test in context.
+     */
+    TupleSignature(final FunctionContexts contexts) {
         this.contexts = contexts;
     }
 

@@ -22,12 +22,12 @@ package gaffer.function2.signature;
 public class IterableSignature extends Signature {
     private Signature iterableSignature;
 
-    public IterableSignature(final Signature iterableSignature) {
+    /**
+     * Create an <code>IterableSignature</code> for values with the given {@link Signature}.
+     * @param iterableSignature Signature of the iterable values.
+     */
+    IterableSignature(final Signature iterableSignature) {
         this.iterableSignature = iterableSignature;
-    }
-
-    public Signature getIterableSignature() {
-        return iterableSignature;
     }
 
     @Override

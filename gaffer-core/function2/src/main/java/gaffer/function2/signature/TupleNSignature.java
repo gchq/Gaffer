@@ -20,15 +20,20 @@ import gaffer.tuple.Tuple;
 
 import java.util.List;
 
+/**
+ * A <code>TupleNSignature</code> is the type metadata for a tuple of fixed length and types. For example, a
+ * <code>Tuple3&lt;String, Integer, Long&gt;</code> is represented by a <code>TupleNSignature</code> containing a list
+ * of 3 {@link SingletonSignature}s, for the String, Integer and Long values it contains.
+ */
 public class TupleNSignature extends Signature {
     private List<Signature> signatures;
 
-    public TupleNSignature(final List<Signature> signatures) {
+    /**
+     * Create a <code>TupleNSignature</code> with the given {@link Signature}s.
+     * @param signatures Signatures of the Tuple values.
+     */
+    TupleNSignature(final List<Signature> signatures) {
         this.signatures = signatures;
-    }
-
-    public List<Signature> getSignatures() {
-        return signatures;
     }
 
     @Override

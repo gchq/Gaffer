@@ -22,12 +22,12 @@ package gaffer.function2.signature;
 public class SingletonSignature extends Signature {
     private Class type;
 
-    public SingletonSignature(final Class type) {
+    /**
+     * Create a <code>SingletonSignature</code> with the given {@link Class}.
+     * @param type Class to test for.
+     */
+    SingletonSignature(final Class type) {
         this.type = type;
-    }
-
-    public Class getType() {
-        return type;
     }
 
     @Override

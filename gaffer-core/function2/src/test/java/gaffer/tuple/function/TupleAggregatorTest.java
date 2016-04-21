@@ -22,7 +22,6 @@ import gaffer.function2.StatefulFunction;
 import gaffer.function2.mock.MockComplexInputAggregator;
 import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.function2.mock.MockSingleInputAggregator;
-import gaffer.function2.signature.IterableSignature;
 import gaffer.function2.signature.Signature;
 import gaffer.function2.signature.TupleSignature;
 import gaffer.tuple.MapTuple;
@@ -183,7 +182,7 @@ public class TupleAggregatorTest extends FunctionTest {
         mapTuple.put("e", Integer.class);
         mapTuple.put("f", Integer.class);
 
-        Signature inputSignature = Signature.getInputSignature(aggregator); //Tuple is an IterableSignature, not a TupleNSignature
+        Signature inputSignature = Signature.getInputSignature(aggregator);
         assertTrue(inputSignature instanceof TupleSignature);
         Signature outputSignature = Signature.getOutputSignature(aggregator);
         assertTrue(outputSignature instanceof TupleSignature);

@@ -16,63 +16,65 @@
 
 package gaffer.function2.signature;
 
-import gaffer.function2.Aggregator;
 import gaffer.function2.mock.MockComplexInputAggregator;
+import gaffer.function2.mock.MockMultiInputAggregator;
 import gaffer.tuple.tuplen.Tuple2;
 import gaffer.tuple.tuplen.Tuple5;
 import gaffer.tuple.tuplen.Tuple3;
 import gaffer.tuple.tuplen.value.Value2;
 import gaffer.tuple.tuplen.value.Value5;
 import gaffer.tuple.tuplen.value.Value3;
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.junit.Test;
 
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SignatureTest {
     @Test
-    public void shouldCreateSingletonSignatureFromSimpleClass() {
+    public void shouldCheckSingletonSignature() {
         Signature signature = Signature.createSignature(Number.class);
+
         assertTrue(signature instanceof SingletonSignature);
-        assertEquals(Number.class, ((SingletonSignature) signature).getType());
+
+        // exact matches should work
+        assertTrue(signature.assignableFrom(Number.class));
+        assertTrue(signature.assignableTo(Number.class));
+
+        // class hierarchy should work
+        assertTrue(signature.assignableFrom(Integer.class)); // Cast Integer to Number is OK.
+        assertFalse(signature.assignableFrom(Object.class)); // Cast Object to Number is not.
+        assertFalse(signature.assignableTo(Integer.class)); // Cast Number to Integer is not.
+        assertTrue(signature.assignableTo(Object.class)); // Cast Number to Object is OK.
     }
 
     @Test
-    public void shouldCreateComplexSignatureFromFunction() {
-        TypeVariable<?> tv = Aggregator.class.getTypeParameters()[0];
-        Type complexType = TypeUtils.getTypeArguments(MockComplexInputAggregator.class, Aggregator.class).get(tv);
-        Signature signature = Signature.createSignature(complexType);
+    public void shouldCheckSimpleTupleNSignature() {
+        // MockMultiInputAggregator has signature <Tuple2<Integer, Integer>>.
+        MockMultiInputAggregator function = new MockMultiInputAggregator();
+        Signature signature = Signature.getInputSignature(function);
 
         assertTrue(signature instanceof TupleNSignature);
-        List<Signature> tupleSignatures = ((TupleNSignature) signature).getSignatures();
-        assertEquals(3, tupleSignatures.size());
 
-        Signature s1 = tupleSignatures.get(0);
-        assertTrue(s1 instanceof TupleNSignature);
-        List<Signature> s1Signatures = ((TupleNSignature) s1).getSignatures();
-        assertEquals(2, s1Signatures.size());
-        Signature s11 = s1Signatures.get(0);
-        assertTrue(s11 instanceof SingletonSignature);
-        assertEquals(Integer.class, ((SingletonSignature) s11).getType());
-        Signature s12 = s1Signatures.get(1);
-        assertTrue(s12 instanceof SingletonSignature);
-        assertEquals(String.class, ((SingletonSignature) s12).getType());
+        Tuple2<Class, Class> t2 = new Value2<Class, Class>();
+        t2.put0(Integer.class);
+        t2.put1(Integer.class);
 
-        Signature s2 = tupleSignatures.get(1);
-        assertTrue(s2 instanceof SingletonSignature);
-        assertEquals(Integer.class, ((SingletonSignature) s2).getType());
+        assertTrue(signature.assignableFrom(t2));
+        assertTrue(signature.assignableTo(t2));
 
-        Signature s3 = tupleSignatures.get(2);
-        assertTrue(s3 instanceof IterableSignature);
-        Signature s3s = ((IterableSignature) s3).getIterableSignature();
-        assertTrue(s3s instanceof SingletonSignature);
-        assertEquals(String.class, ((SingletonSignature) s3s).getType());
+        t2.put0(Object.class);
+
+        assertFalse(signature.assignableFrom(t2));
+        assertTrue(signature.assignableTo(t2));
+    }
+
+    @Test
+    public void shouldCheckComplexTupleNSignature() {
+        // MockComplexInputAggregator has signature <Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>>.
+        MockComplexInputAggregator function = new MockComplexInputAggregator();
+        Signature signature = Signature.getInputSignature(function);
+
+        assertTrue(signature instanceof TupleNSignature);
 
         Tuple3 t3 = new Value3();
         Tuple2 t2 = new Value2();
@@ -91,23 +93,18 @@ public class SignatureTest {
         t3.put2(iterable);
 
         assertTrue(signature.assignableFrom(t3));
+        assertTrue(signature.assignableTo(t3));
+
+        //check hierarchy works for complex signatures
+        t3.put1(Number.class);
+
+        assertFalse(signature.assignableFrom(t3));
+        assertTrue(signature.assignableTo(t3));
 
         //now break the input
         iterable.put2(Integer.class);
 
         assertFalse(signature.assignableFrom(t3));
-    }
-
-    @Test
-    public void shouldCheckCompatibilityForwardsAndReverse() {
-        // Object <- Number <- Integer
-        Signature numberSignature = Signature.createSignature(Number.class);
-
-        assertTrue(numberSignature.assignableFrom(Integer.class));
-        assertFalse(numberSignature.assignableTo(Integer.class));
-        assertFalse(numberSignature.assignableFrom(Object.class));
-        assertTrue(numberSignature.assignableTo(Object.class));
-        assertTrue(numberSignature.assignableTo(Number.class));
-        assertTrue(numberSignature.assignableFrom(Number.class));
+        assertFalse(signature.assignableTo(t3));
     }
 }
