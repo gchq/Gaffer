@@ -134,4 +134,10 @@ public class AccumuloStoreTest {
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
 
     }
+
+    @Test
+    public void testRequestForNullHandlerManaged() {
+        final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
+        assertNull(returnedHandler);
+    }
 }
