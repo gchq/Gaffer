@@ -49,7 +49,7 @@ public class ImportElementsToAccumulo extends Configured implements Tool {
         fs.delete(new Path(inputPath + "/_SUCCESS"), false);
 
         // Set all permissions
-        IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(failurePath));
+        IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
 
         // Import the files
         store.getConnection().tableOperations().importDirectory(store.getProperties().getTable(), inputPath,
