@@ -18,7 +18,6 @@ package gaffer.accumulostore.operation.hdfs.impl;
 
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.VoidOutput;
-import org.apache.hadoop.fs.Path;
 
 public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void> implements VoidOutput<String> {
 
