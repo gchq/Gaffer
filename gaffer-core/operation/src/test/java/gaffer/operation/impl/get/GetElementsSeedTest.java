@@ -16,6 +16,8 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -28,8 +30,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class GetElementsSeedTest implements OperationTest {
@@ -64,5 +68,28 @@ public class GetElementsSeedTest implements OperationTest {
         assertEquals(elementSeed1, itr.next());
         assertEquals(elementSeed2, itr.next());
         assertFalse(itr.hasNext());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+
+        GetElementsSeed<EntitySeed, Element> getElementsSeed = new GetElementsSeed.Builder<EntitySeed, Element>().addSeed(new EntitySeed("A"))
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .includeEntities(false)
+                .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
+                .option("testOption", "true")
+                .populateProperties(false)
+                .summarise(true)
+                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+
+        assertFalse(getElementsSeed.isIncludeEntities());
+        assertTrue(getElementsSeed.isSummarise());
+        assertFalse(getElementsSeed.isPopulateProperties());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsSeed.getIncludeIncomingOutGoing());
+        assertEquals(GetOperation.IncludeEdgeType.ALL, getElementsSeed.getIncludeEdges());
+        assertEquals("true", getElementsSeed.getOption("testOption"));
+        assertTrue(getElementsSeed.isSummarise());
+        assertNotNull(getElementsSeed.getView());
     }
 }

@@ -41,9 +41,9 @@ public class TextJobInitialiser implements JobInitialiser {
 
     private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
-        List<Path> paths = operation.getInputPaths();
-        for (Path path : paths) {
-            TextInputFormat.addInputPath(job, path);
+        List<String> paths = operation.getInputPaths();
+        for (String path : paths) {
+            TextInputFormat.addInputPath(job, new Path(path));
         }
     }
 }

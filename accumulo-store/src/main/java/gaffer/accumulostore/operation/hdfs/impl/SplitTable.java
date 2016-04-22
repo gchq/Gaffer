@@ -31,13 +31,13 @@ public class SplitTable extends AbstractOperation<Path, Void> implements VoidOut
 
     }
 
-    private Path inputPath;
+    private String inputPath;
 
-    public Path getInputPath() {
+    public String getInputPath() {
         return inputPath;
     }
 
-    public void setInputPath(final Path inputPath) {
+    public void setInputPath(final String inputPath) {
         this.inputPath = inputPath;
     }
 
@@ -46,7 +46,7 @@ public class SplitTable extends AbstractOperation<Path, Void> implements VoidOut
             super(new SplitTable());
         }
 
-        public Builder inputPath(final Path inputPath) {
+        public Builder inputPath(final String inputPath) {
             op.setInputPath(inputPath);
             return this;
         }
