@@ -63,6 +63,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
         assertFalse(itrSeedsA.hasNext());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).addSeed(new EntitySeed("A")).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();

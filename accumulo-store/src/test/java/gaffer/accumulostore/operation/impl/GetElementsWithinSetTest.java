@@ -43,6 +43,7 @@ public class GetElementsWithinSetTest implements OperationTest {
 
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(new EntitySeed("A")).includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option("testOption", "true").populateProperties(true).summarise(false).view(new View.Builder().edge("testEdgegroup").build()).build();
@@ -50,7 +51,7 @@ public class GetElementsWithinSetTest implements OperationTest {
         assertTrue(getElementsWithinSet.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.NONE, getElementsWithinSet.getIncludeEdges());
         assertTrue(getElementsWithinSet.isPopulateProperties());
-        assertTrue(getElementsWithinSet.isSummarise());
+        assertFalse(getElementsWithinSet.isSummarise());
         assertEquals(new EntitySeed("A"), getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
     }

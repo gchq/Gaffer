@@ -25,7 +25,7 @@ import org.apache.hadoop.fs.Path;
  *
  * @see SplitTable.Builder
  */
-public class SplitTable extends AbstractOperation<Path, Void> implements VoidOutput<Path> {
+public class SplitTable extends AbstractOperation<String, Void> implements VoidOutput<String> {
 
     public SplitTable() {
 
@@ -41,7 +41,7 @@ public class SplitTable extends AbstractOperation<Path, Void> implements VoidOut
         this.inputPath = inputPath;
     }
 
-    public static class Builder extends AbstractOperation.Builder<SplitTable, Path, Void> {
+    public static class Builder extends AbstractOperation.Builder<SplitTable, String, Void> {
         public Builder() {
             super(new SplitTable());
         }

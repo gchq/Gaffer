@@ -15,6 +15,7 @@
  */
 package gaffer.accumulostore.operation.hdfs.impl;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
@@ -65,6 +66,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
         return mapperGeneratorClassName;
     }
 
+    @JsonSetter(value = "mapperGeneratorClassName")
     public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
         this.mapperGeneratorClassName = mapperGeneratorClassName;
     }

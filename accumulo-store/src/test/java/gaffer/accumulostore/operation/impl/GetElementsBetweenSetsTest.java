@@ -44,6 +44,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
 
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(new EntitySeed("B")).addSeedB(new EntitySeed("A")).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED).includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING).option("testOption", "true").populateProperties(false).summarise(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
@@ -51,8 +52,8 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         assertTrue(getElementsBetweenSets.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
-        assertTrue(getElementsBetweenSets.isPopulateProperties());
-        assertTrue(getElementsBetweenSets.isSummarise());
+        assertFalse(getElementsBetweenSets.isPopulateProperties());
+        assertFalse(getElementsBetweenSets.isSummarise());
         assertEquals(new EntitySeed("B"), getElementsBetweenSets.getInput().iterator().next());
         assertEquals(new EntitySeed("A"), getElementsBetweenSets.getSeedsB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());

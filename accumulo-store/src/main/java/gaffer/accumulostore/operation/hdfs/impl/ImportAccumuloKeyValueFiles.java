@@ -20,7 +20,7 @@ import gaffer.operation.AbstractOperation;
 import gaffer.operation.VoidOutput;
 import org.apache.hadoop.fs.Path;
 
-public class ImportAccumuloKeyValueFiles extends AbstractOperation<Path, Void> implements VoidOutput<Path> {
+public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void> implements VoidOutput<String> {
 
     private String failurePath;
     private String inputPath;
@@ -45,7 +45,7 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<Path, Void> i
         this.failurePath = failurePath;
     }
 
-    public static class Builder extends AbstractOperation.Builder<ImportAccumuloKeyValueFiles, Path, Void> {
+    public static class Builder extends AbstractOperation.Builder<ImportAccumuloKeyValueFiles, String, Void> {
         public Builder() {
             super(new ImportAccumuloKeyValueFiles());
         }

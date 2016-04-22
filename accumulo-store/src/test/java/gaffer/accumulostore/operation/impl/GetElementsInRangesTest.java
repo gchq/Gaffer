@@ -43,6 +43,7 @@ public class GetElementsInRangesTest implements OperationTest {
 
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
