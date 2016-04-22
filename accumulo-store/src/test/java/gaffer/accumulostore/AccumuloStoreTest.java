@@ -16,30 +16,56 @@
 
 package gaffer.accumulostore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
+import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
+import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
+import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
+import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
+import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
+import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
+import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
+import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.impl.*;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.impl.get.GetElementsSeed;
-import gaffer.operation.impl.get.GetRelatedElements;
+import gaffer.operation.impl.generate.GenerateElements;
+import gaffer.operation.impl.generate.GenerateObjects;
+import gaffer.operation.impl.get.*;
+import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.store.StoreException;
+import gaffer.store.StoreProperties;
+import gaffer.store.operation.handler.GenerateElementsHandler;
+import gaffer.store.operation.handler.GenerateObjectsHandler;
+import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class AccumuloStoreTest {
 
-    private static AccumuloStore store;
+    private static MockAccumuloStoreForTest store;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -88,4 +114,30 @@ public class AccumuloStoreTest {
         assertFalse(resultsIter.hasNext());
     }
 
+    @Test
+    public void testStoreReturnsHandlersForRegisteredOperations() throws StoreException {
+        // Then
+        assertNotNull(store.getOperationHandlerExposed(Validate.class));
+
+        assertTrue(store.getOperationHandlerExposed(AddElementsFromHdfs.class) instanceof AddElementsFromHdfsHandler);
+        assertTrue(store.getOperationHandlerExposed(GetEdgesBetweenSets.class) instanceof GetElementsBetweenSetsHandler);
+        assertTrue(store.getOperationHandlerExposed(GetElementsBetweenSets.class) instanceof GetElementsBetweenSetsHandler);
+        assertTrue(store.getOperationHandlerExposed(GetElementsInRanges.class) instanceof GetElementsInRangesHandler);
+        assertTrue(store.getOperationHandlerExposed(GetEdgesInRanges.class) instanceof GetElementsInRangesHandler);
+        assertTrue(store.getOperationHandlerExposed(GetEntitiesInRanges.class) instanceof GetElementsInRangesHandler);
+        assertTrue(store.getOperationHandlerExposed(GetElementsWithinSet.class) instanceof GetElementsWithinSetHandler);
+        assertTrue(store.getOperationHandlerExposed(GetEdgesWithinSet.class) instanceof GetElementsWithinSetHandler);
+        assertTrue(store.getOperationHandlerExposed(SplitTable.class) instanceof SplitTableHandler);
+        assertTrue(store.getOperationHandlerExposed(SampleDataForSplitPoints.class) instanceof SampleDataForSplitPointsHandler);
+        assertTrue(store.getOperationHandlerExposed(ImportAccumuloKeyValueFiles.class) instanceof ImportAccumuloKeyValueFilesHandler);
+        assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
+        assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
+
+    }
+
+    @Test
+    public void testRequestForNullHandlerManaged() {
+        final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
+        assertNull(returnedHandler);
+    }
 }
