@@ -114,7 +114,7 @@
                                         <manifest>
                                             <addClasspath>true</addClasspath>
                                             <mainClass>
-                                                gaffer.example.ComplexQuery
+                                                gaffer.example.films.LoadAndQuery
                                             </mainClass>
                                         </manifest>
                                     </archive>
