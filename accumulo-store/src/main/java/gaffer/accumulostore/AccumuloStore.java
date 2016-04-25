@@ -31,6 +31,12 @@ import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
+import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
+import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
+import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
+import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -81,6 +87,7 @@ public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
     private AccumuloKeyPackage keyPackage;
+    private Connector connection = null;
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
@@ -105,8 +112,11 @@ public class AccumuloStore extends Store {
      * @throws StoreException if there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        return TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
-                getProperties().getUserName(), getProperties().getPassword());
+        if (null == connection) {
+            connection = TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
+                    getProperties().getUserName(), getProperties().getPassword());
+        }
+        return connection;
     }
 
     @Override
@@ -130,6 +140,9 @@ public class AccumuloStore extends Store {
         addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
+        addOperationHandler(SplitTable.class, new SplitTableHandler());
+        addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
+        addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
     }
 
     @Override

@@ -52,12 +52,13 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
     @Override
     public Iterator<Element> iterator() {
-        if (!ids.iterator().hasNext()) {
+        Iterator<? extends SEED_TYPE> idIterator = ids.iterator();
+        if (!idIterator.hasNext()) {
             return Collections.emptyIterator();
         }
 
         try {
-            iterator = new ElementIterator();
+            iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
             LOGGER.error(e.getMessage() + " returning empty iterator", e);
             return Collections.emptyIterator();
@@ -74,8 +75,8 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         private BatchScanner scanner;
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
 
-        protected ElementIterator() throws RetrieverException {
-            idsIterator = ids.iterator();
+        protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
+            idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
             while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
@@ -129,8 +130,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
             }
             if (!scannerIterator.hasNext()) {
                 scanner.close();
+                return false;
             }
-            return scannerIterator.hasNext();
+            return true;
         }
 
         @Override

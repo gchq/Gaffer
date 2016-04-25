@@ -83,6 +83,7 @@ public final class TableUtils {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
+                // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
                 // Someone else got there first, never mind...
             }
         }
@@ -98,11 +99,14 @@ public final class TableUtils {
      * @throws StoreException       failure to create accumulo connection or  add iterator settings
      * @throws TableExistsException failure to create table
      */
-    public static void createTable(final AccumuloStore store)
+    public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
         // Create table
         final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
+        if (connector.tableOperations().exists(tableName)) {
+            return;
+        }
         try {
             connector.tableOperations().create(tableName);
             final String repFactor = store.getProperties().getTableFileReplicationFactor();
@@ -121,20 +125,20 @@ public final class TableUtils {
             LOGGER.info("Removing versioning iterator");
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
-            LOGGER.info("Versioning iterator removed");
+            LOGGER.info("Removed Versioning iterator");
 
             // Add Combiner iterator to table for all scopes
-            LOGGER.info("Combiner iterator to table for all scopes");
+            LOGGER.info("Adding Aggregator iterator to table for all scopes");
             connector.tableOperations().attachIterator(tableName,
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-            LOGGER.info("Combiner iterator to table for all scopes");
+            LOGGER.info("Added Aggregator iterator to table for all scopes");
 
             if (store.getProperties().getEnableValidatorIterator()) {
                 // Add validator iterator to table for all scopes
-                LOGGER.info("Adding validator iterator to table for all scopes");
+                LOGGER.info("Adding Validator iterator to table for all scopes");
                 connector.tableOperations().attachIterator(tableName,
                         store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
-                LOGGER.info("Added validator iterator to table for all scopes");
+                LOGGER.info("Added Validator iterator to table for all scopes");
             } else {
                 LOGGER.info("Validator iterator has been disabled");
             }

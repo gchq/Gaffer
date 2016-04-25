@@ -15,15 +15,13 @@
  */
 package gaffer.operation.simple.hdfs;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import gaffer.operation.AbstractOperation;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.VoidOutput;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Partitioner;
-
+import java.util.List;
 
 /**
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link gaffer.data.element.Element}s from HDFS.
@@ -38,12 +36,8 @@ import org.apache.hadoop.mapreduce.Partitioner;
  *
  * @see gaffer.operation.simple.hdfs.AddElementsFromHdfs.Builder
  */
-public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
-    private Path inputPath;
-    private Path outputPath;
-    private Path failurePath;
-    private Integer numReduceTasks = null;
-    private Integer numMapTasks = null;
+public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
+    private String failurePath;
     private boolean validate = true;
 
     /**
@@ -53,38 +47,11 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
      */
     private String mapperGeneratorClassName;
 
-    /**
-     * A job initialiser that allows additional job initialisation to be carried out in addition to that done by the
-     * store.
-     * Most stores will probably require the Job Input to be configured in this initialiser as this is specific to the
-     * type of data store in Hdfs.
-     * For Avro data see {@link gaffer.operation.simple.hdfs.handler.jobfactory.AvroJobInitialiser}.
-     * For Text data see {@link gaffer.operation.simple.hdfs.handler.jobfactory.TextJobInitialiser}.
-     */
-    private JobInitialiser jobInitialiser;
-    private Class<? extends Partitioner> partitioner;
-
-    public Path getInputPath() {
-        return inputPath;
-    }
-
-    public void setInputPath(final Path inputPath) {
-        this.inputPath = inputPath;
-    }
-
-    public Path getOutputPath() {
-        return outputPath;
-    }
-
-    public void setOutputPath(final Path outputPath) {
-        this.outputPath = outputPath;
-    }
-
-    public Path getFailurePath() {
+    public String getFailurePath() {
         return failurePath;
     }
 
-    public void setFailurePath(final Path failurePath) {
+    public void setFailurePath(final String failurePath) {
         this.failurePath = failurePath;
     }
 
@@ -100,6 +67,7 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
         return mapperGeneratorClassName;
     }
 
+    @JsonSetter(value = "mapperGeneratorClassName")
     public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
         this.mapperGeneratorClassName = mapperGeneratorClassName;
     }
@@ -108,57 +76,9 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
-    public JobInitialiser getJobInitialiser() {
-        return jobInitialiser;
-    }
-
-    public void setJobInitialiser(final JobInitialiser jobInitialiser) {
-        this.jobInitialiser = jobInitialiser;
-    }
-
-    public Integer getNumMapTasks() {
-        return numMapTasks;
-    }
-
-    public void setNumMapTasks(final Integer numMapTasks) {
-        this.numMapTasks = numMapTasks;
-    }
-
-    public Integer getNumReduceTasks() {
-        return numReduceTasks;
-    }
-
-    public void setNumReduceTasks(final Integer numReduceTasks) {
-        this.numReduceTasks = numReduceTasks;
-    }
-
-    public Class<? extends Partitioner> getPartitioner() {
-        return partitioner;
-    }
-
-    public void setPartitioner(final Class<? extends Partitioner> partitioner) {
-        this.partitioner = partitioner;
-    }
-
-    public static class Builder extends AbstractOperation.Builder<AddElementsFromHdfs, Void, Void> {
+    public static class Builder extends MapReduceOperation.Builder<AddElementsFromHdfs, Void, Void> {
         public Builder() {
             super(new AddElementsFromHdfs());
-        }
-
-        public Builder inputPath(final Path inputPath) {
-            op.setInputPath(inputPath);
-            return this;
-        }
-
-        public Builder outputPath(final Path outputPath) {
-            op.setOutputPath(outputPath);
-            return this;
-        }
-
-        public Builder failurePath(final Path failurePath) {
-            op.setFailurePath(failurePath);
-            return this;
         }
 
         public Builder validate(final boolean validate) {
@@ -171,30 +91,54 @@ public class AddElementsFromHdfs extends AbstractOperation<Void, Void> implement
             return this;
         }
 
-        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
-            op.setJobInitialiser(jobInitialiser);
-            return this;
-        }
-
-        public Builder reducers(final Integer numReduceTasks) {
-            op.setNumReduceTasks(numReduceTasks);
-            return this;
-        }
-
-        public Builder mappers(final Integer numMapTasks) {
-            op.setNumMapTasks(numMapTasks);
-            return this;
-        }
-
-        public Builder partioner(final Class<? extends Partitioner> partitioner) {
-            op.setPartitioner(partitioner);
+        public Builder failurePath(final String failurePath) {
+            op.setFailurePath(failurePath);
             return this;
         }
 
         @Override
         public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
+            return (Builder) super.option(name, value);
+        }
+
+        @Override
+        public Builder inputPaths(final List<String> inputPaths) {
+            return (Builder) super.inputPaths(inputPaths);
+        }
+
+        @Override
+        public Builder addInputPaths(final List<String> inputPaths) {
+            return (Builder) super.addInputPaths(inputPaths);
+        }
+
+        @Override
+        public Builder addInputPath(final String inputPath) {
+            return (Builder) super.addInputPath(inputPath);
+        }
+
+        @Override
+        public Builder outputPath(final String outputPath) {
+            return (Builder) super.outputPath(outputPath);
+        }
+
+        @Override
+        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
+            return (Builder) super.jobInitialiser(jobInitialiser);
+        }
+
+        @Override
+        public Builder reducers(final Integer numReduceTasks) {
+            return (Builder) super.reducers(numReduceTasks);
+        }
+
+        @Override
+        public Builder mappers(final Integer numMapTasks) {
+            return (Builder) super.mappers(numMapTasks);
+        }
+
+        @Override
+        public Builder partioner(final Class<? extends Partitioner> partitioner) {
+            return (Builder) super.partioner(partitioner);
         }
     }
 }

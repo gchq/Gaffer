@@ -15,16 +15,18 @@
  */
 package gaffer.operation.simple.hdfs.handler.jobfactory;
 
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.store.Store;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Parser;
 import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * An <code>AvroJobInitialiser</code> is an {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser} that
@@ -41,12 +43,12 @@ public class AvroJobInitialiser implements JobInitialiser {
     }
 
     @Override
-    public void initialiseJob(final Job job, final AddElementsFromHdfs operation, final Store store)
+    public void initialiseJob(final Job job, final MapReduceOperation operation, final Store store)
             throws IOException {
         initialiseInput(job, operation);
     }
 
-    private void initialiseInput(final Job job, final AddElementsFromHdfs operation) throws IOException {
+    private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
         if (null == avroSchemaFilePath) {
             throw new IllegalArgumentException("Avro schema file path has not been set");
         }
@@ -54,7 +56,10 @@ public class AvroJobInitialiser implements JobInitialiser {
         final Schema schema = new Parser().parse(new File(avroSchemaFilePath));
         AvroJob.setInputKeySchema(job, schema);
         job.setInputFormatClass(AvroKeyInputFormat.class);
-        AvroKeyInputFormat.addInputPath(job, operation.getInputPath());
+        List<String> paths = operation.getInputPaths();
+        for (String path : paths) {
+            AvroKeyInputFormat.addInputPath(job, new Path(path));
+        }
     }
 
     public String getAvroSchemaFilePath() {

@@ -20,7 +20,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.3-SNAPSHOT</version>
+        <version>0.3.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>gaffer-integration-tests</artifactId>
@@ -41,7 +41,6 @@
             <groupId>gaffer</groupId>
             <artifactId>simple-function-library</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
@@ -53,7 +52,6 @@
             <groupId>gaffer</groupId>
             <artifactId>simple-serialisation-library</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
@@ -67,22 +65,11 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
-        <!-- Store implementations -->
         <dependency>
-            <groupId>gaffer</groupId>
-            <artifactId>array-list-store</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9-RC1</version>
         </dependency>
-        <dependency>
-            <groupId>gaffer</groupId>
-            <artifactId>accumulo-store</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Accumulo - required for MockInstance -->
         <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>

@@ -15,8 +15,13 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
-import java.io.IOException;
-
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.IngestUtils;
+import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
+import gaffer.store.Store;
+import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.KeyRangePartitioner;
 import org.apache.accumulo.core.data.Key;
@@ -27,13 +32,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IngestUtils;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
-import gaffer.operation.simple.hdfs.handler.AbstractAddElementsFromHdfsJobFactory;
-import gaffer.store.Store;
-import gaffer.store.StoreException;
+import java.io.IOException;
 
 public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
 
@@ -66,14 +65,14 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupReducer(final Job job, final AddElementsFromHdfs operation, final Store store)
             throws IOException {
-        job.setReducerClass(AddElementsFromHdfsReducer.class);
+        job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
     }
 
     private void setupOutput(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
-        FileOutputFormat.setOutputPath(job, operation.getOutputPath());
+        FileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
     }
 
     private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)

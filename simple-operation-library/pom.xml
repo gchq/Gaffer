@@ -21,7 +21,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.3-SNAPSHOT</version>
+        <version>0.3.5-SNAPSHOT</version>
     </parent>
     <artifactId>simple-operation-library</artifactId>
 
@@ -61,6 +61,15 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Test dependencies-->
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>operation</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
