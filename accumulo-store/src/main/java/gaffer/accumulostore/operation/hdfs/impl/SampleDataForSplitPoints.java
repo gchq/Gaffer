@@ -15,11 +15,11 @@
  */
 package gaffer.accumulostore.operation.hdfs.impl;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Partitioner;
 import java.util.List;
 
@@ -38,9 +38,9 @@ import java.util.List;
  *
  * @see SampleDataForSplitPoints.Builder
  */
-public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> implements VoidInput<Path> {
+public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> implements VoidInput<String> {
 
-    private Path resultingSplitsFilePath;
+    private String resultingSplitsFilePath;
     private boolean validate = true;
     private float proportionToSample;
 
@@ -66,6 +66,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         return mapperGeneratorClassName;
     }
 
+    @JsonSetter(value = "mapperGeneratorClassName")
     public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
         this.mapperGeneratorClassName = mapperGeneratorClassName;
     }
@@ -74,11 +75,11 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    public Path getResultingSplitsFilePath() {
+    public String getResultingSplitsFilePath() {
         return resultingSplitsFilePath;
     }
 
-    public void setResultingSplitsFilePath(final Path resultingSplitsFilePath) {
+    public void setResultingSplitsFilePath(final String resultingSplitsFilePath) {
         this.resultingSplitsFilePath = resultingSplitsFilePath;
     }
 
@@ -90,12 +91,12 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         this.proportionToSample = proportionToSample;
     }
 
-    public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, Path> {
+    public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, String> {
         public Builder() {
             super(new SampleDataForSplitPoints());
         }
 
-        public Builder resultingSplitsFilePath(final Path resultingSplitsFilePath) {
+        public Builder resultingSplitsFilePath(final String resultingSplitsFilePath) {
             op.setResultingSplitsFilePath(resultingSplitsFilePath);
             return this;
         }
@@ -116,17 +117,17 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         }
 
         @Override
-        protected Builder inputPaths(final List<Path> inputPaths) {
+        public Builder inputPaths(final List<String> inputPaths) {
             return (Builder) super.inputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPaths(final List<Path> inputPaths) {
+        public Builder addInputPaths(final List<String> inputPaths) {
             return (Builder) super.addInputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPath(final Path inputPath) {
+        public Builder addInputPath(final String inputPath) {
             return (Builder) super.addInputPath(inputPath);
         }
 
@@ -137,7 +138,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
 
 
         @Override
-        public Builder outputPath(final Path outputPath) {
+        public Builder outputPath(final String outputPath) {
             return (Builder) super.outputPath(outputPath);
         }
 

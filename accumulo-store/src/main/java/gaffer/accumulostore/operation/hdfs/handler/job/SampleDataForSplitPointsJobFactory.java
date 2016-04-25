@@ -82,7 +82,7 @@ public class SampleDataForSplitPointsJobFactory {
 
     protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
+        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), new Path(operation.getOutputPath())));
         setupMapper(job, operation, store);
         setupReducer(job, operation, store);
         setupOutput(job, operation, store);
@@ -107,7 +107,7 @@ public class SampleDataForSplitPointsJobFactory {
 
     private void setupOutput(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        SequenceFileOutputFormat.setOutputPath(job, operation.getOutputPath());
+        SequenceFileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
         SequenceFileOutputFormat.setCompressOutput(job, true);
         SequenceFileOutputFormat.setOutputCompressorClass(job, GzipCodec.class);
         SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);

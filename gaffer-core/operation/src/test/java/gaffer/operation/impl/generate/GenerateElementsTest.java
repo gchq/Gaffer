@@ -16,6 +16,8 @@
 
 package gaffer.operation.impl.generate;
 
+import gaffer.data.elementdefinition.view.View;
+import gaffer.data.generator.ElementGenerator;
 import gaffer.data.generator.ElementGeneratorImpl;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -24,6 +26,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -49,5 +52,19 @@ public class GenerateElementsTest implements OperationTest {
         assertFalse(itr.hasNext());
 
         assertTrue(deserialisedOp.getElementGenerator() instanceof ElementGeneratorImpl);
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GenerateElements generateElements = new GenerateElements.Builder<String>().generator(new ElementGeneratorImpl())
+                .objects(Arrays.asList("Test1", "Test2"))
+                .view(new View.Builder().edge("TestEdgeGroup").build())
+                .option("testOption", "true").build();
+        assertNotNull(generateElements.getView());
+        assertEquals("true", generateElements.getOption("testOption"));
+        Iterator iter = generateElements.getInput().iterator();
+        assertEquals("Test1", iter.next());
+        assertEquals("Test2", iter.next());
     }
 }

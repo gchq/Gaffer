@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -26,8 +27,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class GetEntitiesBySeedTest implements OperationTest {
@@ -62,5 +65,20 @@ public class GetEntitiesBySeedTest implements OperationTest {
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetEntitiesBySeed getEntitiesBySeed = new GetEntitiesBySeed.Builder().addSeed(new EntitySeed("A"))
+                .summarise(true)
+                .populateProperties(true)
+                .view(new View.Builder().edge("testEdgeGroup").build())
+                .option("testOption", "true").build();
+
+        assertEquals("true", getEntitiesBySeed.getOption("testOption"));
+        assertTrue(getEntitiesBySeed.isPopulateProperties());
+        assertTrue(getEntitiesBySeed.isSummarise());
+        assertNotNull(getEntitiesBySeed.getView());
     }
 }

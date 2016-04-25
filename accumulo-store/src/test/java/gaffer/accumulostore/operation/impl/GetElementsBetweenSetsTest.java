@@ -1,7 +1,9 @@
 package gaffer.accumulostore.operation.impl;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
@@ -9,8 +11,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class GetElementsBetweenSetsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -41,5 +42,20 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         assertEquals(seed4, itrSeedsB.next());
         assertFalse(itrSeedsB.hasNext());
 
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(new EntitySeed("B")).addSeedB(new EntitySeed("A")).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED).includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING).option("testOption", "true").populateProperties(false).summarise(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertEquals("true", getElementsBetweenSets.getOption("testOption"));
+        assertTrue(getElementsBetweenSets.isIncludeEntities());
+        assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
+        assertFalse(getElementsBetweenSets.isPopulateProperties());
+        assertFalse(getElementsBetweenSets.isSummarise());
+        assertEquals(new EntitySeed("B"), getElementsBetweenSets.getInput().iterator().next());
+        assertEquals(new EntitySeed("A"), getElementsBetweenSets.getSeedsB().iterator().next());
+        assertNotNull(getElementsBetweenSets.getView());
     }
 }
