@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.exception.SerialisationException;
@@ -25,10 +26,14 @@ import gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+
+import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class GetRelatedEntitiesTest implements OperationTest {
@@ -63,5 +68,17 @@ public class GetRelatedEntitiesTest implements OperationTest {
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        ElementSeed seed = new EntitySeed("A");
+        GetRelatedEntities getRelatedElements = new GetRelatedEntities.Builder().addSeed(seed).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEntityGroup").build()).build();
+        assertEquals("true", getRelatedElements.getOption("testOption"));
+        assertTrue(getRelatedElements.isSummarise());
+        assertFalse(getRelatedElements.isPopulateProperties());
+        assertNotNull(getRelatedElements.getView());
+        assertEquals(seed,getRelatedElements.getSeeds().iterator().next());
     }
 }

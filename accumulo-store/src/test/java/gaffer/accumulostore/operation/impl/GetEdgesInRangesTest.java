@@ -1,6 +1,7 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.Pair;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
@@ -61,6 +62,20 @@ public class GetEdgesInRangesTest implements OperationTest {
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
 
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
+        GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH).addSeed(seed).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertTrue(getEdgesInRanges.isSummarise());
+        assertFalse(getEdgesInRanges.isPopulateProperties());
+        assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
+        assertEquals("true", getEdgesInRanges.getOption("testOption"));
+        assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
+        assertNotNull(getEdgesInRanges.getView());
     }
 }
 

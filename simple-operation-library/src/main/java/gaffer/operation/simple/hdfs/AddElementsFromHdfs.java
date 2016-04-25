@@ -15,11 +15,11 @@
  */
 package gaffer.operation.simple.hdfs;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.VoidOutput;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Partitioner;
 import java.util.List;
 
@@ -37,7 +37,7 @@ import java.util.List;
  * @see gaffer.operation.simple.hdfs.AddElementsFromHdfs.Builder
  */
 public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
-    private Path failurePath;
+    private String failurePath;
     private boolean validate = true;
 
     /**
@@ -47,11 +47,11 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
      */
     private String mapperGeneratorClassName;
 
-    public Path getFailurePath() {
+    public String getFailurePath() {
         return failurePath;
     }
 
-    public void setFailurePath(final Path failurePath) {
+    public void setFailurePath(final String failurePath) {
         this.failurePath = failurePath;
     }
 
@@ -67,6 +67,7 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         return mapperGeneratorClassName;
     }
 
+    @JsonSetter(value = "mapperGeneratorClassName")
     public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
         this.mapperGeneratorClassName = mapperGeneratorClassName;
     }
@@ -90,7 +91,7 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
             return this;
         }
 
-        public Builder failurePath(final Path failurePath) {
+        public Builder failurePath(final String failurePath) {
             op.setFailurePath(failurePath);
             return this;
         }
@@ -101,22 +102,22 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         }
 
         @Override
-        protected Builder inputPaths(final List<Path> inputPaths) {
+        public Builder inputPaths(final List<String> inputPaths) {
             return (Builder) super.inputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPaths(final List<Path> inputPaths) {
+        public Builder addInputPaths(final List<String> inputPaths) {
             return (Builder) super.addInputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPath(final Path inputPath) {
+        public Builder addInputPath(final String inputPath) {
             return (Builder) super.addInputPath(inputPath);
         }
 
         @Override
-        public Builder outputPath(final Path outputPath) {
+        public Builder outputPath(final String outputPath) {
             return (Builder) super.outputPath(outputPath);
         }
 

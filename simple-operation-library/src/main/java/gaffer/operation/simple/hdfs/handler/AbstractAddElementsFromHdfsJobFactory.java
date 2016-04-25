@@ -19,7 +19,6 @@ import gaffer.commonutil.CommonConstants;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 
@@ -74,7 +73,7 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
         job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
     }
 
-    protected String getJobName(final String mapperGenerator, final Path outputPath) {
+    protected String getJobName(final String mapperGenerator, final String outputPath) {
         return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
 

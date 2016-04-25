@@ -1,6 +1,7 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
@@ -65,5 +66,19 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         assertEquals(seed4, itrSeedsB.next());
         assertFalse(itrSeedsB.hasNext());
 
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder().includeEdges(GetOperation.IncludeEdgeType.ALL).addSeed(new EntitySeed("A")).addSeedB(new EntitySeed("B")).inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertTrue(getEdgesBetweenSets.isSummarise());
+        assertFalse(getEdgesBetweenSets.isPopulateProperties());
+        assertEquals(GetOperation.IncludeEdgeType.ALL, getEdgesBetweenSets.getIncludeEdges());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
+        assertEquals("true", getEdgesBetweenSets.getOption("testOption"));
+        assertEquals(new EntitySeed("A"), getEdgesBetweenSets.getSeeds().iterator().next());
+        assertEquals(new EntitySeed("B"), getEdgesBetweenSets.getSeedsB().iterator().next());
+        assertNotNull(getEdgesBetweenSets.getView());
     }
 }

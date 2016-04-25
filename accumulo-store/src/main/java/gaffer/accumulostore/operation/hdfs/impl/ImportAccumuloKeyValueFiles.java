@@ -18,39 +18,38 @@ package gaffer.accumulostore.operation.hdfs.impl;
 
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.VoidOutput;
-import org.apache.hadoop.fs.Path;
 
-public class ImportAccumuloKeyValueFiles extends AbstractOperation<Path, Void> implements VoidOutput<Path> {
+public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void> implements VoidOutput<String> {
 
-    private Path failurePath;
-    private Path inputPath;
+    private String failurePath;
+    private String inputPath;
 
     public ImportAccumuloKeyValueFiles() {
 
     }
 
-    public Path getInputPath() {
+    public String getInputPath() {
         return inputPath;
     }
 
-    public void setInputPath(final Path inputPath) {
+    public void setInputPath(final String inputPath) {
         this.inputPath = inputPath;
     }
 
-    public Path getFailurePath() {
+    public String getFailurePath() {
         return failurePath;
     }
 
-    public void setFailurePath(final Path failurePath) {
+    public void setFailurePath(final String failurePath) {
         this.failurePath = failurePath;
     }
 
-    public static class Builder extends AbstractOperation.Builder<ImportAccumuloKeyValueFiles, Path, Void> {
+    public static class Builder extends AbstractOperation.Builder<ImportAccumuloKeyValueFiles, String, Void> {
         public Builder() {
             super(new ImportAccumuloKeyValueFiles());
         }
 
-        public Builder inputPath(final Path inputPath) {
+        public Builder inputPath(final String inputPath) {
             op.setInputPath(inputPath);
             return this;
         }
@@ -61,7 +60,7 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<Path, Void> i
             return this;
         }
 
-        public Builder failurePath(final Path failurePath) {
+        public Builder failurePath(final String failurePath) {
             op.setFailurePath(failurePath);
             return this;
         }
