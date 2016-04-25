@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.example.gettingstarted.function;
+package gaffer.example.gettingstarted.function.aggregate;
 
 import gaffer.function.AggregateFunction;
 import gaffer.function.SimpleAggregateFunction;

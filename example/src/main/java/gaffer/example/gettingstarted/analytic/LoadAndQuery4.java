@@ -20,7 +20,7 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.example.gettingstarted.function.MeanTransform;
+import gaffer.example.gettingstarted.function.transform.MeanTransform;
 import gaffer.example.gettingstarted.generator.DataGenerator4;
 import gaffer.example.gettingstarted.util.DataUtils;
 import gaffer.graph.Graph;

@@ -1,4 +1,4 @@
-package gaffer.example.films.analytic;/*
+/*
  * Copyright 2016 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +14,19 @@ package gaffer.example.films.analytic;/*
  * limitations under the License.
  */
 
-import gaffer.example.gettingstarted.function.VisibilityAggregator;
-import org.junit.Test;
+package gaffer.example.gettingstarted.function.aggregate;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.Test;
+
 public class VisibilityAggregatorTest {
 
     @Test
-    public void testException(){
+    public void testException() {
         VisibilityAggregator a = new VisibilityAggregator();
-        try{
+        try {
             a.aggregate(new Object[]{"public"});
             a.aggregate(new Object[]{"public"});
             a.aggregate(new Object[]{"private"});
@@ -33,13 +34,13 @@ public class VisibilityAggregatorTest {
             a.aggregate(new Object[]{"blah"});
             a.aggregate(new Object[]{"public"});
             fail();
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("Visibility must either be 'public' or 'private'. You supplied blah"));
         }
     }
 
     @Test
-    public void testPrivate(){
+    public void testPrivate() {
         VisibilityAggregator a = new VisibilityAggregator();
         a.aggregate(new Object[]{"public"});
         a.aggregate(new Object[]{"public"});

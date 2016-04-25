@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This example shows how to interact with a Gaffer graph with a simple and complex query.
+ * This example shows how to interact with a Gaffer graph using a Film example.
  */
 public class LoadAndQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadAndQuery.class);
@@ -52,7 +52,6 @@ public class LoadAndQuery {
     /**
      * The authorisation for the user doing the query.
      * Here we are setting the authorisation to include all certificates so the user will be able to see all the data.
-     * This only applies to the Accumulo Store.
      */
     private static final String AUTH = Certificate.U.name() + ","
             + Certificate.PG.name() + ","
@@ -61,10 +60,10 @@ public class LoadAndQuery {
             + Certificate._18.name();
 
     public static void main(final String[] args) throws OperationException {
-        final Iterable<Entity> complexResults = new LoadAndQuery().run();
-        final StringBuilder builder = new StringBuilder("Results from complex query:\n");
-        for (Object obj : complexResults) {
-            builder.append(obj).append("\n");
+        final Iterable<Entity> results = new LoadAndQuery().run();
+        final StringBuilder builder = new StringBuilder("Results from query:\n");
+        for (Entity result : results) {
+            builder.append(result).append("\n");
         }
         LOGGER.info(builder.toString());
     }
@@ -80,8 +79,8 @@ public class LoadAndQuery {
      * <li>Then transforms the rating from a percent to a 5 star rating and stores the value in a transient property called starRating</li>
      * <li>Then returns the reviews (Entities)</li>
      * </ul>
-     * This query can be written in JSON and executed over a rest service - see resources/complexQuery.json and
-     * resources/addData.json
+     * This query can be written in JSON and executed over a rest service - see
+     * resources/example/films/json/load.json and resources/example/films/json/query.json
      *
      * @return the review entities
      * @throws OperationException if operation chain fails to be executed on the graph

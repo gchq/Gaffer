@@ -10,7 +10,7 @@
       "position": "VISIBILITY",
       "serialiserClass": "gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
       "aggregateFunction": {
-        "class": "gaffer.example.gettingstarted.function.VisibilityAggregator"
+        "class": "gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator"
       }
     }
   }

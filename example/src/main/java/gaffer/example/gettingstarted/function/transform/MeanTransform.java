@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.example.gettingstarted.function;
+package gaffer.example.gettingstarted.function.transform;
 
 import gaffer.function.TransformFunction;
 import gaffer.function.annotation.Inputs;
