@@ -19,6 +19,7 @@ package gaffer.operation.impl.add;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
@@ -26,13 +27,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 
 public class AddElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -118,4 +120,17 @@ public class AddElementsTest implements OperationTest {
 
         assertFalse(itr.hasNext());
     }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        Element element = new Edge("testEdgeGroup");
+        AddElements addElements = new AddElements.Builder().elements(Arrays.asList(element)).skipInvalidElements(true).option("testOption", "true").validate(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertEquals("true", addElements.getOption("testOption"));
+        assertTrue(addElements.isSkipInvalidElements());
+        assertFalse(addElements.isValidate());
+        assertNotNull(addElements.getView());
+        assertEquals(element, addElements.getElements().iterator().next());
+    }
+
 }

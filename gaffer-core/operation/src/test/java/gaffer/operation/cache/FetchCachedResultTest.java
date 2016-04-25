@@ -42,4 +42,12 @@ public class FetchCachedResultTest implements OperationTest {
         // Then
         assertEquals(key, deserialisedOp.getKey());
     }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        FetchCachedResult operation = new FetchCachedResult.Builder().key("Test").option("testOption", "true").build();
+        assertEquals("Test", operation.getKey());
+        assertEquals("true", operation.getOption("testOption"));
+    }
 }
