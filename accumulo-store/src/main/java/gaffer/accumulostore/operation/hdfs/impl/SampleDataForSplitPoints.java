@@ -117,17 +117,17 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
         }
 
         @Override
-        protected Builder inputPaths(final List<String> inputPaths) {
+        public Builder inputPaths(final List<String> inputPaths) {
             return (Builder) super.inputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPaths(final List<String> inputPaths) {
+        public Builder addInputPaths(final List<String> inputPaths) {
             return (Builder) super.addInputPaths(inputPaths);
         }
 
         @Override
-        protected Builder addInputPath(final String inputPath) {
+        public Builder addInputPath(final String inputPath) {
             return (Builder) super.addInputPath(inputPath);
         }
 
