@@ -52,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -149,6 +150,28 @@ public class GraphTest {
             assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
+    }
+
+
+    @Test
+    public void shouldExposeGetTraitsMethod() throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
+
+
+        // When
+        final Collection<StoreTrait> storeTraits = Arrays.asList(StoreTrait.AGGREGATION, StoreTrait.TRANSFORMATION);
+        given(store.getTraits()).willReturn(storeTraits);
+        final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
+
+        // Then
+        assertEquals(returnedTraits, storeTraits);
+
     }
 
     @Test

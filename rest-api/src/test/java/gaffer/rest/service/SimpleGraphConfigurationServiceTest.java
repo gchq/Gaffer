@@ -69,6 +69,7 @@ public class SimpleGraphConfigurationServiceTest {
     public void shouldGetStoreTraits() throws IOException {
         // When
         final Collection<StoreTrait> traits = service.getStoreTraits();
+        // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 4", traits.size() == 4);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
@@ -109,8 +110,11 @@ public class SimpleGraphConfigurationServiceTest {
 
     @Test
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
+        // When
         byte[] bytes = serialiser.serialise(service.getStoreTraits());
         final Collection<StoreTrait> traits = serialiser.deserialise(bytes, Collection.class);
+
+        // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 4", traits.size() == 4);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION.name()));
