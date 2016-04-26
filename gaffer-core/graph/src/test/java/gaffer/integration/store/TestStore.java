@@ -29,7 +29,7 @@ import java.util.Collection;
 
 public class TestStore extends Store {
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Collection<StoreTrait> getTraits() {
         return null;
     }
 

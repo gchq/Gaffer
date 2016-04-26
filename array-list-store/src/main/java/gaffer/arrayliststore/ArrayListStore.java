@@ -52,7 +52,7 @@ public class ArrayListStore extends Store {
     private final List<Edge> edges = new ArrayList<>();
 
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Collection<StoreTrait> getTraits() {
         return TRAITS;
     }
 

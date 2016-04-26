@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -128,6 +129,14 @@ public final class Graph {
      */
     public boolean hasTrait(final StoreTrait storeTrait) {
         return store.hasTrait(storeTrait);
+    }
+
+    /**
+     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     * @return a collection of all of the {@link StoreTrait}s that the store has.
+     */
+    public Collection<StoreTrait> getStoreTraits() {
+        return store.getTraits();
     }
 
     /**

@@ -113,7 +113,7 @@ public abstract class Store {
      *
      * @return the {@link gaffer.store.StoreTrait}s for this store.
      */
-    protected abstract Collection<StoreTrait> getTraits();
+    public abstract Collection<StoreTrait> getTraits();
 
     /**
      * @return true if the store requires validation, so it requires Validatable operations to have a validation step.

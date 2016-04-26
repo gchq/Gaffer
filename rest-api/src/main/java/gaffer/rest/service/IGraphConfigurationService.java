@@ -18,11 +18,13 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -52,6 +54,11 @@ public interface IGraphConfigurationService {
     @Path("/operations")
     @ApiOperation(value = "Gets available operations", response = Class.class, responseContainer = "list")
     List<Class> getOperations();
+
+    @GET
+    @Path("/storeTraits")
+    @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list")
+    Collection<StoreTrait> getStoreTraits();
 
     @GET
     @Path("/generators")

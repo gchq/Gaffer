@@ -71,7 +71,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,7 +84,7 @@ import java.util.Map;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
+    private static final Collection<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -161,7 +160,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Collection<StoreTrait> getTraits() {
         return TRAITS;
     }
 

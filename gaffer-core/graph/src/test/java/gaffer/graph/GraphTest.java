@@ -207,7 +207,7 @@ public class GraphTest {
     static class StoreImpl extends Store {
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Collection<StoreTrait> getTraits() {
             return new ArrayList<>(0);
         }
 

@@ -444,7 +444,7 @@ public class StoreTest {
         private boolean validationRequired;
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Collection<StoreTrait> getTraits() {
             return TRAITS;
         }
 

@@ -77,7 +77,7 @@ public class StoreIT {
         private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Collection<StoreTrait> getTraits() {
             return TRAITS;
         }
 

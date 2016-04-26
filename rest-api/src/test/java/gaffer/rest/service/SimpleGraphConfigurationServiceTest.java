@@ -16,32 +16,43 @@
 
 package gaffer.rest.service;
 
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.graph.Graph;
+import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
+import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 
 public class SimpleGraphConfigurationServiceTest {
     private SimpleGraphConfigurationService service;
+    private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Before
     public void setup() {
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
+        final Collection<StoreTrait> traits = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
-
+        given(graph.getStoreTraits()).willReturn(traits);
         service = new SimpleGraphConfigurationService(graphFactory);
     }
 
@@ -53,6 +64,20 @@ public class SimpleGraphConfigurationServiceTest {
         // Then
         assertTrue(classes.size() > 0);
     }
+
+    @Test
+    public void shouldGetStoreTraits() throws IOException {
+        // When
+        final Collection<StoreTrait> traits = service.getStoreTraits();
+        assertNotNull(traits);
+        assertTrue("Collection size should be 4", traits.size() == 4);
+        assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
+        assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING));
+        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
+        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
+
+    }
+
 
     @Test
     public void shouldGetTransformFunctions() throws IOException {
@@ -80,4 +105,19 @@ public class SimpleGraphConfigurationServiceTest {
         // Then
         assertTrue(classes.size() > 0);
     }
+
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
+        byte[] bytes = serialiser.serialise(service.getStoreTraits());
+        final Collection<StoreTrait> traits = serialiser.deserialise(bytes, Collection.class);
+        assertNotNull(traits);
+        assertTrue("Collection size should be 4", traits.size() == 4);
+        assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION.name()));
+        assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING.name()));
+        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION.name()));
+        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION.name()));
+    }
+
+
 }
