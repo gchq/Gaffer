@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.AggregateFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.PassThroughFunctionContext;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         }
         for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             Object[] selection = functionContext.select(tuple);
-            if (selection != null) {
+            if (selection != null && hasNonNullValues(selection)) {
                 functionContext.getFunction().aggregate(selection);
             }
         }
@@ -125,6 +124,18 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             functionContext.getFunction().init();
         }
+    }
+
+    private boolean hasNonNullValues(final Object[] array) {
+        boolean hasNonNull = false;
+        for (Object item : array) {
+            if (null != item) {
+                hasNonNull = true;
+                break;
+            }
+        }
+
+        return hasNonNull;
     }
 
     /**

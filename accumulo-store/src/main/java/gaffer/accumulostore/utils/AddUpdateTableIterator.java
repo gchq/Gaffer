@@ -16,13 +16,12 @@
 
 package gaffer.accumulostore.utils;
 
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.StoreException;
-import gaffer.store.StoreProperties;
-import gaffer.store.schema.StoreSchema;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -38,44 +37,41 @@ import java.util.EnumSet;
  * table.
  * <p>
  * This class also has an executable main method that can be used to either
- * re-add or update the aggregator iterator that is set on a table The main
- * method takes 4 arguments, a path to a data schema, a path to a store schema
- * and path to a store properties file. In addition the main method takes one
- * other argument one word either add or update
+ * re-add or update the aggregator iterator that is set on a table.
+ * It should be run on an accumulo cluster. The main
+ * method takes 3 arguments: a comma separated list of paths to schemas,
+ * a path to a store properties file and the type of operation to perform on the
+ * table iterators - add, update or remove.
  * <p>
- * The add option will set a new aggregator iterator on the table given in the
+ * The add option will set new iterators on the table given in the
  * store properties file (For example if the iterator was removed in the
  * accumulo shell) The update option will update the existing aggregator
  * iterator with options for the store and data schemas provided previously to
- * the main method.
+ * the main method. The remove option allows an iterator to be removed.
  * <p>
- * This is useful if you wish to change the way data is aggregated after you
- * have put some data in a table.
+ * This is useful if you wish to change the way data is aggregated or validated
+ * after you have put some data in a table.
  */
 public final class AddUpdateTableIterator {
+    public static final String UPDATE_KEY = "update";
+    public static final String REMOVE_KEY = "remove";
+    public static final String ADD_KEY = "add";
+    private static final int NUM_REQUIRED_ARGS = 3;
+    private static final String[] ITERATORS = {
+            AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
+            AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME
+    };
+
     private AddUpdateTableIterator() {
         // private to prevent this class being instantiated. All methods are
         // static and should be called directly.
     }
 
     /**
-     * This method takes a store and uses the default Aggregator iterator name
-     * found in {@link AccumuloStoreConstants} as the iterator name to be removed. The stores
-     * configured iterator settings factory will be used to create a new
-     * iterator in the removed ones place
-     *
-     * @param store the accumulo store
-     * @throws StoreException if any issues occur when updating the iterator
-     */
-    public static void updateIterator(final AccumuloStore store) throws StoreException {
-        updateIterator(store, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-    }
-
-    /**
-     * This method takes a store and the name of an Aggregator iterator to be
-     * removed. The store's configured
+     * This method takes a store and the name of an iterator to be
+     * updated. The store's configured
      * {@link gaffer.accumulostore.key.IteratorSettingFactory} factory will be
-     * used to create the new Aggregator iterator in the removed one's place
+     * used to create the new iterator in the removed one's place
      *
      * @param store        the accumulo store
      * @param iteratorName the name of the iterator update
@@ -84,7 +80,7 @@ public final class AddUpdateTableIterator {
     public static void updateIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         try {
             updateIterator(store, iteratorName,
-                    store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
+                    store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
             // Update GafferUtilsTable with likely new schemas
             TableUtils.addUpdateUtilsTable(store);
         } catch (IteratorSettingException e) {
@@ -103,28 +99,43 @@ public final class AddUpdateTableIterator {
      * @throws StoreException if any issues occur when removing the given iterator name
      */
     public static void updateIterator(final AccumuloStore store, final String iteratorName,
-            final IteratorSetting iteratorSetting) throws StoreException {
+                                      final IteratorSetting iteratorSetting) throws StoreException {
+        removeIterator(store, iteratorName);
+        addIterator(store, iteratorSetting);
+    }
+
+    /**
+     * This method takes a store and the name of an iterator to be
+     * removed.
+     *
+     * @param store        the accumulo store
+     * @param iteratorName the name of the iterator update
+     * @throws StoreException if any issues occur when updating the iterator
+     */
+    public static void removeIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         try {
             store.getConnection().tableOperations().removeIterator(store.getProperties().getTable(), iteratorName,
                     EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
         } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
             throw new StoreException("Unable remove iterator with Name: " + iteratorName);
         }
-        addIteratorSetting(store, iteratorSetting);
     }
 
     /**
      * This should be used if a gaffer version upgrade causes the aggregator
      * iterator to be removed from a table
      *
-     * @param store the accumulo store
+     * @param store        the accumulo store
+     * @param iteratorName the iterator name
      * @throws StoreException if any issues occur adding an aggregator iterator
      */
-    public static void addAggregatorIterator(final AccumuloStore store) throws StoreException {
-        try {
-            addIteratorSetting(store, store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-        } catch (final IteratorSettingException e) {
-            throw new StoreException(e.getMessage(), e);
+    public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
+        if (!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator()) {
+            try {
+                addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
+            } catch (final IteratorSettingException e) {
+                throw new StoreException(e.getMessage(), e);
+            }
         }
     }
 
@@ -136,7 +147,7 @@ public final class AddUpdateTableIterator {
      * @param iteratorSetting the iterator setting to add.
      * @throws StoreException if any issues occur adding an iterator setting
      */
-    public static void addIteratorSetting(final AccumuloStore store, final IteratorSetting iteratorSetting)
+    public static void addIterator(final AccumuloStore store, final IteratorSetting iteratorSetting)
             throws StoreException {
         try {
             store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
@@ -146,33 +157,57 @@ public final class AddUpdateTableIterator {
     }
 
     public static void main(final String[] args) throws StoreException, SchemaException, IOException {
-        if (args.length < 4) {
+        if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<data_schema_path> <store_schema_path> <store_properties_path> <option add update>");
+                    + "<comma separated schema paths> <store properties path> <"
+                    + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
+                    + ">");
             System.exit(1);
         }
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(DataSchema.fromJson(getDataSchemaPath(args)), StoreSchema.fromJson(getStoreSchemaPath(args)),
-                StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
-        if ("update".equals(args[3])) {
-            updateIterator(store);
-        } else if ("add".equals(args[3])) {
-            addAggregatorIterator(store);
-        } else {
-            throw new IllegalArgumentException("Supplied option must either be add or update");
+        store.initialise(Schema.fromJson(getSchemaPaths(args)),
+                AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
+
+        final String modifyKey = getModifyKey(args);
+        switch (modifyKey) {
+            case UPDATE_KEY:
+                for (String iterator : ITERATORS) {
+                    updateIterator(store, iterator);
+                }
+                break;
+            case ADD_KEY:
+                for (String iterator : ITERATORS) {
+                    addIterator(store, iterator);
+                }
+                break;
+            case REMOVE_KEY:
+                for (String iterator : ITERATORS) {
+                    removeIterator(store, iterator);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Supplied add or update key ("
+                        + modifyKey + ") was not valid, it must either be "
+                        + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + ".");
         }
     }
 
-    private static Path getAccumuloPropertiesPath(final String[] args) {
-        return Paths.get(args[2]);
+    private static String getModifyKey(final String[] arg) {
+        return arg[2];
     }
 
-    private static Path getStoreSchemaPath(final String[] args) {
+    private static Path getAccumuloPropertiesPath(final String[] args) {
         return Paths.get(args[1]);
     }
 
-    private static Path getDataSchemaPath(final String[] args) {
-        return Paths.get(args[0]);
+    private static Path[] getSchemaPaths(final String[] args) {
+        final String[] pathStrs = args[0].split(",");
+        final Path[] paths = new Path[pathStrs.length];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = Paths.get(pathStrs[i]);
+        }
+
+        return paths;
     }
 }

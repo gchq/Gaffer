@@ -69,7 +69,7 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
     }
 
     @Override
-    protected boolean _isValid(final Comparable input) {
+    public boolean isValid(final Comparable input) {
         if (null == input
                 || !controlValue.getClass().isAssignableFrom(input.getClass())) {
             return false;

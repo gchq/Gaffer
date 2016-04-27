@@ -15,16 +15,16 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class IsEqualTest extends FilterFunctionTest {
 
@@ -32,7 +32,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldAcceptTheTestValue() {
         final IsEqual filter = new IsEqual("test");
 
-        boolean accepted = filter._isValid("test");
+        boolean accepted = filter.isValid("test");
 
         assertTrue(accepted);
     }
@@ -41,7 +41,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldAcceptWhenControlValueAndTestValueAreNull() {
         final IsEqual filter = new IsEqual();
 
-        boolean accepted = filter._isValid(null);
+        boolean accepted = filter.isValid((Object) null);
 
         assertTrue(accepted);
     }
@@ -50,7 +50,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldRejectWhenNotEqual() {
         final IsEqual filter = new IsEqual("test");
 
-        boolean accepted = filter._isValid("a different value");
+        boolean accepted = filter.isValid("a different value");
 
         assertFalse(accepted);
     }
@@ -98,10 +98,5 @@ public class IsEqualTest extends FilterFunctionTest {
     @Override
     protected IsEqual getInstance() {
         return new IsEqual("someString");
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{"someString"};
     }
 }

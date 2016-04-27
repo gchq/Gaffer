@@ -16,6 +16,11 @@
 
 package gaffer.operation.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Lists;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -32,10 +37,8 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,10 +47,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 public abstract class AbstractGetElementsHandlerTest {
     // Identifier prefixes
@@ -238,7 +237,7 @@ public abstract class AbstractGetElementsHandlerTest {
             expectedSeedsCopy.remove(seed);
         }
 
-        Assert.assertEquals("The number of elements returned was not as expected. Missing seeds: " + expectedSeedsCopy, expectedSeeds.size(),
+        assertEquals("The number of elements returned was not as expected. Missing seeds: " + expectedSeedsCopy, expectedSeeds.size(),
                 Lists.newArrayList(results).size());
     }
 

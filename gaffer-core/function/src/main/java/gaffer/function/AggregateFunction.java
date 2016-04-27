@@ -29,6 +29,7 @@ package gaffer.function;
 public abstract class AggregateFunction extends ConsumerProducerFunction implements Cloneable {
     /**
      * Initialise the internal state of this <code>AggregateFunction</code>.
+     * This will normally involve setting an aggregate field back to null.
      */
     public abstract void init();
 

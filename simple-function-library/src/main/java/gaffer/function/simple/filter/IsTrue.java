@@ -34,7 +34,7 @@ public class IsTrue extends SimpleFilterFunction<Boolean> {
     }
 
     @Override
-    protected boolean _isValid(final Boolean input) {
+    public boolean isValid(final Boolean input) {
         return Boolean.TRUE.equals(input);
     }
 }

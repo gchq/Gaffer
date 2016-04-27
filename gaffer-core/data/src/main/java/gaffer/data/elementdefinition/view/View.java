@@ -16,10 +16,11 @@
 
 package gaffer.data.elementdefinition.view;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-
+import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.Collection;
 
@@ -31,41 +32,37 @@ import java.util.Collection;
  * The {@link gaffer.function.FilterFunction}s within the ElementFilter describe the how the elements should be filtered.
  * The {@link gaffer.function.TransformFunction}s within ElementTransformer allow transient properties to be created
  * from other properties and identifiers.
- * Any identifiers, properties or transient properties used in filters and transforms must be listed within the element
- * definition along with its type.
+ * It also contains any transient properties that are created in transform functions.
  *
  * @see gaffer.data.elementdefinition.view.View.Builder
  * @see gaffer.data.elementdefinition.view.ViewElementDefinition
  * @see gaffer.data.element.function.ElementFilter
  * @see gaffer.data.element.function.ElementTransformer
  */
-public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefinition> {
-    private static final long serialVersionUID = 3056841284342147461L;
-
+public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> {
     public View() {
         super();
     }
 
-    public View(final Collection<String> entityGroups, final Collection<String> edgeGroups) {
-        super();
-        for (String group : entityGroups) {
-            addEntity(group, new ViewEntityDefinition());
-        }
-        for (String group : edgeGroups) {
-            addEdge(group, new ViewEdgeDefinition());
-        }
-    }
-
     public static View fromJson(final InputStream inputStream) throws SchemaException {
-        return fromJson(inputStream, View.class);
+        return fromJson(View.class, inputStream);
     }
 
     public static View fromJson(final Path filePath) throws SchemaException {
-        return fromJson(filePath, View.class);
+        return fromJson(View.class, filePath);
     }
 
     public static View fromJson(final byte[] jsonBytes) throws SchemaException {
-        return fromJson(jsonBytes, View.class);
+        return fromJson(View.class, jsonBytes);
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return "View" + new String(toJson(true), CommonConstants.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -73,7 +70,7 @@ public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefin
         return (ViewElementDefinition) super.getElement(group);
     }
 
-    public static class Builder extends ElementDefinitions.Builder<ViewEntityDefinition, ViewEdgeDefinition> {
+    public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
         public Builder() {
             this(new View());
         }
@@ -83,21 +80,37 @@ public class View extends ElementDefinitions<ViewEntityDefinition, ViewEdgeDefin
         }
 
         @Override
-        public Builder edge(final String group, final ViewEdgeDefinition elementDef) {
+        public Builder edge(final String group, final ViewElementDefinition elementDef) {
             return (Builder) super.edge(group, elementDef);
         }
 
         public Builder edge(final String group) {
-            return edge(group, new ViewEdgeDefinition());
+            return edge(group, new ViewElementDefinition());
+        }
+
+        public Builder edges(final Collection<String> groups) {
+            for (String group : groups) {
+                edge(group);
+            }
+
+            return this;
         }
 
         @Override
-        public Builder entity(final String group, final ViewEntityDefinition elementDef) {
+        public Builder entity(final String group, final ViewElementDefinition elementDef) {
             return (Builder) super.entity(group, elementDef);
         }
 
         public Builder entity(final String group) {
-            return entity(group, new ViewEntityDefinition());
+            return entity(group, new ViewElementDefinition());
+        }
+
+        public Builder entities(final Collection<String> groups) {
+            for (String group : groups) {
+                entity(group);
+            }
+
+            return this;
         }
 
         @Override

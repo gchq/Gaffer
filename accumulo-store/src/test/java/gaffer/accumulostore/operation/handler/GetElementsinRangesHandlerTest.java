@@ -30,8 +30,7 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -58,7 +57,7 @@ public class GetElementsinRangesHandlerTest {
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         setupGraph(byteEntityStore, 1000);
         setupGraph(gaffer1KeyStore, 1000);
     }
@@ -82,7 +81,7 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
 
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         Iterable<Element> elements = handler.doOperation(operation, store);
@@ -118,7 +117,7 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         Iterable<Element> elements = handler.doOperation(operation, store);
@@ -158,7 +157,7 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
 
         //All Edges stored should be outgoing from our provided seeds.
@@ -201,7 +200,7 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
@@ -228,7 +227,7 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<ElementSeed, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);

@@ -15,7 +15,7 @@
  */
 package gaffer.operation.simple.hdfs.handler.jobfactory;
 
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.store.Store;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -32,12 +32,12 @@ public class TextJobInitialiser implements JobInitialiser {
     }
 
     @Override
-    public void initialiseJob(final Job job, final AddElementsFromHdfs operation, final Store store)
+    public void initialiseJob(final Job job, final MapReduceOperation operation, final Store store)
             throws IOException {
         initialiseInput(job, operation);
     }
 
-    private void initialiseInput(final Job job, final AddElementsFromHdfs operation) throws IOException {
+    private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.addInputPath(job, operation.getInputPath());
     }

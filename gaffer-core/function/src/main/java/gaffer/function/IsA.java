@@ -84,7 +84,7 @@ public class IsA extends SimpleFilterFunction<Object> {
      * @return true iff there is a single, non-null input object that can be cast to the control class, otherwise false.
      */
     @Override
-    protected boolean _isValid(final Object input) {
+    public boolean isValid(final Object input) {
         return null == input || type.isAssignableFrom(input.getClass());
     }
 }

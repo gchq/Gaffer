@@ -15,17 +15,17 @@
  */
 package gaffer.function.simple.filter;
 
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunctionTest;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunctionTest;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class IsShorterThanTest extends FilterFunctionTest {
     @Test
@@ -49,7 +49,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter._isValid("1234");
+        final boolean accepted = filter.isValid("1234");
 
         // Then
         assertTrue(accepted);
@@ -61,7 +61,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter._isValid("123456");
+        final boolean accepted = filter.isValid("123456");
 
         // Then
         assertFalse(accepted);
@@ -73,7 +73,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter._isValid("12345");
+        final boolean accepted = filter.isValid("12345");
 
         // Then
         assertFalse(accepted);
@@ -86,7 +86,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
 
         // When / Then
         try {
-            filter._isValid(4);
+            filter.isValid(4);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -137,10 +137,5 @@ public class IsShorterThanTest extends FilterFunctionTest {
     @Override
     protected IsShorterThan getInstance() {
         return new IsShorterThan(5);
-    }
-
-    @Override
-    protected Object[] getSomeAcceptedInput() {
-        return new Object[]{"1234"};
     }
 }

@@ -21,11 +21,11 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.element.function.ElementAggregator;
-import gaffer.data.elementdefinition.schema.DataSchema;
-import gaffer.data.elementdefinition.schema.exception.SchemaException;
-import gaffer.store.schema.StoreSchema;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Combiner;
@@ -40,11 +40,11 @@ import java.util.Map;
 /**
  * The aggregator iterator is used to combine {@link Value}s where the
  * {@link Key} is the same (Except for the Timestamp column). The instructions
- * provided in the data schema define how the aggregation takes place and
+ * provided in the schema define how the aggregation takes place and
  * therefore what the resulting {@link Value} will be.
  */
 public class AggregatorIterator extends Combiner {
-    private DataSchema dataSchema;
+    private Schema schema;
     private AccumuloElementConverter elementConverter;
 
     @Override
@@ -57,7 +57,7 @@ public class AggregatorIterator extends Combiner {
         }
         final String group;
         try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), AccumuloStoreConstants.UTF_8_CHARSET);
+            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
             throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
@@ -69,7 +69,7 @@ public class AggregatorIterator extends Combiner {
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
-        aggregator = dataSchema.getElement(group).getAggregator();
+        aggregator = schema.getElement(group).getAggregator();
         aggregator.aggregate(properties);
         while (iter.hasNext()) {
             value = iter.next();
@@ -91,7 +91,7 @@ public class AggregatorIterator extends Combiner {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -104,26 +104,21 @@ public class AggregatorIterator extends Combiner {
         if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
-        if (!options.containsKey(AccumuloStoreConstants.STORE_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.STORE_SCHEMA);
-        }
-        if (!options.containsKey(AccumuloStoreConstants.DATA_SCHEMA)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.DATA_SCHEMA);
+        if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
+            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
         }
 
-        final StoreSchema storeSchema;
         try {
-            dataSchema = DataSchema.fromJson(options.get(AccumuloStoreConstants.DATA_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
-            storeSchema = StoreSchema.fromJson(options.get(AccumuloStoreConstants.STORE_SCHEMA).getBytes(AccumuloStoreConstants.UTF_8_CHARSET));
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the data/store schema", e);
+            throw new SchemaException("Unable to deserialise the schema from json", e);
         }
 
         try {
             final Class<?> elementConverterClass = Class
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(StoreSchema.class)
-                    .newInstance(storeSchema);
+            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+                    .newInstance(schema);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
@@ -134,8 +129,8 @@ public class AggregatorIterator extends Combiner {
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addDataSchemaNamedOption()
-                .addStoreSchemaNamedOption().addElementConverterClassNamedOption()
+        return new IteratorOptionsBuilder(super.describeOptions()).addSchemaNamedOption()
+                .addSchemaNamedOption().addElementConverterClassNamedOption()
                 .setIteratorName(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Applies a reduce function to elements with identical (rowKey, column family, column qualifier, visibility)")

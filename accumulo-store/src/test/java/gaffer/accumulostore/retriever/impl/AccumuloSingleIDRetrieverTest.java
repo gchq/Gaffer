@@ -29,8 +29,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -84,7 +82,7 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
@@ -116,7 +114,7 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
@@ -148,7 +146,7 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
@@ -182,7 +180,7 @@ public class AccumuloSingleIDRetrieverTest {
             ids.add(new EdgeSeed("" + i, "B", false));
             ids.add(new EdgeSeed("" + i, "C", true));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
@@ -216,7 +214,7 @@ public class AccumuloSingleIDRetrieverTest {
             ids.add(new EdgeSeed("" + i, "B", false));
             ids.add(new EdgeSeed("" + i, "C", true));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
@@ -250,7 +248,7 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
@@ -284,7 +282,7 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);

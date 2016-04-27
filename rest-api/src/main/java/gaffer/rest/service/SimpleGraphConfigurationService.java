@@ -16,16 +16,15 @@
 
 package gaffer.rest.service;
 
-import gaffer.data.elementdefinition.schema.DataSchema;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.function.FilterFunction;
 import gaffer.function.TransformFunction;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.rest.SystemProperty;
+import gaffer.store.schema.Schema;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
-
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -66,8 +65,8 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public DataSchema getDataSchema() {
-        return graphFactory.getGraph().getDataSchema();
+    public Schema getSchema() {
+        return graphFactory.getGraph().getSchema();
     }
 
     @Override

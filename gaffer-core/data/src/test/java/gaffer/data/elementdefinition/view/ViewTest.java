@@ -16,17 +16,20 @@
 
 package gaffer.data.elementdefinition.view;
 
-import gaffer.commonutil.TestGroups;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+
+import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
+import gaffer.data.element.function.ElementFilter;
+import gaffer.data.element.function.ElementTransformer;
+import gaffer.function.ExampleFilterFunction;
+import gaffer.function.ExampleTransformFunction;
+import org.junit.Test;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewTest {
 
@@ -49,41 +52,30 @@ public class ViewTest {
         List<String> edgeGroups = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
-            entityGroups.add("entityGroup" + i);
-            edgeGroups.add("edgeGroup" + i);
+            entityGroups.add(TestGroups.ENTITY + i);
+            edgeGroups.add(TestGroups.EDGE + i);
         }
 
         //When
-        View view = new View(entityGroups, edgeGroups);
+        View view = new View.Builder()
+                .entities(entityGroups)
+                .edges(edgeGroups)
+                .build();
 
         //Then
-        assertTrue(view.validate());
-
-    }
-
-    @Test
-    public void shouldFailValidationBySharingGroupsAcrossEntitiesAndEdges() {
-        //Given
-        List<String> entityGroups = new ArrayList<>();
-        List<String> edgeGroups = new ArrayList<>();
-
-        entityGroups.add("FailureElement");
-        edgeGroups.add("FailureElement");
-
-        //When
-        View view = new View(entityGroups, edgeGroups);
-
-        //Then
-        assertFalse(view.validate());
+        assertTrue(view.getEntityGroups().containsAll(entityGroups));
+        assertEquals(entityGroups.size(), view.getEntityGroups().size());
+        assertTrue(view.getEdgeGroups().containsAll(edgeGroups));
+        assertEquals(edgeGroups.size(), view.getEdgeGroups().size());
     }
 
     @Test
     public void shouldBuildView() {
         // Given
-        final ViewEdgeDefinition edgeDef1 = mock(ViewEdgeDefinition.class);
-        final ViewEdgeDefinition edgeDef2 = mock(ViewEdgeDefinition.class);
-        final ViewEntityDefinition entityDef1 = mock(ViewEntityDefinition.class);
-        final ViewEntityDefinition entityDef2 = mock(ViewEntityDefinition.class);
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+        final ViewElementDefinition edgeDef2 = new ViewElementDefinition();
+        final ViewElementDefinition entityDef1 = new ViewElementDefinition();
+        final ViewElementDefinition entityDef2 = new ViewElementDefinition();
 
         // When
         final View view = new View.Builder()
@@ -101,5 +93,112 @@ public class ViewTest {
         assertEquals(2, view.getEntities().size());
         assertSame(entityDef1, view.getEntity(TestGroups.ENTITY));
         assertSame(entityDef2, view.getEntity(TestGroups.ENTITY_2));
+    }
+
+    @Test
+    public void shouldSerialiseToJson() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .transientProperty(TestPropertyNames.PROP_3, String.class)
+                        .transformer(new ElementTransformer.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .project(TestPropertyNames.PROP_3)
+                                .execute(new ExampleTransformFunction())
+                                .build())
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .filter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        byte[] json = view.toJson(true);
+
+        // Then
+        assertEquals("{\n" +
+                "  \"edges\" : {\n" +
+                "    \"BasicEdge\" : {\n" +
+                "      \"transientProperties\" : {\n" +
+                "        \"property3\" : \"java.lang.String\"\n" +
+                "      },\n" +
+                "      \"transformFunctions\" : [ {\n" +
+                "        \"function\" : {\n" +
+                "          \"class\" : \"gaffer.function.ExampleTransformFunction\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ {\n" +
+                "          \"key\" : \"property1\"\n" +
+                "        }, {\n" +
+                "          \"key\" : \"property2\"\n" +
+                "        } ],\n" +
+                "        \"projection\" : [ {\n" +
+                "          \"key\" : \"property3\"\n" +
+                "        } ]\n" +
+                "      } ]\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"entities\" : {\n" +
+                "    \"BasicEntity\" : {\n" +
+                "      \"filterFunctions\" : [ {\n" +
+                "        \"function\" : {\n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ {\n" +
+                "          \"key\" : \"property1\"\n" +
+                "        } ]\n" +
+                "      } ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "}", new String(json));
+    }
+
+    @Test
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .transientProperty(TestPropertyNames.PROP_3, String.class)
+                        .transformer(new ElementTransformer.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .project(TestPropertyNames.PROP_3)
+                                .execute(new ExampleTransformFunction())
+                                .build())
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .filter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        byte[] json = view.toJson(true);
+        final View deserialisedView = View.fromJson(json);
+
+        // Then
+        assertEquals(1, deserialisedView.getEntityGroups().size());
+        final ViewElementDefinition entityDef = deserialisedView.getEntity(TestGroups.ENTITY);
+        assertTrue(entityDef.getTransientProperties().isEmpty());
+        assertNull(entityDef.getTransformer());
+        assertEquals(1, entityDef.getFilter().getFunctions().size());
+        assertTrue(entityDef.getFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, entityDef.getFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(TestPropertyNames.PROP_1, entityDef.getFilter().getFunctions().get(0).getSelection().get(0).getPropertyName());
+
+        final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
+        assertEquals(1, edgeDef.getTransientProperties().size());
+        assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
+        assertNull(edgeDef.getFilter());
+        assertEquals(1, edgeDef.getTransformer().getFunctions().size());
+        assertTrue(edgeDef.getTransformer().getFunctions().get(0).getFunction() instanceof ExampleTransformFunction);
+        assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().size());
+        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(1).getPropertyName());
+        assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().size());
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection().get(0).getPropertyName());
     }
 }

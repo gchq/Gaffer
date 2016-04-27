@@ -18,8 +18,7 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import gaffer.data.elementdefinition.schema.DataSchema;
-
+import gaffer.store.schema.Schema;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,16 +27,16 @@ import java.util.List;
 
 /**
  * An <code>IGraphConfigurationService</code> has methods to get {@link gaffer.graph.Graph} configuration information
- * such as the {@link gaffer.data.elementdefinition.schema.DataSchema} and available {@link gaffer.operation.Operation}s.
+ * such as the {@link Schema} and available {@link gaffer.operation.Operation}s.
  */
 @Path("/graph")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/graph", description = "Methods to get graph configuration information.")
 public interface IGraphConfigurationService {
     @GET
-    @Path("/dataSchema")
-    @ApiOperation(value = "Gets the data schema", response = Class.class, responseContainer = "list")
-    DataSchema getDataSchema();
+    @Path("/schema")
+    @ApiOperation(value = "Gets the schema", response = Class.class, responseContainer = "list")
+    Schema getSchema();
 
     @GET
     @Path("/filterFunctions")

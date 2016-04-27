@@ -28,8 +28,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewEdgeDefinition;
-import gaffer.data.elementdefinition.view.ViewEntityDefinition;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -59,7 +57,10 @@ public class AggregatorIteratorTest {
         byteEntityStore.getProperties().setTable("Test");
         gaffer1KeyStore.getProperties().setTable("Test2");
 
-        defaultView = new View.Builder().edge(TestGroups.EDGE, new ViewEdgeDefinition()).entity(TestGroups.ENTITY, new ViewEntityDefinition()).build();
+        defaultView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .build();
     }
 
     @AfterClass
@@ -85,10 +86,10 @@ public class AggregatorIteratorTest {
         expectedResult.putProperty(AccumuloPropertyNames.COUNT, 13);
         expectedResult.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedResult.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
-        expectedResult.putProperty(AccumuloPropertyNames.F1, 0);
-        expectedResult.putProperty(AccumuloPropertyNames.F2, 0);
-        expectedResult.putProperty(AccumuloPropertyNames.F3, 1);
-        expectedResult.putProperty(AccumuloPropertyNames.F4, 1);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_3, 1);
+        expectedResult.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
         Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource("1");
@@ -97,7 +98,7 @@ public class AggregatorIteratorTest {
         edge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge1.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
-        edge1.putProperty(AccumuloPropertyNames.F3, 1);
+        edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
 
         Edge edge2 = new Edge(TestGroups.EDGE);
         edge2.setSource("1");
@@ -106,7 +107,7 @@ public class AggregatorIteratorTest {
         edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge2.putProperty(AccumuloPropertyNames.COUNT, 2);
-        edge2.putProperty(AccumuloPropertyNames.F4, 1);
+        edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
         Edge edge3 = new Edge(TestGroups.EDGE);
         edge3.setSource("1");
