@@ -27,11 +27,11 @@ import org.apache.hadoop.util.Tool;
 public class ImportElementsToAccumulo extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 0;
 
-    private final Path inputPath;
-    private final Path failurePath;
+    private final String inputPath;
+    private final String failurePath;
     private final AccumuloStore store;
 
-    public ImportElementsToAccumulo(final Path inputPath, final Path failurePath, final AccumuloStore store) {
+    public ImportElementsToAccumulo(final String inputPath, final String failurePath, final AccumuloStore store) {
         this.inputPath = inputPath;
         this.failurePath = failurePath;
         this.store = store;
@@ -46,14 +46,14 @@ public class ImportElementsToAccumulo extends Configured implements Tool {
         final FileSystem fs = FileSystem.get(conf);
 
         // Remove the _SUCCESS file to prevent warning in accumulo
-        fs.delete(new Path(inputPath.toString() + "/_SUCCESS"), false);
+        fs.delete(new Path(inputPath + "/_SUCCESS"), false);
 
         // Set all permissions
-        IngestUtils.setDirectoryPermsForAccumulo(fs, failurePath);
+        IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
 
         // Import the files
-        store.getConnection().tableOperations().importDirectory(store.getProperties().getTable(), inputPath.toString(),
-                failurePath.toString(), false);
+        store.getConnection().tableOperations().importDirectory(store.getProperties().getTable(), inputPath,
+                failurePath, false);
 
         return SUCCESS_RESPONSE;
     }

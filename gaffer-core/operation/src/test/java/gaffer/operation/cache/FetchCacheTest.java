@@ -16,6 +16,7 @@
 
 package gaffer.operation.cache;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import gaffer.exception.SerialisationException;
@@ -40,5 +41,12 @@ public class FetchCacheTest implements OperationTest {
 
         // Then
         assertNotNull(deserialisedOp);
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        FetchCache fetchCache = new FetchCache.Builder().option("testOption", "true").build();
+        assertEquals("true", fetchCache.getOption("testOption"));
     }
 }

@@ -99,5 +99,10 @@ public class GetAllEdges extends GetAllElements<Edge> {
             super.option(name, value);
             return this;
         }
+
+        @Override
+        public GetAllEdges build() {
+            return (GetAllEdges) super.build();
+        }
     }
 }

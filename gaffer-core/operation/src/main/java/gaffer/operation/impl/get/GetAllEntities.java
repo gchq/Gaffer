@@ -102,5 +102,10 @@ public class GetAllEntities extends GetAllElements<Entity> {
             super.option(name, value);
             return this;
         }
+
+        @Override
+        public GetAllEntities build() {
+            return (GetAllEntities) super.build();
+        }
     }
 }

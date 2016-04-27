@@ -19,6 +19,7 @@ package gaffer.accumulostore.operation.impl;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 
@@ -71,46 +72,41 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
         }
     }
 
-    public static class Builder<OP_TYPE extends GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE extends Pair<? extends ElementSeed>>
-            extends GetElementsInRanges.Builder<OP_TYPE, SEED_TYPE, Entity> {
+    public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>>
+            extends AbstractGetOperation.Builder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, Entity> {
 
-        public Builder(final OP_TYPE op) {
-            super(op);
+        public Builder() {
+            super(new GetEntitiesInRanges());
         }
 
         @Override
-        public Builder<OP_TYPE, SEED_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.inOutType(inOutType);
+        public Builder<SEED_TYPE> summarise(final boolean summarise) {
+            return (Builder<SEED_TYPE>) super.summarise(summarise);
         }
 
         @Override
-        public Builder<OP_TYPE, SEED_TYPE> summarise(final boolean summarise) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.summarise(summarise);
+        public Builder<SEED_TYPE> populateProperties(final boolean populateProperties) {
+            return (Builder<SEED_TYPE>) super.populateProperties(populateProperties);
         }
 
         @Override
-        public Builder<OP_TYPE, SEED_TYPE> populateProperties(final boolean populateProperties) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.populateProperties(populateProperties);
+        public Builder<SEED_TYPE> view(final View view) {
+            return (Builder<SEED_TYPE>) super.view(view);
         }
 
         @Override
-        public Builder<OP_TYPE, SEED_TYPE> view(final View view) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.view(view);
+        public Builder<SEED_TYPE> option(final String name, final String value) {
+            return (Builder<SEED_TYPE>) super.option(name, value);
         }
 
         @Override
-        public Builder<OP_TYPE, SEED_TYPE> option(final String name, final String value) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.option(name, value);
+        public Builder<SEED_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
+            return (Builder<SEED_TYPE>) super.seeds(newSeeds);
         }
 
         @Override
-        public Builder<OP_TYPE, SEED_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.seeds(newSeeds);
-        }
-
-        @Override
-        public Builder<OP_TYPE, SEED_TYPE> addSeed(final SEED_TYPE seed) {
-            return (Builder<OP_TYPE, SEED_TYPE>) super.addSeed(seed);
+        public Builder<SEED_TYPE> addSeed(final SEED_TYPE seed) {
+            return (Builder<SEED_TYPE>) super.addSeed(seed);
         }
     }
 }

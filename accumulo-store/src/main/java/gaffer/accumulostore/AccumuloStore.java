@@ -32,6 +32,12 @@ import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
+import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
+import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
+import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
+import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -136,6 +142,9 @@ public class AccumuloStore extends Store {
         addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
+        addOperationHandler(SplitTable.class, new SplitTableHandler());
+        addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
+        addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
     }
 
     @Override

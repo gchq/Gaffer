@@ -42,4 +42,12 @@ public class UpdateCacheTest implements OperationTest {
         // Then
         assertEquals(key, deserialisedOp.getKey());
     }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        UpdateCache updateCache = new UpdateCache.Builder().key("test").option("testOption", "true").build();
+        assertEquals("test", updateCache.getKey());
+        assertEquals("true", updateCache.getOption("testOption"));
+    }
 }

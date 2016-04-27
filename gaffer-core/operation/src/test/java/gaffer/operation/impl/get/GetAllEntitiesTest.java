@@ -16,8 +16,13 @@
 
 package gaffer.operation.impl.get;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import gaffer.commonutil.TestGroups;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
@@ -39,5 +44,24 @@ public class GetAllEntitiesTest implements OperationTest {
 
         // Then
         assertNotNull(deserialisedOp);
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetAllEntities getAllEntities = new GetAllEntities.Builder()
+                .option("testOption", "true")
+                .populateProperties(false)
+                .summarise(true)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        assertTrue(getAllEntities.isSummarise());
+        assertFalse(getAllEntities.isPopulateProperties());
+        assertEquals("true", getAllEntities.getOption("testOption"));
+        assertTrue(getAllEntities.isSummarise());
+        assertNotNull(getAllEntities.getView().getEntity(TestGroups.ENTITY));
     }
 }

@@ -16,10 +16,17 @@
 
 package gaffer.operation.impl.get;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import gaffer.commonutil.TestGroups;
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
 
@@ -39,5 +46,28 @@ public class GetAllElementsTest implements OperationTest {
 
         // Then
         assertNotNull(deserialisedOp);
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .includeEntities(false)
+                .option("testOption", "true")
+                .populateProperties(false)
+                .summarise(true)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        assertFalse(getAllElements.isIncludeEntities());
+        assertTrue(getAllElements.isSummarise());
+        assertFalse(getAllElements.isPopulateProperties());
+        assertEquals(GetOperation.IncludeEdgeType.ALL, getAllElements.getIncludeEdges());
+        assertEquals("true", getAllElements.getOption("testOption"));
+        assertTrue(getAllElements.isSummarise());
+        assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 }

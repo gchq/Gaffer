@@ -1,0 +1,10 @@
+{
+  "types": {
+    "count.int": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    }
+  }
+}

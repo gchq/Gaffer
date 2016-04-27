@@ -63,6 +63,15 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <!-- Test dependencies-->
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>operation</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
