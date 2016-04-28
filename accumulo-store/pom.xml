@@ -23,7 +23,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.3</version>
+        <version>0.3.4</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -70,6 +70,14 @@
             <groupId>gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>gaffer-integration-tests</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
         <!-- External libraries -->

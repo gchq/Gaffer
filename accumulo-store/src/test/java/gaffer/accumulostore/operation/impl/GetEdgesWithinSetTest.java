@@ -1,5 +1,6 @@
 package gaffer.accumulostore.operation.impl;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
@@ -60,5 +61,17 @@ public class GetEdgesWithinSetTest implements OperationTest {
         assertEquals(seed3, itrSeedsA.next());
         assertEquals(seed4, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).addSeed(new EntitySeed("A")).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertTrue(getEdgesWithinSet.isSummarise());
+        assertFalse(getEdgesWithinSet.isPopulateProperties());
+        assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesWithinSet.getIncludeEdges());
+        assertEquals("true", getEdgesWithinSet.getOption("testOption"));
+        assertEquals(new EntitySeed("A"), getEdgesWithinSet.getSeeds().iterator().next());
+        assertNotNull(getEdgesWithinSet.getView());
     }
 }

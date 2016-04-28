@@ -80,4 +80,9 @@ public class AbstractGetOperationTest implements OperationTest {
         assertNotNull(deserialisedOp);
         assertEquals(identifier, ((EntitySeed) deserialisedOp.getInput().iterator().next()).getVertex());
     }
+
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        //GetOperationImpl is a test object and has no builder.
+    }
 }

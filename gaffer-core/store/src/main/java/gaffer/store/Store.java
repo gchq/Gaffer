@@ -16,6 +16,8 @@
 
 package gaffer.store;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
@@ -24,10 +26,14 @@ import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
+import gaffer.operation.cache.CacheOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
+import gaffer.operation.impl.cache.FetchCache;
+import gaffer.operation.impl.cache.FetchCachedResult;
+import gaffer.operation.impl.cache.UpdateCache;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -137,27 +143,22 @@ public abstract class Store {
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
         final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
-
         if (!opsItr.hasNext()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
 
+        final Map<String, Iterable<?>> cache = new HashMap<>();
         Object result = null;
         Operation op = opsItr.next();
         while (null != op) {
-            result = handleOperation(op);
+            if (op instanceof CacheOperation) {
+                result = handleCacheOperation(op, cache);
+            } else {
+                result = handleOperation(op);
+            }
 
-            // Setup next operation seeds
             if (opsItr.hasNext()) {
-                op = opsItr.next();
-                if (null != result && null == op.getInput()) {
-                    try {
-                        op.setInput(result);
-                    } catch (final ClassCastException e) {
-                        throw new UnsupportedOperationException("Operation chain is not compatible. "
-                                + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
-                    }
-                }
+                op = updateOperationInput(opsItr.next(), result);
             } else {
                 op = null;
             }
@@ -207,6 +208,32 @@ public abstract class Store {
      */
     public StoreProperties getProperties() {
         return properties;
+    }
+
+    protected Iterable<?> updateCache(final UpdateCache updateCache, final Map<String, Iterable<?>> cache) {
+        final Iterable<?> input = updateCache.getInput() instanceof Collection
+                ? ((Collection<Object>) updateCache.getInput())
+                : Lists.newArrayList(updateCache.getInput());
+
+        final Collection cacheList = (Collection) cache.get(updateCache.getKey());
+        if (null == cacheList) {
+            cache.put(updateCache.getKey(), input);
+        } else {
+            Iterables.addAll(cacheList, input);
+        }
+        return input;
+    }
+
+    protected Operation updateOperationInput(final Operation op, final Object result) {
+        if (null != result && null == op.getInput()) {
+            try {
+                op.setInput(result);
+            } catch (final ClassCastException e) {
+                throw new UnsupportedOperationException("Operation chain is not compatible. "
+                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
+            }
+        }
+        return op;
     }
 
     /**
@@ -315,6 +342,21 @@ public abstract class Store {
         }
 
         return result;
+    }
+
+    private <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleCacheOperation(final OPERATION op, final Map<String, Iterable<?>> cache) {
+        final Object result;
+        if (op instanceof UpdateCache) {
+            result = updateCache((UpdateCache) op, cache);
+        } else if (op instanceof FetchCache) {
+            result = cache;
+        } else if (op instanceof FetchCachedResult) {
+            result = cache.get(((FetchCachedResult) op).getKey());
+        } else {
+            result = doUnhandledOperation(op);
+        }
+
+        return (OUTPUT) result;
     }
 
     private void addOpHandlers() {

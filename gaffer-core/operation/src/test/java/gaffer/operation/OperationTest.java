@@ -22,5 +22,8 @@ import org.junit.Test;
 public interface OperationTest {
     @Test
     void shouldSerialiseAndDeserialiseOperation() throws SerialisationException;
+
+    @Test
+    void builderShouldCreatePopulatedOperation();
 }
 
