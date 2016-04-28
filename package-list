@@ -46,10 +46,12 @@ gaffer.function.simple.types
 gaffer.graph
 gaffer.jsonserialisation
 gaffer.operation
+gaffer.operation.cache
 gaffer.operation.data
 gaffer.operation.data.generator
 gaffer.operation.impl
 gaffer.operation.impl.add
+gaffer.operation.impl.cache
 gaffer.operation.impl.generate
 gaffer.operation.impl.get
 gaffer.operation.simple.hdfs
