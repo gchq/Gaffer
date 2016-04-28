@@ -7,18 +7,12 @@
    Instructions are available on the Docker GitHub  
    (see link [DockerGitHub](https://docs.docker.com/engine/installation/linux/centos/) )
 
-3. Pull the official centos6.7 from the Docker git hub - command must be run on Docker host
+3. X11 package on host machine
 
-   ```$ docker pull centos:centos6.7```
-
-   ```$ docker images```
-   
-4. X11 package on host machine
-
-5. Deployment of the Gaffer Dockerfile tar files if gaffer-docker is not available via GitHub
+4. Deployment of the Gaffer Dockerfile tar files if gaffer-docker is not available via GitHub
    ( gaffer-docker-base.tgz, gaffer-docker-gaffer.tgz,  gaffer-docker-hadoop.tgz gaffer-docker-accumulo.tgz )
 
-6. Swappiness needs to be set to 0 and IPV6 needs to be disabled on the Docker Host/Client
+5. Swappiness needs to be set to 0 and IPV6 needs to be disabled on the Docker Host/Client
 
 # Deployment of Gaffer Dockerfile tar files
  This step is only required if gaffer-docker is not available on GitHub
@@ -33,7 +27,7 @@
 
    ```$ chown <name of user with privileges to run docker>:< user group> /gaffer-docker/centos6```
    
-7. Copy the tar files to /gaffer-docker/centos6 and extract files to this directory
+6. Copy the tar files to /gaffer-docker/centos6 and extract files to this directory
    
    ```$ chown <name of user with privileges to run docker>:< user group> *.tgz```
 
@@ -56,7 +50,7 @@
 ## Building Gaffer Docker Containers 
    
    
-8. Create the base image
+7. Create the base image
    
    ```$ cd /gaffer-docker/centos6/base```
 
@@ -70,7 +64,7 @@
    
   ```$ docker stop gaffer-base```
 
-9. Create the gaffer data volume image
+8. Create the gaffer data volume image
    
    ```$ cd /gaffer-docker/centos6/gaffer```
 
@@ -84,7 +78,7 @@
    
    ```$ docker stop gaffer-data-volume```
    
-10. Create the hadoop image
+9. Create the hadoop image
    
    ```$ cd /gaffer-docker/centos6/hadoop```
 
@@ -119,7 +113,7 @@
    
    ```$ docker stop gaffer-hadoop```
    
-11. Create the Accumulo image
+10. Create the Accumulo image
    
    **Pre-requisites**
    
@@ -157,7 +151,7 @@
 ## Start accumulo services
   
   
-12. Connect to the gaffer-accumulo container as the hduser and run the command below:
+11. Connect to the gaffer-accumulo container as the hduser and run the command below:
   
     ```$ /home/hduser/start-accumulo.sh```
   

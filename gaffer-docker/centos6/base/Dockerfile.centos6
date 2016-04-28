@@ -6,10 +6,8 @@
 
 
 # The official docker centos 6.7 base image is pulled from docker github
-# and committed locally to an image stored on the repository/filesystem
-# The locally stored image is called gaffer-docker/centos:centos 6.7
 
-FROM gaffer-docker/centos6:centos6.7
+FROM centos:centos6.7
 
 # Name of the developer
 
@@ -19,8 +17,8 @@ MAINTAINER ng10developer
 
 LABEL com.gaffer-docker.version.is-beta="yes" \
       com.gaffer-docker.version.is-production="no" \
-      com.gaffer-docker.version="0.0.2-beta" \
-      com.gaffer-docker.release-date="2016-04-27" \
+      com.gaffer-docker.version="0.0.3-beta" \
+      com.gaffer-docker.release-date="2016-04-28" \
       com.gaffer-docker.description="Centos 6.7 and additional packages required for installation of hadoop"
 # Additional centos packages required for Hadoop, Accumulo and Gaffer to run
 
