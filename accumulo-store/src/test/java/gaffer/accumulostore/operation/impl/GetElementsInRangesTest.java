@@ -3,8 +3,10 @@ package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
@@ -13,8 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class GetElementsInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -40,5 +41,29 @@ public class GetElementsInRangesTest implements OperationTest {
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
 
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
+        GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder<>()
+                .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
+                .addSeed(seed)
+                .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
+                .includeEntities(false)
+                .option("testOption", "true")
+                .populateProperties(true)
+                .summarise(true)
+                .view(new View.Builder().edge("testEdgeGroup").build())
+                .build();
+        assertEquals("true", getElementsInRanges.getOption("testOption"));
+        assertFalse(getElementsInRanges.isIncludeEntities());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
+        assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsInRanges.getIncludeEdges());
+        assertTrue(getElementsInRanges.isPopulateProperties());
+        assertTrue(getElementsInRanges.isSummarise());
+        assertEquals(seed, getElementsInRanges.getInput().iterator().next());
+        assertNotNull(getElementsInRanges.getView());
     }
 }

@@ -19,6 +19,7 @@ package gaffer.operation.impl.generate;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.data.generator.ElementGeneratorImpl;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -26,9 +27,11 @@ import gaffer.operation.OperationTest;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -78,5 +81,16 @@ public class GenerateObjectsTest implements OperationTest {
         assertFalse(itr.hasNext());
 
         assertTrue(deserialisedOp.getElementGenerator() instanceof ElementGeneratorImpl);
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        Element entity = new Entity("testEntityGroup", "A");
+        GenerateObjects generateObjects = new GenerateObjects.Builder<Element, String>().elements(Arrays.asList(entity)).generator(new ElementGeneratorImpl()).option("testOption", "true").view(new View.Builder().edge("testEntityGroup").build()).build();
+        assertEquals(entity, generateObjects.getElements().iterator().next());
+        assertEquals(ElementGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
+        assertEquals("true", generateObjects.getOption("testOption"));
+        assertNotNull(generateObjects.getView());
     }
 }

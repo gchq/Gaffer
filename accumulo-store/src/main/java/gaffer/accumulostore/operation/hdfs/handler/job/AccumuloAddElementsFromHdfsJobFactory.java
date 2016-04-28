@@ -72,7 +72,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupOutput(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
-        FileOutputFormat.setOutputPath(job, operation.getOutputPath());
+        FileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
     }
 
     private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -62,32 +63,32 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties(StoreImpl.class);
         final Schema schemaModule1 = new Schema.Builder()
-                .type("prop.string", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .build())
                 .buildModule();
 
         final Schema schemaModule2 = new Schema.Builder()
-                .type("prop.integer", new TypeDefinition.Builder()
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .build())
                 .buildModule();
 
         final Schema schemaModule3 = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .build())
                 .buildModule();
 
         final Schema schemaModule4 = new Schema.Builder()
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .build())
                 .buildModule();
 

@@ -18,16 +18,17 @@ package gaffer.accumulostore.operation.impl;
 
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 
 /**
  * Returns {@link gaffer.data.element.Edge}s where both ends are in a given set.
- *
  **/
 public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
 
-    public GetEdgesWithinSet() { }
+    public GetEdgesWithinSet() {
+    }
 
     public GetEdgesWithinSet(final Iterable<EntitySeed> seeds) {
         super(seeds);
@@ -66,12 +67,44 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
         }
     }
 
-    public static class Builder<OP_TYPE extends GetEdgesWithinSet> extends GetElementsWithinSet.Builder<OP_TYPE, Edge> {
-
-        protected Builder(final OP_TYPE op) {
-            super(op);
+    public static class Builder extends AbstractGetOperation.Builder<GetEdgesWithinSet, EntitySeed, Edge> {
+        public Builder() {
+            super(new GetEdgesWithinSet());
         }
 
-    }
+        @Override
+        public Builder summarise(final boolean summarise) {
+            return (Builder) super.summarise(summarise);
+        }
 
+        @Override
+        public Builder populateProperties(final boolean populateProperties) {
+            return (Builder) super.populateProperties(populateProperties);
+        }
+
+        @Override
+        public Builder view(final View view) {
+            return (Builder) super.view(view);
+        }
+
+        @Override
+        public Builder option(final String name, final String value) {
+            return (Builder) super.option(name, value);
+        }
+
+        @Override
+        public Builder seeds(final Iterable<EntitySeed> newSeeds) {
+            return (Builder) super.seeds(newSeeds);
+        }
+
+        @Override
+        public Builder addSeed(final EntitySeed seed) {
+            return (Builder) super.addSeed(seed);
+        }
+
+        @Override
+        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
+            return (Builder) super.includeEdges(includeEdgeType);
+        }
+    }
 }
