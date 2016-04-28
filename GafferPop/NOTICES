@@ -1,0 +1,12 @@
+Copyright 2016 Crown Copyright
+
+GafferPop was originally based on several classes from TinkerGraph. These classes were copied and adjusted to integrate with Gaffer.
+
+Gaffer (gaffer:gaffer2:0.3.3):
+
+- Apache License, Version 2.0
+
+
+TinkerPop (org.apache.tinkerpop:gremlin-core,gremlin-groovy,gremlin-driver:3.1.1-incubating):
+
+- Apache License, Version 2.0
