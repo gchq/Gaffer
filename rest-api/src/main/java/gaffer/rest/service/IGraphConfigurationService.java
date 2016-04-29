@@ -18,8 +18,10 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import gaffer.operation.Operation;
 import gaffer.store.schema.Schema;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -57,4 +59,15 @@ public interface IGraphConfigurationService {
     @Path("/generators")
     @ApiOperation(value = "Gets available generators", response = Class.class, responseContainer = "list")
     List<Class> getGenerators();
+
+    @GET
+    @Path("/supportedOperations")
+    @ApiOperation(value = "Gets all operations supported by the store", response = Class.class, responseContainer = "list")
+    List<Class<? extends Operation>> getSupportedOperations();
+
+    @POST
+    @Path("/isOperationSupported")
+    @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",
+            response = Boolean.class)
+    Boolean isOperationSupported(final Class<? extends Operation> operation);
 }

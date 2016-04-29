@@ -16,17 +16,22 @@
 
 package gaffer.rest.service;
 
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.graph.Graph;
+import gaffer.operation.Operation;
+import gaffer.operation.impl.add.AddElements;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
 import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -40,7 +45,11 @@ public class SimpleGraphConfigurationServiceTest {
         final Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
+        final Collection<Class<? extends Operation>> operations = new LinkedList<>();
+        operations.add(AddElements.class);
         given(graphFactory.getGraph()).willReturn(graph);
+        given(graph.getSupportedOperations()).willReturn(operations);
+        given(graph.isSupported(AddElements.class)).willReturn(true);
 
         service = new SimpleGraphConfigurationService(graphFactory);
     }
@@ -79,5 +88,26 @@ public class SimpleGraphConfigurationServiceTest {
 
         // Then
         assertTrue(classes.size() > 0);
+    }
+
+    @Test
+    public void shouldGetAllAvailableOperations() throws IOException {
+        // When
+        final List<Class<? extends Operation>> supportedOperations = service.getSupportedOperations();
+
+        // Then
+        assertTrue(supportedOperations.size() > 0);
+        assertEquals(1, supportedOperations.size());
+    }
+
+    @Test
+    public void shouldValidateWhetherOperationIsSupported() throws IOException {
+        // When
+        final List<Class<? extends Operation>> supportedOperations = service.getSupportedOperations();
+
+        for (final Class<? extends Operation> operationClass : supportedOperations) {
+            // Then
+            assertTrue(service.isOperationSupported(operationClass));
+        }
     }
 }

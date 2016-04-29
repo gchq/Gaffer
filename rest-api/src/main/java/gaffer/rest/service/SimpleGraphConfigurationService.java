@@ -89,6 +89,16 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
         return GENERATORS;
     }
 
+    @Override
+    public List<Class<? extends Operation>> getSupportedOperations() {
+        return (List) graphFactory.getGraph().getSupportedOperations();
+    }
+
+    @Override
+    public Boolean isOperationSupported(final Class<? extends Operation> operation) {
+        return graphFactory.getGraph().isSupported(operation);
+    }
+
     private static List<Class> getSubClasses(final Class<?> clazz) {
         final Set<URL> urls = new HashSet<>();
         for (String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT).split(",")) {
