@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -104,6 +105,21 @@ public final class Graph {
         }
 
         return store.execute(operationChain);
+    }
+
+    /**
+     * @param operationClass the operation class to check
+     * @return true if the provided operation is supported.
+     */
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        return store.isSupported(operationClass);
+    }
+
+    /**
+     * @return a collection of all the supported {@link Operation}s.
+     */
+    public Collection<Class<? extends Operation>> getSupportedOperations() {
+        return store.getSupportedOperations();
     }
 
     /**

@@ -54,14 +54,15 @@ import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.ViewValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A <code>Store</code> backs a Graph and is responsible for storing the {@link gaffer.data.element.Element}s and
@@ -165,6 +166,22 @@ public abstract class Store {
         }
 
         return (OUTPUT) result;
+    }
+
+    /**
+     * @param operationClass the operation class to check
+     * @return true if the provided operation is supported.
+     */
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        final OperationHandler operationHandler = operationHandlers.get(operationClass);
+        return operationHandler != null;
+    }
+
+    /**
+     * @return a collection of all the supported {@link Operation}s.
+     */
+    public Collection<Class<? extends Operation>> getSupportedOperations() {
+        return operationHandlers.keySet();
     }
 
     /**
