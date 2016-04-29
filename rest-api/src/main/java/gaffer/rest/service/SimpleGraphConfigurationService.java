@@ -47,7 +47,6 @@ import java.util.Set;
 public class SimpleGraphConfigurationService implements IGraphConfigurationService {
     private static final List<Class> FILTER_FUNCTIONS = getSubClasses(FilterFunction.class);
     private static final List<Class> TRANSFORM_FUNCTIONS = getSubClasses(TransformFunction.class);
-    private static final List<Class> OPERATIONS = getSubClasses(Operation.class);
     private static final List<Class> GENERATORS = getSubClasses(ElementGenerator.class);
 
     private final GraphFactory graphFactory;
@@ -80,17 +79,12 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public List<Class> getOperations() {
-        return OPERATIONS;
-    }
-
-    @Override
     public List<Class> getGenerators() {
         return GENERATORS;
     }
 
     @Override
-    public List<Class<? extends Operation>> getSupportedOperations() {
+    public List<Class<? extends Operation>> getOperations() {
         return (List) graphFactory.getGraph().getSupportedOperations();
     }
 

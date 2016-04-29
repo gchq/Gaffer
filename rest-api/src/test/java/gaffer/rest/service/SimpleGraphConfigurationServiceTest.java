@@ -73,15 +73,6 @@ public class SimpleGraphConfigurationServiceTest {
     }
 
     @Test
-    public void shouldGetOperations() throws IOException {
-        // When
-        final List<Class> classes = service.getOperations();
-
-        // Then
-        assertTrue(classes.size() > 0);
-    }
-
-    @Test
     public void shouldGetGenerators() throws IOException {
         // When
         final List<Class> classes = service.getGenerators();
@@ -93,7 +84,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetAllAvailableOperations() throws IOException {
         // When
-        final List<Class<? extends Operation>> supportedOperations = service.getSupportedOperations();
+        final List<Class<? extends Operation>> supportedOperations = service.getOperations();
 
         // Then
         assertTrue(supportedOperations.size() > 0);
@@ -103,7 +94,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldValidateWhetherOperationIsSupported() throws IOException {
         // When
-        final List<Class<? extends Operation>> supportedOperations = service.getSupportedOperations();
+        final List<Class<? extends Operation>> supportedOperations = service.getOperations();
 
         for (final Class<? extends Operation> operationClass : supportedOperations) {
             // Then

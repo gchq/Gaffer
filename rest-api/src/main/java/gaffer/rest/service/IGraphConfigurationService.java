@@ -51,19 +51,14 @@ public interface IGraphConfigurationService {
     List<Class> getTransformFunctions();
 
     @GET
-    @Path("/operations")
-    @ApiOperation(value = "Gets available operations", response = Class.class, responseContainer = "list")
-    List<Class> getOperations();
-
-    @GET
     @Path("/generators")
     @ApiOperation(value = "Gets available generators", response = Class.class, responseContainer = "list")
     List<Class> getGenerators();
 
     @GET
-    @Path("/supportedOperations")
+    @Path("/operations")
     @ApiOperation(value = "Gets all operations supported by the store", response = Class.class, responseContainer = "list")
-    List<Class<? extends Operation>> getSupportedOperations();
+    List<Class<? extends Operation>> getOperations();
 
     @POST
     @Path("/isOperationSupported")
