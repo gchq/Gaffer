@@ -48,7 +48,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                                                                     final boolean endKey) throws RangeFactoryException {
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
-                : ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE;
+                : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
             sourceValue = ByteArrayEscapeUtils.escape((vertexSerialiser.serialise(seed.getSource())));
@@ -235,19 +235,18 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         if (endKey) {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
             key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-            key[serialisedVertex.length + 1] = ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE;
         } else {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
-            key[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE;
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
+        key[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
     private Pair<Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
         final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE;
+        endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
         endKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
         final byte[] startKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         startKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;

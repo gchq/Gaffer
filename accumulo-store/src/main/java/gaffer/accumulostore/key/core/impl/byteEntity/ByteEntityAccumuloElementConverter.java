@@ -82,8 +82,8 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
             directionFlag1 = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
             directionFlag2 = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
         } else {
-            directionFlag1 = ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE;
+            directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
+            directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
         }
         final byte[] source = getSerialisedSource(edge);
         final byte[] destination = getSerialisedDestination(edge);
@@ -159,21 +159,10 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         } catch (final NumberFormatException e) {
             throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
         }
-        if (directionFlag == ByteEntityPositions.CORRECT_WAY_UNDIRECTED_EDGE) {
-            // Edge is undirected and the first identifier is the source of the edge
+        if (directionFlag == ByteEntityPositions.UNDIRECTED_EDGE) {
+            // Edge is undirected
             sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
             sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_UNDIRECTED_EDGE) {
-            // Edge is undirected and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
             return false;
         } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the first identifier is the source of the edge

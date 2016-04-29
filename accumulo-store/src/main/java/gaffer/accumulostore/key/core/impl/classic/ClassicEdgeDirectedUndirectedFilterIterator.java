@@ -15,35 +15,40 @@
  */
 package gaffer.accumulostore.key.core.impl.classic;
 
-import java.io.IOException;
-import java.util.Map;
-
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import gaffer.accumulostore.utils.ByteUtils;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Map;
 
 public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassicEdgeDirectedUndirectedFilterIterator.class);
+
+    // This converter does not have the schema so not all converter methods can be used.
+    private ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(null);
 
     private boolean unDirectedEdges = false;
     private boolean directedEdges = false;
     private boolean entities = false;
     private boolean incomingEdges = false;
     private boolean outgoingEdges = false;
-    private static final byte UNDIRECTED = (byte) 1;
-    private static final byte DIRECTED_SOURCE_FIRST = (byte) 2;
-    private static final byte DIRECTED_DESTINATION_FIRST = (byte) 3;
+    private boolean correctWayEdges = false;
 
     @Override
     public boolean accept(final Key key, final Value value) {
         final byte[] rowID = key.getRowData().getBackingArray();
+        final byte flag = rowID[rowID.length - 1];
         if (!entities) {
-            return checkEdge(rowID);
+            return checkEdge(flag, key);
         } else {
             boolean foundDelimiter = false;
             for (final byte aRowID : rowID) {
@@ -52,28 +57,66 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
                     break;
                 }
             }
-            return !foundDelimiter || checkEdge(rowID);
+            return !foundDelimiter || checkEdge(flag, key);
         }
     }
 
-    private boolean checkEdge(final byte[] rowID) {
-        final byte flag = rowID[rowID.length - 1];
+    private boolean checkEdge(final byte flag, final Key key) {
+        final boolean isUndirected = flag == ClassicBytePositions.UNDIRECTED_EDGE;
         if (unDirectedEdges) {
-            return flag == UNDIRECTED;
-        } else if (directedEdges) {
-            return flag != UNDIRECTED && checkDirection(flag);
-        } else {
-            return checkDirection(flag);
+            // Only undirected edges
+            if (isUndirected) {
+                if (correctWayEdges) {
+                    return isCorrectWayUndirectedEdge(key);
+                }
+                return true;
+            }
+            return false;
         }
+
+        if (directedEdges) {
+            // Only directed edges
+            if (!isUndirected) {
+                if (correctWayEdges) {
+                    return ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE == flag;
+                }
+                return checkDirection(flag);
+            }
+            return false;
+        }
+
+        // All edge types
+        if (correctWayEdges) {
+            if (isUndirected) {
+                return isCorrectWayUndirectedEdge(key);
+            }
+
+            return ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE == flag;
+        }
+
+        return checkDirection(flag);
+    }
+
+    private boolean isCorrectWayUndirectedEdge(final Key key) {
+        boolean isCorrect = false;
+        try {
+            final byte[][] sourceDestValues = new byte[3][];
+            converter.getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), sourceDestValues, null);
+            isCorrect = ByteUtils.compareBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;
+        } catch (AccumuloElementConversionException e) {
+            LOGGER.warn(e.getMessage(), e);
+        }
+
+        return isCorrect;
     }
 
     private boolean checkDirection(final byte flag) {
         if (incomingEdges) {
-            if (flag == DIRECTED_SOURCE_FIRST) {
+            if (flag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
                 return false;
             }
         } else if (outgoingEdges) {
-            if (flag == DIRECTED_DESTINATION_FIRST) {
+            if (flag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
                 return false;
             }
         }
@@ -82,7 +125,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -113,6 +156,9 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
+        if (options.containsKey(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY)) {
+            correctWayEdges = true;
+        }
         return true;
     }
 
@@ -126,6 +172,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
                 .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "Optional: Set if only the correct way round edges should be returned")
                 .setIteratorName(AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")

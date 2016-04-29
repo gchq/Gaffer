@@ -17,7 +17,6 @@ package gaffer.accumulostore.integration;
 
 import gaffer.commonutil.StreamUtil;
 import gaffer.integration.AbstractStoreITs;
-import gaffer.integration.impl.GetAllElementsIT;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
 
@@ -27,6 +26,5 @@ public class AccumuloStoreClassicKeysITs extends AbstractStoreITs {
 
     public AccumuloStoreClassicKeysITs() {
         super(STORE_PROPERTIES, STORE_SCHEMA);
-        skipTest(GetAllElementsIT.class, "The key package used does not allow for removing the flipped undirected edges, so duplicate undirected edges are returned.");
     }
 }

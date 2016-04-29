@@ -130,7 +130,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
+    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue,
                                                         final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
@@ -155,13 +155,13 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         final int directionFlag = rowKey[rowKey.length - 1];
         if (directionFlag == ClassicBytePositions.UNDIRECTED_EDGE) {
             // Edge is undirected
-            sourceValueDestinationValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceValueDestinationValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
             return false;
         } else if (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the first identifier is the source of the edge
-            sourceValueDestinationValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceValueDestinationValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
             return true;
         } else if (directionFlag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the second identifier is the source of the edge
@@ -171,8 +171,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
                 src = 0;
                 dst = 1;
             }
-            sourceValueDestinationValue[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceValueDestinationValue[dst] = getDestBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[src] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[dst] = getDestBytes(rowKey, positionsOfDelimiters);
             return true;
         } else {
             throw new AccumuloElementConversionException(

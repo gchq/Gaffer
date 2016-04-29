@@ -18,8 +18,7 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 
 public final class ByteEntityPositions {
     public static final byte ENTITY = (byte) 1;
-    public static final byte CORRECT_WAY_UNDIRECTED_EDGE = (byte) 4;
-    public static final byte INCORRECT_WAY_UNDIRECTED_EDGE = (byte) 5;
+    public static final byte UNDIRECTED_EDGE = (byte) 4;
     public static final byte CORRECT_WAY_DIRECTED_EDGE = (byte) 2;
     public static final byte INCORRECT_WAY_DIRECTED_EDGE = (byte) 3;
 
