@@ -33,8 +33,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
@@ -118,7 +118,7 @@ public final class Graph {
     /**
      * @return a collection of all the supported {@link Operation}s.
      */
-    public Collection<Class<? extends Operation>> getSupportedOperations() {
+    public Set<Class<? extends Operation>> getSupportedOperations() {
         return store.getSupportedOperations();
     }
 

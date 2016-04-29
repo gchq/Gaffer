@@ -84,8 +84,8 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public List<Class<? extends Operation>> getOperations() {
-        return (List) graphFactory.getGraph().getSupportedOperations();
+    public Set<Class<? extends Operation>> getOperations() {
+        return graphFactory.getGraph().getSupportedOperations();
     }
 
     @Override

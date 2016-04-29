@@ -65,6 +65,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class StoreTest {
     private OperationHandler<AddElements, Void> addElementsHandler;
@@ -449,9 +450,10 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final Collection<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
+        final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
 
         // Then
+        assertNotNull(supportedOperations);
         assertEquals(expectedNumberOfOperations, supportedOperations.size());
     }
 
@@ -473,7 +475,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // WHen
-        final Collection<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
+        final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
         for (final Class<? extends Operation> operationClass : supportedOperations) {
             final boolean isOperationClassSupported = store.isSupported(operationClass);
 

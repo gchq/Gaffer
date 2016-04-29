@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An <code>IGraphConfigurationService</code> has methods to get {@link gaffer.graph.Graph} configuration information
@@ -58,7 +59,7 @@ public interface IGraphConfigurationService {
     @GET
     @Path("/operations")
     @ApiOperation(value = "Gets all operations supported by the store", response = Class.class, responseContainer = "list")
-    List<Class<? extends Operation>> getOperations();
+    Set<Class<? extends Operation>> getOperations();
 
     @POST
     @Path("/isOperationSupported")

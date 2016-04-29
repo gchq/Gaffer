@@ -180,7 +180,7 @@ public abstract class Store {
     /**
      * @return a collection of all the supported {@link Operation}s.
      */
-    public Collection<Class<? extends Operation>> getSupportedOperations() {
+    public Set<Class<? extends Operation>> getSupportedOperations() {
         return operationHandlers.keySet();
     }
 

@@ -30,9 +30,9 @@ import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class SimpleGraphConfigurationServiceTest {
@@ -45,7 +45,7 @@ public class SimpleGraphConfigurationServiceTest {
         final Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
-        final Collection<Class<? extends Operation>> operations = new LinkedList<>();
+        final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
         given(graphFactory.getGraph()).willReturn(graph);
         given(graph.getSupportedOperations()).willReturn(operations);
@@ -84,7 +84,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetAllAvailableOperations() throws IOException {
         // When
-        final List<Class<? extends Operation>> supportedOperations = service.getOperations();
+        final Set<Class<? extends Operation>> supportedOperations = service.getOperations();
 
         // Then
         assertTrue(supportedOperations.size() > 0);
@@ -94,7 +94,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldValidateWhetherOperationIsSupported() throws IOException {
         // When
-        final List<Class<? extends Operation>> supportedOperations = service.getOperations();
+        final Set<Class<? extends Operation>> supportedOperations = service.getOperations();
 
         for (final Class<? extends Operation> operationClass : supportedOperations) {
             // Then
