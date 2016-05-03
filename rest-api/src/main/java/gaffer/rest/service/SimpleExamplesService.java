@@ -56,6 +56,7 @@ import java.util.Locale;
 
 
 public class SimpleExamplesService implements IExamplesService {
+    public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
     private final GraphFactory graphFactory;
 
     public SimpleExamplesService() {
@@ -253,15 +254,15 @@ public class SimpleExamplesService implements IExamplesService {
     private void populateOperation(final GetOperation operation) {
         populateOperation((Operation) operation);
 
-        View.Builder viewBuilder = generateView();
+        View.Builder viewBuilder = generateViewBuilder();
         operation.setView(viewBuilder.build());
     }
 
-    protected View.Builder generateView() {
+    protected View.Builder generateViewBuilder() {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
             viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty("transformedProperties", String.class)
+                    .transientProperty(TRANSFORMED_PROPERTIES, String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEntityPropertyName())
                             .execute(new ExampleFilterFunction())
@@ -269,14 +270,14 @@ public class SimpleExamplesService implements IExamplesService {
                     .transformer(new ElementTransformer.Builder()
                             .select(getAnEntityPropertyName())
                             .execute(new ExampleTransformFunction())
-                            .project("transformedProperties")
+                            .project(TRANSFORMED_PROPERTIES)
                             .build())
                     .build());
         }
 
         if (hasEdges()) {
             viewBuilder.edge(getAnEdgeGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty("transformedProperties", String.class)
+                    .transientProperty(TRANSFORMED_PROPERTIES, String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEdgePropertyName())
                             .execute(new ExampleFilterFunction())
@@ -284,7 +285,7 @@ public class SimpleExamplesService implements IExamplesService {
                     .transformer(new ElementTransformer.Builder()
                             .select(getAnEdgePropertyName())
                             .execute(new ExampleTransformFunction())
-                            .project("transformedProperties")
+                            .project(TRANSFORMED_PROPERTIES)
                             .build())
                     .build());
         }

@@ -104,7 +104,7 @@ public class ExamplesServiceTest {
 
     @Test
     public void shouldCreateViewForEdges() {
-        final View.Builder builder = service.generateView();
+        final View.Builder builder = service.generateViewBuilder();
         final View view = builder.build();
         assertNotNull(view);
 
