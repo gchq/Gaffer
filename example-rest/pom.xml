@@ -54,9 +54,61 @@
             <artifactId>resteasy-servlet-initializer</artifactId>
             <version>3.0.16.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.2.11.v20150529</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>9.2.11.v20150529</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>example-rest</finalName>
-
     </build>
+    <profiles>
+        <profile>
+            <id>standalone</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+                        <version>9.2.11.v20150529</version>
+                        <configuration>
+                            <webApp>
+                                <contextPath>/example-rest</contextPath>
+                            </webApp>
+                            <systemProperties>
+                                <systemProperty>
+                                    <name>gaffer.rest-api.basePath</name>
+                                    <value>/example-rest/v1</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>gaffer.schemas</name>
+                                    <value>${project.build.outputDirectory}/dataSchema.json,${project.build.outputDirectory}/dataTypes.json,${project.build.outputDirectory}/storeSchema.json,${project.build.outputDirectory}/storeTypes.json</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>gaffer.storeProperties</name>
+                                    <value>${project.build.outputDirectory}/mockaccumulostore.properties</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <!-- this will fire up jetty as soon as you reach the integration-test phase in the test profile -->
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

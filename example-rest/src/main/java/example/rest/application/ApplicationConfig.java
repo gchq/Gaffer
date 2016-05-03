@@ -16,9 +16,7 @@
 package example.rest.application;
 
 import example.rest.serialisation.RestJsonProvider;
-import example.rest.service.SimpleExamplesService2;
 import gaffer.rest.application.AbstractApplicationConfig;
-import gaffer.rest.service.SimpleExamplesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.ws.rs.ApplicationPath;
@@ -30,8 +28,6 @@ public class ApplicationConfig extends AbstractApplicationConfig {
 
     public ApplicationConfig() {
         super();
-        resources.remove(SimpleExamplesService.class);
-        resources.add(SimpleExamplesService2.class);
     }
 
     @Override

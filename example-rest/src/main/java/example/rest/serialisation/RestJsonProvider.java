@@ -25,4 +25,3 @@ import javax.ws.rs.ext.Provider;
 public class RestJsonProvider extends AbstractJacksonJsonProvider {
 
 }
- I
