@@ -22,7 +22,6 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
-import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,7 +114,7 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
         ElementHelper.attachProperties(edge, keyValues);
         graph().addEdge(edge);
 
-        edge.setReadOnly(true);
+        edge.setReadOnly();
         return edge;
     }
 
@@ -147,6 +146,6 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public String toString() {
-        return StringFactory.vertexString(this);
+        return "v[(" + label() + ")-" + id() + "]";
     }
 }

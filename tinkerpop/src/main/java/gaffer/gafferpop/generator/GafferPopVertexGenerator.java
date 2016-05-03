@@ -30,9 +30,15 @@ import java.util.Map.Entry;
 
 public class GafferPopVertexGenerator extends OneToOneElementGenerator<GafferPopVertex> {
     private final GafferPopGraph graph;
+    private final boolean gafferPopReadOnly;
 
     public GafferPopVertexGenerator(final GafferPopGraph graph) {
+        this(graph, true);
+    }
+
+    public GafferPopVertexGenerator(final GafferPopGraph graph, final boolean gafferPopReadOnly) {
         this.graph = graph;
+        this.gafferPopReadOnly = gafferPopReadOnly;
     }
 
     @Override
@@ -69,7 +75,9 @@ public class GafferPopVertexGenerator extends OneToOneElementGenerator<GafferPop
                 vertex.property(Cardinality.list, entry.getKey(), entry.getValue());
             }
         }
-        vertex.setReadOnly(true);
+        if (gafferPopReadOnly) {
+            vertex.setReadOnly();
+        }
 
         return vertex;
     }

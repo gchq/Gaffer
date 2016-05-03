@@ -74,7 +74,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public Iterator<Vertex> vertices(final Direction direction) {
-        if (Direction.OUT.equals(direction)) {
+        if (Direction.IN.equals(direction)) {
             return graph().vertices(id().getSource());
         }
 
@@ -96,16 +96,16 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public String toString() {
-        return "e[" + id().getSource() + "-" + label + "->" + id().getDest() + "]";
+        return "e[" + id().getSource() + "-(" + label + ")->" + id().getDest() + "]";
     }
 
     @Override
     public Vertex outVertex() {
-        throw new UnsupportedOperationException("Use 'vertices' instead");
+        throw new UnsupportedOperationException("Use 'vertices(Direction)' instead - it may return multiple vertices");
     }
 
     @Override
     public Vertex inVertex() {
-        throw new UnsupportedOperationException("Use 'vertices' instead");
+        throw new UnsupportedOperationException("Use 'vertices(Direction)' instead - it may return multiple vertices");
     }
 }

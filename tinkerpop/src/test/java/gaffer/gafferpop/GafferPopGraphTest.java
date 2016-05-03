@@ -19,23 +19,95 @@
 package gaffer.gafferpop;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import gaffer.commonutil.StreamUtil;
 import gaffer.graph.Graph;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
+import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.junit.Test;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 public class GafferPopGraphTest {
     private static final Configuration TEST_CONFIGURATION = new BaseConfiguration() {{
         this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
+        this.setProperty(GafferPopGraph.OP_OPTIONS, new String[]{"key1:value1", "key2:value2"});
     }};
     public static final int VERTEX_1 = 1;
     public static final int VERTEX_2 = 2;
+
+    @Test
+    public void shouldConstructGafferPopGraph() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+
+        // When
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+
+        // Then - there is 1 vertex and no edges
+        final Map<String, Object> variables = graph.variables().asMap();
+        assertEquals(gafferGraph.getSchema(), variables.get(GafferPopGraphVariables.SCHEMA));
+
+        final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
+        assertEquals("value1", opOptions.get("key1"));
+        assertEquals("value2", opOptions.get("key2"));
+        assertEquals(2, opOptions.size());
+
+        assertEquals(2, variables.size());
+    }
+
+    @Test
+    public void shouldThrowUnsupportedExceptionForCompute() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+
+        // When / Then
+        try {
+            graph.compute();
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowUnsupportedExceptionForComputeWithClass() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+
+        // When / Then
+        try {
+            graph.compute(GraphComputer.class);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowUnsupportedExceptionForTx() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+
+        // When / Then
+        try {
+            graph.tx();
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
 
     @Test
     public void shouldAddAndGetVertex() {
@@ -45,10 +117,10 @@ public class GafferPopGraphTest {
 
         // When
         graph.addVertex(T.label, "software", T.id, VERTEX_1, "name", "GafferPop");
+        final Iterator<GafferPopVertex> vertices = graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), "software");
 
-        // Then - there is 1 vertex and no edges
-        assertEquals(1, IteratorUtils.count(graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), "software")));
-        assertEquals(0, IteratorUtils.count(graph.edges(new EdgeId(VERTEX_1, VERTEX_2))));
+        // Then - there is 1 vertex
+        assertEquals(1, IteratorUtils.count(vertices));
     }
 
     @Test

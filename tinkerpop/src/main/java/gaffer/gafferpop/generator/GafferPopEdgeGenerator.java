@@ -28,16 +28,22 @@ import java.util.Map.Entry;
 
 public class GafferPopEdgeGenerator extends OneToOneElementGenerator<GafferPopEdge> {
     private final GafferPopGraph graph;
+    private final boolean gafferPopReadOnly;
 
     public GafferPopEdgeGenerator(final GafferPopGraph graph) {
+        this(graph, true);
+    }
+
+    public GafferPopEdgeGenerator(final GafferPopGraph graph, final boolean gafferPopReadOnly) {
         this.graph = graph;
+        this.gafferPopReadOnly = gafferPopReadOnly;
     }
 
     @Override
-    public Element getElement(final GafferPopEdge tinkerEdge) {
-        final Edge edge = new Edge(tinkerEdge.label(), tinkerEdge.id().getSource(),
-                tinkerEdge.id().getDest(), true);
-        final Iterator<Property<Object>> propItr = tinkerEdge.properties();
+    public Edge getElement(final GafferPopEdge gafferPopEdge) {
+        final Edge edge = new Edge(gafferPopEdge.label(), gafferPopEdge.id().getSource(),
+                gafferPopEdge.id().getDest(), true);
+        final Iterator<Property<Object>> propItr = gafferPopEdge.properties();
         while (propItr.hasNext()) {
             final Property<Object> prop = propItr.next();
             if (null != prop.key()) {
@@ -55,16 +61,18 @@ public class GafferPopEdgeGenerator extends OneToOneElementGenerator<GafferPopEd
         }
 
         final Edge edge = ((Edge) element);
-        final GafferPopEdge tinkerEdge = new GafferPopEdge(edge.getGroup(),
+        final GafferPopEdge gafferPopEdge = new GafferPopEdge(edge.getGroup(),
                 edge.getSource(), edge.getDestination(), graph);
 
         for (Entry<String, Object> entry : edge.getProperties().entrySet()) {
             if (null != entry.getValue()) {
-                tinkerEdge.property(entry.getKey(), entry.getValue());
+                gafferPopEdge.property(entry.getKey(), entry.getValue());
             }
         }
-        tinkerEdge.setReadOnly(true);
+        if (gafferPopReadOnly) {
+            gafferPopEdge.setReadOnly();
+        }
 
-        return tinkerEdge;
+        return gafferPopEdge;
     }
 }

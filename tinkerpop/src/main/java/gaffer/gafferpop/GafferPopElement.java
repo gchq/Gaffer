@@ -40,8 +40,8 @@ public abstract class GafferPopElement implements Element {
         return this.label;
     }
 
-    public void setReadOnly(final boolean readOnly) {
-        this.readOnly = readOnly;
+    public void setReadOnly() {
+        this.readOnly = true;
     }
 
     public boolean isReadOnly() {

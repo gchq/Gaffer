@@ -136,7 +136,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new AddElements())
                 .build());
 
-        vertex.setReadOnly(true);
+        vertex.setReadOnly();
     }
 
     public void addEdge(final GafferPopEdge edge) {
@@ -286,7 +286,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return execute(new OperationChain.Builder()
                 .first(getRelEdges)
                 .then(new GenerateObjects.Builder<gaffer.data.element.Edge, GafferPopEdge>()
-                        .generator(new GafferPopEdgeGenerator(this))
+                        .generator(new GafferPopEdgeGenerator(this, true))
                         .build())
                 .build()).iterator();
     }
@@ -441,7 +441,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private GafferPopGraphVariables createVariables() {
         final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
-        variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, opOptions);
+        variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
         return new GafferPopGraphVariables(variablesMap);
     }
