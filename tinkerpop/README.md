@@ -14,9 +14,9 @@
 
 
 GafferPop
-======
+==================================
 
-GafferPop is a lightweight TinkerPop implementation of Gaffer, where TinkerPop methods are delegated to Gaffer graph operations.
+GafferPop is a lightweight Gaffer implementation of TinkerPop, where TinkerPop methods are delegated to Gaffer graph operations.
 
 It is still experimental and should be used with caution.
 
@@ -36,8 +36,8 @@ To use the gremlin console download 'apache-gremlin-console-3.1.1-incubating'
 To get going with the tinkerpop-modern dataset backed by a MockAccumuloStore you can do the following:
 
     run: mvn clean install -Pgafferpop
-    add the files in gafferpop/src/test/resources to <gremlin-console>/conf
-    add gafferpop/target/gafferpop-<version>.jar and gafferpop/target/gafferpop-jar-with-dependencies.jar to <gremlin-console>/ext/gafferpop/plugin
+    add the files in tinkerpop/src/test/resources to <gremlin-console>/conf
+    add tinkerpop/target/gafferpop-jar-with-dependencies.jar to <gremlin-console>/ext/gafferpop/plugin
 
 open the gremlin shell:
 

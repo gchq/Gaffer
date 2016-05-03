@@ -52,7 +52,7 @@ public final class GafferPopGremlinPlugin extends AbstractGremlinPlugin {
 
     @Override
     public String getName() {
-        return "gaffer.gafferpopgraph";
+        return "gaffer.gafferpop.gafferpopgraph";
     }
 
     @Override

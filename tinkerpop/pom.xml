@@ -10,7 +10,7 @@
         <version>0.3.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>gafferpop</artifactId>
+    <artifactId>tinkerpop</artifactId>
 
     <properties>
         <junit.version>4.12</junit.version>
@@ -61,7 +61,7 @@
             <version>${gremlin.version}</version>
         </dependency>
     </dependencies>
-    
+
     <profiles>
         <profile>
             <id>gafferpop</id>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer;
+package gaffer.commonutil.iterable;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

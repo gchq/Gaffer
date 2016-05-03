@@ -15,8 +15,8 @@
  */
 package gaffer.gafferpop;
 
-import gaffer.WrappedIterable;
 import gaffer.commonutil.CommonConstants;
+import gaffer.commonutil.iterable.WrappedIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.gafferpop.generator.GafferPopEdgeGenerator;
