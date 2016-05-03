@@ -47,6 +47,8 @@ import gaffer.rest.example.ExampleFilterFunction;
 import gaffer.rest.example.ExampleTransformFunction;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
+
+import javax.faces.flow.builder.ViewBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -251,6 +253,12 @@ public class SimpleExamplesService implements IExamplesService {
 
     private void populateOperation(final GetOperation operation) {
         populateOperation((Operation) operation);
+
+        View.Builder viewBuilder = generateView();
+        operation.setView(viewBuilder.build());
+    }
+
+    protected View.Builder generateView() {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
             viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
@@ -284,7 +292,7 @@ public class SimpleExamplesService implements IExamplesService {
                     .build());
         }
 
-        operation.setView(viewBuilder.build());
+        return viewBuilder;
     }
 
     protected void populateOperation(final Operation operation) {
