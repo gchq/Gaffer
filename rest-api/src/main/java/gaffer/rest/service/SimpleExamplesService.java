@@ -48,7 +48,6 @@ import gaffer.rest.example.ExampleTransformFunction;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 
-import javax.faces.flow.builder.ViewBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -262,7 +261,6 @@ public class SimpleExamplesService implements IExamplesService {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
             viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty(getAnEntityPropertyName(), String.class)
                     .transientProperty("transformedProperties", String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEntityPropertyName())
@@ -278,7 +276,6 @@ public class SimpleExamplesService implements IExamplesService {
 
         if (hasEdges()) {
             viewBuilder.edge(getAnEdgeGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty(getAnEdgePropertyName(), String.class)
                     .transientProperty("transformedProperties", String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEdgePropertyName())
