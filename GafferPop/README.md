@@ -16,14 +16,16 @@
 GafferPop
 ======
 
-GafferPop is a lightweight TinkerPop implementation of Gaffer, where all TinkerPop methods are delegated to Gaffer graph operations.
+GafferPop is a lightweight TinkerPop implementation of Gaffer, where TinkerPop methods are delegated to Gaffer graph operations.
+
+It is still experimental and should be used with caution.
 
 
 Setup
 ------------------
 Create a GafferPopGraph using GraphFactory.open(...)
 
-You must provide a configuration file containing a path to a Gaffer store.properties file and comma separated list of of paths for Gaffer schema files
+You must provide a configuration file containing a path to a Gaffer store.properties file and comma separated list of of paths for Gaffer schema files, e.g:
 
     gremlin.graph=gaffer.gafferpop.GafferPopGraph
     gaffer.storeproperties=conf/gaffer/store.properties
@@ -33,9 +35,9 @@ To use the gremlin console download 'apache-gremlin-console-3.1.1-incubating'
 
 To get going with the tinkerpop-modern dataset backed by a MockAccumuloStore you can do the following:
 
-    run: mvn clean package
-    add the files in src/test/resources to <gremlin-console>/conf
-    add gafferpop-<version>.jar and gafferpop-jar-with-dependencies.jar to <gremlin-console>/ext/gafferpop/plugin
+    run: mvn clean install -Pgafferpop
+    add the files in gafferpop/src/test/resources to <gremlin-console>/conf
+    add gafferpop/target/gafferpop-<version>.jar and gafferpop/target/gafferpop-jar-with-dependencies.jar to <gremlin-console>/ext/gafferpop/plugin
 
 open the gremlin shell:
 
@@ -75,7 +77,7 @@ Limitations
 There are several restrictions with this implementation. The following is not supported by GafferPop:
  - Removal
  - Updating properties
- - Fetching all Vertices or Edges - you must provide at least 1 seed
+ - Fetching all Vertices or Edges - you must provide at least 1 seed. This means you cannot use Gremlin's export capability.
  - Undirected edges
  - Entity group 'id' is reserved for an empty group containing only the vertex id
 

@@ -18,6 +18,8 @@
  */
 package gaffer.gafferpop;
 
+import static org.junit.Assert.assertEquals;
+
 import gaffer.commonutil.StreamUtil;
 import gaffer.graph.Graph;
 import org.apache.commons.configuration.BaseConfiguration;
@@ -32,29 +34,37 @@ public class GafferPopGraphTest {
     private static final Configuration TEST_CONFIGURATION = new BaseConfiguration() {{
         this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
     }};
+    public static final int VERTEX_1 = 1;
+    public static final int VERTEX_2 = 2;
 
     @Test
-    public void shouldAddAndGetElements2() {
+    public void shouldAddAndGetVertex() {
+        // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
 
-        // add a software vertex with a name property
-        Vertex gremlin = graph.addVertex(T.label, "software", T.id, 1, "name", "gremlin");
-        // only one vertex should exist
-        assert (IteratorUtils.count(graph.vertices(Arrays.asList(1, 2, 3, 4, 5, 6), "software")) == 1);
-        // no edges should exist as none have been created
-        assert (IteratorUtils.count(graph.edges(new EdgeId(1, 2))) == 0);
-        // add a new software vertex to the graph
-        Vertex blueprints = graph.addVertex(T.label, "software", T.id, 2, "name", "blueprints");
-        // connect gremlin to blueprints via a dependsOn-edge
-        gremlin.addEdge("dependsOn", blueprints);
-        // now there are two verticesWithView and one edge
-        assert (IteratorUtils.count(graph.vertices(Arrays.asList(1, 2, 3, 4, 5), "software")) == 2);
-        assert (IteratorUtils.count(graph.edges(new EdgeId(1, 2))) == 1);
-        // connect gremlin to blueprints via encapsulates
-        gremlin.addEdge("encapsulates", blueprints);
-        assert (IteratorUtils.count(graph.vertices(Arrays.asList(1, 2, 3, 4, 5), "software")) == 2);
-        assert (IteratorUtils.count(graph.edges(new EdgeId(1, 2))) == 2);
+        // When
+        graph.addVertex(T.label, "software", T.id, VERTEX_1, "name", "GafferPop");
+
+        // Then - there is 1 vertex and no edges
+        assertEquals(1, IteratorUtils.count(graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), "software")));
+        assertEquals(0, IteratorUtils.count(graph.edges(new EdgeId(VERTEX_1, VERTEX_2))));
+    }
+
+    @Test
+    public void shouldAddAndGetEdge() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+
+        // When
+        final Vertex gafferPop = graph.addVertex(T.label, "software", T.id, VERTEX_1, "name", "GafferPop");
+        final Vertex gaffer = graph.addVertex(T.label, "software", T.id, VERTEX_2, "name", "Gaffer");
+        gafferPop.addEdge("dependsOn", gaffer);
+
+        // Then - there are two software vertices and one edge
+        assertEquals(2, IteratorUtils.count(graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), "software")));
+        assertEquals(1, IteratorUtils.count(graph.edges(new EdgeId(VERTEX_1, VERTEX_2))));
     }
 
     private Graph getGafferGraph() {

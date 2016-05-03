@@ -416,8 +416,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             final EdgeId edgeId;
             if (edgeIdObj instanceof GafferPopEdge) {
                 edgeId = ((GafferPopEdge) edgeIdObj).id();
-            } else {
+            } else if (edgeIdObj instanceof EdgeId) {
                 edgeId = ((EdgeId) edgeIdObj);
+            } else {
+                final String className = null != edgeIdObj ? edgeIdObj.getClass().getName() : " a null object";
+                throw new IllegalArgumentException("Edge IDs must be either a EdgeId or a GafferPopEdge. Not " + className);
             }
             edgeSeeds.add(new EdgeSeed(edgeId.getSource(), edgeId.getDest(), true));
         }
