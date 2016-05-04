@@ -16,6 +16,7 @@
 
 package gaffer.rest.service;
 
+import static junit.framework.Assert.assertEquals;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
@@ -26,6 +27,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.graph.Graph;
+import gaffer.operation.Operation;
+import gaffer.operation.impl.add.AddElements;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
@@ -34,9 +37,11 @@ import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 
 public class SimpleGraphConfigurationServiceTest {
@@ -51,7 +56,12 @@ public class SimpleGraphConfigurationServiceTest {
         final Collection<StoreTrait> traits = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
+        final Set<Class<? extends Operation>> operations = new HashSet<>();
+        operations.add(AddElements.class);
         given(graphFactory.getGraph()).willReturn(graph);
+        given(graph.getSupportedOperations()).willReturn(operations);
+        given(graph.isSupported(AddElements.class)).willReturn(true);
+
         given(graph.getStoreTraits()).willReturn(traits);
         service = new SimpleGraphConfigurationService(graphFactory);
     }
@@ -90,21 +100,33 @@ public class SimpleGraphConfigurationServiceTest {
     }
 
     @Test
-    public void shouldGetOperations() throws IOException {
-        // When
-        final List<Class> classes = service.getOperations();
-
-        // Then
-        assertTrue(classes.size() > 0);
-    }
-
-    @Test
     public void shouldGetGenerators() throws IOException {
         // When
         final List<Class> classes = service.getGenerators();
 
         // Then
         assertTrue(classes.size() > 0);
+    }
+
+    @Test
+    public void shouldGetAllAvailableOperations() throws IOException {
+        // When
+        final Set<Class<? extends Operation>> supportedOperations = service.getOperations();
+
+        // Then
+        assertTrue(supportedOperations.size() > 0);
+        assertEquals(1, supportedOperations.size());
+    }
+
+    @Test
+    public void shouldValidateWhetherOperationIsSupported() throws IOException {
+        // When
+        final Set<Class<? extends Operation>> supportedOperations = service.getOperations();
+
+        for (final Class<? extends Operation> operationClass : supportedOperations) {
+            // Then
+            assertTrue(service.isOperationSupported(operationClass));
+        }
     }
 
 
