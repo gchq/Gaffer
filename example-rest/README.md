@@ -24,10 +24,10 @@ Option 1 - Deployable war file
 
 If you wish to deploy the war file to a container of your choice, then use this option.
 
-To build the war file and deploy it to a server of your choice, then run the following command from the parent directory:
-'mvn clean package -pl example-rest/'
+To build the war file along with all its dependencies then run the following command from the parent directory:
+'mvn clean install'
 
-Deploy target/example-rest.war as appropriate for your server.
+To deploy it to a server of your choice, take target/example-rest.war and deploy as per the usual deployment process for your server.
 
 In order for the application to function, it needs a number of system properties to be set up on the server:
 e.g.
@@ -49,9 +49,10 @@ Option 2 - Build using the standalone profile
 
 The application can be built and then run as a basic executable standalone war file from Maven. When run in this format, the default schemas represent the Film/Viewings example and the store used is a MockAccumuloStore.
 
-To build and run it, use the following command form the parent directory:
+To build it and its dependencies, use the following command from the parent directory:
 
-'mvn jetty:run -pl example-rest/ -P standalone'
+'mvn clean install -P standalone'
+This uses the 'standalone' profile to run jetty with the example-rest project after it and its dependencies have been built.
 
 This should launch an embedded jetty container, which can then be accessed via your browser pointing to the following url:
 http://localhost:8080/example-rest/
