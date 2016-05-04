@@ -67,7 +67,7 @@ public interface IGraphConfigurationService {
     @Path("/storeTraits")
     @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list")
     Collection<StoreTrait> getStoreTraits();
-    
+
     @POST
     @Path("/isOperationSupported")
     @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",

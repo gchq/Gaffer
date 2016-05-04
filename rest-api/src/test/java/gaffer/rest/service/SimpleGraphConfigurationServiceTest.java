@@ -16,20 +16,20 @@
 
 package gaffer.rest.service;
 
-import static junit.framework.Assert.assertEquals;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.graph.Graph;
+import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
@@ -37,9 +37,9 @@ import gaffer.store.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
