@@ -1,6 +1,5 @@
 function addExampleButtons(){
 $("#resource_graph\\/doOperation .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
-
 }
 
 function loadExample(exampleButton){
@@ -17,38 +16,30 @@ function loadExample(exampleButton){
     $.ajax({url: exampleUrl, success: onSuccess});
 }
 
-  window.swaggerUi = new SwaggerUi({
-  url:"/example-rest/v1/api-docs/",
-  dom_id:"swagger-ui-container",
-  supportedSubmitMethods: ['get','post','put','delete'],
-  onComplete: function(swaggerApi, swaggerUi){
-    log("Loaded swagger");
-    $('pre code').each(function(i,e){hljs.highlightBlock(e)});
-    addExampleButtons();
-  },
-  onFailure: function(data){
-  log("Unable to load SwaggerUI");
-  },
-  docExpansion: "none",
-  sorter: "alpha",
-  apisSorter: "alpha",
-  operationsSorter: "alpha"
-});
-$('#input_apiKey').change(function()
-{
-    var key = $('#input_apiKey')[0].value;
-    log("key: " + key);
-    if (key && key.trim() != "")
-	{
-        log("added key " + key);
-        window.authorizations.add("key", new ApiKeyAuthorization("api_key", key, "query"));
-        }
-        })
+function log() {
+    if ('console' in window) {
+      console.log.apply(console, arguments);
+    }
+}
 
-      window.swaggerUi.load();
+function init(){
+      window.swaggerUi = new SwaggerUi({
+      url:"/example-rest/v1/api-docs/",
+      dom_id:"swagger-ui-container",
+      supportedSubmitMethods: ['get','post','put','delete'],
+      onComplete: function(swaggerApi, swaggerUi){
+        log("Loaded swagger");
+        $('pre code').each(function(i,e){hljs.highlightBlock(e)});
+        addExampleButtons();
+      },
+      onFailure: function(data){
+      log("Unable to load SwaggerUI");
+      },
+      docExpansion: "none",
+      sorter: "alpha",
+      apisSorter: "alpha",
+      operationsSorter: "alpha"
+    });
 
-      function log() {
-        if ('console' in window) {
-          console.log.apply(console, arguments);
-        }
-      }
+    window.swaggerUi.load();
+}
