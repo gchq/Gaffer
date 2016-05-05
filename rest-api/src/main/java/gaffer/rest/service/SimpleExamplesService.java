@@ -226,7 +226,7 @@ public class SimpleExamplesService implements IExamplesService {
         final GenerateElements<ExampleDomainObject> op = new GenerateElements<>(new ExampleDomainObjectGenerator());
         final ArrayList<ExampleDomainObject> objs = new ArrayList<>();
         if (hasEntities()) {
-            final SchemaElementDefinition entityDef = getSchema().getEdge(getAnEdgeGroup());
+            final SchemaElementDefinition entityDef = getSchema().getEntity(getAnEntityGroup());
             objs.add(new ExampleDomainObject(getAnEntityGroup(),
                     getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), 1)));
             objs.add(new ExampleDomainObject(getAnEntityGroup(),
