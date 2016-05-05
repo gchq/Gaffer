@@ -109,7 +109,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public String toString() {
-        return "e[" + id().getSource() + "-(" + label + ")->" + id().getDest() + "]";
+        return "e[" + id().getSource() + "-" + label + "->" + id().getDest() + "]";
     }
 
     @Override

@@ -139,6 +139,6 @@ FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 - GNU Lesser Public License
 
 
-TinkerPop (org.apache.tinkerpop:gremlin-core,gremlin-groovy,gremlin-driver:3.1.1-incubating):
+TinkerPop (org.apache.tinkerpop:gremlin-core,gremlin-groovy,gremlin-driver:3.2.0-incubating):
 
 - Apache License, Version 2.0

@@ -13,10 +13,8 @@
     <artifactId>tinkerpop</artifactId>
 
     <properties>
-        <junit.version>4.12</junit.version>
-        <mockito.version>1.9.5</mockito.version>
         <java.version>1.8</java.version>
-        <gremlin.version>3.1.1-incubating</gremlin.version>
+        <gremlin.version>3.2.0-incubating</gremlin.version>
     </properties>
 
     <dependencies>

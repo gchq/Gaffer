@@ -149,6 +149,6 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public String toString() {
-        return "v[(" + label() + ")-" + id() + "]";
+        return "v[" + label() + "-" + id() + "]";
     }
 }

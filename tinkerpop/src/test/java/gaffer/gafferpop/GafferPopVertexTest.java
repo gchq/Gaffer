@@ -43,7 +43,7 @@ public class GafferPopVertexTest {
     @Test
     public void shouldConstructVertex() {
         // Given
-        final String id = "id";
+        final String id = GafferPopGraph.ID_LABEL;
         final GafferPopGraph graph = mock(GafferPopGraph.class);
 
         // When
@@ -58,7 +58,7 @@ public class GafferPopVertexTest {
     @Test
     public void shouldAddAndGetVertexProperties() {
         // Given
-        final String id = "id";
+        final String id = GafferPopGraph.ID_LABEL;
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, id, graph);
         final String propValue1 = "propValue1";
@@ -76,7 +76,7 @@ public class GafferPopVertexTest {
     @Test
     public void shouldGetIterableOfVertexProperties() {
         // Given
-        final String id = "id";
+        final String id = GafferPopGraph.ID_LABEL;
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, id, graph);
         final String propValue1 = "propValue1";
@@ -99,9 +99,9 @@ public class GafferPopVertexTest {
     public void shouldDelegateEdgesToGraph() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, "id", graph);
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterator<GafferPopEdge> edges = mock(Iterator.class);
-        given(graph.edges("id", Direction.IN, TestGroups.ENTITY)).willReturn(edges);
+        given(graph.edges(GafferPopGraph.ID_LABEL, Direction.IN, TestGroups.ENTITY)).willReturn(edges);
 
         // When
         final Iterator<Edge> resultEdges = vertex.edges(Direction.IN, TestGroups.ENTITY);
@@ -114,10 +114,10 @@ public class GafferPopVertexTest {
     public void shouldDelegateEdgesWithViewToGraph() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, "id", graph);
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterator<GafferPopEdge> edges = mock(Iterator.class);
         final View view = mock(View.class);
-        given(graph.edgesWithView("id", Direction.IN, view)).willReturn(edges);
+        given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, view)).willReturn(edges);
 
         // When
         final Iterator<GafferPopEdge> resultEdges = vertex.edges(Direction.IN, view);
@@ -130,9 +130,9 @@ public class GafferPopVertexTest {
     public void shouldDelegateVerticesToGraph() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, "id", graph);
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
-        given(graph.adjVertices("id", Direction.IN, TestGroups.EDGE)).willReturn(vertices);
+        given(graph.adjVertices(GafferPopGraph.ID_LABEL, Direction.IN, TestGroups.EDGE)).willReturn(vertices);
 
         // When
         final Iterator<Vertex> resultVertices = vertex.vertices(Direction.IN, TestGroups.EDGE);
@@ -146,10 +146,10 @@ public class GafferPopVertexTest {
     public void shouldDelegateVerticesWithViewToGraph() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, "id", graph);
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
         final View view = mock(View.class);
-        given(graph.adjVerticesWithView("id", Direction.IN, view)).willReturn(vertices);
+        given(graph.adjVerticesWithView(GafferPopGraph.ID_LABEL, Direction.IN, view)).willReturn(vertices);
 
         // When
         final Iterator<GafferPopVertex> resultVertices = vertex.vertices(Direction.IN, view);
@@ -162,12 +162,12 @@ public class GafferPopVertexTest {
     public void shouldCreateReadableToString() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, "id", graph);
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
 
         // When
         final String toString = vertex.toString();
 
         // Then
-        assertEquals("v[(BasicEntity)-id]", toString);
+        assertEquals("v[BasicEntity-id]", toString);
     }
 }

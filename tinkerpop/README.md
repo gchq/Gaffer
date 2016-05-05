@@ -31,25 +31,25 @@ You must provide a configuration file containing a path to a Gaffer store.proper
     gaffer.storeproperties=conf/gaffer/store.properties
     gaffer.schemas=conf/gaffer/schema/dataSchema.json,conf/gaffer/schema/dataTypes.json,conf/gaffer/schema/storeTypes.json
 
-To use the gremlin console download 'apache-gremlin-console-3.1.1-incubating'
+To use the gremlin console download 'apache-gremlin-console-3.2.0-incubating-bin.zip'
 
 To get going with the tinkerpop-modern dataset backed by a MockAccumuloStore you can do the following:
 
     run: mvn clean install -Pgafferpop
-    add the files in tinkerpop/src/test/resources to <gremlin-console>/conf
-    add tinkerpop/target/gafferpop-jar-with-dependencies.jar to <gremlin-console>/ext/gafferpop/plugin
+    add the files in tinkerpop/src/test/resources to <gremlin-console>/conf/gafferpop
+    add tinkerpop/target/tinkerpop-<version>.jar and tinkerpop/target/gafferpop-jar-with-dependencies.jar to <gremlin-console>/ext/gafferpop/plugin
 
 open the gremlin shell:
-
-    gremlin-shell/bin/gremlin.sh
+    cd <gremlin-console>
+    ./bin/gremlin.sh
 
 active the GafferPop plugin:
 
-    :plugin use gaffer.gafferpopgraph
+    :plugin use gaffer.gafferpop.GafferPopGraph
 
 load the data:
 
-    graph = GraphFactory.open('conf/gafferpop-modern.properties')
+    graph = GraphFactory.open('conf/gafferpop/gafferpop-tinkerpop-modern.properties')
     graph.io(graphml()).readGraph('data/tinkerpop-modern.xml')
     g = graph.traversal(standard())
 

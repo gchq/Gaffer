@@ -189,6 +189,6 @@ public class GafferPopEdgeTest {
         final String toString = edge.toString();
 
         // Then
-        assertEquals("e[source-(BasicEdge)->dest]", toString);
+        assertEquals("e[source-BasicEdge->dest]", toString);
     }
 }
