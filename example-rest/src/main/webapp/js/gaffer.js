@@ -18,7 +18,7 @@ $("#resource_graph\\/doOperation .operation-params").find("td:eq(2)").append("<i
 }
 
 function loadExample(exampleButton){
-   var urlSuffix = $(exampleButton).closest('.post.operation').find(".path").text().trim();
+   var urlSuffix = $(exampleButton).closest('.operation').find(".path").text().trim();
     // Bug in Gaffer since 0.3.3
     if ("/graph/doOperation" === urlSuffix){
         urlSuffix = "/graph/execute";
