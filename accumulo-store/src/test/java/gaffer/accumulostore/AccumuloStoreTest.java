@@ -16,9 +16,15 @@
 
 package gaffer.accumulostore;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -30,9 +36,14 @@ import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
 import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
 import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
 import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
-import gaffer.accumulostore.operation.impl.*;
+import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
+import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
+import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
+import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import gaffer.accumulostore.operation.impl.GetElementsInRanges;
+import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
@@ -42,24 +53,20 @@ import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
-import gaffer.operation.impl.get.*;
+import gaffer.operation.impl.get.GetElements;
+import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.StoreException;
-import gaffer.store.StoreProperties;
+import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.schema.Schema;
-import gaffer.store.schema.SchemaEdgeDefinition;
-import gaffer.store.schema.SchemaEntityDefinition;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -140,4 +147,16 @@ public class AccumuloStoreTest {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
+
+    @Test
+    public void testStoreTraits() {
+        final Collection<StoreTrait> traits = store.getTraits();
+        assertNotNull(traits);
+        assertTrue("Collection size should be 4", traits.size() == 4);
+        assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
+        assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING));
+        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
+        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
+    }
+
 }
