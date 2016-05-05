@@ -48,7 +48,13 @@ import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
-import gaffer.operation.impl.get.*;
+import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetEdgesBySeed;
+import gaffer.operation.impl.get.GetElements;
+import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetEntitiesBySeed;
+import gaffer.operation.impl.get.GetRelatedElements;
+import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
@@ -61,9 +67,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -529,14 +534,14 @@ public class StoreTest {
     }
 
     private class StoreImpl extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private boolean validationRequired;
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Set<StoreTrait> getTraits() {
             return TRAITS;
         }
 
