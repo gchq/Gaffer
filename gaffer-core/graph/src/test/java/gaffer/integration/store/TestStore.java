@@ -26,11 +26,11 @@ import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import java.util.Collection;
+import java.util.Set;
 
 public class TestStore extends Store {
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Set<StoreTrait> getTraits() {
         return null;
     }
 

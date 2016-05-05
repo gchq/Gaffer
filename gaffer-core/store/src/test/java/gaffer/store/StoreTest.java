@@ -70,9 +70,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -543,14 +542,14 @@ public class StoreTest {
     }
 
     private class StoreImpl extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private boolean validationRequired;
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Set<StoreTrait> getTraits() {
             return TRAITS;
         }
 

@@ -36,9 +36,10 @@ import gaffer.store.Store;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -49,12 +50,12 @@ import java.util.List;
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {
-    private static final List<StoreTrait> TRAITS = Collections.singletonList(FILTERING);
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Collections.singletonList(FILTERING));
     private final List<Entity> entities = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
 
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
 

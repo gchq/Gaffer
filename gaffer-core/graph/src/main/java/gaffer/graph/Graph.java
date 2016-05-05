@@ -147,6 +147,15 @@ public final class Graph {
     }
 
     /**
+     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     *
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
+     */
+    public Set<StoreTrait> getStoreTraits() {
+        return store.getTraits();
+    }
+
+    /**
      * Builder for {@link Graph}.
      */
     public static class Builder {
