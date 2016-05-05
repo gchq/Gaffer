@@ -12,7 +12,7 @@
     "age.integer": {
       "position": "VALUE"
     },
-    "weight.float": {
+    "weight.double": {
       "position": "VALUE"
     }
   }

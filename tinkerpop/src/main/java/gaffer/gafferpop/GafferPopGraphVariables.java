@@ -23,7 +23,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class GafferPopGraphVariables implements Graph.Variables {
+    /**
+     * Variable key for the {@link gaffer.store.schema.Schema} object.
+     */
     public static final String SCHEMA = "schema";
+
+    /**
+     * Variable key for the {@link Map} of Gaffer operation options.
+     */
     public static final String OP_OPTIONS = "operationOptions";
 
     private final Map<String, Object> variables;

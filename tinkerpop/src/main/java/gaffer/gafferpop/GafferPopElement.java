@@ -18,6 +18,12 @@ package gaffer.gafferpop;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 
+/**
+ * A <code>GafferPopElement</code> is an {@link Element}.
+ * The remove method is not supported.
+ * As Gaffer does not allow updates, there is a readOnly flag that can be set
+ * to prevent changes to the element.
+ */
 public abstract class GafferPopElement implements Element {
     protected final Object id;
     protected final String label;

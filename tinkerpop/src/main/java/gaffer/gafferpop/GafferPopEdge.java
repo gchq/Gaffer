@@ -28,6 +28,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {link Edge}.
+ * <p>
+ * inVertex() and outVertex() methods are not supported as it is possible for a
+ * edge to have multiple in vertices and multiple out vertices (due to the mapping
+ * to a TinkerPop vertex to Gaffer {@link gaffer.data.element.Entity}.
+ * Use vertices(Direction) instead.
+ * </p>
+ * <p>
+ * An ID is required to be an {@link EdgeId} which contains the source and
+ * destination of an edge.
+ * </p>
+ */
 public final class GafferPopEdge extends GafferPopElement implements Edge {
     private Map<String, Property> properties;
 

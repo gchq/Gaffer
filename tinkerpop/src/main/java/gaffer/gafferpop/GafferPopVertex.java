@@ -33,6 +33,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {link Vertex}.
+ */
 public class GafferPopVertex extends GafferPopElement implements Vertex {
     private Map<String, List<VertexProperty>> properties;
 

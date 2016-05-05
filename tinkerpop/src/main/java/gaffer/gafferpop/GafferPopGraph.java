@@ -22,7 +22,6 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.gafferpop.generator.GafferPopEdgeGenerator;
 import gaffer.gafferpop.generator.GafferPopVertexGenerator;
 import gaffer.graph.Graph;
-import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -61,10 +60,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A <code>GafferPopGraph</code> is an implementation of
+ * {@link org.apache.tinkerpop.gremlin.structure.Graph}.
+ * It wraps a Gaffer {@link Graph} and delegates all operations to it.
+ * In addition to the tinkerpop methods required there are methods to add edges
+ * query for adjacent vertices and to provide a {@link View} to filter out results.
+ */
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
+    /**
+     * Configuration key for a path to Gaffer store properties.
+     *
+     * @see gaffer.store.StoreProperties
+     */
     public static final String STORE_PROPERTIES = "gaffer.storeproperties";
+
+    /**
+     * Configuration key for a string array of path to Gaffer schemas.
+     *
+     * @see Schema
+     */
     public static final String SCHEMAS = "gaffer.schemas";
+
+    /**
+     * Configuration key for a string array of operation options.
+     * Each option should in the form: key:value
+     */
     public static final String OP_OPTIONS = "gaffer.operation.options";
+
+    /**
+     * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
+     * don't have any properties, just an ID value and a label of 'id'.
+     */
+    public static final String ID_LABEL = "id";
+
     private final Graph graph;
     private final Configuration configuration;
     private final GafferPopGraphVariables variables;
@@ -149,6 +178,18 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .build());
     }
 
+    /**
+     * This performs getEntitiesBySeed operation on Gaffer.
+     * At least 1 vertexId must be provided. Gaffer does not support unseeded
+     * queries.
+     * All provided vertexIds will also be returned as {@link GafferPopVertex}s with
+     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     *
+     * @param vertexIds vertices ids to query for
+     * @return iterator of {@link GafferPopVertex}s, each vertex represents
+     * an {@link Entity} in Gaffer
+     * @see org.apache.tinkerpop.gremlin.structure.Graph#vertices(Object...)
+     */
     @Override
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         if (null == vertexIds || 0 == vertexIds.length) {
@@ -166,83 +207,127 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final LinkedList<Vertex> idVertices = new LinkedList<>();
         for (EntitySeed entitySeed : entitySeeds) {
-            idVertices.add(new GafferPopVertex("id", entitySeed.getVertex(), this));
+            idVertices.add(new GafferPopVertex(ID_LABEL, entitySeed.getVertex(), this));
         }
 
         return new WrappedIterable<Vertex>(result, idVertices).iterator();
     }
 
+    /**
+     * This performs getRelatedEntities operation on Gaffer.
+     * At least 1 id must be provided. Gaffer does not support unseeded
+     * queries.
+     * All provided vertex IDs will also be returned as {@link GafferPopVertex}s with
+     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     *
+     * @param ids    vertex IDs and edge IDs to be queried for.
+     *               You can use {@link Vertex}s, {@link GafferPopEdge}s,
+     *               {@link EdgeId}s or just vertex ID values
+     * @param labels labels of Entities to filter for.
+     * @return iterator of {@link GafferPopVertex}s, each vertex represents
+     * an {@link Entity} in Gaffer
+     */
     public Iterator<GafferPopVertex> vertices(final Iterable<Object> ids, final String... labels) {
         return verticesWithView(ids, createViewWithEntities(labels));
     }
 
-    public Iterator<GafferPopVertex> verticesWithView(final Object id, final View view) {
-        return verticesWithView(Collections.singletonList(id), view);
-    }
-
+    /**
+     * This performs getRelatedEntities operation on Gaffer.
+     * At least 1 id must be provided. Gaffer does not support unseeded
+     * queries.
+     * All provided vertex IDs will also be returned as {@link GafferPopVertex}s with
+     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     *
+     * @param ids  vertex IDs and edge IDs to be queried for.
+     *             You can use {@link Vertex}s, {@link GafferPopEdge}s,
+     *             {@link EdgeId}s or just vertex ID values
+     * @param view a Gaffer {@link View} to filter the vertices
+     * @return iterator of {@link GafferPopVertex}s, each vertex represents
+     * an {@link Entity} in Gaffer
+     * @see #vertices(Iterable, String...)
+     */
     public Iterator<GafferPopVertex> verticesWithView(final Iterable<Object> ids, final View view) {
         return verticesWithSeedsAndView(getElementSeeds(ids), view);
     }
 
-    private Iterator<GafferPopVertex> verticesWithSeedsAndView(final Iterable<ElementSeed> seeds, final View view) {
-        final GetRelatedEntities getRelEntities = new GetRelatedEntities.Builder()
-                .seeds(seeds)
-                .view(view)
-                .build();
 
-        Iterable<GafferPopVertex> result = execute(new Builder()
-                .first(getRelEntities)
-                .then(new GenerateObjects.Builder<Entity, GafferPopVertex>()
-                        .generator(new GafferPopVertexGenerator(this))
-                        .build())
-                .build());
-
-        if (null == view || view.getEntityGroups().contains("id")) {
-            final LinkedList<Vertex> idVertices = new LinkedList<>();
-            for (ElementSeed elementSeed : seeds) {
-                if (elementSeed instanceof EntitySeed) {
-                    idVertices.add(new GafferPopVertex("id", ((EntitySeed) elementSeed).getVertex(), this));
-                }
-            }
-
-            result = new WrappedIterable<>(result, idVertices);
-        }
-
-        return result.iterator();
-    }
-
+    /**
+     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * on Gaffer.
+     * Given a vertex id, adjacent vertices will be returned.
+     * If you provide any optional labels then you must provide edge labels and
+     * the vertex labels - any missing labels will cause the elements to be filtered out.
+     * This method will not return 'id' vertices, only vertices that exist as entities in Gaffer.
+     *
+     * @param vertexId  the vertex id to start at.
+     * @param direction the direction along edges to travel
+     * @param labels    labels of vertices and edges. Alternatively you can supply a Gaffer View serialised into JSON.
+     * @return iterator of {@link GafferPopVertex}
+     */
     public Iterator<GafferPopVertex> adjVertices(final Object vertexId, final Direction direction, final String... labels) {
-        return adjVerticesWithView(vertexId, direction, createViewWithEdges(labels));
+        return adjVerticesWithView(vertexId, direction, createView(labels));
     }
 
+    /**
+     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * on Gaffer.
+     * Given an iterable of vertex ids, adjacent vertices will be returned.
+     * If you provide any optional labels then you must provide edge labels and
+     * the vertex labels - any missing labels will cause the elements to be filtered out.
+     * This method will not return 'id' vertices, only vertices that exist as entities in Gaffer.
+     *
+     * @param vertexIds the iterable of vertex ids to start at.
+     * @param direction the direction along edges to travel
+     * @param labels    labels of vertices and edges. Alternatively you can supply a Gaffer View serialised into JSON.
+     * @return iterator of {@link GafferPopVertex}
+     */
     public Iterator<GafferPopVertex> adjVertices(final Iterable<Object> vertexIds, final Direction direction, final String... labels) {
-        return adjVerticesWithView(vertexIds, direction, createViewWithEdges(labels));
+        return adjVerticesWithView(vertexIds, direction, createView(labels));
     }
 
+    /**
+     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * on Gaffer.
+     * Given a vertex id, adjacent vertices will be returned. If you provide
+     * any optional labels then you must provide edge labels and the vertex
+     * labels - any missing labels will cause the elements to be filtered out.
+     * This method will not return 'id' vertices, only vertices that exist as entities in Gaffer.
+     *
+     * @param vertexId  the vertex id to start at.
+     * @param direction the direction along edges to travel
+     * @param view      a Gaffer {@link View} containing edge and entity groups.
+     * @return iterator of {@link GafferPopVertex}
+     */
     public Iterator<GafferPopVertex> adjVerticesWithView(final Object vertexId, final Direction direction, final View view) {
         return adjVerticesWithView(Collections.singletonList(vertexId), direction, view);
     }
 
-    public Iterator<GafferPopVertex> adjVerticesWithView(final Iterable<Object> ids, final Direction direction, final View view) {
-        return adjVerticesWithSeedsAndView(getEntitySeeds(ids), direction, view);
+    /**
+     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * on Gaffer.
+     * Given an iterable of vertex ids, adjacent vertices will be returned.
+     * If you provide any optional labels then you must provide edge labels and the vertex
+     * labels - any missing labels will cause the elements to be filtered out.
+     * This method will not return 'id' vertices, only vertices that exist as entities in Gaffer.
+     *
+     * @param vertexIds the iterable of vertex ids to start at.
+     * @param direction the direction along edges to travel
+     * @param view      a Gaffer {@link View} containing edge and entity groups.
+     * @return iterator of {@link GafferPopVertex}
+     */
+    public Iterator<GafferPopVertex> adjVerticesWithView(final Iterable<Object> vertexIds, final Direction direction, final View view) {
+        return adjVerticesWithSeedsAndView(getEntitySeeds(vertexIds), direction, view);
     }
 
-    private Iterator<GafferPopVertex> adjVerticesWithSeedsAndView(final Iterable<EntitySeed> seeds, final Direction direction, final View view) {
-        final GetAdjacentEntitySeeds getAdjEntitySeeds = new GetAdjacentEntitySeeds.Builder()
-                .seeds(seeds)
-                .view(view)
-                .build();
-        setInOutType(direction, getAdjEntitySeeds);
-
-        return execute(new OperationChain.Builder()
-                .first(getAdjEntitySeeds)
-                .then(new GetEntitiesBySeed())
-                .then(new GenerateObjects.Builder<Entity, GafferPopVertex>()
-                        .generator(new GafferPopVertexGenerator(this))
-                        .build())
-                .build()).iterator();
-    }
-
+    /**
+     * This performs a getEdgesBySeed operation on Gaffer.
+     * At least 1 edgeIds must be provided. Gaffer does not support unseeded
+     * queries.
+     *
+     * @param edgeIds {@link EdgeId}s or {@link GafferPopEdge}s to query for
+     * @return iterator of {@link GafferPopEdge}s.
+     * @see org.apache.tinkerpop.gremlin.structure.Graph#edges(Object...)
+     */
     @Override
     public Iterator<Edge> edges(final Object... edgeIds) {
         if (null == edgeIds || 0 == edgeIds.length) {
@@ -259,36 +344,60 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .build()).iterator();
     }
 
-
+    /**
+     * This performs a getRelatedEdges operation on Gaffer.
+     *
+     * @param id        vertex ID or edge ID to be queried for.
+     *                  You can use {@link Vertex}, {@link GafferPopEdge},
+     *                  {@link EdgeId} or just a vertex ID value.
+     * @param direction {@link Direction} of edges to return.
+     * @param labels    labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
+     * @return iterator of {@link GafferPopEdge}
+     */
     public Iterator<GafferPopEdge> edges(final Object id, final Direction direction, final String... labels) {
-        return edgesWithView(id, direction, createViewWithEdges(labels));
+        return edgesWithView(id, direction, createView(labels));
     }
 
-    public Iterator<GafferPopEdge> edges(final Iterable<Object> id, final Direction direction, final String... labels) {
-        return edgesWithView(id, direction, createViewWithEdges(labels));
+    /**
+     * This performs a getRelatedEdges operation on Gaffer.
+     *
+     * @param ids       vertex IDs and edge IDs to be queried for.
+     *                  You can use {@link Vertex}s, {@link GafferPopEdge}s,
+     *                  {@link EdgeId}s or just vertex ID values.
+     * @param direction {@link Direction} of edges to return.
+     * @param labels    labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
+     * @return iterator of {@link GafferPopEdge}
+     */
+    public Iterator<GafferPopEdge> edges(final Iterable<Object> ids, final Direction direction, final String... labels) {
+        return edgesWithView(ids, direction, createView(labels));
     }
 
+    /**
+     * This performs a getRelatedEdges operation on Gaffer.
+     *
+     * @param id        vertex ID or edge ID to be queried for.
+     *                  You can use {@link Vertex}, {@link GafferPopEdge},
+     *                  {@link EdgeId} or just a vertex ID value.
+     * @param direction {@link Direction} of edges to return.
+     * @param view      labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
+     * @return iterator of {@link GafferPopEdge}
+     */
     public Iterator<GafferPopEdge> edgesWithView(final Object id, final Direction direction, final View view) {
         return edgesWithView(Collections.singletonList(id), direction, view);
     }
 
+    /**
+     * This performs a getRelatedEdges operation on Gaffer.
+     *
+     * @param ids       vertex IDs and edge IDs to be queried for.
+     *                  You can use {@link Vertex}s, {@link GafferPopEdge}s,
+     *                  {@link EdgeId}s or just vertex ID values.
+     * @param direction {@link Direction} of edges to return.
+     * @param view      a Gaffer {@link View} containing edge groups.
+     * @return iterator of {@link GafferPopEdge}
+     */
     public Iterator<GafferPopEdge> edgesWithView(final Iterable<Object> ids, final Direction direction, final View view) {
         return edgesWithSeedsAndView(getElementSeeds(ids), direction, view);
-    }
-
-    private Iterator<GafferPopEdge> edgesWithSeedsAndView(final Iterable<ElementSeed> seeds, final Direction direction, final View view) {
-        final GetRelatedEdges getRelEdges = new GetRelatedEdges.Builder()
-                .seeds(seeds)
-                .view(view)
-                .build();
-        setInOutType(direction, getRelEdges);
-
-        return execute(new OperationChain.Builder()
-                .first(getRelEdges)
-                .then(new GenerateObjects.Builder<gaffer.data.element.Edge, GafferPopEdge>()
-                        .generator(new GafferPopEdgeGenerator(this, true))
-                        .build())
-                .build()).iterator();
     }
 
     @Override
@@ -337,6 +446,74 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
     }
 
+    private Iterator<GafferPopVertex> verticesWithSeedsAndView(final List<ElementSeed> seeds, final View view) {
+        if (null == seeds || seeds.isEmpty()) {
+            throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
+        }
+
+        final GetRelatedEntities getRelEntities = new GetRelatedEntities.Builder()
+                .seeds(seeds)
+                .view(view)
+                .build();
+
+        Iterable<GafferPopVertex> result = execute(new Builder()
+                .first(getRelEntities)
+                .then(new GenerateObjects.Builder<Entity, GafferPopVertex>()
+                        .generator(new GafferPopVertexGenerator(this))
+                        .build())
+                .build());
+
+        if (null == view || view.getEntityGroups().contains(ID_LABEL)) {
+            final LinkedList<Vertex> idVertices = new LinkedList<>();
+            for (ElementSeed elementSeed : seeds) {
+                if (elementSeed instanceof EntitySeed) {
+                    idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) elementSeed).getVertex(), this));
+                }
+            }
+
+            result = new WrappedIterable<>(result, idVertices);
+        }
+
+        return result.iterator();
+    }
+
+    private Iterator<GafferPopVertex> adjVerticesWithSeedsAndView(final List<EntitySeed> seeds, final Direction direction, final View view) {
+        if (null == seeds || seeds.isEmpty()) {
+            throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
+        }
+
+        return execute(new OperationChain.Builder()
+                .first(new GetAdjacentEntitySeeds.Builder()
+                        .seeds(seeds)
+                        .view(view)
+                        .inOutType(getInOutType(direction))
+                        .build())
+                .then(new GetEntitiesBySeed.Builder()
+                        .view(view)
+                        .build())
+                .then(new GenerateObjects.Builder<Entity, GafferPopVertex>()
+                        .generator(new GafferPopVertexGenerator(this))
+                        .build())
+                .build()).iterator();
+    }
+
+    private Iterator<GafferPopEdge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
+        if (null == seeds || seeds.isEmpty()) {
+            throw new UnsupportedOperationException("There could be a lot of edges, so please add some seeds");
+        }
+
+        return execute(new OperationChain.Builder()
+                .first(new GetRelatedEdges.Builder()
+                        .seeds(seeds)
+                        .view(view)
+                        .inOutType(getInOutType(direction))
+                        .build())
+                .then(new GenerateObjects.Builder<gaffer.data.element.Edge, GafferPopEdge>()
+                        .generator(new GafferPopEdgeGenerator(this, true))
+                        .build())
+                .build()).iterator();
+    }
+
     private View createViewWithEntities(final String[] labels) {
         View view = null;
         if (null != labels && 0 < labels.length) {
@@ -358,7 +535,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return view;
     }
 
-    private View createViewWithEdges(final String[] labels) {
+    private View createView(final String[] labels) {
         View view = null;
         if (null != labels && 0 < labels.length) {
             if (1 == labels.length && labels[0].startsWith("View{")) {
@@ -370,8 +547,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 }
             } else {
                 final View.Builder viewBuilder = new View.Builder();
+                final Schema schema = ((Schema) variables().get(GafferPopGraphVariables.SCHEMA).get());
                 for (String label : labels) {
-                    viewBuilder.edge(label);
+                    if (schema.isEntity(label)) {
+                        viewBuilder.entity(label);
+                    } else if (schema.isEdge(label)) {
+                        viewBuilder.edge(label);
+                    } else if (!ID_LABEL.equals(label)) {
+                        throw new IllegalArgumentException("Label/Group was found in the schema: " + label);
+                    }
                 }
                 view = viewBuilder.build();
             }
@@ -427,7 +611,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return edgeSeeds;
     }
 
-    private void setInOutType(final Direction direction, final GetOperation op) {
+    private IncludeIncomingOutgoingType getInOutType(final Direction direction) {
         final IncludeIncomingOutgoingType inOutType;
         if (Direction.OUT == direction) {
             inOutType = IncludeIncomingOutgoingType.OUTGOING;
@@ -436,7 +620,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         } else {
             inOutType = IncludeIncomingOutgoingType.BOTH;
         }
-        op.setIncludeIncomingOutGoing(inOutType);
+
+        return inOutType;
     }
 
     private GafferPopGraphVariables createVariables() {

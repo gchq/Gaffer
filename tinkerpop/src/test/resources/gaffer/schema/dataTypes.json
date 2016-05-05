@@ -12,7 +12,7 @@
     "age.integer": {
       "class": "java.lang.Integer"
     },
-    "weight.float": {
+    "weight.double": {
       "class": "java.lang.Double"
     }
   }

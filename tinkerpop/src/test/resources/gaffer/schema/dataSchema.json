@@ -21,7 +21,7 @@
       "destination": "id",
       "directed": "true",
       "properties": {
-        "weight": "weight.float"
+        "weight": "weight.double"
       }
     },
     "created": {
@@ -29,7 +29,7 @@
       "destination": "id",
       "directed": "true",
       "properties": {
-        "weight": "weight.float"
+        "weight": "weight.double"
       }
     },
     "dependsOn": {
