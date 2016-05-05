@@ -88,11 +88,11 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     @Override
     public Iterator<Vertex> vertices(final Direction direction) {
         if (Direction.IN.equals(direction)) {
-            return graph().vertices(id().getSource());
+            return graph().vertices(id().getDest());
         }
 
         if (Direction.OUT.equals(direction)) {
-            return graph().vertices(id().getDest());
+            return graph().vertices(id().getSource());
         }
         return graph().vertices(id().getSource(), id().getDest());
     }

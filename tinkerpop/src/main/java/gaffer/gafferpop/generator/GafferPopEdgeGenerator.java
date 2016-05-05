@@ -57,7 +57,7 @@ public class GafferPopEdgeGenerator extends OneToOneElementGenerator<GafferPopEd
     @Override
     public GafferPopEdge getObject(final Element element) {
         if (element instanceof Entity) {
-            throw new IllegalArgumentException("An Entity cannot be converted into a GafferPopVertex");
+            throw new IllegalArgumentException("An Entity cannot be converted into a GafferPopEdge");
         }
 
         final Edge edge = ((Edge) element);

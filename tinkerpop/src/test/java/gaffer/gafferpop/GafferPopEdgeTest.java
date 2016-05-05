@@ -137,7 +137,7 @@ public class GafferPopEdgeTest {
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, "source", "dest", graph);
         final GafferPopVertex inVertex = new GafferPopVertex(TestGroups.ENTITY, "source", graph);
         final Iterator<Vertex> inVertices = Collections.singleton((Vertex) inVertex).iterator();
-        given(graph.vertices("source")).willReturn(inVertices);
+        given(graph.vertices("dest")).willReturn(inVertices);
 
         // When
         final Iterator<Vertex> resultVertices = edge.vertices(Direction.IN);
@@ -153,7 +153,7 @@ public class GafferPopEdgeTest {
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, "source", "dest", graph);
         final GafferPopVertex outVertex = new GafferPopVertex(TestGroups.ENTITY, "dest", graph);
         final Iterator<Vertex> outVertices = Collections.singleton((Vertex) outVertex).iterator();
-        given(graph.vertices("dest")).willReturn(outVertices);
+        given(graph.vertices("source")).willReturn(outVertices);
 
         // When
         final Iterator<Vertex> resultVertices = edge.vertices(Direction.OUT);

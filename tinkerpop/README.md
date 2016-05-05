@@ -47,7 +47,7 @@ active the GafferPop plugin:
 
     :plugin use gaffer.gafferpop.GafferPopGraph
 
-load the data:
+load the tinkerpop modern data set:
 
     graph = GraphFactory.open('conf/gafferpop/gafferpop-tinkerpop-modern.properties')
     graph.io(graphml()).readGraph('data/tinkerpop-modern.xml')
@@ -58,7 +58,7 @@ do some queries:
     g.V('1').hasLabel('person')
     g.V('1', '2').hasLabel('person').outE('knows').values().is(lt(1))
 
-calculate the shortest path from 1 to 2 (max 6 loops):
+calculate the shortest path from 1 to 3 (max 6 loops):
 
     start = '1'; end = '3'; g.V(start).hasLabel('id').store('v').repeat(bothE().where(without('e')).store('e').inV().hasLabel('id').where(without('v'))).until{it.get().id() == end || it.loops() == 6}.path().filter{it.get().last().id() == end}
 
