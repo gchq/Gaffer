@@ -26,7 +26,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +65,7 @@ public interface IGraphConfigurationService {
     @GET
     @Path("/storeTraits")
     @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list")
-    Collection<StoreTrait> getStoreTraits();
+    Set<StoreTrait> getStoreTraits();
 
     @POST
     @Path("/isOperationSupported")

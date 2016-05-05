@@ -51,7 +51,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -165,7 +164,7 @@ public class GraphTest {
 
 
         // When
-        final Collection<StoreTrait> storeTraits = Arrays.asList(StoreTrait.AGGREGATION, StoreTrait.TRANSFORMATION);
+        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.AGGREGATION, StoreTrait.TRANSFORMATION));
         given(store.getTraits()).willReturn(storeTraits);
         final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
 
@@ -230,8 +229,8 @@ public class GraphTest {
     static class StoreImpl extends Store {
 
         @Override
-        public Collection<StoreTrait> getTraits() {
-            return new ArrayList<>(0);
+        public Set<StoreTrait> getTraits() {
+            return new HashSet<>(0);
         }
 
         @Override

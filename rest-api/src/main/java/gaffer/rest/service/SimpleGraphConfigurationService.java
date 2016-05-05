@@ -80,7 +80,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public Collection<StoreTrait> getStoreTraits() {
+    public Set<StoreTrait> getStoreTraits() {
         return graphFactory.getGraph().getStoreTraits();
     }
 

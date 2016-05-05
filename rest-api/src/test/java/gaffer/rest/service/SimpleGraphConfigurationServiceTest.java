@@ -38,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +52,7 @@ public class SimpleGraphConfigurationServiceTest {
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
-        final Collection<StoreTrait> traits = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
+        final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
         final Set<Class<? extends Operation>> operations = new HashSet<>();
@@ -78,7 +77,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetStoreTraits() throws IOException {
         // When
-        final Collection<StoreTrait> traits = service.getStoreTraits();
+        final Set<StoreTrait> traits = service.getStoreTraits();
         // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 4", traits.size() == 4);
@@ -134,7 +133,7 @@ public class SimpleGraphConfigurationServiceTest {
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
         // When
         byte[] bytes = serialiser.serialise(service.getStoreTraits());
-        final Collection<StoreTrait> traits = serialiser.deserialise(bytes, Collection.class);
+        final Set<StoreTrait> traits = serialiser.deserialise(bytes, Set.class);
 
         // Then
         assertNotNull(traits);

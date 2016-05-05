@@ -70,8 +70,9 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -84,7 +85,7 @@ import java.util.Map;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Collection<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION);
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -160,7 +161,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public Collection<StoreTrait> getTraits() {
+    public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
 
