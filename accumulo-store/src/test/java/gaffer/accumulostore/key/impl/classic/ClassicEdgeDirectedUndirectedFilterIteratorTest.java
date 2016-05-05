@@ -58,11 +58,12 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private final ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptCorrectWayEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, AccumuloElementConversionException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -71,7 +72,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
-            // First key is correct way round
+            // First key is deduplicated
             assertTrue("Failed for edge: " + edge.toString(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -81,11 +82,11 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptCorrectWayDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, AccumuloElementConversionException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
         }};
         filter.validateOptions(options);
@@ -95,7 +96,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
-            // First key is correct way round
+            // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), edge.isDirected(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -105,11 +106,11 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptCorrectWayUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, AccumuloElementConversionException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+            put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
         }};
         filter.validateOptions(options);
@@ -119,7 +120,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
-            // First key is correct way round
+            // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), !edge.isDirected(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round

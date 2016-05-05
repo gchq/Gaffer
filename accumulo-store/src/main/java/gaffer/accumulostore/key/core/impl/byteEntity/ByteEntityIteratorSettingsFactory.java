@@ -39,10 +39,10 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
-        final boolean correctWayEdges = operation instanceof GetAllElements;
+        final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
         if (includeEdgeType == IncludeEdgeType.ALL && includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
-                && includeEntities && !correctWayEdges) {
+                && includeEntities && !deduplicateUndirectedEdges) {
             return null;
         }
 
@@ -52,7 +52,7 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
                 .includeIncomingOutgoing(includeIncomingOutgoingType)
                 .includeEdges(includeEdgeType)
                 .includeEntities(includeEntities)
-                .correctWayEdges(correctWayEdges)
+                .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                 .build();
     }
 

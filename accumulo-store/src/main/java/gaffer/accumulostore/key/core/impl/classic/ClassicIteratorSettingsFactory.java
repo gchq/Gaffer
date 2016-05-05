@@ -50,7 +50,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 .includeIncomingOutgoing(includeIncomingOutgoingType)
                 .includeEdges(includeEdgeType)
                 .includeEntities(includeEntities)
-                .correctWayEdges(correctWayEdges)
+                .deduplicateUndirectedEdges(correctWayEdges)
                 .build();
     }
 

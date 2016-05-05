@@ -106,9 +106,9 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder correctWayEdges(final boolean correctWayEdges) {
-        if (correctWayEdges) {
-            setting.addOption(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+    public IteratorSettingBuilder deduplicateUndirectedEdges(final boolean deduplicateUndirectedEdges) {
+        if (deduplicateUndirectedEdges) {
+            setting.addOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
         }
         return this;
     }

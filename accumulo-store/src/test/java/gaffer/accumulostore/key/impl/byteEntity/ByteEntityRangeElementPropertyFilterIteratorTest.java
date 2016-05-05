@@ -63,11 +63,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     private final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptCorrectWayEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, AccumuloElementConversionException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -76,7 +77,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (Element element : ELEMENTS) {
             final Pair<Key> keys = converter.getKeysFromElement(element);
-            // First key is correct way round, but only edges should be excepted
+            // First key is deduplicated, but only edges should be excepted
             assertEquals("Failed for element: " + element.toString(), element instanceof Edge, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -86,12 +87,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptCorrectWayDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, AccumuloElementConversionException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+            put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};
         filter.validateOptions(options);
 
@@ -100,7 +102,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (Element element : ELEMENTS) {
             final Pair<Key> keys = converter.getKeysFromElement(element);
-            // First key is correct way round, but only directed edges should be excepted
+            // First key is deduplicated, but only directed edges should be excepted
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -111,12 +113,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptCorrectWayUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, AccumuloElementConversionException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "true");
+            put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};
         filter.validateOptions(options);
 
@@ -125,7 +128,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (Element element : ELEMENTS) {
             final Pair<Key> keys = converter.getKeysFromElement(element);
-            // First key is correct way round, but only undirected edges should be excepted
+            // First key is deduplicated, but only undirected edges should be excepted
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -164,6 +167,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};
         filter.validateOptions(options);
 
@@ -236,6 +240,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.NO_EDGES, "true");
             put(AccumuloStoreConstants.INCLUDE_ENTITIES, "true");
+            put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};
         filter.validateOptions(options);
 

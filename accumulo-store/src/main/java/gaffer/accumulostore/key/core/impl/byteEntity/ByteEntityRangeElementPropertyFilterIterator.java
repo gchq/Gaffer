@@ -41,7 +41,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     private boolean directedEdges = false;
     private boolean incomingEdges = false;
     private boolean outgoingEdges = false;
-    private boolean correctWayEdges = false;
+    private boolean deduplicateUndirectedEdges = false;
 
     @Override
     public boolean accept(final Key key, final Value value) {
@@ -65,8 +65,8 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         if (unDirectedEdges) {
             // Only undirected edges
             if (isUndirected) {
-                if (correctWayEdges) {
-                    return isCorrectWayUndirectedEdge(key);
+                if (deduplicateUndirectedEdges) {
+                    return checkForDuplicateUndirectedEdge(key);
                 }
                 return true;
             }
@@ -75,28 +75,18 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
 
         if (directedEdges) {
             // Only directed edges
-            if (!isUndirected) {
-                if (correctWayEdges) {
-                    return ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag;
-                }
-                return checkDirection(flag);
-            }
-            return false;
+            return !isUndirected && checkDirection(flag);
         }
 
         // All edge types
-        if (correctWayEdges) {
-            if (isUndirected) {
-                return isCorrectWayUndirectedEdge(key);
-            }
-
-            return ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE == flag;
+        if (isUndirected && deduplicateUndirectedEdges) {
+            return checkForDuplicateUndirectedEdge(key);
         }
 
         return checkDirection(flag);
     }
 
-    private boolean isCorrectWayUndirectedEdge(final Key key) {
+    private boolean checkForDuplicateUndirectedEdge(final Key key) {
         boolean isCorrect = false;
         try {
             final byte[][] sourceDestValues = new byte[3][];
@@ -158,8 +148,8 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         if (!options.containsKey(AccumuloStoreConstants.NO_EDGES)) {
             edges = true;
         }
-        if (options.containsKey(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY)) {
-            correctWayEdges = true;
+        if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
+            deduplicateUndirectedEdges = true;
         }
         return true;
     }
@@ -175,7 +165,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
                 .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.NO_EDGES, "Optional: Set if no edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.CORRECT_WAY_EDGES_ONLY, "Optional: Set if only the correct way round edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if undirected edges should be deduplicated")
                 .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
