@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
@@ -107,6 +108,21 @@ public final class Graph {
     }
 
     /**
+     * @param operationClass the operation class to check
+     * @return true if the provided operation is supported.
+     */
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        return store.isSupported(operationClass);
+    }
+
+    /**
+     * @return a collection of all the supported {@link Operation}s.
+     */
+    public Set<Class<? extends Operation>> getSupportedOperations() {
+        return store.getSupportedOperations();
+    }
+
+    /**
      * Returns the graph view.
      *
      * @return the graph view.
@@ -128,6 +144,15 @@ public final class Graph {
      */
     public boolean hasTrait(final StoreTrait storeTrait) {
         return store.hasTrait(storeTrait);
+    }
+
+    /**
+     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     *
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
+     */
+    public Set<StoreTrait> getStoreTraits() {
+        return store.getTraits();
     }
 
     /**

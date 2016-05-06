@@ -41,8 +41,8 @@ import gaffer.store.schema.Schema;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class StoreIT {
     @Test
@@ -74,10 +74,10 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Set<StoreTrait> getTraits() {
             return TRAITS;
         }
 
