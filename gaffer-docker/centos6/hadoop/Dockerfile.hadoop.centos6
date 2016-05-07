@@ -17,13 +17,12 @@ MAINTAINER ng10developer
 
 LABEL com.gaffer-docker.version.is-beta="yes" \
       com.gaffer-docker.version.is-production="no" \
-      com.gaffer-docker.version="0.3.2-beta" \
-      com.gaffer-docker.release-date="2016-04-27" \
+      com.gaffer-docker.version="0.3.3-beta" \
+      com.gaffer-docker.release-date="2016-05-06" \
       com.gaffer-docker.description="Hadoop Docker Image"
 
 # directory where docker setup files are temporary stored
 ENV DOCKER_FILES /usr/local/docker_files
-ENV JAVA_INSTALL /opt/jvm
 ENV HD_USER hduser
 ENV HD_USER_GROUP hadoop
 ENV HD_USER_HOME /home/hduser
@@ -74,20 +73,17 @@ mkdir -p /home/hduser/.ssh  && \
       chmod 600 /home/hduser/.ssh/config  && \
       chmod 700 /home/hduser/.ssh && \
       chmod 777 /etc/ssh/sshd_config && \
-      chown -R hduser:hadoop /home/hduser/.ssh 
+      chown -R hduser:hadoop /home/hduser/.ssh && \
+      chown -R hduser:hadoop /opt/jvm/java
+ 
 
 
  
 USER hduser
 
-# Install JAVA
-RUN mkdir -p ${INSTALL_DIR}/jvm
+# Configure JAVA
 
-RUN curl -L -H "Cookie: oraclelicense=accept-securebackup-cookie" -k "https://edelivery.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz" | tar -xz -C /opt/jvm/
-
-RUN ln -s ${INSTALL_DIR}/jvm/jdk1.7.0_79 ${INSTALL_DIR}/jvm/java
-
-ENV JAVA_HOME ${INSTALL_DIR}/java
+ENV JAVA_HOME ${INSTALL_DIR}/jvm/java
 ENV PATH $PATH:${JAVA_HOME}/bin
 
 

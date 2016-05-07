@@ -47,7 +47,11 @@ USER hduser
 # Accumulo uses zookeeper for coordinating settings betwen its processes
 # and for other configuration information
 
-ADD ${ZOOKEEPER_LOCN_FILES}/zookeeper.tar ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/zoo.cfg ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/log4j.properties ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/zkEnv.sh ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/zkServer.sh ${DOCKER_FILES}/
+
 RUN curl -s https://archive.apache.org/dist/zookeeper/zookeeper-3.3.5/zookeeper-3.3.5.tar.gz | tar -xz -C /opt/
 RUN cd ${INSTALL_DIR} && ln -s ./zookeeper-3.3.5 zookeeper
 RUN cp -pf ${DOCKER_FILES}/zoo.cfg ${INSTALL_DIR}/zookeeper/conf/.
@@ -70,11 +74,29 @@ USER root
 
 RUN cd ${INSTALL_DIR}/accumulo && ./bin/build_native_library.sh
 
-# Installs accumulo user start up scripts
+# Copies the configuration scripts required to create an accumulo node 
+# configured as a single cluster
+
 USER hduser
-ADD ${ACCUMULO_LOCN_FILES}/accumulo_conf.tar ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-env.sh ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-metrics.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo.policy.example ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/auditLog.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/gc ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/generic_logger.properties  ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/generic_logger.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/hadoop-metrics2-accumulo.properties ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/log4j.properties ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/masters ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/monitor ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/monitor_logger.properties ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/monitor_logger.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/slaves ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/tracers ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-site.xml ${INSTALL_DIR}/accumulo/conf/
 ADD ${ACCUMULO_LOCN_FILES}/start-accumulo.sh /home/hduser/
 ADD ${ACCUMULO_LOCN_FILES}/stop-accumulo.sh /home/hduser/
+
 ADD ${ACCUMULO_LOCN_FILES}/gaffer2-setup.sh /home/hduser/
 RUN mkdir -p  ${INSTALL_DIR}/accumulo/logs  
 

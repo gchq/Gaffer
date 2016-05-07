@@ -6,6 +6,8 @@
 
 
 # The official docker centos 6.7 base image is pulled from docker github
+# and committed locally to an image stored on the repository/filesystem
+# The locally stored image is called gaffer-docker/centos:centos 6.7
 
 FROM centos:centos6.7
 
@@ -17,8 +19,8 @@ MAINTAINER ng10developer
 
 LABEL com.gaffer-docker.version.is-beta="yes" \
       com.gaffer-docker.version.is-production="no" \
-      com.gaffer-docker.version="0.0.3-beta" \
-      com.gaffer-docker.release-date="2016-04-28" \
+      com.gaffer-docker.version="0.0.2-beta" \
+      com.gaffer-docker.release-date="2016-04-27" \
       com.gaffer-docker.description="Centos 6.7 and additional packages required for installation of hadoop"
 # Additional centos packages required for Hadoop, Accumulo and Gaffer to run
 
@@ -31,13 +33,16 @@ RUN \
   yum -y install initscripts tar vi openssh-server openssh-clients; yum clean all; \
   yum -y groupinstall "Development Tools"; yum clean all; \
   yum -y install firefox; yum clean all; \
+  yum -y install icedtea-web dbus; yum clean all; \
   yum install -y iproute hostname inotify-tools yum-utils which; \
   yum clean all; \
   yum -y install gtk3; yum clean all; \
   yum -y update libselinux; yum whatprovides service; \
   yum clean all; \
   yum install -y python-setuptools; \
-  easy_install supervisor
+  easy_install supervisor; \
+  yum -y install java-1.7.0-openjdk-devel.x86_64; \
+  dbus-uuidgen > /var/lib/dbus/machine-id
 
 # Sets up passwordless ssh by generating ssh keys
 # so hadoop, accumulo can start up services without user
@@ -66,6 +71,16 @@ RUN \
     chmod 777 /var/run/sshd; \
     echo "root:admin" | chpasswd
 
+# set up environment variables for java
+
+ENV JAVA_VERSION java_sdk_1.7.0
+ENV INSTALL_DIR /opt
+ENV JAVA_INSTALL ${INSTALL_DIR}/jvm
+
+RUN \
+     mkdir -p ${JAVA_INSTALL};\
+     ln -s /etc/alternatives/${JAVA_VERSION} ${JAVA_INSTALL}/java
+     
 # Following best practice guidelines from docker GitHub
 # Supervisor , the process control system
 # is used to monitor and control linux like
