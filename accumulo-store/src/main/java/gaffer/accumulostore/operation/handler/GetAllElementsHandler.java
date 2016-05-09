@@ -20,7 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
-import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
+import gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllElements;
@@ -50,7 +50,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
             if (operation.isSummarise()) {
                 iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(store));
             }
-            ret = new AccumuloSingleIDRetriever(store, operation, (IteratorSetting[]) iteratorSettings.toArray());
+            ret = new AccumuloAllElementsRetriever(store, operation, (IteratorSetting[]) iteratorSettings.toArray());
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

@@ -162,7 +162,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
                 .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if only the correct way round edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if undirected edges should be deduplicated")
                 .setIteratorName(AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")

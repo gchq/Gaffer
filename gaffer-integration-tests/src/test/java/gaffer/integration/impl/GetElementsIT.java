@@ -17,6 +17,7 @@
 package gaffer.integration.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
@@ -118,6 +119,30 @@ public class GetElementsIT extends AbstractStoreIT {
                 }
             }
         }
+    }
+
+    @Test
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
+        // Given
+        final GetElementsSeed<ElementSeed, Element> op = new GetElementsSeed<>();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op);
+
+        // Then
+        assertFalse(results.iterator().hasNext());
+    }
+
+    @Test
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
+        // Given
+        final GetRelatedElements<ElementSeed, Element> op = new GetRelatedElements<>();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op);
+
+        // Then
+        assertFalse(results.iterator().hasNext());
     }
 
     private void shouldGetElementsBySeed(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {

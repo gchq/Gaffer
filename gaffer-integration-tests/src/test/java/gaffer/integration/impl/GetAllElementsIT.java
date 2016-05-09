@@ -21,14 +21,24 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
+import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Entity;
+import gaffer.data.element.IdentifierType;
+import gaffer.data.element.function.ElementFilter;
+import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.function.simple.filter.IsEqual;
+import gaffer.function.simple.transform.Concat;
 import gaffer.integration.AbstractStoreIT;
+import gaffer.integration.TraitRequirement;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.impl.get.GetAllElements;
+import gaffer.store.StoreTrait;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -59,6 +69,61 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 }
             }
         }
+    }
+
+    @TraitRequirement(StoreTrait.FILTERING)
+    @Test
+    public void shouldGetAllFilteredElements() throws Exception {
+        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+                .populateProperties(true)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .filter(new ElementFilter.Builder()
+                                        .select(IdentifierType.VERTEX)
+                                        .execute(new IsEqual("A1"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op);
+
+        // Then
+        final List<Element> resultList = Lists.newArrayList(results);
+        assertEquals(1, resultList.size());
+        assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
+    }
+
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.FILTERING})
+    @Test
+    public void shouldGetAllTransformedFilteredElements() throws Exception {
+        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+                .populateProperties(true)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .filter(new ElementFilter.Builder()
+                                        .select(IdentifierType.VERTEX)
+                                        .execute(new IsEqual("A1"))
+                                        .build())
+                                .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
+                                .transformer(new ElementTransformer.Builder()
+                                        .select(new ElementComponentKey(IdentifierType.VERTEX),
+                                                new ElementComponentKey(TestPropertyNames.STRING))
+                                        .project(TestPropertyNames.TRANSIENT_1)
+                                        .execute(new Concat())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op);
+
+        // Then
+        final List<Element> resultList = Lists.newArrayList(results);
+        assertEquals(1, resultList.size());
+        assertEquals("A1,0", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
     }
 
     protected void shouldGetAllElements(boolean includeEntities, final IncludeEdgeType includeEdgeType) throws Exception {

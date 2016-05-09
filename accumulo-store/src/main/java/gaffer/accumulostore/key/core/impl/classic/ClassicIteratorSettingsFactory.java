@@ -35,11 +35,11 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
-        final boolean correctWayEdges = operation instanceof GetAllElements;
+        final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
         if (includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
                 && includeEdgeType == IncludeEdgeType.ALL
-                && !correctWayEdges) {
+                && !deduplicateUndirectedEdges) {
             return null;
         }
 
@@ -50,7 +50,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 .includeIncomingOutgoing(includeIncomingOutgoingType)
                 .includeEdges(includeEdgeType)
                 .includeEntities(includeEntities)
-                .deduplicateUndirectedEdges(correctWayEdges)
+                .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                 .build();
     }
 
