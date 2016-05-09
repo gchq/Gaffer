@@ -50,7 +50,7 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public interface IExamplesService {
     @GET
-    @Path("/graph/execute")
+    @Path("/graph/doOperation")
     OperationChain execute();
 
     @GET

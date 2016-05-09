@@ -22,6 +22,7 @@ import gaffer.function.TransformFunction;
 import gaffer.operation.Operation;
 import gaffer.rest.GraphFactory;
 import gaffer.rest.SystemProperty;
+import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
@@ -76,6 +77,11 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     @Override
     public List<Class> getTransformFunctions() {
         return TRANSFORM_FUNCTIONS;
+    }
+
+    @Override
+    public Set<StoreTrait> getStoreTraits() {
+        return graphFactory.getGraph().getStoreTraits();
     }
 
     @Override
