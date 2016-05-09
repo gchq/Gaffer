@@ -77,7 +77,6 @@ Limitations
 There are several restrictions with this implementation. The following is not supported by GafferPop:
  - Removal
  - Updating properties
- - Fetching all Vertices or Edges - you must provide at least 1 seed. This means you cannot use Gremlin's export capability.
  - Undirected edges
  - Entity group 'id' is reserved for an empty group containing only the vertex id
 
