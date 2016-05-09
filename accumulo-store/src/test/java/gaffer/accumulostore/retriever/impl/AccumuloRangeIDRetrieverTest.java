@@ -18,7 +18,6 @@ package gaffer.accumulostore.retriever.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -77,7 +76,7 @@ public class AccumuloRangeIDRetrieverTest {
     }
 
     public void test(final AccumuloStore store) throws StoreException {
-        final User user = mock(User.class);
+        final User user = new User();
 
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
@@ -112,7 +111,7 @@ public class AccumuloRangeIDRetrieverTest {
             elements.add(edge);
         }
         try {
-            final User user = mock(User.class);
+            final User user = new User();
             store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);

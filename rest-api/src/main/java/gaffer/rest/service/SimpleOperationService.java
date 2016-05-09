@@ -30,6 +30,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
@@ -117,6 +120,21 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Element> getAllElements(final GetAllElements<Element> operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Entity> getAllEntities(final GetAllEntities operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Edge> getAllEdges(final GetAllEdges operation, final Integer n) {
         return executeGet(operation, n);
     }
 

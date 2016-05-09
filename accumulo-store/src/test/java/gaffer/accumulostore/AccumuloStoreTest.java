@@ -25,7 +25,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -88,7 +87,7 @@ public class AccumuloStoreTest {
 
     @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated() throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
 
         List<Element> elements = new ArrayList<>();
         Entity e = new Entity(TestGroups.ENTITY);

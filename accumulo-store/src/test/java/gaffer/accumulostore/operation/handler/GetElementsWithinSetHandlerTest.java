@@ -19,7 +19,6 @@ package gaffer.accumulostore.operation.handler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -100,7 +99,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testNoSummarisation(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setSummarise(false);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
@@ -134,7 +133,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setSummarise(true);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
@@ -166,7 +165,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEntities(false);
         operation.setSummarise(true);
@@ -197,7 +196,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         operation.setSummarise(true);
@@ -267,7 +266,7 @@ public class GetElementsWithinSetHandlerTest {
                 entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
                 data.add(entity);
             }
-            final User user = mock(User.class);
+            final User user = new User();
             addElements(data, user, store);
         } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);

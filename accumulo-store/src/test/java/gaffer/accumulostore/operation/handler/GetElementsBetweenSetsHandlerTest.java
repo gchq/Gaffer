@@ -19,7 +19,6 @@ package gaffer.accumulostore.operation.handler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -106,7 +105,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void testNoSummarisation(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         Iterable<Element> elements = handler.doOperation(op, user, store);
@@ -136,7 +135,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
@@ -166,7 +165,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
@@ -198,7 +197,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
@@ -225,7 +224,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
@@ -256,7 +255,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
-        final User user = mock(User.class);
+        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
@@ -313,7 +312,7 @@ public class GetElementsBetweenSetsHandlerTest {
 
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
-        final User user = mock(User.class);
+        final User user = new User();
         try {
             store.execute(new AddElements(data), user);
         } catch (OperationException e) {

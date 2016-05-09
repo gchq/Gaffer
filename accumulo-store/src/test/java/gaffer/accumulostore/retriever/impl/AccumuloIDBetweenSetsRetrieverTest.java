@@ -18,7 +18,6 @@ package gaffer.accumulostore.retriever.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -89,7 +88,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     static void testGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges between the set {A0} and the set {A23}
-        final User user = mock(User.class);
+        final User user = new User();
 
         Set<EntitySeed> seedsA = new HashSet<>();
         seedsA.add(new EntitySeed("A0"));
@@ -171,7 +170,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
             // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
 
-            final User user = mock(User.class);
+            final User user = new User();
             Set<Element> data = new HashSet<>();
 
             // Create edge A -> B
@@ -261,7 +260,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         try {
 
             Set<Element> data = new HashSet<>();
-            final User user = mock(User.class);
+            final User user = new User();
 
             // Create directed edge A -> B and undirected edge A - B
             Edge edge1 = new Edge(TestGroups.EDGE, "A", "B", true);
@@ -387,7 +386,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         edge.putProperty(AccumuloPropertyNames.COUNT, 1000000);
         Set<Element> data = new HashSet<>();
         data.add(edge);
-        final User user = mock(User.class);
+        final User user = new User();
         addElements(data, store, user);
         // Now query for all edges in set - shouldn't get the false positive
         List<EntitySeed> seed = Collections.singletonList(new EntitySeed("A0"));
@@ -437,7 +436,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Set graph to give us edges only
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
-        final User user = mock(User.class);
+        final User user = new User();
         AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, user, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
@@ -509,7 +508,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         Set<EntitySeed> seedsB = new HashSet<>();
         seedsB.add(new EntitySeed("A23"));
         AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        final User user = mock(User.class);
+        final User user = new User();
         AccumuloIDBetweenSetsRetriever retriever = new AccumuloIDBetweenSetsRetriever(store, op, user, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
@@ -587,7 +586,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             data.add(entity);
         }
 
-        final User user = mock(User.class);
+        final User user = new User();
         addElements(data, store, user);
     }
 

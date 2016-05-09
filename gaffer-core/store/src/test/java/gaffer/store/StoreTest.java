@@ -49,6 +49,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
@@ -76,6 +79,7 @@ import java.util.Set;
 public class StoreTest {
     private OperationHandler<AddElements, Void> addElementsHandler;
     private OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getElementsHandler;
+    private OperationHandler<GetAllElements<Element>, Iterable<Element>> getAllElementsHandler;
     private OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler;
     private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
     private OperationHandler<Validate, Iterable<Element>> validateHandler;
@@ -85,6 +89,7 @@ public class StoreTest {
     public void setup() {
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OperationHandler.class);
+        getAllElementsHandler = mock(OperationHandler.class);
         getAdjacentEntitySeedsHandler = mock(OperationHandler.class);
         validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
@@ -156,6 +161,9 @@ public class StoreTest {
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetEdgesBySeed.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEntities.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEdges.class));
         assertSame(getAdjacentEntitySeedsHandler, store.getOperationHandlerExposed(GetAdjacentEntitySeeds.class));
 
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
@@ -173,7 +181,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
         final StoreImpl store = new StoreImpl();
-        final User user = mock(User.class);
+        final User user = new User();
         given(schema.validate()).willReturn(true);
         store.initialise(schema, properties);
 
@@ -194,7 +202,7 @@ public class StoreTest {
         final View view = mock(View.class);
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final StoreImpl store = new StoreImpl();
-        final User user = mock(User.class);
+        final User user = new User();
 
         addElements.setView(view);
         given(schema.validate()).willReturn(true);
@@ -219,7 +227,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         store.initialise(schema, properties);
@@ -261,7 +269,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Iterable<Element> getElementsResult = mock(Iterable.class);
-        final User user = mock(User.class);
+        final User user = new User();
 
         final AddElements addElements1 = new AddElements();
         final GetElementsSeed<ElementSeed, Element> getElementsSeed = new GetElementsSeed<>();
@@ -294,7 +302,7 @@ public class StoreTest {
         final boolean skipInvalidElements = true;
         final Iterable<Element> elements = mock(Iterable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
@@ -320,7 +328,7 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable1.isValidate()).willReturn(false);
@@ -343,7 +351,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         store.setValidationRequired(true);
@@ -373,7 +381,7 @@ public class StoreTest {
         final Validatable<Iterable<Element>> validatable3 = mock(Validatable.class);
         final Operation<Iterable<Element>, Iterable<Element>> nonValidatable2 = mock(Operation.class);
         final boolean skipInvalidElements = true;
-        final User user = mock(User.class);
+        final User user = new User();
         final OperationChain<Integer> opChain = new OperationChain.Builder()
                 .first(nonValidatable2)
                 .then(validatable3)
@@ -412,7 +420,7 @@ public class StoreTest {
         final int expectedResult = 5;
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
@@ -455,8 +463,8 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 15;
-        final User user = mock(User.class);
+        final int expectedNumberOfOperations = 18;
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
@@ -482,7 +490,7 @@ public class StoreTest {
 
         final StoreImpl store = new StoreImpl();
         final int expectedNumberOfOperations = 15;
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
@@ -573,6 +581,11 @@ public class StoreTest {
         @Override
         protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
             return getElementsHandler;
+        }
+
+        @Override
+        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
         }
 
         @Override

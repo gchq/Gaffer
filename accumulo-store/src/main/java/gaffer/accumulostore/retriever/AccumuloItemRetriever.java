@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.retriever;
 
+import com.google.common.collect.Iterators;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -53,7 +54,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
     @Override
     public Iterator<Element> iterator() {
-        Iterator<? extends SEED_TYPE> idIterator = ids.iterator();
+        final Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : Iterators.<SEED_TYPE>emptyIterator();
         if (!idIterator.hasNext()) {
             return Collections.emptyIterator();
         }

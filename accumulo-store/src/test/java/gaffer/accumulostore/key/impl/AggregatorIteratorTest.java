@@ -17,7 +17,6 @@
 package gaffer.accumulostore.key.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
@@ -119,7 +118,7 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
 
-        final User user = mock(User.class);
+        final User user = new User();
         store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
 
         GetRelatedEdges get = new GetRelatedEdges(defaultView, Collections.singletonList(((ElementSeed) new EntitySeed("1"))));

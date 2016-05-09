@@ -19,7 +19,6 @@ package gaffer.accumulostore.retriever.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -107,7 +106,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
         GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
-        final User user = mock(User.class);
+        final User user = new User();
         AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
@@ -198,7 +197,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     public void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
-            final User user = mock(User.class);
+            final User user = new User();
             // Set outgoing edges only option, and query for the set {C,D}.
             store.getProperties().setMaxEntriesForBatchScanner("1");
             List<EntitySeed> seeds = new ArrayList<>();
@@ -251,7 +250,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final User user = mock(User.class);
+        final User user = new User();
 
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
@@ -371,7 +370,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         elms.add(edge);
         GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
         // Now query for all edges in set - shouldn't get the false positive
-        final User user = mock(User.class);
+        final User user = new User();
         AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element element : retriever) {
@@ -411,7 +410,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final User user = mock(User.class);
+        final User user = new User();
 
         // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
@@ -480,7 +479,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final User user = mock(User.class);
+        final User user = new User();
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
         // Query for all edges in set {A0, A23}
@@ -550,7 +549,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     private static void setupGraph(final AccumuloStore store) {
-        final User user = mock(User.class);
+        final User user = new User();
 
         try {
             // Create table

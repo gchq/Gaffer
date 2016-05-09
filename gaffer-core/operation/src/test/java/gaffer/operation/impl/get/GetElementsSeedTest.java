@@ -16,25 +16,24 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.EdgeSeed;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
-import gaffer.exception.SerialisationException;
-import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.GetOperation;
-import gaffer.operation.OperationTest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import org.junit.Test;
-
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
+import gaffer.operation.OperationTest;
+import gaffer.operation.data.EdgeSeed;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
+import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class GetElementsSeedTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();

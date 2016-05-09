@@ -18,7 +18,6 @@ package gaffer.accumulostore.operation.handler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -79,7 +78,7 @@ public class GetElementsinRangesHandlerTest {
     public void testNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
-        final User user = mock(User.class);
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -116,7 +115,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
-        final User user = mock(User.class);
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -157,7 +156,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
-        final User user = mock(User.class);
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
@@ -201,7 +200,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
-        final User user = mock(User.class);
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -229,7 +228,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
-        final User user = mock(User.class);
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -250,7 +249,7 @@ public class GetElementsinRangesHandlerTest {
     }
 
     private static void setupGraph(final AccumuloStore store, int numEntries) {
-        final User user = mock(User.class);
+        final User user = new User();
 
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {

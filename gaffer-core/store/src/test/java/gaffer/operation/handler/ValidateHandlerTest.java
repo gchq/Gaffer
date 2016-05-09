@@ -44,7 +44,7 @@ public class ValidateHandlerTest {
         final Store store = mock(Store.class);
         final Validate validate = mock(Validate.class);
         given(validate.getElements()).willReturn(null);
-        final User user = mock(User.class);
+        final User user = new User();
 
         // When
         final Iterable<Element> result = handler.doOperation(validate, user, store);
@@ -62,7 +62,7 @@ public class ValidateHandlerTest {
         final Element elm1 = mock(Element.class);
         final Iterable<Element> elements = Collections.singletonList(elm1);
         final Schema schema = mock(Schema.class);
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(validate.getElements()).willReturn(elements);
         given(validate.isSkipInvalidElements()).willReturn(false);

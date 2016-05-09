@@ -47,31 +47,33 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
 
     private List<Element> doOperation(final GetElements<ElementSeed, Element> operation, final ArrayListStore store) {
         final ArrayList<Element> result = new ArrayList<>();
-        if (operation.isIncludeEntities()) {
-            for (final Entity entity : store.getEntities()) {
-                if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
-                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                        if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
-                            result.add(entity);
-                        }
-                    } else {
-                        if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
-                            result.add(entity);
+        if (null != operation.getSeeds()) {
+            if (operation.isIncludeEntities()) {
+                for (final Entity entity : store.getEntities()) {
+                    if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
+                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                            if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
+                                result.add(entity);
+                            }
+                        } else {
+                            if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
+                                result.add(entity);
+                            }
                         }
                     }
                 }
             }
-        }
-        if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
-            for (final Edge edge : store.getEdges()) {
-                if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
-                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                        if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
-                            result.add(edge);
-                        }
-                    } else {
-                        if (isSeedRelated(operation, edge)) {
-                            result.add(edge);
+            if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
+                for (final Edge edge : store.getEdges()) {
+                    if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
+                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                            if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
+                                result.add(edge);
+                            }
+                        } else {
+                            if (isSeedRelated(operation, edge)) {
+                                result.add(edge);
+                            }
                         }
                     }
                 }

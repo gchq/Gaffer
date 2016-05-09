@@ -38,6 +38,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreProperties;
@@ -183,7 +184,7 @@ public class GraphTest {
                 .store(store)
                 .view(view)
                 .build();
-        final User user = mock(User.class);
+        final User user = new User();
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
@@ -210,7 +211,7 @@ public class GraphTest {
                 .store(store)
                 .view(view)
                 .build();
-        final User user = mock(User.class);
+        final User user = new User();
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);
@@ -246,6 +247,11 @@ public class GraphTest {
 
         @Override
         protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
             return null;
         }
 

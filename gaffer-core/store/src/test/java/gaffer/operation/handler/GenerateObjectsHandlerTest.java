@@ -40,7 +40,7 @@ public class GenerateObjectsHandlerTest {
         final Iterable<Element> elements = mock(Iterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
         final Iterable<String> objs = mock(Iterable.class);
-        final User user = mock(User.class);
+        final User user = new User();
 
         given(elementGenerator.getObjects(elements)).willReturn(objs);
         given(operation.getElements()).willReturn(elements);

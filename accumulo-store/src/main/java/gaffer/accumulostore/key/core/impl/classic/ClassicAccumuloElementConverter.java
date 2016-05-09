@@ -130,7 +130,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceValueDestinationValue,
+    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue,
                                                         final Map<String, String> options) throws AccumuloElementConversionException {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
@@ -155,35 +155,44 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         final int directionFlag = rowKey[rowKey.length - 1];
         if (directionFlag == ClassicBytePositions.UNDIRECTED_EDGE) {
             // Edge is undirected
-            sourceValueDestinationValue[0] = ByteArrayEscapeUtils
-                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-            sourceValueDestinationValue[1] = ByteArrayEscapeUtils
-                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+            sourceDestValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
             return false;
         } else if (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the first identifier is the source of the edge
-            sourceValueDestinationValue[0] = ByteArrayEscapeUtils
-                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-            sourceValueDestinationValue[1] = ByteArrayEscapeUtils
-                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+            sourceDestValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
             return true;
         } else if (directionFlag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the second identifier is the source of the edge
             int src = 1;
             int dst = 0;
-            if (options != null && options.containsKey(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
-                    && "true".equalsIgnoreCase(options.get(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE))) {
+            if (matchEdgeSource(options)) {
                 src = 0;
                 dst = 1;
             }
-            sourceValueDestinationValue[src] = ByteArrayEscapeUtils
-                    .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-            sourceValueDestinationValue[dst] = ByteArrayEscapeUtils
-                    .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+            sourceDestValue[src] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValue[dst] = getDestBytes(rowKey, positionsOfDelimiters);
             return true;
         } else {
             throw new AccumuloElementConversionException(
                     "Invalid direction flag in row key - flag was " + directionFlag);
         }
+    }
+
+    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
+        return ByteArrayEscapeUtils
+                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+    }
+
+    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
+        return ByteArrayEscapeUtils
+                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+    }
+
+    private boolean matchEdgeSource(final Map<String, String> options) {
+        return options != null
+                && options.containsKey(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
+                && "true".equalsIgnoreCase(options.get(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
 }

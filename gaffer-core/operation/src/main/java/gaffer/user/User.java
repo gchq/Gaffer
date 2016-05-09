@@ -15,15 +15,18 @@
  */
 package gaffer.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class User {
-    private static final String UNKNOWN_USER_ID = "UNKNOWN";
+    public static final String UNKNOWN_USER_ID = "UNKNOWN";
     private String userId;
     private Set<String> dataAuths = new HashSet<>();
+    private boolean locked = false;
 
     public User() {
         this(UNKNOWN_USER_ID);
@@ -38,23 +41,42 @@ public class User {
     }
 
     public void setUserId(final String userId) {
+        checkLock();
         this.userId = userId;
     }
 
     public Set<String> getDataAuths() {
-        return dataAuths;
+        return Collections.unmodifiableSet(dataAuths);
     }
 
     public void addDataAuth(final String dataAuth) {
+        checkLock();
         dataAuths.add(dataAuth);
     }
 
     public void setDataAuths(final Set<String> dataAuths) {
+        checkLock();
+
         if (null != dataAuths) {
             this.dataAuths = dataAuths;
         } else {
             this.dataAuths = new HashSet<>();
         }
+    }
+
+    private void checkLock() {
+        if (locked) {
+            throw new IllegalAccessError("This user has been locked and cannot be modified");
+        }
+    }
+
+    public void lock() {
+        this.locked = true;
+    }
+
+    @JsonIgnore
+    public boolean isLocked() {
+        return locked;
     }
 
     @Override
@@ -98,16 +120,25 @@ public class User {
         }
 
         public Builder dataAuths(final String... dataAuths) {
-            return dataAuths(Sets.newHashSet(dataAuths));
+            if (null != dataAuths) {
+                dataAuths(Sets.newHashSet(dataAuths));
+            }
+
+            return this;
         }
 
         public Builder dataAuths(final Collection<String> dataAuths) {
-            user.getDataAuths().addAll(dataAuths);
+            user.dataAuths.addAll(dataAuths);
             return this;
         }
 
         public Builder dataAuth(final String dataAuth) {
             user.addDataAuth(dataAuth);
+            return this;
+        }
+
+        public Builder lock() {
+            user.lock();
             return this;
         }
 
