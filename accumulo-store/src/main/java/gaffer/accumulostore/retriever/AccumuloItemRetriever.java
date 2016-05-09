@@ -23,6 +23,7 @@ import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -31,11 +32,10 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
@@ -45,8 +45,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
     private final Iterable<? extends SEED_TYPE> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
+                                    final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+        super(store, operation, user, iteratorSettings);
         this.ids = operation.getSeeds();
     }
 

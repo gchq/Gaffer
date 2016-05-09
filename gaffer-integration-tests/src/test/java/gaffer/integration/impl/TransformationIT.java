@@ -65,7 +65,7 @@ public class TransformationIT extends AbstractStoreIT {
         sampleEntityWithTransientProperty.putProperty(TestPropertyNames.TRANSIENT_1, "test");
         elements.add(sampleEntityWithTransientProperty);
 
-        graph.execute(new AddElements(elements));
+        graph.execute(new AddElements(elements), getUser());
     }
 
     /**
@@ -81,7 +81,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities));
+        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
         assertNotNull(results);
@@ -104,7 +104,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
+        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
         assertNotNull(results);
@@ -134,7 +134,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities));
+        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
         assertNotNull(results);
@@ -163,7 +163,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
+        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         assertNotNull(results);
         assertEquals(1, results.size());
@@ -190,7 +190,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities));
+        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
         assertNotNull(results);

@@ -71,10 +71,10 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering));
+        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering));
+        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
@@ -120,10 +120,10 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering));
+        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering));
+        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
@@ -176,10 +176,10 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering));
+        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering));
+        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);

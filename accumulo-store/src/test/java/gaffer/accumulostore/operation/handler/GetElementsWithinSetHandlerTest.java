@@ -19,6 +19,7 @@ package gaffer.accumulostore.operation.handler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -26,7 +27,6 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
@@ -38,6 +38,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -99,11 +100,11 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testNoSummarisation(final AccumuloStore store) throws OperationException {
+        final User user = mock(User.class);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setSummarise(false);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
@@ -133,10 +134,11 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
+        final User user = mock(User.class);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setSummarise(true);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
@@ -164,11 +166,12 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
+        final User user = mock(User.class);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEntities(false);
         operation.setSummarise(true);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
@@ -194,11 +197,12 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
+        final User user = mock(User.class);
         GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         operation.setSummarise(true);
         GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
@@ -263,15 +267,16 @@ public class GetElementsWithinSetHandlerTest {
                 entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
                 data.add(entity);
             }
-            addElements(data, store);
+            final User user = mock(User.class);
+            addElements(data, user, store);
         } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
+    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements(data));
+            store.execute(new AddElements(data), user);
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

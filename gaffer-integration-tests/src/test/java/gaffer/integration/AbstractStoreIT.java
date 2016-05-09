@@ -41,6 +41,7 @@ import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.store.schema.TypeDefinition;
+import gaffer.user.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,6 +60,8 @@ import java.util.Map;
  * prior to running the tests.
  */
 public abstract class AbstractStoreIT {
+    protected static final String USER_01 = "user01";
+
     // Identifier prefixes
     protected static final String SOURCE = "source";
     protected static final String DEST = "dest";
@@ -196,11 +199,11 @@ public abstract class AbstractStoreIT {
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
                 .elements((Iterable) getEntities().values())
-                .build());
+                .build(), new User());
 
         graph.execute(new AddElements.Builder()
                 .elements((Iterable) getEdges().values())
-                .build());
+                .build(), new User());
     }
 
     public Map<EntitySeed, Entity> getEntities() {
@@ -281,5 +284,9 @@ public abstract class AbstractStoreIT {
 
     protected void addToMap(final Entity element, final Map<EntitySeed, Entity> entities) {
         entities.put(ElementSeed.createSeed(element), element);
+    }
+
+    protected User getUser() {
+        return new User(USER_01);
     }
 }

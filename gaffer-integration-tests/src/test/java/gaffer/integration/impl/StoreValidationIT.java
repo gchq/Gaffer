@@ -23,6 +23,7 @@ import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.store.schema.TypeDefinition;
+import gaffer.user.User;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +62,7 @@ public class StoreValidationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldAgeOfDataBasedOnTimestampAndAgeOfFunctionInSchema() throws OperationException, InterruptedException {
         // Given
+        final User user = new User();
         final long now = System.currentTimeMillis();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);
         entity.putProperty(TestPropertyNames.TIMESTAMP, now);
@@ -68,12 +70,12 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         graph.execute(new AddElements.Builder()
                 .elements(Collections.<Element>singleton(entity))
-                .build());
+                .build(), user);
 
         // When 1 - before age off
         final Iterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
-                .build());
+                .build(), user);
 
         // Then 1
         final List<Entity> results1List = Lists.newArrayList(results1);
@@ -89,7 +91,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         // When 2 - after age off
         final Iterable<Entity> results2 = graph.execute(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
-                .build());
+                .build(), user);
 
         // Then 2
         final List<Entity> results2List = Lists.newArrayList(results2);
@@ -100,6 +102,7 @@ public class StoreValidationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldRemoveInvalidElements() throws OperationException, InterruptedException {
         // Given
+        final User user = new User();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);
         entity.putProperty(TestPropertyNames.INT, 100);
 
@@ -107,12 +110,12 @@ public class StoreValidationIT extends AbstractStoreIT {
         graph.execute(new AddElements.Builder()
                 .elements(Collections.<Element>singleton(entity))
                 .validate(false)
-                .build());
+                .build(), user);
 
         // When
         final Iterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
-                .build());
+                .build(), user);
 
         // Then
         final List<Entity> results1List = Lists.newArrayList(results1);

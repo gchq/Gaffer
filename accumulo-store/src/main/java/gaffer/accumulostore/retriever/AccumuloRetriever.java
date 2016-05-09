@@ -20,7 +20,6 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.RangeFactory;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.CloseableIterable;
 import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
@@ -28,20 +27,20 @@ import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-
 import java.util.Set;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
-    private static final String AUTHORISATIONS_SEPERATOR = ",";
     protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
+    protected final User user;
     protected final RangeFactory rangeFactory;
     protected final IteratorSettingFactory iteratorSettingFactory;
     protected final OP_TYPE operation;
@@ -49,16 +48,18 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
     protected final IteratorSetting[] iteratorSettings;
 
     protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation,
-                                final IteratorSetting... iteratorSettings) throws StoreException {
+                                final User user, final IteratorSetting... iteratorSettings)
+            throws StoreException {
         this.store = store;
         this.rangeFactory = store.getKeyPackage().getRangeFactory();
         this.iteratorSettingFactory = store.getKeyPackage().getIteratorFactory();
         this.elementConverter = store.getKeyPackage().getKeyConverter();
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
-        if (null != this.operation.getOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS)) {
+        this.user = user;
+        if (null != user && null != user.getDataAuths()) {
             this.authorisations = new Authorizations(
-                    this.operation.getOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS).split(AUTHORISATIONS_SEPERATOR));
+                    user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
         } else {
             this.authorisations = new Authorizations();
         }

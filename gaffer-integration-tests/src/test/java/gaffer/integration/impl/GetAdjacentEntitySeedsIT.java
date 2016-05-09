@@ -23,6 +23,7 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -86,6 +87,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     private void shouldGetEntitySeeds(final List<String> expectedResultSeeds, final GetOperation.IncludeIncomingOutgoingType inOutType)
             throws IOException, OperationException {
         // Given
+        final User user = new User();
         final List<EntitySeed> seeds = new ArrayList<>();
         for (String seed : SEEDS) {
             seeds.add(new EntitySeed(seed));
@@ -99,7 +101,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<EntitySeed> results = graph.execute(operation);
+        final Iterable<EntitySeed> results = graph.execute(operation, user);
 
         // Then
         List<String> resultSeeds = new ArrayList<>();

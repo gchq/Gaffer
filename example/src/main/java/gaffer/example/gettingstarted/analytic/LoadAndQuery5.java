@@ -15,7 +15,6 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator5;
 import gaffer.example.gettingstarted.util.DataUtils;
@@ -24,6 +23,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,45 +56,45 @@ public class LoadAndQuery5 extends LoadAndQuery {
         }
         System.out.println("");
 
+        User basicUser = new User("basicUser");
         AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
-        graph3.execute(addElements);
+        graph3.execute(addElements, basicUser);
 
         GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
         System.out.println("\nNow run a simple query to get edges\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        for (Element e : graph3.execute(getRelatedEdges, basicUser)) {
             System.out.println(e.toString());
         }
         System.out.println("We get nothing back");
 
-        getRelatedEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "private");
-
+        User privateUser = new User.Builder()
+                .userId("privateUser")
+                .dataAuth("private")
+                .build();
         System.out.println("\nGet edges with the private visibility. We should get the public edges too\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        for (Element e : graph3.execute(getRelatedEdges, privateUser)) {
             System.out.println(e.toString());
         }
 
-        getRelatedEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "public");
-
+        User publicUser = new User.Builder()
+                .userId("publicUser")
+                .dataAuth("public")
+                .build();
         System.out.println("\nGet edges with the public visibility. We shouldn't see any of the private ones. Notice that the Edges are aggregated within visibilities\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        for (Element e : graph3.execute(getRelatedEdges, publicUser)) {
             System.out.println(e.toString());
         }
 
-        getRelatedEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "private");
         getRelatedEdges.setSummarise(true);
-
         System.out.println("\nGet edges with the private visibility again but this time, aggregate the visibilities based on the rules in gaffer.example.gettingstarted.function.VisibilityAggregator.\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        for (Element e : graph3.execute(getRelatedEdges, privateUser)) {
             System.out.println(e.toString());
         }
-
-
     }
-
 }

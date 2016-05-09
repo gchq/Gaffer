@@ -18,6 +18,7 @@ package gaffer.accumulostore.retriever.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -36,6 +37,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,6 +77,8 @@ public class AccumuloRangeIDRetrieverTest {
     }
 
     public void test(final AccumuloStore store) throws StoreException {
+        final User user = mock(User.class);
+
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0000"), new EntitySeed("0999")));
@@ -83,7 +87,7 @@ public class AccumuloRangeIDRetrieverTest {
         AccumuloRangeIDRetriever retriever = null;
         AbstractGetOperation<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         try {
-            retriever = new AccumuloRangeIDRetriever(store, operation);
+            retriever = new AccumuloRangeIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -108,7 +112,8 @@ public class AccumuloRangeIDRetrieverTest {
             elements.add(edge);
         }
         try {
-            store.execute(new AddElements(elements));
+            final User user = mock(User.class);
+            store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

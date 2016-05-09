@@ -27,6 +27,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,12 +81,13 @@ public final class Graph {
      * If the operation does not have a view then the graph view is used.
      *
      * @param operation the operation to be executed.
+     * @param user      the user executing the operation.
      * @param <OUTPUT>  the operation output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation) throws OperationException {
-        return execute(new OperationChain<>(operation));
+    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation, final User user) throws OperationException {
+        return execute(new OperationChain<>(operation), user);
     }
 
     /**
@@ -93,18 +95,19 @@ public final class Graph {
      * If the operation does not have a view then the graph view is used.
      *
      * @param operationChain the operation chain to be executed.
+     * @param user           the user executing the operation chain.
      * @param <OUTPUT>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
+    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        return store.execute(operationChain);
+        return store.execute(operationChain, user);
     }
 
     /**

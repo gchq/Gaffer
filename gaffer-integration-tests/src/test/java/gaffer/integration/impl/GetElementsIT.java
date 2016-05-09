@@ -36,6 +36,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetRelatedElements;
+import gaffer.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -186,6 +187,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                    final IncludeIncomingOutgoingType inOutType,
                                    final Iterable<ElementSeed> seeds) throws IOException, OperationException {
         // Given
+        final User user = new User();
         final Map<EdgeSeed, Edge> edges = getEdges();
         final Map<EntitySeed, Entity> entities = getEntities();
 
@@ -206,7 +208,7 @@ public class GetElementsIT extends AbstractStoreIT {
 
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
         Map<? extends ElementSeed, ? extends Element> elements = new HashMap<>(edges);
