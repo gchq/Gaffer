@@ -26,6 +26,7 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
+import gaffer.operation.OperationChain;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
 import gaffer.store.schema.Schema;
@@ -100,6 +101,44 @@ public class ExamplesServiceTest {
     @Test
     public void shouldSerialiseAndDeserialiseGetRelatedEdges() throws IOException {
         shouldSerialiseAndDeserialiseOperation(service.getRelatedEdges());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetAllElements() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.getAllElements());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetAllEntities() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.getAllEntities());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetAllEdges() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.getAllEdges());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGenerateObjects() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.generateObjects());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGenerateElements() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.generateElements());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationChain() throws IOException {
+        //Given
+        final OperationChain opChain = service.execute();
+
+        // When
+        byte[] bytes = serialiser.serialise(opChain);
+        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
+
+        // Then
+        assertNotNull(deserialisedOp);
     }
 
     @Test

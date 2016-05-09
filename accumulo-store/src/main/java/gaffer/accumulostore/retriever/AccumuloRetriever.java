@@ -27,6 +27,7 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation;
+import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -34,7 +35,6 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-
 import java.util.Set;
 
 public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
@@ -105,11 +105,16 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         }
         scanner.setRanges(Range.mergeOverlapping(ranges));
         // Currently hard links element class to column family position.
-        for (final String col : operation.getView().getEdgeGroups()) {
-            scanner.fetchColumnFamily(new Text(col));
+
+        if (IncludeEdgeType.NONE != operation.getIncludeEdges()) {
+            for (final String col : operation.getView().getEdgeGroups()) {
+                scanner.fetchColumnFamily(new Text(col));
+            }
         }
-        for (final String col : operation.getView().getEntityGroups()) {
-            scanner.fetchColumnFamily(new Text(col));
+        if (operation.isIncludeEntities()) {
+            for (final String col : operation.getView().getEntityGroups()) {
+                scanner.fetchColumnFamily(new Text(col));
+            }
         }
         return scanner;
     }

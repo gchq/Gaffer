@@ -37,6 +37,9 @@ import gaffer.operation.impl.cache.UpdateCache;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
@@ -318,6 +321,13 @@ public abstract class Store {
     protected abstract OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler();
 
     /**
+     * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}. All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}
+     */
+    protected abstract OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler();
+
+    /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAdjacentEntitySeeds}.
      * All Stores must implement this.
      *
@@ -399,6 +409,10 @@ public abstract class Store {
         addOperationHandler(GetRelatedEdges.class, (OperationHandler) getGetElementsHandler());
 
         addOperationHandler(GetAdjacentEntitySeeds.class, (OperationHandler) getAdjacentEntitySeedsHandler());
+
+        addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
+        addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
+        addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
     }
 
     private List<Operation> getValidatedOperations(final OperationChain<?> operationChain) {

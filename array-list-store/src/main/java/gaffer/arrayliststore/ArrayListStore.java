@@ -20,6 +20,7 @@ import static gaffer.store.StoreTrait.FILTERING;
 
 import gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
+import gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetElementsHandler;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -29,6 +30,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
@@ -65,6 +67,11 @@ public class ArrayListStore extends Store {
     @Override
     protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+        return new GetAllElementsHandler();
     }
 
     @Override
