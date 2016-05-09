@@ -198,7 +198,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
 
         final GetOperation<? extends ElementSeed, Entity> getOperation;
-        final LinkedList<Vertex> idVertices = new LinkedList<>();
+        final List<Vertex> idVertices = new LinkedList<>();
         if (getAll) {
             getOperation = new GetAllEntities();
         } else {
