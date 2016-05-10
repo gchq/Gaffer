@@ -64,12 +64,6 @@ public class User {
         }
     }
 
-    private void checkLock() {
-        if (locked) {
-            throw new IllegalAccessError("This user has been locked and cannot be modified");
-        }
-    }
-
     public void lock() {
         this.locked = true;
     }
@@ -109,6 +103,12 @@ public class User {
                 + "userId='" + userId + '\''
                 + ", dataAuths=" + dataAuths
                 + '}';
+    }
+
+    private void checkLock() {
+        if (locked) {
+            throw new IllegalAccessError("This user has been locked and cannot be modified");
+        }
     }
 
     public static class Builder {
