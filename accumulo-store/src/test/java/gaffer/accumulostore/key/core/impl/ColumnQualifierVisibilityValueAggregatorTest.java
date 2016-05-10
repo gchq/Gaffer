@@ -79,41 +79,42 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    private void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator).
             TableUtils.createTable(store);
 
+            final Properties properties1 = new Properties();
+            properties1.put(AccumuloPropertyNames.COUNT, 1);
+
+            final Properties properties2 = new Properties();
+            properties2.put(AccumuloPropertyNames.COUNT, 2);
+
+            final Properties properties3 = new Properties();
+            properties3.put(AccumuloPropertyNames.COUNT, 10);
+
             // Create edge
-            Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = new Edge(TestGroups.EDGE);
             edge.setSource("1");
             edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
 
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
-            Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = new Edge(TestGroups.EDGE);
             edge2.setSource("1");
             edge2.setDestination("2");
             edge2.setDirected(true);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
 
-            Edge edge3 = new Edge(TestGroups.EDGE);
+            final Edge edge3 = new Edge(TestGroups.EDGE);
             edge3.setSource("1");
             edge3.setDestination("2");
             edge3.setDirected(true);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
 
-            Properties properties1 = new Properties();
-            properties1.put(AccumuloPropertyNames.COUNT, 1);
-
-            Properties properties2 = new Properties();
-            properties2.put(AccumuloPropertyNames.COUNT, 2);
-
-            Properties properties3 = new Properties();
-            properties3.put(AccumuloPropertyNames.COUNT, 10);
 
             // Accumulo key
             Key key = elementConverter.getKeysFromEdge(edge).getFirst();

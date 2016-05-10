@@ -34,24 +34,27 @@ import gaffer.serialisation.implementation.JavaSerialiser;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
+import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
 
 public class ByteEntityBloomElementFunctorTest {
 
-    private final static AccumuloElementConverter elementConverter;
-    private final static Schema schema;
+    private AccumuloElementConverter elementConverter;
+    private Schema schema;
 
-    static {
+    private final static CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
+
+    @Before
+    public void setup() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .build();
         elementConverter = new ByteEntityAccumuloElementConverter(schema);
-    }
 
-    private final static CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
+    }
 
     @Test
     public void testTransformRangeEntity() throws AccumuloElementConversionException {

@@ -24,9 +24,9 @@ public class GetElementsInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
-        Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
+        final List<Pair<EntitySeed>> pairList = new ArrayList<>();
+        final Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
+        final Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
         pairList.add(pair1);
         pairList.add(pair2);
         final GetElementsInRanges<Pair<EntitySeed>, Edge> op = new GetElementsInRanges<>(pairList);
@@ -46,8 +46,8 @@ public class GetElementsInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
-        GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder<>()
+        final Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
+        final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder<>()
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
                 .addSeed(seed)
                 .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)

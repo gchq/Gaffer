@@ -30,9 +30,9 @@ import static org.junit.Assert.assertTrue;
 
 public class ByteArrayEscapeUtilsTest {
 
-    private static final byte[] EMPTY_BYTES = new byte[0];
-    private final static byte ESCAPE_CHAR = (byte) 1;
-    private final static byte REPLACEMENT_CHAR = (byte) 2;
+    private byte[] EMPTY_BYTES = new byte[0];
+    private byte ESCAPE_CHAR = (byte) 1;
+    private byte REPLACEMENT_CHAR = (byte) 2;
 
     @Test
     public void testNoDelims() {
@@ -135,7 +135,7 @@ public class ByteArrayEscapeUtilsTest {
         }
     }
 
-    private static void check(final byte[] bytes) {
+    private void check(final byte[] bytes) {
         byte[] escaped = ByteArrayEscapeUtils.escape(bytes);
         byte[] unescaped = ByteArrayEscapeUtils.unEscape(escaped);
         assertArrayEquals(bytes, unescaped);

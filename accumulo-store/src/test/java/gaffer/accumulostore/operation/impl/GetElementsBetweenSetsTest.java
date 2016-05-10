@@ -47,7 +47,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(new EntitySeed("B")).addSeedB(new EntitySeed("A")).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED).includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING).option("testOption", "true").populateProperties(false).summarise(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(new EntitySeed("B")).addSeedB(new EntitySeed("A")).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED).includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING).option("testOption", "true").populateProperties(false).summarise(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertEquals("true", getElementsBetweenSets.getOption("testOption"));
         assertTrue(getElementsBetweenSets.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());

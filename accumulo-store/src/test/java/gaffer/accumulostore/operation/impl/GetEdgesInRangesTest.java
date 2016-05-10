@@ -45,9 +45,9 @@ public class GetEdgesInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
-        Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
+        final List<Pair<EntitySeed>> pairList = new ArrayList<>();
+        final Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
+        final Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
         pairList.add(pair1);
         pairList.add(pair2);
         final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges<>(pairList);
@@ -67,8 +67,8 @@ public class GetEdgesInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
-        GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH).addSeed(seed).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        final Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
+        final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH).addSeed(seed).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesInRanges.isSummarise());
         assertFalse(getEdgesInRanges.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());

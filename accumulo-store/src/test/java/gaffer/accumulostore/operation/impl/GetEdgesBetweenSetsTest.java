@@ -71,7 +71,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder().includeEdges(GetOperation.IncludeEdgeType.ALL).addSeed(new EntitySeed("A")).addSeedB(new EntitySeed("B")).inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        final GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder().includeEdges(GetOperation.IncludeEdgeType.ALL).addSeed(new EntitySeed("A")).addSeedB(new EntitySeed("B")).inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesBetweenSets.isSummarise());
         assertFalse(getEdgesBetweenSets.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getEdgesBetweenSets.getIncludeEdges());

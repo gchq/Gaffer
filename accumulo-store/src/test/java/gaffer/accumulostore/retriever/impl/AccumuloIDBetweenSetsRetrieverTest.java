@@ -28,7 +28,9 @@ import java.util.Set;
 
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -55,13 +57,13 @@ import gaffer.store.StoreException;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
-    private static final long TIMESTAMP = System.currentTimeMillis();
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private final long TIMESTAMP = System.currentTimeMillis();
+    private View defaultView;
+    private AccumuloStore byteEntityStore;
+    private AccumuloStore gaffer1KeyStore;
 
-    @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    @Before
+    public void setup() throws StoreException, IOException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
@@ -69,8 +71,8 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         setupGraph(gaffer1KeyStore);
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
@@ -82,12 +84,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         testGetCorrectEdges(gaffer1KeyStore);
     }
 
-    public void testGetCorrectEdges(final AccumuloStore store) throws StoreException {
+    private void testGetCorrectEdges(final AccumuloStore store) throws StoreException {
         testGetCorrectEdges(true, store);
         testGetCorrectEdges(false, store);
     }
 
-    static void testGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+    private void testGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges between the set {A0} and the set {A23}
         Set<EntitySeed> seedsA = new HashSet<>();
         seedsA.add(new EntitySeed("A0"));
@@ -163,7 +165,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     /**
      * Tests that the options to set outgoing edges or incoming edges only options work correctly.
      */
-    public void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
+    private void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
@@ -249,12 +251,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         testDealWithDirectedEdgesOnlyOption(gaffer1KeyStore);
     }
 
-    public void testDealWithDirectedEdgesOnlyOption(final AccumuloStore store) {
+    private void testDealWithDirectedEdgesOnlyOption(final AccumuloStore store) {
         testDealWithDirectedEdgesOnlyOption(true, store);
         testDealWithDirectedEdgesOnlyOption(false, store);
     }
 
-    static void testDealWithDirectedEdgesOnlyOption(boolean loadIntoMemory, AccumuloStore store) {
+    private void testDealWithDirectedEdgesOnlyOption(boolean loadIntoMemory, AccumuloStore store) {
         try {
 
             Set<Element> data = new HashSet<>();
@@ -326,12 +328,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         testDealWithFalsePositives(gaffer1KeyStore);
     }
 
-    public void testDealWithFalsePositives(final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
+    private void testDealWithFalsePositives(final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         testDealWithFalsePositives(true, store);
         testDealWithFalsePositives(false, store);
     }
 
-    static void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
+    private void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
@@ -417,12 +419,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
 
-    public void testOtherFilteringStillApplied(final AccumuloStore store) throws StoreException {
+    private void testOtherFilteringStillApplied(final AccumuloStore store) throws StoreException {
         testOtherFilteringStillApplied(true, store);
         testOtherFilteringStillApplied(false, store);
     }
 
-    static void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+    private void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges between the set {A0} and the set {A23}
         Set<EntitySeed> seedsA = new HashSet<>();
         seedsA.add(new EntitySeed("A0"));
@@ -489,12 +491,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
 
-    public void testWhenMoreElementsThanFitInBatchScanner(final AccumuloStore store) throws StoreException {
+    private void testWhenMoreElementsThanFitInBatchScanner(final AccumuloStore store) throws StoreException {
         testWhenMoreElementsThanFitInBatchScanner(true, store);
         testWhenMoreElementsThanFitInBatchScanner(false, store);
     }
 
-    static void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+    private void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
         // Query for all edges between the set {A0} and the set {A23}
@@ -562,7 +564,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         assertEquals(expectedResults, results);
     }
 
-    private static void setupGraph(final AccumuloStore store) {
+    private void setupGraph(final AccumuloStore store) {
         Set<Element> data = new HashSet<>();
 
         // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
@@ -583,7 +585,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
+    private void addElements(final Iterable<Element> data, final AccumuloStore store) {
         try {
             store.execute(new AddElements(data));
         } catch (OperationException e) {

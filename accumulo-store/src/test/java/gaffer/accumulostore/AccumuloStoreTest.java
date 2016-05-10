@@ -62,7 +62,9 @@ import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -72,15 +74,15 @@ import java.util.List;
 
 public class AccumuloStoreTest {
 
-    private static MockAccumuloStoreForTest store;
+    private MockAccumuloStoreForTest store;
 
-    @BeforeClass
-    public static void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         store = new MockAccumuloStoreForTest();
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         store = null;
     }
 

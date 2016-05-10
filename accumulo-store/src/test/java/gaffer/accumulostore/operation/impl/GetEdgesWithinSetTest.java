@@ -66,7 +66,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).addSeed(new EntitySeed("A")).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        final GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder().includeEdges(GetOperation.IncludeEdgeType.DIRECTED).addSeed(new EntitySeed("A")).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesWithinSet.isSummarise());
         assertFalse(getEdgesWithinSet.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesWithinSet.getIncludeEdges());

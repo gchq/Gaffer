@@ -44,6 +44,7 @@ import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
@@ -54,29 +55,27 @@ import java.util.Set;
 
 public class AccumuloIDWithinSetRetrieverTest {
 
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
-    private static Edge UNDIRECTED_EDGE;
-    private static Edge DIRECTED_EDGE;
+    private View defaultView;
+    private AccumuloStore byteEntityStore;
+    private AccumuloStore gaffer1KeyStore;
+    private Edge undirectedEdge;
+    private Edge directedEdge;
 
-    static {
-        UNDIRECTED_EDGE = new Edge(TestGroups.EDGE);
-        UNDIRECTED_EDGE.setSource("C");
-        UNDIRECTED_EDGE.setDestination("D");
-        UNDIRECTED_EDGE.setDirected(false);
-        UNDIRECTED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        UNDIRECTED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 1);
-        DIRECTED_EDGE = new Edge(TestGroups.EDGE);
-        DIRECTED_EDGE.setSource("C");
-        DIRECTED_EDGE.setDestination("D");
-        DIRECTED_EDGE.setDirected(true);
-        DIRECTED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-        DIRECTED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 1);
-    }
+    @Before
+    public void setup() throws IOException, StoreException {
+        undirectedEdge = new Edge(TestGroups.EDGE);
+        undirectedEdge.setSource("C");
+        undirectedEdge.setDestination("D");
+        undirectedEdge.setDirected(false);
+        undirectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        undirectedEdge.putProperty(AccumuloPropertyNames.COUNT, 1);
+        directedEdge = new Edge(TestGroups.EDGE);
+        directedEdge.setSource("C");
+        directedEdge.setDestination("D");
+        directedEdge.setDirected(true);
+        directedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
+        directedEdge.putProperty(AccumuloPropertyNames.COUNT, 1);
 
-    @BeforeClass
-    public static void setup() throws IOException, StoreException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         setupGraph(byteEntityStore);
@@ -99,7 +98,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     }
 
-    static void testGetCorrectEdges(final AccumuloStore store, final boolean loadIntoMemory) throws StoreException {
+    private void testGetCorrectEdges(final AccumuloStore store, final boolean loadIntoMemory) throws StoreException {
         // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
@@ -193,7 +192,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         testDealWithOutgoingEdgesOnlyOption(gaffer1KeyStore);
     }
 
-    public void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
+    private void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
             // Set outgoing edges only option, and query for the set {C,D}.
             store.getProperties().setMaxEntriesForBatchScanner("1");
@@ -201,8 +200,8 @@ public class AccumuloIDWithinSetRetrieverTest {
             seeds.add(new EntitySeed("C"));
             seeds.add(new EntitySeed("D"));
             Set<Element> expectedResults = new HashSet<>();
-            expectedResults.add(DIRECTED_EDGE);
-            expectedResults.add(UNDIRECTED_EDGE);
+            expectedResults.add(directedEdge);
+            expectedResults.add(undirectedEdge);
             GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
             op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
             AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, true);
@@ -240,13 +239,13 @@ public class AccumuloIDWithinSetRetrieverTest {
         testDealWithDirectedEdgesOnlyOption(gaffer1KeyStore);
     }
 
-    public void testDealWithDirectedEdgesOnlyOption(final AccumuloStore store) throws StoreException {
+    private void testDealWithDirectedEdgesOnlyOption(final AccumuloStore store) throws StoreException {
         /*Tests fail due to getting both versions of edges aka A->B AND B->A*/
         testDealWithDirectedEdgesOnlyOption(true, store);
         testDealWithDirectedEdgesOnlyOption(false, store);
     }
 
-    static void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+    private void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
         seeds.add(new EntitySeed("D"));
@@ -261,7 +260,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
         retriever.close();
         Set<Element> expectedResults = new HashSet<>();
-        expectedResults.add(UNDIRECTED_EDGE);
+        expectedResults.add(undirectedEdge);
         assertEquals(expectedResults, results);
 
         // Set directed edges only option, and query for edges in set {C, D} - should get the directed edge
@@ -274,7 +273,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
         retriever.close();
         expectedResults.clear();
-        expectedResults.add(DIRECTED_EDGE);
+        expectedResults.add(directedEdge);
         assertEquals(expectedResults, results);
 
         op = new GetRelatedElements<>(defaultView, seeds);
@@ -286,8 +285,8 @@ public class AccumuloIDWithinSetRetrieverTest {
             results.add(element);
         }
         retriever.close();
-        expectedResults.add(DIRECTED_EDGE);
-        expectedResults.add(UNDIRECTED_EDGE);
+        expectedResults.add(directedEdge);
+        expectedResults.add(undirectedEdge);
         assertEquals(expectedResults, results);
     }
 
@@ -305,12 +304,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         testDealWithFalsePositives(gaffer1KeyStore);
     }
 
-    public void testDealWithFalsePositives(final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
+    private void testDealWithFalsePositives(final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         testDealWithFalsePositives(true, store);
         testDealWithFalsePositives(false, store);
     }
 
-    static void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
+    private void testDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
@@ -398,12 +397,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         testOtherFilteringStillApplied(gaffer1KeyStore);
     }
 
-    public void testOtherFilteringStillApplied(final AccumuloStore store) throws StoreException {
+    private void testOtherFilteringStillApplied(final AccumuloStore store) throws StoreException {
         testOtherFilteringStillApplied(true, store);
         testOtherFilteringStillApplied(false, store);
     }
 
-    static void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+    private void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
@@ -465,12 +464,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         testWhenMoreElementsThanFitInBatchScanner(gaffer1KeyStore);
     }
 
-    public void testWhenMoreElementsThanFitInBatchScanner(final AccumuloStore store) throws StoreException {
+    private void testWhenMoreElementsThanFitInBatchScanner(final AccumuloStore store) throws StoreException {
         testWhenMoreElementsThanFitInBatchScanner(true, store);
         testWhenMoreElementsThanFitInBatchScanner(false, store);
     }
 
-    static void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+    private void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
         // Query for all edges in set {A0, A23}
@@ -539,7 +538,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertEquals(expectedResults, results);
     }
 
-    private static void setupGraph(final AccumuloStore store) {
+    private void setupGraph(final AccumuloStore store) {
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
@@ -566,15 +565,15 @@ public class AccumuloIDWithinSetRetrieverTest {
                 entity.putProperty(AccumuloPropertyNames.COUNT, i);
                 data.add(entity);
             }
-            data.add(DIRECTED_EDGE);
-            data.add(UNDIRECTED_EDGE);
+            data.add(directedEdge);
+            data.add(undirectedEdge);
             addElements(data, store);
         } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
+    private void addElements(final Iterable<Element> data, final AccumuloStore store) {
         try {
             store.execute(new AddElements(data));
         } catch (OperationException e) {

@@ -31,9 +31,9 @@ public class GetEntitiesInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
-        Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
+        final List<Pair<EntitySeed>> pairList = new ArrayList<>();
+        final Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
+        final Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
         pairList.add(pair1);
         pairList.add(pair2);
         final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges<>(pairList);
@@ -53,8 +53,8 @@ public class GetEntitiesInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
-        GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
+        final Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
+        final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
                 .option("testOption", "true")
                 .populateProperties(false)
                 .summarise(true)

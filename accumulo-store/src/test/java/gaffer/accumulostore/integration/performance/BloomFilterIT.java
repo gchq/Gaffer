@@ -59,6 +59,7 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.codehaus.plexus.util.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -77,13 +78,14 @@ import java.util.Random;
  */
 public class BloomFilterIT {
 
-    private final static RangeFactory byteEntityRangeFactory;
-    private final static AccumuloElementConverter byteEntityElementConverter;
-    private final static RangeFactory Gaffer1RangeFactory;
-    private final static AccumuloElementConverter gafferV1ElementConverter;
-    private final static Schema schema;
+    private RangeFactory byteEntityRangeFactory;
+    private AccumuloElementConverter byteEntityElementConverter;
+    private RangeFactory Gaffer1RangeFactory;
+    private AccumuloElementConverter gafferV1ElementConverter;
+    private Schema schema;
 
-    static {
+    @Before
+    public void setup() {
         schema = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, Integer.class)
                 .vertexSerialiser(new JavaSerialiser())
@@ -109,7 +111,7 @@ public class BloomFilterIT {
         testFilter(gafferV1ElementConverter, Gaffer1RangeFactory);
     }
 
-    public void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
+    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
         // Create random data to insert, and sort it
         final Random random = new Random();
         final HashSet<Key> keysSet = new HashSet<>();
