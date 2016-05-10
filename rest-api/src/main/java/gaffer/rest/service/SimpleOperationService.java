@@ -152,11 +152,11 @@ public class SimpleOperationService implements IOperationService {
         return new User();
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain) {
+    protected void preOperationHook(final OperationChain<?> opChain, final User user) {
         // no action by default
     }
 
-    protected void postOperationHook(final OperationChain<?> opChain) {
+    protected void postOperationHook(final OperationChain<?> opChain, final User user) {
         // no action by default
     }
 
@@ -169,29 +169,30 @@ public class SimpleOperationService implements IOperationService {
     }
 
     protected <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> opChain, final boolean async) {
-        preOperationHook(opChain);
+        final User user = createUser();
+        preOperationHook(opChain, user);
 
         if (async) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        graphFactory.getGraph().execute(opChain, createUser());
+                        graphFactory.getGraph().execute(opChain, user);
                     } catch (OperationException e) {
                         LOGGER.error("Error executing opChain", e);
                     } finally {
-                        postOperationHook(opChain);
+                        postOperationHook(opChain, user);
                     }
                 }
             }).start();
             return null;
         } else {
             try {
-                return graphFactory.getGraph().execute(opChain, createUser());
+                return graphFactory.getGraph().execute(opChain, user);
             } catch (OperationException e) {
                 throw new RuntimeException("Error executing opChain", e);
             } finally {
-                postOperationHook(opChain);
+                postOperationHook(opChain, user);
             }
         }
     }
