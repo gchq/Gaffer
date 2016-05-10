@@ -47,12 +47,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -271,16 +265,6 @@ public class SchemaTest {
 
         assertSame(entityDef, schema.getEntity(TestGroups.ENTITY));
         assertSame(edgeDef, schema.getEdge(TestGroups.EDGE));
-    }
-
-    @Test
-    public void testAbleToLoadProgramaticallyCreatedSchema() throws IOException {
-        schema = createSchema();
-        Path path = Paths.get(getClass().getResource("/testFile").getPath());
-        ByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-        channel.write(ByteBuffer.wrap(schema.toJson(true)));
-
-        schema = Schema.fromJson(path);
     }
 
     @Test
