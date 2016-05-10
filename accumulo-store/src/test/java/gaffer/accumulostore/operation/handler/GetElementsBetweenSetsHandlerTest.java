@@ -123,19 +123,10 @@ public class GetElementsBetweenSetsHandlerTest {
         for (final Element elm : elements) {
             results.add(elm);
         }
-        final List<Element> expectedResults = new ArrayList<>();
-
-        expectedResults.add(expectedEdge1);
-        expectedResults.add(expectedEdge2);
-        expectedResults.add(expectedEdge2);
-        expectedResults.add(expectedEntity1);
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
-
         //Without query compaction the result size should be 4
         assertEquals(4, results.size());
+
+        assertThat(results, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1));
     }
 
     @Test
@@ -153,18 +144,11 @@ public class GetElementsBetweenSetsHandlerTest {
         for (final Element elm : elements) {
             results.add(elm);
         }
-        final List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(expectedSummarisedEdge);
-        expectedResults.add(expectedEntity1);
-
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
 
         //With query compaction the result size should be 2
         assertEquals(2, results.size());
 
+        assertThat(results, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1));
     }
 
     @Test
@@ -184,18 +168,11 @@ public class GetElementsBetweenSetsHandlerTest {
         for (final Element elm : elements) {
             results.add(elm);
         }
-        final List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(expectedSummarisedEdge);
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
 
         //With query compaction the result size should be 1
         assertEquals(1, results.size());
 
-        assertEquals(expectedResults, results);
-
+        assertThat(results, IsCollectionContaining.hasItem(expectedSummarisedEdge));
     }
 
     @Test
@@ -213,16 +190,11 @@ public class GetElementsBetweenSetsHandlerTest {
         for (final Element elm : elements) {
             results.add(elm);
         }
-        final List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(expectedEntity1);
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
 
         //The result size should be 1
         assertEquals(1, results.size());
 
-        assertEquals(expectedResults, results);
+        assertThat(results, IsCollectionContaining.hasItem(expectedEntity1));
     }
 
     @Test
@@ -264,17 +236,11 @@ public class GetElementsBetweenSetsHandlerTest {
         for (final Element elm : elements) {
             results.add(elm);
         }
-        final List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(expectedEntity1);
 
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
         //The result size should be 1
         assertEquals(1, results.size());
 
-        assertEquals(expectedResults, results);
-
+        assertThat(results, IsCollectionContaining.hasItem(expectedEntity1));
     }
 
     private void setupGraph(final AccumuloStore store) {
