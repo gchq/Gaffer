@@ -104,13 +104,13 @@ public class NotTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.Not\",\n" +
-                "  \"function\" : {\n" +
-                "    \"class\" : \"gaffer.function.IsA\",\n" +
-                "    \"type\" : \"java.lang.String\"\n" +
-                "  }\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.Not\",%n" +
+                "  \"function\" : {%n" +
+                "    \"class\" : \"gaffer.function.IsA\",%n" +
+                "    \"type\" : \"java.lang.String\"%n" +
+                "  }%n" +
+                "}"), json);
 
         // When 2
         final Not deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), Not.class);

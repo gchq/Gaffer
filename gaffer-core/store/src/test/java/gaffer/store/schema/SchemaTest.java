@@ -199,32 +199,32 @@ public class SchemaTest {
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
         schema = createSchema();
-        assertEquals("{\n" +
-                "  \"edges\" : {\n" +
-                "    \"BasicEdge\" : {\n" +
-                "      \"properties\" : {\n" +
-                "        \"property1\" : \"prop.string\",\n" +
-                "        \"property2\" : \"prop.integer\"\n" +
-                "      },\n" +
-                "      \"validateFunctions\" : [ {\n" +
-                "        \"function\" : {\n" +
-                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
-                "        },\n" +
-                "        \"selection\" : [ {\n" +
-                "          \"key\" : \"property1\"\n" +
-                "        } ]\n" +
-                "      } ]\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"types\" : {\n" +
-                "    \"prop.integer\" : {\n" +
-                "      \"class\" : \"java.lang.Integer\"\n" +
-                "    },\n" +
-                "    \"prop.string\" : {\n" +
-                "      \"class\" : \"java.lang.String\"\n" +
-                "    }\n" +
-                "  }\n" +
-                "}", new String(schema.toJson(true)));
+        assertEquals(String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\"%n" +
+                "      },%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ {%n" +
+                "          \"key\" : \"property1\"%n" +
+                "        } ]%n" +
+                "      } ]%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"types\" : {%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"prop.string\" : {%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    }%n" +
+                "  }%n" +
+                "}"), new String(schema.toJson(true)));
     }
 
     @Test
