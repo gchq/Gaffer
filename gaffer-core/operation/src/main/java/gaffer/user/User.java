@@ -26,6 +26,7 @@ public class User {
     public static final String UNKNOWN_USER_ID = "UNKNOWN";
     private String userId;
     private Set<String> dataAuths = new HashSet<>();
+    private Set<String> opAuths = new HashSet<>();
     private boolean locked = false;
 
     public User() {
@@ -33,7 +34,7 @@ public class User {
     }
 
     public User(final String userId) {
-        this.userId = userId;
+        setUserId(userId);
     }
 
     public String getUserId() {
@@ -42,7 +43,11 @@ public class User {
 
     public void setUserId(final String userId) {
         checkLock();
-        this.userId = userId;
+        if (null == userId) {
+            this.userId = UNKNOWN_USER_ID;
+        } else {
+            this.userId = userId;
+        }
     }
 
     public Set<String> getDataAuths() {
@@ -61,6 +66,25 @@ public class User {
             this.dataAuths = dataAuths;
         } else {
             this.dataAuths = new HashSet<>();
+        }
+    }
+
+    public Set<String> getOpAuths() {
+        return Collections.unmodifiableSet(opAuths);
+    }
+
+    public void addOpAuth(final String opAuth) {
+        checkLock();
+        opAuths.add(opAuth);
+    }
+
+    public void setOpAuths(final Set<String> opAuths) {
+        checkLock();
+
+        if (null != opAuths) {
+            this.opAuths = opAuths;
+        } else {
+            this.opAuths = new HashSet<>();
         }
     }
 
@@ -86,14 +110,15 @@ public class User {
         if (!userId.equals(user.userId)) {
             return false;
         }
-        return dataAuths.equals(user.dataAuths);
 
+        return dataAuths.equals(user.dataAuths) && opAuths.equals(user.opAuths);
     }
 
     @Override
     public int hashCode() {
         int result = userId.hashCode();
         result = 31 * result + dataAuths.hashCode();
+        result = 31 * result + opAuths.hashCode();
         return result;
     }
 
@@ -134,6 +159,24 @@ public class User {
 
         public Builder dataAuth(final String dataAuth) {
             user.addDataAuth(dataAuth);
+            return this;
+        }
+
+        public Builder opAuths(final String... opAuths) {
+            if (null != opAuths) {
+                opAuths(Sets.newHashSet(opAuths));
+            }
+
+            return this;
+        }
+
+        public Builder opAuths(final Collection<String> opAuths) {
+            user.opAuths.addAll(opAuths);
+            return this;
+        }
+
+        public Builder opAuth(final String opAuth) {
+            user.addOpAuth(opAuth);
             return this;
         }
 
