@@ -1,12 +1,12 @@
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.retriever.impl.data.AccumuloRetrieverTestData;
+import gaffer.accumulostore.utils.AccumuloTestData;
+import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
-import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -45,8 +45,8 @@ public class GetEdgesWithinSetTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final GetEdgesWithinSet op = new GetEdgesWithinSet(
-                Arrays.asList(AccumuloRetrieverTestData.SEED_SOURCE_1, AccumuloRetrieverTestData.SEED_DESTINATION_1,
-                        AccumuloRetrieverTestData.SEED_SOURCE_2, AccumuloRetrieverTestData.SEED_DESTINATION_2));
+                Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1,
+                        AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -55,10 +55,10 @@ public class GetEdgesWithinSetTest implements OperationTest {
 
         // Then
         final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
-        assertEquals(AccumuloRetrieverTestData.SEED_SOURCE_1, itrSeedsA.next());
-        assertEquals(AccumuloRetrieverTestData.SEED_DESTINATION_1, itrSeedsA.next());
-        assertEquals(AccumuloRetrieverTestData.SEED_SOURCE_2, itrSeedsA.next());
-        assertEquals(AccumuloRetrieverTestData.SEED_DESTINATION_2, itrSeedsA.next());
+        assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
+        assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
+        assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsA.next());
+        assertEquals(AccumuloTestData.SEED_DESTINATION_2, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
     }
 
@@ -67,13 +67,13 @@ public class GetEdgesWithinSetTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
-                .addSeed(AccumuloRetrieverTestData.SEED_A).option("testOption", "true").populateProperties(false)
+                .addSeed(AccumuloTestData.SEED_A).option(AccumuloPropertyNames.TEST_OPTION_KEY, "true").populateProperties(false)
                 .summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesWithinSet.isSummarise());
         assertFalse(getEdgesWithinSet.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesWithinSet.getIncludeEdges());
-        assertEquals("true", getEdgesWithinSet.getOption("testOption"));
-        assertEquals(new EntitySeed("A"), getEdgesWithinSet.getSeeds().iterator().next());
+        assertEquals("true", getEdgesWithinSet.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals(AccumuloTestData.SEED_A, getEdgesWithinSet.getSeeds().iterator().next());
         assertNotNull(getEdgesWithinSet.getView());
     }
 }

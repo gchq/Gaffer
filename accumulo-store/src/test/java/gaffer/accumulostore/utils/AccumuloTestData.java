@@ -1,4 +1,4 @@
-package gaffer.accumulostore.retriever.impl.data;
+package gaffer.accumulostore.utils;
 
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.commonutil.TestGroups;
@@ -10,7 +10,7 @@ import gaffer.operation.data.EntitySeed;
 import java.util.Collections;
 import java.util.Set;
 
-public class AccumuloRetrieverTestData {
+public class AccumuloTestData {
 
     public static final long TIMESTAMP = System.currentTimeMillis();
 

@@ -1,6 +1,7 @@
 package gaffer.accumulostore.operation.impl;
 
-import gaffer.accumulostore.retriever.impl.data.AccumuloRetrieverTestData;
+import gaffer.accumulostore.utils.AccumuloTestData;
+import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -47,8 +48,8 @@ public class GetEdgesInRangesTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        final Pair<EntitySeed> pair1 = new Pair<>(AccumuloRetrieverTestData.SEED_SOURCE_1, AccumuloRetrieverTestData.SEED_DESTINATION_1);
-        final Pair<EntitySeed> pair2 = new Pair<>(AccumuloRetrieverTestData.SEED_SOURCE_2, AccumuloRetrieverTestData.SEED_DESTINATION_2);
+        final Pair<EntitySeed> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
+        final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
         final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges<>(pairList);
@@ -68,16 +69,16 @@ public class GetEdgesInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final Pair<EntitySeed> seed = new Pair<>(AccumuloRetrieverTestData.SEED_A, AccumuloRetrieverTestData.SEED_B);
+        final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
-                .addSeed(seed).option("testOption", "true").populateProperties(false).summarise(true)
+                .addSeed(seed).option(AccumuloPropertyNames.TEST_OPTION_KEY, "true").populateProperties(false).summarise(true)
                 .view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesInRanges.isSummarise());
         assertFalse(getEdgesInRanges.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
-        assertEquals("true", getEdgesInRanges.getOption("testOption"));
+        assertEquals("true", getEdgesInRanges.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
         assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
         assertNotNull(getEdgesInRanges.getView());
     }
