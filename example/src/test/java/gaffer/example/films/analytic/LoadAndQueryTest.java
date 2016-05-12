@@ -20,15 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
-import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Entity;
 import gaffer.example.films.data.schema.Group;
 import gaffer.example.films.data.schema.Property;
 import gaffer.example.films.data.schema.TransientProperty;
-import gaffer.exception.SerialisationException;
-import gaffer.graph.Graph;
-import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -36,42 +31,9 @@ import java.util.List;
 
 public class LoadAndQueryTest {
     @Test
-    public void shouldReturnExpectedEntities() throws OperationException {
+    public void shouldReturnExpectedEdgesForComplexQuery() throws OperationException {
         // Given
         final LoadAndQuery query = new LoadAndQuery();
-
-        // When
-        final Iterable<Entity> results = query.run();
-
-        // Then
-        verifyResults(results);
-    }
-
-
-    @Test
-    public void shouldReturnExpectedEntitiesViaJson() throws OperationException, SerialisationException {
-        // Given
-        final JSONSerialiser serialiser = new JSONSerialiser();
-        final OperationChain<Void> populateChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/load.json"), OperationChain.class);
-        final OperationChain<Iterable<Entity>> queryChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/query.json"), OperationChain.class);
-
-        // Setup graph
-        final Graph graph = new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(LoadAndQuery.class, "/example/films/mockaccumulostore.properties"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/dataSchema.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/dataTypes.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/storeTypes.json"))
-                .build();
-
-        // When
-        graph.execute(populateChain); // Execute the populate operation chain on the graph
-        final Iterable<Entity> results = graph.execute(queryChain); // Execute the query operation chain on the graph.
-
-        // Then
-        verifyResults(results);
-    }
-
-    private void verifyResults(final Iterable<Entity> resultsItr) {
         final List<Entity> expectedResults = new ArrayList<>();
         final Entity entity = new Entity(Group.REVIEW, "filmA");
         entity.putProperty(Property.USER_ID, "user01,user03");
@@ -80,11 +42,14 @@ public class LoadAndQueryTest {
         entity.putProperty(TransientProperty.FIVE_STAR_RATING, 2.5F);
         expectedResults.add(entity);
 
+        // When
+        final Iterable<Entity> resultsItr = query.run();
+
+        // Then
         final List<Entity> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.size(), results.size());
         for (int i = 0; i < expectedResults.size(); i++) {
             assertTrue(expectedResults.get(i).deepEquals(results.get(i)));
         }
     }
-
 }

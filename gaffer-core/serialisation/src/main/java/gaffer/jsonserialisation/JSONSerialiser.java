@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -151,9 +152,7 @@ public class JSONSerialiser {
             throw new SerialisationException(e.getMessage(), e);
         } finally {
             try {
-                if (null != stream) {
-                    stream.close();
-                }
+                stream.close();
             } catch (IOException e) {
                 throw new RuntimeException("Unable to close stream : " + e.getMessage(), e);
             }
