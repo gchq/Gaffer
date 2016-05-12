@@ -21,10 +21,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import gaffer.authoriser.OperationAuthoriser;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.TestTypes;
@@ -51,11 +54,13 @@ import gaffer.store.schema.TypeDefinition;
 import gaffer.user.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -108,6 +113,77 @@ public class GraphTest {
         final Schema schema = graph.getSchema();
         schema.getEntity(TestGroups.ENTITY);
 
+    }
+
+    @Test
+    public void shouldAuthoriseOperation() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final User user = mock(User.class);
+        final OperationAuthoriser authoriser = mock(OperationAuthoriser.class);
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema())
+                .opAuthoriser(authoriser)
+                .build();
+
+        // When
+        graph.execute(operation, user);
+
+        // Then
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        verify(authoriser).authorise(captor.capture(), Mockito.eq(user));
+        final List<Operation> ops = captor.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
+    }
+
+    @Test
+    public void shouldAuthoriseOperationChain() throws OperationException {
+        // Given
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(mock(Operation.class))
+                .build();
+        final User user = mock(User.class);
+        final OperationAuthoriser authoriser = mock(OperationAuthoriser.class);
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema())
+                .opAuthoriser(authoriser)
+                .build();
+
+        // When
+        graph.execute(opChain, user);
+
+        // Then
+        verify(authoriser).authorise(opChain, user);
+    }
+
+    @Test
+    public void shouldAuthoriseResult() throws OperationException {
+        // Given
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(mock(Operation.class))
+                .build();
+        final User user = mock(User.class);
+        final OperationAuthoriser authoriser = mock(OperationAuthoriser.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+        given(store.getSchema()).willReturn(schema);
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .opAuthoriser(authoriser)
+                .build();
+        final Object result = "result";
+        given(store.execute(opChain, user)).willReturn(result);
+
+        // When
+        graph.execute(opChain, user);
+
+        // Then
+        verify(authoriser).authoriseResult(result, user);
     }
 
     @Test
@@ -176,7 +252,8 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore() throws OperationException {
+    public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore
+            () throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final View view = mock(View.class);
@@ -202,7 +279,8 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldNotSetGraphViewOnOperationWhenOperationViewIsNotNull() throws OperationException {
+    public void shouldNotSetGraphViewOnOperationWhenOperationViewIsNotNull
+            () throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final View opView = mock(View.class);
