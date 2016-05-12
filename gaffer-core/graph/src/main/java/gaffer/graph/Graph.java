@@ -73,7 +73,7 @@ public final class Graph {
      *
      * @param store        a {@link Store} used to store the elements and handle operations.
      * @param view         a {@link View} defining the view of the data for the graph.
-     * @param opAuthoriser a {@link OperationAuthoriser} responisble for authorising operations
+     * @param opAuthoriser a {@link OperationAuthoriser} responsible for authorising operations
      */
     private Graph(final Store store, final View view, final OperationAuthoriser opAuthoriser) {
         this.store = store;

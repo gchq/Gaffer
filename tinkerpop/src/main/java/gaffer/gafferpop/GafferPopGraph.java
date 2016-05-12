@@ -128,7 +128,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         user = new User.Builder()
                 .userId(configuration().getString(USER_ID, User.UNKNOWN_USER_ID))
                 .dataAuths(configuration().getStringArray(DATA_AUTHS))
-                .lock()
                 .build();
 
         variables = createVariables();

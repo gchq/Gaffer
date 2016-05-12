@@ -24,7 +24,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.common.collect.Sets;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
@@ -45,12 +44,10 @@ public class UserTest {
                 .dataAuth(dataAuth2)
                 .opAuth(opAuth1)
                 .opAuth(opAuth2)
-                .lock()
                 .build();
 
         // Then
         assertEquals(userId, user.getUserId());
-        assertTrue(user.isLocked());
         assertEquals(2, user.getDataAuths().size());
         assertThat(user.getDataAuths(), IsCollectionContaining.hasItems(
                 dataAuth1, dataAuth2
@@ -112,137 +109,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotAllowNewDataAuthWhenUserIsLocked() {
-        // Given
-        final String userId = "user 01";
-        final String dataAuth1 = "dataAuth 1";
-        final String dataAuth2 = "dataAuth 2";
-        final String newDataAuth = "new dataAuth";
-        final User user = new User.Builder()
-                .userId(userId)
-                .dataAuth(dataAuth1)
-                .dataAuth(dataAuth2)
-                .lock()
-                .build();
-
-        // When
-        try {
-            user.addDataAuth(newDataAuth);
-            fail("Exception expected");
-        } catch (final IllegalAccessError e) {
-            assertNotNull(e.getMessage());
-        }
-
-        // Then
-        assertFalse(user.getDataAuths().contains(newDataAuth));
-    }
-
-    @Test
-    public void shouldNotAllowNewDataAuthsWhenUserIsLocked() {
-        // Given
-        final String userId = "user 01";
-        final String dataAuth1 = "dataAuth 1";
-        final String dataAuth2 = "dataAuth 2";
-        final String newDataAuth = "new dataAuth";
-        final User user = new User.Builder()
-                .userId(userId)
-                .dataAuth(dataAuth1)
-                .dataAuth(dataAuth2)
-                .lock()
-                .build();
-
-        // When
-        try {
-            user.setDataAuths(Sets.newHashSet(newDataAuth));
-            fail("Exception expected");
-        } catch (final IllegalAccessError e) {
-            assertNotNull(e.getMessage());
-        }
-
-        // Then
-        assertFalse(user.getDataAuths().contains(newDataAuth));
-    }
-
-    @Test
-    public void shouldNotAllowNewOpAuthWhenUserIsLocked() {
-        // Given
-        final String userId = "user 01";
-        final String opAuth1 = "opAuth 1";
-        final String opAuth2 = "opAuth 2";
-        final String newOpAuth = "new opAuth";
-        final User user = new User.Builder()
-                .userId(userId)
-                .opAuth(opAuth1)
-                .opAuth(opAuth2)
-                .lock()
-                .build();
-
-        // When
-        try {
-            user.addOpAuth(newOpAuth);
-            fail("Exception expected");
-        } catch (final IllegalAccessError e) {
-            assertNotNull(e.getMessage());
-        }
-
-        // Then
-        assertFalse(user.getOpAuths().contains(newOpAuth));
-    }
-
-    @Test
-    public void shouldNotAllowNewOpAuthsWhenUserIsLocked() {
-        // Given
-        final String userId = "user 01";
-        final String opAuth1 = "opAuth 1";
-        final String opAuth2 = "opAuth 2";
-        final String newOpAuth = "new opAuth";
-        final User user = new User.Builder()
-                .userId(userId)
-                .opAuth(opAuth1)
-                .opAuth(opAuth2)
-                .lock()
-                .build();
-
-        // When
-        try {
-            user.setOpAuths(Sets.newHashSet(newOpAuth));
-            fail("Exception expected");
-        } catch (final IllegalAccessError e) {
-            assertNotNull(e.getMessage());
-        }
-
-        // Then
-        assertFalse(user.getOpAuths().contains(newOpAuth));
-    }
-
-    @Test
-    public void shouldNotAllowNewUserIdUserIsLocked() {
-        // Given
-        final String userId = "user 01";
-        final String dataAuth1 = "dataAuth 1";
-        final String dataAuth2 = "dataAuth 2";
-        final String newUserId = "new user id";
-        final User user = new User.Builder()
-                .userId(userId)
-                .dataAuth(dataAuth1)
-                .dataAuth(dataAuth2)
-                .lock()
-                .build();
-
-        // When
-        try {
-            user.setUserId(newUserId);
-            fail("Exception expected");
-        } catch (final IllegalAccessError e) {
-            assertNotNull(e.getMessage());
-        }
-
-        // Then
-        assertEquals(userId, user.getUserId());
-    }
-
-    @Test
-    public void shouldBeEqualWhen2UsersHaveSameFieldsButOneIsLocked() {
+    public void shouldBeEqualWhen2UsersHaveSameFields() {
         // Given
         final String userId = "user 01";
         final String dataAuth1 = "dataAuth 1";
@@ -256,7 +123,6 @@ public class UserTest {
                 .dataAuth(dataAuth2)
                 .opAuth(opAuth1)
                 .opAuth(opAuth2)
-                .lock()
                 .build();
 
         final User userUnlocked = new User.Builder()

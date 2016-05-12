@@ -206,11 +206,11 @@ public abstract class AbstractStoreIT {
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
                 .elements((Iterable) getEntities().values())
-                .build(), new User());
+                .build(), getUser());
 
         graph.execute(new AddElements.Builder()
                 .elements((Iterable) getEdges().values())
-                .build(), new User());
+                .build(), getUser());
     }
 
     public Map<EntitySeed, Entity> getEntities() {
