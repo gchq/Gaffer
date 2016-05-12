@@ -24,6 +24,7 @@ public class User {
     public static final String UNKNOWN_USER_ID = "UNKNOWN";
     private final String userId;
     private final Set<String> dataAuths = new HashSet<>();
+    private final Set<String> opAuths = new HashSet<>();
 
     public User() {
         this(UNKNOWN_USER_ID);
@@ -38,12 +39,22 @@ public class User {
         this.dataAuths.addAll(dataAuths);
     }
 
+    public User(final String userId, final Set<String> dataAuths, final Set<String> opAuths) {
+        this.userId = userId;
+        this.dataAuths.addAll(dataAuths);
+        this.opAuths.addAll(opAuths);
+    }
+
     public String getUserId() {
         return userId;
     }
 
     public Set<String> getDataAuths() {
         return Collections.unmodifiableSet(dataAuths);
+    }
+
+    public Set<String> getOpAuths() {
+        return Collections.unmodifiableSet(opAuths);
     }
 
     @Override
@@ -59,14 +70,15 @@ public class User {
         if (!userId.equals(user.userId)) {
             return false;
         }
-        return dataAuths.equals(user.dataAuths);
 
+        return dataAuths.equals(user.dataAuths) && opAuths.equals(user.opAuths);
     }
 
     @Override
     public int hashCode() {
         int result = userId.hashCode();
         result = 31 * result + dataAuths.hashCode();
+        result = 31 * result + opAuths.hashCode();
         return result;
     }
 
@@ -75,12 +87,14 @@ public class User {
         return "User{"
                 + "userId='" + userId + '\''
                 + ", dataAuths=" + dataAuths
+                + ", opAuths=" + opAuths
                 + '}';
     }
 
     public static class Builder {
         private String userId;
         private final Set<String> dataAuths = new HashSet<>();
+        private final Set<String> opAuths = new HashSet<>();
 
 
         public Builder userId(final String userId) {
@@ -103,8 +117,23 @@ public class User {
             return this;
         }
 
+        public Builder opAuth(final String opAuth) {
+            this.opAuths.add(opAuth);
+            return this;
+        }
+
+        public Builder opAuths(final String... opAuths) {
+            Collections.addAll(this.opAuths, opAuths);
+            return this;
+        }
+
+        public Builder opAuths(final Collection<String> opAuths) {
+            this.opAuths.addAll(opAuths);
+            return this;
+        }
+
         public User build() {
-            return new User(userId, dataAuths);
+            return new User(userId, dataAuths, opAuths);
         }
     }
 }

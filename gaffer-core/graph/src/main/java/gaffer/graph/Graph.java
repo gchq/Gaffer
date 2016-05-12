@@ -17,6 +17,7 @@
 package gaffer.graph;
 
 
+import gaffer.authoriser.OperationAuthoriser;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
@@ -64,16 +65,20 @@ public final class Graph {
      */
     private final View view;
 
+    private OperationAuthoriser opAuthoriser;
+
     /**
      * Constructs a <code>Graph</code> with the given {@link gaffer.store.Store} and
      * {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param store a {@link Store} used to store the elements and handle operations.
-     * @param view  a {@link View} defining the view of the data for the graph.
+     * @param store        a {@link Store} used to store the elements and handle operations.
+     * @param view         a {@link View} defining the view of the data for the graph.
+     * @param opAuthoriser a {@link OperationAuthoriser} responsible for authorising operations
      */
-    private Graph(final Store store, final View view) {
+    private Graph(final Store store, final View view, final OperationAuthoriser opAuthoriser) {
         this.store = store;
         this.view = view;
+        this.opAuthoriser = opAuthoriser;
     }
 
     /**
@@ -102,12 +107,20 @@ public final class Graph {
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {
+            if (null != opAuthoriser) {
+                opAuthoriser.authorise(operationChain, user);
+            }
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        return store.execute(operationChain, user);
+        OUTPUT result = store.execute(operationChain, user);
+        if (null != opAuthoriser) {
+            opAuthoriser.authoriseResult(result, user);
+        }
+
+        return result;
     }
 
     /**
@@ -167,6 +180,7 @@ public final class Graph {
         private StoreProperties properties;
         private Schema schema;
         private View view;
+        private OperationAuthoriser opAuths;
 
         public Builder view(final View view) {
             this.view = view;
@@ -236,12 +250,25 @@ public final class Graph {
             return this;
         }
 
+        public Builder opAuthoriser(final Path path) {
+            return opAuthoriser(new OperationAuthoriser(path));
+        }
+
+        public Builder opAuthoriser(final InputStream inputStream) {
+            return opAuthoriser(new OperationAuthoriser(inputStream));
+        }
+
+        public Builder opAuthoriser(final OperationAuthoriser opAuths) {
+            this.opAuths = opAuths;
+            return this;
+        }
+
         public Graph build() {
             updateSchema();
             updateStore();
             updateView();
 
-            return new Graph(store, view);
+            return new Graph(store, view, opAuths);
         }
 
         private void updateSchema() {

@@ -28,6 +28,7 @@ public abstract class StreamUtil {
     public static final String STORE_SCHEMA = "/schema/storeSchema.json";
     public static final String STORE_TYPES = "/schema/storeTypes.json";
     public static final String STORE_PROPERTIES = "/store.properties";
+    public static final String OP_AUTHS = "/opAuths.properties";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
@@ -63,6 +64,10 @@ public abstract class StreamUtil {
         return openStream(clazz, STORE_PROPERTIES);
     }
 
+    public static InputStream opAuths(final Class clazz) {
+        return openStream(clazz, OP_AUTHS);
+    }
+
     public static InputStream view(final Class clazz, final boolean logErrors) {
         return openStream(clazz, VIEW, logErrors);
     }
@@ -89,6 +94,10 @@ public abstract class StreamUtil {
 
     public static InputStream storeProps(final Class clazz, final boolean logErrors) {
         return openStream(clazz, STORE_PROPERTIES, logErrors);
+    }
+
+    public static InputStream opAuths(final Class clazz, final boolean logErrors) {
+        return openStream(clazz, OP_AUTHS, logErrors);
     }
 
     public static InputStream openStream(final Class clazz, final String path) {
