@@ -58,90 +58,90 @@ public class ByteEntityBloomElementFunctorTest {
 
     @Test
     public void testTransformRangeEntity() throws AccumuloElementConversionException {
-        // Create Range formed from one entity and test
-        Entity entity1 = new Entity(TestGroups.ENTITY);
+        // Create Range formed from one entity and shouldRetieveElementsInRangeBetweenSeeds
+        final Entity entity1 = new Entity(TestGroups.ENTITY);
         entity1.setVertex(1);
-        Key key1 = elementConverter.getKeyFromEntity(entity1);
-        Range range1 = new Range(key1, true, key1, true);
-        org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(Arrays.copyOf(key1.getRowData().getBackingArray(), key1.getRowData().getBackingArray().length - 2));
+        final Key key1 = elementConverter.getKeyFromEntity(entity1);
+        final Range range1 = new Range(key1, true, key1, true);
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(Arrays.copyOf(key1.getRowData().getBackingArray(), key1.getRowData().getBackingArray().length - 2));
         assertTrue(elementFunctor.transform(range1).equals(expectedBloomKey1));
 
-        // Create Range formed from two entities and test - should get null
-        Entity entity2 = new Entity(TestGroups.ENTITY);
+        // Create Range formed from two entities and shouldRetieveElementsInRangeBetweenSeeds - should get null
+        final Entity entity2 = new Entity(TestGroups.ENTITY);
         entity2.setVertex(2);
-        Key key2 = elementConverter.getKeyFromEntity(entity2);
-        Range range2 = new Range(key1, true, key2, true);
+        final Key key2 = elementConverter.getKeyFromEntity(entity2);
+        final Range range2 = new Range(key1, true, key2, true);
         assertNull(elementFunctor.transform(range2));
     }
 
     @Test
     public void testTransformKeyEntity() throws AccumuloElementConversionException {
-        // Create Key formed from entity and test
-        Entity entity1 = new Entity(TestGroups.ENTITY);
+        // Create Key formed from entity and shouldRetieveElementsInRangeBetweenSeeds
+        final Entity entity1 = new Entity(TestGroups.ENTITY);
         entity1.setVertex(1);
-        Key key1 = elementConverter.getKeyFromEntity(entity1);
-        org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
+        final Key key1 = elementConverter.getKeyFromEntity(entity1);
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
         assertEquals(expectedBloomKey1, elementFunctor.transform(key1));
     }
 
     @Test
     public void testTransformRangeEdge() throws AccumuloElementConversionException {
-        // Create Range formed from one edge and test
-        Edge edge1 = new Edge(TestGroups.EDGE);
+        // Create Range formed from one edge and shouldRetieveElementsInRangeBetweenSeeds
+        final Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource(1);
         edge1.setDestination(2);
-        Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
-        Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
-        org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
+        final Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
+        final Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
         assertEquals(expectedBloomKey1, elementFunctor.transform(range1));
 
-        Range range2 = new Range(keys.getSecond().getRow(), true, keys.getSecond().getRow(), true);
-        org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
+        final Range range2 = new Range(keys.getSecond().getRow(), true, keys.getSecond().getRow(), true);
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
         assertEquals(expectedBloomKey2, elementFunctor.transform(range2));
 
-        // Create Range formed from two keys and test - should get null
-        Range range3 = new Range(keys.getFirst().getRow(), true, keys.getSecond().getRow(), true);
+        // Create Range formed from two keys and shouldRetieveElementsInRangeBetweenSeeds - should get null
+        final Range range3 = new Range(keys.getFirst().getRow(), true, keys.getSecond().getRow(), true);
         assertNull(elementFunctor.transform(range3));
     }
 
     @Test
     public void testTransformKeyEdge() throws AccumuloElementConversionException {
-        // Create Key formed from edge and test
-        Edge edge1 = new Edge(TestGroups.EDGE);
+        // Create Key formed from edge and shouldRetieveElementsInRangeBetweenSeeds
+        final Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource(1);
         edge1.setDestination(2);
-        Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
-        Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
-        org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
+        final Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
+        final Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
         assertEquals(expectedBloomKey1, elementFunctor.transform(range1));
-        Range range2 = new Range(keys.getSecond().getRow(), true, keys.getSecond().getRow(), true);
-        org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
+        final Range range2 = new Range(keys.getSecond().getRow(), true, keys.getSecond().getRow(), true);
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
         assertEquals(expectedBloomKey2, elementFunctor.transform(range2));
     }
 
     @Test
     public void testTransformRangeFromEntityToEntityAndSomeEdges() throws AccumuloElementConversionException {
         // Create entity
-        Entity entity = new Entity(TestGroups.ENTITY);
+        final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex(1);
         //        String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
-        Key key1 = elementConverter.getKeyFromEntity(entity);
+        final Key key1 = elementConverter.getKeyFromEntity(entity);
 
         // Create edge from that entity
-        Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = new Edge(TestGroups.EDGE);
         edge.setSource(1);
         edge.setDestination(2);
         //        String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
-        Key key2 = elementConverter.getKeysFromEdge(edge).getFirst();
+        final Key key2 = elementConverter.getKeysFromEdge(edge).getFirst();
 
         // Create range from entity to edge inclusive
-        Range range = new Range(key1.getRow(), true, key2.getRow(), true);
+        final Range range = new Range(key1.getRow(), true, key2.getRow(), true);
 
         // Check don't get null Bloom key
         assertNotNull(elementFunctor.transform(range));
 
         // Check get correct Bloom key
-        org.apache.hadoop.util.bloom.Key expectedBloomKey = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
         assertEquals(expectedBloomKey, elementFunctor.transform(range));
     }
 
@@ -149,11 +149,11 @@ public class ByteEntityBloomElementFunctorTest {
     public void testTransformRangeWhenUsingRangeNotExact() {
         try {
             // Create SimpleEntity
-            Entity simpleEntity = new Entity(TestGroups.ENTITY);
+            final Entity simpleEntity = new Entity(TestGroups.ENTITY);
             simpleEntity.setVertex("1");
-            Key key = elementConverter.getKeyFromEntity(simpleEntity);
-            Range range = Range.exact(key.getRow());
-            org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key.getRowData().getBackingArray()));
+            final Key key = elementConverter.getKeyFromEntity(simpleEntity);
+            final Range range = Range.exact(key.getRow());
+            final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key.getRowData().getBackingArray()));
             assertNotNull(elementFunctor.transform(range));
             assertEquals(expectedBloomKey1, elementFunctor.transform(range));
         } catch (AccumuloElementConversionException e) {
@@ -164,16 +164,16 @@ public class ByteEntityBloomElementFunctorTest {
     @Test
     public void testTransformRangeWhenRangeHasUnspecifiedStartOrEndKey() {
         try {
-            // Create Range with unspecified start key and test - should get null
-            Edge edge1 = new Edge(TestGroups.EDGE);
+            // Create Range with unspecified start key and shouldRetieveElementsInRangeBetweenSeeds - should get null
+            final Edge edge1 = new Edge(TestGroups.EDGE);
             edge1.setSource("3");
             edge1.setDestination("4");
-            Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
-            Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
+            final Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
+            final Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
             assertNull(elementFunctor.transform(range1));
 
-            // Create Range with unspecified end key and test - should get null
-            Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
+            // Create Range with unspecified end key and shouldRetieveElementsInRangeBetweenSeeds - should get null
+            final Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
             assertNull(elementFunctor.transform(range2));
         } catch (AccumuloElementConversionException e) {
             fail("ConversionException " + e);
@@ -183,7 +183,7 @@ public class ByteEntityBloomElementFunctorTest {
     @Test
     public void testTransformRangeWhenKeyIsNotEntityOrEdge() {
         // Create arbitrary range
-        Range range = new Range("Blah", true, "MoreBlah", true);
+        final Range range = new Range("Blah", true, "MoreBlah", true);
         assertNull(elementFunctor.transform(range));
     }
 

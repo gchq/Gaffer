@@ -19,6 +19,7 @@ package gaffer.accumulostore.retriever.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -37,9 +38,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,35 +70,34 @@ public class AccumuloRangeIDRetrieverTest {
     }
 
     @Test
-    public void test() throws StoreException {
-        test(byteEntityStore);
-        test(gaffer1KeyStore);
+    public void shouldRetieveElementsInRangeBetweenSeedsByteEntityStore() throws StoreException {
+        shouldRetieveElementsInRangeBetweenSeeds(byteEntityStore);
     }
 
-    private void test(final AccumuloStore store) throws StoreException {
+    @Test
+    public void shouldRetieveElementsInRangeBetweenSeedsGaffer1Store() throws StoreException {
+        shouldRetieveElementsInRangeBetweenSeeds(gaffer1KeyStore);
+    }
+
+    private void shouldRetieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
-        AccumuloRangeIDRetriever retriever = null;
         final AbstractGetOperation<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         try {
-            retriever = new AccumuloRangeIDRetriever(store, operation);
+            final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation);
+            assertEquals(numEntries, Iterables.size(retriever));
         } catch (IteratorSettingException e) {
             fail("Unable to construct Range Retriever");
         }
-        int count = 0;
-        for (@SuppressWarnings("unused") Element elm : retriever) {
-            count++;
-        }
-        assertEquals(numEntries, count);
     }
 
     private void setupGraph(final AccumuloStore store, int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
-            Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = new Edge(TestGroups.EDGE);
             String s = "" + i;
             while (s.length() < 4) {
                 s = "0" + s;

@@ -16,10 +16,7 @@
 
 package gaffer.accumulostore.operation.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -39,6 +36,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 import org.apache.accumulo.core.client.TableExistsException;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -48,13 +46,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.*;
+
 public class GetElementsWithinSetHandlerTest {
 
     private final String AUTHS = "Test";
     private final long TIMESTAMP = System.currentTimeMillis();
     private View defaultView;
     private AccumuloStore byteEntityStore;
-    private AccumuloStore Gaffer1KeyStore;
+    private AccumuloStore gaffer1KeyStore;
     private Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
     private Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
     private Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
@@ -83,136 +83,98 @@ public class GetElementsWithinSetHandlerTest {
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        Gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         setupGraph(byteEntityStore);
-        setupGraph(Gaffer1KeyStore);
+        setupGraph(gaffer1KeyStore);
     }
 
     @Test
-    public void testNoSummarisation() throws OperationException {
-        testNoSummarisation(byteEntityStore);
-        testNoSummarisation(Gaffer1KeyStore);
+    public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
+        shouldReturnElementsNoSummarisation(byteEntityStore);
     }
 
-    private void testNoSummarisation(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
+        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
+    }
+
+    private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setSummarise(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, store);
 
-        final List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-
-        final Set<Element> expectedResults = new HashSet<>();
-        expectedResults.add(expectedEdge1);
-        expectedResults.add(expectedEdge2);
-        expectedResults.add(expectedEdge3);
-        expectedResults.add(expectedEntity1);
-        expectedResults.add(expectedEntity2);
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
-
         //Without query compaction the result size should be 5
-        assertEquals(5, results.size());
-
+        assertEquals(5, Iterables.size(elements));
+        assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
     }
 
     @Test
-    public void testShouldSummarise() throws OperationException {
-        testShouldSummarise(byteEntityStore);
-        testShouldSummarise(Gaffer1KeyStore);
+    public void shouldSummariseByteEntityStore() throws OperationException {
+        shouldSummarise(byteEntityStore);
     }
 
-    private void testShouldSummarise(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldSummariseGaffer1Store() throws OperationException {
+        shouldSummarise(gaffer1KeyStore);
+    }
+
+    private void shouldSummarise(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, store);
 
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
-
-        final Set<Element> expectedResults = new HashSet<>();
-        expectedResults.add(expectedSummarisedEdge);
-        expectedResults.add(expectedEntity1);
-        expectedResults.add(expectedEntity2);
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
-
         //After query compaction the result size should be 3
-        assertEquals(3, results.size());
-
+        assertEquals(3, Iterables.size(elements));
+        assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
     }
 
     @Test
-    public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
-        testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
-        testShouldReturnOnlyEdgesWhenOptionSet(Gaffer1KeyStore);
+    public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
+        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
     }
 
-    private void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
+        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    }
+
+    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEntities(false);
         operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, store);
 
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
-
-        final Set<Element> expectedResults = new HashSet<>();
-        expectedResults.add(expectedSummarisedEdge);
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
-
         //After query compaction the result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
+        assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
 
     }
 
     @Test
-    public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
-        testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
-        testShouldReturnOnlyEntitiesWhenOptionSet(Gaffer1KeyStore);
+    public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
+        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
     }
 
-    private void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
+        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    }
+
+    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, store);
 
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
-
-        final Set<Element> expectedResults = new HashSet<>();
-        expectedResults.add(expectedEntity1);
-        expectedResults.add(expectedEntity2);
-
-        for (final Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
-
         //The result size should be 2
-        assertEquals(2, results.size());
-
+        assertEquals(2, Iterables.size(elements));
+        assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
     }
 
     private void setupGraph(final AccumuloStore store) {

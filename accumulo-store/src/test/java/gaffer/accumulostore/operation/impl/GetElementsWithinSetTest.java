@@ -1,6 +1,7 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import gaffer.accumulostore.retriever.impl.data.AccumuloRetrieverTestData;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -21,12 +22,8 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final EntitySeed seed1 = new EntitySeed("source1");
-        final EntitySeed seed2 = new EntitySeed("destination1");
-        final EntitySeed seed3 = new EntitySeed("source2");
-        final EntitySeed seed4 = new EntitySeed("destination2");
-
-        final GetElementsWithinSet op = new GetElementsWithinSet(Arrays.asList(seed1, seed2, seed3, seed4));
+        final GetElementsWithinSet op = new GetElementsWithinSet(Arrays.asList(AccumuloRetrieverTestData.SEED_SOURCE_1,
+                AccumuloRetrieverTestData.SEED_DESTINATION_1, AccumuloRetrieverTestData.SEED_SOURCE_2, AccumuloRetrieverTestData.SEED_DESTINATION_2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -35,10 +32,10 @@ public class GetElementsWithinSetTest implements OperationTest {
 
         // Then
         final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
-        assertEquals(seed1, itrSeedsA.next());
-        assertEquals(seed2, itrSeedsA.next());
-        assertEquals(seed3, itrSeedsA.next());
-        assertEquals(seed4, itrSeedsA.next());
+        assertEquals(AccumuloRetrieverTestData.SEED_SOURCE_1, itrSeedsA.next());
+        assertEquals(AccumuloRetrieverTestData.SEED_DESTINATION_1, itrSeedsA.next());
+        assertEquals(AccumuloRetrieverTestData.SEED_SOURCE_2, itrSeedsA.next());
+        assertEquals(AccumuloRetrieverTestData.SEED_DESTINATION_2, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
 
     }
@@ -46,7 +43,9 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(new EntitySeed("A")).includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option("testOption", "true").populateProperties(true).summarise(false).view(new View.Builder().edge("testEdgegroup").build()).build();
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloRetrieverTestData.SEED_A)
+                .includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option("testOption", "true")
+                .populateProperties(true).summarise(false).view(new View.Builder().edge("testEdgegroup").build()).build();
         assertEquals("true", getElementsWithinSet.getOption("testOption"));
         assertTrue(getElementsWithinSet.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.NONE, getElementsWithinSet.getIncludeEdges());

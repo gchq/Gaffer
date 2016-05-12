@@ -1,6 +1,7 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import gaffer.accumulostore.retriever.impl.data.AccumuloRetrieverTestData;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -32,8 +33,8 @@ public class GetEntitiesInRangesTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        final Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
-        final Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
+        final Pair<EntitySeed> pair1 = new Pair<>(AccumuloRetrieverTestData.SEED_SOURCE_1, AccumuloRetrieverTestData.SEED_DESTINATION_1);
+        final Pair<EntitySeed> pair2 = new Pair<>(AccumuloRetrieverTestData.SEED_SOURCE_2, AccumuloRetrieverTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
         final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges<>(pairList);
@@ -53,7 +54,7 @@ public class GetEntitiesInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
+        final Pair<EntitySeed> seed = new Pair<>(AccumuloRetrieverTestData.SEED_A, AccumuloRetrieverTestData.SEED_B);
         final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
                 .option("testOption", "true")
                 .populateProperties(false)

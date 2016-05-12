@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -34,21 +35,17 @@ import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.Operation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
-import gaffer.store.operation.handler.OperationHandler;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class GetElementsBetweenSetsHandlerTest {
@@ -110,137 +107,137 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     @Test
-    public void testNoSummarisation() throws OperationException {
-        testNoSummarisation(byteEntityStore);
-        testNoSummarisation(gaffer1KeyStore);
-    }
-
-    private void testNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, store);
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
-        //Without query compaction the result size should be 4
-        assertEquals(4, results.size());
-
-        assertThat(results, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1));
+    public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
+        shouldReturnElementsNoSummarisation(byteEntityStore);
     }
 
     @Test
-    public void testShouldSummarise() throws OperationException {
-        testShouldSummarise(byteEntityStore);
-        testShouldSummarise(gaffer1KeyStore);
+    public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
+        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
     }
 
-    private void testShouldSummarise(final AccumuloStore store) throws OperationException {
+    private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, store);
+        //Without query compaction the result size should be 4
+        assertEquals(4, Iterables.size(elements));
+
+        assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1));
+    }
+
+    @Test
+    public void shouldReturnSummarisedElementsByteEntityStore() throws OperationException {
+        shouldReturnSummarisedElements(byteEntityStore);
+    }
+
+    @Test
+    public void shouldReturnSummarisedElementsGaffer1Store() throws OperationException {
+        shouldReturnSummarisedElements(gaffer1KeyStore);
+    }
+
+    private void shouldReturnSummarisedElements(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, store);
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
 
         //With query compaction the result size should be 2
-        assertEquals(2, results.size());
+        assertEquals(2, Iterables.size(elements));
 
-        assertThat(results, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1));
+        assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1));
     }
 
     @Test
-    public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
-        testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
-        testShouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
+        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
     }
 
-    private void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
+        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    }
+
+    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, store);
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
 
         //With query compaction the result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
 
-        assertThat(results, IsCollectionContaining.hasItem(expectedSummarisedEdge));
+        assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
     }
 
     @Test
-    public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
-        testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
-        testShouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
+        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+     }
+
+    @Test
+    public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
+        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
     }
 
-    private void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
+    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, store);
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
 
         //The result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
 
-        assertThat(results, IsCollectionContaining.hasItem(expectedEntity1));
+        assertThat(elements, IsCollectionContaining.hasItem(expectedEntity1));
     }
 
     @Test
-    public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
-        testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
-        testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    public void shouldSummariseOutGoingEdgesOnlyByteEntityStore() throws OperationException {
+        shouldSummariseOutGoingEdgesOnly(byteEntityStore);
     }
 
-    private void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldSummariseOutGoingEdgesOnlyGaffer1Store() throws OperationException {
+        shouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    }
+
+    private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, store);
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
 
         //With query compaction the result size should be 2
-        assertEquals(2, results.size());
+        assertEquals(2, Iterables.size(elements));
 
-        assertThat(results, IsCollectionContaining.hasItems(expectedEntity1, expectedSummarisedEdge));
+        assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedSummarisedEdge));
     }
 
     @Test
-    public void testShouldHaveNoIncomingEdges() throws OperationException {
-        testShouldHaveNoIncomingEdges(byteEntityStore);
-        testShouldHaveNoIncomingEdges(gaffer1KeyStore);
+    public void shouldHaveNoIncomingEdgesByteEntityStore() throws OperationException {
+        shouldHaveNoIncomingEdges(byteEntityStore);
     }
 
-    private void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldHaveNoIncomingEdgesGaffer1Store() throws OperationException {
+        shouldHaveNoIncomingEdges(gaffer1KeyStore);
+    }
+
+    private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, store);
-        final List<Element> results = new ArrayList<>();
-        for (final Element elm : elements) {
-            results.add(elm);
-        }
 
         //The result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
 
-        assertThat(results, IsCollectionContaining.hasItem(expectedEntity1));
+        assertThat(elements, IsCollectionContaining.hasItem(expectedEntity1));
     }
 
     private void setupGraph(final AccumuloStore store) {

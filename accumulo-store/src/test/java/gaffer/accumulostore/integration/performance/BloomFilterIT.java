@@ -167,7 +167,7 @@ public class BloomFilterIT {
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
-            for (Key key : keys) {
+            for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key).getGroup().equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
@@ -185,7 +185,7 @@ public class BloomFilterIT {
             final int numTrials = 5;
             double maxRandomRate = -1.0;
             for (int i = 0; i < numTrials; i++) {
-                double rate = calculateRandomLookUpRate(reader, dataSet, random, rangeFactory);
+                final double rate = calculateRandomLookUpRate(reader, dataSet, random, rangeFactory);
                 if (rate > maxRandomRate) {
                     maxRandomRate = rate;
                 }
@@ -211,26 +211,26 @@ public class BloomFilterIT {
     }
 
     private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, AccumuloElementConversionException, RangeFactoryException {
-        EntitySeed[] randomData = new EntitySeed[5000];
+        final EntitySeed[] randomData = new EntitySeed[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
         }
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         for (int i = 0; i < 5000; i++) {
             seek(reader, randomData[i], rangeFactory);
             if (dataSet.contains(randomData[i])) {
                 assertTrue(reader.hasTop());
             }
         }
-        long end = System.currentTimeMillis();
-        double randomRate = 5000 / ((end - start) / 1000.0);
+        final long end = System.currentTimeMillis();
+        final double randomRate = 5000 / ((end - start) / 1000.0);
         System.out.println("Random look up rate = " + randomRate);
         return randomRate;
     }
 
     private double calculateCausalLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         int count = 0;
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         for (Entity simpleEntity : dataSet) {
             seek(reader, ElementSeed.createSeed(simpleEntity), rangeFactory);
             assertTrue(reader.hasTop());
@@ -239,20 +239,20 @@ public class BloomFilterIT {
                 break;
             }
         }
-        long end = System.currentTimeMillis();
-        double causalRate = 5000 / ((end - start) / 1000.0);
+        final long end = System.currentTimeMillis();
+        final double causalRate = 5000 / ((end - start) / 1000.0);
         System.out.println("Causal look up rate = " + causalRate);
         return causalRate;
     }
 
     private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
-        List<Range> range = rangeFactory.getRange(seed, operation);
+        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
+        final List<Range> range = rangeFactory.getRange(seed, operation);
         for (Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);
         }

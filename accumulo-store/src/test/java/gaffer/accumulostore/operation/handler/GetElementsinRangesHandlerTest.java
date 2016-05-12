@@ -31,7 +31,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -40,9 +39,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,12 +70,16 @@ public class GetElementsinRangesHandlerTest {
     }
 
     @Test
-    public void testNoSummarisation() throws OperationException {
-        testNoSummarisation(byteEntityStore);
-        testNoSummarisation(gaffer1KeyStore);
+    public void testNoSummarisationByteEntityStore() throws OperationException {
+        shouldReturnElementsNoSummarisation(byteEntityStore);
     }
 
-    private void testNoSummarisation(final AccumuloStore store) throws OperationException {
+    @Test
+    public void testNoSummarisationGaffer1Store() throws OperationException {
+        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
+    }
+
+    private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
@@ -103,12 +104,16 @@ public class GetElementsinRangesHandlerTest {
     }
 
     @Test
-    public void testShouldSummarise() throws OperationException {
-        testShouldSummarise(byteEntityStore);
-        testShouldSummarise(gaffer1KeyStore);
+    public void shouldSummariseByteEntityStore() throws OperationException {
+        shouldSummarise(byteEntityStore);
     }
 
-    private void testShouldSummarise(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldSummariseGaffer2Store() throws OperationException {
+        shouldSummarise(gaffer1KeyStore);
+    }
+
+    private void shouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
@@ -132,7 +137,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
         final Iterable<Element> elements = handler.doOperation(operation, store);
         count = 0;
-        for (Element elm : elements) {
+        for (final Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
             //Make sure every element has been summarised
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
@@ -143,12 +148,16 @@ public class GetElementsinRangesHandlerTest {
     }
 
     @Test
-    public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
-        testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
-        testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    public void shouldSummariseOutGoingEdgesOnlyByteEntityStore() throws OperationException {
+        shouldSummariseOutGoingEdgesOnly(byteEntityStore);
     }
 
-    private void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldSummariseOutGoingEdgesOnlyGaffer1Store() throws OperationException {
+        shouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    }
+
+    private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
@@ -186,12 +195,16 @@ public class GetElementsinRangesHandlerTest {
     }
 
     @Test
-    public void testShouldHaveNoIncomingEdges() throws OperationException {
-        testShouldHaveNoIncomingEdges(byteEntityStore);
-        testShouldHaveNoIncomingEdges(gaffer1KeyStore);
+    public void shouldHaveNoIncomingEdgesByteEntityStore() throws OperationException {
+        shouldHaveNoIncomingEdges(byteEntityStore);
     }
 
-    private void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldHaveNoIncomingEdgesGaffer1Store() throws OperationException {
+        shouldHaveNoIncomingEdges(gaffer1KeyStore);
+    }
+
+    private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
@@ -210,12 +223,16 @@ public class GetElementsinRangesHandlerTest {
     }
 
     @Test
-    public void testShouldReturnNothingWhenNoEdgesSet() throws OperationException {
-        testShouldReturnNothingWhenNoEdgesSet(byteEntityStore);
-        testShouldReturnNothingWhenNoEdgesSet(gaffer1KeyStore);
+    public void shouldReturnNothingWhenNoEdgesSetByteEntityStore() throws OperationException {
+        shouldReturnNothingWhenNoEdgesSet(byteEntityStore);
     }
 
-    private void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
+    @Test
+    public void shouldReturnNothingWhenNoEdgesSetGaffer1Store() throws OperationException {
+        shouldReturnNothingWhenNoEdgesSet(gaffer1KeyStore);
+    }
+
+    private void shouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
 
@@ -237,32 +254,32 @@ public class GetElementsinRangesHandlerTest {
     private void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
-            final Edge edge = new Edge(TestGroups.EDGE);
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            final Edge edge3 = new Edge(TestGroups.EDGE);
 
             String s = "" + i;
             while (s.length() < 4) {
                 s = "0" + s;
             }
+
+            final Edge edge = new Edge(TestGroups.EDGE);
             edge.setSource(s);
-            edge2.setSource(s);
-            edge3.setSource(s);
 
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
             edge.setDestination("B");
             edge.setDirected(true);
+            elements.add(edge);
 
+            final Edge edge2 = new Edge(TestGroups.EDGE);
+            edge2.setSource(s);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
             edge2.setDestination("B");
             edge2.setDirected(true);
+            elements.add(edge2);
 
+            final Edge edge3 = new Edge(TestGroups.EDGE);
+            edge3.setSource(s);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 5);
             edge3.setDestination("B");
             edge3.setDirected(true);
-
-            elements.add(edge);
-            elements.add(edge2);
             elements.add(edge3);
         }
 
