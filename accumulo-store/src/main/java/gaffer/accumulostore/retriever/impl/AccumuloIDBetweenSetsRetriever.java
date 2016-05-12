@@ -23,6 +23,7 @@ import gaffer.accumulostore.retriever.RetrieverException;
 import gaffer.accumulostore.utils.BloomFilterUtils;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import java.util.Set;
@@ -65,14 +66,17 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
                                           final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
+                                          final User user,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
-        this(store, operation, false, iteratorSettings);
+        this(store, operation, user, false, iteratorSettings);
     }
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation, final boolean readEntriesIntoMemory,
+                                          final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
+                                          final User user,
+                                          final boolean readEntriesIntoMemory,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, readEntriesIntoMemory, iteratorSettings);
+        super(store, operation, user, readEntriesIntoMemory, iteratorSettings);
         setSeeds(operation.getSeeds(), operation.getSeedsB());
     }
 

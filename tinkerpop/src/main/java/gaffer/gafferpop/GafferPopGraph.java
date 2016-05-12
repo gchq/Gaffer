@@ -42,6 +42,7 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Direction;
@@ -91,6 +92,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public static final String OP_OPTIONS = "gaffer.operation.options";
 
+    public static final String USER_ID = "gaffer.userId";
+
+    public static final String DATA_AUTHS = "gaffer.dataAuths";
+
     /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
@@ -102,6 +107,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final GafferPopGraphVariables variables;
     private final GafferPopGraphFeatures features;
     private final Map<String, String> opOptions;
+    private final User user;
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
@@ -118,6 +124,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 opOptions.put(parts[0], parts[1]);
             }
         }
+
+        user = new User.Builder()
+                .userId(configuration().getString(USER_ID, User.UNKNOWN_USER_ID))
+                .dataAuths(configuration().getStringArray(DATA_AUTHS))
+                .build();
 
         variables = createVariables();
     }
@@ -453,7 +464,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         try {
-            return graph.execute(opChain);
+            return graph.execute(opChain, user);
         } catch (OperationException e) {
             throw new RuntimeException(e);
         }
@@ -663,6 +674,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private GafferPopGraphVariables createVariables() {
         final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
+        variablesMap.put(GafferPopGraphVariables.USER, user);
         variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
         return new GafferPopGraphVariables(variablesMap);
     }

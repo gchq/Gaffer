@@ -87,7 +87,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -118,7 +118,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -152,7 +152,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);

@@ -40,6 +40,7 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
+import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,11 @@ import org.slf4j.LoggerFactory;
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
+ * <p>
+ * By default queries will be executed with an UNKNOWN user containing no auths.
+ * The createUser() method should be overridden and a {@link User} object should
+ * be created from the http request.
+ * </p>
  */
 public class SimpleOperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOperationService.class);
@@ -132,11 +138,25 @@ public class SimpleOperationService implements IOperationService {
         return executeGet(operation, n);
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain) {
+    /**
+     * Creates a {@link User} object containing information about the user
+     * querying Gaffer.
+     * By default this will return a user with id: UNKNOWN.
+     * <p>
+     * This method should be overridden for implementations of this API. The
+     * user information should be fetched from the request.
+     *
+     * @return the user querying Gaffer.
+     */
+    protected User createUser() {
+        return new User();
+    }
+
+    protected void preOperationHook(final OperationChain<?> opChain, final User user) {
         // no action by default
     }
 
-    protected void postOperationHook(final OperationChain<?> opChain) {
+    protected void postOperationHook(final OperationChain<?> opChain, final User user) {
         // no action by default
     }
 
@@ -149,29 +169,30 @@ public class SimpleOperationService implements IOperationService {
     }
 
     protected <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> opChain, final boolean async) {
-        preOperationHook(opChain);
+        final User user = createUser();
+        preOperationHook(opChain, user);
 
         if (async) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        graphFactory.getGraph().execute(opChain);
+                        graphFactory.getGraph().execute(opChain, user);
                     } catch (OperationException e) {
                         LOGGER.error("Error executing opChain", e);
                     } finally {
-                        postOperationHook(opChain);
+                        postOperationHook(opChain, user);
                     }
                 }
             }).start();
             return null;
         } else {
             try {
-                return graphFactory.getGraph().execute(opChain);
+                return graphFactory.getGraph().execute(opChain, user);
             } catch (OperationException e) {
                 throw new RuntimeException("Error executing opChain", e);
             } finally {
-                postOperationHook(opChain);
+                postOperationHook(opChain, user);
             }
         }
     }
@@ -179,5 +200,4 @@ public class SimpleOperationService implements IOperationService {
     protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
         return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
     }
-
 }

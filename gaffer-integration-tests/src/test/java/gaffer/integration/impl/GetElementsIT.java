@@ -37,6 +37,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetRelatedElements;
+import gaffer.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -127,7 +128,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final GetElementsSeed<ElementSeed, Element> op = new GetElementsSeed<>();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         assertFalse(results.iterator().hasNext());
@@ -139,7 +140,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final GetRelatedElements<ElementSeed, Element> op = new GetRelatedElements<>();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         assertFalse(results.iterator().hasNext());
@@ -209,6 +210,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                    final IncludeIncomingOutgoingType inOutType,
                                    final Iterable<ElementSeed> seeds) throws IOException, OperationException {
         // Given
+        final User user = new User();
         final GetElements<ElementSeed, Element> op;
         if (SeedMatchingType.EQUAL.equals(seedMatching)) {
             op = new GetElementsSeed<>();
@@ -226,7 +228,7 @@ public class GetElementsIT extends AbstractStoreIT {
 
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);

@@ -55,17 +55,17 @@ import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.ViewValidator;
+import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * A <code>Store</code> backs a Graph and is responsible for storing the {@link gaffer.data.element.Element}s and
@@ -129,23 +129,26 @@ public abstract class Store {
      *
      * @param operation   the operation to execute.
      * @param <OPERATION> the operation type
+     * @param user        the user executing the operation
      * @param <OUTPUT>    the output type.
      * @return the result from the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
-    public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(final OPERATION operation) throws OperationException {
-        return execute(new OperationChain<>(operation));
+    public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(
+            final OPERATION operation, final User user) throws OperationException {
+        return execute(new OperationChain<>(operation), user);
     }
 
     /**
      * Executes a given operation chain and returns the result.
      *
      * @param operationChain the operation chain to execute.
+     * @param user           the user executing the operation chain
      * @param <OUTPUT>       the output type of the operation.
      * @return the result of executing the operation.
      * @throws OperationException thrown by an operation handler if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
+    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
         if (!opsItr.hasNext()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
@@ -156,9 +159,9 @@ public abstract class Store {
         Operation op = opsItr.next();
         while (null != op) {
             if (op instanceof CacheOperation) {
-                result = handleCacheOperation(op, cache);
+                result = handleCacheOperation(op, user, cache);
             } else {
-                result = handleOperation(op);
+                result = handleOperation(op, user);
             }
 
             if (opsItr.hasNext()) {
@@ -359,11 +362,11 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation) throws OperationException {
+    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final User user) throws OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
         if (null != handler) {
-            result = handler.doOperation(operation, this);
+            result = handler.doOperation(operation, user, this);
         } else {
             result = doUnhandledOperation(operation);
         }
@@ -371,7 +374,7 @@ public abstract class Store {
         return result;
     }
 
-    private <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleCacheOperation(final OPERATION op, final Map<String, Iterable<?>> cache) {
+    private <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleCacheOperation(final OPERATION op, final User user, final Map<String, Iterable<?>> cache) {
         final Object result;
         if (op instanceof UpdateCache) {
             result = updateCache((UpdateCache) op, cache);

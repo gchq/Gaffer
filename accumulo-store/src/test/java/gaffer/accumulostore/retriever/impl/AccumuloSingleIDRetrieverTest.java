@@ -39,6 +39,7 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -77,6 +78,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testEntitySeedQueryEdgesAndEntities(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -89,7 +92,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.ALL);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -109,6 +112,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testEntitySeedQueryEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -120,7 +125,7 @@ public class AccumuloSingleIDRetrieverTest {
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
         operation.setIncludeEntities(false);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -141,6 +146,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testEntitySeedQueryEntitiesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -153,7 +160,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -174,6 +181,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testUndirectedEdgeSeedQueries(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -186,7 +195,7 @@ public class AccumuloSingleIDRetrieverTest {
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -208,6 +217,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testDirectedEdgeSeedQueries(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -220,7 +231,7 @@ public class AccumuloSingleIDRetrieverTest {
         GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
         operation.setIncludeEdges(IncludeEdgeType.DIRECTED);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -243,6 +254,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testEntitySeedQueryIncomingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -255,7 +268,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -277,6 +290,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     public void testEntitySeedQueryOutgoingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
+        final User user = new User();
+
         // Create set to query for
         Set<ElementSeed> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
@@ -289,7 +304,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation);
+            retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -303,6 +318,8 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     private static void setupGraph(final AccumuloStore store, final int numEntries) {
+        final User user = new User();
+
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             Entity entity = new Entity(TestGroups.ENTITY);
@@ -320,7 +337,7 @@ public class AccumuloSingleIDRetrieverTest {
             elements.add(entity);
         }
         try {
-            store.execute(new AddElements(elements));
+            store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

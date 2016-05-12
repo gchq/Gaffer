@@ -62,6 +62,7 @@ import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -86,6 +87,8 @@ public class AccumuloStoreTest {
 
     @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated() throws OperationException {
+        final User user = new User();
+
         List<Element> elements = new ArrayList<>();
         Entity e = new Entity(TestGroups.ENTITY);
         e.setVertex("1");
@@ -93,7 +96,7 @@ public class AccumuloStoreTest {
         AddElements add = new AddElements.Builder()
                 .elements(elements)
                 .build();
-        store.execute(add);
+        store.execute(add, user);
 
         GetElements<EntitySeed, Element> getBySeed = new GetElementsSeed.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
@@ -101,7 +104,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(new EntitySeed("1"))
                 .build();
-        Iterable<Element> results = store.execute(getBySeed);
+        Iterable<Element> results = store.execute(getBySeed, user);
         Iterator<Element> resultsIter = results.iterator();
         assertTrue(resultsIter.hasNext());
         assertEquals(e, resultsIter.next());
@@ -114,7 +117,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(new EntitySeed("1"))
                 .build();
-        results = store.execute(getRelated);
+        results = store.execute(getRelated, user);
         resultsIter = results.iterator();
         assertTrue(resultsIter.hasNext());
         assertEquals(e, resultsIter.next());

@@ -24,12 +24,14 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.operation.GetOperation.SeedMatchingType;
+import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.ElementSeed.Matches;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +39,9 @@ import java.util.Set;
 
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final Store store) {
+    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+                                         final User user, final Store store)
+            throws OperationException {
         return doOperation(operation, (ArrayListStore) store);
     }
 

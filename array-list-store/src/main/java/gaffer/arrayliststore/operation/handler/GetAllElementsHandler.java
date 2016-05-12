@@ -25,16 +25,19 @@ import gaffer.data.element.Entity;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final Store store) {
+    public Iterable<Element> doOperation(final GetAllElements<Element> operation,
+                                         final User user, final Store store) {
         return doOperation(operation, (ArrayListStore) store);
     }
 
-    private List<Element> doOperation(final GetAllElements<Element> operation, final ArrayListStore store) {
+    private List<Element> doOperation(final GetAllElements<Element> operation,
+                                      final ArrayListStore store) {
         final List<Element> result = new ArrayList<>();
         if (operation.isIncludeEntities()) {
             for (final Entity entity : store.getEntities()) {
