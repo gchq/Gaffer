@@ -103,5 +103,4 @@ public class LoadAndQuery1Test {
         assertEquals(expectedResults.length, results.size());
         assertThat(results, IsCollectionContaining.hasItems(expectedResults));
     }
-
 }

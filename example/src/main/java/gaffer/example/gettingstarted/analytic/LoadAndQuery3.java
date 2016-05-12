@@ -45,28 +45,28 @@ public class LoadAndQuery3 extends LoadAndQuery {
         setStoreTypesLocation("/example/gettingstarted/3/schema/storeTypes.json");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator3 dataGenerator3 = new DataGenerator3();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator3 dataGenerator3 = new DataGenerator3();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator3.getElement(s));
             System.out.println(dataGenerator3.getElement(s).toString());
         }
         System.out.println("");
 
-        Graph graph3 = new Graph.Builder()
+        final Graph graph3 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph3.execute(addElements);
 
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
@@ -76,14 +76,14 @@ public class LoadAndQuery3 extends LoadAndQuery {
             System.out.println(e.toString());
         }
 
-        ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
+        final ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
                 .filter(new ElementFilter.Builder()
                         .select("count")
                         .execute(new IsMoreThan(3))
                         .build())
                 .build();
 
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge("data", viewElementDefinition)
                 .build();
 

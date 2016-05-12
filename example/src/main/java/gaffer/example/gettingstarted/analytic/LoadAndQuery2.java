@@ -42,15 +42,15 @@ public class LoadAndQuery2 extends LoadAndQuery {
         setStoreTypesLocation("/example/gettingstarted/2/schema/storeTypes.json");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        Graph graph2 = new Graph.Builder()
+        final Graph graph2 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator2 dataGenerator2 = new DataGenerator2();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator2 dataGenerator2 = new DataGenerator2();
         System.out.println("\nTurn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator2.getElement(s));
@@ -58,14 +58,14 @@ public class LoadAndQuery2 extends LoadAndQuery {
         }
         System.out.println("");
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph2.execute(addElements);
 
         //get all the edges
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
@@ -77,7 +77,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         }
 
         //create a View to specify which subset of results we want
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge("red")
                 .build();
         //rerun the previous query with our view

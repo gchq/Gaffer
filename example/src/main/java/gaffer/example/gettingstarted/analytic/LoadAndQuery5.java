@@ -41,15 +41,15 @@ public class LoadAndQuery5 extends LoadAndQuery {
         setStoreTypesLocation("/example/gettingstarted/5/schema/storeTypes.json");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        Graph graph5 = new Graph.Builder()
+        final Graph graph5 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator5 dataGenerator5 = new DataGenerator5();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator5 dataGenerator5 = new DataGenerator5();
         System.out.println("\nTurn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator5.getElement(s));
@@ -57,13 +57,13 @@ public class LoadAndQuery5 extends LoadAndQuery {
         }
         System.out.println("");
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph5.execute(addElements);
 
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 

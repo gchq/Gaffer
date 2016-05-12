@@ -42,8 +42,8 @@ public class LoadAndQuery1 extends LoadAndQuery {
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create some edges from the data file using our data generator class
-        List<Element> elements = new ArrayList<>();
-        DataGenerator1 data1Generator = new DataGenerator1();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator1 data1Generator = new DataGenerator1();
         System.out.println("Turn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             System.out.println(data1Generator.getElement(s).toString());
@@ -53,7 +53,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
 
 
         //create a graph using our schema and store properties
-        Graph graph1 = new Graph.Builder()
+        final Graph graph1 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
@@ -61,14 +61,14 @@ public class LoadAndQuery1 extends LoadAndQuery {
                 .build();
 
         //add the edges to the graph
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph1.execute(addElements);
 
         //get all the edges that contain the vertex "1"
-        GetRelatedEdges query = new GetRelatedEdges.Builder()
+        final GetRelatedEdges query = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 

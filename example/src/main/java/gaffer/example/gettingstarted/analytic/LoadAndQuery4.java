@@ -45,28 +45,28 @@ public class LoadAndQuery4 extends LoadAndQuery {
         setStoreTypesLocation("/example/gettingstarted/4/schema/storeTypes.json");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator4 dataGenerator4 = new DataGenerator4();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator4 dataGenerator4 = new DataGenerator4();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator4.getElement(s));
             System.out.println(dataGenerator4.getElement(s).toString());
         }
         System.out.println("");
 
-        Graph graph4 = new Graph.Builder()
+        final Graph graph4 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph4.execute(addElements);
 
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
@@ -76,18 +76,18 @@ public class LoadAndQuery4 extends LoadAndQuery {
             System.out.println(e.toString());
         }
 
-        ElementTransformer mean = new ElementTransformer.Builder()
+        final ElementTransformer mean = new ElementTransformer.Builder()
                 .select("thing", "count")
                 .project("mean")
                 .execute(new MeanTransform())
                 .build();
 
-        ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
+        final ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
                 .transientProperty("mean", Float.class)
                 .transformer(mean)
                 .build();
 
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge("data", viewElementDefinition)
                 .build();
 
