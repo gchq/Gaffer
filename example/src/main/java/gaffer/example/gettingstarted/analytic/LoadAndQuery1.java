@@ -15,6 +15,7 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator1;
 import gaffer.example.gettingstarted.util.DataUtils;
@@ -32,9 +33,13 @@ public class LoadAndQuery1 extends LoadAndQuery {
         new LoadAndQuery1().run();
     }
 
-    public void run() throws OperationException {
+    public Iterable<Edge> run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/data/data1.txt");
+        setDataFileLocation("/example/gettingstarted/1/data.txt");
+        setDataSchemaLocation("/example/gettingstarted/1/schema/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/1/schema/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/1/schema/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create some edges from the data file using our data generator class
         List<Element> elements = new ArrayList<>();
@@ -46,10 +51,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         }
         System.out.println("");
 
-        setDataSchemaLocation("/example/gettingstarted/schema1/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/schema1/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/schema1/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+
         //create a graph using our schema and store properties
         Graph graph1 = new Graph.Builder()
                 .addSchema(getDataSchema())
@@ -70,9 +72,13 @@ public class LoadAndQuery1 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .build();
 
+        // Execute query
+        final Iterable<Edge> results = graph1.execute(query);
         System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
-        for (Element e : graph1.execute(query)) {
+        for (Element e : results) {
             System.out.println(e.toString());
         }
+
+        return results;
     }
 }

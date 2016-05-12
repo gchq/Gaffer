@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.gettingstarted.generator.DataGenerator2;
@@ -33,13 +34,13 @@ public class LoadAndQuery2 extends LoadAndQuery {
         new LoadAndQuery2().run();
     }
 
-    public void run() throws OperationException {
+    public Iterable<Edge> run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/data/data2.txt");
-        setDataSchemaLocation("/example/gettingstarted/schema2/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/schema2/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/schema2/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/2/data.txt");
+        setDataSchemaLocation("/example/gettingstarted/2/schema/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/2/schema/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/2/schema/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         Graph graph2 = new Graph.Builder()
                 .addSchema(getDataSchema())
@@ -70,7 +71,8 @@ public class LoadAndQuery2 extends LoadAndQuery {
 
         System.out.println("\nAll edges containing vertex 1");
         System.out.println("\nNotice that the edges are aggregated within their groups");
-        for (Element e : graph2.execute(getRelatedEdges)) {
+        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges);
+        for (Element e : allColoursResults) {
             System.out.println(e.toString());
         }
 
@@ -82,8 +84,11 @@ public class LoadAndQuery2 extends LoadAndQuery {
         getRelatedEdges.setView(view);
 
         System.out.println("\nAll red edges containing vertex 1\n");
-        for (Element e : graph2.execute(getRelatedEdges)) {
+        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges);
+        for (Element e : redResults) {
             System.out.println(e.toString());
         }
+
+        return redResults;
     }
 }

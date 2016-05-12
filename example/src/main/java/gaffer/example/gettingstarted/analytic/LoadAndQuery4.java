@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
@@ -36,13 +37,13 @@ public class LoadAndQuery4 extends LoadAndQuery {
         new LoadAndQuery4().run();
     }
 
-    public void run() throws OperationException {
+    public Iterable<Edge> run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/data/data4.txt");
-        setDataSchemaLocation("/example/gettingstarted/schema4/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/schema4/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/schema4/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/4/data.txt");
+        setDataSchemaLocation("/example/gettingstarted/4/schema/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/4/schema/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/4/schema/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         List<Element> elements = new ArrayList<>();
         DataGenerator4 dataGenerator4 = new DataGenerator4();
@@ -70,7 +71,8 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .build();
 
         System.out.println("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
-        for (Element e : graph4.execute(getRelatedEdges)) {
+        final Iterable<Edge> results = graph4.execute(getRelatedEdges);
+        for (Element e : results) {
             System.out.println(e.toString());
         }
 
@@ -92,8 +94,11 @@ public class LoadAndQuery4 extends LoadAndQuery {
         getRelatedEdges.setView(view);
 
         System.out.println("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
-        for (Element e : graph4.execute(getRelatedEdges)) {
+        final Iterable<Edge> transientResults = graph4.execute(getRelatedEdges);
+        for (Element e : transientResults) {
             System.out.println(e.toString());
         }
+
+        return transientResults;
     }
 }

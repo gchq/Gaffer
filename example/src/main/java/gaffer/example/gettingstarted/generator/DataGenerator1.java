@@ -25,7 +25,7 @@ public class DataGenerator1 extends OneToOneElementGenerator<String> {
     @Override
     public Element getElement(final String line) {
         String[] t = line.split(",");
-        Edge edge = new Edge("data1");
+        Edge edge = new Edge("data");
         edge.setSource(t[0]);
         edge.setDestination(t[1]);
         edge.setDirected(false);
