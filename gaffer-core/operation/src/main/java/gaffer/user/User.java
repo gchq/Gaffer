@@ -15,8 +15,6 @@
  */
 package gaffer.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,9 +22,8 @@ import java.util.Set;
 
 public class User {
     public static final String UNKNOWN_USER_ID = "UNKNOWN";
-    private String userId;
-    private Set<String> dataAuths = new HashSet<>();
-    private boolean locked = false;
+    private final String userId;
+    private final Set<String> dataAuths = new HashSet<>();
 
     public User() {
         this(UNKNOWN_USER_ID);
@@ -36,41 +33,17 @@ public class User {
         this.userId = userId;
     }
 
+    public User(final String userId, final Set<String> dataAuths) {
+        this.userId = userId;
+        this.dataAuths.addAll(dataAuths);
+    }
+
     public String getUserId() {
         return userId;
     }
 
-    public void setUserId(final String userId) {
-        checkLock();
-        this.userId = userId;
-    }
-
     public Set<String> getDataAuths() {
         return Collections.unmodifiableSet(dataAuths);
-    }
-
-    public void addDataAuth(final String dataAuth) {
-        checkLock();
-        dataAuths.add(dataAuth);
-    }
-
-    public void setDataAuths(final Set<String> dataAuths) {
-        checkLock();
-
-        if (null != dataAuths) {
-            this.dataAuths = dataAuths;
-        } else {
-            this.dataAuths = new HashSet<>();
-        }
-    }
-
-    public void lock() {
-        this.locked = true;
-    }
-
-    @JsonIgnore
-    public boolean isLocked() {
-        return locked;
     }
 
     @Override
@@ -105,45 +78,33 @@ public class User {
                 + '}';
     }
 
-    private void checkLock() {
-        if (locked) {
-            throw new IllegalAccessError("This user has been locked and cannot be modified");
-        }
-    }
-
     public static class Builder {
-        private User user = new User();
+        private String userId;
+        private final Set<String> dataAuths = new HashSet<>();
+
 
         public Builder userId(final String userId) {
-            user.setUserId(userId);
-            return this;
-        }
-
-        public Builder dataAuths(final String... dataAuths) {
-            if (null != dataAuths) {
-                dataAuths(Sets.newHashSet(dataAuths));
-            }
-
-            return this;
-        }
-
-        public Builder dataAuths(final Collection<String> dataAuths) {
-            user.dataAuths.addAll(dataAuths);
+            this.userId = userId;
             return this;
         }
 
         public Builder dataAuth(final String dataAuth) {
-            user.addDataAuth(dataAuth);
+            this.dataAuths.add(dataAuth);
             return this;
         }
 
-        public Builder lock() {
-            user.lock();
+        public Builder dataAuths(final String... dataAuths) {
+            Collections.addAll(this.dataAuths, dataAuths);
+            return this;
+        }
+
+        public Builder dataAuths(final Collection<String> dataAuths) {
+            this.dataAuths.addAll(dataAuths);
             return this;
         }
 
         public User build() {
-            return user;
+            return new User(userId, dataAuths);
         }
     }
 }
