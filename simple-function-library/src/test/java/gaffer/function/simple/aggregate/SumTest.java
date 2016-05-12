@@ -578,9 +578,9 @@ public class SumTest extends AggregateFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
 
         // Then 1
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.Sum\"\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.Sum\"%n" +
+                "}"), json);
 
         // When 2
         final Sum deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), Sum.class);

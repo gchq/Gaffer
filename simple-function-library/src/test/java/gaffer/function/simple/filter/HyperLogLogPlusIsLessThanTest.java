@@ -140,10 +140,10 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(filter, true));
         // Then 1
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.HyperLogLogPlusIsLessThan\",\n" +
-                "  \"value\" : 15\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.HyperLogLogPlusIsLessThan\",%n" +
+                "  \"value\" : 15%n" +
+                "}"), json);
 
         // When 2
         final HyperLogLogPlusIsLessThan deserialisedProperty = new JSONSerialiser().deserialise(json.getBytes(), HyperLogLogPlusIsLessThan.class);
