@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -36,62 +37,65 @@ public class LoadAndQuery3 extends LoadAndQuery {
         new LoadAndQuery3().run();
     }
 
-    public void run() throws OperationException {
+    public Iterable<Edge> run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/data/data3.txt");
-        setDataSchemaLocation("/example/gettingstarted/schema3/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/schema3/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/schema3/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/3/data.txt");
+        setDataSchemaLocation("/example/gettingstarted/3/schema/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/3/schema/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/3/schema/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator3 dataGenerator3 = new DataGenerator3();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator3 dataGenerator3 = new DataGenerator3();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator3.getElement(s));
             System.out.println(dataGenerator3.getElement(s).toString());
         }
         System.out.println("");
 
-        Graph graph3 = new Graph.Builder()
+        final Graph graph3 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph3.execute(addElements);
 
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
         System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        final Iterable<Edge> results = graph3.execute(getRelatedEdges);
+        for (Element e : results) {
             System.out.println(e.toString());
         }
 
-        ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
+        final ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
                 .filter(new ElementFilter.Builder()
                         .select("count")
                         .execute(new IsMoreThan(3))
                         .build())
                 .build();
 
-
-        View view = new View.Builder()
-                .edge("data1", viewElementDefinition)
+        final View view = new View.Builder()
+                .edge("data", viewElementDefinition)
                 .build();
 
         getRelatedEdges.setView(view);
 
         System.out.println("\nAll edges containing the vertex 1. "
                 + "\nThe counts have been aggregated and we have filtered out edges where the count is less than or equal to 3\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        final Iterable<Edge> filteredResults = graph3.execute(getRelatedEdges);
+        for (Element e : filteredResults) {
             System.out.println(e.toString());
         }
+
+        return filteredResults;
     }
 }

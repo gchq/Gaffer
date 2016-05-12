@@ -16,6 +16,7 @@
 package gaffer.example.gettingstarted.analytic;
 
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator5;
 import gaffer.example.gettingstarted.util.DataUtils;
@@ -32,23 +33,23 @@ public class LoadAndQuery5 extends LoadAndQuery {
         new LoadAndQuery5().run();
     }
 
-    public void run() throws OperationException {
+    public Iterable<Edge> run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/data/data5.txt");
-        setDataSchemaLocation("/example/gettingstarted/schema5/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/schema5/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/schema5/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/5/data.txt");
+        setDataSchemaLocation("/example/gettingstarted/5/schema/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/5/schema/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/5/schema/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        Graph graph3 = new Graph.Builder()
+        final Graph graph5 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator5 dataGenerator5 = new DataGenerator5();
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator5 dataGenerator5 = new DataGenerator5();
         System.out.println("\nTurn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator5.getElement(s));
@@ -56,18 +57,19 @@ public class LoadAndQuery5 extends LoadAndQuery {
         }
         System.out.println("");
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
-        graph3.execute(addElements);
+        graph5.execute(addElements);
 
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
         System.out.println("\nNow run a simple query to get edges\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        final Iterable<Edge> results = graph5.execute(getRelatedEdges);
+        for (Element e : results) {
             System.out.println(e.toString());
         }
         System.out.println("We get nothing back");
@@ -75,14 +77,16 @@ public class LoadAndQuery5 extends LoadAndQuery {
         getRelatedEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "private");
 
         System.out.println("\nGet edges with the private visibility. We should get the public edges too\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        final Iterable<Edge> privatePublicResults = graph5.execute(getRelatedEdges);
+        for (Element e : privatePublicResults) {
             System.out.println(e.toString());
         }
 
         getRelatedEdges.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, "public");
 
         System.out.println("\nGet edges with the public visibility. We shouldn't see any of the private ones. Notice that the Edges are aggregated within visibilities\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        final Iterable<Edge> publicResults = graph5.execute(getRelatedEdges);
+        for (Element e : publicResults) {
             System.out.println(e.toString());
         }
 
@@ -90,11 +94,11 @@ public class LoadAndQuery5 extends LoadAndQuery {
         getRelatedEdges.setSummarise(true);
 
         System.out.println("\nGet edges with the private visibility again but this time, aggregate the visibilities based on the rules in gaffer.example.gettingstarted.function.VisibilityAggregator.\n");
-        for (Element e : graph3.execute(getRelatedEdges)) {
+        final Iterable<Edge> privatePublicAggregatedResults = graph5.execute(getRelatedEdges);
+        for (Element e : privatePublicAggregatedResults) {
             System.out.println(e.toString());
         }
 
-
+        return privatePublicAggregatedResults;
     }
-
 }
