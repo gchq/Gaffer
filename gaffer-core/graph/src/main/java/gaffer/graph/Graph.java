@@ -108,14 +108,19 @@ public final class Graph {
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {
             if (null != opAuthoriser) {
-                opAuthoriser.authorise(user, operationChain);
+                opAuthoriser.authorise(operationChain, user);
             }
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        return store.execute(operationChain, user);
+        OUTPUT result = store.execute(operationChain, user);
+        if (null != opAuthoriser) {
+            opAuthoriser.authoriseResult(result, user);
+        }
+
+        return result;
     }
 
     /**
@@ -245,15 +250,15 @@ public final class Graph {
             return this;
         }
 
-        public Builder opAuth(final Path path) {
-            return opAuth(new OperationAuthoriser(path));
+        public Builder opAuthoriser(final Path path) {
+            return opAuthoriser(new OperationAuthoriser(path));
         }
 
-        public Builder opAuth(final InputStream inputStream) {
-            return opAuth(new OperationAuthoriser(inputStream));
+        public Builder opAuthoriser(final InputStream inputStream) {
+            return opAuthoriser(new OperationAuthoriser(inputStream));
         }
 
-        public Builder opAuth(final OperationAuthoriser opAuths) {
+        public Builder opAuthoriser(final OperationAuthoriser opAuths) {
             this.opAuths = opAuths;
             return this;
         }

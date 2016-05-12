@@ -43,7 +43,7 @@ public class OperationAuthoriserTest {
                 .build();
 
         // When
-        opAuthoriser.authorise(user, opChain);
+        opAuthoriser.authorise(opChain, user);
 
         // Then - no exceptions
     }
@@ -63,7 +63,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.authorise(user, opChain);
+            opAuthoriser.authorise(opChain, user);
             fail("Exception expected");
         } catch (final IllegalAccessError e) {
             assertNotNull(e.getMessage());
@@ -83,7 +83,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.authorise(user, opChain);
+            opAuthoriser.authorise(opChain, user);
             fail("Exception expected");
         } catch (final IllegalAccessError e) {
             assertNotNull(e.getMessage());
@@ -105,7 +105,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.authorise(user, opChain);
+            opAuthoriser.authorise(opChain, user);
             fail("Exception expected");
         } catch (final IllegalAccessError e) {
             assertNotNull(e.getMessage());

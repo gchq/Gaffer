@@ -63,15 +63,15 @@ public class OperationAuthoriser {
      * @param user    the user to authorise.
      * @param opChain the operation chain.
      */
-    public void authorise(final User user, final OperationChain<?> opChain) {
+    public void authorise(final OperationChain<?> opChain, final User user) {
         if (null != opChain) {
             for (Operation operation : opChain.getOperations()) {
-                authorise(user, operation);
+                authorise(operation, user);
             }
         }
     }
 
-    public void authorise(final User user, final Operation operation) {
+    public void authorise(final Operation operation, final User user) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
@@ -90,6 +90,10 @@ public class OperationAuthoriser {
                         + operation.getClass().getName());
             }
         }
+    }
+
+    public void authoriseResult(final Object result, final User user) {
+        // This method can be overridden to add additional authorisation checks on the results.
     }
 
     /**
