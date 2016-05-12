@@ -85,14 +85,14 @@ public class MultiRegexTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.MultiRegex\",\n" +
-                "  \"value\" : [ {\n" +
-                "    \"java.util.regex.Pattern\" : \"test\"\n" +
-                "  }, {\n" +
-                "    \"java.util.regex.Pattern\" : \"test2\"\n" +
-                "  } ]\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.MultiRegex\",%n" +
+                "  \"value\" : [ {%n" +
+                "    \"java.util.regex.Pattern\" : \"test\"%n" +
+                "  }, {%n" +
+                "    \"java.util.regex.Pattern\" : \"test2\"%n" +
+                "  } ]%n" +
+                "}"), json);
 
         // When 2
         final MultiRegex deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), MultiRegex.class);
