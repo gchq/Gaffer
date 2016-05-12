@@ -16,17 +16,15 @@
 
 package gaffer.data.element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.TestPropertyNames;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityTest extends ElementTest {
@@ -42,25 +40,6 @@ public class EntityTest extends ElementTest {
         // Then
         assertEquals("group", entity.getGroup());
         assertEquals("identifier", entity.getVertex());
-    }
-
-    @Test
-    public void shouldBuildEntity() {
-        // Given
-        final String vertex = "vertex1";
-        final String propValue = "propValue";
-
-        // When
-        final Entity entity = new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex(vertex)
-                .property(TestPropertyNames.STRING, propValue)
-                .build();
-
-        // Then
-        assertEquals(TestGroups.ENTITY, entity.getGroup());
-        assertEquals(vertex, entity.getVertex());
-        assertEquals(propValue, entity.getProperty(TestPropertyNames.STRING));
     }
 
     @Test

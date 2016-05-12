@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
  * for example you could have a 'graph' of just edges.
  * Edges are designed so that multiple edges can share the same identifiers but are distinguished via their
  * group.
- *
- * @see gaffer.data.element.Edge.Builder
  */
 public class Edge extends Element {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
@@ -172,39 +170,6 @@ public class Edge extends Element {
                 + ", directed=" + directed
                 + super.toString()
                 + "} ";
-    }
-
-    public static class Builder {
-        private final Edge edge = new Edge();
-
-        public Builder group(final String group) {
-            edge.setGroup(group);
-            return this;
-        }
-
-        public Builder source(final Object source) {
-            edge.setSource(source);
-            return this;
-        }
-
-        public Builder dest(final Object dest) {
-            edge.setDestination(dest);
-            return this;
-        }
-
-        public Builder directed(final boolean directed) {
-            edge.setDirected(directed);
-            return this;
-        }
-
-        public Builder property(final String name, final Object value) {
-            edge.putProperty(name, value);
-            return this;
-        }
-
-        public Edge build() {
-            return edge;
-        }
     }
 }
 

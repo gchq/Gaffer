@@ -16,7 +16,6 @@
 
 package gaffer.example.gettingstarted.analytic;
 
-import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.gettingstarted.generator.DataGenerator2;
@@ -34,23 +33,23 @@ public class LoadAndQuery2 extends LoadAndQuery {
         new LoadAndQuery2().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public void run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/2/data.txt");
-        setDataSchemaLocation("/example/gettingstarted/2/schema/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/2/schema/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/2/schema/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/data/data2.txt");
+        setDataSchemaLocation("/example/gettingstarted/schema2/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/schema2/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/schema2/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
 
-        final Graph graph2 = new Graph.Builder()
+        Graph graph2 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        final List<Element> elements = new ArrayList<>();
-        final DataGenerator2 dataGenerator2 = new DataGenerator2();
+        List<Element> elements = new ArrayList<>();
+        DataGenerator2 dataGenerator2 = new DataGenerator2();
         System.out.println("\nTurn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator2.getElement(s));
@@ -58,37 +57,33 @@ public class LoadAndQuery2 extends LoadAndQuery {
         }
         System.out.println("");
 
-        final AddElements addElements = new AddElements.Builder()
+        AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph2.execute(addElements);
 
         //get all the edges
-        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
         System.out.println("\nAll edges containing vertex 1");
         System.out.println("\nNotice that the edges are aggregated within their groups");
-        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges);
-        for (Element e : allColoursResults) {
+        for (Element e : graph2.execute(getRelatedEdges)) {
             System.out.println(e.toString());
         }
 
         //create a View to specify which subset of results we want
-        final View view = new View.Builder()
+        View view = new View.Builder()
                 .edge("red")
                 .build();
         //rerun the previous query with our view
         getRelatedEdges.setView(view);
 
         System.out.println("\nAll red edges containing vertex 1\n");
-        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges);
-        for (Element e : redResults) {
+        for (Element e : graph2.execute(getRelatedEdges)) {
             System.out.println(e.toString());
         }
-
-        return redResults;
     }
 }

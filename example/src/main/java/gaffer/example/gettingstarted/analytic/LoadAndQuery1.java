@@ -15,7 +15,6 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
-import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator1;
 import gaffer.example.gettingstarted.util.DataUtils;
@@ -33,17 +32,13 @@ public class LoadAndQuery1 extends LoadAndQuery {
         new LoadAndQuery1().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public void run() throws OperationException {
 
-        setDataFileLocation("/example/gettingstarted/1/data.txt");
-        setDataSchemaLocation("/example/gettingstarted/1/schema/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/1/schema/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/1/schema/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/data/data1.txt");
 
         //create some edges from the data file using our data generator class
-        final List<Element> elements = new ArrayList<>();
-        final DataGenerator1 data1Generator = new DataGenerator1();
+        List<Element> elements = new ArrayList<>();
+        DataGenerator1 data1Generator = new DataGenerator1();
         System.out.println("Turn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             System.out.println(data1Generator.getElement(s).toString());
@@ -51,9 +46,12 @@ public class LoadAndQuery1 extends LoadAndQuery {
         }
         System.out.println("");
 
-
+        setDataSchemaLocation("/example/gettingstarted/schema1/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/schema1/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/schema1/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
         //create a graph using our schema and store properties
-        final Graph graph1 = new Graph.Builder()
+        Graph graph1 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
@@ -61,24 +59,20 @@ public class LoadAndQuery1 extends LoadAndQuery {
                 .build();
 
         //add the edges to the graph
-        final AddElements addElements = new AddElements.Builder()
+        AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph1.execute(addElements);
 
         //get all the edges that contain the vertex "1"
-        final GetRelatedEdges query = new GetRelatedEdges.Builder()
+        GetRelatedEdges query = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
-        // Execute query
-        final Iterable<Edge> results = graph1.execute(query);
         System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
-        for (Element e : results) {
+        for (Element e : graph1.execute(query)) {
             System.out.println(e.toString());
         }
-
-        return results;
     }
 }
