@@ -35,6 +35,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
@@ -62,6 +63,8 @@ public class GetElementsWithinSetHandlerTest {
     private Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
     private Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
     final Set<EntitySeed> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
+
+    private User user = new User();
 
     @Before
     public void setup() throws StoreException, IOException {
@@ -101,10 +104,10 @@ public class GetElementsWithinSetHandlerTest {
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
+//        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
         operation.setSummarise(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         //Without query compaction the result size should be 5
         assertEquals(5, Iterables.size(elements));
@@ -125,7 +128,7 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         //After query compaction the result size should be 3
         assertEquals(3, Iterables.size(elements));
@@ -147,7 +150,7 @@ public class GetElementsWithinSetHandlerTest {
         operation.setIncludeEntities(false);
         operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
@@ -170,7 +173,7 @@ public class GetElementsWithinSetHandlerTest {
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
         //The result size should be 2
         assertEquals(2, Iterables.size(elements));
@@ -225,15 +228,16 @@ public class GetElementsWithinSetHandlerTest {
                 edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
                 data.add(edgeEntity);
             }
-            addElements(data, store);
+            final User user = new User();
+            addElements(data, user, store);
         } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
 
-    private void addElements(final Iterable<Element> data, final AccumuloStore store) {
+    private void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements(data));
+            store.execute(new AddElements(data), user);
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

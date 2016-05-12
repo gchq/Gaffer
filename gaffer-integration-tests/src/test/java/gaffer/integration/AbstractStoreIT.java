@@ -41,6 +41,7 @@ import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.store.schema.TypeDefinition;
+import gaffer.user.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,6 +60,8 @@ import java.util.Map;
  * prior to running the tests.
  */
 public abstract class AbstractStoreIT {
+    protected static final String USER_01 = "user01";
+
     // Identifier prefixes
     protected static final String SOURCE = "source";
     protected static final String DEST = "dest";
@@ -98,6 +101,7 @@ public abstract class AbstractStoreIT {
 
     @Rule
     public TestName name = new TestName();
+    private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
 
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
@@ -114,6 +118,10 @@ public abstract class AbstractStoreIT {
 
     public static void setStoreSchema(final Schema storeSchema) {
         AbstractStoreIT.storeSchema = storeSchema;
+    }
+
+    public static void setSkipTests(final Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests) {
+        AbstractStoreIT.skippedTests = skippedTests;
     }
 
     /**
@@ -148,6 +156,8 @@ public abstract class AbstractStoreIT {
         for (StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
+
+        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
     }
 
     protected Schema createSchema() {
@@ -196,11 +206,11 @@ public abstract class AbstractStoreIT {
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
                 .elements((Iterable) getEntities().values())
-                .build());
+                .build(), getUser());
 
         graph.execute(new AddElements.Builder()
                 .elements((Iterable) getEdges().values())
-                .build());
+                .build(), getUser());
     }
 
     public Map<EntitySeed, Entity> getEntities() {
@@ -281,5 +291,9 @@ public abstract class AbstractStoreIT {
 
     protected void addToMap(final Entity element, final Map<EntitySeed, Entity> entities) {
         entities.put(ElementSeed.createSeed(element), element);
+    }
+
+    protected User getUser() {
+        return new User(USER_01);
     }
 }

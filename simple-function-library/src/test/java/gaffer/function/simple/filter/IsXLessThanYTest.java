@@ -70,9 +70,9 @@ public class IsXLessThanYTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.IsXLessThanY\"\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.IsXLessThanY\"%n" +
+                "}"), json);
 
         // When 2
         final IsXLessThanY deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), IsXLessThanY.class);

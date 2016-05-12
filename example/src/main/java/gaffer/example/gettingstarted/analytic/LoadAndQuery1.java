@@ -23,6 +23,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
     }
 
     public void run() throws OperationException {
+        User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/data/data1.txt");
 
@@ -63,7 +65,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
                 .elements(elements)
                 .build();
 
-        graph1.execute(addElements);
+        graph1.execute(addElements, user);
 
         //get all the edges that contain the vertex "1"
         GetRelatedEdges query = new GetRelatedEdges.Builder()
@@ -71,7 +73,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
                 .build();
 
         System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
-        for (Element e : graph1.execute(query)) {
+        for (Element e : graph1.execute(query, user)) {
             System.out.println(e.toString());
         }
     }

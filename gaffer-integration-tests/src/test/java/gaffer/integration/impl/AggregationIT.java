@@ -59,16 +59,16 @@ public class AggregationIT extends AbstractStoreIT {
         // Add duplicate elements
         graph.execute(new AddElements.Builder()
                 .elements(Collections.<Element>singleton(getEntity(AGGREGATED_SOURCE)))
-                .build());
+                .build(), getUser());
 
         graph.execute(new AddElements.Builder()
                 .elements(Collections.<Element>singleton(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false)))
-                .build());
+                .build(), getUser());
 
         // Edge with existing ids but directed
         graph.execute(new AddElements.Builder()
                 .elements(Collections.<Element>singleton(new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)))
-                .build());
+                .build(), getUser());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
 
         // Then
         assertNotNull(results);
@@ -109,7 +109,7 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges));
+        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
         assertNotNull(results);

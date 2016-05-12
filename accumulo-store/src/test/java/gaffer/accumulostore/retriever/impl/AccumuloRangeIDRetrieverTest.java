@@ -37,6 +37,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +88,7 @@ public class AccumuloRangeIDRetrieverTest {
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         final AbstractGetOperation<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         try {
-            final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation);
+            final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, new User());
             assertEquals(numEntries, Iterables.size(retriever));
         } catch (IteratorSettingException e) {
             fail("Unable to construct Range Retriever");
@@ -108,7 +109,8 @@ public class AccumuloRangeIDRetrieverTest {
             elements.add(edge);
         }
         try {
-            store.execute(new AddElements(elements));
+            final User user = new User();
+            store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

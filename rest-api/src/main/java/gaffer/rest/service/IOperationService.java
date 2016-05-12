@@ -29,6 +29,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
@@ -114,6 +117,27 @@ public interface IOperationService {
     @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
     Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation,
                                                 @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
+
+    @POST
+    @Path("/get/elements/all")
+    @ApiOperation(value = "Gets all elements", response = Element.class, responseContainer = "List")
+    Iterable<Element> getAllElements(final GetAllElements<Element> operation,
+                                     @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
+
+    @POST
+    @Path("/get/entities/all")
+    @ApiOperation(value = "Gets all entities", response = Entity.class, responseContainer = "List")
+    Iterable<Entity> getAllEntities(final GetAllEntities operation,
+                                    @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
+    );
+
+    @POST
+    @Path("/get/edges/all")
+    @ApiOperation(value = "Gets all edges", response = Edge.class, responseContainer = "List")
+    Iterable<Edge> getAllEdges(final GetAllEdges operation,
+                               @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
     );
 
     @PUT

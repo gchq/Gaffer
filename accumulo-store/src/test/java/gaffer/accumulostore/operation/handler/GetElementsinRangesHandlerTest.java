@@ -38,6 +38,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,8 @@ public class GetElementsinRangesHandlerTest {
     private View defaultView;
     private AccumuloStore byteEntityStore;
     private AccumuloStore gaffer1KeyStore;
+
+    private User user = new User();
 
     @Before
     public void setup() throws StoreException, IOException {
@@ -82,13 +85,14 @@ public class GetElementsinRangesHandlerTest {
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
 
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        Iterable<Element> elementsInRanges = handler.doOperation(operation, store);
+        Iterable<Element> elementsInRanges = handler.doOperation(operation, user, store);
         final int elementsInRangesCount = Iterables.size(elementsInRanges);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
         assertEquals(1000 * 3, elementsInRangesCount);
@@ -96,7 +100,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
         assertEquals(800 * 3, count);
@@ -122,7 +126,7 @@ public class GetElementsinRangesHandlerTest {
         final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final Iterable<Element> elementsInRange = handler.doOperation(operation, store);
+        final Iterable<Element> elementsInRange = handler.doOperation(operation, user, store);
         int count = 0;
         for (final Element elm : elementsInRange) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -135,7 +139,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (final Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -169,7 +173,7 @@ public class GetElementsinRangesHandlerTest {
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final Iterable<Element> rangeElements = handler.doOperation(operation, store);
+        final Iterable<Element> rangeElements = handler.doOperation(operation, user, store);
         int count = 0;
         for (final Element elm : rangeElements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -182,7 +186,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -207,6 +211,7 @@ public class GetElementsinRangesHandlerTest {
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -216,7 +221,7 @@ public class GetElementsinRangesHandlerTest {
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         operation.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //There should be no incoming edges to the provided range
         assertEquals(0, count);
@@ -244,7 +249,7 @@ public class GetElementsinRangesHandlerTest {
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         operation.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, store);
+        final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //There should be no incoming edges to the provided range
         assertEquals(0, count);
@@ -284,7 +289,7 @@ public class GetElementsinRangesHandlerTest {
         }
 
         try {
-            store.execute(new AddElements(elements));
+            store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

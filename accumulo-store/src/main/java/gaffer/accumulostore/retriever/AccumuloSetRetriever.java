@@ -29,6 +29,7 @@ import gaffer.data.element.Entity;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -38,37 +39,40 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.NoSuchElementException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperation<EntitySeed, ?>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation)
+    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+                                final User user)
             throws StoreException {
-        this(store, operation, false);
+        this(store, operation, user, false);
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+                                final User user,
                                 final boolean readEntriesIntoMemory) throws StoreException {
-        super(store, operation);
+        super(store, operation, user);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+                                final User user,
                                 final IteratorSetting... iteratorSettings) throws StoreException {
-        this(store, operation, false, iteratorSettings);
+        this(store, operation, user, false, iteratorSettings);
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+                                final User user,
                                 final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+        super(store, operation, user, iteratorSettings);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
@@ -167,7 +171,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
                         e);
             }
             try {
-                parentRetriever = new AccumuloSingleIDRetriever(store, operation,
+                parentRetriever = new AccumuloSingleIDRetriever(store, operation, user,
                         iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation), elementFilter,
                         bloomFilter);
             } catch (final StoreException e) {

@@ -26,6 +26,7 @@ import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.handler.AddElementsHandler;
 import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
+import gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -52,6 +53,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
@@ -148,6 +150,11 @@ public class AccumuloStore extends Store {
     @Override
     protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+        return new GetAllElementsHandler();
     }
 
     @Override

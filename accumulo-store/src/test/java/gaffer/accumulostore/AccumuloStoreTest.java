@@ -61,6 +61,7 @@ import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
+import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -88,12 +89,13 @@ public class AccumuloStoreTest {
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated() throws OperationException {
         final List<Element> elements = new ArrayList<>();
         final Entity e = new Entity(TestGroups.ENTITY);
+        final User user = new User();
         e.setVertex("1");
         elements.add(e);
         final AddElements add = new AddElements.Builder()
                 .elements(elements)
                 .build();
-        store.execute(add);
+        store.execute(add, user);
 
         final EntitySeed entitySeed1 = new EntitySeed("1");
 
@@ -103,11 +105,10 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final Iterable<Element> results = store.execute(getBySeed);
+        final Iterable<Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
-
 
         final GetRelatedElements<EntitySeed, Element> getRelated = new GetRelatedElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
@@ -115,7 +116,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final Iterable<Element> relatedResults = store.execute(getRelated);
+        final Iterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
     }
