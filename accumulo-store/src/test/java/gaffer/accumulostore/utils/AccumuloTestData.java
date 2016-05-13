@@ -13,6 +13,7 @@ import java.util.Set;
 public class AccumuloTestData {
 
     public static final long TIMESTAMP = System.currentTimeMillis();
+    public static final String TEST_OPTION_PROPERTY_KEY = "testOption";
 
     public static EntitySeed NOT_PRESENT_ENTITY_SEED = new EntitySeed("notpresent");
     public static Set<EntitySeed> NOT_PRESENT_ENTITY_SEED_SET = Collections.singleton(NOT_PRESENT_ENTITY_SEED);

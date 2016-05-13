@@ -1,7 +1,6 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -72,13 +71,13 @@ public class GetEdgesInRangesTest implements OperationTest {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
-                .addSeed(seed).option(AccumuloPropertyNames.TEST_OPTION_KEY, "true").populateProperties(false).summarise(true)
+                .addSeed(seed).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false).summarise(true)
                 .view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesInRanges.isSummarise());
         assertFalse(getEdgesInRanges.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
-        assertEquals("true", getEdgesInRanges.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals("true", getEdgesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
         assertNotNull(getEdgesInRanges.getView());
     }

@@ -2,7 +2,6 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
@@ -54,12 +53,12 @@ public class GetElementsInRangesTest implements OperationTest {
                 .addSeed(seed)
                 .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
                 .includeEntities(false)
-                .option(AccumuloPropertyNames.TEST_OPTION_KEY, "true")
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(true)
                 .summarise(true)
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .build();
-        assertEquals("true", getElementsInRanges.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals("true", getElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertFalse(getElementsInRanges.isIncludeEntities());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsInRanges.getIncludeEdges());

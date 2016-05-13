@@ -2,7 +2,6 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -44,9 +43,9 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloTestData.SEED_A)
-                .includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option(AccumuloPropertyNames.TEST_OPTION_KEY, "true")
+                .includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(true).summarise(false).view(new View.Builder().edge("testEdgegroup").build()).build();
-        assertEquals("true", getElementsWithinSet.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals("true", getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getElementsWithinSet.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.NONE, getElementsWithinSet.getIncludeEdges());
         assertTrue(getElementsWithinSet.isPopulateProperties());

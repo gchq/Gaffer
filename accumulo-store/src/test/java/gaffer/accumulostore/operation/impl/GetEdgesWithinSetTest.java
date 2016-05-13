@@ -1,7 +1,6 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -67,12 +66,12 @@ public class GetEdgesWithinSetTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
-                .addSeed(AccumuloTestData.SEED_A).option(AccumuloPropertyNames.TEST_OPTION_KEY, "true").populateProperties(false)
+                .addSeed(AccumuloTestData.SEED_A).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
                 .summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertTrue(getEdgesWithinSet.isSummarise());
         assertFalse(getEdgesWithinSet.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesWithinSet.getIncludeEdges());
-        assertEquals("true", getEdgesWithinSet.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals("true", getEdgesWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(AccumuloTestData.SEED_A, getEdgesWithinSet.getSeeds().iterator().next());
         assertNotNull(getEdgesWithinSet.getView());
     }

@@ -2,7 +2,6 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -57,13 +56,13 @@ public class GetEntitiesInRangesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
-                .option(AccumuloPropertyNames.TEST_OPTION_KEY, "true")
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(false)
                 .summarise(true)
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .addSeed(seed).build();
         assertEquals(seed, getEntitiesInRanges.getSeeds().iterator().next());
-        assertEquals("true", getEntitiesInRanges.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals("true", getEntitiesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getEntitiesInRanges.isSummarise());
         assertFalse(getEntitiesInRanges.isPopulateProperties());
         assertNotNull(getEntitiesInRanges.getView());

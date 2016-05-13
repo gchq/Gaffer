@@ -55,7 +55,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     //TEST WE CAN RETRIEVE AN ELEMENT FROM A KEY THAT HAS BEEN CREATED CORRECTLY
     @Test
-    public void TestAccumuloKeyConverterBasicEdge() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromBasicEdge() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -73,7 +73,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void TestAccumuloKeyConverterBasicEntity() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromBasicEntity() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
@@ -87,7 +87,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void TestAccumuloKeyConverterCFCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -107,7 +107,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void TestAccumuloKeyConverterCFCQPropertydEntity() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEntity() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
@@ -123,7 +123,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void TestAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -143,7 +143,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void TestAccumuloKeyConverterMultipleCQPropertiesEntity() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterMultipleCQPropertiesEntity() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");

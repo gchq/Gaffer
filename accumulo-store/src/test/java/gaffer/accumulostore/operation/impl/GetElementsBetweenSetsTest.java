@@ -1,7 +1,6 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -49,9 +48,9 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(AccumuloTestData.SEED_B)
                 .addSeedB(AccumuloTestData.SEED_A).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
                 .includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
-                .option(AccumuloPropertyNames.TEST_OPTION_KEY, "true").populateProperties(false)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
                 .summarise(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
-        assertEquals("true", getElementsBetweenSets.getOption(AccumuloPropertyNames.TEST_OPTION_KEY));
+        assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getElementsBetweenSets.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());

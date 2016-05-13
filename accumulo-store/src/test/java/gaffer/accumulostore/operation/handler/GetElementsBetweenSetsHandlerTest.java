@@ -59,11 +59,11 @@ public class GetElementsBetweenSetsHandlerTest {
     private View defaultView;
     private AccumuloStore byteEntityStore;
     private AccumuloStore gaffer1KeyStore;
-    private Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
-    private Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
+    private final Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
 
     private User user = new User();
 
