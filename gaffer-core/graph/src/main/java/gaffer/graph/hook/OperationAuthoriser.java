@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.authoriser;
+package gaffer.graph.hook;
 
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -34,22 +34,48 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * A <code>OperationAuthoriser</code> contains the operation authorisation properties.
+ * An <code>OperationAuthoriser</code> is a {@link GraphHook} that checks a
+ * user is authorised to execute an operation chain. This class requires a map
+ * of operation authorisations, these can be added using setOpAuths(Class, Set) or
+ * addOpAuths(Class,String...). Alternatively a properties file can be provided
+ * containing the operations and the required authorisations.
  */
-public class OperationAuthoriser {
+public class OperationAuthoriser implements GraphHook {
     private Map<Class<? extends Operation>, Set<String>> opAuthsMap = new HashMap<>();
 
+    /**
+     * Default constructor. Use setOpAuths(Class, Set) or
+     * addOpAuths(Class,String...) to add operation authorisations.
+     */
     public OperationAuthoriser() {
     }
 
+    /**
+     * Constructs an {@link OperationAuthoriser} with the authorisations
+     * defined in the property file from the {@link Path} provided.
+     *
+     * @param propFileLocation path to authorisations property file
+     */
     public OperationAuthoriser(final Path propFileLocation) {
         this(readProperties(propFileLocation));
     }
 
+    /**
+     * Constructs an {@link OperationAuthoriser} with the authorisations
+     * defined in the property file from the {@link InputStream} provided.
+     *
+     * @param stream input stream of authorisations property file
+     */
     public OperationAuthoriser(final InputStream stream) {
         this(readProperties(stream));
     }
 
+    /**
+     * Constructs an {@link OperationAuthoriser} with the authorisations
+     * defined in the provided authorisations property file.
+     *
+     * @param props authorisations property file
+     */
     public OperationAuthoriser(final Properties props) {
         loadOpAuthMap(props);
     }
@@ -63,7 +89,8 @@ public class OperationAuthoriser {
      * @param user    the user to authorise.
      * @param opChain the operation chain.
      */
-    public void authorise(final OperationChain<?> opChain, final User user) {
+    @Override
+    public void preExecute(final OperationChain<?> opChain, final User user) {
         if (null != opChain) {
             for (Operation operation : opChain.getOperations()) {
                 authorise(operation, user);
@@ -71,7 +98,39 @@ public class OperationAuthoriser {
         }
     }
 
-    public void authorise(final Operation operation, final User user) {
+    @Override
+    public void postExecute(final Object result, final OperationChain<?> opChain, final User user) {
+        // This method can be overridden to add additional authorisation checks on the results.
+    }
+
+    /**
+     * Set operation authorisations for a given operation class.
+     *
+     * @param opClass the operation class
+     * @param auths   the authorisations
+     */
+    public void setOpAuths(final Class<? extends Operation> opClass, final Set<String> auths) {
+        opAuthsMap.put(opClass, auths);
+    }
+
+    /**
+     * Add operation authorisations for a given operation class.
+     * This can be called multiple times for the same operation class and the
+     * authorisations will be appended.
+     *
+     * @param opClass the operation class
+     * @param auths   the authorisations
+     */
+    public void addOpAuths(final Class<? extends Operation> opClass, final String... auths) {
+        Set<String> opAuths = opAuthsMap.get(opClass);
+        if (null == opAuths) {
+            opAuths = new HashSet<>();
+            opAuthsMap.put(opClass, opAuths);
+        }
+        Collections.addAll(opAuths, auths);
+    }
+
+    private void authorise(final Operation operation, final User user) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
@@ -92,34 +151,6 @@ public class OperationAuthoriser {
         }
     }
 
-    public void authoriseResult(final Object result, final User user) {
-        // This method can be overridden to add additional authorisation checks on the results.
-    }
-
-    /**
-     * Add operation authorisations
-     *
-     * @param opClass the operation class
-     * @param auths   the authorisations
-     */
-    public void setOpAuths(final Class<? extends Operation> opClass, final Set<String> auths) {
-        opAuthsMap.put(opClass, auths);
-    }
-
-    /**
-     * Add operation authorisations
-     *
-     * @param opClass the operation class
-     * @param auths   the authorisations
-     */
-    public void addOpAuths(final Class<? extends Operation> opClass, final String... auths) {
-        Set<String> opAuths = opAuthsMap.get(opClass);
-        if (null == opAuths) {
-            opAuths = new HashSet<>();
-            opAuthsMap.put(opClass, opAuths);
-        }
-        Collections.addAll(opAuths, auths);
-    }
 
     private void loadOpAuthMap(final Properties props) {
         for (String opClassName : props.stringPropertyNames()) {

@@ -17,9 +17,9 @@
 package gaffer.graph;
 
 
-import gaffer.authoriser.OperationAuthoriser;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.graph.hook.GraphHook;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -65,20 +65,24 @@ public final class Graph {
      */
     private final View view;
 
-    private OperationAuthoriser opAuthoriser;
+    /**
+     * List of {@link GraphHook}s to be triggered before and after operations are
+     * executed on the graph.
+     */
+    private List<GraphHook> graphHooks;
 
     /**
      * Constructs a <code>Graph</code> with the given {@link gaffer.store.Store} and
      * {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param store        a {@link Store} used to store the elements and handle operations.
-     * @param view         a {@link View} defining the view of the data for the graph.
-     * @param opAuthoriser a {@link OperationAuthoriser} responsible for authorising operations
+     * @param store      a {@link Store} used to store the elements and handle operations.
+     * @param view       a {@link View} defining the view of the data for the graph.
+     * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final View view, final OperationAuthoriser opAuthoriser) {
+    private Graph(final Store store, final View view, final List<GraphHook> graphHooks) {
         this.store = store;
         this.view = view;
-        this.opAuthoriser = opAuthoriser;
+        this.graphHooks = graphHooks;
     }
 
     /**
@@ -107,17 +111,19 @@ public final class Graph {
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {
-            if (null != opAuthoriser) {
-                opAuthoriser.authorise(operationChain, user);
-            }
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
+        for (GraphHook graphHook : graphHooks) {
+            graphHook.preExecute(operationChain, user);
+        }
+
         OUTPUT result = store.execute(operationChain, user);
-        if (null != opAuthoriser) {
-            opAuthoriser.authoriseResult(result, user);
+
+        for (GraphHook graphHook : graphHooks) {
+            graphHook.postExecute(result, operationChain, user);
         }
 
         return result;
@@ -180,7 +186,7 @@ public final class Graph {
         private StoreProperties properties;
         private Schema schema;
         private View view;
-        private OperationAuthoriser opAuths;
+        private List<GraphHook> graphHooks = new ArrayList<>();
 
         public Builder view(final View view) {
             this.view = view;
@@ -250,16 +256,8 @@ public final class Graph {
             return this;
         }
 
-        public Builder opAuthoriser(final Path path) {
-            return opAuthoriser(new OperationAuthoriser(path));
-        }
-
-        public Builder opAuthoriser(final InputStream inputStream) {
-            return opAuthoriser(new OperationAuthoriser(inputStream));
-        }
-
-        public Builder opAuthoriser(final OperationAuthoriser opAuths) {
-            this.opAuths = opAuths;
+        public Builder addHook(final GraphHook graphHook) {
+            this.graphHooks.add(graphHook);
             return this;
         }
 
@@ -268,7 +266,7 @@ public final class Graph {
             updateStore();
             updateView();
 
-            return new Graph(store, view, opAuths);
+            return new Graph(store, view, graphHooks);
         }
 
         private void updateSchema() {
@@ -319,7 +317,7 @@ public final class Graph {
             try {
                 newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create store of type: " + storeClass);
+                throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
             }
 
             try {

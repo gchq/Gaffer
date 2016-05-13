@@ -23,10 +23,10 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import gaffer.authoriser.OperationAuthoriser;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -34,6 +34,7 @@ import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.graph.hook.GraphHook;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -55,6 +56,7 @@ import gaffer.user.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
@@ -116,57 +118,103 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAuthoriseOperation() throws OperationException {
+    public void shouldCallAllGraphHooksBeforeOperationExecuted() throws OperationException {
         // Given
         final Operation operation = mock(Operation.class);
         final User user = mock(User.class);
-        final OperationAuthoriser authoriser = mock(OperationAuthoriser.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema())
-                .opAuthoriser(authoriser)
+                .addHook(hook1)
+                .addHook(hook2)
                 .build();
 
         // When
         graph.execute(operation, user);
 
         // Then
-        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        verify(authoriser).authorise(captor.capture(), Mockito.eq(user));
-        final List<Operation> ops = captor.getValue().getOperations();
+        final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(user));
+        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(user));
+        assertSame(captor1.getValue(), captor2.getValue());
+        final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
     }
 
     @Test
-    public void shouldAuthoriseOperationChain() throws OperationException {
+    public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(mock(Operation.class))
                 .build();
         final User user = mock(User.class);
-        final OperationAuthoriser authoriser = mock(OperationAuthoriser.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema())
-                .opAuthoriser(authoriser)
+                .addHook(hook1)
+                .addHook(hook2)
                 .build();
 
         // When
         graph.execute(opChain, user);
 
         // Then
-        verify(authoriser).authorise(opChain, user);
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).preExecute(opChain, user);
+        inOrder.verify(hook2).preExecute(opChain, user);
     }
 
     @Test
-    public void shouldAuthoriseResult() throws OperationException {
+    public void shouldCallAllGraphHooksAfterOperationExecuted() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+        given(store.getSchema()).willReturn(schema);
+
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .addHook(hook1)
+                .addHook(hook2)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final Object result = "result";
+        given(store.execute(captor.capture(), Mockito.eq(user))).willReturn(result);
+
+        // When
+        graph.execute(operation, user);
+
+        // Then
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).postExecute(result, captor.getValue(), user);
+        inOrder.verify(hook2).postExecute(result, captor.getValue(), user);
+        final List<Operation> ops = captor.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksAfterOperationChainExecuted() throws OperationException {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(mock(Operation.class))
                 .build();
         final User user = mock(User.class);
-        final OperationAuthoriser authoriser = mock(OperationAuthoriser.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
@@ -174,7 +222,8 @@ public class GraphTest {
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
                 .addSchema(schema)
-                .opAuthoriser(authoriser)
+                .addHook(hook1)
+                .addHook(hook2)
                 .build();
         final Object result = "result";
         given(store.execute(opChain, user)).willReturn(result);
@@ -183,7 +232,9 @@ public class GraphTest {
         graph.execute(opChain, user);
 
         // Then
-        verify(authoriser).authoriseResult(result, user);
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).postExecute(result, opChain, user);
+        inOrder.verify(hook2).postExecute(result, opChain, user);
     }
 
     @Test
