@@ -48,6 +48,7 @@ import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedEntities;
+import gaffer.user.User;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final Iterable<SimpleEdgeDataObject> results = graph.execute(opChain);
+        final Iterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -134,7 +135,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain);
+        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -182,7 +183,7 @@ public class ArrayListStoreTest {
 
 
         //now do the hop
-        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain);
+        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -225,7 +226,7 @@ public class ArrayListStoreTest {
 
 
         //now do the hop
-        final Iterable<SimpleEdgeDataObject> results = graph.execute(opChain);
+        final Iterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -275,7 +276,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain);
+        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -310,7 +311,7 @@ public class ArrayListStoreTest {
                 .build();
 
         // execute the operation
-        graph.execute(opChain);
+        graph.execute(opChain, new User());
     }
 
     private ArrayList<Object> getDomainObjects() {

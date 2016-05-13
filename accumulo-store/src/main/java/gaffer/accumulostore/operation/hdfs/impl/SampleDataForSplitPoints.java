@@ -15,18 +15,19 @@
  */
 package gaffer.accumulostore.operation.hdfs.impl;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
 import gaffer.operation.simple.hdfs.handler.mapper.MapperGenerator;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Partitioner;
+import java.util.List;
 
 
 /**
  * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link gaffer.accumulostore.operation.hdfs.impl.SplitTable} operation or an
  * {@link gaffer.operation.simple.hdfs.AddElementsFromHdfs} operation.
- * This operation requires an input, output and failure path as well as a path to a file to use as the resulitngSplitsFile.
+ * This operation requires an input and output path as well as a path to a file to use as the resulitngSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
  * {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser}.
@@ -37,9 +38,9 @@ import org.apache.hadoop.mapreduce.Partitioner;
  *
  * @see SampleDataForSplitPoints.Builder
  */
-public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> implements VoidInput<Path> {
+public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> implements VoidInput<String> {
 
-    private Path resultingSplitsFilePath;
+    private String resultingSplitsFilePath;
     private boolean validate = true;
     private float proportionToSample;
 
@@ -65,6 +66,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         return mapperGeneratorClassName;
     }
 
+    @JsonSetter(value = "mapperGeneratorClassName")
     public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
         this.mapperGeneratorClassName = mapperGeneratorClassName;
     }
@@ -73,11 +75,11 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    public Path getResultingSplitsFilePath() {
+    public String getResultingSplitsFilePath() {
         return resultingSplitsFilePath;
     }
 
-    public void setResultingSplitsFilePath(final Path resultingSplitsFilePath) {
+    public void setResultingSplitsFilePath(final String resultingSplitsFilePath) {
         this.resultingSplitsFilePath = resultingSplitsFilePath;
     }
 
@@ -89,12 +91,12 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         this.proportionToSample = proportionToSample;
     }
 
-    public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, Path> {
+    public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, String> {
         public Builder() {
             super(new SampleDataForSplitPoints());
         }
 
-        public Builder resultingSplitsFilePath(final Path resultingSplitsFilePath) {
+        public Builder resultingSplitsFilePath(final String resultingSplitsFilePath) {
             op.setResultingSplitsFilePath(resultingSplitsFilePath);
             return this;
         }
@@ -115,23 +117,29 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, Path> imp
         }
 
         @Override
+        public Builder inputPaths(final List<String> inputPaths) {
+            return (Builder) super.inputPaths(inputPaths);
+        }
+
+        @Override
+        public Builder addInputPaths(final List<String> inputPaths) {
+            return (Builder) super.addInputPaths(inputPaths);
+        }
+
+        @Override
+        public Builder addInputPath(final String inputPath) {
+            return (Builder) super.addInputPath(inputPath);
+        }
+
+        @Override
         public Builder option(final String name, final String value) {
             return (Builder) super.option(name, value);
         }
 
-        @Override
-        public Builder inputPath(final Path inputPath) {
-            return (Builder) super.inputPath(inputPath);
-        }
 
         @Override
-        public Builder outputPath(final Path outputPath) {
+        public Builder outputPath(final String outputPath) {
             return (Builder) super.outputPath(outputPath);
-        }
-
-        @Override
-        public Builder failurePath(final Path failurePath) {
-            return (Builder) super.failurePath(failurePath);
         }
 
         @Override

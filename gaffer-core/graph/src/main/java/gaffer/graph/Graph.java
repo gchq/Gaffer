@@ -27,6 +27,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
@@ -79,12 +81,13 @@ public final class Graph {
      * If the operation does not have a view then the graph view is used.
      *
      * @param operation the operation to be executed.
+     * @param user      the user executing the operation.
      * @param <OUTPUT>  the operation output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation) throws OperationException {
-        return execute(new OperationChain<>(operation));
+    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation, final User user) throws OperationException {
+        return execute(new OperationChain<>(operation), user);
     }
 
     /**
@@ -92,18 +95,34 @@ public final class Graph {
      * If the operation does not have a view then the graph view is used.
      *
      * @param operationChain the operation chain to be executed.
+     * @param user           the user executing the operation chain.
      * @param <OUTPUT>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
+    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        return store.execute(operationChain);
+        return store.execute(operationChain, user);
+    }
+
+    /**
+     * @param operationClass the operation class to check
+     * @return true if the provided operation is supported.
+     */
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        return store.isSupported(operationClass);
+    }
+
+    /**
+     * @return a collection of all the supported {@link Operation}s.
+     */
+    public Set<Class<? extends Operation>> getSupportedOperations() {
+        return store.getSupportedOperations();
     }
 
     /**
@@ -128,6 +147,15 @@ public final class Graph {
      */
     public boolean hasTrait(final StoreTrait storeTrait) {
         return store.hasTrait(storeTrait);
+    }
+
+    /**
+     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     *
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
+     */
+    public Set<StoreTrait> getStoreTraits() {
+        return store.getTraits();
     }
 
     /**

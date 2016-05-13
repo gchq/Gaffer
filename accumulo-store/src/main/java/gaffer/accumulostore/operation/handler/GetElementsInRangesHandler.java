@@ -28,22 +28,25 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 
 public class GetElementsInRangesHandler
         implements OperationHandler<GetElementsInRanges<Pair<ElementSeed>, Element>, Iterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation, final Store store)
+    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
+                                         final User user, final Store store)
             throws OperationException {
-        return doOperation(operation, (AccumuloStore) store);
+        return doOperation(operation, user, (AccumuloStore) store);
     }
 
     public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
-            final AccumuloStore store) throws OperationException {
+                                         final User user,
+                                         final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
-                ret = new AccumuloRangeIDRetriever(store, operation,
+                ret = new AccumuloRangeIDRetriever(store, operation, user,
                         store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
                                 store),
                         store.getKeyPackage().getIteratorFactory()
@@ -51,7 +54,7 @@ public class GetElementsInRangesHandler
                         store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
-                ret = new AccumuloRangeIDRetriever(store, operation);
+                ret = new AccumuloRangeIDRetriever(store, operation, user);
             }
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);

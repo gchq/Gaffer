@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.operation.impl;
 
+import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
@@ -24,11 +25,11 @@ import gaffer.operation.data.EntitySeed;
  * Given two sets of {@link gaffer.operation.data.EntitySeed}s, called A and B,
  * this retrieves all {@link gaffer.data.element.Edge}s where one end is in set
  * A and the other is in set B.
- *
  */
 public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
 
-    public GetEdgesBetweenSets() { }
+    public GetEdgesBetweenSets() {
+    }
 
     public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
         super(seedsA, seedsB);
@@ -60,13 +61,62 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
         super.setIncludeEdges(includeEdges);
     }
 
-    public static class Builder<OP_TYPE extends GetEdgesBetweenSets>
-            extends GetElementsBetweenSets.Builder<OP_TYPE, Edge> {
+    public static class Builder
+            extends AbstractAccumuloTwoSetSeededOperation.Builder<GetEdgesBetweenSets, EntitySeed, Edge> {
 
-        protected Builder(final OP_TYPE op) {
-            super(op);
+        public Builder() {
+            super(new GetEdgesBetweenSets());
         }
 
+        @Override
+        public Builder seedsB(final Iterable<EntitySeed> seedsB) {
+            return (Builder) super.seedsB(seedsB);
+        }
+
+        @Override
+        public Builder addSeedB(final EntitySeed seed) {
+            return (Builder) super.addSeedB(seed);
+        }
+
+        @Override
+        public Builder seeds(final Iterable<EntitySeed> newSeeds) {
+            return (Builder) super.seeds(newSeeds);
+        }
+
+        @Override
+        public Builder addSeed(final EntitySeed seed) {
+            return (Builder) super.addSeed(seed);
+        }
+
+        @Override
+        public Builder summarise(final boolean summarise) {
+            return (Builder) super.summarise(summarise);
+        }
+
+        @Override
+        public Builder populateProperties(final boolean populateProperties) {
+            return (Builder) super.populateProperties(populateProperties);
+        }
+
+        @Override
+        public Builder view(final View view) {
+            return (Builder) super.view(view);
+        }
+
+        @Override
+        public Builder option(final String name, final String value) {
+            return (Builder) super.option(name, value);
+        }
+
+        @Override
+        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
+            return (Builder) super.includeEdges(includeEdgeType);
+        }
+
+        @Override
+        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
+            return (Builder) super.inOutType(inOutType);
+        }
     }
 
 }

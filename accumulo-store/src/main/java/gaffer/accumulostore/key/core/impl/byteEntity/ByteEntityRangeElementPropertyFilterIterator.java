@@ -16,26 +16,32 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import java.io.IOException;
-import java.util.Map;
-
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteUtils;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Map;
 
 public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ByteEntityRangeElementPropertyFilterIterator.class);
 
+    // This converter does not have the schema so not all converter methods can be used.
+    private ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(null);
     private boolean edges = false;
     private boolean entities = false;
     private boolean unDirectedEdges = false;
     private boolean directedEdges = false;
     private boolean incomingEdges = false;
     private boolean outgoingEdges = false;
+    private boolean deduplicateUndirectedEdges = false;
 
     @Override
     public boolean accept(final Key key, final Value value) {
@@ -46,7 +52,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         } else if (!entities && !isEdge) {
             return false;
         }
-        return checkEdge(flag);
+        return !isEdge || checkEdge(flag, key);
     }
 
     private byte getFlag(final Key key) {
@@ -54,14 +60,43 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         return rowID[rowID.length - 1];
     }
 
-    private boolean checkEdge(final byte flag) {
+    private boolean checkEdge(final byte flag, final Key key) {
+        final boolean isUndirected = flag == ByteEntityPositions.UNDIRECTED_EDGE;
         if (unDirectedEdges) {
-            return flag == ByteEntityPositions.UNDIRECTED_EDGE;
-        } else if (directedEdges) {
-            return flag != ByteEntityPositions.UNDIRECTED_EDGE && checkDirection(flag);
-        } else {
-            return checkDirection(flag);
+            // Only undirected edges
+            if (isUndirected) {
+                if (deduplicateUndirectedEdges) {
+                    return checkForDuplicateUndirectedEdge(key);
+                }
+                return true;
+            }
+            return false;
         }
+
+        if (directedEdges) {
+            // Only directed edges
+            return !isUndirected && checkDirection(flag);
+        }
+
+        // All edge types
+        if (isUndirected && deduplicateUndirectedEdges) {
+            return checkForDuplicateUndirectedEdge(key);
+        }
+
+        return checkDirection(flag);
+    }
+
+    private boolean checkForDuplicateUndirectedEdge(final Key key) {
+        boolean isCorrect = false;
+        try {
+            final byte[][] sourceDestValues = new byte[3][];
+            converter.getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), sourceDestValues, null);
+            isCorrect = ByteUtils.compareBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;
+        } catch (AccumuloElementConversionException e) {
+            LOGGER.warn(e.getMessage(), e);
+        }
+
+        return isCorrect;
     }
 
     private boolean checkDirection(final byte flag) {
@@ -79,7 +114,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -113,6 +148,9 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         if (!options.containsKey(AccumuloStoreConstants.NO_EDGES)) {
             edges = true;
         }
+        if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
+            deduplicateUndirectedEdges = true;
+        }
         return true;
     }
 
@@ -127,6 +165,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
                 .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.NO_EDGES, "Optional: Set if no edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if undirected edges should be deduplicated")
                 .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")

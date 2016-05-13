@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -26,8 +27,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class GetEdgesBySeedTest implements OperationTest {
@@ -62,5 +65,26 @@ public class GetEdgesBySeedTest implements OperationTest {
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        EdgeSeed seed = new EdgeSeed("A" ,"B", true);
+        GetEdgesBySeed getEdgesBySeed = new GetEdgesBySeed.Builder()
+                .addSeed(seed)
+                .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
+                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
+                .option("testOption", "true")
+                .populateProperties(true)
+                .summarise(true)
+                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertTrue(getEdgesBySeed.isPopulateProperties());
+        assertTrue(getEdgesBySeed.isSummarise());
+        assertNotNull(getEdgesBySeed.getView());
+        assertEquals("true", getEdgesBySeed.getOption("testOption"));
+        assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesBySeed.getIncludeEdges());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.OUTGOING, getEdgesBySeed.getIncludeIncomingOutGoing());
+        assertEquals(seed, getEdgesBySeed.getInput().iterator().next());
     }
 }

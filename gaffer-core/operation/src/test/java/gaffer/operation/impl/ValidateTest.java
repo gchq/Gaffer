@@ -19,15 +19,18 @@ package gaffer.operation.impl;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -78,5 +81,16 @@ public class ValidateTest implements OperationTest {
         assertFalse(itr.hasNext());
 
         assertTrue(deserialisedOp.isSkipInvalidElements());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        Element edge = new Edge("testGroup");
+        Validate validate = new Validate.Builder().elements(Arrays.asList(edge)).skipInvalidElements(true).view(new View.Builder().edge("testEdgeGroup").build()).option("testOption", "true").build();
+        assertEquals("true", validate.getOption("testOption"));
+        assertTrue(validate.isSkipInvalidElements());
+        assertEquals(edge, validate.getInput().iterator().next());
+        assertNotNull(validate.getView());
     }
 }

@@ -16,17 +16,18 @@
 
 package gaffer.operation.handler;
 
+import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import gaffer.data.element.Element;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
+import gaffer.user.User;
 import org.junit.Test;
-
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 public class GenerateObjectsHandlerTest {
 
@@ -39,13 +40,14 @@ public class GenerateObjectsHandlerTest {
         final Iterable<Element> elements = mock(Iterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
         final Iterable<String> objs = mock(Iterable.class);
+        final User user = new User();
 
         given(elementGenerator.getObjects(elements)).willReturn(objs);
         given(operation.getElements()).willReturn(elements);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
-        final Iterable<String> result = handler.doOperation(operation, store);
+        final Iterable<String> result = handler.doOperation(operation, user, store);
 
         // Then
         assertSame(objs, result);
