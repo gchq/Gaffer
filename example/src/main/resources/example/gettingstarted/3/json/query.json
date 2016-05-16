@@ -1,0 +1,28 @@
+{
+  "view": {
+    "edges": {
+      "data": {
+        "filterFunctions": [
+          {
+            "function": {
+              "class": "gaffer.function.simple.filter.IsMoreThan",
+              "value": 3
+            },
+            "selection": [
+              {
+                "key": "count"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "seeds": [
+    {
+      "gaffer.operation.data.EntitySeed": {
+        "vertex": "1"
+      }
+    }
+  ]
+}
