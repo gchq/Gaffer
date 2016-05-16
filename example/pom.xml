@@ -75,7 +75,7 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>example-simple-query</id>
+                                <id>example</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>assembly</goal>
@@ -85,37 +85,11 @@
                                         <descriptorRef>jar-with-dependencies
                                         </descriptorRef>
                                     </descriptorRefs>
-                                    <finalName>example-simple-query
+                                    <finalName>example
                                     </finalName>
                                     <archive>
                                         <manifest>
                                             <addClasspath>true</addClasspath>
-                                            <mainClass>
-                                                gaffer.example.SimpleQuery
-                                            </mainClass>
-                                        </manifest>
-                                    </archive>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>example-complex-query</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>assembly</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptorRefs>
-                                        <descriptorRef>jar-with-dependencies
-                                        </descriptorRef>
-                                    </descriptorRefs>
-                                    <finalName>example-complex-query
-                                    </finalName>
-                                    <archive>
-                                        <manifest>
-                                            <addClasspath>true</addClasspath>
-                                            <mainClass>
-                                                gaffer.example.films.LoadAndQuery
-                                            </mainClass>
                                         </manifest>
                                     </archive>
                                 </configuration>
