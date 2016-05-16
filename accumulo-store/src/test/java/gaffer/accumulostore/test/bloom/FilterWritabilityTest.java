@@ -31,31 +31,39 @@ import java.io.IOException;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TestFilterWritability {
+public class FilterWritabilityTest {
 
     @Test
-    public void testAccept() {
-        BloomFilter filter = new BloomFilter(100, 5, Hash.MURMUR_HASH);
+    public void shouldAcceptValidFilter() {
+        // Given
+        final BloomFilter filter = new BloomFilter(100, 5, Hash.MURMUR_HASH);
         filter.add(new Key("ABC".getBytes()));
         filter.add(new Key("DEF".getBytes()));
+
+        // Then
         assertTrue(filter.membershipTest(new Key("ABC".getBytes())));
         assertTrue(filter.membershipTest(new Key("DEF".getBytes())));
         assertFalse(filter.membershipTest(new Key("lkjhgfdsa".getBytes())));
     }
 
     @Test
-    public void testWriteRead() throws IOException {
-        BloomFilter filter = new BloomFilter(100, 5, Hash.MURMUR_HASH);
+    public void shouldWriteAndReadFilter() throws IOException {
+        // Given
+        final BloomFilter filter = new BloomFilter(100, 5, Hash.MURMUR_HASH);
         filter.add(new Key("ABC".getBytes()));
         filter.add(new Key("DEF".getBytes()));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(baos);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final DataOutputStream out = new DataOutputStream(baos);
         filter.write(out);
         String x = new String(baos.toByteArray(), AccumuloStoreConstants.BLOOM_FILTER_CHARSET);
-        ByteArrayInputStream bais = new ByteArrayInputStream(x.getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET));
-        DataInputStream in = new DataInputStream(bais);
-        BloomFilter read = new BloomFilter();
+        final ByteArrayInputStream bais = new ByteArrayInputStream(x.getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET));
+
+        // When
+        final DataInputStream in = new DataInputStream(bais);
+        final BloomFilter read = new BloomFilter();
         read.readFields(in);
+
+        // Then
         assertTrue(read.membershipTest(new Key("ABC".getBytes())));
         assertTrue(read.membershipTest(new Key("DEF".getBytes())));
         assertFalse(read.membershipTest(new Key("lkjhgfdsa".getBytes())));
