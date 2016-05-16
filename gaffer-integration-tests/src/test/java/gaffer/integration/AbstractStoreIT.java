@@ -98,6 +98,7 @@ public abstract class AbstractStoreIT {
 
     @Rule
     public TestName name = new TestName();
+    private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
 
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
@@ -114,6 +115,10 @@ public abstract class AbstractStoreIT {
 
     public static void setStoreSchema(final Schema storeSchema) {
         AbstractStoreIT.storeSchema = storeSchema;
+    }
+
+    public static void setSkipTests(final Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests) {
+        AbstractStoreIT.skippedTests = skippedTests;
     }
 
     /**
@@ -148,6 +153,8 @@ public abstract class AbstractStoreIT {
         for (StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
+
+        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
     }
 
     protected Schema createSchema() {

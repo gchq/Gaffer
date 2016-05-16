@@ -21,15 +21,16 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
-import java.util.Collection;
+import java.util.Set;
 
 public class TestStore extends Store {
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Set<StoreTrait> getTraits() {
         return null;
     }
 
@@ -45,6 +46,11 @@ public class TestStore extends Store {
 
     @Override
     protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+        return null;
+    }
+
+    @Override
+    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
         return null;
     }
 

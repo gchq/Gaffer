@@ -16,11 +16,7 @@
 
 package gaffer.rest.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
-
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -34,6 +30,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
@@ -41,6 +40,8 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.rest.GraphFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -113,6 +114,21 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Element> getAllElements(final GetAllElements<Element> operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Entity> getAllEntities(final GetAllEntities operation, final Integer n) {
+        return executeGet(operation, n);
+    }
+
+    @Override
+    public Iterable<Edge> getAllEdges(final GetAllEdges operation, final Integer n) {
         return executeGet(operation, n);
     }
 

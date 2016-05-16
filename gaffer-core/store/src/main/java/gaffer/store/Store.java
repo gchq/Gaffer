@@ -37,6 +37,9 @@ import gaffer.operation.impl.cache.UpdateCache;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
@@ -54,14 +57,15 @@ import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.ViewValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A <code>Store</code> backs a Graph and is responsible for storing the {@link gaffer.data.element.Element}s and
@@ -113,7 +117,7 @@ public abstract class Store {
      *
      * @return the {@link gaffer.store.StoreTrait}s for this store.
      */
-    protected abstract Collection<StoreTrait> getTraits();
+    public abstract Set<StoreTrait> getTraits();
 
     /**
      * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
@@ -165,6 +169,22 @@ public abstract class Store {
         }
 
         return (OUTPUT) result;
+    }
+
+    /**
+     * @param operationClass the operation class to check
+     * @return true if the provided operation is supported.
+     */
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        final OperationHandler operationHandler = operationHandlers.get(operationClass);
+        return operationHandler != null;
+    }
+
+    /**
+     * @return a collection of all the supported {@link Operation}s.
+     */
+    public Set<Class<? extends Operation>> getSupportedOperations() {
+        return operationHandlers.keySet();
     }
 
     /**
@@ -301,6 +321,13 @@ public abstract class Store {
     protected abstract OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler();
 
     /**
+     * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}. All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}
+     */
+    protected abstract OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler();
+
+    /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAdjacentEntitySeeds}.
      * All Stores must implement this.
      *
@@ -382,6 +409,10 @@ public abstract class Store {
         addOperationHandler(GetRelatedEdges.class, (OperationHandler) getGetElementsHandler());
 
         addOperationHandler(GetAdjacentEntitySeeds.class, (OperationHandler) getAdjacentEntitySeedsHandler());
+
+        addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
+        addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
+        addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
     }
 
     private List<Operation> getValidatedOperations(final OperationChain<?> operationChain) {

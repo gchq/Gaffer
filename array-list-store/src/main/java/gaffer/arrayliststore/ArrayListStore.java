@@ -20,6 +20,7 @@ import static gaffer.store.StoreTrait.FILTERING;
 
 import gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
+import gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetElementsHandler;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -29,14 +30,16 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -47,12 +50,12 @@ import java.util.List;
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {
-    private static final List<StoreTrait> TRAITS = Collections.singletonList(FILTERING);
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Collections.singletonList(FILTERING));
     private final List<Entity> entities = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
 
     @Override
-    protected Collection<StoreTrait> getTraits() {
+    public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
 
@@ -64,6 +67,11 @@ public class ArrayListStore extends Store {
     @Override
     protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+        return new GetAllElementsHandler();
     }
 
     @Override

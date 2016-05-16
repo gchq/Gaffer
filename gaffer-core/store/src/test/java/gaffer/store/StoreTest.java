@@ -19,6 +19,7 @@ package gaffer.store;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -48,6 +49,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
@@ -66,14 +70,15 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class StoreTest {
     private OperationHandler<AddElements, Void> addElementsHandler;
     private OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getElementsHandler;
+    private OperationHandler<GetAllElements<Element>, Iterable<Element>> getAllElementsHandler;
     private OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler;
     private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
     private OperationHandler<Validate, Iterable<Element>> validateHandler;
@@ -83,6 +88,7 @@ public class StoreTest {
     public void setup() {
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OperationHandler.class);
+        getAllElementsHandler = mock(OperationHandler.class);
         getAdjacentEntitySeedsHandler = mock(OperationHandler.class);
         validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
@@ -154,6 +160,9 @@ public class StoreTest {
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetEdgesBySeed.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEntities.class));
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEdges.class));
         assertSame(getAdjacentEntitySeedsHandler, store.getOperationHandlerExposed(GetAdjacentEntitySeeds.class));
 
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
@@ -436,15 +445,111 @@ public class StoreTest {
         }
     }
 
+    @Test
+    public void shouldReturnAllSupportedOperations() throws Exception {
+        // Given
+        final Schema schema = mock(Schema.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+        final Validatable<Integer> validatable = mock(Validatable.class);
+        final Map<String, String> options = mock(HashMap.class);
+
+        final StoreImpl store = new StoreImpl();
+        final int expectedNumberOfOperations = 18;
+
+        given(schema.validate()).willReturn(true);
+        given(validatable.isValidate()).willReturn(true);
+        given(validatable.getOptions()).willReturn(options);
+        given(validatableHandler.doOperation(validatable, store)).willReturn(expectedNumberOfOperations);
+        store.initialise(schema, properties);
+
+        // When
+        final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
+
+        // Then
+        assertNotNull(supportedOperations);
+        assertEquals(expectedNumberOfOperations, supportedOperations.size());
+    }
+
+    @Test
+    public void shouldReturnTrueWhenOperationSupported() throws Exception {
+        // Given
+        final Schema schema = mock(Schema.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+        final Validatable<Integer> validatable = mock(Validatable.class);
+        final Map<String, String> options = mock(HashMap.class);
+
+        final StoreImpl store = new StoreImpl();
+        final int expectedNumberOfOperations = 15;
+
+        given(schema.validate()).willReturn(true);
+        given(validatable.isValidate()).willReturn(true);
+        given(validatable.getOptions()).willReturn(options);
+        given(validatableHandler.doOperation(validatable, store)).willReturn(expectedNumberOfOperations);
+        store.initialise(schema, properties);
+
+        // WHen
+        final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
+        for (final Class<? extends Operation> operationClass : supportedOperations) {
+            final boolean isOperationClassSupported = store.isSupported(operationClass);
+
+            // Then
+            assertTrue(isOperationClassSupported);
+        }
+    }
+
+    @Test
+    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws Exception {
+        // Given
+        final Schema schema = mock(Schema.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+        final Validatable<Integer> validatable = mock(Validatable.class);
+        final Map<String, String> options = mock(HashMap.class);
+
+        final StoreImpl store = new StoreImpl();
+
+        given(schema.validate()).willReturn(true);
+        given(validatable.isValidate()).willReturn(true);
+        given(validatable.getOptions()).willReturn(options);
+        store.initialise(schema, properties);
+
+        // When
+        final boolean supported = store.isSupported(GetElements.class);
+
+        // Then
+        assertFalse(supported);
+    }
+
+    @Test
+    public void shouldHandleNullOperationSupportRequest() throws Exception {
+        // Given
+        final Schema schema = mock(Schema.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+        final Validatable<Integer> validatable = mock(Validatable.class);
+        final Map<String, String> options = mock(HashMap.class);
+
+        final StoreImpl store = new StoreImpl();
+
+        given(schema.validate()).willReturn(true);
+        given(validatable.isValidate()).willReturn(true);
+        given(validatable.getOptions()).willReturn(options);
+        store.initialise(schema, properties);
+
+        // When
+        final boolean supported = store.isSupported(null);
+
+        // Then
+        assertFalse(supported);
+    }
+
     private class StoreImpl extends Store {
-        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private boolean validationRequired;
 
         @Override
-        protected Collection<StoreTrait> getTraits() {
+        public Set<StoreTrait> getTraits() {
             return TRAITS;
         }
 
@@ -465,6 +570,11 @@ public class StoreTest {
         @Override
         protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
             return getElementsHandler;
+        }
+
+        @Override
+        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
         }
 
         @Override

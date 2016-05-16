@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.retriever;
 
+import com.google.common.collect.Iterators;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -31,11 +32,10 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
@@ -52,7 +52,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
 
     @Override
     public Iterator<Element> iterator() {
-        Iterator<? extends SEED_TYPE> idIterator = ids.iterator();
+        final Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : Iterators.<SEED_TYPE>emptyIterator();
         if (!idIterator.hasNext()) {
             return Collections.emptyIterator();
         }
