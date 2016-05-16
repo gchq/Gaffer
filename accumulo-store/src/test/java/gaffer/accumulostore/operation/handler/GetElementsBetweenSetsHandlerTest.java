@@ -16,10 +16,12 @@
 
 package gaffer.accumulostore.operation.handler;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -37,9 +39,10 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import org.hamcrest.core.IsCollectionContaining;
+import org.junit.After;
+import org.junit.Before;
 import gaffer.user.User;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,39 +51,47 @@ import java.util.List;
 
 public class GetElementsBetweenSetsHandlerTest {
 
-    private static final long TIMESTAMP = System.currentTimeMillis();
+    private final long TIMESTAMP = System.currentTimeMillis();
     // Query for all edges between the set {A0} and the set {A23}
-    private static final List<EntitySeed> seedsA = Arrays.asList(new EntitySeed("A0"));
-    private static final List<EntitySeed> seedsB = Arrays.asList(new EntitySeed("A23"));
+    private final List<EntitySeed> seedsA = Arrays.asList(new EntitySeed("A0"));
+    private final List<EntitySeed> seedsB = Arrays.asList(new EntitySeed("A23"));
 
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
-    private static Element EXPECTED_EDGE_1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private static Element EXPECTED_EDGE_2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private static Element EXPECTED_EDGE_3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private static Element EXPECTED_ENTITY_1 = new Entity(TestGroups.ENTITY, "A0");
-    private static Element EXPECTED_SUMMARISED_EDGE = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private View defaultView;
+    private AccumuloStore byteEntityStore;
+    private AccumuloStore gaffer1KeyStore;
+    private final Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private final Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
+    private final Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
 
-    static {
-        EXPECTED_EDGE_1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        EXPECTED_EDGE_1.putProperty(AccumuloPropertyNames.COUNT, 23);
-        EXPECTED_EDGE_1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-        EXPECTED_EDGE_2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-        EXPECTED_EDGE_2.putProperty(AccumuloPropertyNames.COUNT, 23);
-        EXPECTED_EDGE_2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-        EXPECTED_EDGE_3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
-        EXPECTED_EDGE_3.putProperty(AccumuloPropertyNames.COUNT, 23);
-        EXPECTED_EDGE_3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-        EXPECTED_ENTITY_1.putProperty(AccumuloPropertyNames.COUNT, 10000);
-        EXPECTED_ENTITY_1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-        EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
-        EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
-        EXPECTED_SUMMARISED_EDGE.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-    }
+    private User user = new User();
 
-    @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    @Before
+    public void setup() throws StoreException, IOException {
+        expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
+        expectedEdge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
+        expectedEdge2.putProperty(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
+        expectedEdge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
+        expectedEdge3.putProperty(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
+        expectedEntity1.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        expectedEntity1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 3);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
         defaultView = new View.Builder()
@@ -91,228 +102,184 @@ public class GetElementsBetweenSetsHandlerTest {
         setupGraph(gaffer1KeyStore);
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
     }
 
     @Test
-    public void testNoSummarisation() throws OperationException {
-        testNoSummarisation(byteEntityStore);
-        testNoSummarisation(gaffer1KeyStore);
-    }
-
-    private void testNoSummarisation(final AccumuloStore store) throws OperationException {
-        final User user = new User();
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
-        List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-        List<Element> expectedResults = new ArrayList<>();
-
-        expectedResults.add(EXPECTED_EDGE_1);
-        expectedResults.add(EXPECTED_EDGE_2);
-        expectedResults.add(EXPECTED_EDGE_2);
-        expectedResults.add(EXPECTED_ENTITY_1);
-
-        for (Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
-
-        //Without query compaction the result size should be 4
-        assertEquals(4, results.size());
+    public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
+        shouldReturnElementsNoSummarisation(byteEntityStore);
     }
 
     @Test
-    public void testShouldSummarise() throws OperationException {
-        testShouldSummarise(byteEntityStore);
-        testShouldSummarise(gaffer1KeyStore);
+    public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
+        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
     }
 
-    public void testShouldSummarise(final AccumuloStore store) throws OperationException {
-        final User user = new User();
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        //Without query compaction the result size should be 4
+        assertEquals(4, Iterables.size(elements));
+
+        assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1));
+    }
+
+    @Test
+    public void shouldReturnSummarisedElementsByteEntityStore() throws OperationException {
+        shouldReturnSummarisedElements(byteEntityStore);
+    }
+
+    @Test
+    public void shouldReturnSummarisedElementsGaffer1Store() throws OperationException {
+        shouldReturnSummarisedElements(gaffer1KeyStore);
+    }
+
+    private void shouldReturnSummarisedElements(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
-        GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
-        List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-        List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_SUMMARISED_EDGE);
-        expectedResults.add(EXPECTED_ENTITY_1);
-
-
-        for (Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, user, store);
 
         //With query compaction the result size should be 2
-        assertEquals(2, results.size());
+        assertEquals(2, Iterables.size(elements));
 
+        assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1));
     }
 
     @Test
-    public void testShouldReturnOnlyEdgesWhenOptionSet() throws OperationException {
-        testShouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
-        testShouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
+        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
     }
 
-    public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = new User();
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    @Test
+    public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
+        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    }
+
+    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
-        GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
-        List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-        List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_SUMMARISED_EDGE);
-
-        for (Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, user, store);
 
         //With query compaction the result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
 
-        assertEquals(expectedResults, results);
-
+        assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
     }
 
     @Test
-    public void testShouldReturnOnlyEntitiesWhenOptionSet() throws OperationException {
-        testShouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
-        testShouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
+        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+     }
+
+    @Test
+    public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
+        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
     }
 
-    public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = new User();
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
-        GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
-        List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-        List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_ENTITY_1);
-        for (Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, user, store);
 
         //The result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
 
-        assertEquals(expectedResults, results);
+        assertThat(elements, IsCollectionContaining.hasItem(expectedEntity1));
     }
 
-    public void testShouldSummariseOutGoingEdgesOnly() throws OperationException {
-        testShouldSummariseOutGoingEdgesOnly(byteEntityStore);
-        testShouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    @Test
+    public void shouldSummariseOutGoingEdgesOnlyByteEntityStore() throws OperationException {
+        shouldSummariseOutGoingEdgesOnly(byteEntityStore);
     }
 
-    public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
-        final User user = new User();
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    @Test
+    public void shouldSummariseOutGoingEdgesOnlyGaffer1Store() throws OperationException {
+        shouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+    }
+
+    private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-        GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
-        List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-        List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_SUMMARISED_EDGE);
-        expectedResults.add(EXPECTED_ENTITY_1);
-
-        for (Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, user, store);
 
         //With query compaction the result size should be 2
-        assertEquals(2, results.size());
+        assertEquals(2, Iterables.size(elements));
 
-        assertEquals(expectedResults, results);
+        assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedSummarisedEdge));
     }
 
     @Test
-    public void testShouldHaveNoIncomingEdges() throws OperationException {
-        testShouldHaveNoIncomingEdges(byteEntityStore);
-        testShouldHaveNoIncomingEdges(gaffer1KeyStore);
+    public void shouldHaveNoIncomingEdgesByteEntityStore() throws OperationException {
+        shouldHaveNoIncomingEdges(byteEntityStore);
     }
 
-    public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
-        final User user = new User();
-        GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+    @Test
+    public void shouldHaveNoIncomingEdgesGaffer1Store() throws OperationException {
+        shouldHaveNoIncomingEdges(gaffer1KeyStore);
+    }
+
+    private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-        GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
-        List<Element> results = new ArrayList<>();
-        for (Element elm : elements) {
-            results.add(elm);
-        }
-        List<Element> expectedResults = new ArrayList<>();
-        expectedResults.add(EXPECTED_ENTITY_1);
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final Iterable<Element> elements = handler.doOperation(op, user, store);
 
-        for (Element expectedResult : expectedResults) {
-            assertTrue(results.contains(expectedResult));
-        }
         //The result size should be 1
-        assertEquals(1, results.size());
+        assertEquals(1, Iterables.size(elements));
 
-        assertEquals(expectedResults, results);
-
+        assertThat(elements, IsCollectionContaining.hasItem(expectedEntity1));
     }
 
-    private static void setupGraph(final AccumuloStore store) {
+    private void setupGraph(final AccumuloStore store) {
         List<Element> data = new ArrayList<>();
 
         // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-        Entity entity = new Entity(TestGroups.ENTITY, "A0");
+        final Entity entity = new Entity(TestGroups.ENTITY, "A0");
         entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
         entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
         data.add(entity);
         for (int i = 1; i < 100; i++) {
-            Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
+            final Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
             edge.putProperty(AccumuloPropertyNames.COUNT, 1);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
             edge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-            Edge edge2 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
+            data.add(edge);
+
+            final Edge edge2 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
             edge2.putProperty(AccumuloPropertyNames.COUNT, 1);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
             edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-            Edge edge3 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
+            data.add(edge2);
+
+            final Edge edge3 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
             edge3.putProperty(AccumuloPropertyNames.COUNT, 1);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
             edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-            data.add(edge);
-            data.add(edge2);
             data.add(edge3);
-            entity = new Entity(TestGroups.ENTITY, "A" + i);
-            entity.putProperty(AccumuloPropertyNames.COUNT, i);
-            entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-            data.add(entity);
+
+            final Entity edgeEntity = new Entity(TestGroups.ENTITY, "A" + i);
+            edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
+            edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+            data.add(edgeEntity);
         }
-        addElements(data, store);
+        addElements(data, store, new User());
     }
 
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
-        final User user = new User();
+    private void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
             store.execute(new AddElements(data), user);
         } catch (OperationException e) {
