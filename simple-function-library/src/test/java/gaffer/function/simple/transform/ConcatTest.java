@@ -121,10 +121,10 @@ public class ConcatTest extends TransformFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(concat, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.transform.Concat\",\n" +
-                "  \"separator\" : \"-\"\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.transform.Concat\",%n" +
+                "  \"separator\" : \"-\"%n" +
+                "}"), json);
 
         // When 2
         final Concat deserialisedConcat = new JSONSerialiser().deserialise(json.getBytes(), Concat.class);

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Entity;
+import gaffer.example.films.data.Certificate;
 import gaffer.example.films.data.schema.Group;
 import gaffer.example.films.data.schema.Property;
 import gaffer.example.films.data.schema.TransientProperty;
@@ -30,6 +31,7 @@ import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
+import gaffer.user.User;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,14 @@ public class LoadAndQueryTest {
     @Test
     public void shouldReturnExpectedEntitiesViaJson() throws OperationException, SerialisationException {
         // Given
+        final User user = new User.Builder()
+                .userId("user02")
+                .dataAuth(Certificate.U.name())
+                .dataAuth(Certificate.PG.name())
+                .dataAuth(Certificate._12A.name())
+                .dataAuth(Certificate._15.name())
+                .dataAuth(Certificate._18.name())
+                .build();
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<Void> populateChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/load.json"), OperationChain.class);
         final OperationChain<Iterable<Entity>> queryChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/query.json"), OperationChain.class);
@@ -64,8 +74,8 @@ public class LoadAndQueryTest {
                 .build();
 
         // When
-        graph.execute(populateChain); // Execute the populate operation chain on the graph
-        final Iterable<Entity> results = graph.execute(queryChain); // Execute the query operation chain on the graph.
+        graph.execute(populateChain, user); // Execute the populate operation chain on the graph
+        final Iterable<Entity> results = graph.execute(queryChain, user); // Execute the query operation chain on the graph.
 
         // Then
         verifyResults(results);

@@ -29,6 +29,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
     }
 
     public Iterable<Edge> run() throws OperationException {
+        final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/4/data.txt");
         setDataSchemaLocation("/example/gettingstarted/4/schema/dataSchema.json");
@@ -64,14 +66,14 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .elements(elements)
                 .build();
 
-        graph4.execute(addElements);
+        graph4.execute(addElements, user);
 
         final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
         System.out.println("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
-        final Iterable<Edge> results = graph4.execute(getRelatedEdges);
+        final Iterable<Edge> results = graph4.execute(getRelatedEdges, user);
         for (Element e : results) {
             System.out.println(e.toString());
         }
@@ -94,7 +96,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         getRelatedEdges.setView(view);
 
         System.out.println("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
-        final Iterable<Edge> transientResults = graph4.execute(getRelatedEdges);
+        final Iterable<Edge> transientResults = graph4.execute(getRelatedEdges, user);
         for (Element e : transientResults) {
             System.out.println(e.toString());
         }

@@ -25,6 +25,7 @@ import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -44,9 +45,10 @@ import java.util.Set;
 public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
-    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation)
+    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation,
+                                        final User user)
             throws IteratorSettingException, StoreException {
-        this(store, operation,
+        this(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
@@ -61,12 +63,14 @@ public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
      *
      * @param store            the accumulo store
      * @param operation        the get all elements operation
+     * @param user             the user executing the operation
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
     public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation,
+                                        final User user,
                                         final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+        super(store, operation, user, iteratorSettings);
     }
 
     @Override

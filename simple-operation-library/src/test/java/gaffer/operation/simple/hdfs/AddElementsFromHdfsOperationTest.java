@@ -15,6 +15,9 @@
  */
 package gaffer.operation.simple.hdfs;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
@@ -23,17 +26,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 
 public class AddElementsFromHdfsOperationTest implements OperationTest {
 
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-    public static final String ADD_ELEMENTS_FROM_HDFS_JSON = "{\n" +
-            "  \"inputPaths\" : [ \"TestInput\" ],\n" +
-            "  \"outputPath\" : \"TestOutput\"\n" +
-            "}";
+    public static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
+            "  \"inputPaths\" : [ \"TestInput\" ],%n" +
+            "  \"outputPath\" : \"TestOutput\"%n" +
+            "}");
 
     @Test
     @Override

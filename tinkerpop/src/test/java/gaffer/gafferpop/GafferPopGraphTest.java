@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import gaffer.commonutil.StreamUtil;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
+import gaffer.user.User;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
@@ -44,10 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 public class GafferPopGraphTest {
-    private static final Configuration TEST_CONFIGURATION = new BaseConfiguration() {{
-        this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
-        this.setProperty(GafferPopGraph.OP_OPTIONS, new String[]{"key1:value1", "key2:value2"});
-    }};
     public static final int VERTEX_1 = 1;
     public static final int VERTEX_2 = 2;
     public static final String SOFTWARE_NAME_GROUP = "software";
@@ -56,11 +53,25 @@ public class GafferPopGraphTest {
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
     public static final String WEIGHT_PROPERTY = "weight";
+    public static final String USER_ID = "user01";
+    public static final String AUTH_1 = "auth1";
+    public static final String AUTH_2 = "auth2";
+
+    private static final Configuration TEST_CONFIGURATION = new BaseConfiguration() {{
+        this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
+        this.setProperty(GafferPopGraph.OP_OPTIONS, new String[]{"key1:value1", "key2:value2"});
+        this.setProperty(GafferPopGraph.USER_ID, USER_ID);
+        this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
+    }};
 
     @Test
     public void shouldConstructGafferPopGraph() {
         // Given
         final Graph gafferGraph = getGafferGraph();
+        final User expectedUser = new User.Builder()
+                .userId(USER_ID)
+                .dataAuths(AUTH_1, AUTH_2)
+                .build();
 
         // When
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
@@ -68,13 +79,14 @@ public class GafferPopGraphTest {
         // Then - there is 1 vertex and no edges
         final Map<String, Object> variables = graph.variables().asMap();
         assertEquals(gafferGraph.getSchema(), variables.get(GafferPopGraphVariables.SCHEMA));
+        assertEquals(expectedUser, variables.get(GafferPopGraphVariables.USER));
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertEquals("value1", opOptions.get("key1"));
         assertEquals("value2", opOptions.get("key2"));
         assertEquals(2, opOptions.size());
 
-        assertEquals(2, variables.size());
+        assertEquals(3, variables.size());
     }
 
     @Test

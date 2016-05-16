@@ -26,6 +26,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
     }
 
     public Iterable<Edge> run() throws OperationException {
+        final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/2/data.txt");
         setDataSchemaLocation("/example/gettingstarted/2/schema/dataSchema.json");
@@ -62,7 +64,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
                 .elements(elements)
                 .build();
 
-        graph2.execute(addElements);
+        graph2.execute(addElements, user);
 
         //get all the edges
         final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
@@ -71,7 +73,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
 
         System.out.println("\nAll edges containing vertex 1");
         System.out.println("\nNotice that the edges are aggregated within their groups");
-        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges);
+        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges, user);
         for (Element e : allColoursResults) {
             System.out.println(e.toString());
         }
@@ -84,7 +86,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         getRelatedEdges.setView(view);
 
         System.out.println("\nAll red edges containing vertex 1\n");
-        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges);
+        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges, user);
         for (Element e : redResults) {
             System.out.println(e.toString());
         }

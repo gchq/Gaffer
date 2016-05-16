@@ -48,6 +48,7 @@ import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.store.schema.TypeDefinition;
+import gaffer.user.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -183,20 +184,20 @@ public class GraphTest {
                 .store(store)
                 .view(view)
                 .build();
-
+        final User user = new User();
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = new OperationChain<>(operation);
-        given(store.execute(opChain)).willReturn(expectedResult);
+        given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
-        int result = graph.execute(opChain);
+        int result = graph.execute(opChain, user);
 
         // Then
         assertEquals(expectedResult, result);
-        verify(store).execute(opChain);
+        verify(store).execute(opChain, user);
         verify(operation).setView(view);
     }
 
@@ -210,20 +211,20 @@ public class GraphTest {
                 .store(store)
                 .view(view)
                 .build();
-
+        final User user = new User();
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = new OperationChain<>(operation);
-        given(store.execute(opChain)).willReturn(expectedResult);
+        given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
-        int result = graph.execute(opChain);
+        int result = graph.execute(opChain, user);
 
         // Then
         assertEquals(expectedResult, result);
-        verify(store).execute(opChain);
+        verify(store).execute(opChain, user);
         verify(operation, Mockito.never()).setView(view);
     }
 

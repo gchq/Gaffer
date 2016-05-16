@@ -33,6 +33,11 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      */
     public static final String OP_OPTIONS = "operationOptions";
 
+    /**
+     * The user who is interacting with the graph.
+     */
+    public static final String USER = "user";
+
     private final Map<String, Object> variables;
 
     public GafferPopGraphVariables(final ConcurrentHashMap<String, Object> variables) {

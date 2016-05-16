@@ -24,6 +24,7 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
 import java.util.Set;
@@ -35,9 +36,10 @@ import java.util.Set;
 public class AccumuloRangeIDRetriever
         extends AccumuloItemRetriever<GetOperation<Pair<ElementSeed>, ?>, Pair<ElementSeed>> {
 
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final GetOperation<Pair<ElementSeed>, ?> operation)
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final GetOperation<Pair<ElementSeed>, ?> operation,
+                                    final User user)
             throws IteratorSettingException, StoreException {
-        this(store, operation,
+        this(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
                 store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation));
@@ -53,12 +55,14 @@ public class AccumuloRangeIDRetriever
      *
      * @param store            the accumulo store
      * @param operation        the operation
+     * @param user             the user executing the operation
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
     public AccumuloRangeIDRetriever(final AccumuloStore store, final GetOperation<Pair<ElementSeed>, ?> operation,
+                                    final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+        super(store, operation, user, iteratorSettings);
     }
 
     @Override

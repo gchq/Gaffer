@@ -24,6 +24,7 @@ import gaffer.accumulostore.utils.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -45,8 +46,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
     private final Iterable<? extends SEED_TYPE> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
+                                    final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+        super(store, operation, user, iteratorSettings);
         this.ids = operation.getSeeds();
     }
 
