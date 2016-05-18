@@ -68,7 +68,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
 
         graph4.execute(addElements, user);
 
-        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 

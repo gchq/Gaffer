@@ -16,24 +16,23 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.EdgeSeed;
-import gaffer.operation.data.ElementSeed;
-import gaffer.exception.SerialisationException;
-import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.GetOperation;
-import gaffer.operation.OperationTest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-
-import gaffer.operation.data.EntitySeed;
-import org.junit.Test;
-
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.commonutil.TestGroups;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
+import gaffer.operation.OperationTest;
+import gaffer.operation.data.EdgeSeed;
+import gaffer.operation.data.EntitySeed;
+import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 
 public class GetRelatedEntitiesTest implements OperationTest {
@@ -45,7 +44,7 @@ public class GetRelatedEntitiesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetRelatedEntities op = new GetRelatedEntities(Collections.singletonList((ElementSeed) seed1));
+        final GetRelatedEntities<EdgeSeed> op = new GetRelatedEntities<>(Collections.singletonList(seed1));
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
@@ -57,7 +56,7 @@ public class GetRelatedEntitiesTest implements OperationTest {
         // Given
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", false);
-        final GetRelatedEntities op = new GetRelatedEntities(Arrays.asList((ElementSeed) seed1, seed2));
+        final GetRelatedEntities<EdgeSeed> op = new GetRelatedEntities<>(Arrays.asList(seed1, seed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -73,12 +72,25 @@ public class GetRelatedEntitiesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        ElementSeed seed = new EntitySeed("A");
-        GetRelatedEntities getRelatedElements = new GetRelatedEntities.Builder().addSeed(seed).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEntityGroup").build()).build();
+        // Given
+        final EntitySeed seed = new EntitySeed("A");
+
+        // When
+        final GetRelatedEntities<EntitySeed> getRelatedElements = new GetRelatedEntities.Builder<EntitySeed>()
+                .addSeed(seed)
+                .option("testOption", "true")
+                .populateProperties(false)
+                .summarise(true)
+                .view(new View.Builder()
+                        .edge(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        // Then
         assertEquals("true", getRelatedElements.getOption("testOption"));
         assertTrue(getRelatedElements.isSummarise());
         assertFalse(getRelatedElements.isPopulateProperties());
         assertNotNull(getRelatedElements.getView());
-        assertEquals(seed,getRelatedElements.getSeeds().iterator().next());
+        assertEquals(seed, getRelatedElements.getSeeds().iterator().next());
     }
 }

@@ -480,7 +480,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .view(view)
                     .build();
         } else {
-            getOperation = new GetRelatedEntities.Builder()
+            getOperation = new GetRelatedEntities.Builder<>()
                     .seeds(seeds)
                     .view(view)
                     .build();
@@ -535,7 +535,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .view(view)
                     .build();
         } else {
-            getOperation = new GetRelatedEdges.Builder()
+            getOperation = new GetRelatedEdges.Builder<>()
                     .seeds(seeds)
                     .view(view)
                     .inOutType(getInOutType(direction))

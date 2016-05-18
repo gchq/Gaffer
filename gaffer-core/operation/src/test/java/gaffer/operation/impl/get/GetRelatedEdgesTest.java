@@ -16,22 +16,21 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
-import gaffer.exception.SerialisationException;
-import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.GetOperation;
-import gaffer.operation.OperationTest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import org.junit.Test;
-
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.data.elementdefinition.view.View;
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
+import gaffer.operation.OperationTest;
+import gaffer.operation.data.EntitySeed;
+import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 
 public class GetRelatedEdgesTest implements OperationTest {
@@ -43,7 +42,7 @@ public class GetRelatedEdgesTest implements OperationTest {
         final EntitySeed seed1 = new EntitySeed("identifier1");
 
         // When
-        final GetRelatedEdges op = new GetRelatedEdges(Collections.singletonList((ElementSeed) seed1));
+        final GetRelatedEdges<EntitySeed> op = new GetRelatedEdges<>(Collections.singletonList(seed1));
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
@@ -55,7 +54,7 @@ public class GetRelatedEdgesTest implements OperationTest {
         // Given
         final EntitySeed seed1 = new EntitySeed("identifier1");
         final EntitySeed seed2 = new EntitySeed("identifier2");
-        final GetRelatedEdges op = new GetRelatedEdges(Arrays.asList((ElementSeed) seed1, seed2));
+        final GetRelatedEdges<EntitySeed> op = new GetRelatedEdges<>(Arrays.asList(seed1, seed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -71,7 +70,8 @@ public class GetRelatedEdgesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder().addSeed(new EntitySeed("A"))
+        GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+                .addSeed(new EntitySeed("A"))
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
                 .option("testOption", "true")
                 .populateProperties(true)
