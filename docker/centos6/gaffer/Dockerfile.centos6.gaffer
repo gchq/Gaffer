@@ -36,7 +36,7 @@ LABEL com.gaffer-docker.version.is-beta="yes" \
 
 # Additional centos packages required for generation of Gaffer jar files  to run
 
-RUN yum install -y git; yum clean all
+RUN yum install -y git; yum install -y tar; yum clean all
 
 # Directory where gaffer source code is cloned to. Directory is removed at the end of the installation process
 ENV INSTALL_DIR /data/Gaffer_Source
@@ -80,7 +80,7 @@ ADD ${SETUP_LOCN_DIR}/configure_store_prop.sh ${INSTALL_DIR}/
 RUN \
     cd ${INSTALL_DIR}  && ./configure_store_prop.sh && \
     cd ${INSTALL_DIR}  && rm -f configure_store_prop.sh && \
-    cd ${INSTALL_DIR}  && /usr/local/maven/bin/mvn clean package -DskipTests && \
+    cd ${INSTALL_DIR}  && /usr/local/maven/bin/mvn clean install -pl \!tinkerpop -DskipTests && \
     cp -pf ~/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.6.2/jackson-annotations-2.6.2.jar ${TARGET_DIR}/ && \
     cp -pf ~/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.6.2/jackson-core-2.6.2.jar ${TARGET_DIR}/ && \
     cp -pf ~/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.6.2/jackson-databind-2.6.2.jar ${TARGET_DIR}/ && \

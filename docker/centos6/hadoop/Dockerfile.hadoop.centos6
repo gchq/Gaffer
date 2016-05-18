@@ -32,6 +32,9 @@ LABEL com.gaffer-docker.version.is-beta="yes" \
       com.gaffer-docker.release-date="2016-05-06" \
       com.gaffer-docker.description="Hadoop Docker Image"
 
+# Additional tar package required
+RUN yum install -y tar; yum clean all
+
 # directory where docker setup files are temporary stored
 ENV DOCKER_FILES /usr/local/docker_files
 ENV HD_USER hduser

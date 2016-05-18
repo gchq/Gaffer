@@ -187,7 +187,7 @@
   > store-0.3.3.jar
   > Gaffer setup completed
 
- Create user and table with relevant authorizations to run the SimpleQuery example
+ Create user and table with relevant authorizations to run the film LoadAndQuery example
 
   ```$ /opt/accumulo/bin/accumulo shell -u root -p admin```
 
@@ -213,17 +213,16 @@
 
   ```$ root@Gaffer table1> exit```
 
-  Run SimpleQuery example
+  Run LoadAndQuery example
 
-  ```$ /opt/accumulo/bin/accumulo gaffer.example.SimpleQuery```
+  ```$ /opt/accumulo/bin/accumulo gaffer.example.films.analytic.LoadAndQuery```
   
   Output similar to below should be displayed:
 
-> [hduser@localhost : /opt/accumulo/bin]$ ./accumulo gaffer.example.SimpleQuery
->  2016-03-29 22:05:55,300 [example.SimpleQuery] INFO : Results from simple query:
->  Viewing{userId='user01', filmId='filmA', startTime=1401000000000}
->  Viewing{userId='user02', filmId='filmA', startTime=1401000000000} 
->  Viewing{userId='user03', filmId='filmA', startTime=1408000000000}
+> [hduser@localhost : /opt/accumulo/bin]$ ./accumulo gaffer.example.films.analytic.LoadAndQuery
+> 2016-05-18 12:20:07,756 [client.ClientConfiguration] WARN : Found no client.conf in default paths. Using default client configuration values.
+> 2016-05-18 12:20:08,994 [analytic.LoadAndQuery] INFO : Results from query:
+> Entity{vertex=filmA, group='review', properties={starRating=<java.lang.Float>2.5, count=<java.lang.Integer>2, userId=<java.lang.String>user01,user03, rating=<java.lang.Long>100}} 
 
   ## Stop Accumulo Services
  

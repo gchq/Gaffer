@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-v_property_file=example/src/main/resources/store.properties
-v_property_bac_file=example/src/main/resources/store.properties.bac
+v_property_file=example/src/main/resources/example/films/mockaccumulostore.properties
+v_property_bac_file=example/src/main/resources/example/films/mockaccumulostore.properties.bac
 
 cp -pf ${v_property_file} ${v_property_bac_file}
 
