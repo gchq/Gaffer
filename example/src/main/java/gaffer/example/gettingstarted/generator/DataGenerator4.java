@@ -23,8 +23,8 @@ import gaffer.data.generator.OneToOneElementGenerator;
 public class DataGenerator4 extends OneToOneElementGenerator<String> {
     @Override
     public Element getElement(final String line) {
-        String[] t = line.split(",");
-        Edge edge = new Edge("data");
+        final String[] t = line.split(",");
+        final Edge edge = new Edge("data");
         edge.setSource(t[0]);
         edge.setDestination(t[1]);
         edge.setDirected(false);

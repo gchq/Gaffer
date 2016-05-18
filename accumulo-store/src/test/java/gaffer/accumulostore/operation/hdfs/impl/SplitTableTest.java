@@ -18,13 +18,15 @@ import static org.junit.Assert.*;
 public class SplitTableTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
+    private static final String INPUT_DIRECTORY = "/input";
+    private static final String TEST_OPTION_KEY = "testOption";
+
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        String inputDir = "/input";
         final SplitTable op = new SplitTable();
-        op.setInputPath(inputDir);
+        op.setInputPath(INPUT_DIRECTORY);
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -32,16 +34,15 @@ public class SplitTableTest implements OperationTest {
         final SplitTable deserialisedOp = serialiser.deserialise(json, SplitTable.class);
 
         // Then
-        assertEquals(inputDir, deserialisedOp.getInputPath());
+        assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPath());
 
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        String inputPath = "/input";
-        SplitTable splitTable = new SplitTable.Builder().inputPath(inputPath).option("testOption", "true").build();
-        assertEquals(inputPath, splitTable.getInputPath());
-        assertEquals("true", splitTable.getOption("testOption"));
+        final SplitTable splitTable = new SplitTable.Builder().inputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
+        assertEquals(INPUT_DIRECTORY, splitTable.getInputPath());
+        assertEquals("true", splitTable.getOption(TEST_OPTION_KEY));
     }
 }

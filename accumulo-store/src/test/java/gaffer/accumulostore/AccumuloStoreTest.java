@@ -20,12 +20,9 @@ import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import com.google.common.collect.Iterables;
 import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
@@ -62,8 +59,11 @@ import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import org.hamcrest.core.IsCollectionContaining;
+import org.junit.After;
 import gaffer.user.User;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -73,55 +73,52 @@ import java.util.List;
 
 public class AccumuloStoreTest {
 
-    private static MockAccumuloStoreForTest store;
+    private MockAccumuloStoreForTest store;
 
-    @BeforeClass
-    public static void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         store = new MockAccumuloStoreForTest();
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         store = null;
     }
 
     @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated() throws OperationException {
+        final List<Element> elements = new ArrayList<>();
+        final Entity e = new Entity(TestGroups.ENTITY);
         final User user = new User();
-
-        List<Element> elements = new ArrayList<>();
-        Entity e = new Entity(TestGroups.ENTITY);
         e.setVertex("1");
         elements.add(e);
-        AddElements add = new AddElements.Builder()
+        final AddElements add = new AddElements.Builder()
                 .elements(elements)
                 .build();
         store.execute(add, user);
 
-        GetElements<EntitySeed, Element> getBySeed = new GetElementsSeed.Builder<EntitySeed, Element>()
+        final EntitySeed entitySeed1 = new EntitySeed("1");
+
+        final GetElements<EntitySeed, Element> getBySeed = new GetElementsSeed.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .addSeed(entitySeed1)
                 .build();
-        Iterable<Element> results = store.execute(getBySeed, user);
-        Iterator<Element> resultsIter = results.iterator();
-        assertTrue(resultsIter.hasNext());
-        assertEquals(e, resultsIter.next());
-        assertFalse(resultsIter.hasNext());
+        final Iterable<Element> results = store.execute(getBySeed, user);
 
+        assertEquals(1, Iterables.size(results));
+        assertThat(results, IsCollectionContaining.hasItem(e));
 
-        GetRelatedElements<EntitySeed, Element> getRelated = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetRelatedElements<EntitySeed, Element> getRelated = new GetRelatedElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .addSeed(entitySeed1)
                 .build();
-        results = store.execute(getRelated, user);
-        resultsIter = results.iterator();
-        assertTrue(resultsIter.hasNext());
-        assertEquals(e, resultsIter.next());
-        assertFalse(resultsIter.hasNext());
+        final Iterable<Element> relatedResults = store.execute(getRelated, user);
+        assertEquals(1, Iterables.size(relatedResults));
+        assertThat(relatedResults, IsCollectionContaining.hasItem(e));
     }
 
     @Test

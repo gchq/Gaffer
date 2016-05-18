@@ -14,15 +14,18 @@ import static org.junit.Assert.assertTrue;
 public class ImportAccumuloKeyValueFilesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
+    private static final String INPUT_DIRECTORY = "/input";
+    private static final String FAIL_DIRECTORY = "/fail";
+    private static final String TEST_OPTION_KEY = "testOption";
+
+
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        String inputDir = "/input";
-        String failurePath = "/fail";
         final ImportAccumuloKeyValueFiles op = new ImportAccumuloKeyValueFiles();
-        op.setInputPath(inputDir);
-        op.setFailurePath(failurePath);
+        op.setInputPath(INPUT_DIRECTORY);
+        op.setFailurePath(FAIL_DIRECTORY);
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -30,19 +33,17 @@ public class ImportAccumuloKeyValueFilesTest implements OperationTest {
         final ImportAccumuloKeyValueFiles deserialisedOp = serialiser.deserialise(json, ImportAccumuloKeyValueFiles.class);
 
         // Then
-        assertEquals(inputDir, deserialisedOp.getInputPath());
-        assertEquals(failurePath, deserialisedOp.getFailurePath());
+        assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPath());
+        assertEquals(FAIL_DIRECTORY, deserialisedOp.getFailurePath());
 
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        String inputPath = "/input";
-        String failurePath = "/fail";
-        ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(inputPath).failurePath(failurePath).option("testOption", "true").build();
+        ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(INPUT_DIRECTORY).failurePath(FAIL_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
         importAccumuloKeyValueFiles.getInputPath();
         importAccumuloKeyValueFiles.getFailurePath();
-        assertEquals("true", importAccumuloKeyValueFiles.getOption("testOption"));
+        assertEquals("true", importAccumuloKeyValueFiles.getOption(TEST_OPTION_KEY));
     }
 }
