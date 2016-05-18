@@ -15,6 +15,7 @@
  */
 package gaffer.user;
 
+import org.apache.commons.lang.StringUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,16 +32,16 @@ public class User {
     }
 
     public User(final String userId) {
-        this.userId = userId;
+        this.userId = StringUtils.isEmpty(userId) ? UNKNOWN_USER_ID : userId;
     }
 
     public User(final String userId, final Set<String> dataAuths) {
-        this.userId = userId;
+        this(userId);
         this.dataAuths.addAll(dataAuths);
     }
 
     public User(final String userId, final Set<String> dataAuths, final Set<String> opAuths) {
-        this.userId = userId;
+        this(userId);
         this.dataAuths.addAll(dataAuths);
         this.opAuths.addAll(opAuths);
     }

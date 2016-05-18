@@ -16,17 +16,21 @@
 
 package gaffer.graph.hook;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import gaffer.commonutil.StreamUtil;
+import gaffer.commonutil.exception.UnauthorisedException;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.user.User;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+import java.util.Set;
 
 
 public class OperationAuthoriserTest {
@@ -65,7 +69,7 @@ public class OperationAuthoriserTest {
         try {
             opAuthoriser.preExecute(opChain, user);
             fail("Exception expected");
-        } catch (final IllegalAccessError e) {
+        } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -85,7 +89,7 @@ public class OperationAuthoriserTest {
         try {
             opAuthoriser.preExecute(opChain, user);
             fail("Exception expected");
-        } catch (final IllegalAccessError e) {
+        } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -107,8 +111,21 @@ public class OperationAuthoriserTest {
         try {
             opAuthoriser.preExecute(opChain, user);
             fail("Exception expected");
-        } catch (final IllegalAccessError e) {
+        } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldReturnAllOpAuths() {
+        // Given
+        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+
+        // When
+        final Set<String> allOpAuths = opAuthoriser.getAllOpAuths();
+
+        // Then
+        assertThat(allOpAuths,
+                IsCollectionContaining.hasItems("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser"));
     }
 }

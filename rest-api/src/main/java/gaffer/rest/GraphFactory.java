@@ -18,6 +18,7 @@ package gaffer.rest;
 
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.graph.Graph;
+import gaffer.graph.hook.OperationAuthoriser;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -27,10 +28,23 @@ import java.nio.file.Paths;
 public class GraphFactory {
     private static Graph graph;
 
-    private final boolean singletonGraph;
+    private boolean singletonGraph;
 
-    public GraphFactory(final boolean singletonGraph) {
-        this.singletonGraph = singletonGraph;
+    protected GraphFactory() {
+        // Graph factories should be constructed via the createGraphFactory static method.
+    }
+
+    public static GraphFactory createGraphFactory() {
+        final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
+                SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
+
+        try {
+            return Class.forName(graphFactoryClass)
+                    .asSubclass(GraphFactory.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass);
+        }
     }
 
     public Graph getGraph() {
@@ -44,26 +58,45 @@ public class GraphFactory {
         return createGraph();
     }
 
-    private static Graph createGraph() {
-        final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
-        if (null == storePropertiesPath) {
-            throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
-        }
+    public void setSingletonGraph(final boolean singletonGraph) {
+        this.singletonGraph = singletonGraph;
+    }
 
+    protected Graph.Builder createGraphBuilder(final Path storePropertiesPath) {
         final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storePropertiesPath);
         for (Path path : getSchemaPaths()) {
             builder.addSchema(path);
         }
 
-        return builder.build();
+        final OperationAuthoriser opAuthoriser = createOpAuthoriser();
+        if (null != opAuthoriser) {
+            builder.addHook(opAuthoriser);
+        }
+        return builder;
     }
 
-    private static void setGraph(final Graph graph) {
+    protected OperationAuthoriser createOpAuthoriser() {
+        OperationAuthoriser opAuthoriser = null;
+
+        final String opAuthsPathStr = System.getProperty(SystemProperty.OP_AUTHS_PATH);
+        if (null != opAuthsPathStr) {
+            final Path opAuthsPath = Paths.get(System.getProperty(SystemProperty.OP_AUTHS_PATH));
+            if (opAuthsPath.toFile().exists()) {
+                opAuthoriser = new OperationAuthoriser(opAuthsPath);
+            } else {
+                throw new IllegalArgumentException("Could not find operation authorisation properties from path: " + opAuthsPathStr);
+            }
+        }
+
+        return opAuthoriser;
+    }
+
+    protected static void setGraph(final Graph graph) {
         GraphFactory.graph = graph;
     }
 
-    private static Path[] getSchemaPaths() {
+    protected static Path[] getSchemaPaths() {
         final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
         if (null == schemaPaths) {
             throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATHS);
@@ -76,5 +109,16 @@ public class GraphFactory {
         }
 
         return paths;
+    }
+
+    private Graph createGraph() {
+        final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
+        if (null == storePropertiesPath) {
+            throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
+        }
+
+        final Graph.Builder builder = createGraphBuilder(storePropertiesPath);
+
+        return builder.build();
     }
 }

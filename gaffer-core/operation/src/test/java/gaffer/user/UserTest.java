@@ -59,6 +59,45 @@ public class UserTest {
     }
 
     @Test
+    public void shouldReplaceNullIdWithUnknownIdWhenBuildingUser() {
+        // Given
+        final String userId = null;
+
+        // When
+        final User user = new User.Builder()
+                .userId(userId)
+                .build();
+
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
+    public void shouldReplaceEmptyIdWithUnknownIdWhenBuildingUser() {
+        // Given
+        final String userId = "";
+
+        // When
+        final User user = new User.Builder()
+                .userId(userId)
+                .build();
+
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
+    public void shouldSetUnknownIdWhenBuildingUser() {
+        // Given
+        // When
+        final User user = new User.Builder()
+                .build();
+
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
     public void shouldNotAllowChangingDataAuths() {
         // Given
         final String userId = "user 01";

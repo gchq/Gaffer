@@ -53,7 +53,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     private final GraphFactory graphFactory;
 
     public SimpleGraphConfigurationService() {
-        this(new GraphFactory(true));
+        this(GraphFactory.createGraphFactory());
     }
 
     public SimpleGraphConfigurationService(final GraphFactory graphFactory) {

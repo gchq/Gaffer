@@ -16,10 +16,12 @@
 
 package gaffer.graph.hook;
 
+import gaffer.commonutil.exception.UnauthorisedException;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.user.User;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -41,7 +43,10 @@ import java.util.Set;
  * containing the operations and the required authorisations.
  */
 public class OperationAuthoriser implements GraphHook {
-    private Map<Class<? extends Operation>, Set<String>> opAuthsMap = new HashMap<>();
+    public static final String AUTH_SEPARATOR = ",";
+
+    private final Map<Class<? extends Operation>, Set<String>> opAuthsMap = new HashMap<>();
+    private final Set<String> allOpAuths = new HashSet<>();
 
     /**
      * Default constructor. Use setOpAuths(Class, Set) or
@@ -111,6 +116,7 @@ public class OperationAuthoriser implements GraphHook {
      */
     public void setOpAuths(final Class<? extends Operation> opClass, final Set<String> auths) {
         opAuthsMap.put(opClass, auths);
+        allOpAuths.addAll(auths);
     }
 
     /**
@@ -128,9 +134,14 @@ public class OperationAuthoriser implements GraphHook {
             opAuthsMap.put(opClass, opAuths);
         }
         Collections.addAll(opAuths, auths);
+        Collections.addAll(allOpAuths, auths);
     }
 
-    private void authorise(final Operation operation, final User user) {
+    public Set<String> getAllOpAuths() {
+        return Collections.unmodifiableSet(allOpAuths);
+    }
+
+    protected void authorise(final Operation operation, final User user) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
@@ -145,7 +156,7 @@ public class OperationAuthoriser implements GraphHook {
             }
 
             if (!authorised) {
-                throw new IllegalAccessError("User does not have permission to run operation: "
+                throw new UnauthorisedException("User does not have permission to run operation: "
                         + operation.getClass().getName());
             }
         }
@@ -157,14 +168,14 @@ public class OperationAuthoriser implements GraphHook {
             try {
                 final Class<? extends Operation> opClass = Class.forName(opClassName).asSubclass(Operation.class);
                 final Set<String> auths = new HashSet<>();
-                for (String auth : props.getProperty(opClassName).split(",")) {
-                    if (null != auth && !"".equals(auth)) {
+                for (String auth : props.getProperty(opClassName).split(AUTH_SEPARATOR)) {
+                    if (!StringUtils.isEmpty(auth)) {
                         auths.add(auth);
                     }
                 }
-                opAuthsMap.put(opClass, auths);
+                setOpAuths(opClass, auths);
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException(e);
             }
         }
     }
@@ -175,7 +186,7 @@ public class OperationAuthoriser implements GraphHook {
             try {
                 props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException(e);
             }
         } else {
             props = new Properties();
@@ -190,7 +201,7 @@ public class OperationAuthoriser implements GraphHook {
             try {
                 props.load(stream);
             } catch (IOException e) {
-                throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+                throw new IllegalArgumentException("Failed to load store properties file : " + e.getMessage(), e);
             } finally {
                 IOUtils.closeQuietly(stream);
             }
