@@ -62,7 +62,12 @@ public class GraphFactory {
         this.singletonGraph = singletonGraph;
     }
 
-    protected Graph.Builder createGraphBuilder(final Path storePropertiesPath) {
+    protected Graph.Builder createGraphBuilder() {
+        final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
+        if (null == storePropertiesPath) {
+            throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
+        }
+
         final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storePropertiesPath);
         for (Path path : getSchemaPaths()) {
@@ -112,13 +117,6 @@ public class GraphFactory {
     }
 
     private Graph createGraph() {
-        final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
-        if (null == storePropertiesPath) {
-            throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
-        }
-
-        final Graph.Builder builder = createGraphBuilder(storePropertiesPath);
-
-        return builder.build();
+        return createGraphBuilder().build();
     }
 }
