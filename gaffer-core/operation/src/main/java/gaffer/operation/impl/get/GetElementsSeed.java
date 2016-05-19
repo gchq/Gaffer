@@ -103,6 +103,12 @@ public class GetElementsSeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends
         }
 
         @Override
+        public Builder<SEED_TYPE, ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
+            super.inOutType(inOutType);
+            return this;
+        }
+
+        @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> summarise(final boolean summarise) {
             super.summarise(summarise);
             return this;

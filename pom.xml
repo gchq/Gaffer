@@ -13,13 +13,17 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.3</version>
+    <version>0.3.6-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
@@ -31,8 +35,9 @@
         <module>gaffer-core</module>
         <module>example</module>
         <module>gaffer-integration-tests</module>
-    	<module>spark</module>
-  </modules>
+        <module>tinkerpop</module>
+	<module>spark</module>
+    </modules>
 
     <properties>
         <disable.forking>false</disable.forking>
@@ -43,7 +48,7 @@
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
         <mockito.version>1.9.5</mockito.version>
-
+        <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
         <hadoop.version>2.6.0</hadoop.version>
@@ -167,9 +172,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>${failsafe.version}</version>
                 <executions>
                     <execution>
+                        <id>integration-test</id>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
@@ -181,6 +187,12 @@
                         <exclude>**/*$*</exclude>
                         <exclude>**/performance/**</exclude>
                     </excludes>
+                    <includes>
+                        <include>**/*IntegrationTest.java</include>
+                        <include>**/*IT.java</include>
+                        <include>**/*ITs.java</include>
+                        <include>**/*IntegrationTests.java</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
@@ -325,6 +337,19 @@
                         -XX:MaxPermSize=256m
                     </argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${failsafe.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <id>integration-tests</id>
+                        <reports>
+                            <report>failsafe-report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

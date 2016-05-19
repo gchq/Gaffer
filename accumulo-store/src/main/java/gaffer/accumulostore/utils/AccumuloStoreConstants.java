@@ -42,6 +42,7 @@ public final class AccumuloStoreConstants {
     public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
     public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";
     public static final String OUTGOING_EDGE_ONLY = "Outgoing_Edges_Only";
+    public static final String DEDUPLICATE_UNDIRECTED_EDGES = "Deduplicate_Undirected_Edges";
     public static final String BLOOM_FILTER = "Bloom_Filter";
     public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
 
@@ -66,7 +67,7 @@ public final class AccumuloStoreConstants {
     // Operations options
     public static final String OPERATION_HDFS_USE_ACCUMULO_PARTITIONER = "accumulostore.operation.hdfs.use_accumulo_partitioner";
     public static final String OPERATION_HDFS_SPLITS_FILE = "accumulostore.operation.hdfs.user_provided_splits_file";
-    public static final String OPERATION_AUTHORISATIONS = "accumulostore.operation.authorisations";
+    public static final String ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT = "accumulostore.operation.hdfs.skip_import";
     public static final String OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
 
     // Store factory constants

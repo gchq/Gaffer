@@ -15,7 +15,7 @@
 	<parent>
 		<artifactId>gaffer2</artifactId>
 		<groupId>gaffer</groupId>
-		<version>0.3.3</version>
+		<version>0.3.6-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>spark</artifactId>

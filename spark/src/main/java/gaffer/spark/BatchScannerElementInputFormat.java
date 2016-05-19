@@ -37,11 +37,14 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.exception.SerialisationException;
+import gaffer.serialisation.simple.StringSerialiser;
+import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import scala.collection.JavaConverters;
 
@@ -52,13 +55,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An {@link InputFormat} that allows a MapReduce job to consume data from the
+ * An {@link InputFormatBase} that allows a MapReduce job to consume data from the
  * Accumulo table underlying Gaffer. This uses
  * {@link BatchScannerElementInputFormat} to provide the splits and uses a
  * {@link BatchScanner} within the {@link RecordReader} to provide the keys and
  * values.
  */
 public class BatchScannerElementInputFormat extends InputFormatBase<Element, Properties> {
+
+    public static final String KEY_PACKAGE = "KEY_PACKAGE";
+    public static final String SCHEMA = "SCHEMA";
 
     @Override
     public List<InputSplit> getSplits(final JobContext context) throws IOException {
@@ -69,7 +75,14 @@ public class BatchScannerElementInputFormat extends InputFormatBase<Element, Pro
     public RecordReader<Element, Properties> createRecordReader(final InputSplit split,
             final TaskAttemptContext context) throws IOException, InterruptedException {
         log.setLevel(getLogLevel(context));
-        return new BatchScannerRecordReader();
+        String keyPackageClass = context.getConfiguration().get(KEY_PACKAGE);
+        String schema = context.getConfiguration().get(SCHEMA);
+        try {
+            return new BatchScannerRecordReader(keyPackageClass, schema);
+        } catch (StoreException | SchemaException | SerialisationException e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     static class BatchScannerRecordReader extends RecordReader<Element, Properties> {
@@ -78,15 +91,20 @@ public class BatchScannerElementInputFormat extends InputFormatBase<Element, Pro
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
         private Element currentK;
         private Properties currentV;
-        private AccumuloElementConverter converter;
-        private Schema schema;
         private MultiRangeInputSplit inputSplit;
+        private AccumuloElementConverter converter;
+        private StringSerialiser serialiser = new StringSerialiser();
 
-        BatchScannerRecordReader() throws IOException, InterruptedException {
+        BatchScannerRecordReader(final String keyPackageClass, final String schema) throws StoreException, SchemaException, SerialisationException {
             super();
-            schema = Schema.fromJson(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()),
-                    StreamUtil.storeSchema(getClass()), StreamUtil.storeTypes(getClass()));
-            converter = new ByteEntityAccumuloElementConverter(schema);
+            AccumuloKeyPackage keyPackage;
+            try {
+                keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
+            }
+            keyPackage.setSchema(Schema.fromJson(serialiser.serialise(schema)));
+            converter = keyPackage.getKeyConverter();
         }
 
         @Override

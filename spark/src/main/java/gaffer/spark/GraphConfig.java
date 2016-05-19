@@ -16,6 +16,7 @@
 
 package gaffer.spark;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.CommonConstants;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -48,6 +50,7 @@ import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsLessThan;
@@ -70,7 +73,7 @@ public class GraphConfig {
     protected Authorizations authorizations;
 
     // View on the graph
-    protected boolean rollUpOverTimeAndVisibility;
+    protected boolean summarise;
     protected boolean returnEntities;
     protected boolean returnEdges;
     protected ViewElementDefinition viewDef;
@@ -95,22 +98,22 @@ public class GraphConfig {
             LOGGER.error(e.getMessage());
         }
 
-        rollUpOverTimeAndVisibility = true;
+        summarise = true;
         returnEntities = true;
         returnEdges = true;
-        entityGroups = new HashSet<String>(store.getSchema().getEntityGroups());
-        edgeGroups = new HashSet<String>(store.getSchema().getEdgeGroups());
+        entityGroups = new HashSet<>(store.getSchema().getEntityGroups());
+        edgeGroups = new HashSet<>(store.getSchema().getEdgeGroups());
     }
 
     /**
      * Updates the provided {@link Configuration} with options that specify the
      * view on the graph (i.e. the authorizations, a range of property values or
-     * vertices, whether we want to roll up over time and visibility, and
-     * whether we want entities only or edges only or entities and edges). This
-     * allows a MapReduce job that uses the {@link Configuration} to receive
-     * data that is subject to the same view as is on the graph.
+     * vertices, whether we want to summarise, and whether we want entities only
+     * or edges only or entities and edges). This allows a MapReduce job that uses
+     * the {@link Configuration} to receive data that is subject to the same view
+     * as is on the graph.
      *
-     * Note that this method will not produce the same {@link Edge} twice.
+     * Note that this method will not produce the same edge twice.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      */
@@ -119,6 +122,7 @@ public class GraphConfig {
             addAccumuloInfoToConfiguration(conf);
             addRollUpAndAuthsToConfiguration(conf);
             addViewsToConfiguration(conf);
+            addKeyPackageAndSchemaToConfiguration(conf);
         } catch (AccumuloSecurityException | StoreException | AccumuloException e) {
             LOGGER.error(e.getMessage());
         }
@@ -127,20 +131,20 @@ public class GraphConfig {
     /**
      * Updates the provided {@link Configuration} with options that specify the
      * view on the graph (i.e. the authorizations, a range of property values or
-     * vertices, whether we want to roll up over time and visibility, and
-     * whether we want entities only or edges only or entities and edges), and
-     * sets it to only return data that involves the given {@link Object}
-     * vertices. This allows a MapReduce job that uses the {@link Configuration}
-     * to receive data that only involves the given {@link Object}s and is
-     * subject to the same view as is on the graph.
+     * vertices, whether we want to summarise, and whether we want entities only
+     * or edges only or entities and edges), and sets it to only return data that
+     * involves the given {@link Object} vertices. This allows a MapReduce job that
+     * uses the {@link Configuration} to receive data that only involves the given
+     * {@link Object}s and is subject to the same view as is on the graph.
      *
-     * Note that this method may cause the same {@link Edge} to be returned
+     * Note that this method may cause the same edge to be returned
      * twice if both ends are in the provided set.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      * @param vertices The vertices to be queried for.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public void setConfiguration(final Configuration conf, final Collection<Object> vertices) {
+    public void setConfiguration(final Configuration conf, final Collection<Object> vertices) throws RangeFactoryException {
         // NB: Do not need to add the Entity or Edge only iterator here, as the
         // ranges that are
         // created take care of that.
@@ -149,16 +153,13 @@ public class GraphConfig {
             addAccumuloInfoToConfiguration(conf);
             addRollUpAndAuthsToConfiguration(conf);
             addViewsToConfiguration(conf);
-            Set<Range> ranges = new HashSet<Range>();
+            addKeyPackageAndSchemaToConfiguration(conf);
+            Set<Range> ranges = new HashSet<>();
 
             for (Object vertex : vertices) {
                 EntitySeed seed = new EntitySeed(vertex);
-                try {
-                    ranges.addAll(keyPackage.getRangeFactory().getRange(seed,
-                            new GetRelatedElements<EntitySeed, Element>(Collections.singletonList(seed))));
-                } catch (RangeFactoryException e) {
-                    e.printStackTrace();
-                }
+                ranges.addAll(keyPackage.getRangeFactory().getRange(seed,
+                        new GetRelatedElements<EntitySeed, Element>(Collections.singletonList(seed))));
             }
             InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
         } catch (AccumuloSecurityException | StoreException | AccumuloException e) {
@@ -170,58 +171,57 @@ public class GraphConfig {
     /**
      * Updates the provided {@link Configuration} with options that specify the
      * view on the graph (i.e. the authorizations, a range of property values or
-     * vertices, whether we want to roll up over time and visibility, and
-     * whether we want entities only or edges only or entities and edges), and
-     * sets it to only return data that is in the given range made up of a
-     * {@link Pair} of vertices. This allows a MapReduce job that uses the
-     * {@link Configuration} to only receive data that involves the given vertex
-     * range and is subject to the same view as is on the graph.
+     * vertices, whether we want to summarise, and whether we want entities only
+     * or edges only or entities and edges), and sets it to only return data that
+     * is in the given range made up of a {@link Pair} of vertices. This allows a
+     * MapReduce job that uses the {@link Configuration} to only receive data that
+     * involves the given vertex range and is subject to the same view as is on
+     * the graph.
      *
-     * Note that this method may cause the same {@link Edge} to be returned
+     * Note that this method may cause the same edge to be returned
      * twice if both ends are in the provided range.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      * @param vertexRange The range of vertices to be queried for.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public void setConfigurationFromRanges(final Configuration conf, final Pair<Object> vertexRange) {
+    public void setConfigurationFromRanges(final Configuration conf, final Pair<Object> vertexRange) throws RangeFactoryException {
         setConfigurationFromRanges(conf, Collections.singleton(vertexRange));
     }
 
     /**
      * Updates the provided {@link Configuration} with options that specify the
      * view on the graph (i.e. the authorizations, a range of property values or
-     * vertices, whether we want to roll up over time and visibility, and
-     * whether we want entities only or edges only or entities and edges), and
-     * sets it to only return data that is in the given range made up of
-     * {@link Pair}s of vertices. This allows a MapReduce job that uses the
-     * {@link Configuration} to only receive data that involves the given ranges
-     * and is subject to the same view as is on the graph.
+     * vertices, whether we want to summarise, and whether we want entities only
+     * or edges only or entities and edges), and sets it to only return data that
+     * is in the given range made up of {@link Pair}s of vertices. This allows a
+     * MapReduce job that uses the {@link Configuration} to only receive data that
+     * involves the given ranges and is subject to the same view as is on the graph.
      *
-     * Note that this method may cause the same {@link Edge} to be returned
+     * Note that this method may cause the same edge to be returned
      * twice if both ends are in the provided ranges.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      * @param vertexRanges The ranges of vertices to be queried for.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public void setConfigurationFromRanges(final Configuration conf, final Collection<Pair<Object>> vertexRanges) {
+    public void setConfigurationFromRanges(final Configuration conf, final Collection<Pair<Object>> vertexRanges) throws RangeFactoryException {
 
         try {
             addAccumuloInfoToConfiguration(conf);
             addRollUpAndAuthsToConfiguration(conf);
             addViewsToConfiguration(conf);
-            Set<Range> ranges = new HashSet<Range>();
+            addKeyPackageAndSchemaToConfiguration(conf);
+            Set<Range> ranges = new HashSet<>();
             for (Pair<Object> vertexRange : vertexRanges) {
-                Pair<EntitySeed> seedRange = new Pair<EntitySeed>(new EntitySeed(vertexRange.getFirst()),
+                Pair<EntitySeed> seedRange = new Pair<>(new EntitySeed(vertexRange.getFirst()),
                         new EntitySeed(vertexRange.getSecond()));
                 final ArrayList<Range> ran = new ArrayList<>();
-                try {
-                    ran.addAll(keyPackage.getRangeFactory().getRange(seedRange.getFirst(),
-                            new GetElementsInRanges<Pair<EntitySeed>, Element>(Collections.singletonList(seedRange))));
-                    ran.addAll(keyPackage.getRangeFactory().getRange(seedRange.getSecond(),
-                            new GetElementsInRanges<Pair<EntitySeed>, Element>(Collections.singletonList(seedRange))));
-                } catch (RangeFactoryException e) {
-                    e.printStackTrace();
-                }
+
+                ran.addAll(keyPackage.getRangeFactory().getRange(seedRange.getFirst(),
+                        new GetElementsInRanges<Pair<EntitySeed>, Element>(Collections.singletonList(seedRange))));
+                ran.addAll(keyPackage.getRangeFactory().getRange(seedRange.getSecond(),
+                        new GetElementsInRanges<Pair<EntitySeed>, Element>(Collections.singletonList(seedRange))));
 
                 Range min = null;
                 Range max = null;
@@ -248,32 +248,33 @@ public class GraphConfig {
     /**
      * Updates the provided {@link Configuration} with options that specify the
      * view on the graph (i.e. the authorizations, a range of property values or
-     * vertices, whether we want to roll up over time and visibility), and sets
-     * it to only return edges that involve the given pair of {@link Object}
-     * vertices. This allows a MapReduce job that uses the {@link Configuration}
-     * to only receive edges that involves the given pair of vertices and is
-     * subject to the same view as is on the graph.
+     * vertices, whether we want to summarise, and sets it to only return edges
+     * that involve the given pair of {@link Object} vertices. This allows a MapReduce
+     * job that uses the {@link Configuration} to only receive edges that involves the
+     * given pair of vertices and is subject to the same view as is on the graph.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      * @param vertexPair The pair of vertices to be queried for.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public void setConfigurationFromPairs(final Configuration conf, final Pair<Object> vertexPair) {
+    public void setConfigurationFromPairs(final Configuration conf, final Pair<Object> vertexPair) throws RangeFactoryException {
         setConfigurationFromPairs(conf, Collections.singleton(vertexPair));
     }
 
     /**
      * Updates the provided {@link Configuration} with options that specify the
      * view on the graph (i.e. the authorizations, a range of property values or
-     * vertices, whether we want to roll up over time and visibility), and sets
-     * it to only return edges that involve the given pairs of {@link Object}
-     * vertices. This allows a MapReduce job that uses the {@link Configuration}
-     * to only receive edges that involves the given pairs of vertices and is
-     * subject to the same view as is on the graph.
+     * vertices, whether we want to summarise, and sets it to only return edges
+     * that involve the given pairs of {@link Object} vertices. This allows a
+     * MapReduce job that uses the {@link Configuration} to only receive edges
+     * that involves the given pairs of vertices and is subject to the same view
+     * as is on the graph.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      * @param vertexPairs The pairs of vertices to be queried for.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public void setConfigurationFromPairs(final Configuration conf, final Collection<Pair<Object>> vertexPairs) {
+    public void setConfigurationFromPairs(final Configuration conf, final Collection<Pair<Object>> vertexPairs) throws RangeFactoryException {
         // NB: Do not need to add the Entity or Edge only iterator here, as the
         // ranges that are
         // created take care of that.
@@ -281,24 +282,23 @@ public class GraphConfig {
             addAccumuloInfoToConfiguration(conf);
             addRollUpAndAuthsToConfiguration(conf);
             addViewsToConfiguration(conf);
-            Set<Range> ranges = new HashSet<Range>();
+            addKeyPackageAndSchemaToConfiguration(conf);
+            Set<Range> ranges = new HashSet<>();
             for (Pair<Object> vertexPair : vertexPairs) {
                 EdgeSeed seed1 = new EdgeSeed(vertexPair.getFirst(), vertexPair.getSecond(), true);
                 EdgeSeed seed2 = new EdgeSeed(vertexPair.getSecond(), vertexPair.getFirst(), true);
-                try {
-                    ranges.addAll(
-                            keyPackage.getRangeFactory().getRange(seed1,
-                                    new GetEdgesBetweenSets(
-                                            Collections.singletonList(new EntitySeed(vertexPair.getFirst())),
-                                            Collections.singletonList(new EntitySeed(vertexPair.getSecond())))));
-                    ranges.addAll(
-                            keyPackage.getRangeFactory().getRange(seed2,
-                                    new GetEdgesBetweenSets(
-                                            Collections.singletonList(new EntitySeed(vertexPair.getFirst())),
-                                            Collections.singletonList(new EntitySeed(vertexPair.getSecond())))));
-                } catch (RangeFactoryException e) {
-                    e.printStackTrace();
-                }
+
+                ranges.addAll(
+                        keyPackage.getRangeFactory().getRange(seed1,
+                                new GetEdgesBetweenSets(
+                                        Collections.singletonList(new EntitySeed(vertexPair.getFirst())),
+                                        Collections.singletonList(new EntitySeed(vertexPair.getSecond())))));
+                ranges.addAll(
+                        keyPackage.getRangeFactory().getRange(seed2,
+                                new GetEdgesBetweenSets(
+                                        Collections.singletonList(new EntitySeed(vertexPair.getFirst())),
+                                        Collections.singletonList(new EntitySeed(vertexPair.getSecond())))));
+
             }
             InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
         } catch (AccumuloSecurityException | StoreException | AccumuloException e) {
@@ -309,8 +309,6 @@ public class GraphConfig {
     /**
      * Sets the Accumulo information on the provided {@link Configuration}, i.e.
      * the table name, the connector, the authorizations, and the Zookeepers.
-     * Note that if no zookeepers are provided then it is assumed that a
-     * {@link MockInstance} is being used.
      *
      * @param conf The {@link Configuration} for a MapReduce job.
      * @throws AccumuloSecurityException If there is a failure to connect to accumulo.
@@ -330,7 +328,22 @@ public class GraphConfig {
         // Zookeeper
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class, conf,
                 new ClientConfiguration().withInstance(store.getProperties().getInstanceName())
-                        .withZkHosts(store.getProperties().getZookeepers()));
+                .withZkHosts(store.getProperties().getZookeepers()));
+    }
+
+    /**
+     * Sets the key package class and the schema on the {@link Configuration} so that the
+     * store's relevant element converter can be initialised and used by the input format.
+     *
+     * @param conf The {@link Configuration} for a MapReduce job.
+     */
+    protected void addKeyPackageAndSchemaToConfiguration(final Configuration conf) {
+        conf.set(ElementInputFormat.KEY_PACKAGE, store.getProperties().getKeyPackageClass());
+        try {
+            conf.set(ElementInputFormat.SCHEMA, new String(store.getSchema().toJson(true), CommonConstants.UTF_8));
+        } catch (UnsupportedEncodingException | SchemaException e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     /**
@@ -342,7 +355,7 @@ public class GraphConfig {
     protected void addViewsToConfiguration(final Configuration conf) {
 
         View.Builder builder = new View.Builder();
-        ArrayList<View> views = new ArrayList<View>();
+        ArrayList<View> views = new ArrayList<>();
         if (returnEntities) {
             builder.entities(entityGroups);
             if (viewDef != null) {
@@ -389,7 +402,7 @@ public class GraphConfig {
      * @param conf The {@link Configuration} for a MapReduce job.
      */
     protected void addRollUpAndAuthsToConfiguration(final Configuration conf) {
-        if (rollUpOverTimeAndVisibility) {
+        if (summarise) {
             try {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf,
                         keyPackage.getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
@@ -401,18 +414,16 @@ public class GraphConfig {
 
     /**
      * Allows the user to specify whether they want the results of queries to be
-     * rolled up over time and visibility, e.g. get an edge between A and B for
-     * all of the time period of the graph, rather than one edge per day (if
-     * graph elements were created with start and end dates differing by a day).
+     * rolled up as a summary.
      *
      * @param rollUp Specifies rollUp.
      */
-    public void rollUpOverTimeAndVisibility(final boolean rollUp) {
-        this.rollUpOverTimeAndVisibility = rollUp;
+    public void summarise(final boolean rollUp) {
+        this.summarise = rollUp;
     }
 
     /**
-     * Allows the user to specify that they only want {@link Entity}s to be
+     * Allows the user to specify that they only want entities to be
      * returned by queries. This overrides any previous calls to
      * {@link #setReturnEdgesOnly} or {@link #setReturnEntitiesAndEdges}.
      */
@@ -422,7 +433,7 @@ public class GraphConfig {
     }
 
     /**
-     * Allows the user to specify that they only want {@link Edge}s to be
+     * Allows the user to specify that they only want edges to be
      * returned by queries. This overrides any previous calls to
      * {@link #setReturnEntitiesOnly} or {@link #setReturnEntitiesAndEdges}.
      */
@@ -432,8 +443,8 @@ public class GraphConfig {
     }
 
     /**
-     * Allows the user to specify that they want both {@link Entity}s and
-     * {@link Edge}s to be returned by queries. This overrides any previous
+     * Allows the user to specify that they want both entities and
+     * edges to be returned by queries. This overrides any previous
      * calls to {@link #setReturnEntitiesOnly} or {@link #setReturnEdgesOnly}.
      */
     public void setReturnEntitiesAndEdges() {
@@ -490,7 +501,7 @@ public class GraphConfig {
     }
 
     /**
-     * Sets the {@link Entity} and {@link Edge} groups to only contain groups
+     * Sets the entity and edge groups to only contain groups
      * that are in the given {@link Set}.
      *
      * @param groups

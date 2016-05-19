@@ -16,19 +16,15 @@
 
 package gaffer.spark
 
-import org.apache.accumulo.core.client.AccumuloException
-import org.apache.accumulo.core.security.Authorizations
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SQLContext}
 
 import gaffer.accumulostore.AccumuloStore
-import gaffer.data.element.{Element, Properties}
+import gaffer.data.element.{Edge, Element, Entity, Properties}
 import gaffer.accumulostore.utils.Pair
 
 import scala.collection.JavaConversions._
-import scala.collection.SortedMap
 
 /** Represents a Gaffer table in Spark. Can be queried to return [[RDD]]s of [[Element]]s and [[Properties]].
   */
@@ -179,7 +175,7 @@ class GafferTableSc (protected val store: AccumuloStore, val sc: SparkContext) {
     this
   }
   
-    /** Creates a new [[GafferTable]] which rolls up the [[Element]]s it returns over different time
+    /** Creates a new [[GafferTable]] which rolls up the [[Element]]s it returns using the summarise function.
     * windows.
     *
     * Note that this is the default behaviour for a newly created [[GafferTable]].
@@ -187,23 +183,24 @@ class GafferTableSc (protected val store: AccumuloStore, val sc: SparkContext) {
     * @return The new [[GafferTable]].
     */
   def withRollup: this.type = {
-    config.rollUpOverTimeAndVisibility(true)
+    config.summarise(true)
     this
   }
 
-  /** Creates a new [[GafferTable]] which returns distinct [[Element]]s for different time windows.
+  /** Creates a new [[GafferTable]] which returns distinct [[Element]]s without summarising.
     *
     * @return The new [[GafferTable]].
     */
   def withoutRollup: this.type = {
-    config.rollUpOverTimeAndVisibility(false)
+    config.summarise(false)
     this
   }
 
-	/** Creates a new [[GafferTable]] containing those [[Element]]s from the base table whose group
-	 *  is of the group supplied.
+
+  /** Creates a new [[GafferTable]] containing those [[Element]]s from the base table whose groups
+	 * are in the given {@link Set}.
 	 *
-	 * @param group The group to be included.
+	 * @param groups The groups to be included.
 	 * @return The new [[GafferTable]].
 	 */
   def onlyGroups(groups: Set[String]): this.type = {
@@ -211,10 +208,10 @@ class GafferTableSc (protected val store: AccumuloStore, val sc: SparkContext) {
     this
   }
 
-	/** Creates a new [[GafferTable]] containing those [[Element]]s from the base table whose groups
-	 * are in the given {@link Set}.
+  /** Creates a new [[GafferTable]] containing those [[Element]]s from the base table whose group
+	 *  is of the group supplied.
 	 *
-	 * @param groups The groups to be included.
+	 * @param group The group to be included.
 	 * @return The new [[GafferTable]].
 	 */
   def onlyGroups(group: String*): this.type =

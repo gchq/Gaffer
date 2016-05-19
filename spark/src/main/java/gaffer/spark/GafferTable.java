@@ -16,8 +16,8 @@
 
 package gaffer.spark;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +27,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
 import scala.Tuple2;
@@ -77,15 +78,16 @@ public class GafferTable {
      * Creates a {@link JavaPairRDD} by querying the table for a
      * {@link Collection} of {@link Object} vertices.
      *
-     * Note that {@link Edge}s may be returned twice if both ends are in the
+     * Note that edges may be returned twice if both ends are in the
      * {@link Collection} queried for.
      *
      * @param vertices
      *            The {@link Object} vertices to be queried for.
      * @return A {@link JavaPairRDD} of {@link Element}, {@link Properties}
      *         pairs.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public JavaPairRDD<Element, Properties> query(final Collection<Object> vertices) {
+    public JavaPairRDD<Element, Properties> query(final Collection<Object> vertices) throws RangeFactoryException {
         Configuration conf = new Configuration();
         config.setConfiguration(conf, vertices);
         return query(conf, true);
@@ -99,10 +101,10 @@ public class GafferTable {
      *            The {@link Object} to be queried for.
      * @return A {@link JavaPairRDD} of {@link Element}, {@link Properties}
      *         pairs.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public JavaPairRDD<Element, Properties> query(final Object vertex) {
-        Collection<Object> vertices = new HashSet<Object>(Arrays.asList(vertex));
-        return query(vertices);
+    public JavaPairRDD<Element, Properties> query(final Object vertex) throws RangeFactoryException {
+        return query(Collections.singleton(vertex));
     }
 
     /**
@@ -113,8 +115,9 @@ public class GafferTable {
      *            The {@link Pair}s of vertices to be queried for.
      * @return A {@link JavaPairRDD} of {@link Element}, {@link Properties}
      *         pairs.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public JavaPairRDD<Element, Properties> rangeQuery(final Collection<Pair<Object>> ranges) {
+    public JavaPairRDD<Element, Properties> rangeQuery(final Collection<Pair<Object>> ranges) throws RangeFactoryException {
         Configuration conf = new Configuration();
         config.setConfigurationFromRanges(conf, ranges);
         return query(conf, true);
@@ -128,10 +131,10 @@ public class GafferTable {
      *            The {@link Pair} of vertices to be queried for.
      * @return a {@link JavaPairRDD} of {@link Element}, {@link Properties}
      *         pairs.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public JavaPairRDD<Element, Properties> rangeQuery(final Pair<Object> range) {
-        Collection<Pair<Object>> ranges = new HashSet<Pair<Object>>(Arrays.asList(range));
-        return rangeQuery(ranges);
+    public JavaPairRDD<Element, Properties> rangeQuery(final Pair<Object> range) throws RangeFactoryException {
+        return rangeQuery(Collections.singleton(range));
     }
 
     /**
@@ -144,13 +147,14 @@ public class GafferTable {
      *            The pairs of {@link Object} vertices to be queried for.
      * @return a {@link JavaPairRDD} of {@link Element}, {@link Properties}
      *         pairs.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public JavaPairRDD<Element, Properties> pairQuery(final Collection<Tuple2<Object, Object>> pairs) {
+    public JavaPairRDD<Element, Properties> pairQuery(final Collection<Tuple2<Object, Object>> pairs) throws RangeFactoryException {
         Configuration conf = new Configuration();
 
-        Collection<Pair<Object>> coll = new HashSet<Pair<Object>>();
+        Collection<Pair<Object>> coll = new HashSet<>();
         for (Tuple2<Object, Object> t : pairs) {
-            coll.add(new Pair<Object>(t._1, t._2));
+            coll.add(new Pair<>(t._1, t._2));
         }
         config.setConfigurationFromPairs(conf, coll);
         return query(conf, true);
@@ -166,14 +170,14 @@ public class GafferTable {
      *            The pair of {@link Object} vertices to be queried for.
      * @return a {@link JavaPairRDD} of {@link Element}, {@link Properties}
      *         pairs.
+     * @throws RangeFactoryException When an error occurs creating a range.
      */
-    public JavaPairRDD<Element, Properties> pairQuery(final Tuple2<Object, Object> pair) {
-        Collection<Tuple2<Object, Object>> pairs = new HashSet<Tuple2<Object, Object>>(Arrays.asList(pair));
-        return pairQuery(pairs);
+    public JavaPairRDD<Element, Properties> pairQuery(final Tuple2<Object, Object> pair) throws RangeFactoryException {
+        return pairQuery(Collections.singleton(pair));
     }
 
     /**
-     * Creates a new {@link GafferTable} which only contains the {@link Entity}s
+     * Creates a new {@link GafferTable} which only contains the entities
      * from the base table.
      *
      * @return The new {@link GafferTable}.
@@ -185,7 +189,7 @@ public class GafferTable {
     }
 
     /**
-     * Creates a new {@link GafferTable} which only contains the {@link Edge}s
+     * Creates a new {@link GafferTable} which only contains the edges
      * from the base table.
      *
      * @return The new {@link GafferTable}.
@@ -197,8 +201,8 @@ public class GafferTable {
     }
 
     /**
-     * Creates a new {@link GafferTable} that contains both the {@link Edge}s
-     * and {@link Entity} from the base table.
+     * Creates a new {@link GafferTable} that contains both the edges
+     * and entities from the base table.
      *
      * @return The new {@link GafferTable}.
      */
@@ -266,7 +270,7 @@ public class GafferTable {
 
     /**
      * Creates a new {@link GafferTable} which rolls up the {@link Element}s it
-     * returns over different time windows.
+     * returns using the summarise function.
      *
      * Note that this is the default behaviour for a newly created
      * {@link GafferTable}.
@@ -275,19 +279,19 @@ public class GafferTable {
      */
     public GafferTable withRollup() {
         GafferTable gt = this.cloneTable();
-        gt.config.rollUpOverTimeAndVisibility(true);
+        gt.config.summarise(true);
         return gt;
     }
 
     /**
      * Creates a new {@link GafferTable} which returns distinct {@link Element}s
-     * for different time windows.
+     * without summarising.
      *
      * @return The new {@link GafferTable}.
      */
     public GafferTable withoutRollup() {
         GafferTable gt = this.cloneTable();
-        gt.config.rollUpOverTimeAndVisibility(false);
+        gt.config.summarise(false);
         return gt;
     }
 
@@ -300,7 +304,7 @@ public class GafferTable {
      * @return The new {@link GafferTable}.
      */
     public GafferTable onlyGroups(final String group) {
-        return onlyGroups(new HashSet<String>(Arrays.asList(group)));
+        return onlyGroups(Collections.singleton(group));
     }
 
     /**

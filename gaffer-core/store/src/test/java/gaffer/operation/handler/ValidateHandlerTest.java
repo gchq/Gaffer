@@ -28,8 +28,9 @@ import gaffer.operation.OperationException;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.ValidateHandler;
-import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.user.User;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
@@ -43,9 +44,10 @@ public class ValidateHandlerTest {
         final Store store = mock(Store.class);
         final Validate validate = mock(Validate.class);
         given(validate.getElements()).willReturn(null);
+        final User user = new User();
 
         // When
-        final Iterable<Element> result = handler.doOperation(validate, store);
+        final Iterable<Element> result = handler.doOperation(validate, user, store);
 
         // Then
         assertNull(result);
@@ -60,6 +62,7 @@ public class ValidateHandlerTest {
         final Element elm1 = mock(Element.class);
         final Iterable<Element> elements = Collections.singletonList(elm1);
         final Schema schema = mock(Schema.class);
+        final User user = new User();
 
         given(validate.getElements()).willReturn(elements);
         given(validate.isSkipInvalidElements()).willReturn(false);
@@ -73,7 +76,7 @@ public class ValidateHandlerTest {
         given(schema.getElement(group)).willReturn(elementDef);
 
         // When
-        final Iterable<Element> result = handler.doOperation(validate, store);
+        final Iterable<Element> result = handler.doOperation(validate, user, store);
 
         // Then
         final Iterator<Element> itr = result.iterator();

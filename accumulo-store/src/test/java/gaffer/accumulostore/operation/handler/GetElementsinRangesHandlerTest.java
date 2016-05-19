@@ -30,7 +30,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -38,6 +37,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,13 +78,14 @@ public class GetElementsinRangesHandlerTest {
     public void testNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
 
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
         int count = 0;
         for (@SuppressWarnings("unused") Element elm : elements) {
             count++;
@@ -95,7 +96,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        elements = handler.doOperation(operation, store);
+        elements = handler.doOperation(operation, user, store);
         count = 0;
         for (@SuppressWarnings("unused") Element elm : elements) {
             count++;
@@ -114,13 +115,14 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         operation.setSummarise(true);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
         int count = 0;
         for (Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -133,7 +135,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        elements = handler.doOperation(operation, store);
+        elements = handler.doOperation(operation, user, store);
         count = 0;
         for (Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -154,6 +156,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
@@ -163,7 +166,7 @@ public class GetElementsinRangesHandlerTest {
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
         int count = 0;
         for (Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -176,7 +179,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        elements = handler.doOperation(operation, store);
+        elements = handler.doOperation(operation, user, store);
         count = 0;
         for (Element elm : elements) {
             elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
@@ -197,6 +200,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -206,7 +210,7 @@ public class GetElementsinRangesHandlerTest {
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         operation.setSummarise(true);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
         int count = 0;
         for (@SuppressWarnings("unused") Element elm : elements) {
             count++;
@@ -224,6 +228,7 @@ public class GetElementsinRangesHandlerTest {
     public void testShouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
         Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
@@ -233,7 +238,7 @@ public class GetElementsinRangesHandlerTest {
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         operation.setSummarise(true);
         GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        Iterable<Element> elements = handler.doOperation(operation, store);
+        Iterable<Element> elements = handler.doOperation(operation, user, store);
         int count = 0;
         for (@SuppressWarnings("unused") Element elm : elements) {
             count++;
@@ -244,6 +249,8 @@ public class GetElementsinRangesHandlerTest {
     }
 
     private static void setupGraph(final AccumuloStore store, int numEntries) {
+        final User user = new User();
+
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             Edge edge = new Edge(TestGroups.EDGE);
@@ -273,7 +280,7 @@ public class GetElementsinRangesHandlerTest {
         }
 
         try {
-            store.execute(new AddElements(elements));
+            store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

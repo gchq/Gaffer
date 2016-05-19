@@ -43,7 +43,7 @@ public class GafferRegistrator implements KryoRegistrator {
     }
 }
 
-class KryoWritableSerializer<T> extends Serializer<Element> {
+class KryoWritableSerializer<T extends Element> extends Serializer<Element> {
 
     @Override
     public void write(final Kryo kryo, final Output output, final Element object) {

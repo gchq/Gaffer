@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.Files;
 
 import gaffer.accumulostore.AccumuloProperties;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -53,264 +52,271 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
-import gaffer.example.data.Certificate;
-import gaffer.spark.data.SampleData;
-import gaffer.spark.generator.DataGenerator;
+import gaffer.example.films.data.Certificate;
+import gaffer.example.films.data.SampleData;
+import gaffer.example.films.generator.DataGenerator;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import scala.Tuple2;
 
 /**
  *
  */
 public class GafferTableData {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(GafferTableData.class);
 
-	protected Store store;
-	protected MiniAccumuloCluster mock;
-	protected InputStream propFile;
-	protected AccumuloProperties prop;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferTableData.class);
 
-	protected Set<Tuple2<Element, Properties>> entityExpectedUnrolledOutput = new HashSet<Tuple2<Element, Properties>>();
-	protected Set<Tuple2<Element, Properties>> entityExpectedOutput = new HashSet<Tuple2<Element, Properties>>();
-	protected Set<Tuple2<Element, Properties>> edgeExpectedUnrolledOutput = new HashSet<Tuple2<Element, Properties>>();
-	protected Set<Tuple2<Element, Properties>> edgeExpectedOutput = new HashSet<Tuple2<Element, Properties>>();
-	protected Set<Tuple2<Element, Properties>> expectedUnrolledOutput = new HashSet<Tuple2<Element, Properties>>();
-	protected Set<Tuple2<Element, Properties>> expectedOutput = new HashSet<Tuple2<Element, Properties>>();
+    protected Store store;
+    protected MiniAccumuloCluster mini;
+    protected InputStream propFile;
+    protected AccumuloProperties prop;
 
-	private static final String AUTH = Certificate.U.name() + ","
-			+ Certificate.PG.name() + ","
-			+ Certificate._12A.name() + ","
-			+ Certificate._15.name() + ","
-			+ Certificate._18.name();
+    protected Set<Tuple2<Element, Properties>> entityExpectedUnrolledOutput = new HashSet<>();
+    protected Set<Tuple2<Element, Properties>> entityExpectedOutput = new HashSet<>();
+    protected Set<Tuple2<Element, Properties>> edgeExpectedUnrolledOutput = new HashSet<>();
+    protected Set<Tuple2<Element, Properties>> edgeExpectedOutput = new HashSet<>();
+    protected Set<Tuple2<Element, Properties>> expectedUnrolledOutput = new HashSet<>();
+    protected Set<Tuple2<Element, Properties>> expectedOutput = new HashSet<>();
 
-	public GafferTableData() {
-		run();
-	}
+    /**
+     * The user for the user doing the query.
+     * Here we are setting the authorisation to include all certificates so the user will be able to see all the data.
+     */
+    private static final User USER = new User.Builder()
+            .userId("user02")
+            .dataAuth(Certificate.U.name())
+            .dataAuth(Certificate.PG.name())
+            .dataAuth(Certificate._12A.name())
+            .dataAuth(Certificate._15.name())
+            .dataAuth(Certificate._18.name())
+            .build();
 
-	public Store getStore() {
-		return store;
-	}
-	/**
-	 * Method to open store.properties file and use to create Gaffer User and Table in Accumulo
-	 * ready to allow AccumuloStore object to be used to store Gaffer data in Accumulo instance.
-	 * 
-	 * @return Boolean indicating whether Gaffer User and Table have been created succesfully
-	 */
-	private Boolean createGafferUserAndTable() {
+    public GafferTableData() {
+        run();
+    }
 
-		String instance = "gaffer";
-		String zkServers = "localhost:2181";
-		String localUser = "user01";
-		String tableName = "table1";
-		AuthenticationToken authLocalToken = new PasswordToken("password");
+    public Store getStore() {
+        return store;
+    }
+    /**
+     * Method to open store.properties file and use to create Gaffer User and Table in Accumulo
+     * ready to allow AccumuloStore object to be used to store Gaffer data in Accumulo instance.
+     * 
+     * @return Boolean indicating whether Gaffer User and Table have been created succesfully
+     */
+    private Boolean createGafferUserAndTable() {
 
-		String principal = "root";
-		AuthenticationToken authToken = new PasswordToken("password");
+        String instance = "gaffer";
+        String zkServers = "localhost:2181";
+        String localUser = "user01";
+        String tableName = "table1";
+        AuthenticationToken authLocalToken = new PasswordToken("password");
 
-		try {
-			propFile = StreamUtil.storeProps(this.getClass(), true);
+        String principal = "root";
+        AuthenticationToken authToken = new PasswordToken("password");
 
-			if(propFile != null) {
-				prop = AccumuloProperties.loadStoreProperties(propFile);
-				if(prop.get("gaffer.store.class").equals("gaffer.accumulostore.MockAccumuloStore")) {
-					File tempDir = Files.createTempDir();
-					tempDir.deleteOnExit();
-					mock = new MiniAccumuloCluster(tempDir, "password");
-					mock.start();
-					prop.set("accumulo.instance", mock.getInstanceName());
-					prop.set("accumulo.zookeepers", mock.getZooKeepers());
-					prop.set("accumulo.password", "password");
-					prop.set("gaffer.store.class","gaffer.accumulostore.AccumuloStore");
-				}
+        try {
+            propFile = StreamUtil.openStream(getClass(), "/properties/accumulostore.properties", true);
 
-				instance = prop.get("accumulo.instance");
-				zkServers = prop.get("accumulo.zookeepers");
-				localUser = prop.get("accumulo.user");
-				tableName = prop.get("accumulo.table");
-				authLocalToken = new PasswordToken(prop.get("accumulo.password"));
-			}
-		} catch (IOException ioe) {
-			LOGGER.error("Exception opening properties file " + ioe.getMessage());
-			return false;
-		} catch (InterruptedException e) {
-			LOGGER.error("Exception running MiniAccumuloCluster " + e.getMessage());
-		}
-		
-		// Creates Zookeeper instance to allow connections into Accumulo
-		ZooKeeperInstance inst = new ZooKeeperInstance(instance, zkServers);
+            if(propFile != null) {
+                prop = AccumuloProperties.loadStoreProperties(propFile);
 
-		try {
-			// Create Connection to Accumulo as principal user.
-			Connector conn = inst.getConnector(principal, authToken);
+                File tempDir = Files.createTempDir();
+                tempDir.deleteOnExit();
+                mini = new MiniAccumuloCluster(tempDir, "password");
+                mini.start();
+                
+                instance = mini.getInstanceName();
+                zkServers = mini.getZooKeepers();
+                prop.set("accumulo.instance", instance);
+                prop.set("accumulo.zookeepers", zkServers);
 
-			// Retrieve Set of current Accumulo users and if localUser exists skip creation.
-			Set<String> users = conn.securityOperations().listLocalUsers();
+                localUser = prop.get("accumulo.user");
+                tableName = prop.get("accumulo.table");
+                authLocalToken = new PasswordToken(prop.get("accumulo.password"));
+            }
+        } catch (IOException ioe) {
+            LOGGER.error("Exception opening properties file " + ioe.getMessage());
+            return false;
+        } catch (InterruptedException e) {
+            LOGGER.error("Exception running MiniAccumuloCluster " + e.getMessage());
+        }
 
-			if(!users.contains(localUser)) {
-				conn.securityOperations().createLocalUser(localUser,(PasswordToken) authLocalToken);
-			}
+        // Creates Zookeeper instance to allow connections into Accumulo
+        ZooKeeperInstance inst = new ZooKeeperInstance(instance, zkServers);
 
-			// Grant localUser permissions to create tables in Accumulo.
-			conn.securityOperations().grantSystemPermission(localUser,SystemPermission.CREATE_TABLE);
+        try {
+            // Create Connection to Accumulo as principal user.
+            Connector conn = inst.getConnector(principal, authToken);
 
-			// Create Connection to Accumulo as localUser and Create Gaffer table if it doesn't exist.
-			Connector localconn = inst.getConnector(localUser,authLocalToken);
-			if (!localconn.tableOperations().exists(tableName)) {
-				localconn.tableOperations().create(tableName);
-			}
+            // Retrieve Set of current Accumulo users and if localUser exists skip creation.
+            Set<String> users = conn.securityOperations().listLocalUsers();
 
-			// Create Array of authorisations to assign to Accumulo User
-			String[] auths = {Certificate.U.name(),
-					Certificate.PG.name(),
-					Certificate._12A.name(),
-					Certificate._15.name(),
-					Certificate._18.name()};
-			Authorizations listauth = new Authorizations(auths);
-			conn.securityOperations().changeUserAuthorizations(localUser, listauth);
+            if(!users.contains(localUser)) {
+                conn.securityOperations().createLocalUser(localUser,(PasswordToken) authLocalToken);
+            }
 
-			return true;
+            // Grant localUser permissions to create tables in Accumulo.
+            conn.securityOperations().grantSystemPermission(localUser,SystemPermission.CREATE_TABLE);
 
-		} catch (TableExistsException e) {
-			LOGGER.error("Accumulo Table already exists " + e.getMessage());
-			return true;
-		} catch (AccumuloException e) {
-			LOGGER.error("Exception writing to Accumulo " + e.getMessage());
-			return true;
-		} catch (AccumuloSecurityException e) {
-			LOGGER.error("Security Exception writing to Accumulo " + e.getMessage());
-			return true;
-		}
-	}
+            // Create Connection to Accumulo as localUser and Create Gaffer table if it doesn't exist.
+            Connector localconn = inst.getConnector(localUser,authLocalToken);
+            if (!localconn.tableOperations().exists(tableName)) {
+                localconn.tableOperations().create(tableName);
+            }
 
-	public void run() {
-		if(createGafferUserAndTable()) {
-			Schema schema = Schema.fromJson(
-					StreamUtil.dataSchema(getClass()),
-					StreamUtil.dataTypes(getClass()),
-					StreamUtil.storeSchema(getClass()),
-					StreamUtil.storeTypes(getClass()));
+            // Create Array of authorisations to assign to Accumulo User
+            String[] auths = {Certificate.U.name(),
+                    Certificate.PG.name(),
+                    Certificate._12A.name(),
+                    Certificate._15.name(),
+                    Certificate._18.name()};
+            Authorizations listauth = new Authorizations(auths);
+            conn.securityOperations().changeUserAuthorizations(localUser, listauth);
 
-			final String storeClass = prop.getStoreClass();
-			if (null == storeClass) {
-				throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_PROPERTIES_CLASS);
-			}
+            return true;
 
-			try {
-				store = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				throw new IllegalArgumentException("Could not create store of type: " + storeClass);
-			}
+        } catch (TableExistsException e) {
+            LOGGER.error("Accumulo Table already exists " + e.getMessage());
+            return true;
+        } catch (AccumuloException e) {
+            LOGGER.error("Exception writing to Accumulo " + e.getMessage());
+            return true;
+        } catch (AccumuloSecurityException e) {
+            LOGGER.error("Security Exception writing to Accumulo " + e.getMessage());
+            return true;
+        }
+    }
 
-			try {
-				store.initialise(schema, prop);
-			} catch (StoreException e) {
-				throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-			}
+    public void run() {
+        if(createGafferUserAndTable()) {
+            Schema schema = Schema.fromJson(
+                    StreamUtil.dataSchema(getClass()),
+                    StreamUtil.dataTypes(getClass()),
+                    StreamUtil.storeSchema(getClass()),
+                    StreamUtil.storeTypes(getClass()));
 
-			// Setup graph
-			final Graph graph = new Graph.Builder()
-					.storeProperties(prop)
-					.addSchema(StreamUtil.dataSchema(this.getClass(), true))
-					.addSchema(StreamUtil.dataTypes(this.getClass(), true))
-					.addSchema(StreamUtil.storeTypes(this.getClass(), true))
-					.build();
+            final String storeClass = prop.getStoreClass();
+            if (null == storeClass) {
+                throw new IllegalArgumentException(
+                        "The Store class name was not found in the store properties for key: " + StoreProperties.STORE_PROPERTIES_CLASS);
+            }
 
-			// Populate the graph with some example data
-			// Create an operation chain. The output from the first operation is passed in as the input the second operation.
-			// So the chain operation will generate elements from the domain objects then add these elements to the graph.
-			final OperationChain<Void> populateChain = new OperationChain.Builder()
-					.first(new GenerateElements.Builder<>()
-							.objects(new SampleData().generate())
-							.generator(new DataGenerator())
-							.build())
-					.then(new AddElements.Builder()
-							.build())
-					.build();
+            try {
+                store = Class.forName(storeClass).asSubclass(Store.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Could not create store of type: " + storeClass);
+            }
+
+            try {
+                store.initialise(schema, prop);
+            } catch (StoreException e) {
+                throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
+            }
+
+            // Setup graph
+            final Graph graph = new Graph.Builder()
+                    .storeProperties(prop)
+                    .addSchema(StreamUtil.openStream(getClass(), "/schema/dataSchema.json", true))
+                    .addSchema(StreamUtil.openStream(getClass(), "/schema/dataTypes.json", true))
+                    .addSchema(StreamUtil.openStream(getClass(), "/schema/storeTypes.json", true))
+                    .build();
+
+            // Populate the graph with some example data
+            // Create an operation chain. The output from the first operation is passed in as the input the second operation.
+            // So the chain operation will generate elements from the domain objects then add these elements to the graph.
+            final OperationChain<Void> populateChain = new OperationChain.Builder()
+                    .first(new GenerateElements.Builder<>()
+                            .objects(new SampleData().generate())
+                            .generator(new DataGenerator())
+                            .build())
+                    .then(new AddElements.Builder()
+                            .build())
+                    .build();
 
 
-			// Execute the operation chain on the graph
-			try {
-				graph.execute(populateChain);
+            // Execute the operation chain on the graph
+            try {
+                graph.execute(populateChain, USER);
 
-				GetEntitiesBySeed.Builder getEntities = new GetEntitiesBySeed.Builder()
-						.view(new View.Builder()
-								.entities(store.getSchema().getEntityGroups())
-								.build())
-						.addSeed(new EntitySeed("filmA"))
-						.addSeed(new EntitySeed("filmB"))
-						.addSeed(new EntitySeed("filmC"))
-						.addSeed(new EntitySeed("user01"))
-						.addSeed(new EntitySeed("user02"))
-						.addSeed(new EntitySeed("user03"))
-						.option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH);
+                GetEntitiesBySeed.Builder getEntities = new GetEntitiesBySeed.Builder()
+                        .view(new View.Builder()
+                                .entities(store.getSchema().getEntityGroups())
+                                .build())
+                        .addSeed(new EntitySeed("filmA"))
+                        .addSeed(new EntitySeed("filmB"))
+                        .addSeed(new EntitySeed("filmC"))
+                        .addSeed(new EntitySeed("user01"))
+                        .addSeed(new EntitySeed("user02"))
+                        .addSeed(new EntitySeed("user03"));
+                //.option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH);
 
-				final OperationChain<Iterable<Entity>> entityUnrolledChain = new OperationChain.Builder()
-						.first(getEntities.build())
-						.build();
+                final OperationChain<Iterable<Entity>> entityUnrolledChain = new OperationChain.Builder()
+                        .first(getEntities.build())
+                        .build();
 
-				for(Entity e: graph.execute(entityUnrolledChain)) {
-					entityExpectedUnrolledOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
-				}
+                for(Entity e: graph.execute(entityUnrolledChain, USER)) {
+                    entityExpectedUnrolledOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
+                }
 
-				final OperationChain<Iterable<Entity>> entityChain = new OperationChain.Builder()
-						.first(getEntities
-								.summarise(true)
-								.build())
-						.build();
+                final OperationChain<Iterable<Entity>> entityChain = new OperationChain.Builder()
+                        .first(getEntities
+                                .summarise(true)
+                                .build())
+                        .build();
 
-				for(Entity e: graph.execute(entityChain)) {
-					entityExpectedOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
-				}
+                for(Entity e: graph.execute(entityChain, USER)) {
+                    entityExpectedOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
+                }
 
-				GetRelatedEdges.Builder getEdges = new GetRelatedEdges.Builder()
-						.view(new View.Builder()
-								.edges(store.getSchema().getEdgeGroups())
-								.build())
-						.addSeed(new EntitySeed("filmA"))
-						.addSeed(new EntitySeed("filmB"))
-						.addSeed(new EntitySeed("filmC"))
-						.option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH);
+                GetRelatedEdges.Builder getEdges = new GetRelatedEdges.Builder()
+                        .view(new View.Builder()
+                                .edges(store.getSchema().getEdgeGroups())
+                                .build())
+                        .addSeed(new EntitySeed("filmA"))
+                        .addSeed(new EntitySeed("filmB"))
+                        .addSeed(new EntitySeed("filmC"));
+                //.option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH);
 
-				final OperationChain<Iterable<Edge>> edgeUnrolledChain = new OperationChain.Builder()
-						.first(getEdges.build())
-						.build();
+                final OperationChain<Iterable<Edge>> edgeUnrolledChain = new OperationChain.Builder()
+                        .first(getEdges.build())
+                        .build();
 
-				for(Edge e: graph.execute(edgeUnrolledChain)) {
-					edgeExpectedUnrolledOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
-				}
+                for(Edge e: graph.execute(edgeUnrolledChain, USER)) {
+                    edgeExpectedUnrolledOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
+                }
 
-				final OperationChain<Iterable<Edge>> edgeChain = new OperationChain.Builder()
-						.first(getEdges
-								.summarise(true)
-								.build())
-						.build();
+                final OperationChain<Iterable<Edge>> edgeChain = new OperationChain.Builder()
+                        .first(getEdges
+                                .summarise(true)
+                                .build())
+                        .build();
 
-				for(Edge e: graph.execute(edgeChain)) {
-					edgeExpectedOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
-				}
-			} catch (OperationException e) {
-				LOGGER.error(e.getMessage());
-			}
-			expectedUnrolledOutput.addAll(entityExpectedUnrolledOutput);
-			expectedUnrolledOutput.addAll(edgeExpectedUnrolledOutput);
-			expectedOutput.addAll(entityExpectedOutput);
-			expectedOutput.addAll(edgeExpectedOutput);
-		}
+                for(Edge e: graph.execute(edgeChain, USER)) {
+                    edgeExpectedOutput.add(new Tuple2<Element, Properties>(e, e.getProperties()));
+                }
+            } catch (OperationException e) {
+                LOGGER.error(e.getMessage());
+            }
+            expectedUnrolledOutput.addAll(entityExpectedUnrolledOutput);
+            expectedUnrolledOutput.addAll(edgeExpectedUnrolledOutput);
+            expectedOutput.addAll(entityExpectedOutput);
+            expectedOutput.addAll(edgeExpectedOutput);
+        }
 
-	}
+    }
 
-	public void stopCluster() {
-		if(mock != null)
-			try {
-				mock.stop();
-			} catch (IOException e) {
-				LOGGER.error(e.getMessage());
-			} catch (InterruptedException e) {
-				LOGGER.error(e.getMessage());
-			}
-	}
+    public void stopCluster() {
+        if(mini != null)
+            try {
+                mini.stop();
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage());
+            }
+    }
 }

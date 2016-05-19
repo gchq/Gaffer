@@ -132,9 +132,9 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.HyperLogLogPlusAggregator\"\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.HyperLogLogPlusAggregator\"%n" +
+                "}"), json);
 
         // When 2
         final HyperLogLogPlusAggregator deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), HyperLogLogPlusAggregator.class);

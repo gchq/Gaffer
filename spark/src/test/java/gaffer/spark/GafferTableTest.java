@@ -22,6 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.AfterClass;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -56,7 +57,9 @@ public class GafferTableTest {
 		Logger.getLogger("org").setLevel(Level.ERROR);
 		Logger.getLogger("akka").setLevel(Level.ERROR);
 		data = new GafferTableData();
-		sc = new JavaSparkContext(new SparkConf().setAppName("gafferjavatest").setMaster("local").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer").set("spark.kryo.registrator", "gaffer.spark.GafferRegistrator")); 	
+		sc = new JavaSparkContext(new SparkConf().setAppName("gafferjavatest").setMaster("local")
+		        .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+		        .set("spark.kryo.registrator", "gaffer.spark.GafferRegistrator")); 	
 		table = new GafferTable((AccumuloStore) data.getStore(), sc);
 	}
 
@@ -69,54 +72,51 @@ public class GafferTableTest {
 
 	@Test
 	public void returnEntireTable() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.query().collect());
 		assertEquals(set, data.expectedOutput);
 	}
 	@Test
 	public void onlyEntities() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.onlyEntities().query().collect());
-
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.onlyEntities().query().collect());
 		assertEquals(set, data.entityExpectedOutput);
 	}
 
 	@Test
 	public void onlyEdges() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.onlyEdges().query().collect());
-
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.onlyEdges().query().collect());
 		assertEquals(set, data.edgeExpectedOutput);
 	}
 
 	@Test
 	public void entitiesAndEdges() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.entitiesAndEdges().query().collect());
-
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.entitiesAndEdges().query().collect());
 		assertEquals(set, data.expectedOutput);
 	}
 	
 	@Test
 	public void defaultRollup() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.query().collect());
-		Set<Tuple2<Element, Properties>> set2 = new HashSet<Tuple2<Element, Properties>>(table.withRollup().query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.query().collect());
+		Set<Tuple2<Element, Properties>> set2 = new HashSet<>(table.withRollup().query().collect());
 		assertEquals(set, set2);
 	}
 
 	@Test
 	public void withoutRollup() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.withoutRollup().query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.withoutRollup().query().collect());
 		assertEquals(set, data.expectedUnrolledOutput);
 	}
 
 	@Test
 	public void revertToRollup() {
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.withoutRollup().withRollup().query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.withoutRollup().withRollup().query().collect());
 		assertEquals(set, data.expectedOutput);
 	}
 
 	
 	@Test
-	public void elementWithVertex() {
+	public void elementWithVertex() throws RangeFactoryException {
 		Object vertex1 = "filmA";
-		Set<Tuple2<Element, Properties>> vertexResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> vertexResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(t._1 instanceof Entity) {
 				Entity e  = (Entity) t._1;
@@ -129,7 +129,7 @@ public class GafferTableTest {
 					vertexResults.add(t);		
 			}
 		}
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.query(vertex1).collect());    
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.query(vertex1).collect());    
 		assertEquals(set, vertexResults);
 		
 		Object vertex2 = "filmB";
@@ -146,7 +146,7 @@ public class GafferTableTest {
 			}
 		}
 		Set<Tuple2<Element, Properties>> set2 = 
-				new HashSet<Tuple2<Element, Properties>>(table.query(new HashSet<Object>(Arrays.asList(vertex1, vertex2))).collect());    
+				new HashSet<>(table.query(new HashSet<Object>(Arrays.asList(vertex1, vertex2))).collect());    
 		assertEquals(set2, vertexResults);
 	}
 	
@@ -171,28 +171,28 @@ public class GafferTableTest {
 	}
 
 	@Test
-	public void elementsWithinRange() {
+	public void elementsWithinRange() throws RangeFactoryException {
 		String vertex1 = "user01";
 		String vertex2 = "user02";
 		
-		Set<Tuple2<Element, Properties>> rangeResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> rangeResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(inRange(vertex1, vertex2, t._1))
 				rangeResults.add(t);
 		}
 
 		Set<Tuple2<Element, Properties>> set = 
-				new HashSet<Tuple2<Element, Properties>>(table.rangeQuery(new Pair<Object>(vertex1, vertex2)).collect());
+				new HashSet<>(table.rangeQuery(new Pair<Object>(vertex1, vertex2)).collect());
 
 		assertEquals(set, rangeResults);
 	}
 	
 	@Test
-	public void edgesForPair() {
+	public void edgesForPair() throws RangeFactoryException {
 		Object value1 = "filmC";
 		Object value2 = "user02";
 
-		Set<Tuple2<Element, Properties>> pairResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> pairResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(t._1 instanceof Edge) {
 				Edge edge = (Edge) t._1;
@@ -201,8 +201,8 @@ public class GafferTableTest {
 					pairResults.add(t);
 			}
 		}
-		Tuple2<Object, Object> pair = new Tuple2<Object, Object>(value1, value2);
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.pairQuery(pair).collect());
+		Tuple2<Object, Object> pair = new Tuple2<>(value1, value2);
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.pairQuery(pair).collect());
 
 		assertEquals(set, pairResults);
 		
@@ -216,23 +216,23 @@ public class GafferTableTest {
 					pairResults.add(t);
 			}
 		}
-		Tuple2<Object, Object> pair2 = new Tuple2<Object, Object>(value3, value4);
+		Tuple2<Object, Object> pair2 = new Tuple2<>(value3, value4);
 		
 		Set<Tuple2<Element, Properties>> set2 = 
-				new HashSet<Tuple2<Element, Properties>>(table.pairQuery(new HashSet<Tuple2<Object, Object>>(Arrays.asList(pair, pair2))).collect());
+				new HashSet<>(table.pairQuery(new HashSet<Tuple2<Object, Object>>(Arrays.asList(pair, pair2))).collect());
 		assertEquals(set2, pairResults);
 	}
 	
 	@Test
 	public void elementsOfGroup() {
 		String group1 = "user";
-		Set<Tuple2<Element, Properties>> groupResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> groupResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(t._1.getGroup().equals(group1)){
 				groupResults.add(t);
 			}
 		}
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.onlyGroups(group1).query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.onlyGroups(group1).query().collect());
 		assertEquals(set, groupResults);
 		
 		String group2 = "review";
@@ -242,7 +242,7 @@ public class GafferTableTest {
 			}
 		}
 		Set<Tuple2<Element, Properties>> set2 = 
-				new HashSet<Tuple2<Element, Properties>>(table.onlyGroups(new HashSet<String>(Arrays.asList(group1, group2))).query().collect());
+				new HashSet<>(table.onlyGroups(new HashSet<String>(Arrays.asList(group1, group2))).query().collect());
 		assertEquals(set2, groupResults);
 	}
 	
@@ -252,7 +252,7 @@ public class GafferTableTest {
 		long rangeStart = 1401000000000L;
 		long rangeEnd = 1408000000000L;
 
-		Set<Tuple2<Element, Properties>> inRangeResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> inRangeResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(t._2.containsKey(prop)) {
 				long startTime = (long) t._2.get(prop);
@@ -260,7 +260,7 @@ public class GafferTableTest {
 					inRangeResults.add(t);
 			}
 		}	
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.between(prop, rangeStart, rangeEnd).query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.between(prop, rangeStart, rangeEnd).query().collect());
 		assertEquals(set, inRangeResults);
 	}
 
@@ -268,7 +268,7 @@ public class GafferTableTest {
 	public void elementsAfterDate() {
 		String prop = "startTime";
 		long start = 1402000000000L;
-		Set<Tuple2<Element, Properties>> afterDateResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> afterDateResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(t._2.containsKey(prop)) {
 				long startTime = (long) t._2.get(prop);
@@ -277,7 +277,7 @@ public class GafferTableTest {
 			}
 		}
 		
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.after(prop, start).query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.after(prop, start).query().collect());
 		assertEquals(set, afterDateResults);
 
 	}
@@ -286,7 +286,7 @@ public class GafferTableTest {
 	public void elementsBeforeDate() {
 		String prop = "startTime";
 		long end = 1408000000000L;
-		Set<Tuple2<Element, Properties>> beforeDateResults = new HashSet<Tuple2<Element, Properties>>();
+		Set<Tuple2<Element, Properties>> beforeDateResults = new HashSet<>();
 		for(Tuple2<Element, Properties> t : data.expectedOutput) {
 			if(t._2.containsKey(prop)) {
 				long startTime = (long) t._2.get(prop);
@@ -295,7 +295,7 @@ public class GafferTableTest {
 			}
 		}
 		
-		Set<Tuple2<Element, Properties>> set = new HashSet<Tuple2<Element, Properties>>(table.before(prop, end).query().collect());
+		Set<Tuple2<Element, Properties>> set = new HashSet<>(table.before(prop, end).query().collect());
 		assertEquals(set, beforeDateResults);
 
 	}	

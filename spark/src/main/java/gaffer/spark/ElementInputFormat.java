@@ -28,36 +28,54 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
+import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.exception.SerialisationException;
+import gaffer.serialisation.simple.StringSerialiser;
+import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 
 /**
- * An {@link InputFormat} that allows a MapReduce job to consume data from the
+ * An {@link InputFormatBase} that allows a MapReduce job to consume data from the
  * Accumulo table underlying Gaffer.
  */
 public class ElementInputFormat extends InputFormatBase<Element, Properties> {
+
+    public static final String KEY_PACKAGE = "KEY_PACKAGE";
+    public static final String SCHEMA = "SCHEMA";
 
     @Override
     public RecordReader<Element, Properties> createRecordReader(final InputSplit split, final TaskAttemptContext context)
             throws IOException, InterruptedException {
         log.setLevel(getLogLevel(context));
-        return new ElementWithPropertiesRecordReader();
+        String keyPackageClass = context.getConfiguration().get(KEY_PACKAGE);
+        String schema = context.getConfiguration().get(SCHEMA);
+        try {
+            return new ElementWithPropertiesRecordReader(keyPackageClass, schema);
+        } catch (StoreException | SchemaException | SerialisationException e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     class ElementWithPropertiesRecordReader extends InputFormatBase.RecordReaderBase<Element, Properties> {
 
         private AccumuloElementConverter converter;
-        private Schema schema;
+        private StringSerialiser serialiser = new StringSerialiser();
 
-        ElementWithPropertiesRecordReader() {
+        ElementWithPropertiesRecordReader(final String keyPackageClass, final String schema) throws StoreException, SchemaException, SerialisationException {
             super();
-            schema = Schema.fromJson(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()),
-                    StreamUtil.storeSchema(getClass()), StreamUtil.storeTypes(getClass()));
-            converter = new ByteEntityAccumuloElementConverter(schema);
+            AccumuloKeyPackage keyPackage;
+            try {
+                keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
+            }
+            keyPackage.setSchema(Schema.fromJson(serialiser.serialise(schema)));
+            converter = keyPackage.getKeyConverter();
         }
 
         @Override

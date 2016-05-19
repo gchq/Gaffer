@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.exception.SerialisationException;
@@ -27,8 +28,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class GetRelatedEdgesTest implements OperationTest {
@@ -63,5 +66,22 @@ public class GetRelatedEdgesTest implements OperationTest {
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder().addSeed(new EntitySeed("A"))
+                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
+                .option("testOption", "true")
+                .populateProperties(true)
+                .summarise(false)
+                .view(new View.Builder().edge("testEdgeGroup").build())
+                .build();
+        assertFalse(getRelatedEdges.isSummarise());
+        assertTrue(getRelatedEdges.isPopulateProperties());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.OUTGOING, getRelatedEdges.getIncludeIncomingOutGoing());
+        assertEquals("true", getRelatedEdges.getOption("testOption"));
+        assertNotNull(getRelatedEdges.getView());
     }
 }
