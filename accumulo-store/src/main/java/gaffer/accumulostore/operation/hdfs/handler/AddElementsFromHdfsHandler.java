@@ -16,27 +16,32 @@
 
 package gaffer.accumulostore.operation.hdfs.handler;
 
-import org.apache.hadoop.util.ToolRunner;
-
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.hdfs.handler.tool.ImportElementsToAccumulo;
 import gaffer.accumulostore.operation.hdfs.handler.tool.FetchElementsFromHdfs;
+import gaffer.accumulostore.operation.hdfs.handler.tool.ImportElementsToAccumulo;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
-import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
+import org.apache.hadoop.util.ToolRunner;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs, Void> {
     @Override
-    public Void doOperation(final AddElementsFromHdfs operation, final Store store) throws OperationException {
+    public Void doOperation(final AddElementsFromHdfs operation,
+                            final User user, final Store store)
+            throws OperationException {
         doOperation(operation, (AccumuloStore) store);
         return null;
     }
 
     public void doOperation(final AddElementsFromHdfs operation, final AccumuloStore store) throws OperationException {
         fetchElements(operation, store);
-        importElements(operation, store);
+        String skipImport = operation.getOption(AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
+        if (null == skipImport || !skipImport.equalsIgnoreCase("TRUE")) {
+            importElements(operation, store);
+        }
     }
 
     private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)
@@ -58,13 +63,8 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     private void importElements(final AddElementsFromHdfs operation, final AccumuloStore store)
             throws OperationException {
         final ImportElementsToAccumulo importTool;
-        try {
-            importTool = new ImportElementsToAccumulo(operation, store);
-        } catch (final StoreException e) {
-            throw new OperationException("Failed to import elements into Accumulo.", e);
-        }
-
         final int response;
+        importTool = new ImportElementsToAccumulo(operation.getOutputPath(), operation.getFailurePath(), store);
         try {
             response = ToolRunner.run(importTool, new String[0]);
         } catch (final Exception e) {

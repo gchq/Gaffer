@@ -116,10 +116,10 @@ public class AgeOffTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.AgeOff\",\n" +
-                "  \"ageOffTime\" : 100000\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.AgeOff\",%n" +
+                "  \"ageOffTime\" : 100000%n" +
+                "}"), json);
 
         // When 2
         final AgeOff deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), AgeOff.class);

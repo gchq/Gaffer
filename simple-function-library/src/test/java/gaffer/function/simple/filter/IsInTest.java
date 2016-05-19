@@ -80,10 +80,10 @@ public class IsInTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.IsIn\",\n" +
-                "  \"values\" : [ 1, 2, 3 ]\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.IsIn\",%n" +
+                "  \"values\" : [ 1, 2, 3 ]%n" +
+                "}"), json);
 
         // When 2
         final IsIn deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), IsIn.class);

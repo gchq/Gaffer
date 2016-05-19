@@ -16,19 +16,23 @@
 
 package gaffer.rest.service;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.TestGroups;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
+import gaffer.operation.OperationChain;
 import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.ViewValidator;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -38,9 +42,11 @@ public class ExamplesServiceTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     private SimpleExamplesService service;
 
+    private Schema schema;
+
     @Before
     public void setup() {
-        final Schema schema = new Schema.Builder()
+        schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property("entityProperties", String.class)
                         .vertex(String.class)
@@ -95,6 +101,55 @@ public class ExamplesServiceTest {
     @Test
     public void shouldSerialiseAndDeserialiseGetRelatedEdges() throws IOException {
         shouldSerialiseAndDeserialiseOperation(service.getRelatedEdges());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetAllElements() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.getAllElements());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetAllEntities() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.getAllEntities());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGetAllEdges() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.getAllEdges());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGenerateObjects() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.generateObjects());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseGenerateElements() throws IOException {
+        shouldSerialiseAndDeserialiseOperation(service.generateElements());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationChain() throws IOException {
+        //Given
+        final OperationChain opChain = service.execute();
+
+        // When
+        byte[] bytes = serialiser.serialise(opChain);
+        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
+
+        // Then
+        assertNotNull(deserialisedOp);
+    }
+
+    @Test
+    public void shouldCreateViewForEdges() {
+        final View.Builder builder = service.generateViewBuilder();
+        final View view = builder.build();
+        assertNotNull(view);
+
+        final ViewValidator viewValidator = new ViewValidator();
+        final boolean validate = viewValidator.validate(view, schema);
+        assertTrue(validate);
     }
 
     private void shouldSerialiseAndDeserialiseOperation(Operation operation) throws IOException {

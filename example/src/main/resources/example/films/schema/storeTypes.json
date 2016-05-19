@@ -1,0 +1,54 @@
+{
+  "types": {
+    "userId.string": {
+      "position": "COLUMN_QUALIFIER",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
+      }
+    },
+    "certificate": {
+      "position": "VISIBILITY",
+      "serialiserClass": "gaffer.example.films.serialiser.CertificateVisibilitySerialiser",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.ComparableMax"
+      }
+    },
+    "name.string": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.StringConcat"
+      }
+    },
+    "rating.int": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Max"
+      }
+    },
+    "count.int": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "total.long": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "timestamp.long": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Max",
+        "mode": "LONG"
+      }
+    },
+    "max.integer": {
+      "position": "VALUE",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Max"
+      }
+    }
+  }
+}

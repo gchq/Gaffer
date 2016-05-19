@@ -1,6 +1,8 @@
 package gaffer.accumulostore.operation.impl;
 
+import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
@@ -44,9 +46,9 @@ public class GetEdgesInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        Pair<EntitySeed> pair1 = new Pair<>(new EntitySeed("source1"), new EntitySeed("destination1"));
-        Pair<EntitySeed> pair2 = new Pair<>(new EntitySeed("source2"), new EntitySeed("destination2"));
+        final List<Pair<EntitySeed>> pairList = new ArrayList<>();
+        final Pair<EntitySeed> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
+        final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
         final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges<>(pairList);
@@ -61,6 +63,23 @@ public class GetEdgesInRangesTest implements OperationTest {
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
 
+    }
+
+    @Test
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
+                .includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
+                .addSeed(seed).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false).summarise(true)
+                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+        assertTrue(getEdgesInRanges.isSummarise());
+        assertFalse(getEdgesInRanges.isPopulateProperties());
+        assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
+        assertEquals("true", getEdgesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
+        assertNotNull(getEdgesInRanges.getView());
     }
 }
 
