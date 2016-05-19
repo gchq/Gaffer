@@ -32,7 +32,6 @@
         <module>example</module>
         <module>gaffer-integration-tests</module>
 	<module>tinkerpop</module>
-	<module>spark</module>
     </modules>
 
     <properties>
