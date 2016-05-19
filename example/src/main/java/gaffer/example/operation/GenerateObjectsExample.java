@@ -41,37 +41,65 @@ public class GenerateObjectsExample extends OperationExample {
     }
 
     public Iterable<String> generateStringsFromElements(final Graph graph) throws OperationException {
+        final String opJava = "new GenerateObjects.Builder<Element, String>()\n"
+                + "                .elements(Arrays.asList(\n"
+                + "                        new Entity.Builder()\n"
+                + "                                .group(\"entity\")\n"
+                + "                                .vertex(6)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build(),\n"
+                + "                        new Edge.Builder()\n"
+                + "                                .group(\"edge\")\n"
+                + "                                .source(5).dest(6).directed(true)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build()))\n"
+                + "                .generator(new DataGenerator())\n"
+                + "                .build();";
         return runAndPrintOperation(new GenerateObjects.Builder<Element, String>()
                 .elements(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
-                                .property(COUNT, 1)
+                                .property("count", 1)
                                 .build(),
                         new Edge.Builder()
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
-                                .property(COUNT, 1)
+                                .property("count", 1)
                                 .build()))
                 .generator(new DataGenerator())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Object> generateDomainObjectsFromElements(final Graph graph) throws OperationException {
+        final String opJava = "new GenerateObjects.Builder<>()\n"
+                + "                .elements(Arrays.asList(\n"
+                + "                        new Entity.Builder()\n"
+                + "                                .group(\"entity\")\n"
+                + "                                .vertex(6)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build(),\n"
+                + "                        new Edge.Builder()\n"
+                + "                                .group(\"edge\")\n"
+                + "                                .source(5).dest(6).directed(true)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build()))\n"
+                + "                .generator(new DomainObjectGenerator())\n"
+                + "                .build();";
         return runAndPrintOperation(new GenerateObjects.Builder<>()
                 .elements(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
-                                .property(COUNT, 1)
+                                .property("count", 1)
                                 .build(),
                         new Edge.Builder()
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
-                                .property(COUNT, 1)
+                                .property("count", 1)
                                 .build()))
                 .generator(new DomainObjectGenerator())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public static class DomainObject1 {
@@ -100,6 +128,14 @@ public class GenerateObjectsExample extends OperationExample {
 
         public void setC(final int c) {
             this.c = c;
+        }
+
+        @Override
+        public String toString() {
+            return "DomainObject1{"
+                    + "a=" + a
+                    + ", c=" + c
+                    + '}';
         }
     }
 
@@ -140,6 +176,15 @@ public class GenerateObjectsExample extends OperationExample {
         public void setC(final int c) {
             this.c = c;
         }
+
+        @Override
+        public String toString() {
+            return "DomainObject2{"
+                    + "a=" + a
+                    + ", b=" + b
+                    + ", c=" + c
+                    + '}';
+        }
     }
 
     public static class DomainObjectGenerator extends OneToOneElementGenerator<Object> {
@@ -152,10 +197,10 @@ public class GenerateObjectsExample extends OperationExample {
         @Override
         public Object getObject(final Element element) {
             if (element instanceof Entity) {
-                return new DomainObject1((int) ((Entity) element).getVertex(), (int) element.getProperty(COUNT));
+                return new DomainObject1((int) ((Entity) element).getVertex(), (int) element.getProperty("count"));
             } else {
                 final Edge edge = (Edge) element;
-                return new DomainObject2((int) edge.getSource(), (int) edge.getDestination(), (int) edge.getProperty(COUNT));
+                return new DomainObject2((int) edge.getSource(), (int) edge.getDestination(), (int) edge.getProperty("count"));
             }
         }
     }

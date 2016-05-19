@@ -42,31 +42,50 @@ public class GetRelatedEdgesExample extends OperationExample {
     }
 
     public Iterable<Edge> getAllEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
+        final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .build()";
         return runAndPrintOperation(new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
+        final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
+                + "                .build();";
         return runAndPrintOperation(new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1(final Graph graph) throws OperationException {
+        final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
 }

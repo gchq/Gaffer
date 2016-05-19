@@ -36,30 +36,45 @@ public class AddElementsExample extends OperationExample {
     }
 
     public void addElements(final Graph graph) throws OperationException {
-        System.out.println(getMethodNameAsSentence() + "\n");
+        System.out.println("#### " + getMethodNameAsSentence() + "\n");
+        printOperationJava("new AddElements.Builder()\n"
+                + "                .elements(new Entity.Builder()\n"
+                + "                                .group(\"entity\")\n"
+                + "                                .vertex(6)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build(),\n"
+                + "                        new Edge.Builder()\n"
+                + "                                .group(\"edge\")\n"
+                + "                                .source(5).dest(6).directed(true)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build())\n"
+                + "                .build();");
 
         final AddElements operation = new AddElements.Builder()
                 .elements(new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
-                                .property(COUNT, 1)
+                                .property("count", 1)
                                 .build(),
                         new Edge.Builder()
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
-                                .property(COUNT, 1)
+                                .property("count", 1)
                                 .build())
                 .build();
         final String operationJson = getOperationJson(operation);
 
         graph.execute(operation, new User("user01"));
-        System.out.println("Elements added. Updated graph:\n"
-                + "    ---- 4\n"
-                + "  /    /  \\\n"
-                + " 1 -- 2 -- 3\n"
-                + "       \\\n"
-                + "        5 -- 6\n");
+        System.out.println("Updated graph:");
+        System.out.println("```");
+        System.out.println("    --> 4 <--");
+        System.out.println("  /     ^     \\");
+        System.out.println(" /      |      \\");
+        System.out.println("1  -->  2  -->  3");
+        System.out.println("         \\");
+        System.out.println("           -->  5  -->  6");
+        System.out.println("```");
 
-        outputJson(operationJson);
+        printOperationJson(operationJson);
     }
 }

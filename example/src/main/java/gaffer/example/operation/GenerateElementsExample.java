@@ -40,19 +40,29 @@ public class GenerateElementsExample extends OperationExample {
     }
 
     public Iterable<Element> generateElementsFromStrings(final Graph graph) throws OperationException {
+        final String opJava = "new GenerateElements.Builder<String>()\n"
+              + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
+              + "                .generator(new DataGenerator())\n"
+              + "                .build();";
         return runAndPrintOperation(new GenerateElements.Builder<String>()
                 .objects(Arrays.asList("1,1", "1,2,1"))
                 .generator(new DataGenerator())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Element> generateElementsFromDomainObjects(final Graph graph) throws OperationException {
+        final String opJava = "new GenerateElements.Builder<>()\n"
+              + "                .objects(Arrays.asList(\n"
+              + "                        new DomainObject1(1, 1),\n"
+              + "                        new DomainObject2(1, 2, 1)))\n"
+              + "                .generator(new DomainObjectGenerator())\n"
+              + "                .build();";
         return runAndPrintOperation(new GenerateElements.Builder<>()
                 .objects(Arrays.asList(
                         new DomainObject1(1, 1),
                         new DomainObject2(1, 2, 1)))
                 .generator(new DomainObjectGenerator())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public static class DomainObject1 {
@@ -131,7 +141,7 @@ public class GenerateElementsExample extends OperationExample {
                 return new Entity.Builder()
                         .group("entity")
                         .vertex(obj1.a)
-                        .property(COUNT, obj1.c)
+                        .property("count", obj1.c)
                         .build();
             } else if (domainObject instanceof DomainObject2) {
                 final DomainObject2 obj1 = (DomainObject2) domainObject;
@@ -140,7 +150,7 @@ public class GenerateElementsExample extends OperationExample {
                         .source(obj1.a)
                         .dest(obj1.b)
                         .directed(true)
-                        .property(COUNT, obj1.c)
+                        .property("count", obj1.c)
                         .build();
             } else {
                 throw new IllegalArgumentException("Unsupported domain object");

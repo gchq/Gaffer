@@ -39,19 +39,30 @@ public class GetAllEdgesExample extends OperationExample {
     }
 
     public Iterable<Edge> getAllEdges(final Graph graph) throws OperationException {
-        return runAndPrintOperation(new GetAllEdges(), graph);
+        final String opJava = "new GetAllEdges();";
+        return runAndPrintOperation(new GetAllEdges(), graph, opJava);
     }
 
     public Iterable<Edge> getAllEdgesWithCountGreaterThan2(final Graph graph) throws OperationException {
+        final String opJava = "new GetAllEdges.Builder()\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(2))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetAllEdges.Builder()
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 }

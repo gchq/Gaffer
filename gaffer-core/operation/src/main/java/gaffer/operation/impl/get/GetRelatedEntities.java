@@ -31,6 +31,24 @@ import gaffer.operation.data.ElementSeed;
  * <li>An Entity is RELATED to an EdgeSeed if either the Entity's seed is equal to either the EdgeSeed's source or destination.</li>
  * </ul>
  * However adjusting the includeEdge property and the incomingOutgoing property allows Entities to be filtered out.
+ * <p>
+ * For example:
+ * <pre>{@code
+ *  new GetRelatedEntities.Builder<EdgeSeed>()
+ *      .addSeed(new EdgeSeed(1, 2, true))
+ *      .build();
+ *  new GetRelatedEntities.Builder<EdgeSeed>()
+ *      .addSeed(new EdgeSeed(1, 2, true))
+ *      .view(new View.Builder()
+ *          .entity("entity", new ViewElementDefinition.Builder()
+ *              .filter(new ElementFilter.Builder()
+ *                  .select(COUNT)
+ *                  .execute(new IsMoreThan(1))
+ *                  .build())
+ *              .build())
+ *          .build())
+ *      .build();
+ * }</pre>
  *
  * @see gaffer.operation.impl.get.GetRelatedEntities.Builder
  * @see gaffer.operation.impl.get.GetEntities

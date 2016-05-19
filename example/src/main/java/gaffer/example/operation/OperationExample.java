@@ -34,11 +34,11 @@ import java.util.Locale;
 
 public abstract class OperationExample {
 
-    public static final String COUNT = "count";
     public static final String CAPITALS_AND_NUMBERS_REGEX = "((?=[A-Z])|(?<=[0-9])(?=[a-zA-Z])|(?<=[a-zA-Z])(?=[0-9]))";
     public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    public static final String TITLE_DIVIDER = "-----------------------------------------------";
-    public static final String METHOD_DIVIDER = "\n" + TITLE_DIVIDER + "\n";
+    public static final String DIVIDER = "-----------------------------------------------";
+    public static final String TITLE_DIVIDER = DIVIDER;
+    public static final String METHOD_DIVIDER = DIVIDER + "\n";
     private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
     private final Class<? extends Operation> operationClass;
 
@@ -47,15 +47,16 @@ public abstract class OperationExample {
     }
 
     public void run() throws OperationException {
-        System.out.println(TITLE_DIVIDER);
         System.out.println(operationClass.getSimpleName() + " example");
-        System.out.println(TITLE_DIVIDER + "\n");
-
-        System.out.println("See: " + JAVA_DOC_URL_PREFIX + operationClass.getName().replace(".", "/") + ".html");
-        System.out.println(METHOD_DIVIDER);
+        System.out.println(TITLE_DIVIDER);
+        System.out.println("See [javadoc](" + JAVA_DOC_URL_PREFIX + operationClass.getName().replace(".", "/") + ".html).\n");
 
         final Graph graph = createExampleGraph();
         runExamples(graph);
+    }
+
+    public Class<? extends Operation> getOperationClass() {
+        return operationClass;
     }
 
     protected abstract void runExamples(final Graph graph) throws OperationException;
@@ -92,12 +93,16 @@ public abstract class OperationExample {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Using this simple directed graph (the edge directions are low to high):\n");
-        System.out.println("    ---- 4");
-        System.out.println("  /    /  \\");
-        System.out.println(" 1 -- 2 -- 3");
-        System.out.println("       \\");
-        System.out.println("        5");
+        System.out.println("Using this simple directed graph:");
+        System.out.println("```");
+        System.out.println("    --> 4 <--");
+        System.out.println("  /     ^     \\");
+        System.out.println(" /      |      \\");
+        System.out.println("1  -->  2  -->  3");
+        System.out.println("         \\");
+        System.out.println("           -->  5");
+        System.out.println("```");
+
         System.out.println(METHOD_DIVIDER);
 
         return graph;
@@ -111,7 +116,7 @@ public abstract class OperationExample {
                     .append(" ");
         }
         sentence.replace(0, 1, sentence.substring(0, 1).toUpperCase(Locale.getDefault()));
-        sentence.replace(sentence.length() - 1, sentence.length(), ".");
+        sentence.replace(sentence.length() - 1, sentence.length(), "");
         return sentence.toString();
     }
 
@@ -127,22 +132,37 @@ public abstract class OperationExample {
         }
     }
 
-    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runAndPrintOperation(final Operation<?, RESULT_TYPE> operation, final Graph graph) throws OperationException {
-        System.out.println(getMethodNameAsSentence(1) + "\n");
+    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runAndPrintOperation(final Operation<?, RESULT_TYPE> operation, final Graph graph, final String operationJava) throws OperationException {
+        System.out.println("#### " + getMethodNameAsSentence(1) + "\n");
         final String operationJson = getOperationJson(operation);
+        printOperationJava(operationJava);
+
         final RESULT_TYPE results = graph.execute(
                 operation, new User("user01"));
 
         System.out.println("Results:");
+        System.out.println("```");
         for (Object e : results) {
             System.out.println(e.toString());
         }
-        outputJson(operationJson);
+        System.out.println("```");
+
+        printOperationJson(operationJson);
+
+        System.out.println(METHOD_DIVIDER);
         return results;
     }
 
-    protected void outputJson(final String operationJson) {
-        System.out.println("\nThis operation can also be written in JSON:\n" + operationJson);
-        System.out.println(METHOD_DIVIDER);
+    protected void printOperationJava(final String java) {
+        System.out.println("```java");
+        System.out.println(java);
+        System.out.println("```\n\n");
+    }
+
+    protected void printOperationJson(final String operationJson) {
+        System.out.println("\nThis operation can also be written in JSON:");
+        System.out.println("```json");
+        System.out.println(operationJson);
+        System.out.println("```\n");
     }
 }

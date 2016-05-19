@@ -42,34 +42,57 @@ public class GetRelatedElementsExample extends OperationExample {
     }
 
     public Iterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2(final Graph graph) throws OperationException {
+        final String opJava = "new GetRelatedElements.Builder<EntitySeed, Element>()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .build();";
         return runAndPrintOperation(new GetRelatedElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed(2))
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2(final Graph graph) throws OperationException {
+        final String opJava = "new GetRelatedElements.Builder<EdgeSeed, Element>()\n"
+                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
+                + "                .build();";
         return runAndPrintOperation(new GetRelatedElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed(1, 2, true))
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1(final Graph graph) throws OperationException {
+        final String opJava = "new GetRelatedElements.Builder<EdgeSeed, Element>()\n"
+                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetRelatedElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 }

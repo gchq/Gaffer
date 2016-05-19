@@ -39,25 +39,42 @@ public class GetAllElementsExample extends OperationExample {
     }
 
     public Iterable<Element> getAllEdges(final Graph graph) throws OperationException {
-        return runAndPrintOperation(new GetAllElements<>(), graph);
+        final String opJava = "new GetAllElements<>();";
+        return runAndPrintOperation(new GetAllElements<>(), graph, opJava);
     }
 
     public Iterable<Element> getAllEdgesWithCountGreaterThan2(final Graph graph) throws OperationException {
+        final String opJava = "new GetAllElements.Builder<>()\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(2))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(2))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetAllElements.Builder<>()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())
                                 .build())
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 }

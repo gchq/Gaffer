@@ -41,36 +41,61 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
     }
 
     public Iterable<EntitySeed> getAdjacentEntitySeedsFromVertex2(final Graph graph) throws OperationException {
+        final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .build();";
         return runAndPrintOperation(new GetAdjacentEntitySeeds.Builder()
                 .addSeed(new EntitySeed(2))
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2(final Graph graph) throws OperationException {
+        final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
+                + "                .build();";
         return runAndPrintOperation(new GetAdjacentEntitySeeds.Builder()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1(final Graph graph) throws OperationException {
+        final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetAdjacentEntitySeeds.Builder()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 }

@@ -41,30 +41,52 @@ public class GetElementsBySeedExample extends OperationExample {
     }
 
     public Iterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3(final Graph graph) throws OperationException {
+        final String opJava = "new GetElementsSeed.Builder<>()\n"
+              + "                .addSeed(new EntitySeed(2))\n"
+              + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+              + "                .build();";
         return runAndPrintOperation(new GetElementsSeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1(final Graph graph) throws OperationException {
+        final String opJava = "new GetElementsSeed.Builder<>()\n"
+              + "                .addSeed(new EntitySeed(2))\n"
+              + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+              + "                .view(new View.Builder()\n"
+              + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
+              + "                                .filter(new ElementFilter.Builder()\n"
+              + "                                        .select(\"count\")\n"
+              + "                                        .execute(new IsMoreThan(1))\n"
+              + "                                        .build())\n"
+              + "                                .build())\n"
+              + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+              + "                                .filter(new ElementFilter.Builder()\n"
+              + "                                        .select(\"count\")\n"
+              + "                                        .execute(new IsMoreThan(1))\n"
+              + "                                        .build())\n"
+              + "                                .build())\n"
+              + "                        .build())\n"
+              + "                .build();";
         return runAndPrintOperation(new GetElementsSeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 }

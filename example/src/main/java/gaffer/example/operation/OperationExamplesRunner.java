@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -38,10 +39,21 @@ public class OperationExamplesRunner {
     }
 
     public void run() throws Exception {
+        printTableOfContents();
         for (Class<? extends OperationExample> aClass : getSubClasses(OperationExample.class)) {
             aClass.newInstance().run();
             System.out.println(EXAMPLE_DIVIDER);
         }
+    }
+
+    private void printTableOfContents() throws InstantiationException, IllegalAccessException {
+        int index = 1;
+        for (Class<? extends OperationExample> aClass : getSubClasses(OperationExample.class)) {
+            final String opClass = aClass.newInstance().getOperationClass().getSimpleName();
+            System.out.println(index + ". [" + opClass + "](#" + opClass.toLowerCase(Locale.getDefault()) + "-example)");
+            index++;
+        }
+        System.out.println("\n");
     }
 
     private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {

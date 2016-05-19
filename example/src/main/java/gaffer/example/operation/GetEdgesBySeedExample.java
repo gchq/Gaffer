@@ -40,24 +40,40 @@ public class GetEdgesBySeedExample extends OperationExample {
     }
 
     public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3(final Graph graph) throws OperationException {
+        final String opJava = "new GetEdgesBySeed.Builder()\n"
+                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
+                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+                + "                .build();";
         return runAndPrintOperation(new GetEdgesBySeed.Builder()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
-                .build(), graph);
+                .build(), graph, opJava);
     }
 
     public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2(final Graph graph) throws OperationException {
+        final String opJava = "new GetEdgesBySeed.Builder()\n"
+                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
+                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(2))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetEdgesBySeed.Builder()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
-                                        .select(COUNT)
+                                        .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph);
+                .build(), graph, opJava);
     }
 }
