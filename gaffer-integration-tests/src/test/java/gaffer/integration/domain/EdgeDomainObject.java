@@ -17,10 +17,11 @@ package gaffer.integration.domain;
 
 /**
  * Please note that this object has been created in order to test the ElementGenerator code in the Gaffer framework.
+ *
  * It is not intended to be a representative example of how to map a domain object to a Gaffer graph element.  For an
  * example of how this mapping may be achieved, please see the 'example' project.
  */
-public class EdgeDomainObject implements DomainObject {
+public class EdgeDomainObject {
 
     private String source;
     private String destination;
@@ -28,12 +29,11 @@ public class EdgeDomainObject implements DomainObject {
     private Integer intProperty;
     private Long count;
 
-    public EdgeDomainObject(final String source, final String destination, final Boolean directed, final Integer intProperty, final Long count) {
+    public EdgeDomainObject(final String source, final String destination, final Boolean directed, final Integer intProperty) {
         this.source = source;
         this.destination = destination;
         this.directed = directed;
         this.intProperty = intProperty;
-        this.count = count;
     }
 
     public EdgeDomainObject() {
@@ -77,42 +77,5 @@ public class EdgeDomainObject implements DomainObject {
 
     public void setDirected(final Boolean directed) {
         this.directed = directed;
-    }
-
-    @Override
-    public String toString() {
-        return "EdgeDomainObject{" +
-                "source='" + source + '\'' +
-                ", destination='" + destination + '\'' +
-                ", directed=" + directed +
-                ", intProperty=" + intProperty +
-                ", count=" + count +
-                '}';
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        final EdgeDomainObject that = (EdgeDomainObject) o;
-
-        if (!source.equals(that.source)) return false;
-        if (!destination.equals(that.destination)) return false;
-        if (!directed.equals(that.directed)) return false;
-        if (intProperty != null ? !intProperty.equals(that.intProperty) : that.intProperty != null)
-            return false;
-        return !(count != null ? !count.equals(that.count) : that.count != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = source.hashCode();
-        result = 31 * result + destination.hashCode();
-        result = 31 * result + directed.hashCode();
-        result = 31 * result + (intProperty != null ? intProperty.hashCode() : 0);
-        result = 31 * result + (count != null ? count.hashCode() : 0);
-        return result;
     }
 }

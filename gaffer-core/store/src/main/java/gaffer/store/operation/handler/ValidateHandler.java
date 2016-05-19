@@ -21,7 +21,6 @@ import gaffer.operation.OperationException;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
 import gaffer.store.ValidatedElements;
-import gaffer.user.User;
 
 /**
  * An <code>ValidateHandler</code> handles for {@link gaffer.operation.impl.Validate} operations.
@@ -32,9 +31,7 @@ import gaffer.user.User;
  */
 public class ValidateHandler implements OperationHandler<Validate, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final Validate operation,
-                                         final User user, final Store store)
-            throws OperationException {
+    public Iterable<Element> doOperation(final Validate operation, final Store store) throws OperationException {
         return null != operation.getElements()
                 ? new ValidatedElements(operation.getElements(), store.getSchema(), operation.isSkipInvalidElements())
                 : null;

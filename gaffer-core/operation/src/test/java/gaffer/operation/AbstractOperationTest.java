@@ -81,10 +81,5 @@ public class AbstractOperationTest implements OperationTest {
         assertNotNull(deserialisedOp);
         assertEquals(input, deserialisedOp.getInput());
     }
-
-    @Override
-    public void builderShouldCreatePopulatedOperation() {
-        //Pass Test Operation has no builder
-    }
 }
 

@@ -26,27 +26,23 @@ import gaffer.operation.OperationException;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 
 public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet<Element>, Iterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
-                                         final User user, final Store store)
+    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation, final Store store)
             throws OperationException {
-        return doOperation(operation, user, (AccumuloStore) store);
+        return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
-                                         final User user, final AccumuloStore store)
-            throws OperationException {
+    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
-                ret = new AccumuloIDWithinSetRetriever(store, operation, user,
+                ret = new AccumuloIDWithinSetRetriever(store, operation,
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
-                ret = new AccumuloIDWithinSetRetriever(store, operation, user);
+                ret = new AccumuloIDWithinSetRetriever(store, operation);
             }
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);

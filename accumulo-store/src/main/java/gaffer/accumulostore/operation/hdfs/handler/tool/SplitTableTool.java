@@ -26,7 +26,6 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.Tool;
 
@@ -57,7 +56,7 @@ public class SplitTableTool extends Configured implements Tool {
             throw new OperationException("Failed to get Filesystem from configuraiton : " + e.getMessage(), e);
         }
         SortedSet<Text> splits = new TreeSet<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(operation.getInputPath()), CommonConstants.UTF_8))) {
             String line = br.readLine();
             while (line != null) {
                 splits.add(new Text(br.readLine()));

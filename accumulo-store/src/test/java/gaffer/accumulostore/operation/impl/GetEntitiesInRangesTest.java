@@ -2,7 +2,6 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.Pair;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
@@ -14,7 +13,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class GetEntitiesInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -48,22 +48,5 @@ public class GetEntitiesInRangesTest implements OperationTest {
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
 
-    }
-
-    @Test
-    @Override
-    public void builderShouldCreatePopulatedOperation() {
-        Pair<EntitySeed> seed = new Pair<>(new EntitySeed("A"), new EntitySeed("B"));
-        GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
-                .option("testOption", "true")
-                .populateProperties(false)
-                .summarise(true)
-                .view(new View.Builder().edge("testEdgeGroup").build())
-                .addSeed(seed).build();
-        assertEquals(seed, getEntitiesInRanges.getSeeds().iterator().next());
-        assertEquals("true", getEntitiesInRanges.getOption("testOption"));
-        assertTrue(getEntitiesInRanges.isSummarise());
-        assertFalse(getEntitiesInRanges.isPopulateProperties());
-        assertNotNull(getEntitiesInRanges.getView());
     }
 }

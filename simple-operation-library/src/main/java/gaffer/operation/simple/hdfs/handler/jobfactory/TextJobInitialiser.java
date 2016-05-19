@@ -17,12 +17,10 @@ package gaffer.operation.simple.hdfs.handler.jobfactory;
 
 import gaffer.operation.simple.hdfs.MapReduceOperation;
 import gaffer.store.Store;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * An <code>AvroJobInitialiser</code> is an {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser} that
@@ -41,9 +39,6 @@ public class TextJobInitialiser implements JobInitialiser {
 
     private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
-        List<String> paths = operation.getInputPaths();
-        for (String path : paths) {
-            TextInputFormat.addInputPath(job, new Path(path));
-        }
+        TextInputFormat.addInputPath(job, operation.getInputPath());
     }
 }

@@ -22,7 +22,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.6-SNAPSHOT</version>
+        <version>0.3.3</version>
     </parent>
     <artifactId>simple-serialisation-library</artifactId>
     <name>simple-serialisation-library</name>
@@ -69,10 +69,12 @@
                         </goals>
                         <configuration>
                             <finalName>
-                                simple-serialisation-library-${project.parent.version}-serialisers
+                                Simple-Serialisation-Library-${project.parent.version}
                             </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
+                            <shadedClassifierName>serialisers
+                            </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream

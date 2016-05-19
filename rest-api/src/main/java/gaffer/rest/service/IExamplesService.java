@@ -23,15 +23,13 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import gaffer.operation.impl.get.GetAllEdges;
-import gaffer.operation.impl.get.GetAllElements;
-import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -81,19 +79,7 @@ public interface IExamplesService {
 
     @GET
     @Path("/graph/doOperation/get/entitySeeds/adjacent")
-    GetAdjacentEntitySeeds getAdjacentEntitySeeds();
-
-    @GET
-    @Path("/graph/doOperation/get/elements/all")
-    GetAllElements getAllElements();
-
-    @GET
-    @Path("/graph/doOperation/get/entities/all")
-    GetAllEntities getAllEntities();
-
-    @GET
-    @Path("/graph/doOperation/get/edges/all")
-    GetAllEdges getAllEdges();
+    GetAdjacentEntitySeeds adjacentEntitySeeds();
 
     @GET
     @Path("/graph/doOperation/add/elements")

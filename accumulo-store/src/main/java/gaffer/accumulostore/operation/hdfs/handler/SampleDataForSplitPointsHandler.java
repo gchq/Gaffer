@@ -21,27 +21,25 @@ import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
 import gaffer.operation.OperationException;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 
-public class SampleDataForSplitPointsHandler implements OperationHandler<SampleDataForSplitPoints, String> {
+public class SampleDataForSplitPointsHandler implements OperationHandler<SampleDataForSplitPoints, Path> {
     @Override
-    public String doOperation(final SampleDataForSplitPoints operation,
-                              final User user, final Store store)
-            throws OperationException {
+    public Path doOperation(final SampleDataForSplitPoints operation, final Store store) throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }
 
-    public String doOperation(final SampleDataForSplitPoints operation, final AccumuloStore store) throws OperationException {
+    public Path doOperation(final SampleDataForSplitPoints operation, final AccumuloStore store) throws OperationException {
         return generateSplitsFromSampleData(operation, store);
     }
 
-    private String generateSplitsFromSampleData(final SampleDataForSplitPoints operation, final AccumuloStore store)
+    private Path generateSplitsFromSampleData(final SampleDataForSplitPoints operation, final AccumuloStore store)
             throws OperationException {
         final SampleDataAndCreateSplitsFileTool sampleTool = new SampleDataAndCreateSplitsFileTool(operation, store);
 
         try {
-            ToolRunner.run(sampleTool, new String[0]);
+           ToolRunner.run(sampleTool, new String[0]);
         } catch (final Exception e) {
             throw new OperationException(e.getMessage(), e);
         }

@@ -25,7 +25,6 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.store.schema.Schema;
@@ -146,19 +145,19 @@ public class ValidatorFilterTest {
 
     private Schema getSchema() throws UnsupportedEncodingException {
         return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .validator(new gaffer.data.element.function.ElementFilter.Builder()
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                .type("directed.true", new TypeDefinition.Builder()
                         .clazz(Boolean.class)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
+                        .source("string")
+                        .destination("string")
+                        .directed("directed.true")
                         .build())
                 .build();
     }

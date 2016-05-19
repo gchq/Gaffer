@@ -32,20 +32,16 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
 
     @Override
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user, final Store store)
+    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final Store store)
             throws OperationException {
-        return doOperation(operation, user, (AccumuloStore) store);
+        return doOperation(operation, (AccumuloStore) store);
     }
 
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user,
-                                            final AccumuloStore store)
+    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final AccumuloStore store)
             throws OperationException {
         operation.addOption(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
@@ -55,7 +51,7 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
             if (IncludeEdgeType.NONE == operation.getIncludeEdges()) {
                 operation.setIncludeEdges(IncludeEdgeType.ALL);
             }
-            edgeRetriever = new AccumuloSingleIDRetriever(store, operation, user);
+            edgeRetriever = new AccumuloSingleIDRetriever(store, operation);
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }

@@ -18,9 +18,8 @@ package gaffer.operation.simple.hdfs;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Partitioner;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -34,8 +33,9 @@ import java.util.List;
  * @see MapReduceOperation.Builder
  */
 public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperation<INPUT, OUTPUT> {
-    private List<String> inputPaths = new ArrayList<>();
-    private String outputPath;
+    private Path inputPath;
+    private Path outputPath;
+    private Path failurePath;
     private Integer numReduceTasks = null;
     private Integer numMapTasks = null;
 
@@ -50,28 +50,28 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
     private JobInitialiser jobInitialiser;
     private Class<? extends Partitioner> partitioner;
 
-    public List<String> getInputPaths() {
-        return inputPaths;
+    public Path getInputPath() {
+        return inputPath;
     }
 
-    public void setInputPaths(final List<String> inputPaths) {
-        this.inputPaths = inputPaths;
+    public void setInputPath(final Path inputPath) {
+        this.inputPath = inputPath;
     }
 
-    public void addInputPaths(final List<String> inputPaths) {
-        this.inputPaths.addAll(inputPaths);
-    }
-
-    public void addInputPath(final String inputPath) {
-        this.inputPaths.add(inputPath);
-    }
-
-    public String getOutputPath() {
+    public Path getOutputPath() {
         return outputPath;
     }
 
-    public void setOutputPath(final String outputPath) {
+    public void setOutputPath(final Path outputPath) {
         this.outputPath = outputPath;
+    }
+
+    public Path getFailurePath() {
+        return failurePath;
+    }
+
+    public void setFailurePath(final Path failurePath) {
+        this.failurePath = failurePath;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
@@ -112,23 +112,18 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
             super(op);
         }
 
-        protected Builder<OP_TYPE, INPUT, OUTPUT> inputPaths(final List<String> inputPaths) {
-            op.setInputPaths(inputPaths);
+        protected Builder<OP_TYPE, INPUT, OUTPUT> inputPath(final Path inputPath) {
+            op.setInputPath(inputPath);
             return this;
         }
 
-        protected Builder<OP_TYPE, INPUT, OUTPUT> addInputPaths(final List<String> inputPaths) {
-            op.addInputPaths(inputPaths);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> addInputPath(final String inputPath) {
-            op.addInputPath(inputPath);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> outputPath(final String outputPath) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> outputPath(final Path outputPath) {
             op.setOutputPath(outputPath);
+            return this;
+        }
+
+        protected Builder<OP_TYPE, INPUT, OUTPUT> failurePath(final Path failurePath) {
+            op.setFailurePath(failurePath);
             return this;
         }
 

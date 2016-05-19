@@ -24,13 +24,10 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.SchemaElementDefinition;
-import gaffer.user.User;
 
 public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     @Override
-    public Void doOperation(final AddElements operation,
-                            final User user, final Store store)
-            throws OperationException {
+    public Void doOperation(final AddElements operation, final Store store) throws OperationException {
         addElements(operation, (ArrayListStore) store);
         return null;
     }

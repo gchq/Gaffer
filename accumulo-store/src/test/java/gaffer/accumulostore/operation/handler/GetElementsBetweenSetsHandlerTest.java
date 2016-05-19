@@ -37,7 +37,6 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
-import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -105,10 +104,9 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void testNoSummarisation(final AccumuloStore store) throws OperationException {
-        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
+        Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
             results.add(elm);
@@ -135,11 +133,10 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldSummarise(final AccumuloStore store) throws OperationException {
-        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
+        Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
             results.add(elm);
@@ -165,13 +162,12 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
+        Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
             results.add(elm);
@@ -197,11 +193,10 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
+        Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
             results.add(elm);
@@ -224,12 +219,11 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
-        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
+        Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
             results.add(elm);
@@ -255,12 +249,11 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     public void testShouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
-        final User user = new User();
         GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setSummarise(true);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<Element> elements = handler.doOperation(op, user, store);
+        Iterable<Element> elements = handler.doOperation(op, store);
         List<Element> results = new ArrayList<>();
         for (Element elm : elements) {
             results.add(elm);
@@ -312,9 +305,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
-        final User user = new User();
         try {
-            store.execute(new AddElements(data), user);
+            store.execute(new AddElements(data));
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

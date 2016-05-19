@@ -45,7 +45,7 @@ public class BasicEdgeGenerator extends OneToOneElementGenerator<EdgeDomainObjec
             final Edge edge = ((Edge) element);
             final EdgeDomainObject basicEdge = new EdgeDomainObject();
             basicEdge.setSource((String) edge.getSource());
-            basicEdge.setDestination((String) edge.getDestination());
+            basicEdge.setDestination((String) edge.getSource());
             basicEdge.setDirected(edge.isDirected());
             basicEdge.setCount((Long) edge.getProperty(TestPropertyNames.COUNT));
             basicEdge.setIntProperty((Integer) edge.getProperty(TestPropertyNames.INT));

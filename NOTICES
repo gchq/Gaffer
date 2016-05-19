@@ -11,9 +11,6 @@ Gaffer2 contains two classes which are modified versions of classes from Apache 
 Copyright 2011-2015 The Apache Software Foundation.
 
 
-The Gaffer implementation of TinkerPop was originally based on several classes from TinkerGraph.
-These classes were copied and adjusted to integrate with Gaffer.
-
 Gaffer2 is built using maven. This process will automatically pull in dependencies. We list Gaffer2's dependencies,
  and their licenses, below. For information on the dependencies of these dependencies, see the websites of the
  projects below.
@@ -137,8 +134,3 @@ FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.3):
 FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 
 - GNU Lesser Public License
-
-
-TinkerPop (org.apache.tinkerpop:gremlin-core,gremlin-groovy,gremlin-driver:3.2.0-incubating):
-
-- Apache License, Version 2.0

@@ -106,13 +106,6 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder deduplicateUndirectedEdges(final boolean deduplicateUndirectedEdges) {
-        if (deduplicateUndirectedEdges) {
-            setting.addOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
-        }
-        return this;
-    }
-
     public IteratorSettingBuilder schema(final Schema schema) {
         try {
             setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toJson(false), CommonConstants.UTF_8));

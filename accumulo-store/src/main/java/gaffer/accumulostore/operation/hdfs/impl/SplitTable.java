@@ -17,6 +17,7 @@ package gaffer.accumulostore.operation.hdfs.impl;
 
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.VoidOutput;
+import org.apache.hadoop.fs.Path;
 
 
 /**
@@ -24,28 +25,28 @@ import gaffer.operation.VoidOutput;
  *
  * @see SplitTable.Builder
  */
-public class SplitTable extends AbstractOperation<String, Void> implements VoidOutput<String> {
+public class SplitTable extends AbstractOperation<Path, Void> implements VoidOutput<Path> {
 
     public SplitTable() {
 
     }
 
-    private String inputPath;
+    private Path inputPath;
 
-    public String getInputPath() {
+    public Path getInputPath() {
         return inputPath;
     }
 
-    public void setInputPath(final String inputPath) {
+    public void setInputPath(final Path inputPath) {
         this.inputPath = inputPath;
     }
 
-    public static class Builder extends AbstractOperation.Builder<SplitTable, String, Void> {
+    public static class Builder extends AbstractOperation.Builder<SplitTable, Path, Void> {
         public Builder() {
             super(new SplitTable());
         }
 
-        public Builder inputPath(final String inputPath) {
+        public Builder inputPath(final Path inputPath) {
             op.setInputPath(inputPath);
             return this;
         }

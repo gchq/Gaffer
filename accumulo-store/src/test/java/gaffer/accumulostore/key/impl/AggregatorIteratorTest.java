@@ -34,7 +34,6 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.store.StoreException;
-import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -118,13 +117,12 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
 
-        final User user = new User();
-        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
+        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)));
 
         GetRelatedEdges get = new GetRelatedEdges(defaultView, Collections.singletonList(((ElementSeed) new EntitySeed("1"))));
 
         // When
-        final List<Edge> results = Lists.newArrayList(store.execute(get, user));
+        final List<Edge> results = Lists.newArrayList(store.execute(get));
 
         // Then
         assertEquals(1, results.size());

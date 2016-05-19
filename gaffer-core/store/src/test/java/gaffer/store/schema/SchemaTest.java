@@ -26,7 +26,6 @@ import static org.mockito.Mockito.mock;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
-import gaffer.commonutil.TestTypes;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
@@ -47,6 +46,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -184,58 +189,58 @@ public class SchemaTest {
     private Schema createSchema() {
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING, String.class)
-                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER, Integer.class)
+                        .property(TestPropertyNames.PROP_1, "property.string", String.class)
+                        .property(TestPropertyNames.PROP_2, "property.integer", Integer.class)
                         .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
-                .type(TestTypes.PROP_STRING, String.class)
-                .type(TestTypes.PROP_INTEGER, Integer.class)
+                .type("property.string", String.class)
+                .type("property.integer", Integer.class)
                 .build();
     }
 
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
         schema = createSchema();
-        assertEquals(String.format("{%n" +
-                "  \"edges\" : {%n" +
-                "    \"BasicEdge\" : {%n" +
-                "      \"properties\" : {%n" +
-                "        \"property1\" : \"prop.string\",%n" +
-                "        \"property2\" : \"prop.integer\"%n" +
-                "      },%n" +
-                "      \"validateFunctions\" : [ {%n" +
-                "        \"function\" : {%n" +
-                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\"%n" +
-                "        } ]%n" +
-                "      } ]%n" +
-                "    }%n" +
-                "  },%n" +
-                "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
-                "    },%n" +
-                "    \"prop.string\" : {%n" +
-                "      \"class\" : \"java.lang.String\"%n" +
-                "    }%n" +
-                "  }%n" +
-                "}"), new String(schema.toJson(true)));
+        assertEquals("{\n" +
+                "  \"edges\" : {\n" +
+                "    \"BasicEdge\" : {\n" +
+                "      \"properties\" : {\n" +
+                "        \"property1\" : \"property.string\",\n" +
+                "        \"property2\" : \"property.integer\"\n" +
+                "      },\n" +
+                "      \"validateFunctions\" : [ {\n" +
+                "        \"function\" : {\n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ {\n" +
+                "          \"key\" : \"property1\"\n" +
+                "        } ]\n" +
+                "      } ]\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"types\" : {\n" +
+                "    \"property.string\" : {\n" +
+                "      \"class\" : \"java.lang.String\"\n" +
+                "    },\n" +
+                "    \"property.integer\" : {\n" +
+                "      \"class\" : \"java.lang.Integer\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "}", new String(schema.toJson(true)));
     }
 
     @Test
     public void testCorrectSerialiserRetrievableFromConfig() throws NotSerializableException {
         Schema store = new Schema.Builder()
-                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                .type("property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .serialiser(new JavaSerialiser())
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.PROP_1, "property.string")
                         .build())
                 .build();
 
@@ -249,22 +254,32 @@ public class SchemaTest {
     @Test
     public void testStoreConfigUsableWithSchemaInitialisationAndProgramaticListOfElements() {
         final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                .property(TestPropertyNames.PROP_1, "property.1.string")
                 .build();
 
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_2, TestTypes.PROP_STRING)
+                .property(TestPropertyNames.PROP_2, "property.2.string")
                 .build();
 
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.PROP_STRING, String.class)
-                .type(TestTypes.PROP_STRING, Integer.class)
+                .type("property.1.string", String.class)
+                .type("property.2.string", Integer.class)
                 .entity(TestGroups.ENTITY, entityDef)
                 .edge(TestGroups.EDGE, edgeDef)
                 .build();
 
         assertSame(entityDef, schema.getEntity(TestGroups.ENTITY));
         assertSame(edgeDef, schema.getEdge(TestGroups.EDGE));
+    }
+
+    @Test
+    public void testAbleToLoadProgramaticallyCreatedSchema() throws IOException {
+        schema = createSchema();
+        Path path = Paths.get(getClass().getResource("/testFile").getPath());
+        ByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        channel.write(ByteBuffer.wrap(schema.toJson(true)));
+
+        schema = Schema.fromJson(path);
     }
 
     @Test
@@ -301,7 +316,7 @@ public class SchemaTest {
                 .vertexSerialiser(vertexSerialiser)
                 .position(IdentifierType.VERTEX.name(), "position1")
                 .position(IdentifierType.SOURCE.name(), "position2")
-                .type(TestTypes.PROP_STRING, String.class)
+                .type("exampleType", String.class)
                 .build();
 
         // Then
@@ -315,7 +330,7 @@ public class SchemaTest {
 
         assertEquals("position1", schema.getPosition(IdentifierType.VERTEX.name()));
         assertEquals("position2", schema.getPosition(IdentifierType.SOURCE.name()));
-        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
+        assertEquals(String.class, schema.getType("exampleType").getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
     }
 
@@ -416,7 +431,7 @@ public class SchemaTest {
                 .vertexSerialiser(vertexSerialiser)
                 .position(IdentifierType.VERTEX.name(), position1)
                 .position(IdentifierType.SOURCE.name(), position2)
-                .type(TestTypes.PROP_STRING, String.class)
+                .type("exampleType", String.class)
                 .build();
 
         // When
@@ -433,7 +448,7 @@ public class SchemaTest {
 
         assertEquals(position1, schema.getPosition(IdentifierType.VERTEX.name()));
         assertEquals(position2, schema.getPosition(IdentifierType.SOURCE.name()));
-        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
+        assertEquals(String.class, schema.getType("exampleType").getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
     }
 

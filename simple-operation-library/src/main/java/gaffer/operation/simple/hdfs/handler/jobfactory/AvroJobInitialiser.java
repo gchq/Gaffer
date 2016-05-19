@@ -21,12 +21,10 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Parser;
 import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * An <code>AvroJobInitialiser</code> is an {@link gaffer.operation.simple.hdfs.handler.jobfactory.JobInitialiser} that
@@ -56,10 +54,7 @@ public class AvroJobInitialiser implements JobInitialiser {
         final Schema schema = new Parser().parse(new File(avroSchemaFilePath));
         AvroJob.setInputKeySchema(job, schema);
         job.setInputFormatClass(AvroKeyInputFormat.class);
-        List<String> paths = operation.getInputPaths();
-        for (String path : paths) {
-            AvroKeyInputFormat.addInputPath(job, new Path(path));
-        }
+        AvroKeyInputFormat.addInputPath(job, operation.getInputPath());
     }
 
     public String getAvroSchemaFilePath() {

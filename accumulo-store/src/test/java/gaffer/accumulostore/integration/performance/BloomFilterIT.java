@@ -31,7 +31,6 @@ import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
@@ -85,13 +84,13 @@ public class BloomFilterIT {
 
     static {
         schema = new Schema.Builder()
-                .type(TestTypes.PROP_INTEGER, Integer.class)
+                .type("prop.integer", Integer.class)
                 .vertexSerialiser(new JavaSerialiser())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(AccumuloPropertyNames.INT, TestTypes.PROP_INTEGER)
+                        .property(AccumuloPropertyNames.INT, "prop.integer")
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(AccumuloPropertyNames.INT, TestTypes.PROP_INTEGER)
+                        .property(AccumuloPropertyNames.INT, "prop.integer")
                         .build())
                 .build();
         byteEntityRangeFactory = new ByteEntityRangeFactory(schema);

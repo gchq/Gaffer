@@ -90,9 +90,9 @@ public class AreEqualTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.filter.AreEqual\"%n" +
-                "}"), json);
+        assertEquals("{\n" +
+                "  \"class\" : \"gaffer.function.simple.filter.AreEqual\"\n" +
+                "}", json);
 
         // When 2
         final AreEqual deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), AreEqual.class);

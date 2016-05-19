@@ -125,20 +125,20 @@ public final class TableUtils {
             LOGGER.info("Removing versioning iterator");
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
-            LOGGER.info("Removed Versioning iterator");
+            LOGGER.info("Versioning iterator removed");
 
             // Add Combiner iterator to table for all scopes
-            LOGGER.info("Adding Aggregator iterator to table for all scopes");
+            LOGGER.info("Combiner iterator to table for all scopes");
             connector.tableOperations().attachIterator(tableName,
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-            LOGGER.info("Added Aggregator iterator to table for all scopes");
+            LOGGER.info("Combiner iterator to table for all scopes");
 
             if (store.getProperties().getEnableValidatorIterator()) {
                 // Add validator iterator to table for all scopes
-                LOGGER.info("Adding Validator iterator to table for all scopes");
+                LOGGER.info("Adding validator iterator to table for all scopes");
                 connector.tableOperations().attachIterator(tableName,
                         store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
-                LOGGER.info("Added Validator iterator to table for all scopes");
+                LOGGER.info("Added validator iterator to table for all scopes");
             } else {
                 LOGGER.info("Validator iterator has been disabled");
             }

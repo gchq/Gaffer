@@ -135,10 +135,10 @@ public class IsLessThanTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.filter.IsLessThan\",%n" +
-                "  \"value\" : 5%n" +
-                "}"), json);
+        assertEquals("{\n" +
+                "  \"class\" : \"gaffer.function.simple.filter.IsLessThan\",\n" +
+                "  \"value\" : 5\n" +
+                "}", json);
 
         // When 2
         final IsLessThan deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), IsLessThan.class);

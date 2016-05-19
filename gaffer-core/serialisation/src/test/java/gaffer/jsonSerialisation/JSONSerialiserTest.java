@@ -16,16 +16,17 @@
 
 package gaffer.jsonSerialisation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.serialisation.test.ParameterisedTestObject;
 import gaffer.serialisation.test.SimpleTestObject;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JSONSerialiserTest {
 
@@ -72,7 +73,7 @@ public class JSONSerialiserTest {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
         byte[] bytes = serialiser.serialise(test, true);
-        assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
+        assertEquals("{\n  \"x\" : \"TestValue1\"\n}", new String(bytes));
     }
 
     @Test

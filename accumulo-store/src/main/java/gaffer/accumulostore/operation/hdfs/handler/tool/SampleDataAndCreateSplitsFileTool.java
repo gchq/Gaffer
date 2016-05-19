@@ -100,13 +100,13 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         } catch (IOException e) {
             throw new OperationException("Failed to get Filesystem from configuraiton : " + e.getMessage(), e);
         }
-        Path resultsFile = new Path(operation.getOutputPath(), "part-r-00000");
+        Path resultsFile = new Path(operation.getInputPath(), "part-r-00000");
         Key key = new Key();
         Value value = new Value();
         long count = 0;
         int numberSplitPointsOutput = 0;
         try (SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, conf);
-             PrintStream splitsWriter = new PrintStream(new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)), false, CommonConstants.UTF_8)
+             PrintStream splitsWriter = new PrintStream(new BufferedOutputStream(fs.create(operation.getResultingSplitsFilePath(), true)), false, CommonConstants.UTF_8)
         ) {
             while (reader.next(key, value) && numberSplitPointsOutput < numberTabletServers - 1) {
                 count++;

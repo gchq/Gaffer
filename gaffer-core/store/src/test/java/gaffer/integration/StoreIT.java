@@ -31,7 +31,6 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -42,8 +41,8 @@ import gaffer.store.schema.Schema;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
 
 public class StoreIT {
     @Test
@@ -75,10 +74,10 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
+        private final List<StoreTrait> TRAITS = Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION);
 
         @Override
-        public Set<StoreTrait> getTraits() {
+        protected Collection<StoreTrait> getTraits() {
             return TRAITS;
         }
 
@@ -88,11 +87,6 @@ public class StoreIT {
 
         @Override
         protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
-            return null;
-        }
-
-        @Override
-        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
             return null;
         }
 

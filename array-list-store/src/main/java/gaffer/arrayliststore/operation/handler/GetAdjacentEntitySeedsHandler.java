@@ -16,9 +16,6 @@
 
 package gaffer.arrayliststore.operation.handler;
 
-import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING;
-import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
-
 import gaffer.arrayliststore.ArrayListStore;
 import gaffer.data.element.Edge;
 import gaffer.operation.OperationException;
@@ -26,15 +23,16 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING;
+import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
+
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
     @Override
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user, final Store store)
-            throws OperationException {
+    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final Store store) throws OperationException {
         return doOperation(operation, (ArrayListStore) store);
     }
 

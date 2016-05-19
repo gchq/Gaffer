@@ -41,7 +41,6 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
-import gaffer.user.User;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
@@ -106,8 +105,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
         GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
-        final User user = new User();
-        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
             results.add(elm);
@@ -133,7 +131,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.clear();
         seeds.add(new EntitySeed("A1"));
         op = new GetRelatedElements<>(defaultView, seeds);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         int count = 0;
         for (Element element : retriever) {
@@ -156,7 +154,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(new EntitySeed("A1"));
         seeds.add(new EntitySeed("A2"));
         op = new GetRelatedElements<>(defaultView, seeds);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         count = 0;
         for (Element element : retriever) {
@@ -197,7 +195,6 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     public void testDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
-            final User user = new User();
             // Set outgoing edges only option, and query for the set {C,D}.
             store.getProperties().setMaxEntriesForBatchScanner("1");
             List<EntitySeed> seeds = new ArrayList<>();
@@ -208,7 +205,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             expectedResults.add(UNDIRECTED_EDGE);
             GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
             op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-            AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, true);
+            AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, true);
             Set<Element> results = new HashSet<>();
             for (Element element : retriever) {
                 results.add(element);
@@ -218,7 +215,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
             // Set set edges only option, and query for the set {C,D}.
             op.setIncludeIncomingOutGoing(GetOperation.IncludeIncomingOutgoingType.INCOMING);
-            retriever = new AccumuloIDWithinSetRetriever(store, op, user, false);
+            retriever = new AccumuloIDWithinSetRetriever(store, op, false);
             results.clear();
             for (Element element : retriever) {
                 results.add(element);
@@ -250,8 +247,6 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final User user = new User();
-
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
         seeds.add(new EntitySeed("D"));
@@ -259,7 +254,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Set undirected edges only option, and query for edges in set {C, D} - should get the undirected edge
         op.setIncludeEdges(GetOperation.IncludeEdgeType.UNDIRECTED);
         op.setIncludeEntities(false);
-        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element element : retriever) {
             results.add(element);
@@ -272,7 +267,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Set directed edges only option, and query for edges in set {C, D} - should get the directed edge
         op = new GetRelatedElements<>(defaultView, seeds);
         op.setIncludeEdges(IncludeEdgeType.DIRECTED);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         for (Element element : retriever) {
             results.add(element);
@@ -285,7 +280,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         op = new GetRelatedElements<>(defaultView, seeds);
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
         op.setIncludeEdges(IncludeEdgeType.ALL);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         for (Element element : retriever) {
             results.add(element);
@@ -370,8 +365,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         elms.add(edge);
         GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
         // Now query for all edges in set - shouldn't get the false positive
-        final User user = new User();
-        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element element : retriever) {
             results.add(element);
@@ -410,8 +404,6 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testOtherFilteringStillApplied(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final User user = new User();
-
         // Query for all edges in set {A0, A23}
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("A0"));
@@ -419,7 +411,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
         // Set graph to give us edges only
         op.setIncludeEntities(false);
-        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
             results.add(elm);
@@ -436,7 +428,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         op.setIncludeEntities(true);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         // Query for all edges in set {A0, A23}
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         for (Element elm : retriever) {
             results.add(elm);
@@ -457,7 +449,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         op = new GetRelatedElements<>(view, seeds);
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(true);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         int count = 0;
         for (@SuppressWarnings("unused") Element elm : retriever) {
@@ -479,7 +471,6 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     static void testWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final User user = new User();
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
         // Query for all edges in set {A0, A23}
@@ -487,7 +478,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(new EntitySeed("A0"));
         seeds.add(new EntitySeed("A23"));
         GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
-        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        AccumuloIDWithinSetRetriever retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         Set<Element> results = new HashSet<>();
         for (Element elm : retriever) {
             results.add(elm);
@@ -509,7 +500,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.clear();
         seeds.add(new EntitySeed("A1"));
         op = new GetRelatedElements<>(defaultView, seeds);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         int count = 0;
         for (Element elm : retriever) {
@@ -530,7 +521,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(new EntitySeed("A1"));
         seeds.add(new EntitySeed("A2"));
         op = new GetRelatedElements<>(defaultView, seeds);
-        retriever = new AccumuloIDWithinSetRetriever(store, op, user, loadIntoMemory);
+        retriever = new AccumuloIDWithinSetRetriever(store, op, loadIntoMemory);
         results.clear();
         count = 0;
         for (Element elm : retriever) {
@@ -549,8 +540,6 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     private static void setupGraph(final AccumuloStore store) {
-        final User user = new User();
-
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
@@ -579,15 +568,15 @@ public class AccumuloIDWithinSetRetrieverTest {
             }
             data.add(DIRECTED_EDGE);
             data.add(UNDIRECTED_EDGE);
-            addElements(data, store, user);
+            addElements(data, store);
         } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
+    private static void addElements(final Iterable<Element> data, final AccumuloStore store) {
         try {
-            store.execute(new AddElements(data), user);
+            store.execute(new AddElements(data));
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

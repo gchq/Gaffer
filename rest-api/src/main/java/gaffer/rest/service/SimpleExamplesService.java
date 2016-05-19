@@ -34,9 +34,6 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import gaffer.operation.impl.get.GetAllEdges;
-import gaffer.operation.impl.get.GetAllElements;
-import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
@@ -58,7 +55,6 @@ import java.util.Locale;
 
 
 public class SimpleExamplesService implements IExamplesService {
-    public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
     private final GraphFactory graphFactory;
 
     public SimpleExamplesService() {
@@ -173,7 +169,7 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetAdjacentEntitySeeds getAdjacentEntitySeeds() {
+    public GetAdjacentEntitySeeds adjacentEntitySeeds() {
         final GetAdjacentEntitySeeds op = new GetAdjacentEntitySeeds();
         final List<EntitySeed> seeds = new ArrayList<>();
         if (hasEntities()) {
@@ -183,27 +179,6 @@ public class SimpleExamplesService implements IExamplesService {
         }
 
         op.setSeeds(seeds);
-        populateOperation(op);
-        return op;
-    }
-
-    @Override
-    public GetAllElements<Element> getAllElements() {
-        final GetAllElements<Element> op = new GetAllElements<>();
-        populateOperation(op);
-        return op;
-    }
-
-    @Override
-    public GetAllEntities getAllEntities() {
-        final GetAllEntities op = new GetAllEntities();
-        populateOperation(op);
-        return op;
-    }
-
-    @Override
-    public GetAllEdges getAllEdges() {
-        final GetAllEdges op = new GetAllEdges();
         populateOperation(op);
         return op;
     }
@@ -276,16 +251,11 @@ public class SimpleExamplesService implements IExamplesService {
 
     private void populateOperation(final GetOperation operation) {
         populateOperation((Operation) operation);
-
-        View.Builder viewBuilder = generateViewBuilder();
-        operation.setView(viewBuilder.build());
-    }
-
-    protected View.Builder generateViewBuilder() {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
             viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty(TRANSFORMED_PROPERTIES, String.class)
+                    .transientProperty(getAnEntityPropertyName(), String.class)
+                    .transientProperty("transformedProperties", String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEntityPropertyName())
                             .execute(new ExampleFilterFunction())
@@ -293,14 +263,15 @@ public class SimpleExamplesService implements IExamplesService {
                     .transformer(new ElementTransformer.Builder()
                             .select(getAnEntityPropertyName())
                             .execute(new ExampleTransformFunction())
-                            .project(TRANSFORMED_PROPERTIES)
+                            .project("transformedProperties")
                             .build())
                     .build());
         }
 
         if (hasEdges()) {
             viewBuilder.edge(getAnEdgeGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty(TRANSFORMED_PROPERTIES, String.class)
+                    .transientProperty(getAnEdgePropertyName(), String.class)
+                    .transientProperty("transformedProperties", String.class)
                     .filter(new ElementFilter.Builder()
                             .select(getAnEdgePropertyName())
                             .execute(new ExampleFilterFunction())
@@ -308,12 +279,12 @@ public class SimpleExamplesService implements IExamplesService {
                     .transformer(new ElementTransformer.Builder()
                             .select(getAnEdgePropertyName())
                             .execute(new ExampleTransformFunction())
-                            .project(TRANSFORMED_PROPERTIES)
+                            .project("transformedProperties")
                             .build())
                     .build());
         }
 
-        return viewBuilder;
+        operation.setView(viewBuilder.build());
     }
 
     protected void populateOperation(final Operation operation) {

@@ -187,10 +187,6 @@ public class StoreProperties {
                 LOGGER.error("Failed to close store properties stream: " + e.getMessage(), e);
             }
         }
-        return loadStoreProperties(props);
-    }
-
-    public static StoreProperties loadStoreProperties(final Properties props) {
         final String storePropertiesClass = props.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
         final StoreProperties storeProperties;
         if (null == storePropertiesClass) {

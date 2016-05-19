@@ -19,7 +19,6 @@ package gaffer.store.operation.handler;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationException;
 import gaffer.store.Store;
-import gaffer.user.User;
 
 /**
  * An <code>OperationHandler</code> defines how to handle a specific {@link gaffer.operation.Operation}.
@@ -29,10 +28,9 @@ public interface OperationHandler<OPERATION extends Operation<?, ?>, OUTPUT> {
      * Execute the given {@link gaffer.operation.Operation}.
      *
      * @param operation the {@link gaffer.operation.Operation} to be executed
-     * @param user      the user executing the operation
      * @param store     the {@link gaffer.store.Store} the operation should be run on
      * @return the OUTPUT for the operation.
      * @throws OperationException thrown if the operation fails
      */
-    OUTPUT doOperation(final OPERATION operation, final User user, final Store store) throws OperationException;
+    OUTPUT doOperation(final OPERATION operation, final Store store) throws OperationException;
 }

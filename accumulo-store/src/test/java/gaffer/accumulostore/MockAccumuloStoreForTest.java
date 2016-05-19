@@ -20,9 +20,7 @@ import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.commonutil.StreamUtil;
-import gaffer.operation.Operation;
 import gaffer.store.StoreException;
-import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -58,11 +56,6 @@ public class MockAccumuloStoreForTest extends MockAccumuloStore {
         }
 
         clearTables();
-    }
-
-
-    OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
-        return super.getOperationHandler(opClass);
     }
 
     @Override

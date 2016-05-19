@@ -85,12 +85,6 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         }
 
         @Override
-        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
-            super.inOutType(inOutType);
-            return this;
-        }
-
-        @Override
         public Builder summarise(final boolean summarise) {
             super.summarise(summarise);
             return this;

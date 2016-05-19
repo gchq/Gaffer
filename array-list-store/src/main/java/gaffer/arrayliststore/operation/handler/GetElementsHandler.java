@@ -16,64 +16,59 @@
 
 package gaffer.arrayliststore.operation.handler;
 
-import static gaffer.operation.GetOperation.IncludeEdgeType;
-import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-
 import gaffer.arrayliststore.ArrayListStore;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.operation.GetOperation.SeedMatchingType;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.ElementSeed.Matches;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static gaffer.operation.GetOperation.IncludeEdgeType;
+import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                         final User user, final Store store)
-            throws OperationException {
+    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final Store store) {
         return doOperation(operation, (ArrayListStore) store);
     }
 
     private List<Element> doOperation(final GetElements<ElementSeed, Element> operation, final ArrayListStore store) {
         final ArrayList<Element> result = new ArrayList<>();
-        if (null != operation.getSeeds()) {
-            if (operation.isIncludeEntities()) {
-                for (final Entity entity : store.getEntities()) {
-                    if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
-                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                            if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
-                                result.add(entity);
-                            }
-                        } else {
-                            if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
-                                result.add(entity);
-                            }
+        if (operation.isIncludeEntities()) {
+            for (final Entity entity : store.getEntities()) {
+                if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
+                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                        if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
+                            result.add(entity);
+                        }
+                    } else {
+                        if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
+                            result.add(entity);
                         }
                     }
                 }
             }
-            if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
-                for (final Edge edge : store.getEdges()) {
-                    if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
-                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                            if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
-                                result.add(edge);
-                            }
-                        } else {
-                            if (isSeedRelated(operation, edge)) {
-                                result.add(edge);
-                            }
+        }
+        if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
+            for (final Edge edge : store.getEdges()) {
+                if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
+                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                        if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
+                            result.add(edge);
+                        }
+                    } else {
+                        if (isSeedRelated(operation, edge)) {
+                            result.add(edge);
                         }
                     }
                 }

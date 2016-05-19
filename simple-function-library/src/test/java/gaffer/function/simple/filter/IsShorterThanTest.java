@@ -116,10 +116,10 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.filter.IsShorterThan\",%n" +
-                "  \"maxLength\" : 5%n" +
-                "}"), json);
+        assertEquals("{\n" +
+                "  \"class\" : \"gaffer.function.simple.filter.IsShorterThan\",\n" +
+                "  \"maxLength\" : 5\n" +
+                "}", json);
 
         // When 2
         final IsShorterThan deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), IsShorterThan.class);

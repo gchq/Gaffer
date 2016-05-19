@@ -573,9 +573,9 @@ public class MinTest extends AggregateFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
 
         // Then 1
-        assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.Min\"%n" +
-                "}"), json);
+        assertEquals("{\n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.Min\"\n" +
+                "}", json);
 
         // When 2
         final Min deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), Min.class);

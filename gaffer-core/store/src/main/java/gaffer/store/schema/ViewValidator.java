@@ -67,14 +67,14 @@ public class ViewValidator {
                                 isValid = false;
                             }
                         }
+                    }
 
-                        if (!validateFunctionArgumentTypes(viewElDef.getFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
+                    if (!validateFunctionArgumentTypes(viewElDef.getFilter(), viewElDef, schemaElDef)) {
+                        isValid = false;
+                    }
 
-                        if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
+                    if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
+                        isValid = false;
                     }
                 }
             }
@@ -95,14 +95,14 @@ public class ViewValidator {
                                 isValid = false;
                             }
                         }
+                    }
 
-                        if (!validateFunctionArgumentTypes(viewElDef.getFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
+                    if (!validateFunctionArgumentTypes(viewElDef.getFilter(), viewElDef, schemaElDef)) {
+                        isValid = false;
+                    }
 
-                        if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
+                    if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
+                        isValid = false;
                     }
                 }
             }

@@ -78,10 +78,10 @@ public class IsEqualTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.filter.IsEqual\",%n" +
-                "  \"value\" : \"test\"%n" +
-                "}"), json);
+        assertEquals("{\n" +
+                "  \"class\" : \"gaffer.function.simple.filter.IsEqual\",\n" +
+                "  \"value\" : \"test\"\n" +
+                "}", json);
 
         // When 2
         final IsEqual deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), IsEqual.class);

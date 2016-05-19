@@ -16,46 +16,45 @@
 
 package gaffer.operation.impl.add;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+
 public class AddElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-    public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
-            "  \"elements\" : [ {%n" +
-            "    \"class\" : \"gaffer.data.element.Entity\",%n" +
-            "    \"properties\" : {%n" +
-            "      \"property 1\" : \"property 1 value\"%n" +
-            "    },%n" +
-            "    \"group\" : \"entity type 1\",%n" +
-            "    \"vertex\" : \"vertex 1\"%n" +
-            "  }, {%n" +
-            "    \"class\" : \"gaffer.data.element.Edge\",%n" +
-            "    \"properties\" : {%n" +
-            "      \"property 2\" : \"property 2 value\"%n" +
-            "    },%n" +
-            "    \"group\" : \"edge type 2\",%n" +
-            "    \"source\" : \"source vertex 1\",%n" +
-            "    \"destination\" : \"dest vertex 1\",%n" +
-            "    \"directed\" : true%n" +
-            "  } ]%n" +
-            "}");
+    public static final String ADD_ELEMENTS_JSON = "{\n" +
+            "  \"elements\" : [ {\n" +
+            "    \"class\" : \"gaffer.data.element.Entity\",\n" +
+            "    \"properties\" : {\n" +
+            "      \"property 1\" : \"property 1 value\"\n" +
+            "    },\n" +
+            "    \"group\" : \"entity type 1\",\n" +
+            "    \"vertex\" : \"vertex 1\"\n" +
+            "  }, {\n" +
+            "    \"class\" : \"gaffer.data.element.Edge\",\n" +
+            "    \"properties\" : {\n" +
+            "      \"property 2\" : \"property 2 value\"\n" +
+            "    },\n" +
+            "    \"group\" : \"edge type 2\",\n" +
+            "    \"source\" : \"source vertex 1\",\n" +
+            "    \"destination\" : \"dest vertex 1\",\n" +
+            "    \"directed\" : true\n" +
+            "  } ]\n" +
+            "}";
 
     @Test
     @Override
@@ -119,17 +118,4 @@ public class AddElementsTest implements OperationTest {
 
         assertFalse(itr.hasNext());
     }
-
-    @Test
-    @Override
-    public void builderShouldCreatePopulatedOperation() {
-        Element element = new Edge("testEdgeGroup");
-        AddElements addElements = new AddElements.Builder().elements(Arrays.asList(element)).skipInvalidElements(true).option("testOption", "true").validate(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
-        assertEquals("true", addElements.getOption("testOption"));
-        assertTrue(addElements.isSkipInvalidElements());
-        assertFalse(addElements.isValidate());
-        assertNotNull(addElements.getView());
-        assertEquals(element, addElements.getElements().iterator().next());
-    }
-
 }

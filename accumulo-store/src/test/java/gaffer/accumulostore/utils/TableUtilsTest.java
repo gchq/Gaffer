@@ -27,7 +27,6 @@ import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.TestTypes;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -47,12 +46,12 @@ public class TableUtilsTest {
         // Given
         final MockAccumuloStore store = new MockAccumuloStore();
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, String.class)
-                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
+                .type("id.string", String.class)
+                .type("directed.true", Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
+                        .source("id.string")
+                        .destination("id.string")
+                        .directed("directed.true")
                         .build())
                 .build();
 

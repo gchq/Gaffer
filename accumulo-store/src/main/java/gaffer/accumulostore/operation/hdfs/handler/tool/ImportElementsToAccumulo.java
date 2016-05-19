@@ -15,45 +15,53 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.tool;
 
-import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.utils.IngestUtils;
-import gaffer.accumulostore.utils.TableUtils;
+import org.apache.accumulo.core.client.Connector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Tool;
+
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.utils.IngestUtils;
+import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.store.StoreException;
 
 public class ImportElementsToAccumulo extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 0;
 
-    private final String inputPath;
-    private final String failurePath;
-    private final AccumuloStore store;
+    private final AddElementsFromHdfs operation;
+    private final Connector connector;
+    private final String table;
 
-    public ImportElementsToAccumulo(final String inputPath, final String failurePath, final AccumuloStore store) {
-        this.inputPath = inputPath;
-        this.failurePath = failurePath;
-        this.store = store;
+    public ImportElementsToAccumulo(final AddElementsFromHdfs operation, final AccumuloStore store)
+            throws StoreException {
+        this.operation = operation;
+        this.connector = store.getConnection();
+        this.table = store.getProperties().getTable();
     }
 
     @Override
     public int run(final String[] strings) throws Exception {
-        TableUtils.ensureTableExists(store);
-
         // Hadoop configuration
         final Configuration conf = getConf();
         final FileSystem fs = FileSystem.get(conf);
 
+        // Make the failure directory
+        fs.mkdirs(operation.getFailurePath());
+        fs.setPermission(operation.getFailurePath(), new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL));
+
         // Remove the _SUCCESS file to prevent warning in accumulo
-        fs.delete(new Path(inputPath + "/_SUCCESS"), false);
+        fs.delete(new Path(operation.getOutputPath().toString() + "/_SUCCESS"), false);
 
         // Set all permissions
-        IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
+        IngestUtils.setDirectoryPermsForAccumulo(fs, operation.getOutputPath());
 
         // Import the files
-        store.getConnection().tableOperations().importDirectory(store.getProperties().getTable(), inputPath,
-                failurePath, false);
+        connector.tableOperations().importDirectory(table, operation.getOutputPath().toString(),
+                operation.getFailurePath().toString(), false);
 
         return SUCCESS_RESPONSE;
     }
