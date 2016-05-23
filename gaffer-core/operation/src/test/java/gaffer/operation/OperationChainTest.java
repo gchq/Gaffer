@@ -16,18 +16,96 @@
 
 package gaffer.operation;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
+import gaffer.data.element.Element;
 import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.OperationChain.Builder;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.OperationImpl;
+import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.operation.impl.get.GetRelatedElements;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
-
+@RunWith(MockitoJUnitRunner.class)
 public class OperationChainTest {
+    private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
+        // Given
+        final OperationChain<Object> opChain = new Builder()
+                .first(new OperationImpl<>())
+                .then(new OperationImpl<>())
+                .build();
+
+        // When
+        byte[] json = serialiser.serialise(opChain, true);
+        final OperationChain deserialisedOp = serialiser.deserialise(json, OperationChain.class);
+
+        // Then
+        assertNotNull(deserialisedOp);
+        assertEquals(2, deserialisedOp.getOperations().size());
+        assertEquals(OperationImpl.class, deserialisedOp.getOperations().get(0).getClass());
+        assertEquals(OperationImpl.class, deserialisedOp.getOperations().get(1).getClass());
+    }
+
+    @Test
+    public void shouldBuildOperationChain() {
+        // Given
+        final AddElements addElements = mock(AddElements.class);
+        final GetAdjacentEntitySeeds getAdj1 = mock(GetAdjacentEntitySeeds.class);
+        final GetAdjacentEntitySeeds getAdj2 = mock(GetAdjacentEntitySeeds.class);
+        final GetRelatedElements<EntitySeed, Element> getRelElements = mock(GetRelatedElements.class);
+
+        // When
+        final OperationChain<Iterable<Element>> opChain = new Builder()
+                .first(addElements)
+                .then(getAdj1)
+                .then(getAdj2)
+                .then(getRelElements)
+                .build();
+
+        // Then
+        assertArrayEquals(new Operation[]{
+                        addElements,
+                        getAdj1,
+                        getAdj2,
+                        getRelElements},
+                opChain.getOperationArray());
+    }
+
+    @Test
+    public void shouldReturnReadableStringForToString() {
+        // Given
+        final AddElements addElements = new AddElements();
+        final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
+        final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
+        final GetRelatedElements<EntitySeed, Element> getRelElements = new GetRelatedElements<>();
+        final OperationChain<Iterable<Element>> opChain = new Builder()
+                .first(addElements)
+                .then(getAdj1)
+                .then(getAdj2)
+                .then(getRelElements)
+                .build();
+
+        // When
+        final String toString = opChain.toString();
+
+        // Then
+        final String expectedToString =
+                "OperationChain[AddElements->GetAdjacentEntitySeeds->GetAdjacentEntitySeeds->GetRelatedElements]";
+        assertEquals(expectedToString, toString);
+    }
 
     @Test
     public void shouldBuildOperationChainWithSingleOperation() throws SerialisationException {
