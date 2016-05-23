@@ -15,13 +15,13 @@
 target/
 */*.iml
 *.iml
-*/.settings
-.settings/
-*/.project
+*/.settings/*
+.settings/*
+*/*.project
 .project
 */bin
 */*.class
 */atlassian-ide*
 */.idea
 .idea/*
-*/.classpath
+*/*.classpath
