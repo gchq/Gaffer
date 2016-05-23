@@ -96,9 +96,9 @@ public class IsFalseTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.IsFalse\"\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.IsFalse\"%n" +
+                "}"), json);
 
         // When 2
         final IsFalse deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), IsFalse.class);

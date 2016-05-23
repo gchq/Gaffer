@@ -16,7 +16,6 @@
 
 package gaffer.example.films.analytic;
 
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
@@ -40,6 +39,7 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
+import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,14 +50,17 @@ public class LoadAndQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadAndQuery.class);
 
     /**
-     * The authorisation for the user doing the query.
+     * The user for the user doing the query.
      * Here we are setting the authorisation to include all certificates so the user will be able to see all the data.
      */
-    private static final String AUTH = Certificate.U.name() + ","
-            + Certificate.PG.name() + ","
-            + Certificate._12A.name() + ","
-            + Certificate._15.name() + ","
-            + Certificate._18.name();
+    private static final User USER = new User.Builder()
+            .userId("user02")
+            .dataAuth(Certificate.U.name())
+            .dataAuth(Certificate.PG.name())
+            .dataAuth(Certificate._12A.name())
+            .dataAuth(Certificate._15.name())
+            .dataAuth(Certificate._18.name())
+            .build();
 
     public static void main(final String[] args) throws OperationException {
         final Iterable<Entity> results = new LoadAndQuery().run();
@@ -88,7 +91,7 @@ public class LoadAndQuery {
     public Iterable<Entity> run() throws OperationException {
         // Setup graph
         final Graph graph = new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(getClass(), "/example/films/properties/mockaccumulostore.properties", true))
+                .storeProperties(StreamUtil.openStream(getClass(), "/example/films/mockaccumulostore.properties", true))
                 .addSchema(StreamUtil.openStream(getClass(), "/example/films/schema/dataSchema.json", true))
                 .addSchema(StreamUtil.openStream(getClass(), "/example/films/schema/dataTypes.json", true))
                 .addSchema(StreamUtil.openStream(getClass(), "/example/films/schema/storeTypes.json", true))
@@ -107,7 +110,7 @@ public class LoadAndQuery {
                 .build();
 
         // Execute the populate operation chain on the graph
-        graph.execute(populateChain);
+        graph.execute(populateChain, USER);
 
 
         // Run a query on the graph to fetch average star ratings for all films user02 has watched.
@@ -119,7 +122,6 @@ public class LoadAndQuery {
                                 .edge(Group.VIEWING)
                                 .build())
                         .addSeed(new EntitySeed("user02"))
-                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
@@ -137,11 +139,10 @@ public class LoadAndQuery {
                                         .build())
                                 .build())
                         .summarise(true)   // Setting the summarise flag to true will aggregate the results when run on a store that supports aggregation
-                        .option(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTH)
                         .build())
                 .build();
 
         // Execute the query operation chain on the graph.
-        return graph.execute(queryChain);
+        return graph.execute(queryChain, USER);
     }
 }

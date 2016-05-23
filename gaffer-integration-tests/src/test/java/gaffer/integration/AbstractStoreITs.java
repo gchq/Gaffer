@@ -23,10 +23,14 @@ import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,6 +43,7 @@ public abstract class AbstractStoreITs {
     private final StoreProperties storeProperties;
     private final Schema schema;
     private final Collection<? extends Class<? extends AbstractStoreIT>> extraTests;
+    private final Map<Class<? extends AbstractStoreIT>, String> skipTests = new HashMap<>();
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
         this.schema = schema;
@@ -46,7 +51,7 @@ public abstract class AbstractStoreITs {
         this.extraTests = extraTests;
     }
 
-    public AbstractStoreITs(final StoreProperties storeProperties, Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
+    public AbstractStoreITs(final StoreProperties storeProperties, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
         this(storeProperties, new Schema(), extraTests);
     }
 
@@ -70,7 +75,17 @@ public abstract class AbstractStoreITs {
         return extraTests;
     }
 
+    public Map<? extends Class<? extends AbstractStoreIT>, String> getSkipTests() {
+        return skipTests;
+    }
+
+    protected void skipTest(final Class<? extends AbstractStoreIT> testClass, final String justification) {
+        skipTests.put(testClass, justification);
+    }
+
     public static class StoreTestSuite extends Suite {
+        private static final Logger LOGGER = LoggerFactory.getLogger(StoreTestSuite.class);
+
         public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
             super(builder, clazz, getTestClasses(clazz));
 
@@ -82,6 +97,7 @@ public abstract class AbstractStoreITs {
 
             AbstractStoreIT.setStoreSchema(storeSchema);
             AbstractStoreIT.setStoreProperties(runner.getStoreProperties());
+            AbstractStoreIT.setSkipTests(runner.getSkipTests());
         }
 
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {

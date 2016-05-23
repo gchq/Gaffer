@@ -19,6 +19,7 @@ package gaffer.graph;
 
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.graph.hook.GraphHook;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -27,6 +28,7 @@ import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,15 +66,23 @@ public final class Graph {
     private final View view;
 
     /**
+     * List of {@link GraphHook}s to be triggered before and after operations are
+     * executed on the graph.
+     */
+    private List<GraphHook> graphHooks;
+
+    /**
      * Constructs a <code>Graph</code> with the given {@link gaffer.store.Store} and
      * {@link gaffer.data.elementdefinition.view.View}.
      *
-     * @param store a {@link Store} used to store the elements and handle operations.
-     * @param view  a {@link View} defining the view of the data for the graph.
+     * @param store      a {@link Store} used to store the elements and handle operations.
+     * @param view       a {@link View} defining the view of the data for the graph.
+     * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final View view) {
+    private Graph(final Store store, final View view, final List<GraphHook> graphHooks) {
         this.store = store;
         this.view = view;
+        this.graphHooks = graphHooks;
     }
 
     /**
@@ -80,12 +90,13 @@ public final class Graph {
      * If the operation does not have a view then the graph view is used.
      *
      * @param operation the operation to be executed.
+     * @param user      the user executing the operation.
      * @param <OUTPUT>  the operation output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation) throws OperationException {
-        return execute(new OperationChain<>(operation));
+    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation, final User user) throws OperationException {
+        return execute(new OperationChain<>(operation), user);
     }
 
     /**
@@ -93,18 +104,29 @@ public final class Graph {
      * If the operation does not have a view then the graph view is used.
      *
      * @param operationChain the operation chain to be executed.
+     * @param user           the user executing the operation chain.
      * @param <OUTPUT>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain) throws OperationException {
+    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         for (Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        return store.execute(operationChain);
+        for (GraphHook graphHook : graphHooks) {
+            graphHook.preExecute(operationChain, user);
+        }
+
+        OUTPUT result = store.execute(operationChain, user);
+
+        for (GraphHook graphHook : graphHooks) {
+            graphHook.postExecute(result, operationChain, user);
+        }
+
+        return result;
     }
 
     /**
@@ -164,6 +186,7 @@ public final class Graph {
         private StoreProperties properties;
         private Schema schema;
         private View view;
+        private List<GraphHook> graphHooks = new ArrayList<>();
 
         public Builder view(final View view) {
             this.view = view;
@@ -233,12 +256,17 @@ public final class Graph {
             return this;
         }
 
+        public Builder addHook(final GraphHook graphHook) {
+            this.graphHooks.add(graphHook);
+            return this;
+        }
+
         public Graph build() {
             updateSchema();
             updateStore();
             updateView();
 
-            return new Graph(store, view);
+            return new Graph(store, view, graphHooks);
         }
 
         private void updateSchema() {
@@ -289,7 +317,7 @@ public final class Graph {
             try {
                 newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create store of type: " + storeClass);
+                throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
             }
 
             try {

@@ -16,15 +16,18 @@
 package gaffer.example.gettingstarted.analytic;
 
 import gaffer.commonutil.StreamUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 
 public class LoadAndQuery {
+    private String dataFileLocation;
+    private String dataSchemaLocation;
+    private String dataTypesLocation;
+    private String storeTypesLocation;
+    private String storePropertiesLocation;
 
-    public String dataFileLocation;
-    public String dataSchemaLocation;
-    public String dataTypesLocation;
-    public String storeTypesLocation;
-    public String storePropertiesLocation;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected InputStream getData() {
         return StreamUtil.openStream(LoadAndQuery.class, dataFileLocation, true);
@@ -64,5 +67,9 @@ public class LoadAndQuery {
 
     public void setStorePropertiesLocation(final String storePropertiesLocation) {
         this.storePropertiesLocation = storePropertiesLocation;
+    }
+
+    public void log(final String message) {
+        logger.info(message);
     }
 }

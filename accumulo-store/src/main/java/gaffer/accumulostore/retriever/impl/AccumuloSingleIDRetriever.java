@@ -23,9 +23,9 @@ import gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
-
 import java.util.Set;
 
 /**
@@ -35,9 +35,10 @@ import java.util.Set;
 public class AccumuloSingleIDRetriever
         extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
 
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation)
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation,
+                                     final User user)
             throws IteratorSettingException, StoreException {
-        this(store, operation,
+        this(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
@@ -52,12 +53,14 @@ public class AccumuloSingleIDRetriever
      *
      * @param store            the accumulo store
      * @param operation        the get operation
+     * @param user             the user executing the operation
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
     public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation,
+                                     final User user,
                                      final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, iteratorSettings);
+        super(store, operation, user, iteratorSettings);
     }
 
     @Override

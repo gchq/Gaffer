@@ -17,6 +17,7 @@
 package gaffer.integration.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
@@ -36,15 +37,14 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetRelatedElements;
+import gaffer.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementSeed Seeds
@@ -122,6 +122,30 @@ public class GetElementsIT extends AbstractStoreIT {
         }
     }
 
+    @Test
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
+        // Given
+        final GetElementsSeed<ElementSeed, Element> op = new GetElementsSeed<>();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        assertFalse(results.iterator().hasNext());
+    }
+
+    @Test
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
+        // Given
+        final GetRelatedElements<ElementSeed, Element> op = new GetRelatedElements<>();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        assertFalse(results.iterator().hasNext());
+    }
+
     private void shouldGetElementsBySeed(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
@@ -186,9 +210,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                    final IncludeIncomingOutgoingType inOutType,
                                    final Iterable<ElementSeed> seeds) throws IOException, OperationException {
         // Given
-        final Map<EdgeSeed, Edge> edges = getEdges();
-        final Map<EntitySeed, Entity> entities = getEntities();
-
+        final User user = new User();
         final GetElements<ElementSeed, Element> op;
         if (SeedMatchingType.EQUAL.equals(seedMatching)) {
             op = new GetElementsSeed<>();
@@ -206,12 +228,9 @@ public class GetElementsIT extends AbstractStoreIT {
 
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op);
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
-        Map<? extends ElementSeed, ? extends Element> elements = new HashMap<>(edges);
-        elements.putAll(((Map) entities));
-
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (Element result : results) {
             final ElementSeed seed = ElementSeed.createSeed(result);

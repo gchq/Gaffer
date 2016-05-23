@@ -27,8 +27,8 @@ import gaffer.operation.data.ElementSeed;
  * seeds and returns {@link gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned. See implementations of {@link GetElements} for further details.
  *
- * @param <SEED_TYPE> the seed seed type
- * @param <ELEMENT_TYPE>  the element return type
+ * @param <SEED_TYPE>    the seed seed type
+ * @param <ELEMENT_TYPE> the element return type
  * @see gaffer.operation.GetOperation
  */
 public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
@@ -63,5 +63,4 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         super.setSeedMatching(seedMatching);
     }
-
 }

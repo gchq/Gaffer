@@ -34,6 +34,9 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetAllEdges;
+import gaffer.operation.impl.get.GetAllElements;
+import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
@@ -60,7 +63,7 @@ public class SimpleExamplesService implements IExamplesService {
     private final GraphFactory graphFactory;
 
     public SimpleExamplesService() {
-        this(new GraphFactory(true));
+        this(GraphFactory.createGraphFactory());
     }
 
     public SimpleExamplesService(final GraphFactory graphFactory) {
@@ -171,7 +174,7 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetAdjacentEntitySeeds adjacentEntitySeeds() {
+    public GetAdjacentEntitySeeds getAdjacentEntitySeeds() {
         final GetAdjacentEntitySeeds op = new GetAdjacentEntitySeeds();
         final List<EntitySeed> seeds = new ArrayList<>();
         if (hasEntities()) {
@@ -181,6 +184,27 @@ public class SimpleExamplesService implements IExamplesService {
         }
 
         op.setSeeds(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetAllElements<Element> getAllElements() {
+        final GetAllElements<Element> op = new GetAllElements<>();
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetAllEntities getAllEntities() {
+        final GetAllEntities op = new GetAllEntities();
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetAllEdges getAllEdges() {
+        final GetAllEdges op = new GetAllEdges();
         populateOperation(op);
         return op;
     }

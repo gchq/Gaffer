@@ -1,0 +1,36 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.Exists"
+          }
+        }
+      ]
+    },
+    "count.int": {
+      "class": "java.lang.Integer",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsMoreThan",
+            "orEqualTo": true,
+            "value": 0
+          }
+        }
+      ]
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsTrue"
+          }
+        }
+      ]
+    }
+  }
+}

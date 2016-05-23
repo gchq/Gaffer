@@ -73,7 +73,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<DomainObject> results = Lists.newArrayList(graph.execute(opChain));
+        final List<DomainObject> results = Lists.newArrayList(graph.execute(opChain, getUser()));
 
         // Then
         assertNotNull(results);
@@ -100,13 +100,13 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .build();
 
         // When - add
-        graph.execute(opChain);
+        graph.execute(opChain, getUser());
 
         // Then - check they were added correctly
         final List<Element> results = Lists.newArrayList(graph.execute(new GetElementsSeed.Builder<>()
                 .addSeed(new EntitySeed(NEW_VERTEX))
                 .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
-                .build()));
+                .build(), getUser()));
         assertNotNull(results);
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(

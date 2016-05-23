@@ -149,12 +149,12 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.FreqMapIsMoreThan\",\n" +
-                "  \"key\" : \"key1\",\n" +
-                "  \"frequency\" : 1,\n" +
-                "  \"orEqualTo\" : true\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.FreqMapIsMoreThan\",%n" +
+                "  \"key\" : \"key1\",%n" +
+                "  \"frequency\" : 1,%n" +
+                "  \"orEqualTo\" : true%n" +
+                "}"), json);
 
         // When 2
         final FreqMapIsMoreThan deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), FreqMapIsMoreThan.class);
