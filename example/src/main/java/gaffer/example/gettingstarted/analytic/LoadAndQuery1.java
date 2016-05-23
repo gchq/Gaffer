@@ -46,12 +46,12 @@ public class LoadAndQuery1 extends LoadAndQuery {
         //create some edges from the data file using our data generator class
         final List<Element> elements = new ArrayList<>();
         final DataGenerator1 data1Generator = new DataGenerator1();
-        System.out.println("Turn the data into Graph Edges\n");
+        log("Turn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
-            System.out.println(data1Generator.getElement(s).toString());
+            log(data1Generator.getElement(s).toString());
             elements.add(data1Generator.getElement(s));
         }
-        System.out.println("");
+        log("");
 
 
         //create a graph using our schema and store properties
@@ -76,9 +76,9 @@ public class LoadAndQuery1 extends LoadAndQuery {
 
         // Execute query
         final Iterable<Edge> results = graph1.execute(query, user);
-        System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
         for (Element e : results) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         return results;
