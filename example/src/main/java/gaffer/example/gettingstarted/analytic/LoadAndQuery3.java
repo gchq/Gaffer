@@ -51,9 +51,9 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final DataGenerator3 dataGenerator3 = new DataGenerator3();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator3.getElement(s));
-            System.out.println(dataGenerator3.getElement(s).toString());
+            log(dataGenerator3.getElement(s).toString());
         }
-        System.out.println("");
+        log("");
 
         final Graph graph3 = new Graph.Builder()
                 .addSchema(getDataSchema())
@@ -72,10 +72,10 @@ public class LoadAndQuery3 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .build();
 
-        System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
         final Iterable<Edge> results = graph3.execute(getRelatedEdges, user);
         for (Element e : results) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         final ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
@@ -91,11 +91,11 @@ public class LoadAndQuery3 extends LoadAndQuery {
 
         getRelatedEdges.setView(view);
 
-        System.out.println("\nAll edges containing the vertex 1. "
+        log("\nAll edges containing the vertex 1. "
                 + "\nThe counts have been aggregated and we have filtered out edges where the count is less than or equal to 3\n");
         final Iterable<Edge> filteredResults = graph3.execute(getRelatedEdges, user);
         for (Element e : filteredResults) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         return filteredResults;
