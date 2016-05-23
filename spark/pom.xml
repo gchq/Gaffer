@@ -21,8 +21,6 @@
 	<artifactId>spark</artifactId>
 
 	<properties>
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.10.4</scala.version>
 		<scala.compat.version>2.10</scala.compat.version>
@@ -149,26 +147,6 @@
 			</exclusions>
 		</dependency>
 
-		<!-- Test -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.specs2</groupId>
-			<artifactId>specs2-core_${scala.compat.version}</artifactId>
-			<version>2.4.16</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.scalatest</groupId>
-			<artifactId>scalatest_${scala.compat.version}</artifactId>
-			<version>2.2.4</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- Internal Gaffer2 framework dependencies -->
 		<dependency>
 			<groupId>gaffer</groupId>
@@ -223,6 +201,18 @@
 		</dependency>
 
 		<!-- Testing dependencies -->
+		<dependency>
+			<groupId>org.specs2</groupId>
+			<artifactId>specs2-core_${scala.compat.version}</artifactId>
+			<version>2.4.16</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_${scala.compat.version}</artifactId>
+			<version>2.2.4</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.scalatest</groupId>
 			<artifactId>scalatest_2.10</artifactId>
@@ -300,7 +290,6 @@
 					<includes>
 						<include>**/*Spec.*</include>
 						<include>**/*Test.*</include>
-						<include>**/*Suite.*</include>
 					</includes>
 				</configuration>
 			</plugin>
