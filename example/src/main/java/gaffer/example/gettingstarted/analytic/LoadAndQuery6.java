@@ -94,9 +94,9 @@ public class LoadAndQuery6 extends LoadAndQuery {
 
         // Execute the operation chain query
         final Iterable<String> results = graph.execute(opChain, user);
-        System.out.println("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");
+        log("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");
         for (String result : results) {
-            System.out.println(result);
+            log(result);
         }
 
         return results;

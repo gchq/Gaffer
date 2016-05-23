@@ -20,17 +20,9 @@
                      debug="false">
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
+            <param name="ConversionPattern" value="%m%n"/>
         </layout>
     </appender>
-    <!-- <appender name="fileAppender" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="~/log/graphstore.log"/>
-        <param name="Append" value="true"/>
-        <param name="DatePattern" value="'_'yyyy-MM-dd"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
-        </layout>
-    </appender>-->
 
     <logger name="gaffer.accumulostore.utils.TableUtils">
         <level value="WARN"/>

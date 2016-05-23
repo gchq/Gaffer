@@ -50,10 +50,14 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.user.User;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayListStoreTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayListStoreTest.class);
+
     @Test
     public void shouldAddAndGetRelatedEdges() throws OperationException {
         final Graph graph = createGraph();
@@ -85,7 +89,7 @@ public class ArrayListStoreTest {
             fail("No results returned");
         } else {
             for (SimpleEdgeDataObject obj : results) {
-                System.out.println(obj.toString());
+                LOGGER.info(obj.toString());
             }
 
             final List<SimpleEdgeDataObject> resultList = Lists.newArrayList(results);
@@ -142,7 +146,7 @@ public class ArrayListStoreTest {
             fail("No results returned");
         } else {
             for (SimpleEntityDataObject obj : results) {
-                System.out.println(obj.toString());
+                LOGGER.info(obj.toString());
             }
 
             final List<SimpleEntityDataObject> resultList = Lists.newArrayList(results);
@@ -190,7 +194,7 @@ public class ArrayListStoreTest {
             fail("No results returned");
         } else {
             for (SimpleEntityDataObject obj : results) {
-                System.out.println(obj.toString());
+                LOGGER.info(obj.toString());
             }
 
             final List<SimpleEntityDataObject> resultList = Lists.newArrayList(results);
@@ -233,7 +237,7 @@ public class ArrayListStoreTest {
             fail("No results returned");
         } else {
             for (SimpleEdgeDataObject obj : results) {
-                System.out.println(obj.toString());
+                LOGGER.info(obj.toString());
             }
 
             final List<SimpleEdgeDataObject> resultList = Lists.newArrayList(results);
@@ -283,7 +287,7 @@ public class ArrayListStoreTest {
             fail("No results returned");
         } else {
             for (SimpleEntityDataObject obj : results) {
-                System.out.println(obj.toString());
+                LOGGER.info(obj.toString());
             }
 
             final List<SimpleEntityDataObject> resultList = Lists.newArrayList(results);
