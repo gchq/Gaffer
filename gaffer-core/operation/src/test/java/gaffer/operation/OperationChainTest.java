@@ -19,6 +19,7 @@ package gaffer.operation;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
 import gaffer.data.element.Element;
@@ -29,6 +30,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.OperationImpl;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,6 +107,36 @@ public class OperationChainTest {
         assertEquals(expectedToString, toString);
     }
 
+    @Test
+    public void shouldBuildOperationChainWithSingleOperation() throws SerialisationException {
+        // Given
+        final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
 
+        // When
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentEntitySeeds)
+                .build();
+
+        // Then
+        assertEquals(1, opChain.getOperations().size());
+        assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
+    }
+
+    @Test
+    public void shouldBuildOperationChain_AdjEntitySeedsThenRelatedEdges() throws SerialisationException {
+        // Given
+        final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
+        final GetRelatedEdges<EntitySeed> getRelatedEdges = mock(GetRelatedEdges.class);
+
+        // When
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentEntitySeeds)
+                .then(getRelatedEdges)
+                .build();
+
+        // Then
+        assertEquals(2, opChain.getOperations().size());
+        assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
+        assertSame(getRelatedEdges, opChain.getOperations().get(1));
+    }
 }
-

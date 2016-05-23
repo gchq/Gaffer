@@ -63,7 +63,7 @@ public class LoadAndQuery5Test {
                 .build();
         final JSONSerialiser serialiser = new JSONSerialiser();
         final AddElements addElements = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), AddElements.class);
-        final GetRelatedEdges getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetRelatedEdges.class);
+        final GetRelatedEdges<?> getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetRelatedEdges.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()

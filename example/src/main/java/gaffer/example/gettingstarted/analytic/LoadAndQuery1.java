@@ -70,7 +70,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         graph1.execute(addElements, user);
 
         //get all the edges that contain the vertex "1"
-        final GetRelatedEdges query = new GetRelatedEdges.Builder()
+        final GetRelatedEdges<EntitySeed> query = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
