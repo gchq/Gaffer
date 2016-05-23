@@ -76,6 +76,27 @@ public class OperationChain<OUT> {
         }
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder strBuilder = new StringBuilder("OperationChain[");
+
+        if (null != operations) {
+            boolean first = true;
+            for (Operation op : operations) {
+                if (first) {
+                    first = false;
+                } else {
+                    strBuilder.append("->");
+                }
+
+                strBuilder.append(op.getClass().getSimpleName());
+            }
+        }
+
+        strBuilder.append("]");
+        return strBuilder.toString();
+    }
+
     /**
      * A <code>Builder</code> is a type safe way of building an {@link gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.

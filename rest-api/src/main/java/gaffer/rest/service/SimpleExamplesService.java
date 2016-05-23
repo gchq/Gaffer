@@ -62,7 +62,7 @@ public class SimpleExamplesService implements IExamplesService {
     private final GraphFactory graphFactory;
 
     public SimpleExamplesService() {
-        this(new GraphFactory(true));
+        this(GraphFactory.createGraphFactory());
     }
 
     public SimpleExamplesService(final GraphFactory graphFactory) {
