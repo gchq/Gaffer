@@ -17,6 +17,8 @@ package gaffer.example.operation;
 
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.Set;
  */
 public class OperationExamplesRunner {
     public static final String EXAMPLE_DIVIDER = "\n\n";
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationExamplesRunner.class);
 
     public static void main(final String[] args) throws Exception {
         new OperationExamplesRunner().run();
@@ -43,12 +46,12 @@ public class OperationExamplesRunner {
         printTableOfContents();
         for (Class<? extends OperationExample> aClass : getSubClasses(OperationExample.class)) {
             aClass.newInstance().run();
-            System.out.println(EXAMPLE_DIVIDER);
+            LOGGER.info(EXAMPLE_DIVIDER);
         }
     }
 
     private void printHeader() {
-        System.out.println("Copyright 2016 Crown Copyright\n"
+        LOGGER.info("Copyright 2016 Crown Copyright\n"
                 + "\n"
                 + "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
                 + "you may not use this file except in compliance with the License.\n"
@@ -69,10 +72,10 @@ public class OperationExamplesRunner {
         int index = 1;
         for (Class<? extends OperationExample> aClass : getSubClasses(OperationExample.class)) {
             final String opClass = aClass.newInstance().getOperationClass().getSimpleName();
-            System.out.println(index + ". [" + opClass + "](#" + opClass.toLowerCase(Locale.getDefault()) + "-example)");
+            LOGGER.info(index + ". [" + opClass + "](#" + opClass.toLowerCase(Locale.getDefault()) + "-example)");
             index++;
         }
-        System.out.println("\n");
+        LOGGER.info("\n");
     }
 
     private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {

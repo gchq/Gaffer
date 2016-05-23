@@ -36,7 +36,7 @@ public class AddElementsExample extends OperationExample {
     }
 
     public void addElements(final Graph graph) throws OperationException {
-        System.out.println("#### " + getMethodNameAsSentence() + "\n");
+        log("#### " + getMethodNameAsSentence() + "\n");
         printOperationJava("new AddElements.Builder()\n"
                 + "                .elements(new Entity.Builder()\n"
                 + "                                .group(\"entity\")\n"
@@ -65,15 +65,15 @@ public class AddElementsExample extends OperationExample {
         final String operationJson = getOperationJson(operation);
 
         graph.execute(operation, new User("user01"));
-        System.out.println("Updated graph:");
-        System.out.println("```");
-        System.out.println("    --> 4 <--");
-        System.out.println("  /     ^     \\");
-        System.out.println(" /      |      \\");
-        System.out.println("1  -->  2  -->  3");
-        System.out.println("         \\");
-        System.out.println("           -->  5  -->  6");
-        System.out.println("```");
+        log("Updated graph:");
+        log("```");
+        log("    --> 4 <--");
+        log("  /     ^     \\");
+        log(" /      |      \\");
+        log("1  -->  2  -->  3");
+        log("         \\");
+        log("           -->  5  -->  6");
+        log("```");
 
         printOperationJson(operationJson);
     }

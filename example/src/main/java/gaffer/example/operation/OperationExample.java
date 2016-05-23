@@ -28,6 +28,8 @@ import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Locale;
@@ -41,15 +43,16 @@ public abstract class OperationExample {
     public static final String METHOD_DIVIDER = DIVIDER + "\n";
     private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
     private final Class<? extends Operation> operationClass;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public OperationExample(final Class<? extends Operation> operationClass) {
         this.operationClass = operationClass;
     }
 
     public void run() throws OperationException {
-        System.out.println(operationClass.getSimpleName() + " example");
-        System.out.println(TITLE_DIVIDER);
-        System.out.println("See [javadoc](" + JAVA_DOC_URL_PREFIX + operationClass.getName().replace(".", "/") + ".html).\n");
+        log(operationClass.getSimpleName() + " example");
+        log(TITLE_DIVIDER);
+        log("See [javadoc](" + JAVA_DOC_URL_PREFIX + operationClass.getName().replace(".", "/") + ".html).\n");
 
         final Graph graph = createExampleGraph();
         runExamples(graph);
@@ -93,17 +96,17 @@ public abstract class OperationExample {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Using this simple directed graph:");
-        System.out.println("```");
-        System.out.println("    --> 4 <--");
-        System.out.println("  /     ^     \\");
-        System.out.println(" /      |      \\");
-        System.out.println("1  -->  2  -->  3");
-        System.out.println("         \\");
-        System.out.println("           -->  5");
-        System.out.println("```");
+        log("Using this simple directed graph:");
+        log("```");
+        log("    --> 4 <--");
+        log("  /     ^     \\");
+        log(" /      |      \\");
+        log("1  -->  2  -->  3");
+        log("         \\");
+        log("           -->  5");
+        log("```");
 
-        System.out.println(METHOD_DIVIDER);
+        log(METHOD_DIVIDER);
 
         return graph;
     }
@@ -133,36 +136,40 @@ public abstract class OperationExample {
     }
 
     protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runAndPrintOperation(final Operation<?, RESULT_TYPE> operation, final Graph graph, final String operationJava) throws OperationException {
-        System.out.println("#### " + getMethodNameAsSentence(1) + "\n");
+        log("#### " + getMethodNameAsSentence(1) + "\n");
         final String operationJson = getOperationJson(operation);
         printOperationJava(operationJava);
 
         final RESULT_TYPE results = graph.execute(
                 operation, new User("user01"));
 
-        System.out.println("Results:");
-        System.out.println("```");
+        log("Results:");
+        log("```");
         for (Object e : results) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
-        System.out.println("```");
+        log("```");
 
         printOperationJson(operationJson);
 
-        System.out.println(METHOD_DIVIDER);
+        log(METHOD_DIVIDER);
         return results;
     }
 
     protected void printOperationJava(final String java) {
-        System.out.println("```java");
-        System.out.println(java);
-        System.out.println("```\n\n");
+        log("```java");
+        log(java);
+        log("```\n\n");
     }
 
     protected void printOperationJson(final String operationJson) {
-        System.out.println("\nThis operation can also be written in JSON:");
-        System.out.println("```json");
-        System.out.println(operationJson);
-        System.out.println("```\n");
+        log("\nThis operation can also be written in JSON:");
+        log("```json");
+        log(operationJson);
+        log("```\n");
+    }
+
+    protected void log(final String message) {
+        logger.info(message);
     }
 }
