@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ~ Copyright 2016 Crown Copyright ~ ~ Licensed under the Apache License, 
+	Version 2.0 (the "License"); ~ you may not use this file except in compliance 
+	with the License. ~ You may obtain a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 
+	~ ~ Unless required by applicable law or agreed to in writing, software ~ 
+	distributed under the License is distributed on an "AS IS" BASIS, ~ WITHOUT 
+	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. ~ See the 
+	License for the specific language governing permissions and ~ limitations 
+	under the License. -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>gaffer2</artifactId>
+		<groupId>gaffer</groupId>
+		<version>0.3.6-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>spark</artifactId>
+
+	<properties>
+		<encoding>UTF-8</encoding>
+		<scala.version>2.10.4</scala.version>
+		<scala.compat.version>2.10</scala.compat.version>
+		<spark.version>1.6.0</spark.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-core_2.10</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.10</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-client</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.accumulo</groupId>
+			<artifactId>accumulo</artifactId>
+			<version>${accumulo.version}</version>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.accumulo</groupId>
+			<artifactId>accumulo-core</artifactId>
+			<version>${accumulo.version}</version>
+			<exclusions>
+				<!-- This exclusion needs to be made in order for unit tests that run 
+					MapReduce jobs over MockAccumulo instances to run. We exclude it here and 
+					include guava 14.0.1 below (see JIRA ACCUMULO-3100 which applies this patch 
+					for Accumulo 1.6.1). -->
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.azavea.geotrellis</groupId>
+			<artifactId>geotrellis-spark_2.10</artifactId>
+			<version>0.10.0-M1</version>
+			<exclusions>
+				<!-- We only need a couple of classes from this package so exclude most 
+					of its dependencies. -->
+				<exclusion>
+					<groupId>com.azavea.geotrellis</groupId>
+					<artifactId>geotrellis-raster_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.azavea.geotrellis</groupId>
+					<artifactId>geotrellis-gdal_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.azavea.geotrellis</groupId>
+					<artifactId>geotrellis-index_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.accumulo</groupId>
+					<artifactId>accumulo-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.spark</groupId>
+					<artifactId>spark-core_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.quantifind</groupId>
+					<artifactId>sumac_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>de.javakaffee</groupId>
+					<artifactId>kryo-serializers</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.uzaygezen</groupId>
+					<artifactId>uzaygezen-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.amazonaws</groupId>
+					<artifactId>aws-java-sdk-s3</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.spire-math</groupId>
+					<artifactId>spire_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.julien-truffaut</groupId>
+					<artifactId>monocle-core_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.julien-truffaut</groupId>
+					<artifactId>monocle-macro_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.nscala-time</groupId>
+					<artifactId>nscala-time_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.scalaz.stream</groupId>
+					<artifactId>scalaz-stream_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.gdal</groupId>
+					<artifactId>gdal</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- Internal Gaffer2 framework dependencies -->
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>data</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>graph</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>function</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>serialisation</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>store</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>operation</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>simple-function-library</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>simple-operation-library</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>common-util</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>example</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+
+		<!-- Testing dependencies -->
+		<dependency>
+			<groupId>org.specs2</groupId>
+			<artifactId>specs2-core_${scala.compat.version}</artifactId>
+			<version>2.4.16</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_${scala.compat.version}</artifactId>
+			<version>2.2.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_2.10</artifactId>
+			<version>2.2.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>store</artifactId>
+			<version>${project.parent.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>operation</artifactId>
+			<version>${project.parent.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>simple-serialisation-library</artifactId>
+			<version>${project.parent.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>simple-function-library</artifactId>
+			<version>${project.parent.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>gaffer</groupId>
+			<artifactId>common-util</artifactId>
+			<version>${project.parent.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+							<args>
+								<arg>-make:transitive</arg>
+								<arg>-dependencyfile</arg>
+								<arg>${project.build.directory}/.scala_dependencies</arg>
+							</args>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${surefire.plugin.version}</version>
+				<configuration>
+					<useFile>false</useFile>
+					<disableXmlReport>true</disableXmlReport>
+					<!-- If you have classpath issue like NoDefClassError,... -->
+					<!-- <useManifestOnlyJar>false</useManifestOnlyJar> -->
+					<includes>
+						<include>**/*Spec.*</include>
+						<include>**/*Test.*</include>
+					</includes>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.scala-tools</groupId>
+										<artifactId>
+											maven-scala-plugin
+										</artifactId>
+										<versionRange>
+											[2.15.2,)
+										</versionRange>
+										<goals>
+											<goal>compile</goal>
+											<goal>testCompile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
