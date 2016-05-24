@@ -51,9 +51,9 @@ public class LoadAndQuery4 extends LoadAndQuery {
         final DataGenerator4 dataGenerator4 = new DataGenerator4();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator4.getElement(s));
-            System.out.println(dataGenerator4.getElement(s).toString());
+            log(dataGenerator4.getElement(s).toString());
         }
-        System.out.println("");
+        log("");
 
         final Graph graph4 = new Graph.Builder()
                 .addSchema(getDataSchema())
@@ -72,10 +72,10 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .build();
 
-        System.out.println("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
+        log("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
         final Iterable<Edge> results = graph4.execute(getRelatedEdges, user);
         for (Element e : results) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         final ElementTransformer mean = new ElementTransformer.Builder()
@@ -95,10 +95,10 @@ public class LoadAndQuery4 extends LoadAndQuery {
 
         getRelatedEdges.setView(view);
 
-        System.out.println("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
+        log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         final Iterable<Edge> transientResults = graph4.execute(getRelatedEdges, user);
         for (Element e : transientResults) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         return transientResults;
