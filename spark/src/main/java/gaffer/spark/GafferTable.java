@@ -154,7 +154,7 @@ public class GafferTable {
 
         Collection<Pair<Object>> coll = new HashSet<>();
         for (Tuple2<Object, Object> t : pairs) {
-            coll.add(new Pair<>(t._1, t._2));
+            coll.add(new Pair<>(t._1(), t._2()));
         }
         config.setConfigurationFromPairs(conf, coll);
         return query(conf, true);
