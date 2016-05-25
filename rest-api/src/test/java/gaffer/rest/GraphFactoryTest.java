@@ -18,6 +18,7 @@ package gaffer.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import gaffer.graph.hook.OperationAuthoriser;
 import org.junit.Test;
@@ -59,5 +60,17 @@ public class GraphFactoryTest {
 
         // Then
         assertNull(opAuthoriser);
+    }
+
+    @Test
+    public void shouldDefaultToSingletonGraph() {
+        // Given
+        final GraphFactory factory = new GraphFactory();
+
+        // When
+        final boolean isSingleton = factory.isSingletonGraph();
+
+        // Then
+        assertTrue(isSingleton);
     }
 }
