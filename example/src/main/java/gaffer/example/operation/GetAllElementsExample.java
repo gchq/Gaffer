@@ -34,16 +34,16 @@ public class GetAllElementsExample extends OperationExample {
     }
 
     public void runExamples(final Graph graph) throws OperationException {
-        getAllEdges(graph);
-        getAllEdgesWithCountGreaterThan2(graph);
+        getAllElements(graph);
+        getAllElementsWithCountGreaterThan2(graph);
     }
 
-    public Iterable<Element> getAllEdges(final Graph graph) throws OperationException {
+    public Iterable<Element> getAllElements(final Graph graph) throws OperationException {
         final String opJava = "new GetAllElements<>();";
         return runAndPrintOperation(new GetAllElements<>(), graph, opJava);
     }
 
-    public Iterable<Element> getAllEdgesWithCountGreaterThan2(final Graph graph) throws OperationException {
+    public Iterable<Element> getAllElementsWithCountGreaterThan2(final Graph graph) throws OperationException {
         final String opJava = "new GetAllElements.Builder<>()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"

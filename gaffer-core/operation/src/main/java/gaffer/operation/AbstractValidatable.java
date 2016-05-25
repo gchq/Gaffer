@@ -127,7 +127,11 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Iter
          * @see gaffer.operation.Validatable#setElements(Iterable)
          */
         public Builder<OP_TYPE, OUTPUT> elements(final Element... elements) {
-            return elements(Arrays.asList(elements));
+            if (null != elements) {
+                elements(Arrays.asList(elements));
+            }
+
+            return this;
         }
 
         /**

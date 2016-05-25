@@ -97,7 +97,7 @@ public abstract class OperationExample {
         }
 
         log("Using this simple directed graph:");
-        log("```");
+        log("\n```");
         log("    --> 4 <--");
         log("  /     ^     \\");
         log(" /      |      \\");
@@ -144,7 +144,7 @@ public abstract class OperationExample {
                 operation, new User("user01"));
 
         log("Results:");
-        log("```");
+        log("\n```");
         for (Object e : results) {
             log(e.toString());
         }
@@ -157,14 +157,14 @@ public abstract class OperationExample {
     }
 
     protected void printOperationJava(final String java) {
-        log("```java");
+        log("\n```java");
         log(java);
         log("```\n\n");
     }
 
     protected void printOperationJson(final String operationJson) {
         log("\nThis operation can also be written in JSON:");
-        log("```json");
+        log("\n```json");
         log(operationJson);
         log("```\n");
     }
