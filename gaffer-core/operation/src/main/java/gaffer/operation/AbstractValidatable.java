@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Iterable<Element>, OUTPUT> implements Validatable<OUTPUT> {
@@ -119,6 +119,19 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Iter
             extends AbstractOperation.Builder<OP_TYPE, Iterable<Element>, OUTPUT> {
         protected Builder(final OP_TYPE op) {
             super(op);
+        }
+
+        /**
+         * @param elements the {@link gaffer.data.element.Element}s to set on the operation
+         * @return this Builder
+         * @see gaffer.operation.Validatable#setElements(Iterable)
+         */
+        public Builder<OP_TYPE, OUTPUT> elements(final Element... elements) {
+            if (null != elements) {
+                elements(Arrays.asList(elements));
+            }
+
+            return this;
         }
 
         /**
