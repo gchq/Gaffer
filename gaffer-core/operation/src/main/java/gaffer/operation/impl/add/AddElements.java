@@ -55,6 +55,12 @@ public class AddElements extends AbstractValidatable<Void> implements VoidOutput
         }
 
         @Override
+        public Builder elements(final Element... elements) {
+            super.elements(elements);
+            return this;
+        }
+
+        @Override
         public Builder elements(final Iterable<Element> elements) {
             super.elements(elements);
             return this;
