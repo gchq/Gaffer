@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <!-- Put your site-specific accumulo configurations here. The available configuration values along with their defaults are documented in docs/config.html Unless
+    you are simply testing at your workstation, you will most definitely need to change the three entries below. -->
+
+  <property>
+    <name>instance.volumes</name>
+    <value>hdfs://localhost:9000/accumulo</value>
+    <description>comma separated list of URIs for volumes. example: hdfs://localhost:9000/accumulo</description>
+  </property>
+
+  <property>
+    <name>instance.zookeeper.host</name>
+    <value>localhost:2181</value>
+    <description>comma separated list of zookeeper servers</description>
+  </property>
+
+  <property>
+    <name>logger.dir.walog</name>
+    <value>/opt/zookeeper/walogs</value>
+    <description>The property only needs to be set if upgrading from 1.4 which used to store write-ahead logs on the local
+      filesystem. In 1.5 write-ahead logs are stored in DFS.  When 1.5 is started for the first time it will copy any 1.4
+      write ahead logs into DFS.  It is possible to specify a comma-separated list of directories.
+    </description>
+  </property>
+
+  <property>
+    <name>instance.secret</name>
+    <value>secret</value>
+    <description>A secret unique to a given instance that all servers must know in order to communicate with one another.
+      Change it before initialization. To
+      change it later use ./bin/accumulo org.apache.accumulo.server.util.ChangeSecret --old [oldpasswd] --new [newpasswd],
+      and then update this file.
+    </description>
+  </property>
+
+  <property>
+    <name>tserver.memory.maps.max</name>
+    <value>256M</value>
+  </property>
+
+  <property>
+    <name>tserver.memory.maps.native.enabled</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>tserver.cache.data.size</name>
+    <value>15M</value>
+  </property>
+
+  <property>
+    <name>tserver.cache.index.size</name>
+    <value>40M</value>
+  </property>
+
+  <property>
+    <name>trace.token.property.password</name>
+    <!-- change this to the root user's password, and/or change the user below -->
+    <value>admin</value>
+  </property>
+
+  <!-- Kerberos requirements --><!--
+  <property>
+    <name>instance.rpc.sasl.enabled</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>general.kerberos.keytab</name>
+    <value>${keytab}</value>
+  </property>
+
+  <property>
+    <name>general.kerberos.principal</name>
+    <value>${principal}</value>
+  </property>
+
+  <property>
+    <name>trace.token.type</name>
+    <value>org.apache.accumulo.core.client.security.tokens.KerberosToken</value>
+  </property>
+
+  <property>
+    <name>instance.security.authenticator</name>
+    <value>org.apache.accumulo.server.security.handler.KerberosAuthenticator</value>
+  </property>
+
+  <property>
+    <name>instance.security.authorizor</name>
+    <value>org.apache.accumulo.server.security.handler.KerberosAuthorizor</value>
+  </property>
+
+  <property>
+    <name>instance.security.permissionHandler</name>
+    <value>org.apache.accumulo.server.security.handler.KerberosPermissionHandler</value>
+  </property>
+  --><!-- End Kerberos requirements -->
+
+  <property>
+    <name>trace.user</name>
+    <value>root</value>
+  </property>
+
+  <property>
+    <name>tserver.sort.buffer.size</name>
+    <value>50M</value>
+  </property>
+
+  <property>
+    <name>tserver.walog.max.size</name>
+    <value>256M</value>
+  </property>
+
+  <property>
+    <name>general.classpaths</name>
+
+    <value>
+      <!-- Accumulo requirements -->
+      $ACCUMULO_HOME/lib/accumulo-server.jar,
+      $ACCUMULO_HOME/lib/accumulo-core.jar,
+      $ACCUMULO_HOME/lib/accumulo-start.jar,
+      $ACCUMULO_HOME/lib/accumulo-fate.jar,
+      $ACCUMULO_HOME/lib/accumulo-proxy.jar,
+      $ACCUMULO_HOME/lib/[^.].*.jar,
+      <!-- ZooKeeper requirements -->
+      $ZOOKEEPER_HOME/zookeeper[^.].*.jar,
+      <!-- Common Hadoop requirements -->
+      $HADOOP_CONF_DIR,
+      <!-- Hadoop 2 requirements -->
+      $HADOOP_PREFIX/share/hadoop/common/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/common/lib/(?!slf4j)[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/hdfs/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/mapreduce/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/yarn/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/yarn/lib/jersey.*.jar,
+      <!-- End Hadoop 2 requirements -->
+      <!-- HDP 2.0 requirements --><!--
+      /usr/lib/hadoop/[^.].*.jar,
+      /usr/lib/hadoop/lib/[^.].*.jar,
+      /usr/lib/hadoop-hdfs/[^.].*.jar,
+      /usr/lib/hadoop-mapreduce/[^.].*.jar,
+      /usr/lib/hadoop-yarn/[^.].*.jar,
+      /usr/lib/hadoop-yarn/lib/jersey.*.jar,
+      --><!-- End HDP 2.0 requirements -->
+      <!-- HDP 2.2 requirements --><!--
+      /usr/hdp/current/hadoop-client/[^.].*.jar,
+      /usr/hdp/current/hadoop-client/lib/(?!slf4j)[^.].*.jar,
+      /usr/hdp/current/hadoop-hdfs-client/[^.].*.jar,
+      /usr/hdp/current/hadoop-mapreduce-client/[^.].*.jar,
+      /usr/hdp/current/hadoop-yarn-client/[^.].*.jar,
+      /usr/hdp/current/hadoop-yarn-client/lib/jersey.*.jar,
+      /usr/hdp/current/hive-client/lib/hive-accumulo-handler.jar
+      --><!-- End HDP 2.2 requirements -->
+      <!-- IOP 4.1 requirements --><!--
+      /usr/iop/current/hadoop-client/[^.].*.jar,
+      /usr/iop/current/hadoop-client/lib/(?!slf4j)[^.].*.jar,
+      /usr/iop/current/hadoop-hdfs-client/[^.].*.jar,
+      /usr/iop/current/hadoop-mapreduce-client/[^.].*.jar,
+      /usr/iop/current/hadoop-yarn-client/[^.].*.jar,
+      /usr/iop/current/hadoop-yarn-client/lib/jersey.*.jar,
+      /usr/iop/current/hive-client/lib/hive-accumulo-handler.jar
+      --><!-- End IOP 4.1 requirements -->
+    </value>
+    <description>Classpaths that accumulo checks for updates and class files.</description>
+  </property>
+</configuration>

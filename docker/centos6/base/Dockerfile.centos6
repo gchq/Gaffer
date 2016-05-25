@@ -1,0 +1,115 @@
+##########################################################
+# Copyright 2016 Crown Copyright
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################################################
+
+########################################################################
+# Creates Base Centos image for 6.7
+# that contains additional rpms
+# to run hadoop and accumulo
+#######################################################################
+
+
+# The official docker centos 6.7 base image is pulled from docker github
+# and committed locally to an image stored on the repository/filesystem
+# The locally stored image is called gaffer-docker/centos:centos 6.7
+
+FROM centos:centos6.7
+
+# Dockerfile metadata
+
+LABEL com.gaffer-docker.version.is-beta="yes" \
+      com.gaffer-docker.version.is-production="no" \
+      com.gaffer-docker.version="0.0.2-beta" \
+      com.gaffer-docker.release-date="2016-04-27" \
+      com.gaffer-docker.description="Centos 6.7 and additional packages required for installation of hadoop"
+# Additional centos packages required for Hadoop, Accumulo and Gaffer to run
+
+RUN \
+  yum update -y; yum clean all; \
+  yum install -y deltarpm; \
+  yum install -y epel-release; yum clean all; \
+  yum install -y rsync; yum clean all; \
+  yum --enablerepo=centosplus upgrade -y --skip-broken; yum clean all; \
+  yum -y install initscripts tar vi openssh-server openssh-clients; yum clean all; \
+  yum -y groupinstall "Development Tools"; yum clean all; \
+  yum -y install firefox; yum clean all; \
+  yum -y install icedtea-web dbus; yum clean all; \
+  yum install -y iproute hostname inotify-tools yum-utils which; \
+  yum clean all; \
+  yum -y install gtk3; yum clean all; \
+  yum -y update libselinux; yum whatprovides service; \
+  yum clean all; \
+  yum install -y python-setuptools; \
+  easy_install supervisor; \
+  yum -y install java-1.7.0-openjdk-devel.x86_64; \
+  dbus-uuidgen > /var/lib/dbus/machine-id
+
+# Sets up passwordless ssh by generating ssh keys
+# so hadoop, accumulo can start up services without user
+# being prompted for password.
+# Passwordless ssh is required to ensure hadoop and accumulo services start up
+# successfully.
+
+RUN \
+    mkdir -p /root/.ssh; \
+    chmod 700 /root/.ssh; \
+    rm -f /etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_rsa_key && \
+    ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_ecdsa_key && \
+    ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key && \
+    ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa; \
+    cp /root/.ssh/id_rsa -f /root/.ssh/authorized_keys; \
+    chmod 600 /root/.ssh/authorized_keys; \
+    sed -i "s/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config; \
+    sed -i "s/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/ssh_config; \
+    sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config; \
+    sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/ssh_config; \
+    echo 'Port 2122' >> /etc/ssh/ssh_config; \
+    echo 'Port 2122' >> /etc/ssh/sshd_config; \
+    sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd; \ 
+    echo 'UsePam no' >> /etc/ssh/sshd_config; \
+    mkdir -p /var/run/sshd; \
+    chmod 777 /var/run/sshd; \
+    echo "root:admin" | chpasswd
+
+# set up environment variables for java
+
+ENV JAVA_VERSION java_sdk_1.7.0
+ENV INSTALL_DIR /opt
+ENV JAVA_INSTALL ${INSTALL_DIR}/jvm
+
+RUN \
+     mkdir -p ${JAVA_INSTALL};\
+     ln -s /etc/alternatives/${JAVA_VERSION} ${JAVA_INSTALL}/java
+     
+# Following best practice guidelines from docker GitHub
+# Supervisor , the process control system
+# is used to monitor and control linux like
+# processes like ssh
+
+# Configures Supervisor package
+
+# Add supervisord conf, bootstrap.sh files
+
+ADD container-files /
+ADD ssh_service_supervisord.conf /etc/supervisor.d/ssh_service_supervisord.conf
+
+# Creates a volume called /tmp that can be shared by multiple containers.
+# The log file  used by the supervisor process control is located on this
+# volume and subsequently needs to be available to all containers running
+# multiple processes or long running processes
+
+VOLUME ["/tmp"]
+EXPOSE 2122
+ENTRYPOINT ["/config/bootstrap.sh"]

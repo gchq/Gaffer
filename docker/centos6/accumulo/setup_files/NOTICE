@@ -1,0 +1,59 @@
+Apache Accumulo
+Copyright 2011-2016 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes JCommander (https://github.com/cbeust/jcommander),
+Copyright 2010 Cedric Beust cedric@beust.com.
+
+This product includes the Apache Thrift libthrift JAR file.
+Copyright 2006-2010 The Apache Software Foundation.
+
+This product includes Apache Commons-VFS (https://commons.apache.org/proper/commons-vfs/).
+Copyright 2002-2015 The Apache Software Foundation.
+
+This product includes Apache Commons-Math (https://commons.apache.org/proper/commons-vfs/).
+Copyright 2001-2010 The Apache Software Foundation
+
+    ===============================================================================
+    The LinearConstraint, LinearObjectiveFunction, LinearOptimizer,
+    RelationShip, SimplexSolver and SimplexTableau classes in package
+    org.apache.commons.math.optimization.linear include software developed by
+    Benjamin McCann (http://www.benmccann.com) and distributed with
+    the following copyright: Copyright 2009 Google Inc.
+    ===============================================================================
+
+    This product includes software developed by the
+    University of Chicago, as Operator of Argonne National
+    Laboratory.
+    The LevenbergMarquardtOptimizer class in package
+    org.apache.commons.math.optimization.general includes software
+    translated from the lmder, lmpar and qrsolv Fortran routines
+    from the Minpack package
+    Minpack Copyright Notice (1999) University of Chicago.  All rights reserved
+    ===============================================================================
+
+    The GraggBulirschStoerIntegrator class in package
+    org.apache.commons.math.ode.nonstiff includes software translated
+    from the odex Fortran routine developed by E. Hairer and G. Wanner.
+    Original source copyright:
+    Copyright (c) 2004, Ernst Hairer
+    ===============================================================================
+
+    The EigenDecompositionImpl class in package
+    org.apache.commons.math.linear includes software translated
+    from some LAPACK Fortran routines.  Original source copyright:
+    Copyright (c) 1992-2008 The University of Tennessee.  All rights reserved.
+    ===============================================================================
+
+    The MersenneTwister class in package org.apache.commons.math.random
+    includes software translated from the 2002-01-26 version of
+    the Mersenne-Twister generator written in C by Makoto Matsumoto and Takuji
+    Nishimura. Original source copyright:
+    Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
+    All rights reserved
+    ===============================================================================
+
+This product includes Jetty (http://eclipse.org/jetty)
+Copyright 1996-2009 Mort Bay Consulting Pty. Ltd.
