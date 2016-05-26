@@ -42,11 +42,7 @@ public class MockAccumuloStoreForTest extends MockAccumuloStore {
     }
 
     public MockAccumuloStoreForTest(final Class<? extends AbstractCoreKeyPackage> keyPackageClass) {
-        final Schema schema = Schema.fromJson(
-                StreamUtil.dataSchema(getClass()),
-                StreamUtil.dataTypes(getClass()),
-                StreamUtil.storeSchema(getClass()),
-                StreamUtil.storeTypes(getClass()));
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
 
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());

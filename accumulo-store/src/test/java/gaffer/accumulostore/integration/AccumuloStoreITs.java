@@ -22,7 +22,7 @@ import gaffer.store.schema.Schema;
 
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
-    private static final Schema STORE_SCHEMA = Schema.fromJson(StreamUtil.openStream(AccumuloStoreITs.class, "/schema/accumuloITStoreTypes.json"));
+    private static final Schema STORE_SCHEMA = Schema.fromJson(StreamUtil.openStream(AccumuloStoreITs.class, "/schema-IT/storeTypes.json"));
 
     public AccumuloStoreITs() {
         super(STORE_PROPERTIES, STORE_SCHEMA);
