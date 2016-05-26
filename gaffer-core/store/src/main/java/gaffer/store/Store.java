@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -234,17 +235,14 @@ public abstract class Store {
     }
 
     protected Iterable<?> updateCache(final UpdateCache updateCache, final Map<String, Iterable<?>> cache) {
-        final Iterable<?> input = updateCache.getInput() instanceof Collection
-                ? ((Collection<Object>) updateCache.getInput())
-                : Lists.newArrayList(updateCache.getInput());
-
+        final List<?> input = Lists.newArrayList(updateCache.getInput());
         final Collection cacheList = (Collection) cache.get(updateCache.getKey());
         if (null == cacheList) {
             cache.put(updateCache.getKey(), input);
         } else {
             Iterables.addAll(cacheList, input);
         }
-        return input;
+        return Collections.unmodifiableCollection(input);
     }
 
     protected Operation updateOperationInput(final Operation op, final Object result) {
