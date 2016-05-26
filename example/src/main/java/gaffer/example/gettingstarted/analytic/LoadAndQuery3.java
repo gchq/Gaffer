@@ -42,9 +42,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/3/data.txt");
-        setDataSchemaLocation("/example/gettingstarted/3/schema/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/3/schema/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/3/schema/storeTypes.json");
+        setSchemaFolderLocation("/example/gettingstarted/3/schema");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         final List<Element> elements = new ArrayList<>();
@@ -56,9 +54,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         log("");
 
         final Graph graph3 = new Graph.Builder()
-                .addSchema(getDataSchema())
-                .addSchema(getDataTypes())
-                .addSchema(getStoreTypes())
+                .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 
