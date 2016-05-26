@@ -174,15 +174,43 @@ public class ViewValidator {
                     clazz = viewElDef.getTransientPropertyClass(key.getPropertyName());
                 }
             }
-            if (null == clazz || !inputTypes[i].isAssignableFrom(clazz)) {
+
+            if (null == clazz) {
+                if (key.isId()) {
+                    final String typeName = schemaElDef.getIdentifierTypeName(key.getIdentifierType());
+                    if (null != typeName) {
+                        LOGGER.error("No class type found for type definition " + typeName
+                                + " used by identifier " + key.getIdentifierType()
+                                + ". Please ensure it is defined in the schema.");
+                    } else {
+                        LOGGER.error("No type definition defined for identifier " + key.getIdentifierType()
+                                + ". Please ensure it is defined in the schema.");
+                    }
+                } else {
+                    final String typeName = schemaElDef.getPropertyTypeName(key.getPropertyName());
+                    if (null != typeName) {
+                        LOGGER.error("No class type found for type definition " + typeName
+                                + " used by property " + key.getPropertyName()
+                                + ". Please ensure it is defined in the schema.");
+                    } else {
+                        LOGGER.error("No class type found for transient property " + key.getPropertyName()
+                                + ". Please ensure it is defined in the view.");
+                    }
+                }
+
+                return false;
+            }
+
+            if (!inputTypes[i].isAssignableFrom(clazz)) {
                 LOGGER.error("Function " + function.getClass().getName()
                         + " is not compatible with selection types. Function input type "
                         + inputTypes[i].getName() + " is not assignable from selection type "
-                        + (null != clazz ? clazz.getName() : "with a null class."));
+                        + clazz.getName() + ".");
                 return false;
             }
             i++;
         }
+
         return true;
     }
 
