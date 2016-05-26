@@ -240,10 +240,18 @@ public final class Graph {
 
         public Builder addSchema(final Path schemaPath) {
             try {
-                return addSchema(Files.readAllBytes(schemaPath));
+                if (Files.isDirectory(schemaPath)) {
+                    for (Path path : Files.newDirectoryStream(schemaPath)) {
+                        addSchema(path);
+                    }
+                } else {
+                    addSchema(Files.readAllBytes(schemaPath));
+                }
             } catch (IOException e) {
                 throw new SchemaException("Unable to read schema from path", e);
             }
+
+            return this;
         }
 
         public Builder addSchema(final byte[] schemaBytes) {

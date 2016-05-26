@@ -22,11 +22,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -53,12 +56,17 @@ import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.store.schema.TypeDefinition;
 import gaffer.user.User;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -116,6 +124,35 @@ public class GraphTest {
         schema.getEntity(TestGroups.ENTITY);
 
     }
+
+    @Test
+    public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
+        // Given
+        final Schema expectedSchema = Schema.fromJson(StreamUtil.dataSchema(getClass()),
+                StreamUtil.dataTypes(getClass()));
+
+        Graph graph = null;
+        File schemaDir = null;
+        try {
+            schemaDir = createSchemaDirectory();
+
+            // When
+            graph = new Graph.Builder()
+                    .storeProperties(StreamUtil.storeProps(getClass()))
+                    .addSchema(Paths.get(schemaDir.getPath()))
+                    .build();
+        } finally {
+            if (null != schemaDir) {
+                FileUtils.deleteDirectory(schemaDir);
+            }
+        }
+
+        // Then
+        final Schema schema = graph.getSchema();
+        assertEquals(expectedSchema.toString(), schema.toString());
+
+    }
+
 
     @Test
     public void shouldCallAllGraphHooksBeforeOperationExecuted() throws OperationException {
@@ -397,6 +434,32 @@ public class GraphTest {
         @Override
         protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation) {
             return null;
+        }
+    }
+
+    private File createSchemaDirectory() throws IOException {
+        final File tmpDir;
+        tmpDir = new File("tmpSchemaDir");
+        assumeTrue("Failed to create tmp directory, skipping as this test as it is a permissions issue.", tmpDir.mkdir());
+        writeToFile("dataSchema.json", tmpDir);
+        writeToFile("dataTypes.json", tmpDir);
+        return tmpDir;
+    }
+
+    private void writeToFile(final String schemaFile, final File dir) throws IOException {
+        Files.copy(new SchemaStreamSupplier(schemaFile), new File(dir + "/" + schemaFile));
+    }
+
+    private static final class SchemaStreamSupplier implements InputSupplier<InputStream> {
+        private final String schemaFile;
+
+        private SchemaStreamSupplier(final String schemaFile) {
+            this.schemaFile = schemaFile;
+        }
+
+        @Override
+        public InputStream getInput() throws IOException {
+            return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
         }
     }
 }
