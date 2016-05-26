@@ -18,6 +18,8 @@ package gaffer.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import gaffer.graph.hook.OperationAuthoriser;
 import org.junit.Test;
@@ -48,6 +50,18 @@ public class GraphFactoryTest {
         assertEquals(GraphFactoryForTest.class, graphFactory.getClass());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionFromInvalidSystemPropertyClassName() {
+        // Given
+        System.setProperty(SystemProperty.GRAPH_FACTORY_CLASS, "InvalidClassName");
+
+        // When
+        final GraphFactory graphFactory = GraphFactory.createGraphFactory();
+
+        // Then
+        fail();
+    }
+
     @Test
     public void shouldReturnNullWhenCreateOpAuthoriserWithNoSystemPropertyPath() {
         // Given
@@ -59,5 +73,17 @@ public class GraphFactoryTest {
 
         // Then
         assertNull(opAuthoriser);
+    }
+
+    @Test
+    public void shouldDefaultToSingletonGraph() {
+        // Given
+        final GraphFactory factory = new GraphFactory();
+
+        // When
+        final boolean isSingleton = factory.isSingletonGraph();
+
+        // Then
+        assertTrue(isSingleton);
     }
 }
