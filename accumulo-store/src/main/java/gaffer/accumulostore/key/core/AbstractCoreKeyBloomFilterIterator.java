@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.key.core.impl;
+package gaffer.accumulostore.key.core;
 
 import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -26,12 +25,12 @@ import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
-import java.io.ByteArrayInputStream;
+
 import java.io.DataInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -40,30 +39,12 @@ import java.util.Map;
  * depending on your {@link gaffer.accumulostore.key.AccumuloKeyPackage}
  * implementation.
  */
-public class CoreKeyBloomFilterIterator extends Filter {
+public abstract class AbstractCoreKeyBloomFilterIterator extends Filter {
 
-    private BloomFilter filter;
+    protected BloomFilter filter;
 
     @Override
-    public boolean accept(final Key key, final Value value) {
-        return filter.membershipTest(
-                new org.apache.hadoop.util.bloom.Key(getVertexFromKey(key.getRowData().getBackingArray())));
-    }
-
-    protected byte[] getVertexFromKey(final byte[] key) {
-        int pos = -1;
-        for (int i = 0; i < key.length; ++i) {
-            if (key[i] == ByteArrayEscapeUtils.DELIMITER) {
-                pos = i;
-                break;
-            }
-        }
-        if (pos != -1) {
-            return Arrays.copyOf(key, pos);
-        } else {
-            return key;
-        }
-    }
+    public abstract  boolean accept(final Key key, final Value value);
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,

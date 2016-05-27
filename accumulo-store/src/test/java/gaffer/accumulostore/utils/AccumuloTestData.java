@@ -1,6 +1,6 @@
 package gaffer.accumulostore.utils;
 
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import com.google.common.collect.Sets;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -29,10 +29,13 @@ public class AccumuloTestData {
     public static Set<EntitySeed> SEED_A1_SET = Collections.singleton(SEED_A1);
     public static Set<EntitySeed> SEED_A2_SET = Collections.singleton(SEED_A2);
     public static Set<EntitySeed> SEED_A23_SET = Collections.singleton(SEED_A23);
+    public static Set<EntitySeed> SEED_A0_A23_SET = Sets.newHashSet(SEED_A0, SEED_A23);
+
 
     public static EntitySeed SEED_B = new EntitySeed("B");
     public static EntitySeed SEED_B1 = new EntitySeed("B1");
     public static EntitySeed SEED_B2 = new EntitySeed("B2");
+
 
     public static EntitySeed SEED_SOURCE_1 = new EntitySeed("source1");
     public static EntitySeed SEED_DESTINATION_1 = new EntitySeed("destination1");

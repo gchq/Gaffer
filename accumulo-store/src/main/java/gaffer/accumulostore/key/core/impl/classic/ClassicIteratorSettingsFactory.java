@@ -16,6 +16,7 @@
 package gaffer.accumulostore.key.core.impl.classic;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.operation.GetOperation;
@@ -23,12 +24,19 @@ import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.impl.get.GetAllElements;
 import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.hadoop.util.bloom.BloomFilter;
 
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
     private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class
             .getName();
     private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ClassicRangeElementPropertyFilterIterator.class
             .getName();
+
+    @Override
+    public IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException {
+        return new IteratorSettingBuilder(AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_NAME, ClassicKeyBloomFilterIterator.class).bloomFilter(filter).build();
+    }
 
     @Override
     public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
