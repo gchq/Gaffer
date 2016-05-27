@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.arrayliststore.integration;
 
-import gaffer.commonutil.StreamUtil;
-import gaffer.integration.AbstractStoreITs;
-import gaffer.store.StoreProperties;
+package gaffer.commonutil.iterable;
 
-public class ArrayListStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ArrayListStoreITs.class));
+public class EmptyClosableIterable<T> implements CloseableIterable<T> {
 
-    public ArrayListStoreITs() {
-        super(STORE_PROPERTIES);
-        addExtraTest(ArrayListStoreElementExportIT.class);
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public CloseableIterator<T> iterator() {
+        return new EmptyCloseableIterator<>();
     }
 }

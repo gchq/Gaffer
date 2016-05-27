@@ -26,5 +26,6 @@ public class AccumuloStoreITs extends AbstractStoreITs {
 
     public AccumuloStoreITs() {
         super(STORE_PROPERTIES, STORE_SCHEMA);
+        addExtraTest(AccumuloStoreElementExporterIT.class);
     }
 }

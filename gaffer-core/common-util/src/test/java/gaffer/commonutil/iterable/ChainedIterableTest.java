@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class WrappedIterableTest {
+public class ChainedIterableTest {
 
     @Test
     public void shouldWrapAllIterables() {
@@ -36,7 +36,7 @@ public class WrappedIterableTest {
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
         // When
-        final Iterable<Integer> wrappedItr = new WrappedIterable<>(itr1, itr2, itr3, itr4);
+        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, itr2, itr3, itr4);
 
         // Then
         assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
@@ -55,7 +55,7 @@ public class WrappedIterableTest {
         final int itr3Size = itr3.size();
         final int itr4Size = itr4.size();
 
-        final Iterable<Integer> wrappedItr = new WrappedIterable<>(itr1, itr2, itr3, itr4);
+        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, itr2, itr3, itr4);
 
         // When
         final Iterator<Integer> itr = wrappedItr.iterator();
@@ -82,7 +82,7 @@ public class WrappedIterableTest {
         final int itr3Size = itr3.size();
         final int itr4Size = itr4.size();
 
-        final Iterable<Integer> wrappedItr = new WrappedIterable<>(itr1, itr2, itr3, itr4);
+        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, itr2, itr3, itr4);
 
         // When
         final Iterator<Integer> itr = wrappedItr.iterator();

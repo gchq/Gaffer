@@ -13,11 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.cache;
 
-/**
- * A <code>CacheOperation</code> is a marker interface for identifying a operation
- * that interacts with the cache.
- */
-public interface CacheOperation {
+package gaffer.commonutil.iterable;
+
+import java.util.NoSuchElementException;
+
+public class EmptyCloseableIterator<T> implements CloseableIterator<T> {
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public T next() {
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 }

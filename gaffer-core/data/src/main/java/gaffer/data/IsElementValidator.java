@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.arrayliststore.integration;
 
-import gaffer.commonutil.StreamUtil;
-import gaffer.integration.AbstractStoreITs;
-import gaffer.store.StoreProperties;
+package gaffer.data;
 
-public class ArrayListStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ArrayListStoreITs.class));
+import gaffer.data.element.Element;
 
-    public ArrayListStoreITs() {
-        super(STORE_PROPERTIES);
-        addExtraTest(ArrayListStoreElementExportIT.class);
+/**
+ * A <code>IsElementValidator</code> is a simple {@link Validator} to validate if an
+ * object is an instance of {@link Element}.
+ */
+public class IsElementValidator implements Validator<Object> {
+    /**
+     * @param object the object to check if it is an {@link Element}
+     * @return true if the object is an instance of {@link Element}.
+     */
+    @Override
+    public boolean validate(final Object object) {
+        return object instanceof Element;
     }
 }

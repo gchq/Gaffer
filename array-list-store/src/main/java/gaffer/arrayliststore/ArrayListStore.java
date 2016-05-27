@@ -22,6 +22,7 @@ import gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetElementsHandler;
+import gaffer.arrayliststore.operation.handler.InitialiseArrayListStoreExport;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -34,6 +35,7 @@ import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
+import gaffer.store.operation.handler.ExportHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,7 +91,7 @@ public class ArrayListStore extends Store {
      */
     @Override
     protected void addAdditionalOperationHandlers() {
-        // no additional operations supported
+        addOperationHandler(InitialiseArrayListStoreExport.class, new ExportHandler());
     }
 
     @Override

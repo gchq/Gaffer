@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.arrayliststore.integration;
+package gaffer.operation.impl.export;
 
-import gaffer.commonutil.StreamUtil;
-import gaffer.integration.AbstractStoreITs;
-import gaffer.store.StoreProperties;
+import gaffer.operation.Operation;
 
-public class ArrayListStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ArrayListStoreITs.class));
-
-    public ArrayListStoreITs() {
-        super(STORE_PROPERTIES);
-        addExtraTest(ArrayListStoreElementExportIT.class);
-    }
+/**
+ * A <code>ExportOperation</code> is a marker interface for identifying a operation
+ * that interacts with the export.
+ */
+public interface ExportOperation<INPUT, OUTPUT> extends Operation<INPUT, OUTPUT> {
 }

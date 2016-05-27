@@ -14,25 +14,18 @@
  * limitations under the License.
  */
 
-package gaffer.operation.impl.cache;
+package gaffer.operation.impl.export.initialise;
 
-import gaffer.operation.AbstractOperation;
-import gaffer.operation.cache.CacheOperation;
-import java.util.Map;
+import gaffer.export.HashMapListExporter;
 
-/**
- * A <code>FetchCache</code> fetches the entire cache {@link Map}.
- * The cache is maintained per single {@link gaffer.operation.OperationChain} only.
- * It cannot be used across multiple separate operation requests.
- * So, it must be updated and fetched inside a single operation chain.
- *
- * @see UpdateCache
- * @see FetchCachedResult
- */
-public class FetchCache extends AbstractOperation<Void, Map<String, Iterable<?>>> implements CacheOperation {
-    public static class Builder extends AbstractOperation.Builder<FetchCache, Void, Map<String, Iterable<?>>> {
+public class InitialiseHashMapListExport extends InitialiseExport {
+    public InitialiseHashMapListExport() {
+        super(new HashMapListExporter());
+    }
+
+    public static class Builder extends InitialiseExport.Builder<InitialiseHashMapListExport> {
         public Builder() {
-            super(new FetchCache());
+            super(new InitialiseHashMapListExport());
         }
 
         @Override

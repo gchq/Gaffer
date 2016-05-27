@@ -19,7 +19,8 @@ package gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.initialise.InitialiseExport;
+import gaffer.operation.impl.export.UpdateExport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -123,6 +124,10 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(op);
         }
 
+        public TypelessBuilder first(final InitialiseExport op) {
+            return new TypelessBuilder(op);
+        }
+
         public static final class TypelessBuilder {
             private final List<Operation> ops;
 
@@ -150,6 +155,11 @@ public class OperationChain<OUT> {
                 return new TypelessBuilder(ops);
             }
 
+            public TypelessBuilder then(final InitialiseExport op) {
+                ops.add(op);
+                return new TypelessBuilder(ops);
+            }
+
             public OperationChain<Void> build() {
                 return new OperationChain<>(ops);
             }
@@ -172,7 +182,12 @@ public class OperationChain<OUT> {
                 return new TypedBuilder<>(ops);
             }
 
-            public TypelessBuilder then(final UpdateCache op) {
+            public TypelessBuilder then(final UpdateExport op) {
+                getOps().add(op);
+                return new TypelessBuilder(getOps());
+            }
+
+            public TypelessBuilder then(final InitialiseExport op) {
                 getOps().add(op);
                 return new TypelessBuilder(getOps());
             }

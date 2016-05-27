@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.arrayliststore.integration;
 
-import gaffer.commonutil.StreamUtil;
-import gaffer.integration.AbstractStoreITs;
-import gaffer.store.StoreProperties;
+package gaffer.arrayliststore.operation.handler;
 
-public class ArrayListStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ArrayListStoreITs.class));
+import gaffer.arrayliststore.export.ArrayListStoreExporter;
+import gaffer.operation.impl.export.initialise.InitialiseExport;
 
-    public ArrayListStoreITs() {
-        super(STORE_PROPERTIES);
-        addExtraTest(ArrayListStoreElementExportIT.class);
+public class InitialiseArrayListStoreExport extends InitialiseExport {
+    public InitialiseArrayListStoreExport() {
+        super(new ArrayListStoreExporter());
+    }
+
+    public static class Builder extends InitialiseExport.Builder<InitialiseArrayListStoreExport> {
+        public Builder() {
+            super(new InitialiseArrayListStoreExport());
+        }
     }
 }

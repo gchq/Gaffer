@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.utils;
+package gaffer.operation.impl.export.initialise;
 
-import java.io.Closeable;
-import java.util.Iterator;
+import gaffer.export.ElementFileExporter;
 
-public interface CloseableIterator<T> extends Iterator<T>, Closeable {
+public class InitialiseElementFileExport extends InitialiseExport {
+    public InitialiseElementFileExport() {
+        super(new ElementFileExporter());
+    }
+
     @Override
-    void close();
+    public ElementFileExporter getExporter() {
+        return (ElementFileExporter) super.getExporter();
+    }
+
+    public static class Builder extends InitialiseExport.Builder<InitialiseElementFileExport> {
+        public Builder() {
+            super(new InitialiseElementFileExport());
+        }
+    }
 }
