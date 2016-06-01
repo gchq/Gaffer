@@ -18,49 +18,33 @@ package gaffer.accumulostore.key.core.impl.byteEntity;
 
 import gaffer.accumulostore.key.core.AbstractCoreKeyBloomFilterIterator;
 import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-
+import gaffer.accumulostore.utils.Pair;
 
 import java.util.Arrays;
 
 /**
  * The BloomFilterIterator should filter out elements based on their membership
- * of the provided bloomFilter. This implementation may not work as desired
- * depending on your {@link gaffer.accumulostore.key.AccumuloKeyPackage}
- * implementation.
+ * of the provided bloomFilter.
  */
 public class ByteEntityBloomFilterIterator extends AbstractCoreKeyBloomFilterIterator {
 
-    private boolean entity;
-    private int pos = -1;
-
     @Override
-    public boolean accept(final Key key, final Value value) {
-        entity = true;
-        byte[] keyData = key.getRowData().getBackingArray();
-        boolean inSrc = filter.membershipTest(new org.apache.hadoop.util.bloom.Key(getSrcVertexFromKey(keyData)));
-        if (entity || inSrc) {
-            return true;
-        }
-        return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(getDstVertexFromKey(keyData)));
-    }
-
-    protected byte[] getSrcVertexFromKey(final byte[] key) {
+    protected Pair<byte[]> getVertices(final byte[] key) {
+        int pos = -1;
+        Pair<byte[]> vertices = new Pair<>();
         for (int i = 0; i < key.length; ++i) {
             if (key[i] == ByteArrayEscapeUtils.DELIMITER) {
                 pos = i;
                 break;
             }
         }
-        if (key.length > pos + 2) {
-            entity = false;
+        if (key.length <= pos + 2) {
+            return vertices;
+        } else {
+            vertices.setFirst(Arrays.copyOf(key, pos));
         }
-        return Arrays.copyOf(key, pos);
-    }
-
-    protected byte[] getDstVertexFromKey(final byte[] key) {
-        return Arrays.copyOfRange(key, pos + 3, key.length - 2);
+        vertices.setSecond(Arrays.copyOfRange(key, pos + 3, key.length - 2));
+        return vertices;
     }
 
 }

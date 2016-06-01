@@ -19,6 +19,7 @@ package gaffer.accumulostore.key.core;
 import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.accumulostore.utils.Pair;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -35,16 +36,29 @@ import java.util.Map;
 
 /**
  * The BloomFilterIterator should filter out elements based on their membership
- * of the provided bloomFilter. This implementation may not work as desired
- * depending on your {@link gaffer.accumulostore.key.AccumuloKeyPackage}
- * implementation.
+ * of the provided bloomFilter. An implementation of this class should be provided for every {@link gaffer.accumulostore.key.AccumuloKeyPackage}
+ * implementation which extracts vertices correctly for that key package.
  */
 public abstract class AbstractCoreKeyBloomFilterIterator extends Filter {
 
     protected BloomFilter filter;
 
     @Override
-    public abstract  boolean accept(final Key key, final Value value);
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+            value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+            justification = "Filter initalised in the init method")
+    public boolean accept(final Key key, final Value value) {
+        Pair<byte[]> vertices = getVertices(key.getRowData().getBackingArray());
+        if (vertices.getFirst() == null) {
+            return true;
+        } else {
+            boolean inSrc = filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getFirst()));
+            boolean inDst = filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getSecond()));
+            return inSrc || inDst;
+        }
+    }
+
+    protected abstract Pair<byte[]> getVertices(byte[] backingArray);
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
