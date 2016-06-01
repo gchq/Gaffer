@@ -22,9 +22,7 @@ import java.io.InputStream;
 
 public class LoadAndQuery {
     private String dataFileLocation;
-    private String dataSchemaLocation;
-    private String dataTypesLocation;
-    private String storeTypesLocation;
+    private String schemaFolderLocation;
     private String storePropertiesLocation;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -33,16 +31,8 @@ public class LoadAndQuery {
         return StreamUtil.openStream(LoadAndQuery.class, dataFileLocation, true);
     }
 
-    protected InputStream getDataSchema() {
-        return StreamUtil.openStream(LoadAndQuery.class, dataSchemaLocation, true);
-    }
-
-    protected InputStream getDataTypes() {
-        return StreamUtil.openStream(LoadAndQuery.class, dataTypesLocation, true);
-    }
-
-    protected InputStream getStoreTypes() {
-        return StreamUtil.openStream(LoadAndQuery.class, storeTypesLocation, true);
+    protected InputStream[] getSchemas() {
+        return StreamUtil.openStreams(LoadAndQuery.class, schemaFolderLocation, true);
     }
 
     protected InputStream getStoreProperties() {
@@ -53,16 +43,8 @@ public class LoadAndQuery {
         this.dataFileLocation = dataFileLocation;
     }
 
-    public void setDataSchemaLocation(final String dataSchemaLocation) {
-        this.dataSchemaLocation = dataSchemaLocation;
-    }
-
-    public void setDataTypesLocation(final String dataTypesLocation) {
-        this.dataTypesLocation = dataTypesLocation;
-    }
-
-    public void setStoreTypesLocation(final String storeTypesLocation) {
-        this.storeTypesLocation = storeTypesLocation;
+    public void setSchemaFolderLocation(final String schemaFolderLocation) {
+        this.schemaFolderLocation = schemaFolderLocation;
     }
 
     public void setStorePropertiesLocation(final String storePropertiesLocation) {

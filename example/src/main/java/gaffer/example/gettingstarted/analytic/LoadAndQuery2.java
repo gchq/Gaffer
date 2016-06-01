@@ -39,15 +39,11 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/2/data.txt");
-        setDataSchemaLocation("/example/gettingstarted/2/schema/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/2/schema/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/2/schema/storeTypes.json");
+        setSchemaFolderLocation("/example/gettingstarted/2/schema");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         final Graph graph2 = new Graph.Builder()
-                .addSchema(getDataSchema())
-                .addSchema(getDataTypes())
-                .addSchema(getStoreTypes())
+                .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 

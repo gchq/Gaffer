@@ -66,10 +66,7 @@ public abstract class OperationExample {
 
     public Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
-                .addSchema(StreamUtil.openStream(getClass(), "/example/operation/schema/dataSchema.json"))
-                .addSchema(StreamUtil.openStream(getClass(), "/example/operation/schema/dataTypes.json"))
-                .addSchema(StreamUtil.openStream(getClass(), "/example/operation/schema/storeTypes.json"))
-                .addSchema(StreamUtil.openStream(getClass(), "/example/operation/schema/storeSchema.json"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "/example/operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "/example/operation/mockaccumulostore.properties"))
                 .build();
 
