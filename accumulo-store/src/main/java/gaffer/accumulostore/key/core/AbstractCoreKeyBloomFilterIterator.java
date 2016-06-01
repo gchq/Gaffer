@@ -46,7 +46,7 @@ public abstract class AbstractCoreKeyBloomFilterIterator extends Filter {
     @Override
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
             value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-            justification = "Filter initalised in the init method")
+            justification = "Filter initialised in the init method")
     public boolean accept(final Key key, final Value value) {
         Pair<byte[]> vertices = getVertices(key.getRowData().getBackingArray());
         if (vertices.getFirst() == null) {
