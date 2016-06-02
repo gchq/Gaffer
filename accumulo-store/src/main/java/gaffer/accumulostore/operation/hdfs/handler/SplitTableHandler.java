@@ -21,11 +21,13 @@ import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
 import gaffer.operation.OperationException;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 import org.apache.hadoop.util.ToolRunner;
 
 public class SplitTableHandler implements OperationHandler<SplitTable, Void> {
     @Override
-    public Void doOperation(final SplitTable operation, final Store store) throws OperationException {
+    public Void doOperation(final SplitTable operation,
+                            final User user, final Store store) throws OperationException {
         doOperation(operation, (AccumuloStore) store);
         return null;
     }

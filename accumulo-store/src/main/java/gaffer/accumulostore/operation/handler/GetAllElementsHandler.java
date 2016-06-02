@@ -27,18 +27,19 @@ import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import java.util.Arrays;
 import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final Store store)
+    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final Store store)
             throws OperationException {
-        return doOperation(operation, (AccumuloStore) store);
+        return doOperation(operation, user, (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final AccumuloStore store) throws OperationException {
+    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
@@ -50,7 +51,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
             if (operation.isSummarise()) {
                 iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(store));
             }
-            ret = new AccumuloAllElementsRetriever(store, operation, (IteratorSetting[]) iteratorSettings.toArray());
+            ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray());
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

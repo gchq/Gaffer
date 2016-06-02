@@ -178,15 +178,15 @@ public class OrTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals("{\n" +
-                "  \"class\" : \"gaffer.function.simple.filter.Or\",\n" +
-                "  \"functions\" : [ {\n" +
-                "    \"function\" : {\n" +
-                "      \"class\" : \"gaffer.function.simple.filter.Or\"\n" +
-                "    },\n" +
-                "    \"selection\" : [ 0, 1, 2 ]\n" +
-                "  } ]\n" +
-                "}", json);
+        assertEquals(String.format("{%n" +
+                "  \"class\" : \"gaffer.function.simple.filter.Or\",%n" +
+                "  \"functions\" : [ {%n" +
+                "    \"function\" : {%n" +
+                "      \"class\" : \"gaffer.function.simple.filter.Or\"%n" +
+                "    },%n" +
+                "    \"selection\" : [ 0, 1, 2 ]%n" +
+                "  } ]%n" +
+                "}"), json);
 
         // When 2
         final Or deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), Or.class);

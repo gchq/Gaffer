@@ -18,6 +18,7 @@ package gaffer.accumulostore.key.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -50,6 +51,7 @@ public class ElementFilterTest {
         // When / Then
         try {
             filter.validateOptions(options);
+            fail("Expected IllegalArgumentException to be thrown on method invocation");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains(AccumuloStoreConstants.SCHEMA));
         }
@@ -68,6 +70,7 @@ public class ElementFilterTest {
         // When / Then
         try {
             filter.validateOptions(options);
+            fail("Expected IllegalArgumentException to be thrown on method invocation");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains(AccumuloStoreConstants.VIEW));
         }
@@ -85,6 +88,7 @@ public class ElementFilterTest {
         // When / Then
         try {
             filter.validateOptions(options);
+            fail("Expected IllegalArgumentException to be thrown on method invocation");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
         }

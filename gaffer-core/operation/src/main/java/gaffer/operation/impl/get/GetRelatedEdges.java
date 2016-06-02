@@ -36,12 +36,12 @@ import gaffer.operation.data.ElementSeed;
  * @see gaffer.operation.impl.get.GetRelatedEdges.Builder
  * @see gaffer.operation.impl.get.GetEdges
  */
-public class GetRelatedEdges extends GetEdges<ElementSeed> {
+public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<ELEMENT_SEED> {
     public GetRelatedEdges() {
         super();
     }
 
-    public GetRelatedEdges(final Iterable<ElementSeed> seeds) {
+    public GetRelatedEdges(final Iterable<ELEMENT_SEED> seeds) {
         super(seeds);
     }
 
@@ -49,11 +49,11 @@ public class GetRelatedEdges extends GetEdges<ElementSeed> {
         super(view);
     }
 
-    public GetRelatedEdges(final View view, final Iterable<ElementSeed> seeds) {
+    public GetRelatedEdges(final View view, final Iterable<ELEMENT_SEED> seeds) {
         super(view, seeds);
     }
 
-    public GetRelatedEdges(final GetOperation<ElementSeed, ?> operation) {
+    public GetRelatedEdges(final GetOperation<ELEMENT_SEED, ?> operation) {
         super(operation);
     }
 
@@ -69,49 +69,49 @@ public class GetRelatedEdges extends GetEdges<ElementSeed> {
         return SeedMatchingType.RELATED;
     }
 
-    public static class Builder extends GetEdges.Builder<GetRelatedEdges, ElementSeed> {
+    public static class Builder<ELEMENT_SEED extends ElementSeed> extends GetEdges.Builder<GetRelatedEdges<ELEMENT_SEED>, ELEMENT_SEED> {
         public Builder() {
-            super(new GetRelatedEdges());
+            super(new GetRelatedEdges<ELEMENT_SEED>());
         }
 
         @Override
-        public Builder seeds(final Iterable<ElementSeed> seeds) {
+        public Builder<ELEMENT_SEED> seeds(final Iterable<ELEMENT_SEED> seeds) {
             super.seeds(seeds);
             return this;
         }
 
         @Override
-        public Builder addSeed(final ElementSeed seed) {
+        public Builder<ELEMENT_SEED> addSeed(final ELEMENT_SEED seed) {
             super.addSeed(seed);
             return this;
         }
 
         @Override
-        public Builder summarise(final boolean summarise) {
+        public Builder<ELEMENT_SEED> summarise(final boolean summarise) {
             super.summarise(summarise);
             return this;
         }
 
         @Override
-        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
+        public Builder<ELEMENT_SEED> inOutType(final IncludeIncomingOutgoingType inOutType) {
             super.inOutType(inOutType);
             return this;
         }
 
         @Override
-        public Builder populateProperties(final boolean populateProperties) {
+        public Builder<ELEMENT_SEED> populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;
         }
 
         @Override
-        public Builder view(final View view) {
+        public Builder<ELEMENT_SEED> view(final View view) {
             super.view(view);
             return this;
         }
 
         @Override
-        public Builder option(final String name, final String value) {
+        public Builder<ELEMENT_SEED> option(final String name, final String value) {
             super.option(name, value);
             return this;
         }

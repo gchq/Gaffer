@@ -59,9 +59,12 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.codehaus.plexus.util.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,14 +79,15 @@ import java.util.Random;
  * This class is based on Accumulo's BloomFilterLayerLookupTest (org.apache.accumulo.core.file.BloomFilterLayerLookupTest).
  */
 public class BloomFilterIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
+    private RangeFactory byteEntityRangeFactory;
+    private AccumuloElementConverter byteEntityElementConverter;
+    private RangeFactory Gaffer1RangeFactory;
+    private AccumuloElementConverter gafferV1ElementConverter;
+    private Schema schema;
 
-    private final static RangeFactory byteEntityRangeFactory;
-    private final static AccumuloElementConverter byteEntityElementConverter;
-    private final static RangeFactory Gaffer1RangeFactory;
-    private final static AccumuloElementConverter gafferV1ElementConverter;
-    private final static Schema schema;
-
-    static {
+    @Before
+    public void setup() {
         schema = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, Integer.class)
                 .vertexSerialiser(new JavaSerialiser())
@@ -109,7 +113,7 @@ public class BloomFilterIT {
         testFilter(gafferV1ElementConverter, Gaffer1RangeFactory);
     }
 
-    public void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
+    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
         // Create random data to insert, and sort it
         final Random random = new Random();
         final HashSet<Key> keysSet = new HashSet<>();
@@ -165,7 +169,7 @@ public class BloomFilterIT {
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
-            for (Key key : keys) {
+            for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key).getGroup().equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
@@ -183,12 +187,12 @@ public class BloomFilterIT {
             final int numTrials = 5;
             double maxRandomRate = -1.0;
             for (int i = 0; i < numTrials; i++) {
-                double rate = calculateRandomLookUpRate(reader, dataSet, random, rangeFactory);
+                final double rate = calculateRandomLookUpRate(reader, dataSet, random, rangeFactory);
                 if (rate > maxRandomRate) {
                     maxRandomRate = rate;
                 }
             }
-            System.out.println("Max random rate = " + maxRandomRate);
+            LOGGER.info("Max random rate = " + maxRandomRate);
 
             // Calculate look up rate for items that were inserted
             double maxCausalRate = -1.0;
@@ -198,7 +202,7 @@ public class BloomFilterIT {
                     maxCausalRate = rate;
                 }
             }
-            System.out.println("Max causal rate = " + maxCausalRate);
+            LOGGER.info("Max causal rate = " + maxCausalRate);
 
             // Random look up rate should be much faster
             assertTrue(maxRandomRate > maxCausalRate);
@@ -209,26 +213,26 @@ public class BloomFilterIT {
     }
 
     private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, AccumuloElementConversionException, RangeFactoryException {
-        EntitySeed[] randomData = new EntitySeed[5000];
+        final EntitySeed[] randomData = new EntitySeed[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
         }
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         for (int i = 0; i < 5000; i++) {
             seek(reader, randomData[i], rangeFactory);
             if (dataSet.contains(randomData[i])) {
                 assertTrue(reader.hasTop());
             }
         }
-        long end = System.currentTimeMillis();
-        double randomRate = 5000 / ((end - start) / 1000.0);
-        System.out.println("Random look up rate = " + randomRate);
+        final long end = System.currentTimeMillis();
+        final double randomRate = 5000 / ((end - start) / 1000.0);
+        LOGGER.info("Random look up rate = " + randomRate);
         return randomRate;
     }
 
     private double calculateCausalLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         int count = 0;
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         for (Entity simpleEntity : dataSet) {
             seek(reader, ElementSeed.createSeed(simpleEntity), rangeFactory);
             assertTrue(reader.hasTop());
@@ -237,20 +241,20 @@ public class BloomFilterIT {
                 break;
             }
         }
-        long end = System.currentTimeMillis();
-        double causalRate = 5000 / ((end - start) / 1000.0);
-        System.out.println("Causal look up rate = " + causalRate);
+        final long end = System.currentTimeMillis();
+        final double causalRate = 5000 / ((end - start) / 1000.0);
+        LOGGER.info("Causal look up rate = " + causalRate);
         return causalRate;
     }
 
     private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
-        List<Range> range = rangeFactory.getRange(seed, operation);
+        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
+        final List<Range> range = rangeFactory.getRange(seed, operation);
         for (Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);
         }

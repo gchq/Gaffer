@@ -24,6 +24,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
     }
 
     public Iterable<Edge> run() throws OperationException {
+        final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/1/data.txt");
         setDataSchemaLocation("/example/gettingstarted/1/schema/dataSchema.json");
@@ -44,12 +46,12 @@ public class LoadAndQuery1 extends LoadAndQuery {
         //create some edges from the data file using our data generator class
         final List<Element> elements = new ArrayList<>();
         final DataGenerator1 data1Generator = new DataGenerator1();
-        System.out.println("Turn the data into Graph Edges\n");
+        log("Turn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
-            System.out.println(data1Generator.getElement(s).toString());
+            log(data1Generator.getElement(s).toString());
             elements.add(data1Generator.getElement(s));
         }
-        System.out.println("");
+        log("");
 
 
         //create a graph using our schema and store properties
@@ -65,18 +67,18 @@ public class LoadAndQuery1 extends LoadAndQuery {
                 .elements(elements)
                 .build();
 
-        graph1.execute(addElements);
+        graph1.execute(addElements, user);
 
         //get all the edges that contain the vertex "1"
-        final GetRelatedEdges query = new GetRelatedEdges.Builder()
+        final GetRelatedEdges<EntitySeed> query = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
         // Execute query
-        final Iterable<Edge> results = graph1.execute(query);
-        System.out.println("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        final Iterable<Edge> results = graph1.execute(query, user);
+        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
         for (Element e : results) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         return results;

@@ -15,14 +15,16 @@ import static org.junit.Assert.assertTrue;
 public class SampleDataForSplitPointsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
+    private static final String INPUT_DIRECTORY = "/input";
+    private static final String TEST_OPTION_KEY = "testOption";
+
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        String inputDir = "/input";
         String resultPath = "/result";
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
-        op.setInputPaths(Arrays.asList(inputDir));
+        op.setInputPaths(Arrays.asList(INPUT_DIRECTORY));
         op.setMapperGeneratorClassName("Test");
         op.setValidate(true);
         op.setProportionToSample(0.1f);
@@ -36,7 +38,7 @@ public class SampleDataForSplitPointsTest implements OperationTest {
         final SampleDataForSplitPoints deserialisedOp = serialiser.deserialise(json, SampleDataForSplitPoints.class);
 
         // Then
-        assertEquals(inputDir, deserialisedOp.getInputPaths().get(0));
+        assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPaths().get(0));
         assertEquals(resultPath, deserialisedOp.getResultingSplitsFilePath());
         assertEquals("Test", deserialisedOp.getMapperGeneratorClassName());
         assertTrue(deserialisedOp.isValidate());
@@ -49,10 +51,9 @@ public class SampleDataForSplitPointsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        String inputPath = "/input";
-        SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder().addInputPath(inputPath).option("testOption", "true").reducers(10).proportionToSample(0.1f).validate(true).mappers(5).resultingSplitsFilePath("/test").build();
-        assertEquals(inputPath, sampleDataForSplitPoints.getInputPaths().get(0));
-        assertEquals("true", sampleDataForSplitPoints.getOption("testOption"));
+        SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder().addInputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").reducers(10).proportionToSample(0.1f).validate(true).mappers(5).resultingSplitsFilePath("/test").build();
+        assertEquals(INPUT_DIRECTORY, sampleDataForSplitPoints.getInputPaths().get(0));
+        assertEquals("true", sampleDataForSplitPoints.getOption(TEST_OPTION_KEY));
         assertEquals("/test", sampleDataForSplitPoints.getResultingSplitsFilePath());
         assertTrue(sampleDataForSplitPoints.isValidate());
         assertEquals(0.1f, sampleDataForSplitPoints.getProportionToSample(), 1);

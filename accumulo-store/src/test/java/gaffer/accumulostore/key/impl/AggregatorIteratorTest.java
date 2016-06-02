@@ -29,28 +29,27 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.store.StoreException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import gaffer.user.User;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class AggregatorIteratorTest {
 
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private View defaultView;
+    private AccumuloStore byteEntityStore;
+    private AccumuloStore gaffer1KeyStore;
 
-    @BeforeClass
-    public static void setup() throws IOException, StoreException {
+    @Before
+    public void setup() throws IOException, StoreException {
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
 
@@ -63,8 +62,8 @@ public class AggregatorIteratorTest {
                 .build();
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
@@ -76,10 +75,10 @@ public class AggregatorIteratorTest {
         test(gaffer1KeyStore);
     }
 
-    public void test(final AccumuloStore store) throws OperationException {
+    private void test(final AccumuloStore store) throws OperationException {
         // Given
         final long timestamp = new Date().getTime();
-        Edge expectedResult = new Edge(TestGroups.EDGE);
+        final Edge expectedResult = new Edge(TestGroups.EDGE);
         expectedResult.setSource("1");
         expectedResult.setDestination("2");
         expectedResult.setDirected(true);
@@ -91,7 +90,7 @@ public class AggregatorIteratorTest {
         expectedResult.putProperty(AccumuloPropertyNames.PROP_3, 1);
         expectedResult.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
-        Edge edge1 = new Edge(TestGroups.EDGE);
+        final Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource("1");
         edge1.setDestination("2");
         edge1.setDirected(true);
@@ -100,7 +99,7 @@ public class AggregatorIteratorTest {
         edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
         edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
 
-        Edge edge2 = new Edge(TestGroups.EDGE);
+        final Edge edge2 = new Edge(TestGroups.EDGE);
         edge2.setSource("1");
         edge2.setDestination("2");
         edge2.setDirected(true);
@@ -109,7 +108,7 @@ public class AggregatorIteratorTest {
         edge2.putProperty(AccumuloPropertyNames.COUNT, 2);
         edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
-        Edge edge3 = new Edge(TestGroups.EDGE);
+        final Edge edge3 = new Edge(TestGroups.EDGE);
         edge3.setSource("1");
         edge3.setDestination("2");
         edge3.setDirected(true);
@@ -117,12 +116,16 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
 
-        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)));
+        final User user = new User();
+        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
 
-        GetRelatedEdges get = new GetRelatedEdges(defaultView, Collections.singletonList(((ElementSeed) new EntitySeed("1"))));
+        final GetRelatedEdges<EntitySeed> get = new GetRelatedEdges.Builder<EntitySeed>()
+                .view(defaultView)
+                .addSeed(new EntitySeed("1"))
+                .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(store.execute(get));
+        final List<Edge> results = Lists.newArrayList(store.execute(get, user));
 
         // Then
         assertEquals(1, results.size());

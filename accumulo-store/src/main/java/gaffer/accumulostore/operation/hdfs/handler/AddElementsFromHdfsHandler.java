@@ -24,11 +24,14 @@ import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.user.User;
 import org.apache.hadoop.util.ToolRunner;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs, Void> {
     @Override
-    public Void doOperation(final AddElementsFromHdfs operation, final Store store) throws OperationException {
+    public Void doOperation(final AddElementsFromHdfs operation,
+                            final User user, final Store store)
+            throws OperationException {
         doOperation(operation, (AccumuloStore) store);
         return null;
     }
@@ -36,7 +39,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public void doOperation(final AddElementsFromHdfs operation, final AccumuloStore store) throws OperationException {
         fetchElements(operation, store);
         String skipImport = operation.getOption(AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
-        if (null == skipImport || !skipImport.equalsIgnoreCase("TRUE"))  {
+        if (null == skipImport || !skipImport.equalsIgnoreCase("TRUE")) {
             importElements(operation, store);
         }
     }

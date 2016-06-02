@@ -28,6 +28,7 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import java.util.List;
@@ -55,9 +56,14 @@ public class LoadAndQuery5Test {
     @Test
     public void shouldReturnExpectedEdgesViaJson() throws OperationException, SerialisationException {
         // Given
+        final User basicUser = new User("basicUser");
+        final User privateUser = new User.Builder()
+                .userId("privateUser")
+                .dataAuth("private")
+                .build();
         final JSONSerialiser serialiser = new JSONSerialiser();
         final AddElements addElements = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), AddElements.class);
-        final GetRelatedEdges getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetRelatedEdges.class);
+        final GetRelatedEdges<?> getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetRelatedEdges.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -68,8 +74,8 @@ public class LoadAndQuery5Test {
                 .build();
 
         // When
-        graph.execute(addElements); // Execute the add operation chain on the graph
-        final Iterable<Edge> results = graph.execute(getRelatedEdges); // Execute the query operation on the graph.
+        graph.execute(addElements, basicUser); // Execute the add operation chain on the graph
+        final Iterable<Edge> results = graph.execute(getRelatedEdges, privateUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);

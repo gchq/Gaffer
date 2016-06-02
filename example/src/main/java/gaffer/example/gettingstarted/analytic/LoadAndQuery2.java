@@ -26,6 +26,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
     }
 
     public Iterable<Edge> run() throws OperationException {
+        final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/2/data.txt");
         setDataSchemaLocation("/example/gettingstarted/2/schema/dataSchema.json");
@@ -51,29 +53,29 @@ public class LoadAndQuery2 extends LoadAndQuery {
 
         final List<Element> elements = new ArrayList<>();
         final DataGenerator2 dataGenerator2 = new DataGenerator2();
-        System.out.println("\nTurn the data into Graph Edges\n");
+        log("\nTurn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator2.getElement(s));
-            System.out.println(dataGenerator2.getElement(s).toString());
+            log(dataGenerator2.getElement(s).toString());
         }
-        System.out.println("");
+        log("");
 
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
-        graph2.execute(addElements);
+        graph2.execute(addElements, user);
 
         //get all the edges
-        final GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
-        System.out.println("\nAll edges containing vertex 1");
-        System.out.println("\nNotice that the edges are aggregated within their groups");
-        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges);
+        log("\nAll edges containing vertex 1");
+        log("\nNotice that the edges are aggregated within their groups");
+        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges, user);
         for (Element e : allColoursResults) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         //create a View to specify which subset of results we want
@@ -83,10 +85,10 @@ public class LoadAndQuery2 extends LoadAndQuery {
         //rerun the previous query with our view
         getRelatedEdges.setView(view);
 
-        System.out.println("\nAll red edges containing vertex 1\n");
-        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges);
+        log("\nAll red edges containing vertex 1\n");
+        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges, user);
         for (Element e : redResults) {
-            System.out.println(e.toString());
+            log(e.toString());
         }
 
         return redResults;
