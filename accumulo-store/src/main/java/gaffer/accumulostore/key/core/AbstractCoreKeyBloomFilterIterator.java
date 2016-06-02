@@ -51,11 +51,11 @@ public abstract class AbstractCoreKeyBloomFilterIterator extends Filter {
         Pair<byte[]> vertices = getVertices(key.getRowData().getBackingArray());
         if (vertices.getFirst() == null) {
             return true;
-        } else {
-            boolean inSrc = filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getFirst()));
-            boolean inDst = filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getSecond()));
-            return inSrc || inDst;
         }
+        if (filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getFirst()))) {
+            return true;
+        }
+        return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getSecond()));
     }
 
     protected abstract Pair<byte[]> getVertices(byte[] backingArray);

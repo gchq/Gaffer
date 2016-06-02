@@ -159,12 +159,8 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             final Object destination = edge.getDestination();
             final boolean sourceIsInCurrent = currentSeeds.contains(source);
             final boolean destIsInCurrent = currentSeeds.contains(destination);
-            boolean sourceMatchesClientFilter;
-            try {
-                sourceMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
-            } catch (final AccumuloElementConversionException e) {
-                return false;
+            if (sourceIsInCurrent && destIsInCurrent) {
+                return true;
             }
             boolean destMatchesClientFilter;
             try {
@@ -173,8 +169,17 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
-            return (sourceIsInCurrent && destMatchesClientFilter) || (destIsInCurrent && sourceMatchesClientFilter)
-                    || (sourceIsInCurrent && destIsInCurrent);
+            if (sourceIsInCurrent && destMatchesClientFilter) {
+                return true;
+            }
+            boolean sourceMatchesClientFilter;
+            try {
+                sourceMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
+            } catch (final AccumuloElementConversionException e) {
+                return false;
+            }
+            return  (destIsInCurrent && sourceMatchesClientFilter);
         }
     }
 }

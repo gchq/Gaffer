@@ -40,9 +40,8 @@ public class ByteEntityBloomFilterIterator extends AbstractCoreKeyBloomFilterIte
         }
         if (key.length <= pos + 2) {
             return vertices;
-        } else {
-            vertices.setFirst(Arrays.copyOf(key, pos));
         }
+        vertices.setFirst(Arrays.copyOf(key, pos));
         vertices.setSecond(Arrays.copyOfRange(key, pos + 3, key.length - 2));
         return vertices;
     }

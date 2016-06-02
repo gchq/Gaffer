@@ -39,9 +39,8 @@ public class ClassicKeyBloomFilterIterator extends AbstractCoreKeyBloomFilterIte
         }
         if (pos == -1) {
             return vertices;
-        } else {
-            vertices.setFirst(Arrays.copyOf(key, pos));
         }
+        vertices.setFirst(Arrays.copyOf(key, pos));
         vertices.setSecond(Arrays.copyOfRange(key, pos + 1, key.length - 2));
         return vertices;
     }
