@@ -88,7 +88,6 @@ public class AggregatorIteratorTest {
         expectedResult.setDirected(true);
         expectedResult.putProperty(AccumuloPropertyNames.COUNT, 13);
         expectedResult.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        expectedResult.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         expectedResult.putProperty(AccumuloPropertyNames.PROP_1, 0);
         expectedResult.putProperty(AccumuloPropertyNames.PROP_2, 0);
         expectedResult.putProperty(AccumuloPropertyNames.PROP_3, 1);
@@ -99,7 +98,6 @@ public class AggregatorIteratorTest {
         edge1.setDestination("2");
         edge1.setDirected(true);
         edge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        edge1.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
         edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
 
@@ -108,7 +106,6 @@ public class AggregatorIteratorTest {
         edge2.setDestination("2");
         edge2.setDirected(true);
         edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge2.putProperty(AccumuloPropertyNames.COUNT, 2);
         edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
@@ -117,7 +114,6 @@ public class AggregatorIteratorTest {
         edge3.setDestination("2");
         edge3.setDirected(true);
         edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, timestamp);
         edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
 
         final User user = new User();

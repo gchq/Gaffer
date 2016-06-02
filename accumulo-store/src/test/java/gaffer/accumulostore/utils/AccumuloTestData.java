@@ -63,20 +63,23 @@ public class AccumuloTestData {
 
        EDGE_A1_B1 = new Edge(TestGroups.EDGE, "A1", "B1", true);
        EDGE_A1_B1.putProperty(AccumuloPropertyNames.COUNT, 1);
-       EDGE_A1_B1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+//       EDGE_A1_B1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
        EDGE_B2_A2 = new Edge(TestGroups.EDGE, "B2", "A2", true);
-       EDGE_B2_A2.putProperty(AccumuloPropertyNames.COUNT, 100);
 
        EDGE_A0_A23 = new Edge(TestGroups.EDGE, "A0", "A23", true);
        EDGE_A0_A23.putProperty(AccumuloPropertyNames.COUNT, 23);
+//       EDGE_A0_A23.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+       EDGE_A0_A23.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
 
        // Create directed edge A -> B and undirected edge A - B
        EDGE_A_B_1 = new Edge(TestGroups.EDGE, "A", "B", true);
        EDGE_A_B_2 = new Edge(TestGroups.EDGE, "A", "B", false);
 
        EDGE_A_B_1.putProperty(AccumuloPropertyNames.COUNT, 1);
+//       EDGE_A_B_1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
        EDGE_A_B_2.putProperty(AccumuloPropertyNames.COUNT, 2);
+//       EDGE_A_B_2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
        EDGE_C_D_UNDIRECTED = new Edge(TestGroups.EDGE);
        EDGE_C_D_UNDIRECTED.setSource("C");
@@ -94,15 +97,19 @@ public class AccumuloTestData {
 
        A0_ENTITY = new Entity(TestGroups.ENTITY, "A0");
        A0_ENTITY.putProperty(AccumuloPropertyNames.COUNT, 10000);
+//       A0_ENTITY.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
        A1_ENTITY = new Entity(TestGroups.ENTITY, "A1");
        A1_ENTITY.putProperty(AccumuloPropertyNames.COUNT, 1);
+//       A1_ENTITY.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
        A2_ENTITY = new Entity(TestGroups.ENTITY, "A2");
        A2_ENTITY.putProperty(AccumuloPropertyNames.COUNT, 2);
+//       A2_ENTITY.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
        A23_ENTITY = new Entity(TestGroups.ENTITY, "A23");
        A23_ENTITY.putProperty(AccumuloPropertyNames.COUNT, 23);
+//       A23_ENTITY.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
     }
 
 }

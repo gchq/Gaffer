@@ -140,7 +140,7 @@ public class TransformationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(1, results.size());
         for (Entity result : results) {
-            assertEquals("A1,0", result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertEquals("A1,3", result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
 
@@ -196,7 +196,7 @@ public class TransformationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(1, results.size());
         for (Entity result : results) {
-            assertEquals("A1,0", result.getProperty(TestPropertyNames.STRING));
+            assertEquals("A1,3", result.getProperty(TestPropertyNames.STRING));
         }
     }
 }
