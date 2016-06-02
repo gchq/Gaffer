@@ -21,6 +21,7 @@ gaffer.accumulostore.utils
 gaffer.arrayliststore
 gaffer.arrayliststore.operation.handler
 gaffer.commonutil
+gaffer.commonutil.exception
 gaffer.commonutil.iterable
 gaffer.data
 gaffer.data.element
@@ -54,6 +55,7 @@ gaffer.gafferpop
 gaffer.gafferpop.generator
 gaffer.gafferpop.groovyplugin
 gaffer.graph
+gaffer.graph.hook
 gaffer.jsonserialisation
 gaffer.operation
 gaffer.operation.cache
@@ -84,3 +86,4 @@ gaffer.serialisation.simple.raw
 gaffer.store
 gaffer.store.operation.handler
 gaffer.store.schema
+gaffer.user
