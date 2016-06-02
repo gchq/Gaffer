@@ -1,0 +1,98 @@
+{
+  "operations": [
+    {
+      "class": "gaffer.operation.impl.get.GetRelatedElements",
+      "view": {
+        "edges": {
+          "edge": {
+            "filterFunctions": [
+              {
+                "function": {
+                  "class": "gaffer.function.simple.filter.IsMoreThan",
+                  "value": 1
+                },
+                "selection": [
+                  {
+                    "key": "count"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "entities": {
+          "entity": {}
+        }
+      },
+      "includeIncomingOutGoing": "OUTGOING",
+      "seeds": [
+        {
+          "gaffer.operation.data.EntitySeed": {
+            "vertex": "1"
+          }
+        }
+      ]
+    },
+    {
+      "class": "gaffer.operation.impl.cache.UpdateCache"
+    },
+    {
+      "class": "gaffer.operation.impl.generate.GenerateObjects",
+      "elementGenerator": {
+        "class": "gaffer.operation.data.generator.EntitySeedExtractor",
+        "elementValidator": {
+          "class": "gaffer.data.IsEdgeValidator"
+        },
+        "skipInvalid": true
+      }
+    },
+    {
+      "class": "gaffer.operation.impl.get.GetRelatedElements",
+      "view": {
+        "edges": {
+          "edge": {
+            "filterFunctions": [
+              {
+                "function": {
+                  "class": "gaffer.function.simple.filter.IsMoreThan",
+                  "value": 1
+                },
+                "selection": [
+                  {
+                    "key": "count"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "entities": {
+          "entity": {}
+        }
+      },
+      "includeIncomingOutGoing": "OUTGOING"
+    },
+    {
+      "class": "gaffer.operation.impl.cache.UpdateCache"
+    },
+    {
+      "class": "gaffer.operation.impl.generate.GenerateObjects",
+      "elementGenerator": {
+        "class": "gaffer.operation.data.generator.EntitySeedExtractor",
+        "elementValidator": {
+          "class": "gaffer.data.IsEdgeValidator"
+        },
+        "skipInvalid": true
+      }
+    },
+    {
+      "class": "gaffer.operation.impl.get.GetEntitiesBySeed"
+    },
+    {
+      "class": "gaffer.operation.impl.cache.UpdateCache"
+    },
+    {
+      "class": "gaffer.operation.impl.cache.FetchCachedResult"
+    }
+  ]
+}
