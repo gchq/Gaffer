@@ -28,7 +28,11 @@ import java.nio.file.Paths;
 public class GraphFactory {
     private static Graph graph;
 
-    private boolean singletonGraph;
+    /**
+     * Set to true by default - so the same instance of {@link Graph} will be
+     * returned.
+     */
+    private boolean singletonGraph = true;
 
     protected GraphFactory() {
         // Graph factories should be constructed via the createGraphFactory static method.
@@ -60,6 +64,10 @@ public class GraphFactory {
 
     public void setSingletonGraph(final boolean singletonGraph) {
         this.singletonGraph = singletonGraph;
+    }
+
+    public boolean isSingletonGraph() {
+        return singletonGraph;
     }
 
     protected Graph.Builder createGraphBuilder() {
