@@ -1,7 +1,6 @@
 package gaffer.accumulostore.operation.hdfs.impl;
 
 
-import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
@@ -22,7 +21,7 @@ public class SampleDataForSplitPointsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        String resultPath = "/result";
+        final String resultPath = "/result";
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
         op.setInputPaths(Arrays.asList(INPUT_DIRECTORY));
         op.setMapperGeneratorClassName("Test");
@@ -51,7 +50,7 @@ public class SampleDataForSplitPointsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder().addInputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").reducers(10).proportionToSample(0.1f).validate(true).mappers(5).resultingSplitsFilePath("/test").build();
+        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder().addInputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").reducers(10).proportionToSample(0.1f).validate(true).mappers(5).resultingSplitsFilePath("/test").build();
         assertEquals(INPUT_DIRECTORY, sampleDataForSplitPoints.getInputPaths().get(0));
         assertEquals("true", sampleDataForSplitPoints.getOption(TEST_OPTION_KEY));
         assertEquals("/test", sampleDataForSplitPoints.getResultingSplitsFilePath());

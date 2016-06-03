@@ -47,6 +47,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GetElementsBetweenSetsHandlerTest {
@@ -71,22 +73,17 @@ public class GetElementsBetweenSetsHandlerTest {
     public void setup() throws StoreException, IOException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
         expectedEdge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
         expectedEdge2.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
         expectedEdge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
         expectedEdge3.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
         expectedEntity1.putProperty(AccumuloPropertyNames.COUNT, 10000);
-        expectedEntity1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 3);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 69);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
@@ -249,30 +246,25 @@ public class GetElementsBetweenSetsHandlerTest {
         // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
         final Entity entity = new Entity(TestGroups.ENTITY, "A0");
         entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-        entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
         data.add(entity);
         for (int i = 1; i < 100; i++) {
             final Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
-            edge.putProperty(AccumuloPropertyNames.COUNT, 1);
+            edge.putProperty(AccumuloPropertyNames.COUNT, 23);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(edge);
 
             final Edge edge2 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
-            edge2.putProperty(AccumuloPropertyNames.COUNT, 1);
+            edge2.putProperty(AccumuloPropertyNames.COUNT, 23);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-            edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(edge2);
 
             final Edge edge3 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
-            edge3.putProperty(AccumuloPropertyNames.COUNT, 1);
+            edge3.putProperty(AccumuloPropertyNames.COUNT, 23);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
-            edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(edge3);
 
             final Entity edgeEntity = new Entity(TestGroups.ENTITY, "A" + i);
             edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-            edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(edgeEntity);
         }
         addElements(data, store, new User());
