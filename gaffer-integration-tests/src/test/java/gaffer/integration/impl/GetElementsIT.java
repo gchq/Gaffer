@@ -49,8 +49,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementSeed Seeds
@@ -194,18 +192,15 @@ public class GetElementsIT extends AbstractStoreIT {
         if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.DIRECTED == includeEdgeType) {
             final EdgeSeed seed = new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true);
             seedTerms.add(seed);
-//            expectedElements.addAll(Collections.singletonList(new Edge(TestGroups.EDGE, SOURCE_DIR_1, DEST_DIR_1, true)));
 
             if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
                 final EdgeSeed seedSourceDestDir2 = new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true);
                 seedTerms.add(seedSourceDestDir2);
-//                expectedElements.addAll(Collections.singletonList(new Edge(TestGroups.EDGE, SOURCE_DIR_2, DEST_DIR_2, true)));
             }
 
             if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
                 final EdgeSeed seedSourceDestDir3 = new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true);
                 seedTerms.add(seedSourceDestDir3);
-//                expectedElements.addAll(Collections.singletonList(new Edge(TestGroups.EDGE, SOURCE_DIR_3, DEST_DIR_3, true)));
             }
         }
 
@@ -218,9 +213,6 @@ public class GetElementsIT extends AbstractStoreIT {
 
             final EdgeSeed seedSourceDest3 = new EdgeSeed(SOURCE_3, DEST_3, false);
             seedTerms.add(seedSourceDest3);
-//            expectedElements.addAll(Arrays.asList(new Edge(TestGroups.EDGE, SOURCE_1, DEST_1, false),
-//                    new Edge(TestGroups.EDGE, SOURCE_2, DEST_2, false),
-//                    new Edge(TestGroups.EDGE, SOURCE_3, DEST_3, false)));
         }
 
         expectedElements.addAll(getElements(seedTerms));

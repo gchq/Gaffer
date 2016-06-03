@@ -74,8 +74,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingMultiplePropertySets() throws StoreException, AccumuloElementConversionException {
+    public void shouldMultiplePropertySetsAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
+    }
+
+    @Test
+    public void shouldMultiplePropertySetsAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
@@ -202,10 +206,13 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         }
     }
 
+    @Test
+    public void shouldSinglePropertySetAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+        testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
+    }
 
     @Test
-    public void testAggregatingSinglePropertySet() throws StoreException, AccumuloElementConversionException {
-        testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
+    public void shouldSinglePropertySetAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
@@ -273,8 +280,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingEmptyColumnQualifier() throws StoreException, AccumuloElementConversionException {
+    public void shouldEmptyColumnQualifierAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
+    }
+
+    @Test
+    public void shouldEmptyColumnQualifierAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 

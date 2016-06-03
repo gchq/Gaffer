@@ -86,10 +86,10 @@ public class AggregationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(2, results.size());
 
-        final Entity expectedEntity = new Entity("BasicEntity", AGGREGATED_SOURCE);
+        final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.STRING, "3,3");
 
-        final Edge expectedEdge = new Edge("BasicEdge", AGGREGATED_SOURCE, AGGREGATED_DEST, false);
+        final Edge expectedEdge = new Edge(TestGroups.EDGE, AGGREGATED_SOURCE, AGGREGATED_DEST, false);
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
@@ -100,7 +100,6 @@ public class AggregationIT extends AbstractStoreIT {
 
         for (Element result : results) {
             if (result instanceof Entity) {
-//                assertEquals(AGGREGATED_ID + "," + AGGREGATED_ID, result.getProperty(TestPropertyNames.STRING));
                 assertEquals(AGGREGATED_ID, result.getProperty(TestPropertyNames.STRING));
             } else {
                 assertEquals(1, result.getProperty(TestPropertyNames.INT));

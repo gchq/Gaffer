@@ -256,7 +256,6 @@ public abstract class AbstractStoreIT {
     protected Map<EntitySeed, Entity> createEntities() {
         final Map<EntitySeed, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-//            final String prop = String.valueOf(i);
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
                 final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
                 entity.putProperty(TestPropertyNames.STRING, "3");
