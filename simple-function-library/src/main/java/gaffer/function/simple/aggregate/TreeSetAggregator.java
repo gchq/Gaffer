@@ -18,12 +18,11 @@ package gaffer.function.simple.aggregate;
 import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
  * An <code>TreeSetAggregator</code> is a {@link SimpleAggregateFunction} that
- * combines {@link SortedSet}s.
+ * combines {@link TreeSet}s.
  */
 @Inputs(TreeSet.class)
 @Outputs(TreeSet.class)
