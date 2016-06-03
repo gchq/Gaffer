@@ -53,17 +53,6 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 import gaffer.user.User;
-import org.apache.hadoop.util.bloom.BloomFilter;
-import org.apache.hadoop.util.hash.Hash;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
@@ -325,6 +314,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         final Set<Element> results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
         // Check results are as expected
 
+        assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
     }
 
@@ -414,6 +404,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Query for all edges between the set {A0} and the set {A23}
         final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET, defaultView);
         final Set<Element> betweenA0A23results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
+        assertEquals(2, betweenA0A23results.size());
         assertThat(betweenA0A23results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
 
         // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
@@ -454,12 +445,11 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         data.add(entity);
         for (int i = 1; i < 100; i++) {
             final Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
-            edge.putProperty(AccumuloPropertyNames.COUNT, 1);
-            edge.putProperty(AccumuloPropertyNames.TIMESTAMP, AccumuloTestData.TIMESTAMP);
+            edge.putProperty(AccumuloPropertyNames.COUNT, 23);
+            edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
             data.add(edge);
             final Entity edgeEntity = new Entity(TestGroups.ENTITY, "A" + i);
             edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-            edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, AccumuloTestData.TIMESTAMP);
             data.add(edgeEntity);
         }
 

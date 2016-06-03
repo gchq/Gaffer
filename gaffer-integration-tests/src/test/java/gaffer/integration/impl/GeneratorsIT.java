@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -75,13 +76,14 @@ public class GeneratorsIT extends AbstractStoreIT {
         // When
         final List<DomainObject> results = Lists.newArrayList(graph.execute(opChain, getUser()));
 
+        final EntityDomainObject entityDomainObject = new EntityDomainObject(SOURCE_1, "3", null);
+        final EdgeDomainObject edgeDomainObject = new EdgeDomainObject(SOURCE_1, DEST_1, false, 1, 1L);
+
         // Then
         assertNotNull(results);
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
-                new EntityDomainObject(SOURCE_1, "1", null),
-                new EdgeDomainObject(SOURCE_1, DEST_1, false, 1, 1L)
-        ));
+                entityDomainObject, edgeDomainObject));
     }
 
     @Test
@@ -107,11 +109,17 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .addSeed(new EntitySeed(NEW_VERTEX))
                 .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));
+
+        final Edge expectedEdge = new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false);
+        expectedEdge.putProperty(TestPropertyNames.INT, 1);
+        expectedEdge.putProperty(TestPropertyNames.COUNT, 1L);
+
+        final Entity expectedEntity = new Entity(TestGroups.ENTITY, NEW_VERTEX);
+        expectedEntity.putProperty(TestPropertyNames.STRING, "1");
+
         assertNotNull(results);
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
-                new Entity(TestGroups.ENTITY, NEW_VERTEX),
-                new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false)
-        ));
+                expectedEntity, expectedEdge));
     }
 }

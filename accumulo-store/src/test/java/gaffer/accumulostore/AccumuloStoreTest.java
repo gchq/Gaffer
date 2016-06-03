@@ -62,13 +62,10 @@ import gaffer.store.operation.handler.OperationHandler;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import gaffer.user.User;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 public class AccumuloStoreTest {
