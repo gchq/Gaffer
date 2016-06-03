@@ -160,7 +160,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);

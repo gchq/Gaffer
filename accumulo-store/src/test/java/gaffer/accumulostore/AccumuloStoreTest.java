@@ -40,7 +40,6 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -63,13 +62,10 @@ import gaffer.store.operation.handler.OperationHandler;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import gaffer.user.User;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 public class AccumuloStoreTest {

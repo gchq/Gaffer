@@ -53,17 +53,6 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 import gaffer.user.User;
-import org.apache.hadoop.util.bloom.BloomFilter;
-import org.apache.hadoop.util.hash.Hash;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
@@ -458,11 +447,9 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             final Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
             edge.putProperty(AccumuloPropertyNames.COUNT, 23);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-//            edge.putProperty(AccumuloPropertyNames.TIMESTAMP, AccumuloTestData.TIMESTAMP);
             data.add(edge);
             final Entity edgeEntity = new Entity(TestGroups.ENTITY, "A" + i);
             edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-//            edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, AccumuloTestData.TIMESTAMP);
             data.add(edgeEntity);
         }
 
