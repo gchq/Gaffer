@@ -84,14 +84,14 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
         final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
 
-        GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
+        final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         Iterable<Element> elementsInRanges = handler.doOperation(operation, user, store);
         final int elementsInRangesCount = Iterables.size(elementsInRanges);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number

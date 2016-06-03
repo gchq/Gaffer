@@ -1,13 +1,9 @@
 package gaffer.accumulostore.operation.hdfs.impl;
 
 
-import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
-import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
 
 import java.util.Arrays;

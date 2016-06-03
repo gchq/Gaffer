@@ -74,8 +74,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingMultiplePropertySets() throws StoreException, AccumuloElementConversionException {
+    public void shouldMultiplePropertySetsAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
+    }
+
+    @Test
+    public void shouldMultiplePropertySetsAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
@@ -101,6 +105,11 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
+            edge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_3, 3);
+            edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            edge.putProperty(AccumuloPropertyNames.COUNT, 15);
 
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
             final Edge edge2 = new Edge(TestGroups.EDGE);
@@ -108,12 +117,20 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge2.setDestination("2");
             edge2.setDirected(true);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+            edge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            edge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
             final Edge edge3 = new Edge(TestGroups.EDGE);
             edge3.setSource("1");
             edge3.setDestination("2");
             edge3.setDirected(true);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+            edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
 
             // Accumulo key
@@ -143,7 +160,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -164,7 +181,19 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             final Entry<Key, Value> entry = it.next();
             final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
-            assertEquals(readEdge, edge);
+
+            final Edge expectedEdge = new Edge(TestGroups.EDGE);
+            expectedEdge.setSource("1");
+            expectedEdge .setDestination("2");
+            expectedEdge.setDirected(true);
+            expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 9);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 15);
+
+            assertEquals(readEdge, expectedEdge);
             assertEquals(9, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(15, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             // Check no more entries
@@ -177,10 +206,13 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
         }
     }
 
+    @Test
+    public void shouldSinglePropertySetAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+        testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
+    }
 
     @Test
-    public void testAggregatingSinglePropertySet() throws StoreException, AccumuloElementConversionException {
-        testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
+    public void shouldSinglePropertySetAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
@@ -197,6 +229,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
+            edge.putProperty(AccumuloPropertyNames.COUNT, 1);
 
             final Properties properties1 = new Properties();
             properties1.put(AccumuloPropertyNames.COUNT, 1);
@@ -247,8 +280,12 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
     }
 
     @Test
-    public void testAggregatingEmptyColumnQualifier() throws StoreException, AccumuloElementConversionException {
+    public void shouldEmptyColumnQualifierAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
+    }
+
+    @Test
+    public void shouldEmptyColumnQualifierAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
@@ -265,17 +302,30 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             edge.setDestination("2");
             edge.setDirected(true);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
+            edge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            edge.putProperty(AccumuloPropertyNames.COUNT, 15);
 
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
             final Edge edge2 = new Edge(TestGroups.EDGE);
             edge2.setSource("1");
             edge2.setDestination("2");
             edge2.setDirected(true);
+            edge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            edge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
             final Edge edge3 = new Edge(TestGroups.EDGE);
             edge3.setSource("1");
             edge3.setDestination("2");
             edge3.setDirected(true);
+            edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
             final Properties properties1 = new Properties();
             properties1.put(AccumuloPropertyNames.COUNT, 1);
