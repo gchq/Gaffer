@@ -1,0 +1,17 @@
+{
+  "types": {
+    "int": {
+      "class": "java.lang.Integer"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsTrue"
+          }
+        }
+      ]
+    }
+  }
+}

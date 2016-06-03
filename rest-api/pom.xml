@@ -143,7 +143,6 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.9-RC1</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
@@ -153,7 +152,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
     </dependencies>
 </project>

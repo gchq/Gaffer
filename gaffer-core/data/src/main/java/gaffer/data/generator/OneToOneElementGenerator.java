@@ -16,6 +16,8 @@
 
 package gaffer.data.generator;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.data.AlwaysValid;
 import gaffer.data.TransformIterable;
 import gaffer.data.Validator;
@@ -30,9 +32,9 @@ import gaffer.data.element.Element;
  */
 public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<OBJ> {
 
-    private final Validator<Element> elementValidator;
-    private final Validator<OBJ> objValidator;
-    private final boolean skipInvalid;
+    private Validator<Element> elementValidator;
+    private Validator<OBJ> objValidator;
+    private boolean skipInvalid;
 
     /**
      * Constructs an <code>OneToOneElementGenerator</code> that doesn't validate the any elements or objects.
@@ -54,6 +56,44 @@ public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<
                                     final boolean skipInvalid) {
         this.elementValidator = elementValidator;
         this.objValidator = objValidator;
+        this.skipInvalid = skipInvalid;
+    }
+
+    public Validator<Element> getElementValidator() {
+        return elementValidator;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    @JsonGetter("elementValidator")
+    Validator<Element> getElementValidatorJson() {
+        return elementValidator instanceof AlwaysValid ? null : elementValidator;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public void setElementValidator(final Validator<Element> elementValidator) {
+        this.elementValidator = elementValidator;
+    }
+
+    public Validator<OBJ> getObjValidator() {
+        return objValidator;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    @JsonGetter("objValidator")
+    Validator<OBJ> getObjValidatorJson() {
+        return objValidator instanceof AlwaysValid ? null : objValidator;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public void setObjValidator(final Validator<OBJ> objValidator) {
+        this.objValidator = objValidator;
+    }
+
+    public boolean isSkipInvalid() {
+        return skipInvalid;
+    }
+
+    public void setSkipInvalid(final boolean skipInvalid) {
         this.skipInvalid = skipInvalid;
     }
 

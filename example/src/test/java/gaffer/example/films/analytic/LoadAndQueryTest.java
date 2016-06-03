@@ -68,9 +68,7 @@ public class LoadAndQueryTest {
         // Setup graph
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.openStream(LoadAndQuery.class, "/example/films/mockaccumulostore.properties"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/dataSchema.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/dataTypes.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/storeTypes.json"))
+                .addSchemas(StreamUtil.openStreams(LoadAndQuery.class, "/example/films/schema"))
                 .build();
 
         // When
