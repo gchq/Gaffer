@@ -90,7 +90,7 @@ public class LoadAndQuery7Test {
                 new Entity.Builder()
                         .vertex("3")
                         .group(ENTITY_GROUP)
-                        .property(COUNT, 1)
+                        .property(COUNT, 2)
                         .build(),
                 new Edge.Builder()
                         .source("1")
