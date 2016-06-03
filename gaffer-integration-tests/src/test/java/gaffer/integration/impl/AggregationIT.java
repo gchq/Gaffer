@@ -112,7 +112,7 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
-        final GetRelatedEdges getEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges<EntitySeed> getEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(NON_AGGREGATED_SOURCE))
                 .build();
 

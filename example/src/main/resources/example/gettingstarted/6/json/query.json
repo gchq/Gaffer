@@ -1,0 +1,25 @@
+{
+  "operations": [
+    {
+      "class": "gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "includeIncomingOutGoing": "OUTGOING",
+      "seeds": [
+        {
+          "gaffer.operation.data.EntitySeed": {
+            "vertex": "1"
+          }
+        }
+      ]
+    },
+    {
+      "class": "gaffer.operation.impl.get.GetRelatedEdges",
+      "includeIncomingOutGoing": "OUTGOING"
+    },
+    {
+      "class": "gaffer.operation.impl.generate.GenerateObjects",
+      "elementGenerator": {
+        "class": "gaffer.example.gettingstarted.generator.DataGenerator6"
+      }
+    }
+  ]
+}

@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
  * destination vertex - for example you could have a 'graph' of just entities.
  * Entities are designed so that multiple entities can share the same vertex but are distinguished via their
  * group.
+ *
+ * @see gaffer.data.element.Entity.Builder
  */
 public class Entity extends Element {
     private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);
@@ -111,5 +113,28 @@ public class Entity extends Element {
     @Override
     public String toString() {
         return "Entity{vertex=" + vertex + super.toString() + "} ";
+    }
+
+    public static class Builder {
+        private final Entity entity = new Entity();
+
+        public Builder group(final String group) {
+            entity.setGroup(group);
+            return this;
+        }
+
+        public Builder vertex(final Object vertex) {
+            entity.setVertex(vertex);
+            return this;
+        }
+
+        public Builder property(final String name, final Object value) {
+            entity.putProperty(name, value);
+            return this;
+        }
+
+        public Entity build() {
+            return entity;
+        }
     }
 }

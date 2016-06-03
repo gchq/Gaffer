@@ -14,15 +14,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.6-SNAPSHOT</version>
+        <version>0.3.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>example</artifactId>
@@ -75,7 +73,7 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>example-simple-query</id>
+                                <id>example</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>assembly</goal>
@@ -85,37 +83,11 @@
                                         <descriptorRef>jar-with-dependencies
                                         </descriptorRef>
                                     </descriptorRefs>
-                                    <finalName>example-simple-query
+                                    <finalName>example
                                     </finalName>
                                     <archive>
                                         <manifest>
                                             <addClasspath>true</addClasspath>
-                                            <mainClass>
-                                                gaffer.example.SimpleQuery
-                                            </mainClass>
-                                        </manifest>
-                                    </archive>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>example-complex-query</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>assembly</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptorRefs>
-                                        <descriptorRef>jar-with-dependencies
-                                        </descriptorRef>
-                                    </descriptorRefs>
-                                    <finalName>example-complex-query
-                                    </finalName>
-                                    <archive>
-                                        <manifest>
-                                            <addClasspath>true</addClasspath>
-                                            <mainClass>
-                                                gaffer.example.films.LoadAndQuery
-                                            </mainClass>
                                         </manifest>
                                     </archive>
                                 </configuration>

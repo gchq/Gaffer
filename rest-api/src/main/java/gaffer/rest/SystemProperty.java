@@ -25,8 +25,10 @@ public abstract class SystemProperty {
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
     public static final String BASE_URL = "gaffer.rest-api.basePath";
     public static final String VERSION = "gaffer.rest-api.version";
+    public static final String GRAPH_FACTORY_CLASS = "gaffer.graph.factory.class";
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
+    public static final String OP_AUTHS_PATH = "gaffer.operation.auths.path";
 
     // DEFAULTS
     /**
@@ -36,4 +38,5 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "gaffer.rest";
     public static final String BASE_URL_DEFAULT = "gaffer/rest/v1";
     public static final String CORE_VERSION = "1.0.0";
+    public static final String GRAPH_FACTORY_CLASS_DEFAULT = GraphFactory.class.getName();
 }

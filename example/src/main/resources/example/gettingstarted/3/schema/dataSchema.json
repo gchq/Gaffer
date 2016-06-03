@@ -1,6 +1,6 @@
 {
   "edges": {
-    "data1": {
+    "data": {
       "source": "vertex.string",
       "destination": "vertex.string",
       "directed": "false",

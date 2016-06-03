@@ -63,6 +63,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ import java.util.Random;
  * This class is based on Accumulo's BloomFilterLayerLookupTest (org.apache.accumulo.core.file.BloomFilterLayerLookupTest).
  */
 public class BloomFilterIT {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory Gaffer1RangeFactory;
@@ -190,7 +192,7 @@ public class BloomFilterIT {
                     maxRandomRate = rate;
                 }
             }
-            System.out.println("Max random rate = " + maxRandomRate);
+            LOGGER.info("Max random rate = " + maxRandomRate);
 
             // Calculate look up rate for items that were inserted
             double maxCausalRate = -1.0;
@@ -200,7 +202,7 @@ public class BloomFilterIT {
                     maxCausalRate = rate;
                 }
             }
-            System.out.println("Max causal rate = " + maxCausalRate);
+            LOGGER.info("Max causal rate = " + maxCausalRate);
 
             // Random look up rate should be much faster
             assertTrue(maxRandomRate > maxCausalRate);
@@ -224,7 +226,7 @@ public class BloomFilterIT {
         }
         final long end = System.currentTimeMillis();
         final double randomRate = 5000 / ((end - start) / 1000.0);
-        System.out.println("Random look up rate = " + randomRate);
+        LOGGER.info("Random look up rate = " + randomRate);
         return randomRate;
     }
 
@@ -241,7 +243,7 @@ public class BloomFilterIT {
         }
         final long end = System.currentTimeMillis();
         final double causalRate = 5000 / ((end - start) / 1000.0);
-        System.out.println("Causal look up rate = " + causalRate);
+        LOGGER.info("Causal look up rate = " + causalRate);
         return causalRate;
     }
 

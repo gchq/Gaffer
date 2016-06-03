@@ -45,7 +45,7 @@
             "transformFunctions": [
               {
                 "function": {
-                  "class": "gaffer.example.function.transform.StarRatingTransform"
+                  "class": "gaffer.example.films.function.transform.StarRatingTransform"
                 },
                 "selection": [
                   {

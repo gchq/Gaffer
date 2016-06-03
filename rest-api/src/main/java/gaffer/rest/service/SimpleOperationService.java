@@ -61,7 +61,7 @@ public class SimpleOperationService implements IOperationService {
     private final GraphFactory graphFactory;
 
     public SimpleOperationService() {
-        this(new GraphFactory(true));
+        this(GraphFactory.createGraphFactory());
     }
 
     public SimpleOperationService(final GraphFactory graphFactory) {

@@ -32,65 +32,144 @@ public class UserTest {
     public void shouldBuildUser() {
         // Given
         final String userId = "user 01";
-        final String auth1 = "auth 1";
-        final String auth2 = "auth 2";
+        final String dataAuth1 = "dataAuth 1";
+        final String dataAuth2 = "dataAuth 2";
+        final String opAuth1 = "opAuth 1";
+        final String opAuth2 = "opAuth 2";
 
         // When
         final User user = new User.Builder()
                 .userId(userId)
-                .dataAuth(auth1)
-                .dataAuth(auth2)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2)
                 .build();
 
         // Then
         assertEquals(userId, user.getUserId());
         assertEquals(2, user.getDataAuths().size());
         assertThat(user.getDataAuths(), IsCollectionContaining.hasItems(
-                auth1, auth2
+                dataAuth1, dataAuth2
+        ));
+        assertEquals(2, user.getOpAuths().size());
+        assertThat(user.getOpAuths(), IsCollectionContaining.hasItems(
+                opAuth1, opAuth1
         ));
     }
 
     @Test
-    public void shouldNotAllowChangingAuths() {
+    public void shouldReplaceNullIdWithUnknownIdWhenBuildingUser() {
         // Given
-        final String userId = "user 01";
-        final String auth1 = "auth 1";
-        final String auth2 = "auth 2";
-        final String newAuth = "new auth";
+        final String userId = null;
+
+        // When
         final User user = new User.Builder()
                 .userId(userId)
-                .dataAuth(auth1)
-                .dataAuth(auth2)
+                .build();
+
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
+    public void shouldReplaceEmptyIdWithUnknownIdWhenBuildingUser() {
+        // Given
+        final String userId = "";
+
+        // When
+        final User user = new User.Builder()
+                .userId(userId)
+                .build();
+
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
+    public void shouldSetUnknownIdWhenBuildingUser() {
+        // Given
+        // When
+        final User user = new User.Builder()
+                .build();
+
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
+    public void shouldNotAllowChangingDataAuths() {
+        // Given
+        final String userId = "user 01";
+        final String dataAuth1 = "dataAuth 1";
+        final String dataAuth2 = "dataAuth 2";
+        final String newDataAuth = "new dataAuth";
+        final User user = new User.Builder()
+                .userId(userId)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2)
                 .build();
 
         // When
         try {
-            user.getDataAuths().add(newAuth);
+            user.getDataAuths().add(newDataAuth);
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
             assertNotNull(e);
         }
 
         // Then
-        assertFalse(user.getDataAuths().contains(newAuth));
+        assertFalse(user.getDataAuths().contains(newDataAuth));
+    }
+
+    @Test
+    public void shouldNotAllowChangingOpAuths() {
+        // Given
+        final String userId = "user 01";
+        final String opAuth1 = "opAuth 1";
+        final String opAuth2 = "opAuth 2";
+        final String newOpAuth = "new opAuth";
+        final User user = new User.Builder()
+                .userId(userId)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2)
+                .build();
+
+        // When
+        try {
+            user.getOpAuths().add(newOpAuth);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+
+        // Then
+        assertFalse(user.getOpAuths().contains(newOpAuth));
     }
 
     @Test
     public void shouldBeEqualWhen2UsersHaveSameFields() {
         // Given
         final String userId = "user 01";
-        final String auth1 = "auth 1";
-        final String auth2 = "auth 2";
+        final String dataAuth1 = "dataAuth 1";
+        final String dataAuth2 = "dataAuth 2";
+        final String opAuth1 = "opAuth 1";
+        final String opAuth2 = "opAuth 2";
+
         final User userLocked = new User.Builder()
                 .userId(userId)
-                .dataAuth(auth1)
-                .dataAuth(auth2)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2)
                 .build();
 
         final User userUnlocked = new User.Builder()
                 .userId(userId)
-                .dataAuth(auth1)
-                .dataAuth(auth2)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2)
                 .build();
 
         // When
@@ -106,18 +185,25 @@ public class UserTest {
         // Given
         final String userId1 = "user 01";
         final String userId2 = "user 02";
-        final String auth1 = "auth 1";
-        final String auth2 = "auth 2";
+        final String dataAuth1 = "dataAuth 1";
+        final String dataAuth2 = "dataAuth 2";
+        final String opAuth1 = "opAuth 1";
+        final String opAuth2 = "opAuth 2";
+
         final User user1 = new User.Builder()
                 .userId(userId1)
-                .dataAuth(auth1)
-                .dataAuth(auth2)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2)
                 .build();
 
         final User user2 = new User.Builder()
                 .userId(userId2)
-                .dataAuth(auth1)
-                .dataAuth(auth2)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2)
                 .build();
 
         // When
@@ -129,22 +215,49 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhen2UsersHaveDifferentAuths() {
+    public void shouldNotBeEqualWhen2UsersHaveDifferentDataAuths() {
         // Given
         final String userId = "user 01";
-        final String auth1 = "auth 1";
-        final String auth2a = "auth 2a";
-        final String auth2b = "auth 2b";
+        final String dataAuth1 = "dataAuth 1";
+        final String dataAuth2a = "dataAuth 2a";
+        final String dataAuth2b = "dataAuth 2b";
         final User user1 = new User.Builder()
                 .userId(userId)
-                .dataAuth(auth1)
-                .dataAuth(auth2a)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2a)
                 .build();
 
         final User user2 = new User.Builder()
                 .userId(userId)
-                .dataAuth(auth1)
-                .dataAuth(auth2b)
+                .dataAuth(dataAuth1)
+                .dataAuth(dataAuth2b)
+                .build();
+
+        // When
+        final boolean isEqual = user1.equals(user2);
+
+        // Then
+        assertFalse(isEqual);
+        assertNotEquals(user1.hashCode(), user2.hashCode());
+    }
+
+    @Test
+    public void shouldNotBeEqualWhen2UsersHaveDifferentOpAuths() {
+        // Given
+        final String userId = "user 01";
+        final String opAuth1 = "opAuth 1";
+        final String opAuth2a = "opAuth 2a";
+        final String opAuth2b = "opAuth 2b";
+        final User user1 = new User.Builder()
+                .userId(userId)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2a)
+                .build();
+
+        final User user2 = new User.Builder()
+                .userId(userId)
+                .opAuth(opAuth1)
+                .opAuth(opAuth2b)
                 .build();
 
         // When

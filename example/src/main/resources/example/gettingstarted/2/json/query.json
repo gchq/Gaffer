@@ -1,0 +1,14 @@
+{
+  "view": {
+    "edges": {
+      "red": {}
+    }
+  },
+  "seeds": [
+    {
+      "gaffer.operation.data.EntitySeed": {
+        "vertex": "1"
+      }
+    }
+  ]
+}

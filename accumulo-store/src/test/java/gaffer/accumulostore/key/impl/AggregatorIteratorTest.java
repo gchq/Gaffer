@@ -29,20 +29,16 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.store.StoreException;
-import org.junit.After;
 import gaffer.user.User;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -119,7 +115,10 @@ public class AggregatorIteratorTest {
         final User user = new User();
         store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
 
-        final GetRelatedEdges get = new GetRelatedEdges(defaultView, Collections.singletonList(((ElementSeed) new EntitySeed("1"))));
+        final GetRelatedEdges<EntitySeed> get = new GetRelatedEdges.Builder<EntitySeed>()
+                .view(defaultView)
+                .addSeed(new EntitySeed("1"))
+                .build();
 
         // When
         final List<Edge> results = Lists.newArrayList(store.execute(get, user));

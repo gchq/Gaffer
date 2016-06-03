@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.example.gettingstarted.generator.DataGenerator2;
@@ -34,58 +35,62 @@ public class LoadAndQuery2 extends LoadAndQuery {
         new LoadAndQuery2().run();
     }
 
-    public void run() throws OperationException {
-        User user = new User("user01");
+    public Iterable<Edge> run() throws OperationException {
+        final User user = new User("user01");
 
-        setDataFileLocation("/example/gettingstarted/data/data2.txt");
-        setDataSchemaLocation("/example/gettingstarted/schema2/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/schema2/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/schema2/storeTypes.json");
-        setStorePropertiesLocation("/example/gettingstarted/properties/mockaccumulostore.properties");
+        setDataFileLocation("/example/gettingstarted/2/data.txt");
+        setDataSchemaLocation("/example/gettingstarted/2/schema/dataSchema.json");
+        setDataTypesLocation("/example/gettingstarted/2/schema/dataTypes.json");
+        setStoreTypesLocation("/example/gettingstarted/2/schema/storeTypes.json");
+        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
-        Graph graph2 = new Graph.Builder()
+        final Graph graph2 = new Graph.Builder()
                 .addSchema(getDataSchema())
                 .addSchema(getDataTypes())
                 .addSchema(getStoreTypes())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        List<Element> elements = new ArrayList<>();
-        DataGenerator2 dataGenerator2 = new DataGenerator2();
-        System.out.println("\nTurn the data into Graph Edges\n");
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator2 dataGenerator2 = new DataGenerator2();
+        log("\nTurn the data into Graph Edges\n");
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator2.getElement(s));
-            System.out.println(dataGenerator2.getElement(s).toString());
+            log(dataGenerator2.getElement(s).toString());
         }
-        System.out.println("");
+        log("");
 
-        AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
 
         graph2.execute(addElements, user);
 
         //get all the edges
-        GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
+        final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
-        System.out.println("\nAll edges containing vertex 1");
-        System.out.println("\nNotice that the edges are aggregated within their groups");
-        for (Element e : graph2.execute(getRelatedEdges, user)) {
-            System.out.println(e.toString());
+        log("\nAll edges containing vertex 1");
+        log("\nNotice that the edges are aggregated within their groups");
+        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges, user);
+        for (Element e : allColoursResults) {
+            log(e.toString());
         }
 
         //create a View to specify which subset of results we want
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge("red")
                 .build();
         //rerun the previous query with our view
         getRelatedEdges.setView(view);
 
-        System.out.println("\nAll red edges containing vertex 1\n");
-        for (Element e : graph2.execute(getRelatedEdges, user)) {
-            System.out.println(e.toString());
+        log("\nAll red edges containing vertex 1\n");
+        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges, user);
+        for (Element e : redResults) {
+            log(e.toString());
         }
+
+        return redResults;
     }
 }

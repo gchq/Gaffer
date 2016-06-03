@@ -16,17 +16,19 @@
 
 package gaffer.data.element;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Date;
+import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EdgeTest extends ElementTest {
@@ -46,6 +48,31 @@ public class EdgeTest extends ElementTest {
         assertEquals("source vertex", edge.getSource());
         assertEquals("dest vertex", edge.getDestination());
         assertTrue(edge.isDirected());
+    }
+
+    @Test
+    public void shouldBuildEdge() {
+        // Given
+        final String source = "source vertex";
+        final String destination = "dest vertex";
+        final boolean directed = true;
+        final String propValue = "propValue";
+
+        // When
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(source)
+                .dest(destination)
+                .directed(directed)
+                .property(TestPropertyNames.STRING, propValue)
+                .build();
+
+        // Then
+        assertEquals(TestGroups.EDGE, edge.getGroup());
+        assertEquals(source, edge.getSource());
+        assertEquals(destination, edge.getDestination());
+        assertTrue(edge.isDirected());
+        assertEquals(propValue, edge.getProperty(TestPropertyNames.STRING));
     }
 
     @Test
