@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.key.core;
+package gaffer.accumulostore.key.core.impl;
 
 import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.accumulostore.utils.Pair;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
@@ -32,33 +32,33 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
- * The BloomFilterIterator should filter out elements based on their membership
- * of the provided bloomFilter. An implementation of this class should be provided for every {@link gaffer.accumulostore.key.AccumuloKeyPackage}
- * implementation which extracts vertices correctly for that key package.
+ * The BloomFilterIterator should filter out Edges based on their non searched for vertex's membership
+ * of the provided bloomFilter.
  */
-public abstract class AbstractCoreKeyBloomFilterIterator extends Filter {
+public class CoreKeyBloomFilterIterator extends Filter {
 
     protected BloomFilter filter;
 
     @Override
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
-            value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-            justification = "Filter initialised in the init method")
     public boolean accept(final Key key, final Value value) {
-        Pair<byte[]> vertices = getVertices(key.getRowData().getBackingArray());
-        if (vertices.getFirst() == null) {
+        byte[] vertices = key.getRowData().getBackingArray();
+        int pos = -1;
+        for (int i = vertices.length - 3; i > 0; --i) {
+            if (vertices[i] == ByteArrayEscapeUtils.DELIMITER) {
+                pos = i;
+                break;
+            }
+        }
+        if (pos == -1) {
             return true;
         }
-        if (filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getFirst()))) {
-            return true;
-        }
-        return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(vertices.getSecond()));
+        return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(Arrays.copyOfRange(vertices, pos + 1, vertices.length - 2)));
     }
 
-    protected abstract Pair<byte[]> getVertices(byte[] backingArray);
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
