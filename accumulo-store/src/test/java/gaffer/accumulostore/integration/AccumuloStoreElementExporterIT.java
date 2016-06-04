@@ -74,7 +74,10 @@ public class AccumuloStoreElementExporterIT extends AbstractStoreIT {
         // Then
         assertNotNull(exporter);
         assertEquals(1, exporter.getTableNames().size());
-        final String expectedTableName = ((AccumuloProperties) getStoreProperties()).getTable() + "_" + getUser().getUserId() + "_" + exporter.getTimestamp() + "_ALL";
+        final String expectedTableName = ((AccumuloProperties) getStoreProperties()).getTable()
+                + Exporter.KEY_SEPARATOR + getUser().getUserId()
+                + Exporter.KEY_SEPARATOR + exporter.getTimestamp()
+                + Exporter.KEY_SEPARATOR + "ALL";
         assertEquals(expectedTableName, exporter.getTableNames().iterator().next());
     }
 

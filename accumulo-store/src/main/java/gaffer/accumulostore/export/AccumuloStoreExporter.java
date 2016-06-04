@@ -31,7 +31,7 @@ public class AccumuloStoreExporter extends GafferExporter {
     }
 
     public String getTableNamePrefix() {
-        return getStoreProperties().getTable() + "_" + getUserTimestampedExportName();
+        return getStoreProperties().getTable() + KEY_SEPARATOR + getUserTimestampedExportName();
     }
 
     public Set<String> getTableNames() {
@@ -62,7 +62,7 @@ public class AccumuloStoreExporter extends GafferExporter {
     }
 
     private String getTableName(final String key) {
-        final String tableName = getTableNamePrefix() + "_" + key;
+        final String tableName = getTableNamePrefix() + KEY_SEPARATOR + key;
         tableNames.add(tableName);
         return tableName;
     }

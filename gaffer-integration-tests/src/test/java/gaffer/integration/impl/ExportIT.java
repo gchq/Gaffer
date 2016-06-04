@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.export.ElementFileExporter;
+import gaffer.export.ElementJsonFileExporter;
 import gaffer.export.Exporter;
 import gaffer.export.HashMapListExporter;
 import gaffer.integration.AbstractStoreIT;
@@ -39,6 +39,7 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.File;
@@ -52,6 +53,16 @@ public class ExportIT extends AbstractStoreIT {
     public void setup() throws Exception {
         super.setup();
         addDefaultElements();
+    }
+
+    @After
+    public void tearDown() {
+        super.tearDown();
+        try {
+            FileUtils.deleteDirectory(new File(ElementJsonFileExporter.PARENT_DIRECTORY));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -75,7 +86,7 @@ public class ExportIT extends AbstractStoreIT {
         final HashMapListExporter export = (HashMapListExporter) graph.execute(exportOpChain, getUser());
 
         // Then
-        assertEquals(2, export.getExport().get(UpdateExport.ALL).size());
+        assertEquals(2, export.getExportMap().get(UpdateExport.ALL).size());
     }
 
     @Test
@@ -125,7 +136,7 @@ public class ExportIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final ElementFileExporter export = (ElementFileExporter) graph.execute(exportOpChain, getUser());
+        final ElementJsonFileExporter export = (ElementJsonFileExporter) graph.execute(exportOpChain, getUser());
 
         // Then
         assertNotNull(export);
@@ -146,18 +157,14 @@ public class ExportIT extends AbstractStoreIT {
             // Then
             final List<Object> resultsList = Lists.newArrayList(results);
             assertEquals(1, resultsList.size());
-        } finally {
-            FileUtils.deleteDirectory(new File(export.getDirectory()));
         }
     }
 
     @Test
     public void shouldExportAndFetchResultsUsingAFile() throws OperationException, IOException {
         // Given
-        final long timestamp = System.currentTimeMillis();
         final OperationChain<CloseableIterable<?>> exportOpChain = new OperationChain.Builder()
                 .first(new InitialiseElementFileExport.Builder()
-                        .timestamp(timestamp)
                         .build())
                 .then(new GetRelatedElements.Builder<EntitySeed, Element>()
                         .addSeed(new EntitySeed(SOURCE_1))
@@ -172,8 +179,6 @@ public class ExportIT extends AbstractStoreIT {
             // Then
             final List<Element> resultsList = Lists.newArrayList(results);
             assertEquals(2, resultsList.size());
-        } finally {
-            FileUtils.deleteDirectory(new File(getUser().getUserId() + "_" + timestamp));
         }
     }
 }

@@ -40,8 +40,8 @@ public abstract class GafferExporter extends ElementExporter {
     }
 
     @Override
-    public boolean initialise(final Object storeObj, final User user) {
-        final boolean isNew = super.initialise(storeObj, user);
+    public void initialise(final Object storeObj, final User user) {
+        super.initialise(storeObj, user);
         final Store store = ((Store) storeObj);
 
         // clone the schema
@@ -49,8 +49,6 @@ public abstract class GafferExporter extends ElementExporter {
 
         // clone the store properties
         storeProperties = store.getProperties().clone();
-
-        return isNew;
     }
 
     protected Map<String, Graph> getGraphExports() {

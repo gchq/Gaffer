@@ -20,18 +20,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.export.Exporter;
 import gaffer.operation.AbstractOperation;
 import gaffer.operation.impl.export.ExportOperation;
-import gaffer.operation.impl.export.FetchExport;
-import gaffer.operation.impl.export.FetchExportResult;
 
 /**
  * A <code>UpdateExport</code> allows the results of a previous operation in an
  * {@link gaffer.operation.OperationChain} to be added to an export, keyed on
  * an optional key. If a key is not provided the default key is 'ALL'.
  *
- * @see FetchExport
- * @see FetchExportResult
+ * @see gaffer.operation.impl.export.FetchExport
+ * @see gaffer.operation.impl.export.FetchExportResult
  */
-public abstract class InitialiseExport extends AbstractOperation<Object, Object> implements ExportOperation<Object, Object> {
+public abstract class InitialiseExport extends AbstractOperation<Object, Object>
+        implements ExportOperation<Object, Object> {
     private final Exporter exporter;
 
     public InitialiseExport(final Exporter exporter) {

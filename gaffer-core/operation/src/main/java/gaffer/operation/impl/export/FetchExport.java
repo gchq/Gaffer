@@ -20,7 +20,8 @@ import gaffer.export.Exporter;
 import gaffer.operation.AbstractOperation;
 
 /**
- * A <code>FetchExport</code> fetches the entire {@link Exporter}.
+ * A <code>FetchExport</code> fetches the {@link Exporter} containing the export
+ * information.
  *
  * @see UpdateExport
  * @see FetchExportResult

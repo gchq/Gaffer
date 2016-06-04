@@ -17,35 +17,22 @@
 package gaffer.export;
 
 import gaffer.commonutil.iterable.CloseableIterable;
-import gaffer.data.IsElementValidator;
-import gaffer.data.TransformIterable;
 import gaffer.data.element.Element;
 import gaffer.user.User;
 
 public abstract class ElementExporter extends Exporter {
     @Override
-    protected void _add(final String key, final Iterable<Object> values, final User user) {
-        addElements(key, new ElementExtractor(values), user);
+    protected void _add(final String key, final Iterable<?> values, final User user) {
+        addElements(key, (Iterable<Element>) values, user);
     }
 
     @Override
-    protected CloseableIterable<Object> _get(final String key, final User user,
-                                             final int start, final int end) {
-        return (CloseableIterable) getElements(key, user, start, end);
+    protected CloseableIterable<?> _get(final String key, final User user,
+                                        final int start, final int end) {
+        return getElements(key, user, start, end);
     }
 
     protected abstract void addElements(final String key, final Iterable<Element> elements, final User user);
 
     protected abstract CloseableIterable<Element> getElements(final String key, final User user, final int start, final int end);
-
-    protected static final class ElementExtractor extends TransformIterable<Object, Element> {
-        protected ElementExtractor(final Iterable<Object> input) {
-            super(input, new IsElementValidator());
-        }
-
-        @Override
-        protected Element transform(final Object item) {
-            return (Element) item;
-        }
-    }
 }

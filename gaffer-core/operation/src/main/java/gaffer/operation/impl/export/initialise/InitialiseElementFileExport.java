@@ -16,16 +16,16 @@
 
 package gaffer.operation.impl.export.initialise;
 
-import gaffer.export.ElementFileExporter;
+import gaffer.export.ElementJsonFileExporter;
 
 public class InitialiseElementFileExport extends InitialiseExport {
     public InitialiseElementFileExport() {
-        super(new ElementFileExporter());
+        super(new ElementJsonFileExporter());
     }
 
     @Override
-    public ElementFileExporter getExporter() {
-        return (ElementFileExporter) super.getExporter();
+    public ElementJsonFileExporter getExporter() {
+        return (ElementJsonFileExporter) super.getExporter();
     }
 
     public static class Builder extends InitialiseExport.Builder<InitialiseElementFileExport> {

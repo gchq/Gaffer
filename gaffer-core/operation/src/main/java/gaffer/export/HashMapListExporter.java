@@ -21,52 +21,54 @@ import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedClosableIterable;
 import gaffer.user.User;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>HashMapListExporter</code> is an in memory temporary {@link Exporter}.
- * The export is maintained per single {@link gaffer.operation.OperationChain} only.
- * It cannot be used across multiple separate operation requests.
- * So, it must be updated and fetched inside a single operation chain.
+ * A <code>HashMapListExporter</code> is an in memory temporary {@link Exporter}
+ * using a {@link HashMap}. The underlying exportMap field has a getter and setter
+ * to allow it to be retriever and reused across operation chains.
  */
 public class HashMapListExporter extends Exporter {
-    private Map<String, List<Object>> export = new HashMap<>();
+    private Map<String, List<Object>> exportMap = new HashMap<>();
 
     @Override
-    public boolean initialise(final Object config, final User user) {
-        final boolean isNew = super.initialise(config, user);
-        if (isNew) {
-            export = new HashMap<>();
-        }
-
-        return isNew;
+    public void initialise(final Object config, final User user) {
+        super.initialise(config, user);
+        exportMap = new HashMap<>();
     }
 
     @Override
-    protected void _add(final String key, final Iterable<Object> values, final User user) {
-        final List<Object> exportValues = export.get(key);
+    protected void _add(final String key, final Iterable<?> values, final User user) {
+        final List<Object> exportValues = exportMap.get(key);
         if (null == exportValues) {
-            export.put(key, Lists.newArrayList(values));
+            exportMap.put(key, Lists.newArrayList(values));
         } else {
             Iterables.addAll(exportValues, values);
         }
     }
 
     @Override
-    protected CloseableIterable<Object> _get(final String key, final User user, final int start, final int end) {
-        List<Object> results = export.get(key);
+    protected CloseableIterable<?> _get(final String key, final User user, final int start, final int end) {
+        List<Object> results = exportMap.get(key);
         if (null != results) {
             int endTruncated = end > results.size() ? results.size() : end;
-            results = export.get(key).subList(start, endTruncated);
+            results = exportMap.get(key).subList(start, endTruncated);
         }
 
         return new WrappedClosableIterable<>(results);
     }
 
-    public Map<String, List<Object>> getExport() {
-        return Collections.unmodifiableMap(export);
+    public Map<String, List<Object>> getExportMap() {
+        return exportMap;
+    }
+
+    public void setExportMap(final Map<String, List<Object>> exportMap) {
+        if (null == exportMap) {
+            this.exportMap = new HashMap<>();
+        } else {
+            this.exportMap = exportMap;
+        }
     }
 }

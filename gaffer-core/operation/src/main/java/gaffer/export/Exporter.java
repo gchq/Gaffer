@@ -19,26 +19,32 @@ package gaffer.export;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.user.User;
 
+/**
+ * An <code>Exporter</code> can store data of any kind and retrieve it with
+ * pagination.
+ */
 public abstract class Exporter {
+    public static final String KEY_SEPARATOR = "_";
     private User user;
     private Long timestamp = System.currentTimeMillis();
 
-    public boolean initialise(final Object config, final User user) {
-        final boolean isNew = null == this.user || !this.user.equals(user);
-        if (isNew) {
-            this.user = user;
-        }
-
-        return isNew;
+    /**
+     * Initialises the export. This base method just stores the current user.
+     * Override this method (and call super) to add further initialisation.
+     *
+     * @param config configuration for the export (This will be an instance of a gaffer Store)
+     * @param user   the user who initiated the export
+     */
+    public void initialise(final Object config, final User user) {
+        this.user = user;
     }
 
-    public final void add(final String key, final Iterable<Object> values, final User user) {
+    public final void add(final String key, final Iterable<?> values, final User user) {
         validateSameUser(user);
-
         _add(key, values, user);
     }
 
-    public final CloseableIterable<Object> get(final String key, final User user, final int start, final int end) {
+    public final CloseableIterable<?> get(final String key, final User user, final int start, final int end) {
         validateSameUser(user);
         return _get(key, user, start, end);
     }
@@ -53,24 +59,28 @@ public abstract class Exporter {
 
     public String getUserTimestampedExportName() {
         if (null == user) {
-            throw new IllegalArgumentException("A user is required");
+            throw new IllegalArgumentException("Exporter must be initialised with a user");
         }
 
-        return user.getUserId() + "_" + timestamp;
+        return user.getUserId() + KEY_SEPARATOR + timestamp;
     }
 
-    protected abstract void _add(final String key, final Iterable<Object> values, final User user);
+    protected abstract void _add(final String key, final Iterable<?> values, final User user);
 
-    protected abstract CloseableIterable<Object> _get(final String key, final User user, final int start, final int end);
+    protected abstract CloseableIterable<?> _get(final String key, final User user, final int start, final int end);
 
 
     protected String getUserExportKey(final String key) {
-        return getUserTimestampedExportName() + "_" + key;
+        return getUserTimestampedExportName() + KEY_SEPARATOR + key;
     }
 
     private void validateSameUser(final User user) {
-        if (null == this.user || !this.user.equals(user)) {
-            throw new IllegalArgumentException("User's cannot be changed between operations in a chain");
+        if (null == this.user) {
+            throw new IllegalArgumentException("This exporter cannot be used until it has been initialised by a user.");
+        } else if (null == user) {
+            throw new IllegalArgumentException("A user is required to use this Exporter.");
+        } else if (!this.user.equals(user)) {
+            throw new IllegalArgumentException("This Exporter has been initialised by user " + this.user.getUserId() + ". It cannot be used a different user, " + user.getUserId() + ".");
         }
     }
 }
