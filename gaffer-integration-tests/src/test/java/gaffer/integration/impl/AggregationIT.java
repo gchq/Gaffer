@@ -42,9 +42,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class AggregationIT extends AbstractStoreIT {
-    private final int AGGREGATED_ID = 6;
-    private final String AGGREGATED_SOURCE = SOURCE + AGGREGATED_ID;
-    private final String AGGREGATED_DEST = DEST + AGGREGATED_ID;
+    private final String AGGREGATED_ID = "3,3";
+    private final String AGGREGATED_SOURCE = SOURCE + 6;
+    private final String AGGREGATED_DEST = DEST + 6;
 
     private final int NON_AGGREGATED_ID = 8;
     private final String NON_AGGREGATED_SOURCE = SOURCE + NON_AGGREGATED_ID;
@@ -85,16 +85,24 @@ public class AggregationIT extends AbstractStoreIT {
         // Then
         assertNotNull(results);
         assertEquals(2, results.size());
+
+        final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
+        expectedEntity.putProperty(TestPropertyNames.STRING, "3,3");
+
+        final Edge expectedEdge = new Edge(TestGroups.EDGE, AGGREGATED_SOURCE, AGGREGATED_DEST, false);
+        expectedEdge.putProperty(TestPropertyNames.INT, 1);
+        expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
+
         assertThat(results, IsCollectionContaining.hasItems(
-                getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false),
-                getEntity(AGGREGATED_SOURCE)
+                expectedEdge,
+                expectedEntity
         ));
 
         for (Element result : results) {
             if (result instanceof Entity) {
-                assertEquals(AGGREGATED_ID + "," + AGGREGATED_ID, result.getProperty(TestPropertyNames.STRING));
+                assertEquals(AGGREGATED_ID, result.getProperty(TestPropertyNames.STRING));
             } else {
-                assertEquals(6, result.getProperty(TestPropertyNames.INT));
+                assertEquals(1, result.getProperty(TestPropertyNames.INT));
                 assertEquals(2L, result.getProperty(TestPropertyNames.COUNT));
             }
         }

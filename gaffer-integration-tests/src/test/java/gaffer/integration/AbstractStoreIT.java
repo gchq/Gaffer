@@ -231,24 +231,23 @@ public abstract class AbstractStoreIT {
 
     protected Map<EdgeSeed, Edge> createEdges() {
         final Map<EdgeSeed, Edge> edges = new HashMap<>();
-        Edge edge;
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                edge = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, false);
-                edge.putProperty(TestPropertyNames.INT, j);
+                final Edge edge = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, false);
+                edge.putProperty(TestPropertyNames.INT, 1);
                 edge.putProperty(TestPropertyNames.COUNT, 1L);
                 addToMap(edge, edges);
             }
 
-            edge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
-            edge.putProperty(TestPropertyNames.INT, i);
-            edge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(edge, edges);
+            final Edge firstEdge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
+            firstEdge.putProperty(TestPropertyNames.INT, 1);
+            firstEdge.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(firstEdge, edges);
 
-            edge = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
-            edge.putProperty(TestPropertyNames.INT, i);
-            edge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(edge, edges);
+            final Edge secondEdge = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
+            secondEdge.putProperty(TestPropertyNames.INT, 1);
+            secondEdge.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(secondEdge, edges);
         }
 
         return edges;
@@ -256,30 +255,28 @@ public abstract class AbstractStoreIT {
 
     protected Map<EntitySeed, Entity> createEntities() {
         final Map<EntitySeed, Entity> entities = new HashMap<>();
-        Entity entity;
         for (int i = 0; i <= 10; i++) {
-            final String prop = String.valueOf(i);
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
-                entity.putProperty(TestPropertyNames.STRING, String.valueOf(j));
+                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
+                entity.putProperty(TestPropertyNames.STRING, "3");
                 addToMap(entity, entities);
             }
 
-            entity = new Entity(TestGroups.ENTITY, SOURCE + i);
-            entity.putProperty(TestPropertyNames.STRING, prop);
-            addToMap(entity, entities);
+            final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
+            secondEntity.putProperty(TestPropertyNames.STRING, "3");
+            addToMap(secondEntity , entities);
 
-            entity = new Entity(TestGroups.ENTITY, DEST + i);
-            entity.putProperty(TestPropertyNames.STRING, prop);
-            addToMap(entity, entities);
+            final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
+            thirdEntity.putProperty(TestPropertyNames.STRING, "3");
+            addToMap(thirdEntity, entities);
 
-            entity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
-            entity.putProperty(TestPropertyNames.STRING, prop);
-            addToMap(entity, entities);
+            final Entity fourthEntity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
+            fourthEntity.putProperty(TestPropertyNames.STRING, "3");
+            addToMap(fourthEntity, entities);
 
-            entity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
-            entity.putProperty(TestPropertyNames.STRING, prop);
-            addToMap(entity, entities);
+            final Entity fifthEntity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
+            fifthEntity.putProperty(TestPropertyNames.STRING, "3");
+            addToMap(fifthEntity, entities);
         }
 
         return entities;
