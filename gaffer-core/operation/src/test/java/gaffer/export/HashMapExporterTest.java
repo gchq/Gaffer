@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import gaffer.commonutil.iterable.ChainedIterable;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.user.User;
@@ -30,15 +31,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
-public class HashMapListExporterTest {
+public class HashMapExporterTest {
 
     @Test
     public void shouldSetAndGetExportMap() {
         // Given
-        final HashMapListExporter exporter = new HashMapListExporter();
-        final Map<String, List<Object>> exportMap = new HashMap<>();
+        final HashMapExporter exporter = new HashMapExporter();
+        final Map<String, Set<Object>> exportMap = new HashMap<>();
 
         // When
         exporter.setExportMap(exportMap);
@@ -50,8 +52,8 @@ public class HashMapListExporterTest {
     @Test
     public void shouldNotBeAbleToSetANullExportMap() {
         // Given
-        final HashMapListExporter exporter = new HashMapListExporter();
-        final Map<String, List<Object>> exportMap = exporter.getExportMap();
+        final HashMapExporter exporter = new HashMapExporter();
+        final Map<String, Set<Object>> exportMap = exporter.getExportMap();
 
         // When
         exporter.setExportMap(null);
@@ -64,8 +66,8 @@ public class HashMapListExporterTest {
     @Test
     public void shouldCreateNewHashMapWhenInitialising() {
         // Given
-        final HashMapListExporter exporter = new HashMapListExporter();
-        final Map<String, List<Object>> exportMap = exporter.getExportMap();
+        final HashMapExporter exporter = new HashMapExporter();
+        final Map<String, Set<Object>> exportMap = exporter.getExportMap();
 
         // When
         exporter.initialise(null, new User());
@@ -83,7 +85,7 @@ public class HashMapListExporterTest {
         final List<String> values2a = Arrays.asList("1", "2", "3");
         final List<String> values2b = Arrays.asList("4", "5", "6");
         final List<String> values2Combined = Lists.newArrayList(new ChainedIterable<String>(values2a, values2b));
-        final HashMapListExporter exporter = new HashMapListExporter();
+        final HashMapExporter exporter = new HashMapExporter();
 
         // When
         exporter._add(key1, values1, new User());
@@ -91,10 +93,10 @@ public class HashMapListExporterTest {
         exporter._add(key2, values2b, new User());
 
         // Then
-        final Map<String, List<Object>> exportMap = exporter.getExportMap();
+        final Map<String, Set<Object>> exportMap = exporter.getExportMap();
         assertNotSame(values1, exportMap.get(key1));
-        assertEquals(values1, exportMap.get(key1));
-        assertEquals(values2Combined, exportMap.get(key2));
+        assertEquals(Sets.newHashSet(values1), exportMap.get(key1));
+        assertEquals(Sets.newHashSet(values2Combined), exportMap.get(key2));
     }
 
     @Test
@@ -102,14 +104,16 @@ public class HashMapListExporterTest {
         // Given
         final String key1 = "key1";
         final List<Integer> values1 = Arrays.asList(1, 2, 3, 4, 5);
-        final HashMapListExporter exporter = new HashMapListExporter();
+        final HashMapExporter exporter = new HashMapExporter();
+        final int start = 2;
+        final int end = 3;
         exporter._add(key1, values1, new User());
 
         // When
-        try (CloseableIterable<?> results = exporter._get(key1, new User(), 2, 3)) {
+        try (CloseableIterable<?> results = exporter._get(key1, new User(), start, end)) {
 
             // Then
-            assertNotSame(values1.subList(2, 3), results);
+            assertEquals(values1.subList(start, end), Lists.newArrayList(results));
         }
     }
 }

@@ -17,21 +17,23 @@
 package gaffer.export;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
-import gaffer.commonutil.iterable.WrappedClosableIterable;
+import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.user.User;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A <code>HashMapListExporter</code> is an in memory temporary {@link Exporter}
  * using a {@link HashMap}. The underlying exportMap field has a getter and setter
- * to allow it to be retriever and reused across operation chains.
+ * to allow it to be retriever and reused across operation chains. The elements
+ * are stored in a {@link LinkedHashSet} in order to has a predictable iteration
+ * order.
  */
-public class HashMapListExporter extends Exporter {
-    private Map<String, List<Object>> exportMap = new HashMap<>();
+public class HashMapExporter extends Exporter {
+    private Map<String, Set<Object>> exportMap = new HashMap<>();
 
     @Override
     public void initialise(final Object config, final User user) {
@@ -41,30 +43,25 @@ public class HashMapListExporter extends Exporter {
 
     @Override
     protected void _add(final String key, final Iterable<?> values, final User user) {
-        final List<Object> exportValues = exportMap.get(key);
+        Set<Object> exportValues = exportMap.get(key);
         if (null == exportValues) {
-            exportMap.put(key, Lists.newArrayList(values));
-        } else {
-            Iterables.addAll(exportValues, values);
+            exportValues = new LinkedHashSet<>();
+            exportMap.put(key, exportValues);
         }
+
+        Iterables.addAll(exportValues, values);
     }
 
     @Override
     protected CloseableIterable<?> _get(final String key, final User user, final int start, final int end) {
-        List<Object> results = exportMap.get(key);
-        if (null != results) {
-            int endTruncated = end > results.size() ? results.size() : end;
-            results = exportMap.get(key).subList(start, endTruncated);
-        }
-
-        return new WrappedClosableIterable<>(results);
+        return new LimitedCloseableIterable<>(exportMap.get(key), start, end);
     }
 
-    public Map<String, List<Object>> getExportMap() {
+    public Map<String, Set<Object>> getExportMap() {
         return exportMap;
     }
 
-    public void setExportMap(final Map<String, List<Object>> exportMap) {
+    public void setExportMap(final Map<String, Set<Object>> exportMap) {
         if (null == exportMap) {
             this.exportMap = new HashMap<>();
         } else {

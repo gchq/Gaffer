@@ -18,14 +18,14 @@ package gaffer.commonutil.iterable;
 
 import java.util.Iterator;
 
-public class WrappedClosableIterator<T> implements CloseableIterator<T> {
+public class WrappedCloseableIterator<T> implements CloseableIterator<T> {
     private final Iterator<T> iterator;
 
-    public WrappedClosableIterator() {
+    public WrappedCloseableIterator() {
         this(null);
     }
 
-    public WrappedClosableIterator(final Iterator<T> iterator) {
+    public WrappedCloseableIterator(final Iterator<T> iterator) {
         if (null == iterator) {
             this.iterator = new EmptyCloseableIterator<>();
         } else {

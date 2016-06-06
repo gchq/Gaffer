@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package gaffer.operation.impl.export.initialise;
+package gaffer.commonutil.iterable;
 
-import gaffer.export.HashMapExporter;
+import static org.junit.Assert.assertTrue;
 
-public class InitialiseHashMapListExport extends InitialiseExport {
-    public InitialiseHashMapListExport() {
-        super(new HashMapExporter());
-    }
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import java.util.List;
 
-    public static class Builder extends InitialiseExport.Builder<InitialiseHashMapListExport> {
-        public Builder() {
-            super(new InitialiseHashMapListExport());
-        }
+public class EmptyCloseableIterableTest {
 
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
+    @Test
+    public void shouldBeEmpty() {
+        // Given
+        final EmptyClosableIterable iterable = new EmptyClosableIterable();
+
+        // When
+        final List list = Lists.newArrayList(iterable);
+
+        // Then
+        assertTrue(list.isEmpty());
     }
 }

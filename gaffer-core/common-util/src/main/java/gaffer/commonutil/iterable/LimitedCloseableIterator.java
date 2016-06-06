@@ -19,16 +19,20 @@ package gaffer.commonutil.iterable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LimitedClosableIterator<T> implements CloseableIterator<T> {
+public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
     private final CloseableIterator<T> iterator;
     private final int end;
     private int index = 0;
 
-    public LimitedClosableIterator(final Iterator<T> iterator, final int start, final int end) {
-        this(new WrappedClosableIterator<>(iterator), start, end);
+    public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final int end) {
+        this(new WrappedCloseableIterator<>(iterator), start, end);
     }
 
-    public LimitedClosableIterator(final CloseableIterator<T> iterator, final int start, final int end) {
+    public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final int end) {
+        if (start > end) {
+            throw new IllegalArgumentException("start should be less than end");
+        }
+
         if (null == iterator) {
             this.iterator = new EmptyCloseableIterator<>();
         } else {
@@ -38,7 +42,6 @@ public class LimitedClosableIterator<T> implements CloseableIterator<T> {
 
         while (index < start && hasNext()) {
             next();
-            index++;
         }
     }
 

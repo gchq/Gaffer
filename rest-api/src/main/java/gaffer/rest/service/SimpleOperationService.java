@@ -16,7 +16,7 @@
 
 package gaffer.rest.service;
 
-import gaffer.commonutil.iterable.LimitedClosableIterable;
+import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -198,6 +198,6 @@ public class SimpleOperationService implements IOperationService {
     }
 
     protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
-        return null != n ? new LimitedClosableIterable<>(execute(operation), 0, n) : execute(operation);
+        return null != n ? new LimitedCloseableIterable<>(execute(operation), 0, n) : execute(operation);
     }
 }

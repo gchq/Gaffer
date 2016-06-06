@@ -123,7 +123,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(1, resultList.size());
-        assertEquals("A1,0", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
+        assertEquals("A1,3", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
     }
 
     protected void shouldGetAllElements(boolean includeEntities, final IncludeEdgeType includeEdgeType) throws Exception {

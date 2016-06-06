@@ -4,7 +4,6 @@
       "vertex": "id.object",
       "properties": {
         "columnQualifier": "colQualProperty",
-        "timestamp": "timestamp",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",
@@ -20,7 +19,6 @@
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
-        "timestamp": "timestamp",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",

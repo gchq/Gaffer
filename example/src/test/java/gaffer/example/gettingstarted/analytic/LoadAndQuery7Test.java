@@ -21,6 +21,9 @@ import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.data.element.Entity;
 import gaffer.exception.SerialisationException;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -31,22 +34,24 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import java.util.List;
 
-public class LoadAndQuery6Test {
+public class LoadAndQuery7Test {
     private static final String RESOURCE_PREFIX = "/example/gettingstarted/";
-    private static final String RESOURCE_EXAMPLE_PREFIX = RESOURCE_PREFIX + "6/";
+    private static final String RESOURCE_EXAMPLE_PREFIX = RESOURCE_PREFIX + "7/";
+    public static final String COUNT = "count";
+    public static final String ENTITY_GROUP = "entity";
+    public static final String EDGE_GROUP = "edge";
 
     @Test
     public void shouldReturnExpectedEdges() throws OperationException {
         // Given
-        final LoadAndQuery6 query = new LoadAndQuery6();
+        final LoadAndQuery7 query = new LoadAndQuery7();
 
         // When
-        final Iterable<String> results = query.run();
+        final Iterable<Element> results = query.run();
 
         // Then
         verifyResults(results);
     }
-
 
     @Test
     public void shouldReturnExpectedStringsViaJson() throws OperationException, SerialisationException {
@@ -54,7 +59,7 @@ public class LoadAndQuery6Test {
         final User user01 = new User("user01");
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<?> addOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), OperationChain.class);
-        final OperationChain<Iterable<String>> queryOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), OperationChain.class);
+        final OperationChain<Iterable<Element>> queryOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), OperationChain.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -64,24 +69,47 @@ public class LoadAndQuery6Test {
 
         // When
         graph.execute(addOpChain, user01); // Execute the add operation chain on the graph
-        final Iterable<String> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
+        final Iterable<Element> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<String> resultsItr) {
-        final String[] expectedResults = {
-                "2,3,1",
-                "3,1,1",
-                "3,4,1",
-                "4,1,2",
-                "4,2,1"
+    private void verifyResults(final Iterable<Element> resultsItr) {
+        final Element[] expectedResults = {
+                new Entity.Builder()
+                        .vertex("1")
+                        .group(ENTITY_GROUP)
+                        .property(COUNT, 3)
+                        .build(),
+                new Entity.Builder()
+                        .vertex("2")
+                        .group(ENTITY_GROUP)
+                        .property(COUNT, 1)
+                        .build(),
+                new Entity.Builder()
+                        .vertex("3")
+                        .group(ENTITY_GROUP)
+                        .property(COUNT, 2)
+                        .build(),
+                new Edge.Builder()
+                        .source("1")
+                        .dest("2")
+                        .directed(true)
+                        .group(EDGE_GROUP)
+                        .property(COUNT, 3)
+                        .build(),
+                new Edge.Builder()
+                        .source("2")
+                        .dest("3")
+                        .directed(true)
+                        .group(EDGE_GROUP)
+                        .property(COUNT, 2)
+                        .build()
         };
 
-        final List<String> results = Lists.newArrayList(resultsItr);
+        final List<Element> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.length, results.size());
         assertThat(results, IsCollectionContaining.hasItems(expectedResults));
     }
-
 }

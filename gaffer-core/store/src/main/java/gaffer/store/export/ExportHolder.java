@@ -17,10 +17,10 @@
 package gaffer.store.export;
 
 import gaffer.export.Exporter;
-import gaffer.export.HashMapListExporter;
+import gaffer.export.HashMapExporter;
 
 public class ExportHolder {
-    private Exporter exporter = new HashMapListExporter();
+    private Exporter exporter = new HashMapExporter();
 
     public Exporter get() {
         return exporter;

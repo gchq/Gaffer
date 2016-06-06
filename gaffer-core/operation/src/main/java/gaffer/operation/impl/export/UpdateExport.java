@@ -59,6 +59,11 @@ public class UpdateExport extends AbstractGetOperation<Object, Object>
         this.key = key;
     }
 
+    @Override
+    public void setInput(final Iterable input) {
+        super.setInput(input);
+    }
+
     public static class Builder extends AbstractOperation.Builder<UpdateExport, Iterable<Object>, Iterable<Object>> {
         public Builder() {
             super(new UpdateExport());
@@ -70,9 +75,14 @@ public class UpdateExport extends AbstractGetOperation<Object, Object>
         }
 
         @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        public Builder input(final Iterable input) {
+            getOp().setInput(input);
             return this;
+        }
+
+        @Override
+        public Builder option(final String name, final String value) {
+            return (Builder) super.option(name, value);
         }
     }
 }

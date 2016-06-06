@@ -91,7 +91,7 @@ public class LoadAndQueryTest {
         final List<Entity> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.size(), results.size());
         for (int i = 0; i < expectedResults.size(); i++) {
-            assertTrue(expectedResults.get(i).deepEquals(results.get(i)));
+            assertTrue(expectedResults.get(i).equals(results.get(i)));
         }
     }
 

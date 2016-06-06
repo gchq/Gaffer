@@ -17,7 +17,7 @@
 package gaffer.graph.export;
 
 import gaffer.commonutil.iterable.CloseableIterable;
-import gaffer.commonutil.iterable.LimitedClosableIterable;
+import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.export.ElementExporter;
 import gaffer.graph.Graph;
@@ -74,7 +74,7 @@ public abstract class GafferExporter extends ElementExporter {
 
         final Graph graph = getGraphExport(key);
         try {
-            return new LimitedClosableIterable<>(graph.execute(new GetAllElements<>(), user), start, end);
+            return new LimitedCloseableIterable<>(graph.execute(new GetAllElements<>(), user), start, end);
         } catch (OperationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

@@ -16,33 +16,37 @@
 
 package gaffer.commonutil.iterable;
 
-public class LimitedClosableIterable<T> implements CloseableIterable<T> {
-    private final CloseableIterable<T> iterable;
-    private final int start;
-    private final int end;
+import java.util.Iterator;
 
-    public LimitedClosableIterable(final Iterable<T> iterable, final int start, final int end) {
-        this(new WrappedClosableIterable<>(iterable), start, end);
+public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
+    private final Iterable<T> iterable;
+
+    public WrappedCloseableIterable() {
+        this(null);
     }
 
-    public LimitedClosableIterable(final CloseableIterable<T> iterable, final int start, final int end) {
+    public WrappedCloseableIterable(final Iterable<T> iterable) {
         if (null == iterable) {
             this.iterable = new EmptyClosableIterable<>();
         } else {
             this.iterable = iterable;
         }
-
-        this.start = start;
-        this.end = end;
     }
 
     @Override
     public void close() {
-        iterable.close();
+        if (iterable instanceof CloseableIterable) {
+            ((CloseableIterable) iterable).close();
+        }
     }
 
     @Override
     public CloseableIterator<T> iterator() {
-        return new LimitedClosableIterator<>(iterable.iterator(), start, end);
+        final Iterator<T> iterator = iterable.iterator();
+        if (iterator instanceof CloseableIterator) {
+            return ((CloseableIterator<T>) iterator);
+        }
+
+        return new WrappedCloseableIterator<>(iterator);
     }
 }

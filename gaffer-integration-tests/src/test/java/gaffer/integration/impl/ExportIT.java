@@ -24,7 +24,7 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.export.ElementJsonFileExporter;
 import gaffer.export.Exporter;
-import gaffer.export.HashMapListExporter;
+import gaffer.export.HashMapExporter;
 import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -83,10 +83,10 @@ public class ExportIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final HashMapListExporter export = (HashMapListExporter) graph.execute(exportOpChain, getUser());
+        final HashMapExporter export = (HashMapExporter) graph.execute(exportOpChain, getUser());
 
         // Then
-        assertEquals(2, export.getExportMap().get(UpdateExport.ALL).size());
+        assertEquals(1, export.getExportMap().get(UpdateExport.ALL).size());
     }
 
     @Test
