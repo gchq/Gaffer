@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package gaffer.operation.cache;
+package gaffer.operation.export;
 
 import static org.junit.Assert.assertEquals;
 
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.FetchExportResult;
 import org.junit.Test;
 
 
-public class UpdateCacheTest implements OperationTest {
+public class FetchExportResultTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
@@ -33,11 +33,11 @@ public class UpdateCacheTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final String key = "key1";
-        final UpdateCache op = new UpdateCache(key);
+        final FetchExportResult op = new FetchExportResult(key);
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final UpdateCache deserialisedOp = serialiser.deserialise(json, UpdateCache.class);
+        final FetchExportResult deserialisedOp = serialiser.deserialise(json, FetchExportResult.class);
 
         // Then
         assertEquals(key, deserialisedOp.getKey());
@@ -46,8 +46,8 @@ public class UpdateCacheTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        UpdateCache updateCache = new UpdateCache.Builder().key("test").option("testOption", "true").build();
-        assertEquals("test", updateCache.getKey());
-        assertEquals("true", updateCache.getOption("testOption"));
+        FetchExportResult operation = new FetchExportResult.Builder().key("Test").option("testOption", "true").build();
+        assertEquals("Test", operation.getKey());
+        assertEquals("true", operation.getOption("testOption"));
     }
 }

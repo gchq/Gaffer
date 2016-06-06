@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-package gaffer.operation.impl.cache;
+package gaffer.operation.impl.export;
 
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.AbstractOperation;
-import gaffer.operation.cache.CacheOperation;
 
 /**
- * A <code>UpdateCache</code> allows the results of a previous operation in an
- * {@link gaffer.operation.OperationChain} to be added to a cache, keyed on
+ * A <code>UpdateExport</code> allows the results of a previous operation in an
+ * {@link gaffer.operation.OperationChain} to be added to a export, keyed on
  * an optional key. If a key is not provided the default key is 'ALL'.
- * The cache is maintained per single {@link gaffer.operation.OperationChain} only.
+ * The export is maintained per single {@link gaffer.operation.OperationChain} only.
  * It cannot be used across multiple separate operation requests.
  * So, it must be updated and fetched inside a single operation chain.
  *
- * @see FetchCache
- * @see FetchCachedResult
+ * @see FetchExport
+ * @see FetchExportResult
  */
-public class UpdateCache extends AbstractGetOperation<Object, Object> implements CacheOperation {
+public class UpdateExport extends AbstractGetOperation<Object, Object>
+        implements ExportOperation<Iterable<Object>, Iterable<Object>> {
     public static final String ALL = "ALL";
     private String key;
 
     /**
-     * Constructs an <code>UpdateCache</code> with the key set to 'ALL'.
+     * Constructs an <code>UpdateExport</code> with the key set to 'ALL'.
      */
-    public UpdateCache() {
+    public UpdateExport() {
         this(ALL);
     }
 
     /**
-     * Constructs an <code>UpdateCache</code> with the provided key.
+     * Constructs an <code>UpdateExport</code> with the provided key.
      *
-     * @param key the key to use to store the results in the cache.
+     * @param key the key to use to store the results in the export.
      */
-    public UpdateCache(final String key) {
+    public UpdateExport(final String key) {
         this.key = key;
     }
 
@@ -64,9 +64,9 @@ public class UpdateCache extends AbstractGetOperation<Object, Object> implements
         super.setInput(input);
     }
 
-    public static class Builder extends AbstractOperation.Builder<UpdateCache, Iterable<Object>, Iterable<Object>> {
+    public static class Builder extends AbstractOperation.Builder<UpdateExport, Iterable<Object>, Iterable<Object>> {
         public Builder() {
-            super(new UpdateCache());
+            super(new UpdateExport());
         }
 
         public Builder key(final String key) {
@@ -76,7 +76,8 @@ public class UpdateCache extends AbstractGetOperation<Object, Object> implements
 
         @Override
         public Builder input(final Iterable input) {
-            return (Builder) super.input(input);
+            getOp().setInput(input);
+            return this;
         }
 
         @Override

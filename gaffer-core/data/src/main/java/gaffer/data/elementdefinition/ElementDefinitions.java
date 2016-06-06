@@ -109,7 +109,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return elementDefs;
     }
 
-
     public byte[] toJson(final boolean prettyPrint) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint);

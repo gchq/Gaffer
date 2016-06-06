@@ -19,13 +19,13 @@ package gaffer.commonutil.iterable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class WrappedIterable<T> implements Iterable<T> {
+public class ChainedIterable<T> implements Iterable<T> {
     private final Iterable<T>[] itrs;
     private final int n;
 
-    public WrappedIterable(final Iterable... itrs) {
+    public ChainedIterable(final Iterable... itrs) {
         if (null == itrs || 0 == itrs.length) {
-            throw new IllegalArgumentException("At least iterable is required.");
+            throw new IllegalArgumentException("At least 1 iterable is required.");
         }
         this.itrs = itrs;
         n = this.itrs.length;

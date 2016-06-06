@@ -16,8 +16,10 @@
 
 package gaffer.store.schema;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -57,6 +59,20 @@ public class SchemaTest {
     @Before
     public void setup() throws IOException {
         schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+    }
+
+    @Test
+    public void shouldCloneSchema() throws SerialisationException {
+        //Given
+
+        // When
+        final Schema clonedSchema = schema.clone();
+
+        // Then
+        // Check they are different instances
+        assertNotSame(schema, clonedSchema);
+        // Check they are equal by comparing the json
+        assertArrayEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test

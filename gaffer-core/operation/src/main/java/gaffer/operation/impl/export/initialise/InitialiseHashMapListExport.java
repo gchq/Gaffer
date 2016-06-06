@@ -14,11 +14,24 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.utils;
+package gaffer.operation.impl.export.initialise;
 
-import java.io.Closeable;
+import gaffer.export.HashMapExporter;
 
-public interface CloseableIterable<T> extends Iterable<T>, Closeable {
-    @Override
-    void close();
+public class InitialiseHashMapListExport extends InitialiseExport {
+    public InitialiseHashMapListExport() {
+        super(new HashMapExporter());
+    }
+
+    public static class Builder extends InitialiseExport.Builder<InitialiseHashMapListExport> {
+        public Builder() {
+            super(new InitialiseHashMapListExport());
+        }
+
+        @Override
+        public Builder option(final String name, final String value) {
+            super.option(name, value);
+            return this;
+        }
+    }
 }

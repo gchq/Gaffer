@@ -13,11 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.cache;
 
-/**
- * A <code>CacheOperation</code> is a marker interface for identifying a operation
- * that interacts with the cache.
- */
-public interface CacheOperation {
+package gaffer.accumulostore.operation.impl;
+
+import gaffer.accumulostore.export.AccumuloStoreExporter;
+import gaffer.operation.impl.export.initialise.InitialiseExport;
+
+public class InitialiseAccumuloStoreExport extends InitialiseExport {
+    public InitialiseAccumuloStoreExport() {
+        super(new AccumuloStoreExporter());
+    }
+
+    public static class Builder extends InitialiseExport.Builder<InitialiseAccumuloStoreExport> {
+        public Builder() {
+            super(new InitialiseAccumuloStoreExport());
+        }
+    }
 }

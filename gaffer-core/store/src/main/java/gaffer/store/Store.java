@@ -16,8 +16,6 @@
 
 package gaffer.store;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
@@ -26,14 +24,16 @@ import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
-import gaffer.operation.cache.CacheOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.impl.cache.FetchCache;
-import gaffer.operation.impl.cache.FetchCachedResult;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.ExportOperation;
+import gaffer.operation.impl.export.FetchExport;
+import gaffer.operation.impl.export.FetchExportResult;
+import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseElementFileExport;
+import gaffer.operation.impl.export.initialise.InitialiseHashMapListExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -48,6 +48,8 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
+import gaffer.store.export.ExportHolder;
+import gaffer.store.operation.handler.ExportHandler;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
@@ -59,8 +61,6 @@ import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -155,15 +155,11 @@ public abstract class Store {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
 
-        final Map<String, Iterable<?>> cache = new HashMap<>();
+        final ExportHolder exportHolder = new ExportHolder();
         Object result = null;
         Operation op = opsItr.next();
         while (null != op) {
-            if (op instanceof CacheOperation) {
-                result = handleCacheOperation(op, user, cache);
-            } else {
-                result = handleOperation(op, user);
-            }
+            result = handleOperation(op, user, exportHolder);
 
             if (opsItr.hasNext()) {
                 op = updateOperationInput(opsItr.next(), result);
@@ -232,17 +228,6 @@ public abstract class Store {
      */
     public StoreProperties getProperties() {
         return properties;
-    }
-
-    protected Iterable<?> updateCache(final UpdateCache updateCache, final Map<String, Iterable<?>> cache) {
-        final List<?> input = Lists.newArrayList(updateCache.getInput());
-        final Collection cacheList = (Collection) cache.get(updateCache.getKey());
-        if (null == cacheList) {
-            cache.put(updateCache.getKey(), input);
-        } else {
-            Iterables.addAll(cacheList, input);
-        }
-        return Collections.unmodifiableCollection(input);
     }
 
     protected Operation updateOperationInput(final Operation op, final Object result) {
@@ -360,31 +345,20 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final User user) throws OperationException {
+    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final User user, final ExportHolder exportHolder) throws OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
         if (null != handler) {
-            result = handler.doOperation(operation, user, this);
+            if ((OperationHandler) handler instanceof ExportHandler) {
+                result = (OUTPUT) ((ExportHandler) (OperationHandler) handler).doOperation(((ExportOperation) operation), user, this, exportHolder);
+            } else {
+                result = handler.doOperation(operation, user, this);
+            }
         } else {
             result = doUnhandledOperation(operation);
         }
 
         return result;
-    }
-
-    private <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleCacheOperation(final OPERATION op, final User user, final Map<String, Iterable<?>> cache) {
-        final Object result;
-        if (op instanceof UpdateCache) {
-            result = updateCache((UpdateCache) op, cache);
-        } else if (op instanceof FetchCache) {
-            result = cache;
-        } else if (op instanceof FetchCachedResult) {
-            result = cache.get(((FetchCachedResult) op).getKey());
-        } else {
-            result = doUnhandledOperation(op);
-        }
-
-        return (OUTPUT) result;
     }
 
     private void addOpHandlers() {
@@ -414,6 +388,13 @@ public abstract class Store {
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
+
+        final ExportHandler exportHandler = new ExportHandler();
+        addOperationHandler(InitialiseHashMapListExport.class, exportHandler);
+        addOperationHandler(InitialiseElementFileExport.class, exportHandler);
+        addOperationHandler(UpdateExport.class, exportHandler);
+        addOperationHandler(FetchExport.class, exportHandler);
+        addOperationHandler(FetchExportResult.class, exportHandler);
     }
 
     private List<Operation> getValidatedOperations(final OperationChain<?> operationChain) {

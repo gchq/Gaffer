@@ -463,7 +463,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 18;
+        final int expectedNumberOfOperations = 23;
         final User user = new User();
 
         given(schema.validate()).willReturn(true);

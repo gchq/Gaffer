@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.utils;
+package gaffer.commonutil.iterable;
 
-import java.io.Closeable;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public interface CloseableIterator<T> extends Iterator<T>, Closeable {
+public class EmptyCloseableIterator<T> implements CloseableIterator<T> {
     @Override
-    void close();
+    public void close() {
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public T next() {
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 }

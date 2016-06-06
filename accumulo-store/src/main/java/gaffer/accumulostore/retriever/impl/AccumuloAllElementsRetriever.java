@@ -21,7 +21,8 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.RetrieverException;
-import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.commonutil.iterable.CloseableIterator;
+import gaffer.commonutil.iterable.EmptyCloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.StoreException;
@@ -34,7 +35,6 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -74,12 +74,12 @@ public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
     }
 
     @Override
-    public Iterator<Element> iterator() {
+    public CloseableIterator<Element> iterator() {
         try {
             iterator = new AllElementsIterator();
         } catch (final RetrieverException e) {
             LOGGER.error(e.getMessage() + " returning empty iterator", e);
-            return Collections.emptyIterator();
+            return new EmptyCloseableIterator<>();
         }
 
         return iterator;
