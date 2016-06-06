@@ -9,6 +9,7 @@ import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
+import java.util.HashSet;
 import java.util.TreeSet;
 
 public class SetAggregatorTest extends AggregateFunctionTest {
@@ -35,6 +36,34 @@ public class SetAggregatorTest extends AggregateFunctionTest {
         aggregator._aggregate(treeSet2);
 
         // Then
+        assertEquals(TreeSet.class, aggregator._state().getClass());
+        assertEquals(expectedResult, aggregator._state());
+    }
+
+    @Test
+    public void shouldAggregateHashSetsTogether() {
+        // Given
+        final HashSet<Integer> hashSet1 = new HashSet<>();
+        hashSet1.add(1);
+
+        final HashSet<Integer> hashSet2 = new HashSet<>();
+        hashSet2.add(2);
+        hashSet2.add(3);
+
+        final HashSet<Integer> expectedResult = new HashSet<>();
+        expectedResult.add(1);
+        expectedResult.add(2);
+        expectedResult.add(3);
+
+        SetAggregator<Integer> aggregator = new SetAggregator<>();
+        aggregator.init();
+
+        // When
+        aggregator._aggregate(hashSet1);
+        aggregator._aggregate(hashSet2);
+
+        // Then
+        assertEquals(HashSet.class, aggregator._state().getClass());
         assertEquals(expectedResult, aggregator._state());
     }
 
