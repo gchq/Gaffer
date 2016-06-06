@@ -24,10 +24,10 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
- * A <code>TreeSetSerialiser</code> is a serialiser for {@link TreeSet}s with
+ * A <code>TreeSetStringSerialiser</code> is a serialiser for {@link TreeSet}s with
  * {@link String} values.
  */
-public class TreeSetSerialiser implements Serialisation {
+public class TreeSetStringSerialiser implements Serialisation {
     private static final long serialVersionUID = -8241328807929077861L;
     private static final String COMMA = "\\,";
     private static final String OPEN = "{";
@@ -70,7 +70,7 @@ public class TreeSetSerialiser implements Serialisation {
         final Iterable<String> items = Splitter.on(COMMA)
                 .omitEmptyStrings()
                 .split(str.substring(1, str.length() - 1));
-        for (String item : items) {
+        for (final String item : items) {
             treeSet.add(item);
         }
 

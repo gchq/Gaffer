@@ -11,7 +11,7 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 import java.util.TreeSet;
 
-public class TreeSetAggregatorTest extends AggregateFunctionTest {
+public class SetAggregatorTest extends AggregateFunctionTest {
     @Test
     public void shouldAggregateTreeSetsTogether() {
         // Given
@@ -27,7 +27,7 @@ public class TreeSetAggregatorTest extends AggregateFunctionTest {
         expectedResult.add("string2");
         expectedResult.add("string3");
 
-        final TreeSetAggregator aggregator = new TreeSetAggregator();
+        SetAggregator<String> aggregator = new SetAggregator<>();
         aggregator.init();
 
         // When
@@ -41,7 +41,7 @@ public class TreeSetAggregatorTest extends AggregateFunctionTest {
     @Test
     public void shouldReturnNullStateIfAggregateNulls() {
         // Given
-        final TreeSetAggregator aggregator = new TreeSetAggregator();
+        SetAggregator<String> aggregator = new SetAggregator<>();
         aggregator.init();
 
         // When
@@ -58,11 +58,11 @@ public class TreeSetAggregatorTest extends AggregateFunctionTest {
         final TreeSet<String> treeSet1 = new TreeSet<>();
         treeSet1.add("string1");
 
-        final TreeSetAggregator aggregator = new TreeSetAggregator();
+        SetAggregator<String> aggregator = new SetAggregator<>();
         aggregator._aggregate(treeSet1);
 
         // When
-        final TreeSetAggregator clone = aggregator.statelessClone();
+        SetAggregator<String> clone = aggregator.statelessClone();
 
         // Then
         assertNotSame(aggregator, clone);
@@ -73,30 +73,30 @@ public class TreeSetAggregatorTest extends AggregateFunctionTest {
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final TreeSetAggregator aggregator = new TreeSetAggregator();
+        SetAggregator<String> aggregator = new SetAggregator<>();
 
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
 
         // Then 1
         assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.TreeSetAggregator\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.SetAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final TreeSetAggregator deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), getFunctionClass());
+        SetAggregator<String> deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), getFunctionClass());
 
         // Then 2
         assertNotNull(deserialisedAggregator);
     }
 
     @Override
-    protected TreeSetAggregator getInstance() {
-        return new TreeSetAggregator();
+    protected SetAggregator getInstance() {
+        return new SetAggregator<>();
     }
 
     @Override
-    protected Class<TreeSetAggregator> getFunctionClass() {
-        return TreeSetAggregator.class;
+    protected Class<SetAggregator> getFunctionClass() {
+        return SetAggregator.class;
     }
 }

@@ -25,8 +25,8 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class TreeSetSerialiserTest {
-    private static final TreeSetSerialiser SERIALISER = new TreeSetSerialiser();
+public class TreeSetStringSerialiserTest {
+    private static final TreeSetStringSerialiser SERIALISER = new TreeSetStringSerialiser();
 
     @Test
     public void shouldSerialiseAndDeserialiseATreeSet() throws SerialisationException {
