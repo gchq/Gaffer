@@ -423,6 +423,34 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         assertThat(betweenA1A2Results, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
     }
 
+    @Test
+    public void testEdgesWithinSetAAreNotReturnedByteStoreInMemory() throws StoreException {
+        testEdgesWithinSetAAreNotReturned(true, byteEntityStore);
+    }
+
+    @Test
+    public void testEdgesWithinSetAAreNotReturnedByteStoreGaffer1StoreInMemory() throws StoreException {
+        testEdgesWithinSetAAreNotReturned(true, gaffer1KeyStore);
+    }
+
+    @Test
+    public void testEdgesWithinSetAAreNotReturnedByteStore() throws StoreException {
+        testEdgesWithinSetAAreNotReturned(false, byteEntityStore);
+    }
+
+    @Test
+    public void testEdgesWithinSetAAreNotReturnedByteStoreGaffer1Store() throws StoreException {
+        testEdgesWithinSetAAreNotReturned(false, gaffer1KeyStore);
+    }
+
+    private void testEdgesWithinSetAAreNotReturned(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_A23_SET, AccumuloTestData.SEED_B_SET, defaultView);
+        final Set<Element> betweenA0A23_B_Results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
+        //Should have the two entities A0 A23 but not the edge A0-23
+        assertEquals(2, betweenA0A23_B_Results.size());
+        assertThat(betweenA0A23_B_Results, IsCollectionContaining.hasItems(AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));
+    }
+
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final AbstractAccumuloTwoSetSeededOperation operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
         final AccumuloRetriever<?> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory);
