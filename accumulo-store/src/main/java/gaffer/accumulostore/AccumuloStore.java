@@ -56,6 +56,7 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
@@ -122,7 +123,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation) {
+    public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 

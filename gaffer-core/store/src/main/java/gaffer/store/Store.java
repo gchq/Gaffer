@@ -16,8 +16,6 @@
 
 package gaffer.store;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
@@ -26,7 +24,6 @@ import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
-import gaffer.operation.cache.CacheOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
@@ -48,9 +45,12 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
+import gaffer.store.operation.handler.FetchCacheHandler;
+import gaffer.store.operation.handler.FetchCachedResultHandler;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.operation.handler.UpdateCacheHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
@@ -59,11 +59,8 @@ import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -150,29 +147,12 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        final Iterator<Operation> opsItr = getValidatedOperations(operationChain).iterator();
-        if (!opsItr.hasNext()) {
+        final List<Operation> ops = getValidatedOperations(operationChain);
+        if (ops.isEmpty()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
 
-        final Map<String, Iterable<?>> cache = new HashMap<>();
-        Object result = null;
-        Operation op = opsItr.next();
-        while (null != op) {
-            if (op instanceof CacheOperation) {
-                result = handleCacheOperation(op, user, cache);
-            } else {
-                result = handleOperation(op, user);
-            }
-
-            if (opsItr.hasNext()) {
-                op = updateOperationInput(opsItr.next(), result);
-            } else {
-                op = null;
-            }
-        }
-
-        return (OUTPUT) result;
+        return handleOperations(ops, createContext(user));
     }
 
     /**
@@ -234,29 +214,6 @@ public abstract class Store {
         return properties;
     }
 
-    protected Iterable<?> updateCache(final UpdateCache updateCache, final Map<String, Iterable<?>> cache) {
-        final List<?> input = Lists.newArrayList(updateCache.getInput());
-        final Collection cacheList = (Collection) cache.get(updateCache.getKey());
-        if (null == cacheList) {
-            cache.put(updateCache.getKey(), input);
-        } else {
-            Iterables.addAll(cacheList, input);
-        }
-        return Collections.unmodifiableCollection(input);
-    }
-
-    protected Operation updateOperationInput(final Operation op, final Object result) {
-        if (null != result && null == op.getInput()) {
-            try {
-                op.setInput(result);
-            } catch (final ClassCastException e) {
-                throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
-            }
-        }
-        return op;
-    }
-
     /**
      * Removes any types in the schema that are not used.
      */
@@ -309,6 +266,10 @@ public abstract class Store {
         this.viewValidator = viewValidator;
     }
 
+    protected Context createContext(final User user) {
+        return new Context(user);
+    }
+
     /**
      * Any additional operations that a store can handle should be registered in this method by calling addOperationHandler(...)
      */
@@ -346,11 +307,12 @@ public abstract class Store {
     /**
      * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.
      *
-     * @param operation the operation that does not have a registered handler.
      * @param <OUTPUT>  the operation output type
+     * @param operation the operation that does not have a registered handler.
+     * @param context   operation execution context
      * @return the result of the operation.
      */
-    protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation);
+    protected abstract <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context);
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         operationHandlers.put(opClass, handler);
@@ -360,31 +322,37 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final User user) throws OperationException {
+    protected <OUTPUT> OUTPUT handleOperations(final List<Operation> ops, final Context context) throws OperationException {
+        Object result = null;
+        for (final Operation op : ops) {
+            updateOperationInput(op, result);
+            result = handleOperation(op, context);
+        }
+
+        return (OUTPUT) result;
+    }
+
+    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         final OUTPUT result;
         if (null != handler) {
-            result = handler.doOperation(operation, user, this);
+            result = handler.doOperation(operation, context, this);
         } else {
-            result = doUnhandledOperation(operation);
+            result = doUnhandledOperation(operation, context);
         }
 
         return result;
     }
 
-    private <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleCacheOperation(final OPERATION op, final User user, final Map<String, Iterable<?>> cache) {
-        final Object result;
-        if (op instanceof UpdateCache) {
-            result = updateCache((UpdateCache) op, cache);
-        } else if (op instanceof FetchCache) {
-            result = cache;
-        } else if (op instanceof FetchCachedResult) {
-            result = cache.get(((FetchCachedResult) op).getKey());
-        } else {
-            result = doUnhandledOperation(op);
+    protected void updateOperationInput(final Operation op, final Object result) {
+        if (null != result && null == op.getInput()) {
+            try {
+                op.setInput(result);
+            } catch (final ClassCastException e) {
+                throw new UnsupportedOperationException("Operation chain is not compatible. "
+                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
+            }
         }
-
-        return (OUTPUT) result;
     }
 
     private void addOpHandlers() {
@@ -396,6 +364,11 @@ public abstract class Store {
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
         addOperationHandler(Validate.class, new ValidateHandler());
+
+        // Cache
+        addOperationHandler(UpdateCache.class, new UpdateCacheHandler());
+        addOperationHandler(FetchCachedResult.class, new FetchCachedResultHandler());
+        addOperationHandler(FetchCache.class, new FetchCacheHandler());
 
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());

@@ -29,6 +29,7 @@ import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
@@ -38,9 +39,9 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
 
     @Override
     public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user, final Store store)
+                                            final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, user, (AccumuloStore) store);
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
