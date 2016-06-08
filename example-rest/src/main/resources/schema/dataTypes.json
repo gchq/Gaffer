@@ -3,6 +3,9 @@
     "int": {
       "class": "java.lang.Integer"
     },
+    "string": {
+      "class": "java.lang.String"
+    },
     "true": {
       "class": "java.lang.Boolean",
       "validateFunctions": [
