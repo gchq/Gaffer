@@ -17,19 +17,10 @@ package example.rest.application;
 
 import example.rest.serialisation.RestJsonProvider;
 import gaffer.rest.application.AbstractApplicationConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("v1")
 public class ApplicationConfig extends AbstractApplicationConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfig.class);
-
-
-    public ApplicationConfig() {
-        super();
-    }
-
     @Override
     protected void addSystemResources() {
         super.addSystemResources();
