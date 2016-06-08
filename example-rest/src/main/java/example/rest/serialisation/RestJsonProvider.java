@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package example.rest.serialisation;
 
-package gaffer.rest.example;
+import gaffer.rest.serialisation.AbstractJacksonJsonProvider;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
 
-import gaffer.function.TransformFunction;
-import gaffer.function.annotation.Inputs;
-import gaffer.function.annotation.Outputs;
+@Provider
+@Produces(MediaType.APPLICATION_JSON)
+public class RestJsonProvider extends AbstractJacksonJsonProvider {
 
-@Inputs(Object.class)
-@Outputs(String.class)
-public class ExampleTransformFunction extends TransformFunction {
-    @Override
-    public Object[] transform(final Object[] input) {
-        return new Object[]{input[0].toString() + " transformed"};
-    }
-
-    @Override
-    public ExampleTransformFunction statelessClone() {
-        return new ExampleTransformFunction();
-    }
 }
