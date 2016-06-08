@@ -32,7 +32,7 @@ To deploy it to a server of your choice, take target/example-rest.war and deploy
 In order for the application to function, it needs a number of system properties to be set up on the server:
 e.g.
 gaffer.rest-api.basePath=/example-rest/v1
-gaffer.schemas=${SOME PATH}/dataSchema.json,${SOME PATH}/dataTypes.json,${SOME PATH}/storeSchema.json,${SOME PATH}/storeTypes.json
+gaffer.schemas=${SOME PATH}/schema
 gaffer.storeProperties=${SOME PATH}/mockaccumulostore.properties
 
 The above example for 'gaffer.schemas' assumes that your schemas are in separate files, but if they were in a combined file, then you would just provide the path to one file.
@@ -59,24 +59,26 @@ http://localhost:8080/example-rest/
 
 If you need to change the start-up port or customise anything else jetty related, you can change the class example.rest.launcher.Main accordingly and rebuild.
 
-As a default, there are a number of system properties that are configured in the pom.xml file. The most important of these are the locations of the schema
+As a default, there are a number of system properties that are configured in the pom.xml file. The most important of these are the locations of the folder containing the schema
 files and the data store .properties file. As a default, these point to the same files that are to be found in src/main/resources. These can be changed and the project rebuilt using the previous maven command
 
+```xml
 <systemProperties>
-      <systemProperty>
-          <name>gaffer.rest-api.basePath</name>
-          <value>/example-rest/v1</value>
-      </systemProperty>
-      <systemProperty>
-          <name>gaffer.schemas</name>
-          <!-- this needs to point to your Gaffer schema files-->
-          <value>${project.build.outputDirectory}/dataSchema.json,${project.build.outputDirectory}/dataTypes.json,${project.build.outputDirectory}/storeSchema.json,${project.build.outputDirectory}/storeTypes.json</value>
-      </systemProperty>
-      <systemProperty>
-          <name>gaffer.storeProperties</name>
-           <!-- this needs to point your data store properties file-->
-          <value>${project.build.outputDirectory}/mockaccumulostore.properties</value>
-      </systemProperty>
-  </systemProperties>
+  <systemProperty>
+      <name>gaffer.rest-api.basePath</name>
+      <value>/example-rest/v1</value>
+  </systemProperty>
+  <systemProperty>
+      <name>gaffer.schemas</name>
+      <!-- this needs to point to your Gaffer schema folder-->
+      <value>${project.build.outputDirectory}/schema</value>
+  </systemProperty>
+  <systemProperty>
+      <name>gaffer.storeProperties</name>
+       <!-- this needs to point your data store properties file-->
+      <value>${project.build.outputDirectory}/mockaccumulostore.properties</value>
+  </systemProperty>
+</systemProperties>
+```
 
 
