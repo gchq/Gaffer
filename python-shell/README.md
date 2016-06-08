@@ -26,14 +26,14 @@ mvn clean install -Pstandalone
 
 Once this is running you can run the python example using the command:
 
-'''
+```
 python3 python-shell/src/python/example.py
-'''
+```
 
 Alternatively if you have you own REST API running that is authenticated with
 PKI certificates then you can follow the pki example. Before using the example you
 will need to export your PKI certificate into a .pem file:
 
-'''
+```
 python3 python-shell/src/python/examplePki.py
-'''
+```
