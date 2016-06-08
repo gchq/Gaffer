@@ -1,7 +1,7 @@
 {
   "entities": {
     "entity": {
-      "vertex": "int",
+      "vertex": "string",
       "properties": {
         "count": "int"
       }
@@ -9,8 +9,8 @@
   },
   "edges": {
     "edge": {
-      "source": "int",
-      "destination": "int",
+      "source": "string",
+      "destination": "string",
       "directed": "true",
       "properties": {
         "count": "int"

@@ -48,29 +48,29 @@ def add_elements(gc):
             elements=[
                 g.Entity(
                     group='entity',
-                    vertex=1,
+                    vertex='1',
                     properties={
                         'count': 1
                     }
                 ),
                 g.Entity(
                     group='entity',
-                    vertex=2,
+                    vertex='2',
                     properties={
                         'count': 1
                     }
                 ),
                 g.Entity(
                     group='entity',
-                    vertex=3,
+                    vertex='3',
                     properties={
                         'count': 1
                     }
                 ),
                 g.Edge(
                     group='edge',
-                    source=1,
-                    destination=2,
+                    source='1',
+                    destination='2',
                     directed=True,
                     properties={
                         'count': 1
@@ -78,8 +78,8 @@ def add_elements(gc):
                 ),
                 g.Edge(
                     group='edge',
-                    source=2,
-                    destination=3,
+                    source='2',
+                    destination='3',
                     directed=True,
                     properties={
                         'count': 1
@@ -96,7 +96,7 @@ def get_elements(gc):
     # Get Elements
     elements = gc.execute_operation(
         g.GetRelatedElements(
-            seeds=[g.EntitySeed(1)],
+            seeds=[g.EntitySeed('1')],
             view=g.View(
                 entities=[
                     g.ElementDefinition(
@@ -108,7 +108,7 @@ def get_elements(gc):
                             g.FilterFunction(
                                 class_name='gaffer.function.simple.filter.IsEqual',
                                 selection=[g.IdentifierKey('VERTEX')],
-                                function_fields={'value': 1}
+                                function_fields={'value': '1'}
                             )
                         ],
                         transform_functions=[
@@ -140,7 +140,7 @@ def get_adj_seeds(gc):
             g.GetAdjacentEntitySeeds(
                 seeds=[
                     g.EntitySeed(
-                        vertex=1
+                        vertex='1'
                     )
                 ],
                 in_out_type=g.InOutType.OUT
@@ -187,8 +187,8 @@ def generate_domain_objs(gc):
     objects = gc.execute_operation(
         g.GenerateObjects('gaffer.rest.example.ExampleDomainObjectGenerator',
                           elements=[
-                              g.Entity('entity', 1),
-                              g.Edge('edge', 1, 2, True)
+                              g.Entity('entity', '1'),
+                              g.Edge('edge', '1', '2', True)
                           ]
                           )
     )
@@ -202,7 +202,7 @@ def generate_domain_objects_chain(gc):
     objects = gc.execute_operations(
         [
             g.GetElementsBySeed(
-                seeds=[g.EntitySeed(1)]
+                seeds=[g.EntitySeed('1')]
             ),
             g.GenerateObjects(
                 'gaffer.rest.example.ExampleDomainObjectGenerator')
@@ -218,7 +218,7 @@ def get_sub_graph(gc):
     result = gc.execute_operations(
         [
             g.GetAdjacentEntitySeeds(
-                seeds=[g.EntitySeed(1)],
+                seeds=[g.EntitySeed('1')],
             ),
             g.UpdateCache(),
             g.GetAdjacentEntitySeeds(),
