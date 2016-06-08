@@ -20,7 +20,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.6-SNAPSHOT</version>
+        <version>0.3.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>example-rest</artifactId>
@@ -70,6 +70,16 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-servlet-initializer</artifactId>
             <version>${resteasy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -122,7 +132,7 @@
                                 <!-- this should point to your Gaffer schema file(s) -->
                                 <systemProperty>
                                     <name>gaffer.schemas</name>
-                                    <value>${project.build.outputDirectory}/dataSchema.json,${project.build.outputDirectory}/dataTypes.json,${project.build.outputDirectory}/storeSchema.json,${project.build.outputDirectory}/storeTypes.json</value>
+                                    <value>${project.build.outputDirectory}/schema</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>gaffer.storeProperties</name>
@@ -139,18 +149,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-server</artifactId>
-                                <version>${jetty.version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-webapp</artifactId>
-                                <version>${jetty.version}</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
