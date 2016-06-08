@@ -17,15 +17,21 @@
 package gaffer.accumulostore.retriever.impl;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import gaffer.accumulostore.retriever.RetrieverException;
 import gaffer.accumulostore.utils.BloomFilterUtils;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.data.element.Entity;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
+
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -65,6 +71,8 @@ import java.util.Set;
  */
 public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seeds;
+    private Iterator<EntitySeed> seedsIter;
+
 
     public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
                                         final User user,
@@ -85,7 +93,8 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
 
     @Override
     protected boolean hasSeeds() {
-        return seeds.iterator().hasNext();
+        this.seedsIter = seeds.iterator();
+        return seedsIter.hasNext();
     }
 
     @Override
@@ -102,7 +111,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
         private final Set<Object> vertices;
 
         ElementIteratorReadIntoMemory() throws RetrieverException {
-            vertices = extractVertices(seeds);
+            vertices = extractVertices(seedsIter);
 
             // Create Bloom filter, read through set of entities and add them to
             // Bloom filter
@@ -126,7 +135,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
 
     private class ElementIteratorFromBatches extends AbstractElementIteratorFromBatches {
         ElementIteratorFromBatches() throws RetrieverException {
-            idsAIterator = seeds.iterator();
+            idsAIterator = seedsIter;
             updateScanner();
         }
 
@@ -139,6 +148,38 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             // contain both the first batch and the second batch
             // (and so we find edges from the second batch to either the first or second batches).
             addToBloomFilter(seed, filter, clientSideFilter);
+        }
+
+        protected boolean secondaryCheck(final Element elm) {
+            if (Entity.class.isInstance(elm)) {
+                return true;
+            }
+            final Edge edge = (Edge) elm;
+            final Object source = edge.getSource();
+            final Object destination = edge.getDestination();
+            final boolean sourceIsInCurrent = currentSeeds.contains(source);
+            final boolean destIsInCurrent = currentSeeds.contains(destination);
+            if (sourceIsInCurrent && destIsInCurrent) {
+                return true;
+            }
+            boolean destMatchesClientFilter;
+            try {
+                destMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
+            } catch (final AccumuloElementConversionException e) {
+                return false;
+            }
+            if (sourceIsInCurrent && destMatchesClientFilter) {
+                return true;
+            }
+            boolean sourceMatchesClientFilter;
+            try {
+                sourceMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
+            } catch (final AccumuloElementConversionException e) {
+                return false;
+            }
+            return  (destIsInCurrent && sourceMatchesClientFilter);
         }
     }
 }

@@ -17,15 +17,21 @@
 package gaffer.accumulostore.retriever.impl;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import gaffer.accumulostore.retriever.RetrieverException;
 import gaffer.accumulostore.utils.BloomFilterUtils;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.data.element.Entity;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
+
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -63,6 +69,9 @@ import java.util.Set;
 public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
     private Iterable<EntitySeed> seedSetA;
     private Iterable<EntitySeed> seedSetB;
+    private Iterator<EntitySeed> seedSetAIter;
+    private Iterator<EntitySeed> seedSetBIter;
+
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
                                           final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
@@ -87,7 +96,9 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
 
     @Override
     protected boolean hasSeeds() {
-        return seedSetA.iterator().hasNext() && seedSetB.iterator().hasNext();
+        seedSetAIter = seedSetA.iterator();
+        seedSetBIter = seedSetB.iterator();
+        return seedSetAIter.hasNext() && seedSetBIter.hasNext();
     }
 
     @Override
@@ -105,15 +116,14 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
         private final Set<Object> verticesB;
 
         ElementIteratorReadIntoMemory() throws RetrieverException {
-            verticesA = extractVertices(seedSetA);
-            verticesB = extractVertices(seedSetB);
+            verticesA = extractVertices(seedSetAIter);
+            verticesB = extractVertices(seedSetBIter);
 
             // Create Bloom filter, read through set of entities B and add them
             // to Bloom filter
             final BloomFilter filter = BloomFilterUtils.getBloomFilter(store.getProperties().getFalsePositiveRate(),
                     verticesB.size(), store.getProperties().getMaxBloomFilterToPassToAnIterator());
             addToBloomFilter(verticesB, filter);
-            addToBloomFilter(verticesA, filter);
             initialise(filter);
         }
 
@@ -131,15 +141,43 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
 
     private class ElementIteratorFromBatches extends AbstractElementIteratorFromBatches {
         ElementIteratorFromBatches() throws RetrieverException {
-            addToBloomFilter(seedSetB, filter, clientSideFilter);
-            addToBloomFilter(seedSetA, filter, clientSideFilter);
-            idsAIterator = seedSetA.iterator();
+            addToBloomFilter(seedSetBIter, filter, clientSideFilter);
+            idsAIterator = seedSetAIter;
             updateScanner();
         }
 
         @Override
         protected void updateBloomFilterIfRequired(final EntitySeed seed) throws RetrieverException {
             // no action required.
+        }
+
+        protected boolean secondaryCheck(final Element elm) {
+            if (Entity.class.isInstance(elm)) {
+                return true;
+            }
+            final Edge edge = (Edge) elm;
+            final Object source = edge.getSource();
+            final Object destination = edge.getDestination();
+            final boolean sourceIsInCurrent = currentSeeds.contains(source);
+            boolean destMatchesClientFilter;
+            try {
+                destMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
+            } catch (final AccumuloElementConversionException e) {
+                return false;
+            }
+            if (sourceIsInCurrent && destMatchesClientFilter) {
+                return true;
+            }
+            final boolean destIsInCurrent = currentSeeds.contains(destination);
+            boolean sourceMatchesClientFilter;
+            try {
+                sourceMatchesClientFilter = clientSideFilter.membershipTest(
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
+            } catch (final AccumuloElementConversionException e) {
+                return false;
+            }
+            return (destIsInCurrent && sourceMatchesClientFilter);
         }
     }
 }

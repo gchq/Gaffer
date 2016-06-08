@@ -87,6 +87,19 @@ public abstract class Element implements Serializable {
                 .toHashCode();
     }
 
+    public boolean shallowEquals(final Object obj) {
+        return null != obj
+                && (obj instanceof Element)
+                && shallowEquals((Element) obj);
+    }
+
+    public boolean shallowEquals(final Element element) {
+        return null != element
+                && new EqualsBuilder()
+                .append(group, element.getGroup())
+                .isEquals();
+    }
+
     @Override
     public boolean equals(final Object obj) {
         return null != obj
@@ -98,11 +111,7 @@ public abstract class Element implements Serializable {
         return null != element
                 && new EqualsBuilder()
                 .append(group, element.getGroup())
-                .isEquals();
-    }
-
-    public boolean deepEquals(final Element element) {
-        return equals(element) && getProperties().equals(element.getProperties());
+                .isEquals() && getProperties().equals(element.getProperties());
     }
 
     @JsonIgnore

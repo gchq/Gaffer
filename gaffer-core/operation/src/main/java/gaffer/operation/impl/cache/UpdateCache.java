@@ -59,6 +59,11 @@ public class UpdateCache extends AbstractGetOperation<Object, Object> implements
         this.key = key;
     }
 
+    @Override
+    public void setInput(final Iterable input) {
+        super.setInput(input);
+    }
+
     public static class Builder extends AbstractOperation.Builder<UpdateCache, Iterable<Object>, Iterable<Object>> {
         public Builder() {
             super(new UpdateCache());
@@ -70,9 +75,13 @@ public class UpdateCache extends AbstractGetOperation<Object, Object> implements
         }
 
         @Override
+        public Builder input(final Iterable input) {
+            return (Builder) super.input(input);
+        }
+
+        @Override
         public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
+            return (Builder) super.option(name, value);
         }
     }
 }

@@ -6,10 +6,8 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
 
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ImportAccumuloKeyValueFilesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -41,7 +39,7 @@ public class ImportAccumuloKeyValueFilesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(INPUT_DIRECTORY).failurePath(FAIL_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
+        final ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(INPUT_DIRECTORY).failurePath(FAIL_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
         importAccumuloKeyValueFiles.getInputPath();
         importAccumuloKeyValueFiles.getFailurePath();
         assertEquals("true", importAccumuloKeyValueFiles.getOption(TEST_OPTION_KEY));
