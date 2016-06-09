@@ -24,16 +24,16 @@ import gaffer.data.element.Edge;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
     @Override
     public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user, final Store store)
+                                            final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, (ArrayListStore) store);
     }

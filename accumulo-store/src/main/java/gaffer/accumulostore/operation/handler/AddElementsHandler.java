@@ -19,15 +19,15 @@ package gaffer.accumulostore.operation.handler;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 
 public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     @Override
     public Void doOperation(final AddElements operation,
-                            final User user, final Store store)
+                            final Context context, final Store store)
             throws OperationException {
         addElements(operation, (AccumuloStore) store);
         return null;

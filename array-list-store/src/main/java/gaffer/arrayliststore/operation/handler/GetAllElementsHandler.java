@@ -23,16 +23,16 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.operation.impl.get.GetAllElements;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
     public Iterable<Element> doOperation(final GetAllElements<Element> operation,
-                                         final User user, final Store store) {
+                                         final Context context, final Store store) {
         return doOperation(operation, (ArrayListStore) store);
     }
 

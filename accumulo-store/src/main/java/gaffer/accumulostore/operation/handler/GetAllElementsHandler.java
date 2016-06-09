@@ -24,6 +24,7 @@ import gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllElements;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
@@ -34,9 +35,9 @@ import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final Store store)
+    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, user, (AccumuloStore) store);
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
