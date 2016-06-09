@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package example.rest.application;
 
-package gaffer.rest.example;
+import example.rest.serialisation.RestJsonProvider;
+import gaffer.rest.application.AbstractApplicationConfig;
+import javax.ws.rs.ApplicationPath;
 
-import gaffer.function.TransformFunction;
-import gaffer.function.annotation.Inputs;
-import gaffer.function.annotation.Outputs;
-
-@Inputs(Object.class)
-@Outputs(String.class)
-public class ExampleTransformFunction extends TransformFunction {
+@ApplicationPath("v1")
+public class ApplicationConfig extends AbstractApplicationConfig {
     @Override
-    public Object[] transform(final Object[] input) {
-        return new Object[]{input[0].toString() + " transformed"};
-    }
-
-    @Override
-    public ExampleTransformFunction statelessClone() {
-        return new ExampleTransformFunction();
+    protected void addSystemResources() {
+        super.addSystemResources();
+        resources.add(RestJsonProvider.class);
     }
 }
