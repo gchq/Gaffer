@@ -83,6 +83,8 @@ public abstract class AbstractStoreIT {
     protected static final String SOURCE_3 = SOURCE + 3;
     protected static final String DEST_3 = DEST + 3;
 
+    protected static final String SOURCE_DIR_0 = SOURCE_DIR + 0;
+
     protected static final String SOURCE_DIR_1 = SOURCE_DIR + 1;
     protected static final String DEST_DIR_1 = DEST_DIR + 1;
 
@@ -264,7 +266,7 @@ public abstract class AbstractStoreIT {
 
             final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
             secondEntity.putProperty(TestPropertyNames.STRING, "3");
-            addToMap(secondEntity , entities);
+            addToMap(secondEntity, entities);
 
             final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
             thirdEntity.putProperty(TestPropertyNames.STRING, "3");

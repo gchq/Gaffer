@@ -16,24 +16,21 @@
 
 package gaffer.store.operation.handler;
 
-import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
-import gaffer.operation.impl.generate.GenerateElements;
+import gaffer.operation.impl.cache.FetchCache;
 import gaffer.store.Context;
 import gaffer.store.Store;
+import java.util.Map;
 
 /**
- * An <code>GenerateElementsHandler</code> handles {@link gaffer.operation.impl.generate.GenerateElements} operations.
- * It uses the {@link gaffer.data.generator.ElementGenerator} from the operation to generate
- * {@link gaffer.data.element.Element}s from the operation input objects.
- *
- * @param <OBJ> the type of input objects from the operation.
+ * An <code>FetchCacheHandler</code> handles {@link FetchCache} operations.
+ * Simply returns the cache.
  */
-public class GenerateElementsHandler<OBJ> implements OperationHandler<GenerateElements<OBJ>, Iterable<Element>> {
+public class FetchCacheHandler implements OperationHandler<FetchCache, Map<String, Iterable<?>>> {
     @Override
-    public Iterable<Element> doOperation(final GenerateElements<OBJ> operation,
-                                         final Context context, final Store store)
+    public Map<String, Iterable<?>> doOperation(final FetchCache fetchCache,
+                                                final Context context, final Store store)
             throws OperationException {
-        return operation.getElementGenerator().getElements(operation.getObjects());
+        return context.getCache();
     }
 }

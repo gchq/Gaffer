@@ -24,9 +24,9 @@ import gaffer.data.element.Element;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateElements;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.GenerateElementsHandler;
-import gaffer.user.User;
 import org.junit.Test;
 
 public class GenerateElementsHandlerTest {
@@ -40,14 +40,14 @@ public class GenerateElementsHandlerTest {
         final Iterable<Element> elements = mock(Iterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
         final Iterable<String> objs = mock(Iterable.class);
-        final User user = new User();
+        final Context context = new Context();
 
         given(elementGenerator.getElements(objs)).willReturn(elements);
         given(operation.getObjects()).willReturn(objs);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
-        final Iterable<Element> result = handler.doOperation(operation, user, store);
+        final Iterable<Element> result = handler.doOperation(operation, context, store);
 
         // Then
         assertSame(elements, result);
