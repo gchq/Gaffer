@@ -43,7 +43,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -70,20 +72,36 @@ public class GetElementsWithinSetHandlerTest {
     public void setup() throws StoreException, IOException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//        expectedEdge1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
         expectedEdge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
         expectedEdge2.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//        expectedEdge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
         expectedEdge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
         expectedEdge3.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//        expectedEdge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
         expectedEntity1.putProperty(AccumuloPropertyNames.COUNT, 10000);
-        expectedEntity1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+//        expectedEntity1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
         expectedEntity2.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEntity2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1 * 3);
+//        expectedEntity2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
         byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
         gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
@@ -152,6 +170,9 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
+        final Collection<Element> forTest = new LinkedList<>();
+        Iterables.addAll(forTest, elements);
+
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
         assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
@@ -192,7 +213,7 @@ public class GetElementsWithinSetHandlerTest {
             final Entity entity = new Entity(TestGroups.ENTITY);
             entity.setVertex("A0");
             entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-            entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+//            entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(entity);
             for (int i = 1; i < 100; i++) {
                 final Edge edge = new Edge(TestGroups.EDGE);
@@ -201,7 +222,11 @@ public class GetElementsWithinSetHandlerTest {
                 edge.setDirected(true);
                 edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
                 edge.putProperty(AccumuloPropertyNames.COUNT, i);
-                edge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+                edge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+                edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+                edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+                edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//                edge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
                 final Edge edge2 = new Edge(TestGroups.EDGE);
                 edge2.setSource("A0");
@@ -209,7 +234,11 @@ public class GetElementsWithinSetHandlerTest {
                 edge2.setDirected(true);
                 edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
                 edge2.putProperty(AccumuloPropertyNames.COUNT, i);
-                edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+                edge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
+                edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
+                edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
+                edge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//                edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
                 final Edge edge3 = new Edge(TestGroups.EDGE);
                 edge3.setSource("A0");
@@ -217,7 +246,11 @@ public class GetElementsWithinSetHandlerTest {
                 edge3.setDirected(true);
                 edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
                 edge3.putProperty(AccumuloPropertyNames.COUNT, i);
-                edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+                edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
+                edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
+                edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
+                edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
+//                edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
                 data.add(edge);
                 data.add(edge2);
                 data.add(edge3);
@@ -225,7 +258,7 @@ public class GetElementsWithinSetHandlerTest {
                 final Entity edgeEntity = new Entity(TestGroups.ENTITY);
                 edgeEntity.setVertex("A" + i);
                 edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-                edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+//                edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
                 data.add(edgeEntity);
             }
             final User user = new User();

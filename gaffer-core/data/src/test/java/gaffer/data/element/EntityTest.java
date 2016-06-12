@@ -85,7 +85,7 @@ public class EntityTest extends ElementTest {
         entity1.putProperty("some property", "some value");
 
         final Entity entity2 = cloneCoreFields(entity1);
-        entity2.putProperty("some different property", "some other value");
+        entity2.putProperty("some property", "some value");
 
         // When
         boolean isEqual = entity1.equals((Object) entity2);

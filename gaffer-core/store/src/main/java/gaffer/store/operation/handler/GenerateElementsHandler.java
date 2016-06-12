@@ -19,8 +19,8 @@ package gaffer.store.operation.handler;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateElements;
+import gaffer.store.Context;
 import gaffer.store.Store;
-import gaffer.user.User;
 
 /**
  * An <code>GenerateElementsHandler</code> handles {@link gaffer.operation.impl.generate.GenerateElements} operations.
@@ -32,7 +32,7 @@ import gaffer.user.User;
 public class GenerateElementsHandler<OBJ> implements OperationHandler<GenerateElements<OBJ>, Iterable<Element>> {
     @Override
     public Iterable<Element> doOperation(final GenerateElements<OBJ> operation,
-                                         final User user, final Store store)
+                                         final Context context, final Store store)
             throws OperationException {
         return operation.getElementGenerator().getElements(operation.getObjects());
     }

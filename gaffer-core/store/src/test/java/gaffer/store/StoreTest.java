@@ -26,6 +26,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,6 +47,9 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
+import gaffer.operation.impl.cache.FetchCache;
+import gaffer.operation.impl.cache.FetchCachedResult;
+import gaffer.operation.impl.cache.UpdateCache;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -58,9 +62,12 @@ import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
+import gaffer.store.operation.handler.FetchCacheHandler;
+import gaffer.store.operation.handler.FetchCachedResultHandler;
 import gaffer.store.operation.handler.GenerateElementsHandler;
 import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.operation.handler.UpdateCacheHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
@@ -77,6 +84,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class StoreTest {
+    private final User user = new User();
+    private final Context context = new Context(user);
+
     private OperationHandler<AddElements, Void> addElementsHandler;
     private OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getElementsHandler;
     private OperationHandler<GetAllElements<Element>, Iterable<Element>> getAllElementsHandler;
@@ -169,6 +179,10 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
 
+        assertTrue(store.getOperationHandlerExposed(UpdateCache.class) instanceof UpdateCacheHandler);
+        assertTrue(store.getOperationHandlerExposed(FetchCachedResult.class) instanceof FetchCachedResultHandler);
+        assertTrue(store.getOperationHandlerExposed(FetchCache.class) instanceof FetchCacheHandler);
+
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
@@ -181,7 +195,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
         final StoreImpl store = new StoreImpl();
-        final User user = new User();
         given(schema.validate()).willReturn(true);
         store.initialise(schema, properties);
 
@@ -189,7 +202,7 @@ public class StoreTest {
         store.execute(addElements, user);
 
         // Then
-        verify(addElementsHandler).doOperation(addElements, user, store);
+        verify(addElementsHandler).doOperation(addElements, context, store);
     }
 
     @Test
@@ -202,7 +215,6 @@ public class StoreTest {
         final View view = mock(View.class);
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final StoreImpl store = new StoreImpl();
-        final User user = new User();
 
         addElements.setView(view);
         given(schema.validate()).willReturn(true);
@@ -227,7 +239,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
-        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         store.initialise(schema, properties);
@@ -269,7 +280,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Iterable<Element> getElementsResult = mock(Iterable.class);
-        final User user = new User();
 
         final AddElements addElements1 = new AddElements();
         final GetElementsSeed<ElementSeed, Element> getElementsSeed = new GetElementsSeed<>();
@@ -279,8 +289,9 @@ public class StoreTest {
                 .build();
 
         given(schema.validate()).willReturn(true);
-        given(addElementsHandler.doOperation(addElements1, user, store)).willReturn(null);
-        given(getElementsHandler.doOperation(getElementsSeed, user, store)).willReturn(getElementsResult);
+
+        given(addElementsHandler.doOperation(addElements1, context, store)).willReturn(null);
+        given(getElementsHandler.doOperation(getElementsSeed, context, store)).willReturn(getElementsResult);
 
         store.initialise(schema, properties);
 
@@ -302,13 +313,12 @@ public class StoreTest {
         final boolean skipInvalidElements = true;
         final Iterable<Element> elements = mock(Iterable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
-        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable1.isValidate()).willReturn(true);
         given(validatable1.getElements()).willReturn(elements);
-        given(validatableHandler.doOperation(validatable1, user, store)).willReturn(expectedResult);
+        given(validatableHandler.doOperation(validatable1, context, store)).willReturn(expectedResult);
 
         store.initialise(schema, properties);
 
@@ -317,7 +327,7 @@ public class StoreTest {
 
         // Then
         assertEquals(expectedResult, result);
-        verify(validateHandler).doOperation(Mockito.any(Validate.class), Mockito.eq(user), Mockito.eq(store));
+        verify(validateHandler).doOperation(Mockito.any(Validate.class), eq(context), eq(store));
     }
 
     @Test
@@ -328,11 +338,10 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedResult = 5;
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable1.isValidate()).willReturn(false);
-        given(validatableHandler.doOperation(validatable1, user, store)).willReturn(expectedResult);
+        given(validatableHandler.doOperation(validatable1, context, store)).willReturn(expectedResult);
 
         store.initialise(schema, properties);
 
@@ -341,7 +350,7 @@ public class StoreTest {
 
         // Then
         assertEquals(expectedResult, result);
-        verify(validateHandler, Mockito.never()).doOperation(Mockito.any(Validate.class), Mockito.eq(user), Mockito.eq(store));
+        verify(validateHandler, Mockito.never()).doOperation(Mockito.any(Validate.class), eq(context), eq(store));
     }
 
     @Test
@@ -351,7 +360,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Validatable<Integer> validatable1 = mock(Validatable.class);
-        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         store.setValidationRequired(true);
@@ -381,7 +389,6 @@ public class StoreTest {
         final Validatable<Iterable<Element>> validatable3 = mock(Validatable.class);
         final Operation<Iterable<Element>, Iterable<Element>> nonValidatable2 = mock(Operation.class);
         final boolean skipInvalidElements = true;
-        final User user = new User();
         final OperationChain<Integer> opChain = new OperationChain.Builder()
                 .first(nonValidatable2)
                 .then(validatable3)
@@ -399,7 +406,7 @@ public class StoreTest {
         given(validatable2.isValidate()).willReturn(true);
         given(validatable3.isValidate()).willReturn(false);
 
-        given(validatableHandler.doOperation(validatable1, user, store)).willReturn(expectedResult);
+        given(validatableHandler.doOperation(validatable1, context, store)).willReturn(expectedResult);
 
         store.initialise(schema, properties);
 
@@ -408,7 +415,7 @@ public class StoreTest {
 
         // Then
         assertEquals(expectedResult, result);
-        verify(validateHandler, Mockito.times(2)).doOperation(Mockito.any(Validate.class), Mockito.eq(user), Mockito.eq(store));
+        verify(validateHandler, Mockito.times(2)).doOperation(Mockito.any(Validate.class), eq(context), eq(store));
     }
 
     @Test
@@ -420,12 +427,11 @@ public class StoreTest {
         final int expectedResult = 5;
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
-        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
-        given(validatableHandler.doOperation(validatable, user, store)).willReturn(expectedResult);
+        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedResult);
         store.initialise(schema, properties);
 
         // When
@@ -463,13 +469,12 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 18;
-        final User user = new User();
+        final int expectedNumberOfOperations = 21;
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
-        given(validatableHandler.doOperation(validatable, user, store)).willReturn(expectedNumberOfOperations);
+        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
         store.initialise(schema, properties);
 
         // When
@@ -490,12 +495,11 @@ public class StoreTest {
 
         final StoreImpl store = new StoreImpl();
         final int expectedNumberOfOperations = 15;
-        final User user = new User();
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
-        given(validatableHandler.doOperation(validatable, user, store)).willReturn(expectedNumberOfOperations);
+        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
         store.initialise(schema, properties);
 
         // WHen
@@ -599,7 +603,7 @@ public class StoreTest {
         }
 
         @Override
-        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation) {
+        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
             doUnhandledOperationCalls.add(operation);
             return null;
         }
@@ -619,6 +623,11 @@ public class StoreTest {
 
         public void setValidationRequired(final boolean validationRequired) {
             this.validationRequired = validationRequired;
+        }
+
+        @Override
+        protected Context createContext(final User user) {
+            return context;
         }
     }
 }

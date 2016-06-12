@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Date;
+import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EdgeTest extends ElementTest {
@@ -103,7 +104,27 @@ public class EdgeTest extends ElementTest {
         edge2.putProperty("some different property", "some other value");
 
         // When
-        boolean isEqual = edge1.equals((Object) edge2);
+        boolean isEqual = edge1.shallowEquals((Object) edge2);
+
+        // Then
+        assertTrue(isEqual);
+        assertEquals(edge1.hashCode(), edge2.hashCode());
+    }
+
+    @Test
+    public void shouldReturnTrueForEqualsWhenAllFieldsAreEqual() {
+        // Given
+        final Edge edge1 = new Edge("group");
+        edge1.setSource("source vertex");
+        edge1.setDestination("dest vertex");
+        edge1.setDirected(true);
+        edge1.putProperty("some property", "some value");
+
+        final Edge edge2 = cloneCoreFields(edge1);
+        edge2.putProperty("some property", "some value");
+
+        // When
+        boolean isEqual = edge1.shallowEquals((Object) edge2);
 
         // Then
         assertTrue(isEqual);
@@ -265,6 +286,17 @@ public class EdgeTest extends ElementTest {
         newEdge.setSource(edge.getSource());
         newEdge.setDestination(edge.getDestination());
         newEdge.setDirected(edge.isDirected());
+
+        return newEdge;
+    }
+
+    private Edge cloneAllFields(final Edge edge) {
+        final Edge newEdge  = cloneCoreFields(edge);
+
+        final Properties properties = edge.getProperties();
+        for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+            newEdge.putProperty(entry.getKey(), entry.getValue());
+        }
 
         return newEdge;
     }

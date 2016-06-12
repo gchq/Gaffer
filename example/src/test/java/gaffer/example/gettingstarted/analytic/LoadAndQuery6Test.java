@@ -34,7 +34,6 @@ import java.util.List;
 public class LoadAndQuery6Test {
     private static final String RESOURCE_PREFIX = "/example/gettingstarted/";
     private static final String RESOURCE_EXAMPLE_PREFIX = RESOURCE_PREFIX + "6/";
-    private static final String COUNT = "count";
 
     @Test
     public void shouldReturnExpectedEdges() throws OperationException {
@@ -60,9 +59,7 @@ public class LoadAndQuery6Test {
         // Setup graph
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_PREFIX + "mockaccumulostore.properties"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "schema/dataSchema.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "schema/dataTypes.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "schema/storeTypes.json"))
+                .addSchemas(StreamUtil.openStreams(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "schema"))
                 .build();
 
         // When

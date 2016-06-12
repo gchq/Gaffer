@@ -218,6 +218,52 @@ public final class Graph {
             return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
         }
 
+        public Builder addSchemas(final Schema... schemaModules) {
+            if (null != schemaModules) {
+                for (Schema schemaModule : schemaModules) {
+                    addSchema(schemaModule);
+                }
+            }
+
+            return this;
+        }
+
+        public Builder addSchemas(final InputStream... schemaStreams) {
+            if (null != schemaStreams) {
+                try {
+                    for (InputStream schemaStream : schemaStreams) {
+                        addSchema(schemaStream);
+                    }
+                } finally {
+                    for (InputStream schemaModule : schemaStreams) {
+                        IOUtils.closeQuietly(schemaModule);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        public Builder addSchemas(final Path... schemaPaths) {
+            if (null != schemaPaths) {
+                for (Path schemaPath : schemaPaths) {
+                    addSchema(schemaPath);
+                }
+            }
+
+            return this;
+        }
+
+        public Builder addSchemas(final byte[]... schemaBytesArray) {
+            if (null != schemaBytesArray) {
+                for (byte[] schemaBytes : schemaBytesArray) {
+                    addSchema(schemaBytes);
+                }
+            }
+
+            return this;
+        }
+
         public Builder addSchema(final Schema schemaModule) {
             if (null != schema) {
                 schema.merge(schemaModule);
@@ -240,10 +286,18 @@ public final class Graph {
 
         public Builder addSchema(final Path schemaPath) {
             try {
-                return addSchema(Files.readAllBytes(schemaPath));
+                if (Files.isDirectory(schemaPath)) {
+                    for (Path path : Files.newDirectoryStream(schemaPath)) {
+                        addSchema(path);
+                    }
+                } else {
+                    addSchema(Files.readAllBytes(schemaPath));
+                }
             } catch (IOException e) {
                 throw new SchemaException("Unable to read schema from path", e);
             }
+
+            return this;
         }
 
         public Builder addSchema(final byte[] schemaBytes) {

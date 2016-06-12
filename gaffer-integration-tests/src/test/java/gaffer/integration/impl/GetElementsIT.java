@@ -20,11 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.GetOperation.IncludeEdgeType;
@@ -43,7 +45,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GetElementsIT extends AbstractStoreIT {
@@ -176,31 +180,42 @@ public class GetElementsIT extends AbstractStoreIT {
 
 
     private void shouldGetRelatedElements(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {
-        final List<Element> expectedElements = new ArrayList<>();
+        final List<ElementSeed> seedTerms = new LinkedList<>();
+        final List<Element> expectedElements = new LinkedList<>();
         if (includeEntities) {
-            for (Object identifier : ALL_SEED_VERTICES) {
-                expectedElements.add(new Entity(TestGroups.ENTITY, identifier));
+            for (final Object identifier : ALL_SEED_VERTICES) {
+                final EntitySeed entitySeed = new EntitySeed(identifier);
+                seedTerms.add(entitySeed);
             }
         }
 
         if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.DIRECTED == includeEdgeType) {
-            expectedElements.addAll(Collections.singletonList(new Edge(TestGroups.EDGE, SOURCE_DIR_1, DEST_DIR_1, true)));
+            final EdgeSeed seed = new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true);
+            seedTerms.add(seed);
 
             if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
-                expectedElements.addAll(Collections.singletonList(new Edge(TestGroups.EDGE, SOURCE_DIR_2, DEST_DIR_2, true)));
+                final EdgeSeed seedSourceDestDir2 = new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true);
+                seedTerms.add(seedSourceDestDir2);
             }
 
             if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
-                expectedElements.addAll(Collections.singletonList(new Edge(TestGroups.EDGE, SOURCE_DIR_3, DEST_DIR_3, true)));
+                final EdgeSeed seedSourceDestDir3 = new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true);
+                seedTerms.add(seedSourceDestDir3);
             }
         }
 
         if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.UNDIRECTED == includeEdgeType) {
-            expectedElements.addAll(Arrays.asList(new Edge(TestGroups.EDGE, SOURCE_1, DEST_1, false),
-                    new Edge(TestGroups.EDGE, SOURCE_2, DEST_2, false),
-                    new Edge(TestGroups.EDGE, SOURCE_3, DEST_3, false)));
+            final EdgeSeed seedSourceDest1 = new EdgeSeed(SOURCE_1, DEST_1, false);
+            seedTerms.add(seedSourceDest1);
+
+            final EdgeSeed seedSourceDest2 = new EdgeSeed(SOURCE_2, DEST_2, false);
+            seedTerms.add(seedSourceDest2);
+
+            final EdgeSeed seedSourceDest3 = new EdgeSeed(SOURCE_3, DEST_3, false);
+            seedTerms.add(seedSourceDest3);
         }
 
+        expectedElements.addAll(getElements(seedTerms));
         shouldGetElements(expectedElements, SeedMatchingType.RELATED, includeEdgeType, includeEntities, inOutType, ALL_SEEDS);
     }
 
@@ -236,6 +251,10 @@ public class GetElementsIT extends AbstractStoreIT {
             final ElementSeed seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;
+
+                final Collection<Element> listOfElements = new LinkedList<>();
+                Iterables.addAll(listOfElements, results);
+
                 assertTrue("Entity was not expected: " + entity, expectedElements.contains(entity));
             } else {
                 Edge edge = (Edge) result;
@@ -243,6 +262,10 @@ public class GetElementsIT extends AbstractStoreIT {
                     assertTrue("Edge was not expected: " + edge, expectedElements.contains(edge));
                 } else {
                     final Edge edgeReversed = new Edge(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
+
+                    Properties properties = edge.getProperties();
+                    edgeReversed.copyProperties(properties);
+
                     expectedElementsCopy.remove(edgeReversed);
                     assertTrue("Edge was not expected: " + seed, expectedElements.contains(result) || expectedElements.contains(edgeReversed));
                 }
@@ -258,9 +281,14 @@ public class GetElementsIT extends AbstractStoreIT {
         final List<Element> elements = new ArrayList<>(seeds.size());
         for (ElementSeed seed : seeds) {
             if (seed instanceof EntitySeed) {
-                elements.add(new Entity(TestGroups.ENTITY, ((EntitySeed) seed).getVertex()));
+                final Entity entity = new Entity(TestGroups.ENTITY, ((EntitySeed) seed).getVertex());
+                entity.putProperty("stringProperty", "3");
+                elements.add(entity);
             } else {
-                elements.add(new Edge(TestGroups.EDGE, ((EdgeSeed) seed).getSource(), ((EdgeSeed) seed).getDestination(), ((EdgeSeed) seed).isDirected()));
+                final Edge edge = new Edge(TestGroups.EDGE, ((EdgeSeed) seed).getSource(), ((EdgeSeed) seed).getDestination(), ((EdgeSeed) seed).isDirected());
+                edge.putProperty("intProperty", 1);
+                edge.putProperty("count", 1L);
+                elements.add(edge);
             }
         }
 

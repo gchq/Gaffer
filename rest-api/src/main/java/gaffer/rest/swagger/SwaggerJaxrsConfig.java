@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServlet;
  * Sets up Swagger to reflectively lookup REST API methods in the package defined in the system property
  * "gaffer.rest-api.resourcePackage" - this defaults to "gaffer.rest".
  */
-@WebServlet(name = "SwaggerJaxrsConfig", loadOnStartup = 2)
+@WebServlet(name = "SwaggerJaxrsConfig", urlPatterns = {"/SwaggerJaxrsConfig"}, loadOnStartup = 2)
 public class SwaggerJaxrsConfig extends HttpServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerJaxrsConfig.class);
     private static final long serialVersionUID = 459189376294803855L;

@@ -51,6 +51,7 @@ import gaffer.rest.example.ExampleTransformFunction;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -249,7 +250,7 @@ public class SimpleExamplesService implements IExamplesService {
         final GenerateElements<ExampleDomainObject> op = new GenerateElements<>(new ExampleDomainObjectGenerator());
         final ArrayList<ExampleDomainObject> objs = new ArrayList<>();
         if (hasEntities()) {
-            final SchemaElementDefinition entityDef = getSchema().getEdge(getAnEdgeGroup());
+            final SchemaElementDefinition entityDef = getSchema().getEntity(getAnEntityGroup());
             objs.add(new ExampleDomainObject(getAnEntityGroup(),
                     getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), 1)));
             objs.add(new ExampleDomainObject(getAnEntityGroup(),
@@ -423,7 +424,7 @@ public class SimpleExamplesService implements IExamplesService {
         return getExampleValue(clazz, uniqueId);
     }
 
-    protected Object getExampleValue(final Class<?> clazz, final int uniqueId) {
+    protected Object getExampleValue(final Class clazz, final int uniqueId) {
         Object value;
         if (null == clazz) {
             value = null;
@@ -441,7 +442,16 @@ public class SimpleExamplesService implements IExamplesService {
             value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
         } else {
             try {
-                value = clazz.newInstance();
+                if (clazz.isEnum()) {
+                    List l = Arrays.asList(clazz.getEnumConstants());
+                    if (l.size() > 0) {
+                        value = Enum.valueOf(clazz, l.get(0).toString());
+                    } else {
+                        value = clazz.newInstance();
+                    }
+                } else {
+                    value = clazz.newInstance();
+                }
             } catch (InstantiationException | IllegalAccessException e) {
                 value = null;
             }

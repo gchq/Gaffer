@@ -26,8 +26,9 @@ import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
-import java.io.ByteArrayInputStream;
+
 import java.io.DataInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -35,35 +36,29 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * The BloomFilterIterator should filter out elements based on their membership
- * of the provided bloomFilter. This implementation may not work as desired
- * depending on your {@link gaffer.accumulostore.key.AccumuloKeyPackage}
- * implementation.
+ * The BloomFilterIterator should filter out Edges based on their non searched for vertex's membership
+ * of the provided bloomFilter.
  */
 public class CoreKeyBloomFilterIterator extends Filter {
 
-    private BloomFilter filter;
+    protected BloomFilter filter;
 
     @Override
     public boolean accept(final Key key, final Value value) {
-        return filter.membershipTest(
-                new org.apache.hadoop.util.bloom.Key(getVertexFromKey(key.getRowData().getBackingArray())));
-    }
-
-    protected byte[] getVertexFromKey(final byte[] key) {
+        byte[] vertices = key.getRowData().getBackingArray();
         int pos = -1;
-        for (int i = 0; i < key.length; ++i) {
-            if (key[i] == ByteArrayEscapeUtils.DELIMITER) {
+        for (int i = vertices.length - 3; i > 0; --i) {
+            if (vertices[i] == ByteArrayEscapeUtils.DELIMITER) {
                 pos = i;
                 break;
             }
         }
-        if (pos != -1) {
-            return Arrays.copyOf(key, pos);
-        } else {
-            return key;
+        if (pos == -1) {
+            return true;
         }
+        return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(Arrays.copyOfRange(vertices, pos + 1, vertices.length - 2)));
     }
+
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,

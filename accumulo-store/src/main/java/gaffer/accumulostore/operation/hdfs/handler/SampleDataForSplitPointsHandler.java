@@ -19,15 +19,15 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.handler.tool.SampleDataAndCreateSplitsFileTool;
 import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
 import gaffer.operation.OperationException;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.user.User;
 import org.apache.hadoop.util.ToolRunner;
 
 public class SampleDataForSplitPointsHandler implements OperationHandler<SampleDataForSplitPoints, String> {
     @Override
     public String doOperation(final SampleDataForSplitPoints operation,
-                              final User user, final Store store)
+                              final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, (AccumuloStore) store);
     }

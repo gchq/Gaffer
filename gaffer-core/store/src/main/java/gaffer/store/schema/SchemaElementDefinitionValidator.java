@@ -140,11 +140,30 @@ public class SchemaElementDefinitionValidator {
         int i = 0;
         for (ElementComponentKey key : context.getSelection()) {
             final Class<?> clazz = elementDef.getClass(key);
-            if (null == clazz || !inputTypes[i].isAssignableFrom(clazz)) {
+            if (null == clazz) {
+                final String typeName;
+                if (key.isId()) {
+                    typeName = elementDef.getIdentifierTypeName(key.getIdentifierType());
+                } else {
+                    typeName = elementDef.getPropertyTypeName(key.getPropertyName());
+                }
+
+                if (null != typeName) {
+                    LOGGER.error("No class type found for type definition " + typeName
+                            + " used by " + key.getKey()
+                            + ". Please ensure it is defined in the schema.");
+                } else {
+                    LOGGER.error("No type definition defined for " + key.getKey()
+                            + ". Please ensure it is defined in the schema.");
+                }
+
+                return false;
+            }
+            if (!inputTypes[i].isAssignableFrom(clazz)) {
                 LOGGER.error("Function " + function.getClass().getName()
                         + " is not compatible with selection types. Function input type "
                         + inputTypes[i].getName() + " is not assignable from selection type "
-                        + (null != clazz ? clazz.getName() : "with a null class."));
+                        + clazz.getName());
                 return false;
             }
             i++;

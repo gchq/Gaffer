@@ -25,6 +25,7 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
@@ -35,9 +36,9 @@ public class GetElementsInRangesHandler
 
     @Override
     public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
-                                         final User user, final Store store)
+                                         final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, user, (AccumuloStore) store);
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,

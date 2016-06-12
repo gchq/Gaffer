@@ -16,17 +16,21 @@
 
 package gaffer.commonutil;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public abstract class StreamUtil {
     public static final String VIEW = "/view.json";
-    public static final String SCHEMA = "/schema/schema.json";
-    public static final String DATA_SCHEMA = "/schema/dataSchema.json";
-    public static final String DATA_TYPES = "/schema/dataTypes.json";
-    public static final String STORE_SCHEMA = "/schema/storeSchema.json";
-    public static final String STORE_TYPES = "/schema/storeTypes.json";
+    public static final String SCHEMA_FOLDER = "/schema/";
+    public static final String SCHEMA = SCHEMA_FOLDER + "schema.json";
+    public static final String DATA_SCHEMA = SCHEMA_FOLDER + "dataSchema.json";
+    public static final String DATA_TYPES = SCHEMA_FOLDER + "dataTypes.json";
+    public static final String STORE_SCHEMA = SCHEMA_FOLDER + "storeSchema.json";
+    public static final String STORE_TYPES = SCHEMA_FOLDER + "storeTypes.json";
     public static final String STORE_PROPERTIES = "/store.properties";
     public static final String OP_AUTHS = "/opAuths.properties";
 
@@ -38,6 +42,10 @@ public abstract class StreamUtil {
 
     public static InputStream view(final Class clazz) {
         return openStream(clazz, VIEW);
+    }
+
+    public static InputStream[] schemas(final Class clazz) {
+        return openStreams(clazz, SCHEMA_FOLDER);
     }
 
     public static InputStream schema(final Class clazz) {
@@ -72,6 +80,10 @@ public abstract class StreamUtil {
         return openStream(clazz, VIEW, logErrors);
     }
 
+    public static InputStream[] schemas(final Class clazz, final boolean logErrors) {
+        return openStreams(clazz, SCHEMA_FOLDER, logErrors);
+    }
+
     public static InputStream schema(final Class clazz, final boolean logErrors) {
         return openStream(clazz, SCHEMA, logErrors);
     }
@@ -98,6 +110,40 @@ public abstract class StreamUtil {
 
     public static InputStream opAuths(final Class clazz, final boolean logErrors) {
         return openStream(clazz, OP_AUTHS, logErrors);
+    }
+
+    public static InputStream[] openStreams(final Class clazz, final String folderPath) {
+        return openStreams(clazz, folderPath, false);
+    }
+
+    public static InputStream[] openStreams(final Class clazz, final String folderPath, final boolean logErrors) {
+        final String folderPathChecked;
+        if (null == folderPath || folderPath.endsWith("/")) {
+            folderPathChecked = folderPath;
+        } else {
+            folderPathChecked = folderPath + "/";
+        }
+
+        int index = 0;
+        final List<String> schemaFiles;
+        try {
+            schemaFiles = IOUtils.readLines(clazz.getResourceAsStream(folderPathChecked));
+        } catch (IOException e) {
+            if (logErrors) {
+                LOGGER.error("Failed to read schema folder:" + folderPathChecked, e);
+                return new InputStream[0];
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+
+        final InputStream[] schemas = new InputStream[schemaFiles.size()];
+        for (String schemaFile : schemaFiles) {
+            schemas[index] = openStream(clazz, folderPathChecked + schemaFile, logErrors);
+            index++;
+        }
+
+        return schemas;
     }
 
     public static InputStream openStream(final Class clazz, final String path) {
