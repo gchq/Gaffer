@@ -1,6 +1,6 @@
-buildBase.sh
-buildGafferDataVolume.sh
-buildHadoop.sh
-buildAccumulo.sh
+./buildBase.sh
+./buildGafferDataVolume.sh
+./buildHadoop.sh
+./buildAccumulo.sh
 
-start.sh
+./start.sh
