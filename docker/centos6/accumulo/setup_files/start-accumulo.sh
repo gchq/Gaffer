@@ -23,3 +23,6 @@ sleep 10
 # Start accumulo
 
 /opt/accumulo/bin/start-all.sh
+
+# Open firefox
+firefox "localhost:50095" &

@@ -1,0 +1,2 @@
+./startGafferDataVolume.sh 
+./startAccumulo.sh

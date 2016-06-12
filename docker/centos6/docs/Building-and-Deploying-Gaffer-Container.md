@@ -1,4 +1,52 @@
-# Pre-requisites 
+# Quick start guide
+1. Ensure docker is running, as root run:
+
+`
+service docker start
+`
+
+2. Change to centos6 folder: Gaffer/docker/centos6
+
+3. Run setup script as root:
+
+`
+./setup.sh
+`
+
+4. Run buildAndRun script as your user (note this will log you into the accumulo container):
+
+`
+./buildAndRun.sh
+`
+
+5. As hduser in the accumulo container run the start accumulo script:
+
+`
+~/start-accumulo.sh
+`
+
+6. To disconnect from accumulo container:
+
+`
+Ctrl-p  Ctrl-q
+`
+
+7. To reattach to accumulo container run the attach script as your user:
+
+`
+./attach.sh
+`
+
+8. To restart accumulo, run the stop and start scripts as your user:
+
+`
+./stop.sh
+./start.sh
+`
+
+# Detailed guide
+
+## Pre-requisites
 
 1. The installation of Docker on the host - access to the internet is required for this step 
 2. Docker requires a 64-bit installation regardless of the CentOS version. The kernel must be 3.10 at minimum,

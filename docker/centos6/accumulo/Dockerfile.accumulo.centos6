@@ -64,7 +64,7 @@ ADD ${ZOOKEEPER_LOCN_FILES}/log4j.properties ${DOCKER_FILES}/
 ADD ${ZOOKEEPER_LOCN_FILES}/zkEnv.sh ${DOCKER_FILES}/
 ADD ${ZOOKEEPER_LOCN_FILES}/zkServer.sh ${DOCKER_FILES}/
 
-RUN curl -s https://archive.apache.org/dist/zookeeper/zookeeper-3.3.5/zookeeper-3.3.5.tar.gz | tar -xz -C /opt/
+RUN curl https://archive.apache.org/dist/zookeeper/zookeeper-3.3.5/zookeeper-3.3.5.tar.gz | tar -xz -C /opt/
 RUN cd ${INSTALL_DIR} && ln -s ./zookeeper-3.3.5 zookeeper
 RUN cp -pf ${DOCKER_FILES}/zoo.cfg ${INSTALL_DIR}/zookeeper/conf/.
 RUN cp -pf ${DOCKER_FILES}/log4j.properties ${INSTALL_DIR}/zookeeper/conf/.
@@ -78,7 +78,7 @@ RUN mkdir -p ${INSTALL_DIR}/zookeeper/walogs
 # Install accumulo
 
 ADD ${ACCUMULO_LOCN_FILES}/accumulo_supervisord.conf /etc/supervisor.d/accumulo_supervisord.conf
-RUN curl -s https://archive.apache.org/dist/accumulo/1.6.4/accumulo-1.6.4-bin.tar.gz | tar -xz -C /opt/
+RUN curl https://archive.apache.org/dist/accumulo/1.6.4/accumulo-1.6.4-bin.tar.gz | tar -xz -C /opt/
 RUN cd ${INSTALL_DIR} && ln -s ./accumulo-1.6.4 accumulo
 
 USER root
@@ -141,3 +141,4 @@ EXPOSE 2122
 
 
 USER hduser
+

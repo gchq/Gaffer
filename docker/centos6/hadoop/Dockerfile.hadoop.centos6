@@ -32,9 +32,6 @@ LABEL com.gaffer-docker.version.is-beta="yes" \
       com.gaffer-docker.release-date="2016-05-06" \
       com.gaffer-docker.description="Hadoop Docker Image"
 
-# Additional tar package required
-RUN yum install -y tar; yum clean all
-
 # directory where docker setup files are temporary stored
 ENV DOCKER_FILES /usr/local/docker_files
 ENV HD_USER hduser
@@ -106,7 +103,7 @@ ENV HADOOP_DATANODE /home/hduser/hadoopdata/hdfs/datanode
 ENV HADOOP_NAMENODE /home/hduser/hadoopdata/hdfs/namenode
 ENV HADOOP_TMP_DIR /app/hadoop/tmp
 
-RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz | tar -xz -C /opt/
+RUN curl http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz | tar -xz -C /opt/
 
 RUN cd ${INSTALL_DIR} && ln -s ./hadoop-2.6.0 hadoop
 RUN mv ${DOCKER_FILES}/bashrc /home/hduser/.bashrc 

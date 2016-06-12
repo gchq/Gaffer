@@ -37,24 +37,50 @@ LABEL com.gaffer-docker.version.is-beta="yes" \
 # Additional centos packages required for Hadoop, Accumulo and Gaffer to run
 
 RUN \
-  yum update -y; yum clean all; \
+  echo 'timeout=300' >> /etc/yum.conf; \
+  echo 'minrate=10' >> /etc/yum.conf; \
+  yum clean all;
+
+RUN yum update -y;
+
+RUN \
   yum install -y deltarpm; \
-  yum install -y epel-release; yum clean all; \
-  yum install -y rsync; yum clean all; \
-  yum --enablerepo=centosplus upgrade -y --skip-broken; yum clean all; \
-  yum -y install initscripts tar vi openssh-server openssh-clients; yum clean all; \
-  yum -y groupinstall "Development Tools"; yum clean all; \
-  yum -y install firefox; yum clean all; \
-  yum -y install icedtea-web dbus; yum clean all; \
+  yum upgrade ca-certificates --disablerepo=epel;\
+  yum install -y epel-release; \
+  yum install -y rsync; \
+  yum --enablerepo=centosplus upgrade -y --skip-broken;
+
+RUN yum -y install initscripts tar vi openssh-server openssh-clients;
+
+RUN yum -y groupinstall "Development Tools";
+
+RUN \
+  yum -y install firefox; \
+  yum -y install icedtea-web dbus; \
   yum install -y iproute hostname inotify-tools yum-utils which; \
-  yum clean all; \
-  yum -y install gtk3; yum clean all; \
+  yum -y install gtk3; \
   yum -y update libselinux; yum whatprovides service; \
-  yum clean all; \
   yum install -y python-setuptools; \
-  easy_install supervisor; \
+  easy_install supervisor;
+
+RUN \
   yum -y install java-1.7.0-openjdk-devel.x86_64; \
   dbus-uuidgen > /var/lib/dbus/machine-id
+
+# Directory for Java home
+ENV JAVA_HOME /opt/jvm/java
+ENV PATH ${PATH}:${JAVA_HOME}/bin
+
+RUN \
+  yum install -y git; \
+  yum install -y tar;
+
+RUN curl http://www.eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz | tar -xz -C /usr/local/
+RUN cd /usr/local && ln -s ./apache-maven-3.3.9 maven
+RUN export PATH=${PATH}:/usr/local/maven/bin
+
+RUN if [[ $http_proxy ]]; then export proxy_length=$((${#http_proxy})); export http_proxy_host=`echo $http_proxy | cut -c 8-$(($proxy_length -5))`; export http_proxy_port=`echo $http_proxy | cut -c $(($proxy_length -3))-$proxy_length`; sed -i "/<proxies>/a\    <proxy>\n      <active>true</active>\n      <protocol>http</protocol>\n      <host>$http_proxy_host</host>\n      <port>$http_proxy_port</port>\n    </proxy>" /usr/local/maven/conf/settings.xml; fi;
+
 
 # Sets up passwordless ssh by generating ssh keys
 # so hadoop, accumulo can start up services without user
