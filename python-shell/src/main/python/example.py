@@ -31,6 +31,7 @@ def run_with_connector(gc):
     add_elements(gc)
     get_elements(gc)
     get_adj_seeds(gc)
+    get_all_elements(gc)
     generate_elements(gc)
     generate_domain_objs(gc)
     generate_domain_objects_chain(gc)
@@ -150,6 +151,16 @@ def get_adj_seeds(gc):
     )
     print('Adjacent entities - 2 hop')
     print(adjSeeds)
+    print()
+
+
+def get_all_elements(gc):
+    # Adjacent Elements - chain 2 adjacent entities together
+    all_elements = gc.execute_operation(
+        g.GetAllElements()
+    )
+    print('All elements')
+    print(all_elements)
     print()
 
 

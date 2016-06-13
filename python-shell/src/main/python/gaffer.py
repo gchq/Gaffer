@@ -563,3 +563,35 @@ class GetAdjacentEntitySeeds(GetOperation):
 
     def convert_result(self, result):
         return ResultConverter.to_entity_seeds(result)
+
+
+class GetAllElements(GetOperation):
+    def __init__(self, view=None, summarise=True,
+                 include_edges=IncludeEdges.ALL, options=None):
+        super().__init__('gaffer.operation.impl.get.GetAllElements',
+                         None, view, summarise, True, include_edges,
+                         InOutType.OUT, options)
+
+    def convert_result(self, result):
+        return ResultConverter.to_elements(result)
+
+
+class GetAllEntities(GetOperation):
+    def __init__(self, view=None, summarise=True, options=None):
+        super().__init__('gaffer.operation.impl.get.GetAllEntities',
+                         None, view, summarise, True, IncludeEdges.NONE,
+                         InOutType.OUT, options)
+
+    def convert_result(self, result):
+        return ResultConverter.to_elements(result)
+
+
+class GetAllEdges(GetOperation):
+    def __init__(self, view=None, summarise=True,
+                 include_edges=IncludeEdges.ALL, options=None):
+        super().__init__('gaffer.operation.impl.get.GetAllEdges',
+                         None, view, summarise, False, include_edges,
+                         InOutType.OUT, options)
+
+    def convert_result(self, result):
+        return ResultConverter.to_elements(result)
