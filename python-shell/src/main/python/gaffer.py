@@ -506,6 +506,7 @@ class GetOperation(Operation):
         operation['includeEntities'] = self.include_entities
         operation['includeEdges'] = self.include_edges
         operation['includeIncomingOutGoing'] = self.in_out_type
+        operation['summarise'] = self.summarise
         return operation
 
 
@@ -520,19 +521,18 @@ class GetRelatedElements(GetOperation):
 
 class GetRelatedEntities(GetOperation):
     def __init__(self, seeds=None, view=None, summarise=True,
-                 include_entities=True, include_edges=IncludeEdges.ALL,
                  in_out_type=InOutType.BOTH, options=None):
         super().__init__('gaffer.operation.impl.get.GetRelatedEntities', seeds,
-                         view, summarise, include_entities, include_edges,
+                         view, summarise, True, IncludeEdges.NONE,
                          in_out_type, options)
 
 
 class GetRelatedEdges(GetOperation):
     def __init__(self, seeds=None, view=None, summarise=True,
-                 include_entities=True, include_edges=IncludeEdges.ALL,
+                 include_edges=IncludeEdges.ALL,
                  in_out_type=InOutType.BOTH, options=None):
         super().__init__('gaffer.operation.impl.get.GetRelatedEdges', seeds,
-                         view, summarise, include_entities, include_edges,
+                         view, summarise, False, include_edges,
                          in_out_type, options)
 
 
@@ -547,10 +547,18 @@ class GetElementsBySeed(GetOperation):
 
 class GetEntitiesBySeed(GetOperation):
     def __init__(self, seeds=None, view=None, summarise=True,
-                 include_entities=True, include_edges=IncludeEdges.ALL,
                  in_out_type=InOutType.BOTH, options=None):
-        super().__init__('gaffer.operation.impl.get.GetElementsSeed', seeds,
-                         view, summarise, include_entities, include_edges,
+        super().__init__('gaffer.operation.impl.get.GetEntitiesBySeed', seeds,
+                         view, summarise, True, IncludeEdges.NONE,
+                         in_out_type, options)
+
+
+class GetEdgesBySeed(GetOperation):
+    def __init__(self, seeds=None, view=None, summarise=True,
+                 include_edges=IncludeEdges.ALL,
+                 in_out_type=InOutType.BOTH, options=None):
+        super().__init__('gaffer.operation.impl.get.GetEntitiesBySeed', seeds,
+                         view, summarise, False, include_edges,
                          in_out_type, options)
 
 
@@ -566,10 +574,10 @@ class GetAdjacentEntitySeeds(GetOperation):
 
 
 class GetAllElements(GetOperation):
-    def __init__(self, view=None, summarise=True,
+    def __init__(self, view=None, summarise=True, include_entities=True,
                  include_edges=IncludeEdges.ALL, options=None):
         super().__init__('gaffer.operation.impl.get.GetAllElements',
-                         None, view, summarise, True, include_edges,
+                         None, view, summarise, include_entities, include_edges,
                          InOutType.OUT, options)
 
     def convert_result(self, result):

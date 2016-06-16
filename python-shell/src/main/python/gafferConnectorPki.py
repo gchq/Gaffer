@@ -27,7 +27,7 @@ import gafferConnector
 
 
 class GafferConnector(gafferConnector.GafferConnector):
-    def __init__(self, host, pki, verbose=False):
+    def __init__(self, host, pki, protocol=None, verbose=False):
         """
         This initialiser sets up a connection to the specified Gaffer server as per gafferConnector.GafferConnector and
         requires the additional pki object.
@@ -35,7 +35,7 @@ class GafferConnector(gafferConnector.GafferConnector):
         super().__init__(host=host, verbose=verbose)
         self._opener = urllib.request.build_opener(
             urllib.request.HTTPSHandler(self._host,
-                                        context=pki.get_ssl_context()))
+                                        context=pki.get_ssl_context(protocol)))
 
 
 ########################################################

@@ -157,7 +157,7 @@ def get_adj_seeds(gc):
 def get_all_elements(gc):
     # Adjacent Elements - chain 2 adjacent entities together
     all_elements = gc.execute_operation(
-        g.GetAllElements()
+        g.GetAllElements(summarise=False)
     )
     print('All elements')
     print(all_elements)
@@ -172,8 +172,8 @@ def generate_elements(gc):
                                {
                                    'class': 'gaffer.rest.example.ExampleDomainObject',
                                    'ids': [
-                                       'vertex1',
-                                       'vertex2',
+                                       '1',
+                                       '2',
                                        True
                                    ],
                                    'type': 'edge'
@@ -181,7 +181,7 @@ def generate_elements(gc):
                                {
                                    'class': 'gaffer.rest.example.ExampleDomainObject',
                                    'ids': [
-                                       'vertex1'
+                                       '1'
                                    ],
                                    'type': 'entity'
                                }
