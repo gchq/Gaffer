@@ -106,7 +106,7 @@ public class Entity extends Element {
     }
 
     @Override
-    public Element emptyClone() {
+    public Entity emptyClone() {
         return new Entity(this.getGroup(), this.getVertex());
     }
 
