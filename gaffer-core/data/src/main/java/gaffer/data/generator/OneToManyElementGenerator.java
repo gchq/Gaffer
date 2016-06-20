@@ -16,6 +16,8 @@
 
 package gaffer.data.generator;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.data.AlwaysValid;
 import gaffer.data.TransformOneToManyIterable;
 import gaffer.data.Validator;
@@ -29,8 +31,8 @@ import gaffer.data.element.Element;
  * @param <OBJ> the type of domain object
  */
 public abstract class OneToManyElementGenerator<OBJ> implements ElementGenerator<OBJ> {
-    private final Validator<OBJ> objValidator;
-    private final boolean skipInvalid;
+    private Validator<OBJ> objValidator;
+    private boolean skipInvalid;
 
     /**
      * Constructs an <code>OneToManyElementGenerator</code> that doesn't validate the any elements or objects.
@@ -49,6 +51,29 @@ public abstract class OneToManyElementGenerator<OBJ> implements ElementGenerator
      */
     public OneToManyElementGenerator(final Validator<OBJ> objValidator, final boolean skipInvalid) {
         this.objValidator = objValidator;
+        this.skipInvalid = skipInvalid;
+    }
+
+    public Validator<OBJ> getObjValidator() {
+        return objValidator;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public void setObjValidator(final Validator<OBJ> objValidator) {
+        this.objValidator = objValidator;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    @JsonGetter("objValidator")
+    Validator<OBJ> getObjValidatorJson() {
+        return objValidator instanceof AlwaysValid ? null : objValidator;
+    }
+
+    public boolean isSkipInvalid() {
+        return skipInvalid;
+    }
+
+    public void setSkipInvalid(final boolean skipInvalid) {
         this.skipInvalid = skipInvalid;
     }
 

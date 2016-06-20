@@ -56,10 +56,7 @@ public class SchemaTest {
 
     @Before
     public void setup() throws IOException {
-        schema = Schema.fromJson(StreamUtil.dataSchema(getClass()),
-                StreamUtil.dataTypes(getClass()),
-                StreamUtil.storeSchema(getClass()),
-                StreamUtil.storeTypes(getClass()));
+        schema = Schema.fromJson(StreamUtil.schemas(getClass()));
     }
 
     @Test

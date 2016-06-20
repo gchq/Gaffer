@@ -382,12 +382,12 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerByteStore() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, byteEntityStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(false, byteEntityStore);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerGaffer1Store() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, gaffer1KeyStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(false, gaffer1KeyStore);
     }
 
     private void shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {

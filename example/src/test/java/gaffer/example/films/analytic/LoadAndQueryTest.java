@@ -68,9 +68,7 @@ public class LoadAndQueryTest {
         // Setup graph
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.openStream(LoadAndQuery.class, "/example/films/mockaccumulostore.properties"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/dataSchema.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/dataTypes.json"))
-                .addSchema(StreamUtil.openStream(LoadAndQuery.class, "/example/films/schema/storeTypes.json"))
+                .addSchemas(StreamUtil.openStreams(LoadAndQuery.class, "/example/films/schema"))
                 .build();
 
         // When
@@ -93,7 +91,7 @@ public class LoadAndQueryTest {
         final List<Entity> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.size(), results.size());
         for (int i = 0; i < expectedResults.size(); i++) {
-            assertTrue(expectedResults.get(i).deepEquals(results.get(i)));
+            assertTrue(expectedResults.get(i).equals(results.get(i)));
         }
     }
 

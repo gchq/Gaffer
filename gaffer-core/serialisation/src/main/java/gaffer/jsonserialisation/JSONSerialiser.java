@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
@@ -46,6 +47,7 @@ public class JSONSerialiser {
     public JSONSerialiser() {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
     /**

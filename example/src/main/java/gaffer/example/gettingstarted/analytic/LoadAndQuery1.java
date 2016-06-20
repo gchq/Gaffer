@@ -38,9 +38,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         final User user = new User("user01");
 
         setDataFileLocation("/example/gettingstarted/1/data.txt");
-        setDataSchemaLocation("/example/gettingstarted/1/schema/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/1/schema/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/1/schema/storeTypes.json");
+        setSchemaFolderLocation("/example/gettingstarted/1/schema");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create some edges from the data file using our data generator class
@@ -56,9 +54,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
 
         //create a graph using our schema and store properties
         final Graph graph1 = new Graph.Builder()
-                .addSchema(getDataSchema())
-                .addSchema(getDataTypes())
-                .addSchema(getStoreTypes())
+                .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 

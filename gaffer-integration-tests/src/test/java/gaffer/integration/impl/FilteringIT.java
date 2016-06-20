@@ -196,11 +196,13 @@ public class FilteringIT extends AbstractStoreIT {
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
-        assertEquals(4, resultsWithFiltering.size());
+        assertEquals(6, resultsWithFiltering.size());
         assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A5", "B5", false),
+                getEdge("A3", "D3", false),
+                getEdge("A3", "C3", false),
                 getEntity("A5")
         ));
     }

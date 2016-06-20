@@ -16,17 +16,25 @@
 
 package gaffer.commonutil;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.ResourcesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public abstract class StreamUtil {
     public static final String VIEW = "/view.json";
-    public static final String SCHEMA = "/schema/schema.json";
-    public static final String DATA_SCHEMA = "/schema/dataSchema.json";
-    public static final String DATA_TYPES = "/schema/dataTypes.json";
-    public static final String STORE_SCHEMA = "/schema/storeSchema.json";
-    public static final String STORE_TYPES = "/schema/storeTypes.json";
+    public static final String SCHEMA_FOLDER = "/schema/";
+    public static final String SCHEMA = SCHEMA_FOLDER + "schema.json";
+    public static final String DATA_SCHEMA = SCHEMA_FOLDER + "dataSchema.json";
+    public static final String DATA_TYPES = SCHEMA_FOLDER + "dataTypes.json";
+    public static final String STORE_SCHEMA = SCHEMA_FOLDER + "storeSchema.json";
+    public static final String STORE_TYPES = SCHEMA_FOLDER + "storeTypes.json";
     public static final String STORE_PROPERTIES = "/store.properties";
     public static final String OP_AUTHS = "/opAuths.properties";
 
@@ -38,6 +46,10 @@ public abstract class StreamUtil {
 
     public static InputStream view(final Class clazz) {
         return openStream(clazz, VIEW);
+    }
+
+    public static InputStream[] schemas(final Class clazz) {
+        return openStreams(clazz, SCHEMA_FOLDER);
     }
 
     public static InputStream schema(final Class clazz) {
@@ -72,6 +84,10 @@ public abstract class StreamUtil {
         return openStream(clazz, VIEW, logErrors);
     }
 
+    public static InputStream[] schemas(final Class clazz, final boolean logErrors) {
+        return openStreams(clazz, SCHEMA_FOLDER, logErrors);
+    }
+
     public static InputStream schema(final Class clazz, final boolean logErrors) {
         return openStream(clazz, SCHEMA, logErrors);
     }
@@ -100,13 +116,61 @@ public abstract class StreamUtil {
         return openStream(clazz, OP_AUTHS, logErrors);
     }
 
+    public static InputStream[] openStreams(final Class clazz, final String folderPath) {
+        return openStreams(clazz, folderPath, false);
+    }
+
+    public static InputStream[] openStreams(final Class clazz, final String folderPath, final boolean logErrors) {
+        if (null == folderPath) {
+            return new InputStream[0];
+        }
+
+        String folderPathChecked = folderPath;
+        if (!folderPathChecked.endsWith("/")) {
+            folderPathChecked = folderPathChecked + "/";
+        }
+        if (folderPathChecked.startsWith("/")) {
+            folderPathChecked = folderPathChecked.substring(1);
+        }
+
+        final Set<String> schemaFiles = new Reflections(new ConfigurationBuilder()
+                .setScanners(new ResourcesScanner())
+                .setUrls(ClasspathHelper.forClass(clazz)))
+                .getResources(Pattern.compile(".*"));
+        final Iterator<String> itr = schemaFiles.iterator();
+        while (itr.hasNext()) {
+            if (!itr.next().startsWith(folderPathChecked)) {
+                itr.remove();
+            }
+        }
+
+        int index = 0;
+        final InputStream[] schemas = new InputStream[schemaFiles.size()];
+        for (String schemaFile : schemaFiles) {
+            schemas[index] = openStream(clazz, schemaFile, logErrors);
+            index++;
+        }
+
+        return schemas;
+    }
+
     public static InputStream openStream(final Class clazz, final String path) {
         return openStream(clazz, path, false);
     }
 
     public static InputStream openStream(final Class clazz, final String path, final boolean logErrors) {
+        if (null == path) {
+            return null;
+        }
+
         try {
-            return clazz.getResourceAsStream(path);
+            final String checkedPath;
+            if (path.startsWith("/")) {
+                checkedPath = path;
+            } else {
+                checkedPath = "/" + path;
+            }
+            return clazz.getResourceAsStream(checkedPath);
         } catch (final Exception e) {
             if (logErrors) {
                 LOGGER.error("Failed to create input stream for " + path, e);

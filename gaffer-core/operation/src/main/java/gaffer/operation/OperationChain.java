@@ -123,77 +123,81 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(op);
         }
 
-        public static final class TypelessBuilder {
-            private final List<Operation> ops;
+        public TypelessBuilder first(final UpdateCache op) {
+            return new TypelessBuilder(op);
+        }
+    }
 
-            private TypelessBuilder(final Operation op) {
-                this(new ArrayList<Operation>());
-                ops.add(op);
-            }
+    public static final class TypelessBuilder {
+        private final List<Operation> ops;
 
-            private TypelessBuilder(final List<Operation> ops) {
-                this.ops = ops;
-            }
-
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<?, NEXT_OUT> op) {
-                ops.add(op);
-                return new TypedBuilder<>(ops);
-            }
-
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
-                ops.add(op);
-                return new TypedBuilder<>(ops);
-            }
-
-            public TypelessBuilder then(final VoidOutput<?> op) {
-                ops.add(op);
-                return new TypelessBuilder(ops);
-            }
-
-            public OperationChain<Void> build() {
-                return new OperationChain<>(ops);
-            }
+        private TypelessBuilder(final Operation op) {
+            this(new ArrayList<Operation>());
+            ops.add(op);
         }
 
-        public static final class TypedBuilder<OUT> {
-            private final List<Operation> ops;
+        private TypelessBuilder(final List<Operation> ops) {
+            this.ops = ops;
+        }
 
-            private TypedBuilder(final Operation<?, OUT> op) {
-                this(new ArrayList<Operation>());
-                ops.add(op);
-            }
+        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<?, NEXT_OUT> op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
 
-            private TypedBuilder(final List<Operation> ops) {
-                this.ops = ops;
-            }
+        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
 
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {
-                ops.add(op);
-                return new TypedBuilder<>(ops);
-            }
+        public TypelessBuilder then(final VoidOutput<?> op) {
+            ops.add(op);
+            return new TypelessBuilder(ops);
+        }
 
-            public TypelessBuilder then(final UpdateCache op) {
-                getOps().add(op);
-                return new TypelessBuilder(getOps());
-            }
+        public OperationChain<Void> build() {
+            return new OperationChain<>(ops);
+        }
+    }
 
-            public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
-                ops.add(op);
-                return new TypedBuilder<>(ops);
-            }
+    public static final class TypedBuilder<OUT> {
+        private final List<Operation> ops;
 
-            public TypelessBuilder then(final VoidOutput<OUT> op) {
-                ops.add(op);
-                return new TypelessBuilder(ops);
-            }
+        private TypedBuilder(final Operation<?, OUT> op) {
+            this(new ArrayList<Operation>());
+            ops.add(op);
+        }
 
-            public OperationChain<OUT> build() {
-                return new OperationChain<>(ops);
-            }
+        private TypedBuilder(final List<Operation> ops) {
+            this.ops = ops;
+        }
 
-            protected List<Operation> getOps() {
-                return ops;
-            }
+        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
+
+        public TypelessBuilder then(final UpdateCache op) {
+            getOps().add(op);
+            return new TypelessBuilder(getOps());
+        }
+
+        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
+
+        public TypelessBuilder then(final VoidOutput<OUT> op) {
+            ops.add(op);
+            return new TypelessBuilder(ops);
+        }
+
+        public OperationChain<OUT> build() {
+            return new OperationChain<>(ops);
+        }
+
+        protected List<Operation> getOps() {
+            return ops;
         }
     }
 }

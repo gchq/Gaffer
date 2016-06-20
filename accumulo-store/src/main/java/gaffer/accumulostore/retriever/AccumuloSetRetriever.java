@@ -110,10 +110,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
     protected abstract AbstractElementIteratorFromBatches createElementIteratorFromBatches() throws RetrieverException;
 
-    protected Set<Object> extractVertices(final Iterable<EntitySeed> seeds) {
+    protected Set<Object> extractVertices(final Iterator<EntitySeed> seeds) {
         final Set<Object> vertices = new HashSet<>();
-        for (final EntitySeed seed : seeds) {
-            vertices.add(seed.getVertex());
+        while (seeds.hasNext()) {
+            vertices.add(seeds.next().getVertex());
         }
 
         return vertices;
@@ -121,15 +121,20 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
     protected void addToBloomFilter(final Iterable<Object> vertices, final BloomFilter filter)
             throws RetrieverException {
-        for (final Object vertex : vertices) {
-            addToBloomFilter(vertex, filter);
+        addToBloomFilter(vertices.iterator(), filter);
+    }
+
+    protected void addToBloomFilter(final Iterator<Object> vertices, final BloomFilter filter)
+            throws RetrieverException {
+        while (vertices.hasNext()) {
+            addToBloomFilter(vertices.next(), filter);
         }
     }
 
-    protected void addToBloomFilter(final Iterable<EntitySeed> seeds, final BloomFilter filter1,
+    protected void addToBloomFilter(final Iterator<EntitySeed> seeds, final BloomFilter filter1,
                                     final BloomFilter filter2) throws RetrieverException {
-        for (final EntitySeed seed : seeds) {
-            addToBloomFilter(seed, filter1, filter2);
+        while (seeds.hasNext()) {
+            addToBloomFilter(seeds.next(), filter1, filter2);
         }
     }
 
@@ -382,32 +387,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
          * @param elm the element to check
          * @return true if the element matches the seeds, otherwise false
          */
-        protected boolean secondaryCheck(final Element elm) {
-            if (Entity.class.isInstance(elm)) {
-                return true;
-            }
-            final Edge edge = (Edge) elm;
-            final Object source = edge.getSource();
-            final Object destination = edge.getDestination();
-            final boolean sourceIsInCurrent = currentSeeds.contains(source);
-            final boolean destIsInCurrent = currentSeeds.contains(destination);
-            boolean sourceMatchesClientFilter;
-            try {
-                sourceMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
-            } catch (final AccumuloElementConversionException e) {
-                return false;
-            }
-            boolean destMatchesClientFilter;
-            try {
-                destMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
-            } catch (final AccumuloElementConversionException e) {
-                return false;
-            }
-            return (sourceIsInCurrent && destMatchesClientFilter) || (destIsInCurrent && sourceMatchesClientFilter)
-                    || (sourceIsInCurrent && destIsInCurrent);
-        }
+        protected abstract boolean secondaryCheck(final Element elm);
 
         private boolean _hasNext() throws RetrieverException {
             // If current scanner has next then return true.

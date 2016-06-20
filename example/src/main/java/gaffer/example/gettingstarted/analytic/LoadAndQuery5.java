@@ -36,15 +36,11 @@ public class LoadAndQuery5 extends LoadAndQuery {
     public Iterable<Edge> run() throws OperationException {
 
         setDataFileLocation("/example/gettingstarted/5/data.txt");
-        setDataSchemaLocation("/example/gettingstarted/5/schema/dataSchema.json");
-        setDataTypesLocation("/example/gettingstarted/5/schema/dataTypes.json");
-        setStoreTypesLocation("/example/gettingstarted/5/schema/storeTypes.json");
+        setSchemaFolderLocation("/example/gettingstarted/5/schema");
         setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         final Graph graph5 = new Graph.Builder()
-                .addSchema(getDataSchema())
-                .addSchema(getDataTypes())
-                .addSchema(getStoreTypes())
+                .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 
