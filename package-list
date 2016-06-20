@@ -42,6 +42,8 @@ gaffer.example.gettingstarted.function.transform
 gaffer.example.gettingstarted.generator
 gaffer.example.gettingstarted.serialiser
 gaffer.example.gettingstarted.util
+gaffer.example.operation
+gaffer.example.operation.generator
 gaffer.exception
 gaffer.function
 gaffer.function.annotation
