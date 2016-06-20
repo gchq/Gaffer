@@ -16,12 +16,16 @@
 
 package gaffer.commonutil;
 
-import org.apache.commons.io.IOUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.ResourcesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public abstract class StreamUtil {
     public static final String VIEW = "/view.json";
@@ -117,29 +121,33 @@ public abstract class StreamUtil {
     }
 
     public static InputStream[] openStreams(final Class clazz, final String folderPath, final boolean logErrors) {
-        final String folderPathChecked;
-        if (null == folderPath || folderPath.endsWith("/")) {
-            folderPathChecked = folderPath;
-        } else {
-            folderPathChecked = folderPath + "/";
+        if (null == folderPath) {
+            return new InputStream[0];
         }
 
-        int index = 0;
-        final List<String> schemaFiles;
-        try {
-            schemaFiles = IOUtils.readLines(clazz.getResourceAsStream(folderPathChecked));
-        } catch (IOException e) {
-            if (logErrors) {
-                LOGGER.error("Failed to read schema folder:" + folderPathChecked, e);
-                return new InputStream[0];
-            } else {
-                throw new RuntimeException(e);
+        String folderPathChecked = folderPath;
+        if (!folderPathChecked.endsWith("/")) {
+            folderPathChecked = folderPathChecked + "/";
+        }
+        if (folderPathChecked.startsWith("/")) {
+            folderPathChecked = folderPathChecked.substring(1);
+        }
+
+        final Set<String> schemaFiles = new Reflections(new ConfigurationBuilder()
+                .setScanners(new ResourcesScanner())
+                .setUrls(ClasspathHelper.forClass(clazz)))
+                .getResources(Pattern.compile(".*"));
+        final Iterator<String> itr = schemaFiles.iterator();
+        while (itr.hasNext()) {
+            if (!itr.next().startsWith(folderPathChecked)) {
+                itr.remove();
             }
         }
 
+        int index = 0;
         final InputStream[] schemas = new InputStream[schemaFiles.size()];
         for (String schemaFile : schemaFiles) {
-            schemas[index] = openStream(clazz, folderPathChecked + schemaFile, logErrors);
+            schemas[index] = openStream(clazz, schemaFile, logErrors);
             index++;
         }
 
@@ -151,8 +159,18 @@ public abstract class StreamUtil {
     }
 
     public static InputStream openStream(final Class clazz, final String path, final boolean logErrors) {
+        if (null == path) {
+            return null;
+        }
+
         try {
-            return clazz.getResourceAsStream(path);
+            final String checkedPath;
+            if (path.startsWith("/")) {
+                checkedPath = path;
+            } else {
+                checkedPath = "/" + path;
+            }
+            return clazz.getResourceAsStream(checkedPath);
         } catch (final Exception e) {
             if (logErrors) {
                 LOGGER.error("Failed to create input stream for " + path, e);
