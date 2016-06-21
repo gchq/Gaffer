@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.operation.handler;
 
+import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -30,7 +31,6 @@ import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
-import java.util.Arrays;
 import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
@@ -44,7 +44,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
         final AccumuloRetriever<?> ret;
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            final List<IteratorSetting> iteratorSettings = Arrays.asList(
+            final List<IteratorSetting> iteratorSettings = Lists.newArrayList(
                     iteratorFactory.getElementPropertyRangeQueryFilter(operation),
                     iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation)
@@ -52,7 +52,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
             if (operation.isSummarise()) {
                 iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(store));
             }
-            ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray());
+            ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray(new IteratorSetting[iteratorSettings.size()]));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

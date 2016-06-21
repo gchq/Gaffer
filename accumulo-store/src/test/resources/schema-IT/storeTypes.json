@@ -4,7 +4,7 @@
       "position": "VALUE"
     },
     "prop.integer": {
-      "position": "VALUE"
+      "position": "COLUMN_QUALIFIER"
     },
     "prop.count": {
       "position": "VALUE"

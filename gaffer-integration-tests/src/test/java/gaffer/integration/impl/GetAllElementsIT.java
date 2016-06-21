@@ -17,6 +17,7 @@
 package gaffer.integration.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
@@ -32,13 +33,17 @@ import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsEqual;
+import gaffer.function.simple.filter.IsIn;
 import gaffer.function.simple.transform.Concat;
 import gaffer.integration.AbstractStoreIT;
 import gaffer.integration.TraitRequirement;
 import gaffer.operation.GetOperation.IncludeEdgeType;
+import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
+import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.store.StoreTrait;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -69,6 +74,79 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 }
             }
         }
+    }
+
+    @Test
+    public void shouldGetAllElementsWithFilterWithoutSummarisation() throws Exception {
+        final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
+        edge1.putProperty(TestPropertyNames.INT, 100);
+        edge1.putProperty(TestPropertyNames.COUNT, 1L);
+
+        final Edge edge2 = edge1.emptyClone();
+        edge2.putProperty(TestPropertyNames.INT, 101);
+        edge2.putProperty(TestPropertyNames.COUNT, 1L);
+
+        graph.execute(new AddElements.Builder()
+                .elements(Arrays.asList((Element) edge1, edge2))
+                .build(), getUser());
+
+        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+                .summarise(false)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .filter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.INT)
+                                        .execute(new IsIn(Arrays.asList((Object) 100, 101)))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        final List<Element> resultList = Lists.newArrayList(results);
+        assertEquals(2, resultList.size());
+        assertThat(resultList, IsCollectionContaining.hasItems(
+                (Element) edge1, edge2));
+    }
+
+    @TraitRequirement(StoreTrait.AGGREGATION)
+    @Test
+    public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
+        final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
+        edge1.putProperty(TestPropertyNames.INT, 100);
+        edge1.putProperty(TestPropertyNames.COUNT, 1L);
+
+        final Edge edge2 = edge1.emptyClone();
+        edge2.putProperty(TestPropertyNames.INT, 101);
+        edge2.putProperty(TestPropertyNames.COUNT, 1L);
+
+        graph.execute(new AddElements.Builder()
+                .elements(Arrays.asList((Element) edge1, edge2))
+                .build(), getUser());
+
+        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+                .summarise(true)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .filter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.INT)
+                                        .execute(new IsIn(Arrays.asList((Object) 100, 101)))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        final List<Element> resultList = Lists.newArrayList(results);
+        assertEquals(1, resultList.size());
+        // aggregation is 'Max'
+        assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 
     @TraitRequirement(StoreTrait.FILTERING)
