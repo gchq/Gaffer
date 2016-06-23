@@ -24,10 +24,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * A <code>HashMapListExporter</code> is an in memory temporary {@link Exporter}
+ * A <code>SetExporter</code> is an in memory temporary {@link Exporter}
  * using a {@link Set}.
- * The values are stored in a {@link LinkedHashSet} in order to has a predictable iteration
- * order.
+ * The values are stored in a {@link LinkedHashSet} in order to ensure there is
+ * a predictable iteration order.
  */
 public class SetExporter extends Exporter {
     private Set<Object> export = new LinkedHashSet<>();
