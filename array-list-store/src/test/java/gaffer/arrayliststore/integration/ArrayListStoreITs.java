@@ -24,5 +24,6 @@ public class ArrayListStoreITs extends AbstractStoreITs {
 
     public ArrayListStoreITs() {
         super(STORE_PROPERTIES);
+        addExtraTest(ArrayListStoreElementExportIT.class);
     }
 }

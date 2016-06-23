@@ -71,6 +71,11 @@ public class AccumuloProperties extends StoreProperties {
         return ((AccumuloProperties) StoreProperties.loadStoreProperties(storePropertiesStream));
     }
 
+    @Override
+    public AccumuloProperties clone() {
+        return (AccumuloProperties) super.clone();
+    }
+
     public void setNumThreadsForBatchWriter(final String numThreadsForBatchWriter) {
         set(NUM_THREADS_FOR_BATCH_WRITER, numThreadsForBatchWriter);
     }
