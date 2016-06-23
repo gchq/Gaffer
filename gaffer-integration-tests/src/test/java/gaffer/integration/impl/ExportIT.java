@@ -24,6 +24,8 @@ import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.export.ElementJsonFileExporter;
 import gaffer.export.Exporter;
 import gaffer.export.SetExporter;
 import gaffer.integration.AbstractStoreIT;
@@ -37,11 +39,16 @@ import gaffer.operation.impl.export.FetchExport;
 import gaffer.operation.impl.export.FetchExporter;
 import gaffer.operation.impl.export.FetchExporters;
 import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseElementJsonFileExport;
 import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetRelatedEdges;
+import gaffer.operation.impl.get.GetRelatedElements;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -52,6 +59,16 @@ public class ExportIT extends AbstractStoreIT {
     public void setup() throws Exception {
         super.setup();
         addDefaultElements();
+    }
+
+    @After
+    public void tearDown() {
+        super.tearDown();
+        try {
+            FileUtils.deleteDirectory(new File(ElementJsonFileExporter.PARENT_DIRECTORY));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -204,6 +221,68 @@ public class ExportIT extends AbstractStoreIT {
 
             // Then
             assertEquals(1, Iterables.size(results));
+        }
+    }
+
+    @Test
+    public void shouldExportResultsInFileAndAllowForPagination() throws OperationException, IOException {
+        // Given
+        final OperationChain<Exporter> exportOpChain = new OperationChain.Builder()
+                .first(new InitialiseElementJsonFileExport())
+                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .build())
+                .then(new UpdateExport())
+                .then(new GenerateObjects.Builder<Edge, EntitySeed>()
+                        .generator(new EntitySeedExtractor())
+                        .build())
+                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new UpdateExport())
+                .then(new FetchExporter())
+                .build();
+
+        // When
+        final ElementJsonFileExporter export = (ElementJsonFileExporter) graph.execute(exportOpChain, getUser());
+
+        // Then
+        assertNotNull(export);
+
+        // Given
+        final OperationChain<CloseableIterable<?>> fetchOpChain = new OperationChain.Builder()
+                .first(new InitialiseElementJsonFileExport.Builder()
+                        .timestamp(export.getTimestamp())
+                        .build())
+                .then(new FetchExport.Builder()
+                        .start(0).end(1)
+                        .build())
+                .build();
+
+        // When
+        try (final CloseableIterable<?> results = graph.execute(fetchOpChain, getUser())) {
+
+            // Then
+            assertEquals(1, Iterables.size(results));
+        }
+    }
+
+    @Test
+    public void shouldExportAndFetchResultsUsingAFile() throws OperationException, IOException {
+        // Given
+        final OperationChain<CloseableIterable<?>> exportOpChain = new OperationChain.Builder()
+                .first(new InitialiseElementJsonFileExport.Builder()
+                        .build())
+                .then(new GetRelatedElements.Builder<EntitySeed, Element>()
+                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .build())
+                .then(new UpdateExport())
+                .then(new FetchExport())
+                .build();
+
+        // When
+        try (final CloseableIterable results = graph.execute(exportOpChain, getUser())) {
+
+            // Then
+            assertEquals(2, Iterables.size(results));
         }
     }
 }

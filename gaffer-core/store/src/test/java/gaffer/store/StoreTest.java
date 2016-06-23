@@ -51,6 +51,7 @@ import gaffer.operation.impl.export.FetchExport;
 import gaffer.operation.impl.export.FetchExporter;
 import gaffer.operation.impl.export.FetchExporters;
 import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseElementJsonFileExport;
 import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
@@ -184,6 +185,7 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
 
         assertTrue(store.getOperationHandlerExposed(InitialiseSetExport.class) instanceof InitialiseExportHandler);
+        assertTrue(store.getOperationHandlerExposed(InitialiseElementJsonFileExport.class) instanceof InitialiseExportHandler);
         assertTrue(store.getOperationHandlerExposed(UpdateExport.class) instanceof UpdateExportHandler);
         assertTrue(store.getOperationHandlerExposed(FetchExport.class) instanceof FetchExportHandler);
         assertTrue(store.getOperationHandlerExposed(FetchExporter.class) instanceof FetchExporterHandler);
@@ -476,7 +478,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 23;
+        final int expectedNumberOfOperations = 24;
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);

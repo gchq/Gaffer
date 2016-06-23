@@ -32,6 +32,7 @@ import gaffer.operation.impl.export.FetchExport;
 import gaffer.operation.impl.export.FetchExporter;
 import gaffer.operation.impl.export.FetchExporters;
 import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseElementJsonFileExport;
 import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
@@ -374,6 +375,7 @@ public abstract class Store {
 
         // Export
         addOperationHandler(InitialiseSetExport.class, new InitialiseExportHandler());
+        addOperationHandler(InitialiseElementJsonFileExport.class, new InitialiseExportHandler());
         addOperationHandler(UpdateExport.class, new UpdateExportHandler());
         addOperationHandler(FetchExport.class, new FetchExportHandler());
         addOperationHandler(FetchExporter.class, new FetchExporterHandler());
