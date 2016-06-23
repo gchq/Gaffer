@@ -92,7 +92,7 @@ public abstract class Store {
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
-        viewValidator = new ViewValidator();
+        viewValidator = createViewValidator();
         addOpHandlers();
         optimiseSchemas();
         validateSchemas();
@@ -258,6 +258,10 @@ public abstract class Store {
         }
     }
 
+    protected ViewValidator createViewValidator() {
+        return new ViewValidator();
+    }
+
     protected ViewValidator getViewValidator() {
         return viewValidator;
     }
@@ -394,11 +398,7 @@ public abstract class Store {
 
         boolean isParentAValidateOp = false;
         for (Operation<?, ?> op : operationChain.getOperations()) {
-            if (!viewValidator.validate(op.getView(), schema)) {
-                throw new SchemaException("View for operation "
-                        + op.getClass().getName()
-                        + " is not valid. See the logs for more information.");
-            }
+            validateView(op);
 
             if (doesOperationNeedValidating(op, isParentAValidateOp)) {
                 final Validatable<?> validatable = (Validatable) op;
@@ -417,6 +417,14 @@ public abstract class Store {
         }
 
         return ops;
+    }
+
+    private void validateView(final Operation<?, ?> op) {
+        if (!viewValidator.validate(op.getView(), schema)) {
+            throw new SchemaException("View for operation "
+                    + op.getClass().getName()
+                    + " is not valid. See the logs for more information.");
+        }
     }
 
     private boolean doesOperationNeedValidating(final Operation<?, ?> op, final boolean isParentAValidateOp) {

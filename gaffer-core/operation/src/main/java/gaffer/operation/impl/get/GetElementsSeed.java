@@ -109,12 +109,6 @@ public class GetElementsSeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends
         }
 
         @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;

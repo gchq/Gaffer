@@ -4,14 +4,14 @@
       "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
       "position": "COLUMN_QUALIFIER",
       "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
+        "class": "gaffer.function.simple.aggregate.Sum"
       }
     },
     "simpleProperty": {
       "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
       "position": "VALUE",
       "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
+        "class": "gaffer.function.simple.aggregate.Sum"
       }
     }
   }

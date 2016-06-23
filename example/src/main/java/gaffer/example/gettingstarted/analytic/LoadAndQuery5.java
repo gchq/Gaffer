@@ -91,7 +91,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
             log(e.toString());
         }
 
-        getRelatedEdges.setSummarise(true);
+        getRelatedEdges.getView().setSummarise(true);
         log("\nGet edges with the private visibility again but this time, aggregate the visibilities based on the rules in gaffer.example.gettingstarted.function.VisibilityAggregator.\n");
         final Iterable<Edge> privatePublicAggregatedResults = graph5.execute(getRelatedEdges, privateUser);
         for (Element e : privatePublicAggregatedResults) {

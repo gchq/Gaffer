@@ -45,6 +45,7 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
+import gaffer.accumulostore.schema.AccumuloViewValidator;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
@@ -265,5 +266,10 @@ public class AccumuloStore extends Store {
     @Override
     public boolean isValidationRequired() {
         return false;
+    }
+
+    @Override
+    protected AccumuloViewValidator createViewValidator() {
+        return new AccumuloViewValidator();
     }
 }

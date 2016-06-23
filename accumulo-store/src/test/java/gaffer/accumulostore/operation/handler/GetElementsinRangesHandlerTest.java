@@ -124,7 +124,7 @@ public class GetElementsinRangesHandlerTest {
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
         final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final Iterable<Element> elementsInRange = handler.doOperation(operation, user, store);
         int count = 0;
@@ -168,7 +168,7 @@ public class GetElementsinRangesHandlerTest {
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
         final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
@@ -219,7 +219,7 @@ public class GetElementsinRangesHandlerTest {
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
@@ -247,7 +247,7 @@ public class GetElementsinRangesHandlerTest {
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);

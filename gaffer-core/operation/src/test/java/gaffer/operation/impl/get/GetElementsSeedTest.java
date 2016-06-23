@@ -79,16 +79,18 @@ public class GetElementsSeedTest implements OperationTest {
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
-                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+                .view(new View.Builder()
+                        .summarise(true)
+                        .edge("testEdgeGroup")
+                        .build())
+                .build();
 
         assertFalse(getElementsSeed.isIncludeEntities());
-        assertTrue(getElementsSeed.isSummarise());
+        assertTrue(getElementsSeed.getView().isSummarise());
         assertFalse(getElementsSeed.isPopulateProperties());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsSeed.getIncludeIncomingOutGoing());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getElementsSeed.getIncludeEdges());
         assertEquals("true", getElementsSeed.getOption("testOption"));
-        assertTrue(getElementsSeed.isSummarise());
         assertNotNull(getElementsSeed.getView());
     }
 }

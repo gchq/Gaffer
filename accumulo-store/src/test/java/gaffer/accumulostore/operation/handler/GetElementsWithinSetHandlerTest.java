@@ -16,6 +16,10 @@
 
 package gaffer.accumulostore.operation.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStoreForTest;
@@ -23,7 +27,6 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
@@ -48,8 +51,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class GetElementsWithinSetHandlerTest {
 
@@ -123,7 +124,7 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
 //        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
-        operation.setSummarise(false);
+        defaultView.setSummarise(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -144,7 +145,7 @@ public class GetElementsWithinSetHandlerTest {
 
     private void shouldSummarise(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -166,7 +167,7 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEntities(false);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -192,7 +193,7 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
-        operation.setSummarise(true);
+        defaultView.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 

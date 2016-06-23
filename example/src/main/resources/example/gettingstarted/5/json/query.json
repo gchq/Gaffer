@@ -1,8 +1,7 @@
 {
-  "options": {
-    "accumulostore.operation.authorisations": "private"
+  "view": {
+    "summarise": true
   },
-  "summarise": true,
   "seeds": [
     {
       "gaffer.operation.data.EntitySeed": {

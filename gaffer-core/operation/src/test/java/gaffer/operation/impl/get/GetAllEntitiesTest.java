@@ -52,16 +52,15 @@ public class GetAllEntitiesTest implements OperationTest {
         GetAllEntities getAllEntities = new GetAllEntities.Builder()
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
+                        .summarise(true)
                         .entity(TestGroups.ENTITY)
                         .build())
                 .build();
 
-        assertTrue(getAllEntities.isSummarise());
+        assertTrue(getAllEntities.getView().isSummarise());
         assertFalse(getAllEntities.isPopulateProperties());
         assertEquals("true", getAllEntities.getOption("testOption"));
-        assertTrue(getAllEntities.isSummarise());
         assertNotNull(getAllEntities.getView().getEntity(TestGroups.ENTITY));
     }
 }

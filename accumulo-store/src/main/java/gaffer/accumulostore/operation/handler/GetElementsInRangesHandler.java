@@ -46,14 +46,14 @@ public class GetElementsInRangesHandler
                                          final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
-            if (operation.isSummarise()) {
+            if (operation.getView().isSummarise()) {
                 ret = new AccumuloRangeIDRetriever(store, operation, user,
                         store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
                                 store),
                         store.getKeyPackage().getIteratorFactory()
                                 .getEdgeEntityDirectionFilterIteratorSetting(operation),
                         store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
-                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
+                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
             } else {
                 ret = new AccumuloRangeIDRetriever(store, operation, user);
             }

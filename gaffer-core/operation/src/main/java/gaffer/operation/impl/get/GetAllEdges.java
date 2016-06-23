@@ -77,12 +77,6 @@ public class GetAllEdges extends GetAllElements<Edge> {
         }
 
         @Override
-        public Builder summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;

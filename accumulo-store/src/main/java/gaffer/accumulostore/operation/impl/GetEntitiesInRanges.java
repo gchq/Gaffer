@@ -80,11 +80,6 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
         }
 
         @Override
-        public Builder<SEED_TYPE> summarise(final boolean summarise) {
-            return (Builder<SEED_TYPE>) super.summarise(summarise);
-        }
-
-        @Override
         public Builder<SEED_TYPE> populateProperties(final boolean populateProperties) {
             return (Builder<SEED_TYPE>) super.populateProperties(populateProperties);
         }

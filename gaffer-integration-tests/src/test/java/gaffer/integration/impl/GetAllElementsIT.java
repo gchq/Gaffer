@@ -91,8 +91,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build(), getUser());
 
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .summarise(false)
                 .view(new View.Builder()
+                        .summarise(false)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
@@ -128,8 +128,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build(), getUser());
 
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .summarise(true)
                 .view(new View.Builder()
+                        .summarise(true)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
@@ -147,6 +147,27 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals(1, resultList.size());
         // aggregation is 'Max'
         assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
+    }
+
+    @TraitRequirement(StoreTrait.FILTERING)
+    @Test
+    public void shouldGetAllElementsFilteredOnGroup() throws Exception {
+        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+                .populateProperties(true)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        final List<Element> resultList = Lists.newArrayList(results);
+        assertEquals(getEntities().size(), resultList.size());
+        for (Element element : resultList) {
+            assertEquals(TestGroups.ENTITY, element.getGroup());
+        }
     }
 
     @TraitRequirement(StoreTrait.FILTERING)

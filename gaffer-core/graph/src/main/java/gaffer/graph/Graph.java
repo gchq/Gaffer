@@ -113,6 +113,11 @@ public final class Graph {
         for (Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
+            } else if (operation.getView().getEntityGroups().isEmpty()
+                    && operation.getView().getEdgeGroups().isEmpty()) {
+                // this allows users to create an empty view and setup summarisation,
+                // without having to specify all the element groups.
+                operation.getView().merge(view);
             }
         }
 

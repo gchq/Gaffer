@@ -1,6 +1,11 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.elementdefinition.view.View;
@@ -10,18 +15,15 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class GetEntitiesInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
-    public void shouldNotReturnEdges(){
+    public void shouldNotReturnEdges() {
 
         final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges<>();
         assertEquals(GetOperation.IncludeEdgeType.NONE, op.getIncludeEdges());
@@ -58,12 +60,11 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(false)
-                .summarise(true)
-                .view(new View.Builder().edge("testEdgeGroup").build())
+                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build())
                 .addSeed(seed).build();
         assertEquals(seed, getEntitiesInRanges.getSeeds().iterator().next());
         assertEquals("true", getEntitiesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertTrue(getEntitiesInRanges.isSummarise());
+        assertTrue(getEntitiesInRanges.getView().isSummarise());
         assertFalse(getEntitiesInRanges.isPopulateProperties());
         assertNotNull(getEntitiesInRanges.getView());
     }

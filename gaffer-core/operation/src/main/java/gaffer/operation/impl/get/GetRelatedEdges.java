@@ -87,12 +87,6 @@ public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<
         }
 
         @Override
-        public Builder<ELEMENT_SEED> summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder<ELEMENT_SEED> inOutType(final IncludeIncomingOutgoingType inOutType) {
             super.inOutType(inOutType);
             return this;

@@ -104,12 +104,6 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
         }
 
         @Override
-        public Builder<ELEMENT_SEED> summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder<ELEMENT_SEED> populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;

@@ -80,15 +80,15 @@ public class GetRelatedEntitiesTest implements OperationTest {
                 .addSeed(seed)
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
+                        .summarise(true)
                         .edge(TestGroups.ENTITY)
                         .build())
                 .build();
 
         // Then
         assertEquals("true", getRelatedElements.getOption("testOption"));
-        assertTrue(getRelatedElements.isSummarise());
+        assertTrue(getRelatedElements.getView().isSummarise());
         assertFalse(getRelatedElements.isPopulateProperties());
         assertNotNull(getRelatedElements.getView());
         assertEquals(seed, getRelatedElements.getSeeds().iterator().next());

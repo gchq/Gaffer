@@ -44,9 +44,9 @@ public class GetElementsBetweenSetsHandler
             throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
-            if (operation.isSummarise()) {
+            if (operation.getView().isSummarise()) {
                 ret = new AccumuloIDBetweenSetsRetriever(store, operation, user,
-                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
+                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
             } else {
                 ret = new AccumuloIDBetweenSetsRetriever(store, operation, user);
             }

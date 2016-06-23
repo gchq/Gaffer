@@ -1,6 +1,11 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
@@ -11,12 +16,9 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import gaffer.operation.data.EntitySeed;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class GetElementsInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -55,15 +57,14 @@ public class GetElementsInRangesTest implements OperationTest {
                 .includeEntities(false)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(true)
-                .summarise(true)
-                .view(new View.Builder().edge("testEdgeGroup").build())
+                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build())
                 .build();
         assertEquals("true", getElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertFalse(getElementsInRanges.isIncludeEntities());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsInRanges.getIncludeEdges());
         assertTrue(getElementsInRanges.isPopulateProperties());
-        assertTrue(getElementsInRanges.isSummarise());
+        assertTrue(getElementsInRanges.getView().isSummarise());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());
     }

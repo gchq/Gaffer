@@ -49,8 +49,8 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
                     iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation)
             );
-            if (operation.isSummarise()) {
-                iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(store));
+            if (operation.getView().isSummarise()) {
+                iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
             }
             ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray(new IteratorSetting[iteratorSettings.size()]));
         } catch (IteratorSettingException | StoreException e) {

@@ -56,18 +56,17 @@ public class GetAllElementsTest implements OperationTest {
                 .includeEntities(false)
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
+                        .summarise(true)
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
         assertFalse(getAllElements.isIncludeEntities());
-        assertTrue(getAllElements.isSummarise());
+        assertTrue(getAllElements.getView().isSummarise());
         assertFalse(getAllElements.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getAllElements.getIncludeEdges());
         assertEquals("true", getAllElements.getOption("testOption"));
-        assertTrue(getAllElements.isSummarise());
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 }

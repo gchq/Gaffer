@@ -71,14 +71,17 @@ public class GetEntitiesBySeedTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetEntitiesBySeed getEntitiesBySeed = new GetEntitiesBySeed.Builder().addSeed(new EntitySeed("A"))
-                .summarise(true)
+
                 .populateProperties(true)
-                .view(new View.Builder().edge("testEdgeGroup").build())
+                .view(new View.Builder()
+                        .summarise(true)
+                        .edge("testEdgeGroup")
+                        .build())
                 .option("testOption", "true").build();
 
         assertEquals("true", getEntitiesBySeed.getOption("testOption"));
         assertTrue(getEntitiesBySeed.isPopulateProperties());
-        assertTrue(getEntitiesBySeed.isSummarise());
+        assertTrue(getEntitiesBySeed.getView().isSummarise());
         assertNotNull(getEntitiesBySeed.getView());
     }
 }

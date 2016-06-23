@@ -16,22 +16,22 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.EdgeSeed;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
-import gaffer.exception.SerialisationException;
-import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.GetOperation;
-import gaffer.operation.OperationTest;
-import java.util.Arrays;
-import java.util.Iterator;
-import org.junit.Test;
-
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.data.elementdefinition.view.View;
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
+import gaffer.operation.OperationTest;
+import gaffer.operation.data.EdgeSeed;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
+import org.junit.Test;
+import java.util.Arrays;
+import java.util.Iterator;
 
 
 public class GetRelatedElementsTest implements OperationTest {
@@ -72,14 +72,24 @@ public class GetRelatedElementsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         ElementSeed seed = new EntitySeed("A");
-        GetRelatedElements getRelatedElements = new GetRelatedElements.Builder<>().addSeed(seed).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED).includeEntities(false).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING).option("testOption", "true").populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
+        GetRelatedElements getRelatedElements = new GetRelatedElements.Builder<>()
+                .addSeed(seed)
+                .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
+                .includeEntities(false)
+                .inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
+                .option("testOption", "true").populateProperties(false)
+                .view(new View.Builder()
+                        .summarise(true)
+                        .edge("testEdgeGroup")
+                        .build())
+                .build();
         assertEquals("true", getRelatedElements.getOption("testOption"));
-        assertTrue(getRelatedElements.isSummarise());
+        assertTrue(getRelatedElements.getView().isSummarise());
         assertFalse(getRelatedElements.isPopulateProperties());
         assertFalse(getRelatedElements.isIncludeEntities());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getRelatedElements.getIncludeIncomingOutGoing());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getRelatedElements.getIncludeEdges());
         assertNotNull(getRelatedElements.getView());
-        assertEquals(seed,getRelatedElements.getSeeds().iterator().next());
+        assertEquals(seed, getRelatedElements.getSeeds().iterator().next());
     }
 }

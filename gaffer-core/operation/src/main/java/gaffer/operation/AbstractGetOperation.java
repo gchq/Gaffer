@@ -34,7 +34,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
-    private boolean summarise = false;
     private boolean populateProperties = true;
 
     protected AbstractGetOperation() {
@@ -154,16 +153,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     @Override
-    public boolean isSummarise() {
-        return summarise;
-    }
-
-    @Override
-    public void setSummarise(final boolean summarise) {
-        this.summarise = summarise;
-    }
-
-    @Override
     public boolean isPopulateProperties() {
         return populateProperties;
     }
@@ -245,16 +234,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          */
         protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             op.setIncludeIncomingOutGoing(inOutType);
-            return this;
-        }
-
-        /**
-         * @param summarise sets the summarise flag on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setSummarise(boolean)
-         */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> summarise(final boolean summarise) {
-            op.setSummarise(summarise);
             return this;
         }
 

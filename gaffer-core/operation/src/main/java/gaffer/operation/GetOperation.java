@@ -137,18 +137,4 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
      * @see gaffer.operation.GetOperation.IncludeEdgeType
      */
     IncludeEdgeType getIncludeEdges();
-
-    /**
-     * @return true if the graph should aggregate results where partial key matches are found,
-     * e.g. summarised over time. Otherwise false.
-     */
-    boolean isSummarise();
-
-    /**
-     * If true then the graph should aggregate results where partial key matches are found.
-     * e.g. summarised over time
-     *
-     * @param summarise set to true to summarise results
-     */
-    void setSummarise(final boolean summarise);
 }

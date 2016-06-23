@@ -4,6 +4,9 @@
       "vertex": "id.object",
       "properties": {
         "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",
@@ -19,6 +22,9 @@
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",

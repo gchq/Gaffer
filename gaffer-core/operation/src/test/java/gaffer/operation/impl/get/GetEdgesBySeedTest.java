@@ -16,21 +16,21 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.EdgeSeed;
-import gaffer.exception.SerialisationException;
-import gaffer.jsonserialisation.JSONSerialiser;
-import gaffer.operation.GetOperation;
-import gaffer.operation.OperationTest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import org.junit.Test;
-
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.data.elementdefinition.view.View;
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.GetOperation;
+import gaffer.operation.OperationTest;
+import gaffer.operation.data.EdgeSeed;
+import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 
 public class GetEdgesBySeedTest implements OperationTest {
@@ -70,17 +70,21 @@ public class GetEdgesBySeedTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        EdgeSeed seed = new EdgeSeed("A" ,"B", true);
+        EdgeSeed seed = new EdgeSeed("A", "B", true);
         GetEdgesBySeed getEdgesBySeed = new GetEdgesBySeed.Builder()
                 .addSeed(seed)
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
                 .option("testOption", "true")
                 .populateProperties(true)
-                .summarise(true)
-                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+
+                .view(new View.Builder()
+                        .summarise(true)
+                        .edge("testEdgeGroup")
+                        .build())
+                .build();
         assertTrue(getEdgesBySeed.isPopulateProperties());
-        assertTrue(getEdgesBySeed.isSummarise());
+        assertTrue(getEdgesBySeed.getView().isSummarise());
         assertNotNull(getEdgesBySeed.getView());
         assertEquals("true", getEdgesBySeed.getOption("testOption"));
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesBySeed.getIncludeEdges());

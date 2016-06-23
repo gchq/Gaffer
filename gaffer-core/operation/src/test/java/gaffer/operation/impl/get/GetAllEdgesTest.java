@@ -52,16 +52,15 @@ public class GetAllEdgesTest implements OperationTest {
         GetAllEdges getAllEdges = new GetAllEdges.Builder()
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
+                        .summarise(true)
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertTrue(getAllEdges.isSummarise());
+        assertTrue(getAllEdges.getView().isSummarise());
         assertFalse(getAllEdges.isPopulateProperties());
         assertEquals("true", getAllEdges.getOption("testOption"));
-        assertTrue(getAllEdges.isSummarise());
         assertNotNull(getAllEdges.getView().getEdge(TestGroups.EDGE));
     }
 }

@@ -105,12 +105,6 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
         }
 
         @Override
-        public Builder<ELEMENT_TYPE> summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder<ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;

@@ -135,8 +135,8 @@ public class LoadAndQuery {
                                                 .execute(new StarRatingTransform())
                                                 .build())
                                         .build())
+                                .summarise(true)   // Setting the summarise flag to true will aggregate the results when run on a store that supports aggregation
                                 .build())
-                        .summarise(true)   // Setting the summarise flag to true will aggregate the results when run on a store that supports aggregation
                         .build())
                 .build();
 

@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.core;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
-import gaffer.accumulostore.key.core.impl.CoreKeyColumnQualifierVisibilityValueAggregatorIterator;
+import gaffer.accumulostore.key.core.impl.CoreKeyValueAggregatorIterator;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ElementFilter;
@@ -68,12 +68,13 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     }
 
     @Override
-    public IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store)
+    public IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
         return new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
-                AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
+                AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, CoreKeyValueAggregatorIterator.class)
                 .all()
                 .schema(store.getSchema())
+                .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
     }
@@ -85,14 +86,11 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 return getAggregatorIteratorSetting(store);
             case AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME:
                 return getValidatorIteratorSetting(store);
-            case AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME:
-                return getQueryTimeAggregatorIteratorSetting(store);
             default:
                 throw new IllegalArgumentException("Iterator name is not allowed: " + iteratorName
                         + ". Allowed iterator names are: "
                         + AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME + ","
-                        + AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME + " and "
-                        + AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME);
+                        + AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
         }
     }
 }

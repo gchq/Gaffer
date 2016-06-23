@@ -1,5 +1,11 @@
 package gaffer.accumulostore.operation.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -7,17 +13,14 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Iterator;
-
-import static org.junit.Assert.*;
 
 public class GetEdgesWithinSetTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
-    public void shouldNotReturnEntities(){
+    public void shouldNotReturnEntities() {
 
         final GetEdgesWithinSet op = new GetEdgesWithinSet();
         assertFalse(op.isIncludeEntities());
@@ -25,7 +28,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
     }
 
     @Test
-    public void shouldNotBeAbleToSetNoEdges(){
+    public void shouldNotBeAbleToSetNoEdges() {
 
         final GetEdgesWithinSet op = new GetEdgesWithinSet();
 
@@ -64,11 +67,11 @@ public class GetEdgesWithinSetTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetEdgesWithinSet getEdgesWithinSet = new  GetEdgesWithinSet.Builder()
+        final GetEdgesWithinSet getEdgesWithinSet = new GetEdgesWithinSet.Builder()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
                 .addSeed(AccumuloTestData.SEED_A).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
-        assertTrue(getEdgesWithinSet.isSummarise());
+                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build()).build();
+        assertTrue(getEdgesWithinSet.getView().isSummarise());
         assertFalse(getEdgesWithinSet.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesWithinSet.getIncludeEdges());
         assertEquals("true", getEdgesWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));

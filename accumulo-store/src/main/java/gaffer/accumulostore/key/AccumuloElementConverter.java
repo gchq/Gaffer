@@ -22,8 +22,10 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
+import gaffer.store.schema.SchemaElementDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -187,6 +189,20 @@ public interface AccumuloElementConverter {
             throws AccumuloElementConversionException;
 
     /**
+     * Gets a list of serialised bytes representing the value associated with
+     * each property name provided. These byte values are extracted out of the
+     * column qualifier.
+     *
+     * @param elDef           the element schema definition
+     * @param columnQualifier the column qualifier containing the property name/value pairs
+     * @param propertyNames   the property names to extract
+     * @return a list of serialised property value bytes
+     * @throws AccumuloElementConversionException If conversion fails
+     */
+    List<byte[]> getPropertyBytesFromColumnQualifier(final SchemaElementDefinition elDef, final byte[] columnQualifier, final List<String> propertyNames)
+            throws AccumuloElementConversionException;
+
+    /**
      * Creates a byte array representing the group.
      *
      * @param group the element group
@@ -227,6 +243,21 @@ public interface AccumuloElementConverter {
      * @return The Properties stored within the part of the {@link Key} specified e.g Column Qualifier
      * @throws AccumuloElementConversionException If conversion fails
      */
-    Properties getPropertiesFromColumnVisibility(String group, byte[] columnVisibility)
+    Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
+            throws AccumuloElementConversionException;
+
+    /**
+     * Creates a timestamp based on the provided {@link Properties} or the default
+     * time provided.
+     *
+     * @param group       the element group.
+     * @param properties  the element properties
+     * @param defaultTime the default time to use if the properties do not have a timestamp
+     * @return the timestamp
+     * @throws AccumuloElementConversionException If the timestamp extraction fails.
+     */
+    long buildTimestamp(final String group, final Properties properties, final long defaultTime) throws AccumuloElementConversionException;
+
+    Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException;
 }

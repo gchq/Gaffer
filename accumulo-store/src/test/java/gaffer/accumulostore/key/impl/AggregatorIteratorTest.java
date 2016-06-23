@@ -95,7 +95,10 @@ public class AggregatorIteratorTest {
         edge1.setDirected(true);
         edge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
+        edge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        edge1.putProperty(AccumuloPropertyNames.PROP_2, 0);
         edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
+        edge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
         final Edge edge2 = new Edge(TestGroups.EDGE);
         edge2.setSource("1");
@@ -103,6 +106,9 @@ public class AggregatorIteratorTest {
         edge2.setDirected(true);
         edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge2.putProperty(AccumuloPropertyNames.COUNT, 2);
+        edge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
         edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
         final Edge edge3 = new Edge(TestGroups.EDGE);
@@ -111,6 +117,10 @@ public class AggregatorIteratorTest {
         edge3.setDirected(true);
         edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
+        edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
         final User user = new User();
         store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);

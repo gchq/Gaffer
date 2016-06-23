@@ -1,5 +1,10 @@
 package gaffer.accumulostore.operation.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -7,11 +12,8 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Iterator;
-
-import static org.junit.Assert.*;
 
 public class GetElementsBetweenSetsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -49,13 +51,13 @@ public class GetElementsBetweenSetsTest implements OperationTest {
                 .addSeedB(AccumuloTestData.SEED_A).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
                 .includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .summarise(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
+                .view(new View.Builder().summarise(false).edge("testEdgeGroup").build()).build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getElementsBetweenSets.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertFalse(getElementsBetweenSets.isPopulateProperties());
-        assertFalse(getElementsBetweenSets.isSummarise());
+        assertFalse(getElementsBetweenSets.getView().isSummarise());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());

@@ -7,9 +7,6 @@
           "viewing": {}
         }
       },
-      "options": {
-        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
-      },
       "seeds": [
         {
           "gaffer.operation.data.EntitySeed": {
@@ -63,12 +60,9 @@
               }
             ]
           }
-        }
-      },
-      "options": {
-        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
-      },
-      "summarise": true
+        },
+        "summarise": true
+      }
     }
   ]
 }

@@ -73,11 +73,6 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
         }
 
         @Override
-        public Builder summarise(final boolean summarise) {
-            return (Builder) super.summarise(summarise);
-        }
-
-        @Override
         public Builder populateProperties(final boolean populateProperties) {
             return (Builder) super.populateProperties(populateProperties);
         }
