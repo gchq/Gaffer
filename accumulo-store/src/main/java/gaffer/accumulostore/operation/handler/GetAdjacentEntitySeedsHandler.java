@@ -29,24 +29,15 @@ import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import gaffer.store.Context;
-import gaffer.store.Store;
 import gaffer.store.StoreException;
-import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
+public class GetAdjacentEntitySeedsHandler extends AccumuloGetIterableHandler<GetAdjacentEntitySeeds, EntitySeed> {
 
     @Override
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final Context context, final Store store)
-            throws OperationException {
-        return doOperation(operation, context.getUser(), (AccumuloStore) store);
-    }
-
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user,
-                                            final AccumuloStore store)
+    protected Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+                                               final User user,
+                                               final AccumuloStore store)
             throws OperationException {
         operation.addOption(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 

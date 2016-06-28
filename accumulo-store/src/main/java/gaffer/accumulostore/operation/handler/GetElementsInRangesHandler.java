@@ -25,29 +25,18 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
-import gaffer.store.Context;
-import gaffer.store.Store;
 import gaffer.store.StoreException;
-import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetElementsInRangesHandler
-        implements OperationHandler<GetElementsInRanges<Pair<ElementSeed>, Element>, Iterable<Element>> {
-
+public class GetElementsInRangesHandler extends AccumuloGetIterableHandler<GetElementsInRanges<Pair<ElementSeed>, Element>, Element> {
     @Override
-    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
-                                         final Context context, final Store store)
+    protected Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
+                                            final User user, final AccumuloStore store)
             throws OperationException {
-        return doOperation(operation, context.getUser(), (AccumuloStore) store);
-    }
-
-    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
-                                         final User user,
-                                         final AccumuloStore store) throws OperationException {
-        final AccumuloRetriever<?> ret;
+        final AccumuloRetriever<?> results;
         try {
             if (operation.isSummarise()) {
-                ret = new AccumuloRangeIDRetriever(store, operation, user,
+                results = new AccumuloRangeIDRetriever(store, operation, user,
                         store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
                                 store),
                         store.getKeyPackage().getIteratorFactory()
@@ -55,11 +44,11 @@ public class GetElementsInRangesHandler
                         store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
-                ret = new AccumuloRangeIDRetriever(store, operation, user);
+                results = new AccumuloRangeIDRetriever(store, operation, user);
             }
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-        return ret;
+        return results;
     }
 }
