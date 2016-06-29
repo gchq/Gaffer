@@ -17,8 +17,12 @@
 package gaffer.store;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
+import gaffer.export.Exporter;
 import gaffer.user.User;
 import org.junit.Test;
 
@@ -33,7 +37,7 @@ public class ContextTest {
 
         // Then
         assertEquals(user, context.getUser());
-        assertTrue(context.getCache().isEmpty());
+        assertTrue(context.getExporters().isEmpty());
     }
 
     @Test
@@ -44,5 +48,20 @@ public class ContextTest {
 
         // Then
         assertEquals(User.UNKNOWN_USER_ID, context.getUser().getUserId());
+    }
+
+    @Test
+    public void shouldAddAndGetExporterWithKey() {
+        // Given
+        final Exporter exporter = mock(Exporter.class);
+        final Context context = new Context();
+        final String key = "key";
+        given(exporter.getKey()).willReturn(key);
+
+        // When
+        context.addExporter(exporter);
+
+        // Then
+        assertSame(exporter, context.getExporter(key));
     }
 }
