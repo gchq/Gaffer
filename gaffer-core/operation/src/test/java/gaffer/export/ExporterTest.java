@@ -34,7 +34,7 @@ public class ExporterTest {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user = new User();
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
 
         // When / Then
         try {
@@ -50,7 +50,7 @@ public class ExporterTest {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user = new User();
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         exporter.initialise("key", null, user);
 
         // When / Then
@@ -68,7 +68,7 @@ public class ExporterTest {
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user1 = new User("user1");
         final User user2 = new User("user2");
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         exporter.initialise("key", null, user1);
 
         // When / Then
@@ -85,7 +85,7 @@ public class ExporterTest {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user = new User();
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         exporter.initialise("key", null, user);
 
         // When / Then
@@ -104,7 +104,7 @@ public class ExporterTest {
         final User user = new User();
         final int start = 0;
         final int end = 10;
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
 
         // When / Then
         try {
@@ -121,7 +121,7 @@ public class ExporterTest {
         final User user = new User();
         final int start = 0;
         final int end = 10;
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         exporter.initialise("key", null, user);
 
         // When / Then
@@ -140,7 +140,7 @@ public class ExporterTest {
         final User user2 = new User("user2");
         final int start = 0;
         final int end = 10;
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         exporter.initialise("key", null, user1);
 
         // When / Then
@@ -158,7 +158,7 @@ public class ExporterTest {
         final User user = new User();
         final int start = 0;
         final int end = 10;
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         exporter.initialise("key", null, user);
 
         // When / Then
@@ -173,7 +173,7 @@ public class ExporterTest {
     @Test
     public void shouldGetAndSetTimestamp() {
         // Given
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         final long timestamp = 1000L;
 
         // When / Then
@@ -184,7 +184,7 @@ public class ExporterTest {
     @Test
     public void shouldThrowExceptionIfUserNullWhenGettingExportName() {
         // Given
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
 
         // When / Then
         try {
@@ -197,7 +197,7 @@ public class ExporterTest {
     @Test
     public void shouldGetExportName() {
         // Given
-        final Exporter exporter = new ExporterImpl();
+        final ExporterImpl exporter = new ExporterImpl();
         final long timestamp = 1000L;
         final String userId = "user01";
         final User user01 = new User(userId);
@@ -213,7 +213,7 @@ public class ExporterTest {
         assertEquals(userId + "_" + timestamp + "_" + key, name);
     }
 
-    private static final class ExporterImpl extends Exporter {
+    private static final class ExporterImpl extends Exporter<Object> {
         @Override
         protected void _add(final Iterable<?> values, final User user) {
             throw new NotImplementedException("_add(" + values + "," + user + ")");

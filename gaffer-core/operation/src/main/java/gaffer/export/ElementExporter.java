@@ -20,7 +20,7 @@ import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.user.User;
 
-public abstract class ElementExporter extends Exporter {
+public abstract class ElementExporter<CONFIG> extends Exporter<CONFIG> {
     @Override
     protected void _add(final Iterable<?> values, final User user) {
         addElements((Iterable<Element>) values, user);

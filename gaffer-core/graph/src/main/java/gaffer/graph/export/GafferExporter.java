@@ -31,7 +31,7 @@ import gaffer.user.User;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class GafferExporter extends ElementExporter {
+public abstract class GafferExporter extends ElementExporter<Store> {
     private final Map<String, Graph> graphExports = new HashMap<>();
     private Schema schema;
     private StoreProperties storeProperties;
@@ -40,9 +40,8 @@ public abstract class GafferExporter extends ElementExporter {
     }
 
     @Override
-    public void initialise(final String key, final Object storeObj, final User user) {
-        super.initialise(key, storeObj, user);
-        final Store store = ((Store) storeObj);
+    public void initialise(final String key, final Store store, final User user) {
+        super.initialise(key, store, user);
 
         // clone the schema
         schema = store.getSchema().clone();

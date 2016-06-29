@@ -29,7 +29,7 @@ import java.util.Set;
  * The values are stored in a {@link LinkedHashSet} in order to ensure there is
  * a predictable iteration order.
  */
-public class SetExporter extends Exporter {
+public class SetExporter extends Exporter<Object> {
     private Set<Object> export = new LinkedHashSet<>();
 
     @Override

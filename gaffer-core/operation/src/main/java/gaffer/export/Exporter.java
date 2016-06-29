@@ -25,7 +25,7 @@ import gaffer.util.ExportUtil;
  * An <code>Exporter</code> can store data of any kind and retrieve it with
  * pagination.
  */
-public abstract class Exporter {
+public abstract class Exporter<CONFIG> {
     public static final String SEPARATOR = "_";
     private User user;
     private String plainTextUserId;
@@ -40,7 +40,7 @@ public abstract class Exporter {
      * @param config configuration for the export (This will be an instance of a gaffer Store)
      * @param user   the user who initiated the export
      */
-    public void initialise(final String key, final Object config, final User user) {
+    public void initialise(final String key, final CONFIG config, final User user) {
         setKey(key);
         setUser(user);
     }
