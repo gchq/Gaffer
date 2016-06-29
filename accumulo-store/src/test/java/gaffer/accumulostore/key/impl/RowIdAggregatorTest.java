@@ -68,12 +68,12 @@ public class RowIdAggregatorTest {
 
 
     @Test
-    public void shouldMultiplePropertySetsAggregatecrossRowIDInByteEntityStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
+    public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
         testAggregatingMultiplePropertySetsAcrossRowIDRange(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldMultiplePropertySetsAggregatecrossRowIDInGafferOneStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
+    public void testMultiplePropertySetsAggregateAcrossRowIDInGafferOneStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
         testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter);
     }
 

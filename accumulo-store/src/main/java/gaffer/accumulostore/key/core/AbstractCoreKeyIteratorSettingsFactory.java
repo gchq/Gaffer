@@ -83,7 +83,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     public IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store)
             throws IteratorSettingException {
         return new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.COLUMN_QUAILFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
+                AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                 .all()
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
@@ -97,14 +97,14 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 return getAggregatorIteratorSetting(store);
             case AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME:
                 return getValidatorIteratorSetting(store);
-            case AccumuloStoreConstants.COLUMN_QUAILFIER_AGGREGATOR_ITERATOR_NAME:
+            case AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME:
                 return getQueryTimeAggregatorIteratorSetting(store);
             default:
                 throw new IllegalArgumentException("Iterator name is not allowed: " + iteratorName
                         + ". Allowed iterator names are: "
                         + AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME + ","
                         + AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME + " and "
-                        + AccumuloStoreConstants.COLUMN_QUAILFIER_AGGREGATOR_ITERATOR_NAME);
+                        + AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME);
         }
     }
 }
