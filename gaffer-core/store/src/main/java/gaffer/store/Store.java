@@ -20,6 +20,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.operationdeclaration.OperationDeclaration;
+import gaffer.store.operationdeclaration.OperationDeclarations;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -365,6 +367,7 @@ public abstract class Store {
     private void addOpHandlers() {
         addCoreOpHandlers();
         addAdditionalOperationHandlers();
+        addConfiguredOperationHandlers();
     }
 
     private void addCoreOpHandlers() {
@@ -396,6 +399,21 @@ public abstract class Store {
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
+    }
+
+    private void addConfiguredOperationHandlers() {
+        this.getProperties().whenReady(new Runnable() {
+            @Override
+            public void run() {
+                final OperationDeclarations declarations = Store.this.getProperties().getOperationDeclarations();
+
+                if (null != declarations) {
+                    for (final OperationDeclaration definition : declarations.getOperations()) {
+                        addOperationHandler(definition.getOperation(), definition.getHandler());
+                    }
+                }
+            }
+        });
     }
 
     private List<Operation> getValidatedOperations(
