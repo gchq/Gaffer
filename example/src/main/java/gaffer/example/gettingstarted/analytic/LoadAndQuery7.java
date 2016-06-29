@@ -33,8 +33,9 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.data.generator.EntitySeedExtractor;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.impl.cache.FetchCachedResult;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.FetchExport;
+import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
@@ -128,20 +129,21 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 true,
                 IdentifierType.DESTINATION);
 
-        // Start the operation chain by doing a get related elements with the given
-        // seeds.
-        // Then update the cache with the results
+        // Start the operation chain by initialising the export to use a set.
+        // Then do a get related elements with the given seeds.
+        // Then update the export with the results
         OperationChain.TypelessBuilder builder = new OperationChain.Builder()
-                .first(new GetRelatedElements.Builder<EntitySeed, Element>()
+                .first(new InitialiseSetExport())
+                .then(new GetRelatedElements.Builder<EntitySeed, Element>()
                         .seeds(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
-                .then(new UpdateCache());
+                .then(new UpdateExport());
 
         // For each additional hop, extract the destination vertices of the
         // previous edges. Then again get the related elements to these vertices.
-        // Then update the cache with the results.
+        // Then update the export with the results.
         for (int i = 1; i < hops; i++) {
             builder = builder
                     .then(new GenerateObjects<>(destVerticesExtractor))
@@ -149,18 +151,18 @@ public class LoadAndQuery7 extends LoadAndQuery {
                             .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                             .view(view)
                             .build())
-                    .then(new UpdateCache());
+                    .then(new UpdateExport());
         }
 
         // Finally finish off by getting the entities at the destination of the
         // previous edges.
-        // Update the cache.
-        // Then return all the elements in the cache.
+        // Update the export.
+        // Then return all the elements in the export.
         final OperationChain opChain = builder
                 .then(new GenerateObjects<>(destVerticesExtractor))
                 .then(new GetEntitiesBySeed())
-                .then(new UpdateCache())
-                .then(new FetchCachedResult())
+                .then(new UpdateExport())
+                .then(new FetchExport())
                 .build();
 
         return (OperationChain<Iterable<Element>>) opChain;

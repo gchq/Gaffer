@@ -18,6 +18,7 @@ package gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -46,7 +47,7 @@ import java.util.Map.Entry;
  * @see Schema.Builder
  * @see ElementDefinitions
  */
-public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> {
+public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
 
@@ -87,6 +88,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return fromJson(Schema.class, jsonBytes);
+    }
+
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses toJson instead.")
+    @Override
+    public Schema clone() {
+        return fromJson(toJson(false));
     }
 
     /**

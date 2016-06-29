@@ -20,7 +20,8 @@ import com.google.common.collect.Iterators;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
-import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.commonutil.iterable.CloseableIterator;
+import gaffer.commonutil.iterable.EmptyCloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
 import gaffer.store.StoreException;
@@ -33,7 +34,6 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -53,17 +53,17 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
     }
 
     @Override
-    public Iterator<Element> iterator() {
+    public CloseableIterator<Element> iterator() {
         final Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : Iterators.<SEED_TYPE>emptyIterator();
         if (!idIterator.hasNext()) {
-            return Collections.emptyIterator();
+            return new EmptyCloseableIterator<>();
         }
 
         try {
             iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
             LOGGER.error(e.getMessage() + " returning empty iterator", e);
-            return Collections.emptyIterator();
+            return new EmptyCloseableIterator<>();
         }
 
         return iterator;
