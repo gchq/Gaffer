@@ -16,6 +16,7 @@
 
 package gaffer.store;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.Schema;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ import java.util.Properties;
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  */
-public class StoreProperties {
+public class StoreProperties implements Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
@@ -188,6 +189,13 @@ public class StoreProperties {
             }
         }
         return loadStoreProperties(props);
+    }
+
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
+    @Override
+    public StoreProperties clone() {
+        return StoreProperties.loadStoreProperties((Properties) getProperties().clone());
     }
 
     public static StoreProperties loadStoreProperties(final Properties props) {

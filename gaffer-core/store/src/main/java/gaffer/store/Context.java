@@ -15,17 +15,19 @@
  */
 package gaffer.store;
 
+import gaffer.export.Exporter;
 import gaffer.user.User;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A <code>Context</code> contains operation chain execution information, such
- * as the user who executed the operation chain and an operation chain cache.
+ * as the user who executed the operation chain and a map of {@link Exporter}s.
  */
 public class Context {
     private final User user;
-    private final Map<String, Iterable<?>> cache = new HashMap<>();
+    private final Map<String, Exporter> exporters = new HashMap<>();
 
     public Context() {
         this(new User());
@@ -39,7 +41,15 @@ public class Context {
         return user;
     }
 
-    public Map<String, Iterable<?>> getCache() {
-        return cache;
+    public Map<String, Exporter> getExporters() {
+        return Collections.unmodifiableMap(exporters);
+    }
+
+    public void addExporter(final Exporter exporter) {
+        exporters.put(exporter.getKey(), exporter);
+    }
+
+    public Exporter getExporter(final String key) {
+        return exporters.get(key);
     }
 }
