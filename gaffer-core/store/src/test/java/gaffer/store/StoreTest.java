@@ -19,8 +19,8 @@ package gaffer.store;
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -47,9 +47,11 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.impl.cache.FetchCache;
-import gaffer.operation.impl.cache.FetchCachedResult;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.FetchExport;
+import gaffer.operation.impl.export.FetchExporter;
+import gaffer.operation.impl.export.FetchExporters;
+import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -62,12 +64,14 @@ import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
-import gaffer.store.operation.handler.FetchCacheHandler;
-import gaffer.store.operation.handler.FetchCachedResultHandler;
-import gaffer.store.operation.handler.GenerateElementsHandler;
-import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.operation.handler.UpdateCacheHandler;
+import gaffer.store.operation.handler.export.FetchExportHandler;
+import gaffer.store.operation.handler.export.FetchExporterHandler;
+import gaffer.store.operation.handler.export.FetchExportersHandler;
+import gaffer.store.operation.handler.export.InitialiseExportHandler;
+import gaffer.store.operation.handler.export.UpdateExportHandler;
+import gaffer.store.operation.handler.generate.GenerateElementsHandler;
+import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
@@ -179,9 +183,12 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
 
-        assertTrue(store.getOperationHandlerExposed(UpdateCache.class) instanceof UpdateCacheHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchCachedResult.class) instanceof FetchCachedResultHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchCache.class) instanceof FetchCacheHandler);
+        assertTrue(store.getOperationHandlerExposed(InitialiseSetExport.class) instanceof InitialiseExportHandler);
+        assertTrue(store.getOperationHandlerExposed(UpdateExport.class) instanceof UpdateExportHandler);
+        assertTrue(store.getOperationHandlerExposed(FetchExport.class) instanceof FetchExportHandler);
+        assertTrue(store.getOperationHandlerExposed(FetchExporter.class) instanceof FetchExporterHandler);
+        assertTrue(store.getOperationHandlerExposed(FetchExporters.class) instanceof FetchExportersHandler);
+
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
@@ -469,7 +476,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 21;
+        final int expectedNumberOfOperations = 23;
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);

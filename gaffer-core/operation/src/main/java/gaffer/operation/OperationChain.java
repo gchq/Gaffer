@@ -19,7 +19,8 @@ package gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseExport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -123,7 +124,11 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(op);
         }
 
-        public TypelessBuilder first(final UpdateCache op) {
+        public TypelessBuilder first(final InitialiseExport op) {
+            return new TypelessBuilder(op);
+        }
+
+        public TypelessBuilder first(final UpdateExport op) {
             return new TypelessBuilder(op);
         }
     }
@@ -150,6 +155,11 @@ public class OperationChain<OUT> {
             return new TypedBuilder<>(ops);
         }
 
+        public TypelessBuilder then(final InitialiseExport op) {
+            ops.add(op);
+            return new TypelessBuilder(ops);
+        }
+
         public TypelessBuilder then(final VoidOutput<?> op) {
             ops.add(op);
             return new TypelessBuilder(ops);
@@ -172,14 +182,20 @@ public class OperationChain<OUT> {
             this.ops = ops;
         }
 
+
+        public TypelessBuilder then(final UpdateExport op) {
+            getOps().add(op);
+            return new TypelessBuilder(getOps());
+        }
+
+        public TypelessBuilder then(final InitialiseExport op) {
+            getOps().add(op);
+            return new TypelessBuilder(getOps());
+        }
+
         public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {
             ops.add(op);
             return new TypedBuilder<>(ops);
-        }
-
-        public TypelessBuilder then(final UpdateCache op) {
-            getOps().add(op);
-            return new TypelessBuilder(getOps());
         }
 
         public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
