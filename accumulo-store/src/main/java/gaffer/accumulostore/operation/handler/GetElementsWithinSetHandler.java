@@ -23,25 +23,36 @@ import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloIDWithinSetRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
+import gaffer.store.Context;
+import gaffer.store.Store;
 import gaffer.store.StoreException;
+import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetElementsWithinSetHandler extends AccumuloGetIterableHandler<GetElementsWithinSet<Element>, Element> {
+public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet<Element>, Iterable<Element>> {
+
     @Override
-    protected Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
-                                            final User user, final AccumuloStore store)
+    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
+                                         final Context context, final Store store)
             throws OperationException {
-        final AccumuloRetriever<?> results;
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
+    }
+
+    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
+                                         final User user, final AccumuloStore store)
+            throws OperationException {
+        final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
-                results = new AccumuloIDWithinSetRetriever(store, operation, user,
+                ret = new AccumuloIDWithinSetRetriever(store, operation, user,
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
-                results = new AccumuloIDWithinSetRetriever(store, operation, user);
+                ret = new AccumuloIDWithinSetRetriever(store, operation, user);
             }
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-        return results;
+        return ret;
     }
+
 }

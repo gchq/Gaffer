@@ -24,29 +24,38 @@ import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.impl.get.GetElements;
+import gaffer.store.Context;
+import gaffer.store.Store;
 import gaffer.store.StoreException;
+import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetElementsHandler extends AccumuloGetIterableHandler<GetElements<ElementSeed, Element>, Element> {
+public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> {
     @Override
-    protected Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                            final User user, final AccumuloStore store) throws OperationException {
-        final AccumuloRetriever<?> results;
+    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+                                         final Context context, final Store store)
+            throws OperationException {
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
+    }
+
+    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+                                         final User user,
+                                         final AccumuloStore store) throws OperationException {
+        final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
-                results = new AccumuloSingleIDRetriever(store, operation, user,
+                ret = new AccumuloSingleIDRetriever(store, operation, user,
                         store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
                                 store),
                         store.getKeyPackage().getIteratorFactory()
                                 .getEdgeEntityDirectionFilterIteratorSetting(operation),
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
-                results = new AccumuloSingleIDRetriever(store, operation, user);
+                ret = new AccumuloSingleIDRetriever(store, operation, user);
             }
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-
-        return results;
+        return ret;
     }
 }

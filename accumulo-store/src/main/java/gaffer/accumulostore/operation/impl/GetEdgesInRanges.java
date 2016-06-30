@@ -82,6 +82,11 @@ public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> ext
         }
 
         @Override
+        public Builder<SEED_TYPE> deduplicate(final boolean deduplicate) {
+            return (Builder<SEED_TYPE>) super.deduplicate(deduplicate);
+        }
+
+        @Override
         public Builder<SEED_TYPE> populateProperties(final boolean populateProperties) {
             return (Builder<SEED_TYPE>) super.populateProperties(populateProperties);
         }

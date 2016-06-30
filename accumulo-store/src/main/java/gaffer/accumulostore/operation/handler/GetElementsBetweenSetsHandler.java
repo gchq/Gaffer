@@ -19,31 +19,41 @@ package gaffer.accumulostore.operation.handler;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloIDBetweenSetsRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
+import gaffer.store.Context;
+import gaffer.store.Store;
 import gaffer.store.StoreException;
+import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetElementsBetweenSetsHandler extends AccumuloGetIterableHandler<GetElementsBetweenSets<Element>, Element> {
+public class GetElementsBetweenSetsHandler
+        implements OperationHandler<GetElementsBetweenSets<Element>, Iterable<? extends Element>> {
 
     @Override
-    protected Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
-                                            final User user, final AccumuloStore store)
+    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
+                                         final Context context, final Store store)
             throws OperationException {
-        final Iterable<Element> results;
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
+    }
+
+    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
+                                         final User user, final AccumuloStore store)
+            throws OperationException {
+        final AccumuloRetriever<?> ret;
         try {
             if (operation.isSummarise()) {
-                results = new AccumuloIDBetweenSetsRetriever(store, operation, user,
+                ret = new AccumuloIDBetweenSetsRetriever(store, operation, user,
                         store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
             } else {
-                results = new AccumuloIDBetweenSetsRetriever(store, operation, user);
+                ret = new AccumuloIDBetweenSetsRetriever(store, operation, user);
             }
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-
-        return results;
+        return ret;
     }
 
 }

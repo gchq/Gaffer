@@ -45,6 +45,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.Deduplicate;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.export.FetchExport;
@@ -64,6 +65,7 @@ import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
+import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.export.FetchExportHandler;
 import gaffer.store.operation.handler.export.FetchExporterHandler;
@@ -189,6 +191,7 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(FetchExporter.class) instanceof FetchExporterHandler);
         assertTrue(store.getOperationHandlerExposed(FetchExporters.class) instanceof FetchExportersHandler);
 
+        assertTrue(store.getOperationHandlerExposed(Deduplicate.class) instanceof DeduplicateHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
@@ -476,7 +479,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 23;
+        final int expectedNumberOfOperations = 24;
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);

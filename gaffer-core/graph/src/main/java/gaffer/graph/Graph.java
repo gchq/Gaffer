@@ -110,20 +110,25 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        for (Operation operation : operationChain.getOperations()) {
+        // Clone the operation chain so any changes made to it do not affect
+        // the original chain.
+        final OperationChain<OUTPUT> operationChainClone = operationChain.clone();
+
+        // Update the view
+        for (Operation operation : operationChainClone.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
         for (GraphHook graphHook : graphHooks) {
-            graphHook.preExecute(operationChain, user);
+            graphHook.preExecute(operationChainClone, user);
         }
 
-        OUTPUT result = store.execute(operationChain, user);
+        OUTPUT result = store.execute(operationChainClone, user);
 
         for (GraphHook graphHook : graphHooks) {
-            graphHook.postExecute(result, operationChain, user);
+            graphHook.postExecute(result, operationChainClone, user);
         }
 
         return result;

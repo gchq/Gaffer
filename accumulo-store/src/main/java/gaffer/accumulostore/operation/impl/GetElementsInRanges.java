@@ -61,6 +61,11 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
         }
 
         @Override
+        public Builder<SEED_TYPE, ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
+            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.deduplicate(deduplicate);
+        }
+
+        @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
             return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.populateProperties(populateProperties);
         }
