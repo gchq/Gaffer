@@ -37,7 +37,7 @@ public class GroupCounts {
         addElementGroup(group, edgeGroups);
     }
 
-    public void addElementGroup(final String group, final Map<String, Integer> elementGroups) {
+    private void addElementGroup(final String group, final Map<String, Integer> elementGroups) {
         Integer count = elementGroups.get(group);
         if (null == count) {
             count = 1;
