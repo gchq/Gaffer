@@ -49,7 +49,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     }
 
     @Override
-     public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
+    public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
         return new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
                 .all()

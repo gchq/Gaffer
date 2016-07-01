@@ -134,7 +134,6 @@ public class RowIdAggregatorTest {
             edge6.putProperty(AccumuloPropertyNames.PROP_3, 0);
             edge6.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-
             final Edge edge7 = new Edge("BasicEdge2");
             edge7.setSource("2");
             edge7.setDestination("6");
@@ -226,9 +225,9 @@ public class RowIdAggregatorTest {
             } catch (IteratorSettingException e) {
                 fail(e.getMessage());
             }
-            RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
-            Range r = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("1")), new EntitySeed("4")), new SummariseGroupOverRanges());
-            Range r2 = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("5")), new EntitySeed("5")), new SummariseGroupOverRanges());
+            final RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
+            final Range r = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("1")), new EntitySeed("4")), new SummariseGroupOverRanges());
+            final Range r2 = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("5")), new EntitySeed("5")), new SummariseGroupOverRanges());
             scanner.setRanges(Arrays.asList(r, r2));
             final Iterator<Map.Entry<Key, Value>> it = scanner.iterator();
             Map.Entry<Key, Value> entry = it.next();
@@ -248,7 +247,7 @@ public class RowIdAggregatorTest {
             assertEquals(expectedEdge, readEdge);
             assertEquals(5, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(3, readEdge.getProperty(AccumuloPropertyNames.COUNT));
-            // Check no more entries
+            // Check we get the Result of the second provided range
             assertTrue(it.hasNext());
             entry = it.next();
             readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
@@ -263,6 +262,7 @@ public class RowIdAggregatorTest {
             expectedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
             expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 1);
             assertEquals(expectedEdge, readEdge);
+            //Check no additional rows are found. (For a table of this size we shouldn't see this)
             if (it.hasNext()) {
                 fail("Additional row found.");
             }

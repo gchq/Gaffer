@@ -45,13 +45,13 @@ public class SummariseGroupOverRangesHandler
                                          final User user,
                                          final AccumuloStore store) throws OperationException {
 
-        int edges = operation.getView().getEdgeGroups().size();
-        int entities = operation.getView().getEntityGroups().size();
-        if ((edges + entities) != 1) {
+        int numEdgeGroups = operation.getView().getEdgeGroups().size();
+        int numEntityGroups = operation.getView().getEntityGroups().size();
+        if ((numEdgeGroups + numEntityGroups) != 1) {
             throw new OperationException("You may only set one Group in your view for this operation.");
         }
         String columnFamily;
-        if (edges == 1) {
+        if (numEdgeGroups == 1) {
             columnFamily = (String) operation.getView().getEdgeGroups().toArray()[0];
         } else {
             columnFamily = (String) operation.getView().getEntityGroups().toArray()[0];

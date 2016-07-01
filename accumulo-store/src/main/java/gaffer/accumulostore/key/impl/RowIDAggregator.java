@@ -47,13 +47,13 @@ import java.util.Map;
 public class RowIDAggregator extends WrappingIterator implements OptionDescriber {
 
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
-    protected Schema schema;
+    protected Schema schema = null;
     @SuppressFBWarnings({"UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", "UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    protected AccumuloElementConverter elementConverter;
+    protected AccumuloElementConverter elementConverter = null;
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "aggregator is initialised in init method, which is always called first")
-    private ElementAggregator aggregator;
+    private ElementAggregator aggregator = null;
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "group is initialised in init method, which is always called first")
-    private String group;
+    private String group = null;
 
     private SortedKeyValueIterator<Key, Value> source;
 
