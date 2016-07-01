@@ -16,7 +16,7 @@
 package gaffer.gafferpop;
 
 import gaffer.commonutil.CommonConstants;
-import gaffer.commonutil.iterable.WrappedIterable;
+import gaffer.commonutil.iterable.ChainedIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.gafferpop.generator.GafferPopEdgeGenerator;
@@ -229,7 +229,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .build())
                 .build());
 
-        return new WrappedIterable<Vertex>(result, idVertices).iterator();
+        return new ChainedIterable<Vertex>(result, idVertices).iterator();
     }
 
     /**
@@ -503,7 +503,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         return idVertices.isEmpty()
                 ? result.iterator()
-                : new WrappedIterable<GafferPopVertex>(result, idVertices).iterator();
+                : new ChainedIterable<GafferPopVertex>(result, idVertices).iterator();
     }
 
     private Iterator<GafferPopVertex> adjVerticesWithSeedsAndView(final List<EntitySeed> seeds, final Direction direction, final View view) {

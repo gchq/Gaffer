@@ -28,9 +28,11 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.impl.cache.FetchCache;
-import gaffer.operation.impl.cache.FetchCachedResult;
-import gaffer.operation.impl.cache.UpdateCache;
+import gaffer.operation.impl.export.FetchExport;
+import gaffer.operation.impl.export.FetchExporter;
+import gaffer.operation.impl.export.FetchExporters;
+import gaffer.operation.impl.export.UpdateExport;
+import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -45,13 +47,15 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
-import gaffer.store.operation.handler.FetchCacheHandler;
-import gaffer.store.operation.handler.FetchCachedResultHandler;
-import gaffer.store.operation.handler.GenerateElementsHandler;
-import gaffer.store.operation.handler.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
-import gaffer.store.operation.handler.UpdateCacheHandler;
 import gaffer.store.operation.handler.ValidateHandler;
+import gaffer.store.operation.handler.export.FetchExportHandler;
+import gaffer.store.operation.handler.export.FetchExporterHandler;
+import gaffer.store.operation.handler.export.FetchExportersHandler;
+import gaffer.store.operation.handler.export.InitialiseExportHandler;
+import gaffer.store.operation.handler.export.UpdateExportHandler;
+import gaffer.store.operation.handler.generate.GenerateElementsHandler;
+import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.ViewValidator;
@@ -322,7 +326,9 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    protected <OUTPUT> OUTPUT handleOperations(final List<Operation> ops, final Context context) throws OperationException {
+    protected <OUTPUT> OUTPUT handleOperations(
+            final List<Operation> ops, final Context context) throws
+            OperationException {
         Object result = null;
         for (final Operation op : ops) {
             updateOperationInput(op, result);
@@ -344,7 +350,8 @@ public abstract class Store {
         return result;
     }
 
-    protected void updateOperationInput(final Operation op, final Object result) {
+    protected void updateOperationInput(final Operation op,
+                                        final Object result) {
         if (null != result && null == op.getInput()) {
             try {
                 op.setInput(result);
@@ -365,10 +372,12 @@ public abstract class Store {
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
         addOperationHandler(Validate.class, new ValidateHandler());
 
-        // Cache
-        addOperationHandler(UpdateCache.class, new UpdateCacheHandler());
-        addOperationHandler(FetchCachedResult.class, new FetchCachedResultHandler());
-        addOperationHandler(FetchCache.class, new FetchCacheHandler());
+        // Export
+        addOperationHandler(InitialiseSetExport.class, new InitialiseExportHandler());
+        addOperationHandler(UpdateExport.class, new UpdateExportHandler());
+        addOperationHandler(FetchExport.class, new FetchExportHandler());
+        addOperationHandler(FetchExporter.class, new FetchExporterHandler());
+        addOperationHandler(FetchExporters.class, new FetchExportersHandler());
 
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());
@@ -389,7 +398,8 @@ public abstract class Store {
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
     }
 
-    private List<Operation> getValidatedOperations(final OperationChain<?> operationChain) {
+    private List<Operation> getValidatedOperations(
+            final OperationChain<?> operationChain) {
         final List<Operation> ops = new ArrayList<>();
 
         boolean isParentAValidateOp = false;
@@ -419,7 +429,8 @@ public abstract class Store {
         return ops;
     }
 
-    private boolean doesOperationNeedValidating(final Operation<?, ?> op, final boolean isParentAValidateOp) {
+    private boolean doesOperationNeedValidating(final Operation<?, ?> op,
+                                                final boolean isParentAValidateOp) {
         if (op instanceof Validatable) {
             if (((Validatable<?>) op).isValidate()) {
                 return !isParentAValidateOp;
