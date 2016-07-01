@@ -171,7 +171,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
@@ -256,7 +256,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
@@ -374,7 +374,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
