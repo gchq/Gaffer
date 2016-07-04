@@ -25,6 +25,19 @@
         "property4": "simpleProperty",
         "count": "simpleProperty"
       }
+    },
+    "BasicEdge2": {
+      "source": "id.object",
+      "destination": "id.object",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "simpleProperty",
+        "property2": "simpleProperty",
+        "property3": "simpleProperty",
+        "property4": "simpleProperty",
+        "count": "simpleProperty"
+      }
     }
   }
 }

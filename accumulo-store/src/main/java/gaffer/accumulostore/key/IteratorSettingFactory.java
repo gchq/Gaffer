@@ -101,6 +101,16 @@ public interface IteratorSettingFactory {
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
 
     /**
+     * Returns an Iterator that will aggregate properties across a range of RowID's for a given columnFamily
+     *
+     * @param store the accumulo store
+     * @param columnFamily the columnFamily that will be summarised
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.store.schema.Schema}
+     * @throws IteratorSettingException if an iterator setting could not be created
+     */
+    IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException;
+
+    /**
      * Returns an Iterator to be applied when doing range operations that will do any filtering of
      * Element properties that may have otherwise been done elsewhere e.g via
      * key creation.  Examples of things that may not work correctly on

@@ -16,11 +16,6 @@
 
 package gaffer.accumulostore;
 
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -31,6 +26,7 @@ import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
+import gaffer.accumulostore.operation.handler.SummariseGroupOverRangesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
@@ -45,6 +41,7 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
+import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.data.element.Element;
@@ -72,10 +69,16 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -146,6 +149,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(SplitTable.class, new SplitTableHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
+        addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
     }
 
     @Override
