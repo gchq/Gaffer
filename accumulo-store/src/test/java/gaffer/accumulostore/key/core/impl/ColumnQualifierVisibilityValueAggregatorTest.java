@@ -34,7 +34,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -50,7 +49,6 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -61,7 +59,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class ColumnQualifierVisibilityValueAggregatorTest {
-    private static View defaultView;
+
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(ColumnQualifierVisibilityValueAggregatorTest.class));
@@ -188,7 +186,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
@@ -276,7 +274,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
@@ -400,7 +398,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
