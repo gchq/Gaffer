@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.store;
+package gaffer.store.optimiser;
 
 import gaffer.operation.OperationChain;
 

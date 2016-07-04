@@ -416,7 +416,7 @@ public class GraphTest {
         }
 
         @Override
-        protected boolean isValidationRequired() {
+        public boolean isValidationRequired() {
             return false;
         }
 

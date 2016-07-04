@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.operation.handler;
+package gaffer.store.operation.handler;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.Deduplicate;
 import gaffer.store.Context;
-import gaffer.store.operation.handler.DeduplicateHandler;
 import org.junit.Test;
 import java.util.Arrays;
 

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.store;
+package gaffer.store.optimiser;
 
 import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.Validatable;
 import gaffer.operation.impl.Deduplicate;
 import gaffer.operation.impl.Validate;
+import gaffer.store.Store;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,17 +35,6 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
     }
 
     /**
-     * No Optimisation applied.
-     *
-     * @param ops operations to be optimised
-     * @return the original operations.
-     */
-    @Override
-    protected List<Operation> optimiseAll(final List<Operation> ops) {
-        return ops;
-    }
-
-    /**
      * Adds validation operations for any validatable operations.
      *
      * @param previousOp the previous operation
@@ -53,7 +43,7 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
      */
     protected List<Operation> addPreOperations(final Operation<?, ?> previousOp, final Operation<?, ?> currentOp) {
         if (doesOperationNeedValidating(previousOp, currentOp)) {
-            return Collections.singletonList((Operation) getValidateOperation(currentOp));
+            return Collections.singletonList((Operation) createValidateOperation((Validatable<?>) currentOp));
         }
         return Collections.emptyList();
     }
@@ -80,9 +70,20 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
      */
     protected List<Operation> addPostOperations(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
         if (doesOperationNeedDeduplicating(currentOp, nextOp)) {
-            return Collections.singletonList((Operation) getDeduplicateOperation(currentOp));
+            return Collections.singletonList((Operation) createDeduplicateOperation((GetOperation<?, ?>) currentOp));
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * No Optimisation applied.
+     *
+     * @param ops operations to be optimised
+     * @return the original operations.
+     */
+    @Override
+    protected List<Operation> optimiseAll(final List<Operation> ops) {
+        return ops;
     }
 
     private boolean doesOperationNeedValidating(final Operation<?, ?> previousOp, final Operation<?, ?> currentOp) {
@@ -101,19 +102,18 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
         return false;
     }
 
-    private Validate getValidateOperation(final Operation<?, ?> currentOp) {
-        final Validatable<?> validatable = (Validatable) currentOp;
-        final Validate validate = new Validate(validatable.isSkipInvalidElements());
-        validate.setOptions(validatable.getOptions());
+    private Validate createValidateOperation(final Validatable<?> currentOp) {
+        final Validate validate = new Validate(currentOp.isSkipInvalidElements());
+        validate.setOptions(currentOp.getOptions());
 
         // Move input to new validate operation
-        validate.setElements(validatable.getElements());
-        currentOp.setInput(null);
+        validate.setElements(currentOp.getElements());
+        currentOp.setElements(null);
 
         return validate;
     }
 
-    private Deduplicate<?> getDeduplicateOperation(final Operation<?, ?> currentOp) {
+    private Deduplicate<?> createDeduplicateOperation(final GetOperation<?, ?> currentOp) {
         final Deduplicate<?> duplicate = new Deduplicate();
         duplicate.setOptions(currentOp.getOptions());
         return duplicate;

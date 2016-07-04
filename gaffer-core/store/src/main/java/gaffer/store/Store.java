@@ -57,6 +57,8 @@ import gaffer.store.operation.handler.export.InitialiseExportHandler;
 import gaffer.store.operation.handler.export.UpdateExportHandler;
 import gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import gaffer.store.optimiser.CoreOperationChainOptimiser;
+import gaffer.store.optimiser.OperationChainOptimiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.ViewValidator;
@@ -130,7 +132,7 @@ public abstract class Store {
     /**
      * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
      */
-    protected abstract boolean isValidationRequired();
+    public abstract boolean isValidationRequired();
 
     /**
      * Executes a given operation and returns the result.

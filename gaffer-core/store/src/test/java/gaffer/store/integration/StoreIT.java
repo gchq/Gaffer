@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.integration;
+package gaffer.store.integration;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;

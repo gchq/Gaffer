@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.store;
+package gaffer.store.optimiser;
 
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -48,14 +48,6 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
     }
 
     /**
-     * Optimise all operations together.
-     *
-     * @param ops operations to be optimised
-     * @return the optimised operations
-     */
-    protected abstract List<Operation> optimiseAll(final List<Operation> ops);
-
-    /**
      * Add pre operations. By default this should just return an empty list.
      *
      * @param previousOp the previous operation
@@ -82,4 +74,12 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
      * @return list of post operations
      */
     protected abstract List<Operation> addPostOperations(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp);
+
+    /**
+     * Optimise all operations together.
+     *
+     * @param ops operations to be optimised
+     * @return the optimised operations
+     */
+    protected abstract List<Operation> optimiseAll(final List<Operation> ops);
 }
