@@ -268,7 +268,7 @@ public abstract class CoreKeyColumnQualifierColumnVisibilityValueCombiner extend
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
+        return new IteratorOptionsBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME,
                 "Applies a reduce function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)")
                 .addSchemaNamedOption().build();
     }
