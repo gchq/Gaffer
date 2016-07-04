@@ -26,6 +26,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.CountGroups;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.export.FetchExport;
@@ -47,6 +48,7 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
+import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.operation.handler.export.FetchExportHandler;
@@ -371,6 +373,7 @@ public abstract class Store {
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
         addOperationHandler(Validate.class, new ValidateHandler());
+        addOperationHandler(CountGroups.class, new CountGroupsHandler());
 
         // Export
         addOperationHandler(InitialiseSetExport.class, new InitialiseExportHandler());

@@ -132,18 +132,26 @@ public abstract class OperationExample {
         }
     }
 
+    protected String getOperationChainJson(final OperationChain operationChain) {
+        try {
+            return new String(JSON_SERIALISER.serialise(operationChain, true), CommonConstants.UTF_8);
+        } catch (final SerialisationException | UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runAndPrintOperation(final Operation<?, RESULT_TYPE> operation, final Graph graph, final String operationJava) throws OperationException {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         final String operationJson = getOperationJson(operation);
-        printOperationJava(operationJava);
+        printJava(operationJava);
 
         final RESULT_TYPE results = graph.execute(
                 operation, new User("user01"));
 
         log("Results:");
         log("\n```");
-        for (Object e : results) {
-            log(e.toString());
+        for (Object result : results) {
+            log(result.toString());
         }
         log("```");
 
@@ -153,7 +161,26 @@ public abstract class OperationExample {
         return results;
     }
 
-    protected void printOperationJava(final String java) {
+    protected <RESULT_TYPE> RESULT_TYPE runAndPrintOperationChainResult(final OperationChain<RESULT_TYPE> operationChain, final Graph graph, final String operationJava) throws OperationException {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        final String operationChainJson = getOperationChainJson(operationChain);
+        printJava(operationJava);
+
+        final RESULT_TYPE result = graph.execute(
+                operationChain, new User("user01"));
+
+        log("Result:");
+        log("\n```");
+        log(result.toString());
+        log("```");
+
+        printOperationChainJson(operationChainJson);
+
+        log(METHOD_DIVIDER);
+        return result;
+    }
+
+    protected void printJava(final String java) {
         log("\n```java");
         log(java);
         log("```\n\n");
@@ -163,6 +190,13 @@ public abstract class OperationExample {
         log("\nThis operation can also be written in JSON:");
         log("\n```json");
         log(operationJson);
+        log("```\n");
+    }
+
+    protected void printOperationChainJson(final String operationChainJson) {
+        log("\nThis operation chain can also be written in JSON:");
+        log("\n```json");
+        log(operationChainJson);
         log("```\n");
     }
 
