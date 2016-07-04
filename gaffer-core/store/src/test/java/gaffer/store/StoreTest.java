@@ -43,6 +43,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.Validatable;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.impl.CountGroups;
 import gaffer.operation.impl.Deduplicate;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
@@ -63,6 +64,7 @@ import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
+import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.export.FetchExportHandler;
@@ -182,13 +184,14 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
 
+        assertTrue(store.getOperationHandlerExposed(CountGroups.class) instanceof CountGroupsHandler);
+        assertTrue(store.getOperationHandlerExposed(Deduplicate.class) instanceof DeduplicateHandler);
+
         assertTrue(store.getOperationHandlerExposed(InitialiseSetExport.class) instanceof InitialiseExportHandler);
         assertTrue(store.getOperationHandlerExposed(UpdateExport.class) instanceof UpdateExportHandler);
         assertTrue(store.getOperationHandlerExposed(FetchExport.class) instanceof FetchExportHandler);
         assertTrue(store.getOperationHandlerExposed(FetchExporter.class) instanceof FetchExporterHandler);
         assertTrue(store.getOperationHandlerExposed(FetchExporters.class) instanceof FetchExportersHandler);
-
-        assertTrue(store.getOperationHandlerExposed(Deduplicate.class) instanceof DeduplicateHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
@@ -318,12 +321,16 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 24;
+        final int expectedNumberOfOperations = 25;
 
         given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
+
         given(validatable.getOptions()).willReturn(options);
-        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
+
+        given(validatableHandler.doOperation(validatable, context, store)).
+                willReturn(expectedNumberOfOperations);
+
         store.initialise(schema, properties);
 
         // When
@@ -331,6 +338,7 @@ public class StoreTest {
 
         // Then
         assertNotNull(supportedOperations);
+
         assertEquals(expectedNumberOfOperations, supportedOperations.size());
     }
 
@@ -362,7 +370,8 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws Exception {
+    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws
+            Exception {
         // Given
         final Schema schema = mock(Schema.class);
         final StoreProperties properties = mock(StoreProperties.class);
