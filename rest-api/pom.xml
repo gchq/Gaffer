@@ -92,11 +92,6 @@
         </dependency>
         <dependency>
             <groupId>com.wordnik</groupId>
-            <artifactId>swagger-annotations_2.10</artifactId>
-            <version>1.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wordnik</groupId>
             <artifactId>swagger-jaxrs_2.10</artifactId>
             <version>${swagger-version}</version>
         </dependency>
