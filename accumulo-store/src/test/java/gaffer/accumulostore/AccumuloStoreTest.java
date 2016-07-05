@@ -40,6 +40,7 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -59,31 +60,54 @@ import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.schema.Schema;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
 import gaffer.user.User;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class AccumuloStoreTest {
 
-    private MockAccumuloStoreForTest store;
+    private static MockAccumuloStore byteEntityStore;
+    private static MockAccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @Before
-    public void setup() throws Exception {
-        store = new MockAccumuloStoreForTest();
+    @BeforeClass
+    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
+        byteEntityStore = new MockAccumuloStore();
+        gaffer1KeyStore = new MockAccumuloStore();
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+
     }
 
-    @After
-    public void tearDown() {
-        store = null;
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
+        testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(gaffer1KeyStore);
+    }
+
+    @Test
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
+        testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
+    }
+
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(AccumuloStore store) throws OperationException {
         final List<Element> elements = new ArrayList<>();
         final Entity e = new Entity(TestGroups.ENTITY);
         final User user = new User();
@@ -119,7 +143,16 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void testStoreReturnsHandlersForRegisteredOperations() throws StoreException {
+    public void testStoreReturnsHandlersForRegisteredOperationsGaffer1() throws OperationException, StoreException {
+        testStoreReturnsHandlersForRegisteredOperations(gaffer1KeyStore);
+    }
+
+    @Test
+    public void testStoreReturnsHandlersForRegisteredOperationsByteEntity() throws OperationException, StoreException {
+        testStoreReturnsHandlersForRegisteredOperations(byteEntityStore);
+    }
+
+    public void testStoreReturnsHandlersForRegisteredOperations(MockAccumuloStore store) throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
 
@@ -140,13 +173,32 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void testRequestForNullHandlerManaged() {
+    public void testRequestForNullHandlerManagedGaffer1() throws OperationException {
+        testRequestForNullHandlerManaged(gaffer1KeyStore);
+    }
+
+    @Test
+    public void testRequestForNullHandlerManagedByteEntity() throws OperationException {
+        testRequestForNullHandlerManaged(byteEntityStore);
+    }
+
+
+    public void testRequestForNullHandlerManaged(MockAccumuloStore store) {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
 
     @Test
-    public void testStoreTraits() {
+    public void testStoreTraitsGaffer1() throws OperationException {
+        testStoreTraits(gaffer1KeyStore);
+    }
+
+    @Test
+    public void testStoreTraitsByteEntity() throws OperationException {
+        testStoreTraits(byteEntityStore);
+    }
+
+    public void testStoreTraits(AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
         assertTrue("Collection size should be 4", traits.size() == 4);

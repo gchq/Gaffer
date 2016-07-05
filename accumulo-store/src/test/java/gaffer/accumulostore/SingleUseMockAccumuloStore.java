@@ -16,52 +16,32 @@
 
 package gaffer.accumulostore;
 
-import gaffer.operation.Operation;
+import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
-import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mock.MockInstance;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
-
-import gaffer.store.StoreException;
 
 /**
  * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
  * provide a {@link Connector}.
+ *
+ * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
+ * is deleted.
  */
-public class MockAccumuloStore extends AccumuloStore {
-    private MockInstance mockAccumulo = null;
-    private Connector mockConnector;
+public class SingleUseMockAccumuloStore extends MockAccumuloStore {
 
     @Override
-    public Connector getConnection() throws StoreException {
-        try {
-            mockConnector = mockAccumulo.getConnector("user", new PasswordToken("password"));
-        } catch (AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-        return mockConnector;
-    }
-
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         super.initialise(schema, properties);
-        mockAccumulo = new MockInstance(getProperties().getInstanceName());
-    }
-
-    public MockInstance getMockAccumulo() {
-        return mockAccumulo;
-    }
-
-    public Connector getMockConnector() {
-        return mockConnector;
-    }
-
-    OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
-        return super.getOperationHandler(opClass);
+        try {
+            getConnection().tableOperations().delete(getProperties().getTable());
+        } catch (StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
+        }
     }
 
 }

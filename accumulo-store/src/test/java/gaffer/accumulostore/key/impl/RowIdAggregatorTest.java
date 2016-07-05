@@ -15,55 +15,74 @@
  */
 package gaffer.accumulostore.key.impl;
 
-import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.AccumuloProperties;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.core.impl.byteEntity.*;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import gaffer.accumulostore.utils.*;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.*;
 import gaffer.data.element.Properties;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.*;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static gaffer.accumulostore.utils.TableUtils.createTable;
 import static org.junit.Assert.*;
 
 
 public class RowIdAggregatorTest {
 
-    private MockAccumuloStore byteEntityStore;
-    private MockAccumuloStore gaffer1KeyStore;
-    private AccumuloElementConverter byteEntityElementConverter;
-    private AccumuloElementConverter gaffer1ElementConverter;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    private static AccumuloElementConverter byteEntityElementConverter;
+    private static AccumuloElementConverter gaffer1ElementConverter;
+
+    @BeforeClass
+    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
+    }
 
     @Before
-    public void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+    public void reInitialise() throws StoreException, TableExistsException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        createTable(byteEntityStore);
+        createTable(gaffer1KeyStore);
+    }
 
-        byteEntityStore.getProperties().setTable("Test");
-        gaffer1KeyStore.getProperties().setTable("Test2");
-
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getSchema());
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getSchema());
+    @AfterClass
+    public static void tearDown() {
+        gaffer1KeyStore = null;
+        byteEntityStore = null;
     }
 
 
@@ -77,7 +96,7 @@ public class RowIdAggregatorTest {
         testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException, RangeFactoryException {
+    private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException, RangeFactoryException {
         String visibilityString = "public";
         try {
             // Create table
@@ -205,7 +224,7 @@ public class RowIdAggregatorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -219,7 +238,7 @@ public class RowIdAggregatorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final BatchScanner scanner = store.getMockConnector().createBatchScanner(store.getProperties().getTable(), authorizations, 1000);
+            final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorizations, 1000);
             try {
                 scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
             } catch (IteratorSettingException e) {
