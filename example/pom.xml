@@ -52,6 +52,13 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
