@@ -59,6 +59,8 @@ import gaffer.store.operation.handler.export.InitialiseExportHandler;
 import gaffer.store.operation.handler.export.UpdateExportHandler;
 import gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import gaffer.store.operationdeclaration.OperationDeclaration;
+import gaffer.store.operationdeclaration.OperationDeclarations;
 import gaffer.store.optimiser.CoreOperationChainOptimiser;
 import gaffer.store.optimiser.OperationChainOptimiser;
 import gaffer.store.schema.Schema;
@@ -102,12 +104,12 @@ public abstract class Store {
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
         viewValidator = new ViewValidator();
-        addOpHandlers();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        addOpHandlers();
         optimiseSchemas();
         validateSchemas();
     }
@@ -391,6 +393,7 @@ public abstract class Store {
     private void addOpHandlers() {
         addCoreOpHandlers();
         addAdditionalOperationHandlers();
+        addConfiguredOperationHandlers();
     }
 
     private void addCoreOpHandlers() {
@@ -424,5 +427,20 @@ public abstract class Store {
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
+    }
+
+    private void addConfiguredOperationHandlers() {
+        this.getProperties().whenReady(new Runnable() {
+            @Override
+            public void run() {
+                final OperationDeclarations declarations = Store.this.getProperties().getOperationDeclarations();
+
+                if (null != declarations) {
+                    for (final OperationDeclaration definition : declarations.getOperations()) {
+                        addOperationHandler(definition.getOperation(), definition.getHandler());
+                    }
+                }
+            }
+        });
     }
 }
