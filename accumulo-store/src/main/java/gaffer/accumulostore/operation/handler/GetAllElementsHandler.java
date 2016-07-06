@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.operation.handler;
 
+import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -24,26 +25,26 @@ import gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllElements;
+import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
-import java.util.Arrays;
 import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final Store store)
+    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, user, (AccumuloStore) store);
+        return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
         final AccumuloRetriever<?> ret;
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            final List<IteratorSetting> iteratorSettings = Arrays.asList(
+            final List<IteratorSetting> iteratorSettings = Lists.newArrayList(
                     iteratorFactory.getElementPropertyRangeQueryFilter(operation),
                     iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation)
@@ -51,7 +52,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
             if (operation.isSummarise()) {
                 iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(store));
             }
-            ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray());
+            ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray(new IteratorSetting[iteratorSettings.size()]));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

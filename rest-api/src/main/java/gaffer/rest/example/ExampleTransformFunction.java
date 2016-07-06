@@ -20,12 +20,12 @@ import gaffer.function.TransformFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 
-@Inputs(String.class)
+@Inputs(Object.class)
 @Outputs(String.class)
 public class ExampleTransformFunction extends TransformFunction {
     @Override
     public Object[] transform(final Object[] input) {
-        return new Object[]{input[0] + " transformed"};
+        return new Object[]{input[0].toString() + " transformed"};
     }
 
     @Override

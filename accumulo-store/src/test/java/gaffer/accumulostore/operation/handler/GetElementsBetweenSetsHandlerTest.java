@@ -18,7 +18,6 @@ package gaffer.accumulostore.operation.handler;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Iterables;
@@ -39,16 +38,14 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.user.User;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import org.junit.Before;
-import gaffer.user.User;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 public class GetElementsBetweenSetsHandlerTest {

@@ -1,6 +1,9 @@
 {
   "operations": [
     {
+      "class": "gaffer.operation.impl.export.initialise.InitialiseSetExport"
+    },
+    {
       "class": "gaffer.operation.impl.get.GetRelatedElements",
       "view": {
         "edges": {
@@ -34,7 +37,7 @@
       ]
     },
     {
-      "class": "gaffer.operation.impl.cache.UpdateCache"
+      "class": "gaffer.operation.impl.export.UpdateExport"
     },
     {
       "class": "gaffer.operation.impl.generate.GenerateObjects",
@@ -73,7 +76,7 @@
       "includeIncomingOutGoing": "OUTGOING"
     },
     {
-      "class": "gaffer.operation.impl.cache.UpdateCache"
+      "class": "gaffer.operation.impl.export.UpdateExport"
     },
     {
       "class": "gaffer.operation.impl.generate.GenerateObjects",
@@ -89,10 +92,10 @@
       "class": "gaffer.operation.impl.get.GetEntitiesBySeed"
     },
     {
-      "class": "gaffer.operation.impl.cache.UpdateCache"
+      "class": "gaffer.operation.impl.export.UpdateExport"
     },
     {
-      "class": "gaffer.operation.impl.cache.FetchCachedResult"
+      "class": "gaffer.operation.impl.export.FetchExport"
     }
   ]
 }

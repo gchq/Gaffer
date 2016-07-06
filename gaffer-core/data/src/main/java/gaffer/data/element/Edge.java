@@ -155,7 +155,7 @@ public class Edge extends Element {
     }
 
     @Override
-    public Element emptyClone() {
+    public Edge emptyClone() {
         return new Edge(
                 this.getGroup(),
                 this.getSource(),
