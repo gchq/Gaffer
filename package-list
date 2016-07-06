@@ -1,3 +1,5 @@
+example.rest.application
+example.rest.serialisation
 gaffer.accumulostore
 gaffer.accumulostore.bulkimport
 gaffer.accumulostore.key
@@ -19,6 +21,7 @@ gaffer.accumulostore.retriever
 gaffer.accumulostore.retriever.impl
 gaffer.accumulostore.utils
 gaffer.arrayliststore
+gaffer.arrayliststore.export
 gaffer.arrayliststore.operation.handler
 gaffer.commonutil
 gaffer.commonutil.exception
@@ -45,6 +48,7 @@ gaffer.example.gettingstarted.util
 gaffer.example.operation
 gaffer.example.operation.generator
 gaffer.exception
+gaffer.export
 gaffer.function
 gaffer.function.annotation
 gaffer.function.context
@@ -57,15 +61,16 @@ gaffer.gafferpop
 gaffer.gafferpop.generator
 gaffer.gafferpop.groovyplugin
 gaffer.graph
+gaffer.graph.export
 gaffer.graph.hook
 gaffer.jsonserialisation
 gaffer.operation
-gaffer.operation.cache
 gaffer.operation.data
 gaffer.operation.data.generator
 gaffer.operation.impl
 gaffer.operation.impl.add
-gaffer.operation.impl.cache
+gaffer.operation.impl.export
+gaffer.operation.impl.export.initialise
 gaffer.operation.impl.generate
 gaffer.operation.impl.get
 gaffer.operation.simple.hdfs
@@ -87,5 +92,8 @@ gaffer.serialisation.simple.json.hyperloglogplus
 gaffer.serialisation.simple.raw
 gaffer.store
 gaffer.store.operation.handler
+gaffer.store.operation.handler.export
+gaffer.store.operation.handler.generate
 gaffer.store.schema
 gaffer.user
+gaffer.util
