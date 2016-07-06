@@ -115,19 +115,19 @@ public final class Graph {
         final OperationChain<OUTPUT> operationChainClone = operationChain.clone();
 
         // Update the view
-        for (Operation operation : operationChainClone.getOperations()) {
+        for (final Operation operation : operationChainClone.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        for (GraphHook graphHook : graphHooks) {
+        for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChainClone, user);
         }
 
         OUTPUT result = store.execute(operationChainClone, user);
 
-        for (GraphHook graphHook : graphHooks) {
+        for (final GraphHook graphHook : graphHooks) {
             graphHook.postExecute(result, operationChainClone, user);
         }
 

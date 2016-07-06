@@ -164,7 +164,7 @@ public abstract class Store {
         validateOperationChain(operationChain, user);
 
         OperationChain<OUTPUT> optimisedOperationChain = operationChain;
-        for (OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
+        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
 
