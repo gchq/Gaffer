@@ -17,14 +17,13 @@
 package gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Iterables;
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -35,10 +34,13 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,61 +55,75 @@ import static org.junit.Assert.*;
 
 public class GetElementsWithinSetHandlerTest {
 
-    private final String AUTHS = "Test";
-    private final long TIMESTAMP = System.currentTimeMillis();
-    private View defaultView;
-    private AccumuloStore byteEntityStore;
-    private AccumuloStore gaffer1KeyStore;
-    private Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
-    private Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
-    private Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static View defaultView;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsWithinSetHandlerTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    private static Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
+    private static Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
+    private static Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
     final Set<EntitySeed> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
     private User user = new User();
 
-    @Before
-    public void setup() throws StoreException, IOException {
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_2, 0);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//        expectedEdge1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
         expectedEdge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
         expectedEdge2.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
         expectedEdge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
         expectedEdge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedEdge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//        expectedEdge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
         expectedEdge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
         expectedEdge3.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
         expectedEdge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
         expectedEdge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedEdge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//        expectedEdge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
         expectedEntity1.putProperty(AccumuloPropertyNames.COUNT, 10000);
-//        expectedEntity1.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
         expectedEntity2.putProperty(AccumuloPropertyNames.COUNT, 23);
-//        expectedEntity2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+    }
+
+    @Before
+    public void reInitialise() throws StoreException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+        defaultView = null;
     }
 
     @Test
@@ -122,7 +138,7 @@ public class GetElementsWithinSetHandlerTest {
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-//        operation.addOption(AccumuloStoreConstants.OPERATION_AUTHORISATIONS, AUTHS);
+
         operation.setSummarise(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
@@ -201,7 +217,7 @@ public class GetElementsWithinSetHandlerTest {
         assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
     }
 
-    private void setupGraph(final AccumuloStore store) {
+    private static void setupGraph(final AccumuloStore store) {
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
@@ -213,7 +229,6 @@ public class GetElementsWithinSetHandlerTest {
             final Entity entity = new Entity(TestGroups.ENTITY);
             entity.setVertex("A0");
             entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-//            entity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
             data.add(entity);
             for (int i = 1; i < 100; i++) {
                 final Edge edge = new Edge(TestGroups.EDGE);
@@ -226,7 +241,6 @@ public class GetElementsWithinSetHandlerTest {
                 edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
                 edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
                 edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//                edge.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
                 final Edge edge2 = new Edge(TestGroups.EDGE);
                 edge2.setSource("A0");
@@ -238,7 +252,6 @@ public class GetElementsWithinSetHandlerTest {
                 edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
                 edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
                 edge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//                edge2.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
 
                 final Edge edge3 = new Edge(TestGroups.EDGE);
                 edge3.setSource("A0");
@@ -250,7 +263,7 @@ public class GetElementsWithinSetHandlerTest {
                 edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
                 edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
                 edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
-//                edge3.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
+
                 data.add(edge);
                 data.add(edge2);
                 data.add(edge3);
@@ -258,7 +271,6 @@ public class GetElementsWithinSetHandlerTest {
                 final Entity edgeEntity = new Entity(TestGroups.ENTITY);
                 edgeEntity.setVertex("A" + i);
                 edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-//                edgeEntity.putProperty(AccumuloPropertyNames.TIMESTAMP, TIMESTAMP);
                 data.add(edgeEntity);
             }
             final User user = new User();
@@ -268,7 +280,7 @@ public class GetElementsWithinSetHandlerTest {
         }
     }
 
-    private void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
+    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
             store.execute(new AddElements(data), user);
         } catch (OperationException e) {
