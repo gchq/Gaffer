@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,7 @@ import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 
 /**
  * A <code>JSONSerialiser</code> provides the ability to serialise and deserialise to/from JSON.
@@ -124,6 +126,23 @@ public class JSONSerialiser {
     }
 
     /**
+     * Used to convert a {@link Class} into a {@link com.fasterxml.jackson.core.type.TypeReference}
+     * @param <T> the class type
+     */
+    private static class ClassTypeReference<T> extends TypeReference<T> {
+        private final Class<T> clazz;
+
+        ClassTypeReference(final Class<T> clazz) {
+            this.clazz = clazz;
+        }
+
+        @Override
+        public Type getType() {
+            return clazz;
+        }
+    }
+
+    /**
      * @param bytes the bytes of the object to deserialise
      * @param clazz the class of the object to deserialise
      * @param <T>   the type of the object
@@ -131,8 +150,30 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
+        return deserialise(bytes, new ClassTypeReference<>(clazz));
+    }
+
+    /**
+     * @param stream the {@link java.io.InputStream} containing the bytes of the object to deserialise
+     * @param clazz   the class of the object to deserialise
+     * @param <T>    the type of the object
+     * @return the deserialised object
+     * @throws SerialisationException if the bytes fail to deserialise
+     */
+    public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
+        return deserialise(stream, new ClassTypeReference<>(clazz));
+    }
+
+    /**
+     * @param bytes the bytes of the object to deserialise
+     * @param type  the type reference of the object to deserialise
+     * @param <T>   the type of the object
+     * @return the deserialised object
+     * @throws SerialisationException if the bytes fail to deserialise
+     */
+    public <T> T deserialise(final byte[] bytes, final TypeReference<T> type) throws SerialisationException {
         try {
-            return mapper.readValue(bytes, clazz);
+            return mapper.readValue(bytes, type);
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -140,15 +181,15 @@ public class JSONSerialiser {
 
     /**
      * @param stream the {@link java.io.InputStream} containing the bytes of the object to deserialise
-     * @param clazz  the class of the object to deserialise
+     * @param type   the type reference of the object to deserialise
      * @param <T>    the type of the object
      * @return the deserialised object
      * @throws SerialisationException if the bytes fail to deserialise
      */
-    public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
+    public <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
         try {
             final byte[] bytes = IOUtils.readFully(stream, stream.available(), true);
-            return deserialise(bytes, clazz);
+            return deserialise(bytes, type);
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         } finally {
