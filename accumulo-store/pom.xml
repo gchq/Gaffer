@@ -98,6 +98,79 @@
             <version>${accumulo.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.azavea.geotrellis</groupId>
+            <artifactId>geotrellis-spark_${scala.version}</artifactId>
+            <version>${geotrellis.version}</version>
+            <exclusions>
+                <!-- We only need a couple of classes from this package so exclude most of its dependencies. -->
+                <exclusion>
+                    <groupId>com.azavea.geotrellis</groupId>
+                    <artifactId>geotrellis-raster_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.azavea.geotrellis</groupId>
+                    <artifactId>geotrellis-gdal_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.azavea.geotrellis</groupId>
+                    <artifactId>geotrellis-index_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.accumulo</groupId>
+                    <artifactId>accumulo-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-core_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.quantifind</groupId>
+                    <artifactId>sumac_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>de.javakaffee</groupId>
+                    <artifactId>kryo-serializers</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.uzaygezen</groupId>
+                    <artifactId>uzaygezen-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.amazonaws</groupId>
+                    <artifactId>aws-java-sdk-s3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.spire-math</groupId>
+                    <artifactId>spire_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.julien-truffaut</groupId>
+                    <artifactId>monocle-core_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.julien-truffaut</groupId>
+                    <artifactId>monocle-macro_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.nscala-time</groupId>
+                    <artifactId>nscala-time_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scalaz.stream</groupId>
+                    <artifactId>scalaz-stream_${scala.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.gdal</groupId>
+                    <artifactId>gdal</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Testing dependencies -->
         <dependency>
             <groupId>gaffer</groupId>
