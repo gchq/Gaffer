@@ -165,7 +165,7 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
-        try (final InputStream stream2 = stream){
+        try (final InputStream stream2 = stream) {
             final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
             return deserialise(bytes, clazz);
         } catch (IOException e) {
@@ -196,7 +196,7 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
-        try (final InputStream stream2 = stream){
+        try (final InputStream stream2 = stream) {
             final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
             return deserialise(bytes, type);
         } catch (IOException e) {
