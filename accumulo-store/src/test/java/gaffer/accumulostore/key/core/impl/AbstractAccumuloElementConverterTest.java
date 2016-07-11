@@ -30,6 +30,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -197,5 +198,40 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals("1", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
         assertEquals("Test", newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
+    }
+
+    @Test
+    public void shouldSkipNullPropertyValuesWhenCreatingAccumuloValue() throws SchemaException, AccumuloElementConversionException, IOException {
+        // Given
+        final Edge edge = new Edge(TestGroups.EDGE);
+        edge.setSource("1");
+        edge.setDestination("2");
+        edge.setDirected(true);
+        edge.putProperty(AccumuloPropertyNames.PROP_1, null);
+        edge.putProperty(AccumuloPropertyNames.PROP_2, null);
+        edge.putProperty(AccumuloPropertyNames.PROP_3, null);
+        edge.putProperty(AccumuloPropertyNames.COUNT, null);
+
+        // When
+        final Value value = converter.getValueFromElement(edge);
+
+        // Then
+        assertEquals(0, value.getSize());
+    }
+
+    @Test
+    public void shouldSkipNullPropertyValuesWhenCreatingAccumuloKey() throws SchemaException, AccumuloElementConversionException, IOException {
+        // Given
+        final Edge edge = new Edge(TestGroups.EDGE);
+        edge.setSource("1");
+        edge.setDestination("2");
+        edge.setDirected(true);
+        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, null);
+
+        // When
+        final Pair<Key> keys = converter.getKeysFromElement(edge);
+
+        // Then
+        assertEquals(0, keys.getFirst().getColumnQualifierData().length());
     }
 }
