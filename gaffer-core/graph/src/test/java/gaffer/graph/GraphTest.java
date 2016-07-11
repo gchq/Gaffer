@@ -159,7 +159,6 @@ public class GraphTest {
         // Given
         final Operation operation = mock(Operation.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.clone()).willReturn(opChain);
         given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
         final User user = mock(User.class);
@@ -191,7 +190,6 @@ public class GraphTest {
     public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.clone()).willReturn(opChain);
         given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
 
         final User user = mock(User.class);
@@ -218,7 +216,6 @@ public class GraphTest {
         // Given
         final Operation operation = mock(Operation.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.clone()).willReturn(opChain);
         given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
         final User user = mock(User.class);
@@ -271,7 +268,6 @@ public class GraphTest {
         final Object result = "result";
 
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.clone()).willReturn(opChain);
         given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
         given(store.execute(opChain, user)).willReturn(result);
 
@@ -365,7 +361,6 @@ public class GraphTest {
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
-        given(opChain.clone()).willReturn(opChain);
         given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
@@ -395,7 +390,6 @@ public class GraphTest {
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
-        given(opChain.clone()).willReturn(opChain);
         given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 

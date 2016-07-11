@@ -19,14 +19,8 @@ package gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import gaffer.exception.SerialisationException;
-import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.impl.export.UpdateExport;
 import gaffer.operation.impl.export.initialise.InitialiseExport;
-import org.reflections.Store;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,9 +43,7 @@ import java.util.List;
  *              {@link gaffer.operation.Operation} in the chain.
  * @see gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> implements Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+public class OperationChain<OUT> {
     private List<Operation> operations;
 
     public OperationChain() {
@@ -104,18 +96,6 @@ public class OperationChain<OUT> implements Cloneable {
 
         strBuilder.append("]");
         return strBuilder.toString();
-    }
-
-    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "all parent fields are included via json serialisation")
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    @Override
-    public OperationChain<OUT> clone() {
-        try {
-            return JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(this), getClass());
-        } catch (SerialisationException e) {
-            LOGGER.info("Unable clone the operation chain: " + e.getMessage());
-            return this;
-        }
     }
 
     /**
