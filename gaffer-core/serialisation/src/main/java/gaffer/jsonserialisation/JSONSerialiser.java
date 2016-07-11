@@ -150,7 +150,11 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
-        return deserialise(bytes, new ClassTypeReference<>(clazz));
+        try {
+            return mapper.readValue(bytes, clazz);
+        } catch (IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -161,7 +165,12 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
-        return deserialise(stream, new ClassTypeReference<>(clazz));
+        try (final InputStream stream2 = stream){
+            final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
+            return deserialise(bytes, clazz);
+        } catch (IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -187,19 +196,11 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
-        try {
-            final byte[] bytes = IOUtils.readFully(stream, stream.available(), true);
+        try (final InputStream stream2 = stream){
+            final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
             return deserialise(bytes, type);
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
-        } finally {
-            try {
-                if (null != stream) {
-                    stream.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to close stream : " + e.getMessage(), e);
-            }
         }
     }
 }
