@@ -58,7 +58,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * An {@link InputFormatBase} that allows the data in an Accumulo store to be read as {@link Element},
+ * {@link NullWritable} pairs. This uses an external library that creates an {@link InputSplit} for each
+ * tablet that contains records from the required ranges. This avoids the creation of large numbers of
+ * splits when a large number of ranges are required. Instead, a single {@link BatchScanner} is created
+ * per tablet.
  */
 public class BatchScannerElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
@@ -77,7 +81,7 @@ public class BatchScannerElementInputFormat extends InputFormatBase<Element, Nul
         final View view = View.fromJson(conf.get(ElementInputFormat.VIEW).getBytes(CommonConstants.UTF_8));
         try {
             return new BatchScannerRecordReader(keyPackageClass, schema, view);
-        } catch (StoreException | SchemaException | SerialisationException e) {
+        } catch (final StoreException | SchemaException | SerialisationException e) {
             throw new IOException("Exception creating RecordReader", e);
         }
     }
@@ -97,7 +101,7 @@ public class BatchScannerElementInputFormat extends InputFormatBase<Element, Nul
             final AccumuloKeyPackage keyPackage;
             try {
                 keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
             }
             keyPackage.setSchema(schema);
@@ -117,19 +121,19 @@ public class BatchScannerElementInputFormat extends InputFormatBase<Element, Nul
                         context.getConfiguration());
                 log.info("Initialising BatchScanner on table " + inputSplit.table() + " with auths " + auths);
                 scanner = connector.createBatchScanner(inputSplit.table(), auths, 1);
-            } catch (TableNotFoundException e) {
+            } catch (final TableNotFoundException e) {
                 throw new IOException("Exception whilst initializing batch scanner: " + e);
             }
             scanner.setRanges(JavaConverters.asJavaCollectionConverter(inputSplit.ranges()).asJavaCollection());
-            List<IteratorSetting> iteratorSettings = JavaConverters.asJavaListConverter(inputSplit.iterators())
+            final List<IteratorSetting> iteratorSettings = JavaConverters.asJavaListConverter(inputSplit.iterators())
                     .asJava();
-            for (IteratorSetting is : iteratorSettings) {
+            for (final IteratorSetting is : iteratorSettings) {
                 log.debug("Adding scan iterator " + is);
                 scanner.addScanIterator(is);
             }
             Collection<Pair<Text, Text>> fetchedColumns = JavaConverters
                     .asJavaCollectionConverter(inputSplit.fetchedColumns()).asJavaCollection();
-            for (Pair<Text, Text> pair : fetchedColumns) {
+            for (final Pair<Text, Text> pair : fetchedColumns) {
                 if (pair.getSecond() != null) {
                     scanner.fetchColumn(pair.getFirst(), pair.getSecond());
                 } else {
@@ -142,7 +146,7 @@ public class BatchScannerElementInputFormat extends InputFormatBase<Element, Nul
         @Override
         public boolean nextKeyValue() throws IOException, InterruptedException {
             if (scannerIterator.hasNext()) {
-                Map.Entry<Key, Value> entry = scannerIterator.next();
+                final Map.Entry<Key, Value> entry = scannerIterator.next();
                 try {
                     currentK = converter.getFullElement(entry.getKey(), entry.getValue());
                     final ViewElementDefinition viewDef = view.getElement(currentK.getGroup());
