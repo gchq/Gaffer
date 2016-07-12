@@ -32,7 +32,6 @@ import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 
 /**
  * A <code>JSONSerialiser</code> provides the ability to serialise and deserialise to/from JSON.
