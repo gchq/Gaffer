@@ -126,23 +126,6 @@ public class JSONSerialiser {
     }
 
     /**
-     * Used to convert a {@link Class} into a {@link com.fasterxml.jackson.core.type.TypeReference}
-     * @param <T> the class type
-     */
-    private static class ClassTypeReference<T> extends TypeReference<T> {
-        private final Class<T> clazz;
-
-        ClassTypeReference(final Class<T> clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public Type getType() {
-            return clazz;
-        }
-    }
-
-    /**
      * @param bytes the bytes of the object to deserialise
      * @param clazz the class of the object to deserialise
      * @param <T>   the type of the object
