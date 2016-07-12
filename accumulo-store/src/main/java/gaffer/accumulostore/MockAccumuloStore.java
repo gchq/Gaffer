@@ -23,23 +23,29 @@ import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 
 import gaffer.store.StoreException;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
  * provide a {@link Connector}.
  */
 public class MockAccumuloStore extends AccumuloStore {
+
+    private static final String USER = "user";
+    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken("password");
     private MockInstance mockAccumulo = null;
     private Connector mockConnector;
 
     @Override
     public Connector getConnection() throws StoreException {
         try {
-            mockConnector = mockAccumulo.getConnector("user", new PasswordToken("password"));
+            mockConnector = mockAccumulo.getConnector(USER, PASSWORD_TOKEN);
         } catch (AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
@@ -50,6 +56,21 @@ public class MockAccumuloStore extends AccumuloStore {
             throws StoreException {
         super.initialise(schema, properties);
         mockAccumulo = new MockInstance(getProperties().getInstanceName());
+    }
+
+    @Override
+    protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
+        InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
+                conf,
+                USER,
+                PASSWORD_TOKEN);
+    }
+
+    @Override
+    protected void addZookeeperToConfiguration(final Configuration conf) {
+        InputConfigurator.setMockInstance(AccumuloInputFormat.class,
+                conf,
+                getProperties().getInstanceName());
     }
 
     public MockInstance getMockAccumulo() {
