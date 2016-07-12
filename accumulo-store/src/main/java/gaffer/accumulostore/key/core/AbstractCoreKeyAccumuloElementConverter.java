@@ -109,15 +109,17 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throws AccumuloElementConversionException {
         final MapWritable map = new MapWritable();
         for (final Map.Entry<String, Object> entry : properties.entrySet()) {
-            final String propertyName = entry.getKey();
-            final TypeDefinition propertyDefinition = schema.getElement(group).getPropertyTypeDef(propertyName);
-            if (propertyDefinition != null) {
-                if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
-                    try {
-                        map.put(new Text(propertyName),
-                                new BytesWritable(propertyDefinition.getSerialiser().serialise(entry.getValue())));
-                    } catch (final SerialisationException e) {
-                        throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
+            if (null != entry.getValue()) {
+                final String propertyName = entry.getKey();
+                final TypeDefinition propertyDefinition = schema.getElement(group).getPropertyTypeDef(propertyName);
+                if (propertyDefinition != null) {
+                    if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
+                        try {
+                            map.put(new Text(propertyName),
+                                    new BytesWritable(propertyDefinition.getSerialiser().serialise(entry.getValue())));
+                        } catch (final SerialisationException e) {
+                            throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
+                        }
                     }
                 }
             }
