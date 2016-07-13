@@ -88,6 +88,7 @@ public final class Graph {
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
+     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
@@ -102,6 +103,7 @@ public final class Graph {
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
+     * NOTE the operationChain may be modified/optimised by the store.
      *
      * @param operationChain the operation chain to be executed.
      * @param user           the user executing the operation chain.
@@ -110,19 +112,20 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        for (Operation operation : operationChain.getOperations()) {
+        // Update the view
+        for (final Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
             }
         }
 
-        for (GraphHook graphHook : graphHooks) {
+        for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChain, user);
         }
 
         OUTPUT result = store.execute(operationChain, user);
 
-        for (GraphHook graphHook : graphHooks) {
+        for (final GraphHook graphHook : graphHooks) {
             graphHook.postExecute(result, operationChain, user);
         }
 

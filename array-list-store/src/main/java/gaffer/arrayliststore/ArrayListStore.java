@@ -36,8 +36,8 @@ import gaffer.operation.impl.get.GetElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
-import gaffer.store.operation.handler.export.InitialiseExportHandler;
 import gaffer.store.operation.handler.OperationHandler;
+import gaffer.store.operation.handler.export.InitialiseExportHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,7 +63,7 @@ public class ArrayListStore extends Store {
     }
 
     @Override
-    protected boolean isValidationRequired() {
+    public boolean isValidationRequired() {
         return false;
     }
 

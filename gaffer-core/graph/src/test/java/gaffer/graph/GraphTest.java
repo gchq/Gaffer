@@ -70,6 +70,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -151,14 +152,15 @@ public class GraphTest {
         // Then
         final Schema schema = graph.getSchema();
         assertEquals(expectedSchema.toString(), schema.toString());
-
     }
-
 
     @Test
     public void shouldCallAllGraphHooksBeforeOperationExecuted() throws OperationException {
         // Given
         final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -170,7 +172,7 @@ public class GraphTest {
                 .build();
 
         // When
-        graph.execute(operation, user);
+        graph.execute(opChain, user);
 
         // Then
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
@@ -187,9 +189,9 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
-        final OperationChain opChain = new OperationChain.Builder()
-                .first(mock(Operation.class))
-                .build();
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
+
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -213,6 +215,9 @@ public class GraphTest {
     public void shouldCallAllGraphHooksAfterOperationExecuted() throws OperationException {
         // Given
         final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -233,7 +238,7 @@ public class GraphTest {
         given(store.execute(captor.capture(), Mockito.eq(user))).willReturn(result);
 
         // When
-        graph.execute(operation, user);
+        graph.execute(opChain, user);
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);
@@ -247,9 +252,6 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksAfterOperationChainExecuted() throws OperationException {
         // Given
-        final OperationChain opChain = new OperationChain.Builder()
-                .first(mock(Operation.class))
-                .build();
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -264,6 +266,9 @@ public class GraphTest {
                 .addHook(hook2)
                 .build();
         final Object result = "result";
+
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
         given(store.execute(opChain, user)).willReturn(result);
 
         // When
@@ -355,7 +360,8 @@ public class GraphTest {
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
 
-        final OperationChain<Integer> opChain = new OperationChain<>(operation);
+        final OperationChain<Integer> opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
@@ -383,7 +389,8 @@ public class GraphTest {
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);
 
-        final OperationChain<Integer> opChain = new OperationChain<>(operation);
+        final OperationChain<Integer> opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
@@ -403,7 +410,7 @@ public class GraphTest {
         }
 
         @Override
-        protected boolean isValidationRequired() {
+        public boolean isValidationRequired() {
             return false;
         }
 

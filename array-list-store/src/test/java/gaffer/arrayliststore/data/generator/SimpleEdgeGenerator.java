@@ -20,7 +20,7 @@ import gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.AlwaysValid;
-import gaffer.data.Validator;
+import gaffer.data.IsEdgeValidator;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.generator.OneToOneElementGenerator;
@@ -28,11 +28,7 @@ import gaffer.data.generator.OneToOneElementGenerator;
 public class SimpleEdgeGenerator extends OneToOneElementGenerator<SimpleEdgeDataObject> {
 
     public SimpleEdgeGenerator() {
-        super(new Validator<Element>() {
-            public boolean validate(final Element obj) {
-                return obj instanceof Edge;
-            }
-        }, new AlwaysValid<SimpleEdgeDataObject>(), false);
+        super(new IsEdgeValidator(), new AlwaysValid<SimpleEdgeDataObject>(), false);
     }
 
     public Element getElement(final SimpleEdgeDataObject simpleDataObject) {

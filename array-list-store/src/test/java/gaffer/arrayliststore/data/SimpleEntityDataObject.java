@@ -22,6 +22,9 @@ public class SimpleEntityDataObject {
     private int visibility;
     private String properties;
 
+    public SimpleEntityDataObject() {
+    }
+
     public SimpleEntityDataObject(final int id, final int visibility, final String properties) {
         this.id = id;
         this.visibility = visibility;

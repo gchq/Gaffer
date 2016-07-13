@@ -23,6 +23,9 @@ public class SimpleEdgeDataObject {
     private int visibility;
     private String properties;
 
+    public SimpleEdgeDataObject() {
+    }
+
     public SimpleEdgeDataObject(final int left, final int right, final int visibility, final String properties) {
         this.left = left;
         this.right = right;
