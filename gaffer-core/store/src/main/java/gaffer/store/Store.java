@@ -20,15 +20,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.exception.SchemaException;
-import gaffer.store.operationdeclaration.OperationDeclaration;
-import gaffer.store.operationdeclaration.OperationDeclarations;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
-import gaffer.operation.Validatable;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.CountGroups;
+import gaffer.operation.impl.Deduplicate;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.export.FetchExport;
@@ -51,6 +49,7 @@ import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
 import gaffer.store.operation.handler.CountGroupsHandler;
+import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.operation.handler.export.FetchExportHandler;
@@ -60,6 +59,10 @@ import gaffer.store.operation.handler.export.InitialiseExportHandler;
 import gaffer.store.operation.handler.export.UpdateExportHandler;
 import gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import gaffer.store.operationdeclaration.OperationDeclaration;
+import gaffer.store.operationdeclaration.OperationDeclarations;
+import gaffer.store.optimiser.CoreOperationChainOptimiser;
+import gaffer.store.optimiser.OperationChainOptimiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.ViewValidator;
@@ -96,11 +99,16 @@ public abstract class Store {
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
     private ViewValidator viewValidator;
+    private List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
+
+    public Store() {
+        opChainOptimisers.add(new CoreOperationChainOptimiser(this));
+        viewValidator = new ViewValidator();
+    }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
-        viewValidator = new ViewValidator();
         addOpHandlers();
         optimiseSchemas();
         validateSchemas();
@@ -128,7 +136,7 @@ public abstract class Store {
     /**
      * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
      */
-    protected abstract boolean isValidationRequired();
+    public abstract boolean isValidationRequired();
 
     /**
      * Executes a given operation and returns the result.
@@ -155,12 +163,14 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        final List<Operation> ops = getValidatedOperations(operationChain);
-        if (ops.isEmpty()) {
-            throw new IllegalArgumentException("Operation chain contains no operations");
+        validateOperationChain(operationChain, user);
+
+        OperationChain<OUTPUT> optimisedOperationChain = operationChain;
+        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
+            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
 
-        return handleOperations(ops, createContext(user));
+        return handleOperationChain(optimisedOperationChain, createContext(user));
     }
 
     /**
@@ -266,12 +276,26 @@ public abstract class Store {
         }
     }
 
-    protected ViewValidator getViewValidator() {
-        return viewValidator;
+    protected void validateOperationChain(final OperationChain<?> operationChain, final User user) {
+        if (operationChain.getOperations().isEmpty()) {
+            throw new IllegalArgumentException("Operation chain contains no operations");
+        }
+
+        for (Operation<?, ?> op : operationChain.getOperations()) {
+            if (!viewValidator.validate(op.getView(), schema)) {
+                throw new SchemaException("View for operation "
+                        + op.getClass().getName()
+                        + " is not valid. See the logs for more information.");
+            }
+        }
     }
 
     protected void setViewValidator(final ViewValidator viewValidator) {
         this.viewValidator = viewValidator;
+    }
+
+    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
+        opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
     protected Context createContext(final User user) {
@@ -330,11 +354,11 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    protected <OUTPUT> OUTPUT handleOperations(
-            final List<Operation> ops, final Context context) throws
+    protected <OUTPUT> OUTPUT handleOperationChain(
+            final OperationChain<OUTPUT> operationChain, final Context context) throws
             OperationException {
         Object result = null;
-        for (final Operation op : ops) {
+        for (final Operation op : operationChain.getOperations()) {
             updateOperationInput(op, result);
             result = handleOperation(op, context);
         }
@@ -376,6 +400,7 @@ public abstract class Store {
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
         addOperationHandler(Validate.class, new ValidateHandler());
+        addOperationHandler(Deduplicate.class, new DeduplicateHandler());
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
 
         // Export
@@ -417,52 +442,5 @@ public abstract class Store {
                 }
             }
         });
-    }
-
-    private List<Operation> getValidatedOperations(
-            final OperationChain<?> operationChain) {
-        final List<Operation> ops = new ArrayList<>();
-
-        boolean isParentAValidateOp = false;
-        for (Operation<?, ?> op : operationChain.getOperations()) {
-            if (!viewValidator.validate(op.getView(), schema)) {
-                throw new SchemaException("View for operation "
-                        + op.getClass().getName()
-                        + " is not valid. See the logs for more information.");
-            }
-
-            if (doesOperationNeedValidating(op, isParentAValidateOp)) {
-                final Validatable<?> validatable = (Validatable) op;
-                final Validate validate = new Validate(validatable.isSkipInvalidElements());
-                validate.setOptions(validatable.getOptions());
-
-                // Move input to new validate operation
-                validate.setElements(validatable.getElements());
-                op.setInput(null);
-
-                ops.add(validate);
-            }
-
-            isParentAValidateOp = op instanceof Validate;
-            ops.add(op);
-        }
-
-        return ops;
-    }
-
-    private boolean doesOperationNeedValidating(final Operation<?, ?> op,
-                                                final boolean isParentAValidateOp) {
-        if (op instanceof Validatable) {
-            if (((Validatable<?>) op).isValidate()) {
-                return !isParentAValidateOp;
-            }
-
-            if (isValidationRequired()) {
-                throw new UnsupportedOperationException("Validation is required by the store for all validatable "
-                        + "operations so it cannot be disabled");
-            }
-        }
-
-        return false;
     }
 }

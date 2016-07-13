@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.operation.handler;
+package gaffer.store.operation.handler;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

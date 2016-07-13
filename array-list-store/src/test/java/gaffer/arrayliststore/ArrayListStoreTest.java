@@ -65,7 +65,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the edges
         final OperationChain<Iterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEdges.Builder()
+                .first(new GetRelatedEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .view(new View.Builder()
@@ -123,7 +123,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<Iterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEntities.Builder()
+                .first(new GetRelatedEntities.Builder<>()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -259,7 +259,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<Iterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEdges.Builder()
+                .first(new GetRelatedEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .build())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()

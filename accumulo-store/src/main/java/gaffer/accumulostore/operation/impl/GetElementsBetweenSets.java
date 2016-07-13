@@ -76,6 +76,11 @@ public class GetElementsBetweenSets<ELEMENT_TYPE extends Element>
         }
 
         @Override
+        public Builder<ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
+            return (Builder<ELEMENT_TYPE>) super.deduplicate(deduplicate);
+        }
+
+        @Override
         public Builder<ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
             return (Builder<ELEMENT_TYPE>) super.populateProperties(populateProperties);
         }
