@@ -27,6 +27,7 @@ import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
+import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.data.Key;
@@ -233,5 +234,70 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // Then
         assertEquals(0, keys.getFirst().getColumnQualifierData().length());
+    }
+    @Test
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValues() throws AccumuloElementConversionException {
+        Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.PROP_1, 60);
+        properties.put(AccumuloPropertyNames.PROP_2, 166);
+        properties.put(AccumuloPropertyNames.PROP_3, 299);
+        properties.put(AccumuloPropertyNames.PROP_4, 10);
+        properties.put(AccumuloPropertyNames.COUNT, 8);
+
+        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
+        assertEquals(60, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
+        assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
+        assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
+        assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
+        assertEquals(8, deSerialisedProperties.get(AccumuloPropertyNames.COUNT));
+    }
+
+    @Test
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValuesMissingMiddleValue() throws AccumuloElementConversionException {
+        Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.PROP_1, 60);
+        properties.put(AccumuloPropertyNames.PROP_3, 299);
+        properties.put(AccumuloPropertyNames.PROP_4, 10);
+        properties.put(AccumuloPropertyNames.COUNT, 8);
+
+        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
+        assertEquals(60, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
+        assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
+        assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
+        assertEquals(8, deSerialisedProperties.get(AccumuloPropertyNames.COUNT));
+    }
+
+    @Test
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValuesMissingEndValue() throws AccumuloElementConversionException {
+        Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.PROP_1, 60);
+        properties.put(AccumuloPropertyNames.PROP_2, 166);
+        properties.put(AccumuloPropertyNames.PROP_3, 299);
+        properties.put(AccumuloPropertyNames.PROP_4, 10);
+
+        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
+        assertEquals(60, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
+        assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
+        assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
+        assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
+    }
+
+    @Test
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValuesMissingStartValue() throws AccumuloElementConversionException {
+        Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.PROP_2, 166);
+        properties.put(AccumuloPropertyNames.PROP_3, 299);
+        properties.put(AccumuloPropertyNames.PROP_4, 10);
+        properties.put(AccumuloPropertyNames.COUNT, 8);
+
+        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
+        assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
+        assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
+        assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
+        assertEquals(8, deSerialisedProperties.get(AccumuloPropertyNames.COUNT));
     }
 }
