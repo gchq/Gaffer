@@ -231,9 +231,10 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key> keys = converter.getKeysFromElement(edge);
+        Properties properties = converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, keys.getFirst().getColumnQualifierData().getBackingArray());
 
         // Then
-        assertEquals(0, keys.getFirst().getColumnQualifierData().length());
+        assertEquals(null, properties.get(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
     @Test
     public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValues() throws AccumuloElementConversionException {

@@ -43,7 +43,7 @@ public class DoubleSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return Double.parseDouble(new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING).trim());
+            return Double.parseDouble(new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

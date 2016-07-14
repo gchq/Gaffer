@@ -37,16 +37,13 @@ import org.apache.accumulo.core.data.Value;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
-    static final byte[] DELIMITER_ARRAY = new byte[]{0};
+    private byte[] intRepresentationS = new byte[4];
     protected final Schema schema;
 
     public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
@@ -101,11 +98,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public Value getValueFromProperties(final Properties properties, final String group)
             throws AccumuloElementConversionException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Iterator<String> propertyNames = schema.getElement(group).getProperties().iterator();
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final Iterator<String> propertyNames = schema.getElement(group).getProperties().iterator();
         boolean hasValue = false;
+        String propertyName;
+        int length;
         while (propertyNames.hasNext()) {
-            String propertyName = propertyNames.next();
+            propertyName = propertyNames.next();
             final TypeDefinition propertyDefinition = schema.getElement(group).getPropertyTypeDef(propertyName);
             if (propertyDefinition != null) {
                 if (StorePositions.VALUE.isEqual(propertyDefinition.getPosition())) {
@@ -113,9 +112,14 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     if (null != value) {
                         try {
                             byte[] bytes = ByteArrayEscapeUtils.escape(propertyDefinition.getSerialiser().serialise(value));
-                            byteArrayOutputStream.write(ByteArrayEscapeUtils.escape(ByteBuffer.allocate(4).putInt(bytes.length).array()));
+                            length = bytes.length;
+                            intRepresentationS[0] = (byte) (length & 255);
+                            intRepresentationS[1] = (byte) ((length >> 8) & 255);
+                            intRepresentationS[2] = (byte) ((length >> 16) & 255);
+                            intRepresentationS[3] = (byte) ((length >> 24) & 255);
+                            byteArrayOutputStream.write(ByteArrayEscapeUtils.escape(intRepresentationS));
                             byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER);
-                            if (bytes.length > 0) {
+                            if (length > 0) {
                                 hasValue = true;
                                 byteArrayOutputStream.write(bytes);
                             }
@@ -123,10 +127,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                             throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
                         }
                     } else {
-                        try {
-                            byteArrayOutputStream.write(ByteArrayEscapeUtils.escape(ByteBuffer.allocate(4).putInt(0).array()));
-                        } catch (IOException e) {
-                            throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
+                        for (int i = 0; i<8; ++i) {
+                            byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER_PLUS_ONE);
                         }
                         byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER);
                     }
@@ -158,19 +160,21 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (null == elementDefinition) {
             throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-        Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
-        byte[] byteArr = value.get();
+        final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
+        final byte[] byteArr = value.get();
         int lastDelimiter = 0;
+        int length;
         while (propertyNames.hasNext()) {
             final String propertyName = propertyNames.next();
             TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             if (StorePositions.VALUE.isEqual(typeDefinition.getPosition())) {
-                int length;
                 for (int i = lastDelimiter; i < byteArr.length; ++i) {
                     if (ByteArrayEscapeUtils.DELIMITER == byteArr[i]) {
                         byte[] lengthArr = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(byteArr, lastDelimiter, i));
-                        ByteBuffer wrapped = ByteBuffer.wrap(lengthArr);
-                        length = wrapped.getInt();
+                        length = (int) ((int) lengthArr[0] & 255L
+                                | ((int) lengthArr[1] & 255L) << 8
+                                | ((int) lengthArr[2] & 255L) << 16
+                                | ((int) lengthArr[3] & 255L) << 24);
                         if (length > 0) {
                             lastDelimiter = i + length + 2;
                             try {
@@ -294,123 +298,89 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (elDef == null) {
             throw new AccumuloElementConversionException("No element definition found for element class: " + group);
         }
-        Boolean first = true;
-        final List<byte[]> bytes = new ArrayList<>();
-        int totalLength = 0;
-        byte[] byteHolder;
-        for (final String propertyName : elDef.getProperties()) {
-            final TypeDefinition property = elDef.getPropertyTypeDef(propertyName);
-            if (StorePositions.COLUMN_QUALIFIER.isEqual(property.getPosition())) {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final Iterator<String> propertyNames = elDef.getProperties().iterator();
+        String propertyName;
+        int length;
+        while (propertyNames.hasNext()) {
+            propertyName = propertyNames.next();
+            final TypeDefinition propertyDefinition = elDef.getPropertyTypeDef(propertyName);
+            if (StorePositions.COLUMN_QUALIFIER.isEqual(propertyDefinition.getPosition())) {
                 final Object value = properties.get(propertyName);
-                if (value != null) {
-                    if (!first) {
-                        totalLength += 1;
-                        bytes.add(DELIMITER_ARRAY);
-                    }
+                if (null != value) {
                     try {
-                        byteHolder = ByteArrayEscapeUtils.escape(propertyName.getBytes(CommonConstants.UTF_8));
-                    } catch (final UnsupportedEncodingException e) {
-                        throw new AccumuloElementConversionException(
-                                "Failed to serialise Value for property " + propertyName, e);
-                    }
-                    bytes.add(byteHolder);
-                    totalLength += byteHolder.length + 1;
-                    bytes.add(DELIMITER_ARRAY);
-                    final Serialisation serialiser = property.getSerialiser();
-                    if (serialiser == null) {
-                        try {
-                            bytes.add(value.toString().getBytes(CommonConstants.UTF_8));
-                        } catch (final UnsupportedEncodingException e) {
-                            throw new AccumuloElementConversionException(
-                                    "Failed to serialise Value for property " + propertyName, e);
+                        byte[] bytes = ByteArrayEscapeUtils.escape(propertyDefinition.getSerialiser().serialise(value));
+                        length = bytes.length;
+                        intRepresentationS[0] = (byte) (length & 255);
+                        intRepresentationS[1] = (byte) ((length >> 8) & 255);
+                        intRepresentationS[2] = (byte) ((length >> 16) & 255);
+                        intRepresentationS[3] = (byte) ((length >> 24) & 255);
+                        byteArrayOutputStream.write(ByteArrayEscapeUtils.escape(intRepresentationS));
+                        byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER);
+                        if (length > 0) {
+                            byteArrayOutputStream.write(bytes);
                         }
-                    } else {
-                        try {
-                            byteHolder = ByteArrayEscapeUtils.escape(property.getSerialiser().serialise(value));
-                            bytes.add(byteHolder);
-                            totalLength += byteHolder.length;
-                        } catch (final SerialisationException e) {
-                            throw new AccumuloElementConversionException(
-                                    "Failed to serialise Value for property " + propertyName, e);
-                        }
+                    } catch (final IOException e) {
+                        throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
                     }
-                    first = false;
+                } else {
+                    for (int i = 0; i<8; ++i) {
+                            byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER_PLUS_ONE);
+                    }
+                    byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER);
+                }
+                if (propertyNames.hasNext()) {
+                    byteArrayOutputStream.write(ByteArrayEscapeUtils.DELIMITER);
                 }
             }
         }
-        final byte[] returnArr = new byte[totalLength];
-        int currentLength = 0;
-        for (final byte[] byteArr : bytes) {
-            System.arraycopy(byteArr, 0, returnArr, currentLength, byteArr.length);
-            currentLength += byteArr.length;
-        }
-        return returnArr;
+        return byteArrayOutputStream.toByteArray();
     }
 
     @Override
     public Properties getPropertiesFromColumnQualifier(final String group, final byte[] keyPortion)
             throws AccumuloElementConversionException {
-        final Properties result = new Properties();
+        final Properties properties = new Properties();
         if (keyPortion == null || keyPortion.length == 0) {
-            return result;
+            return properties;
         }
-        final SchemaElementDefinition elDef = schema.getElement(group);
-        final List<Integer> positionsOfDelimiters = new ArrayList<>();
-        for (int i = 0; i < keyPortion.length; i++) {
-            if (keyPortion[i] == ByteArrayEscapeUtils.DELIMITER) {
-                positionsOfDelimiters.add(i);
-            }
+        final SchemaElementDefinition elementDefinition = schema.getElement(group);
+        if (null == elementDefinition) {
+            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-        final Iterator<Integer> delimiters = positionsOfDelimiters.iterator();
+        final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
+        int lastDelimiter = 0;
         String propertyName;
-        Object propertyValue;
-        if (delimiters.hasNext()) {
-            Integer last = delimiters.next();
-            try {
-                propertyName = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, 0, last)),
-                        CommonConstants.UTF_8);
-            } catch (final UnsupportedEncodingException e) {
-                throw new AccumuloElementConversionException("Failed to get properties from column qualifier", e);
-            }
-            int nextPos;
-            if (delimiters.hasNext()) {
-                nextPos = delimiters.next();
-            } else {
-                nextPos = keyPortion.length;
-            }
-            try {
-                propertyValue = elDef.getPropertyTypeDef(propertyName).getSerialiser()
-                        .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
-            } catch (final SerialisationException e) {
-                throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
-            }
-            last = nextPos;
-            result.put(propertyName, propertyValue);
-            while (delimiters.hasNext()) {
-                try {
-                    propertyName = new String(
-                            ByteArrayEscapeUtils
-                                    .unEscape(Arrays.copyOfRange(keyPortion, last + 1, last = delimiters.next())),
-                            CommonConstants.UTF_8);
-                } catch (final UnsupportedEncodingException e) {
-                    throw new AccumuloElementConversionException(e.getMessage(), e);
+        int length;
+        while (propertyNames.hasNext()) {
+            propertyName = propertyNames.next();
+            TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
+            if (StorePositions.COLUMN_QUALIFIER.isEqual(typeDefinition.getPosition())) {
+                for (int i = lastDelimiter; i < keyPortion.length; ++i) {
+                    if (ByteArrayEscapeUtils.DELIMITER == keyPortion[i]) {
+                        byte[] lengthArr = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, lastDelimiter, i));
+                        length = (int) ((int) lengthArr[0] & 255L
+                                | ((int) lengthArr[1] & 255L) << 8
+                                | ((int) lengthArr[2] & 255L) << 16
+                                | ((int) lengthArr[3] & 255L) << 24);
+                        if (length > 0) {
+                            lastDelimiter = i + length + 2;
+                            try {
+                                properties.put(propertyName, typeDefinition.getSerialiser()
+                                        .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, i + 1, lastDelimiter - 1))));
+                            } catch (SerialisationException e) {
+                                throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
+                            }
+                            break;
+                        } else {
+                            lastDelimiter = i + 2;
+                            break;
+                        }
+                    }
                 }
-                if (delimiters.hasNext()) {
-                    nextPos = delimiters.next();
-                } else {
-                    nextPos = keyPortion.length;
-                }
-                try {
-                    propertyValue = elDef.getPropertyTypeDef(propertyName).getSerialiser().deserialise(
-                            ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(keyPortion, last + 1, nextPos)));
-                } catch (final SerialisationException e) {
-                    throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
-                }
-                result.put(propertyName, propertyValue);
-                last = nextPos;
             }
         }
-        return result;
+        return properties;
     }
 
     /**
