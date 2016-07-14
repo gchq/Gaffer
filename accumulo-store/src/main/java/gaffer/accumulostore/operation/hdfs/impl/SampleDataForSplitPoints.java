@@ -52,6 +52,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
     private String mapperGeneratorClassName;
 
     public SampleDataForSplitPoints() {
+        super.setNumReduceTasks(1);
     }
 
     public boolean isValidate() {
@@ -89,6 +90,16 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
 
     public void setProportionToSample(final float proportionToSample) {
         this.proportionToSample = proportionToSample;
+    }
+
+    @Override
+    public void setNumReduceTasks(final Integer numReduceTasks) {
+        throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
+    }
+
+    @Override
+    public void setPartitioner(final Class<? extends Partitioner> partitioner) {
+        throw new IllegalArgumentException(getClass().getSimpleName() + " is not able to set its own partitioner");
     }
 
     public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, String> {
@@ -148,18 +159,10 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
         }
 
         @Override
-        public Builder reducers(final Integer numReduceTasks) {
-            return (Builder) super.reducers(numReduceTasks);
-        }
-
-        @Override
         public Builder mappers(final Integer numMapTasks) {
             return (Builder) super.mappers(numMapTasks);
         }
 
-        @Override
-        public Builder partioner(final Class<? extends Partitioner> partitioner) {
-            return (Builder) super.partioner(partitioner);
-        }
     }
+
 }

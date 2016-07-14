@@ -78,10 +78,7 @@ public class SampleDataForSplitPointsJobFactory {
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
         }
-        numTasks = operation.getNumReduceTasks();
-        if (null != numTasks) {
-            jobConf.setNumReduceTasks(numTasks);
-        }
+        jobConf.setNumReduceTasks(1);
     }
 
     protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
