@@ -35,6 +35,11 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
+            <artifactId>simple-types-library</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
@@ -89,6 +94,8 @@
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>org.apache.commons:commons-lang
+                                    </include>
+                                    <include>gaffer:simple-types-library
                                     </include>
                                 </includes>
                             </artifactSet>

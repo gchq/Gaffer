@@ -26,6 +26,7 @@
     <modules>
         <module>accumulo-store</module>
         <module>array-list-store</module>
+        <module>simple-types-library</module>
         <module>simple-function-library</module>
         <module>simple-operation-library</module>
         <module>simple-serialisation-library</module>
