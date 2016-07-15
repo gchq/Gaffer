@@ -154,9 +154,9 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             final Key key3 = elementConverter.getKeysFromEdge(edge3).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(properties1, TestGroups.EDGE);
-            final Value value2 = elementConverter.getValueFromProperties(properties2, TestGroups.EDGE);
-            final Value value3 = elementConverter.getValueFromProperties(properties3, TestGroups.EDGE);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties1);
+            final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties2);
+            final Value value3 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties3);
 
             // Create mutation
             final Mutation m1 = new Mutation(key.getRow());
@@ -249,7 +249,7 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             final Key key = elementConverter.getKeysFromEdge(edge).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(properties1, TestGroups.EDGE);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties1);
 
             // Create mutation
             final Mutation m1 = new Mutation(key.getRow());
@@ -355,9 +355,9 @@ public class ColumnQualifierVisibilityValueAggregatorTest {
             final Key key3 = elementConverter.getKeysFromEdge(edge3).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(properties1, TestGroups.EDGE);
-            final Value value2 = elementConverter.getValueFromProperties(properties2, TestGroups.EDGE);
-            final Value value3 = elementConverter.getValueFromProperties(properties3, TestGroups.EDGE);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties1);
+            final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties2);
+            final Value value3 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties3);
 
             // Create mutation
             final Mutation m1 = new Mutation(key.getRow());

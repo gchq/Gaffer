@@ -245,7 +245,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         properties.put(AccumuloPropertyNames.PROP_4, 10);
         properties.put(AccumuloPropertyNames.COUNT, 8);
 
-        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Value value = converter.getValueFromProperties(TestGroups.EDGE, properties);
         final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
         assertEquals(60, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
         assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
@@ -262,7 +262,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         properties.put(AccumuloPropertyNames.PROP_4, 10);
         properties.put(AccumuloPropertyNames.COUNT, 8);
 
-        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Value value = converter.getValueFromProperties(TestGroups.EDGE, properties);
         final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
         assertEquals(60, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
         assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
@@ -278,7 +278,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         properties.put(AccumuloPropertyNames.PROP_3, 299);
         properties.put(AccumuloPropertyNames.PROP_4, 10);
 
-        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Value value = converter.getValueFromProperties(TestGroups.EDGE, properties);
         final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
         assertEquals(60, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
         assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
@@ -294,7 +294,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         properties.put(AccumuloPropertyNames.PROP_4, 10);
         properties.put(AccumuloPropertyNames.COUNT, 8);
 
-        final Value value = converter.getValueFromProperties(properties, TestGroups.EDGE);
+        final Value value = converter.getValueFromProperties(TestGroups.EDGE, properties);
         final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
         assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
         assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));

@@ -146,7 +146,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
     private void addToBloomFilter(final Object vertex, final BloomFilter filter) throws RetrieverException {
         try {
-            filter.add(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(vertex)));
+            filter.add(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertex(vertex)));
         } catch (final AccumuloElementConversionException e) {
             throw new RetrieverException("Failed to add identifier to the bloom key", e);
         }

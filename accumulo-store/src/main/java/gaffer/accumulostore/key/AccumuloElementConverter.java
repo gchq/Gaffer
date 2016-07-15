@@ -69,12 +69,12 @@ public interface AccumuloElementConverter {
      * Converts a set of {@link gaffer.data.element.Properties} to an Accumulo
      * {@link org.apache.accumulo.core.data.Value}.
      *
-     * @param properties the properties to use to create a Value
      * @param group      the element group
+     * @param properties the properties to use to create a Value
      * @return A new Accumulo {@link Value} containing the serialised {@link gaffer.data.element.Properties}
      * @throws AccumuloElementConversionException If conversion fails
      */
-    Value getValueFromProperties(final Properties properties, final String group)
+    Value getValueFromProperties(final String group, final Properties properties)
             throws AccumuloElementConversionException;
 
     /**
@@ -158,7 +158,7 @@ public interface AccumuloElementConverter {
      * @return A byte array representing the given object
      * @throws AccumuloElementConversionException If conversion fails
      */
-    byte[] serialiseVertexForBloomKey(final Object vertex) throws AccumuloElementConversionException;
+    byte[] serialiseVertex(final Object vertex) throws AccumuloElementConversionException;
 
     /**
      * Creates a byte array representing a set of
