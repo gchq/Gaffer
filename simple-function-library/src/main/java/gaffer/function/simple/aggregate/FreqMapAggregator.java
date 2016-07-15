@@ -18,12 +18,12 @@ package gaffer.function.simple.aggregate;
 import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
-import gaffer.function.simple.types.FreqMap;
+import gaffer.types.simple.FreqMap;
 import java.util.Map.Entry;
 
 /**
  * An <code>FreqMapAggregator</code> is a {@link SimpleAggregateFunction} that takes in
- * {@link gaffer.function.simple.types.FreqMap}s and merges the frequencies together.
+ * {@link gaffer.types.simple.FreqMap}s and merges the frequencies together.
  */
 @Inputs(FreqMap.class)
 @Outputs(FreqMap.class)

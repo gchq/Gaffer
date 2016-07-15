@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.json.hyperloglogplus;
+package gaffer.serialisation.simple.json.hyperloglogplus;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -26,9 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import gaffer.serialisation.simple.json.hyperloglogplus.HyperLogLogPlusJsonConstants;
-import gaffer.serialisation.simple.json.hyperloglogplus.HyperLogLogPlusJsonDeserialiser;
-import gaffer.serialisation.simple.json.hyperloglogplus.HyperLogLogPlusJsonSerialiser;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;

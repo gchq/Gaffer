@@ -86,7 +86,12 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Itera
                             final Iterable<OUTPUT> nextElementsIterable = transform(possibleNext);
                             if (null != nextElementsIterable) {
                                 nextElements = nextElementsIterable.iterator();
-                                hasNext = true;
+                                if (nextElements.hasNext()) {
+                                    hasNext = true;
+                                } else {
+                                    nextElements = null;
+                                    hasNext();
+                                }
                             } else {
                                 hasNext();
                             }

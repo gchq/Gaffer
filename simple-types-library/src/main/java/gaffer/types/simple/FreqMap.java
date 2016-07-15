@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.function.simple.types;
+package gaffer.types.simple;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <code>FreqMap</code> simply extends {@link java.util.HashMap} with String keys and Integer values.
+ * <code>FreqMap</code> simply extends {@link HashMap} with String keys and Integer values.
  */
 public class FreqMap extends HashMap<String, Integer> {
     private static final long serialVersionUID = -6178586775831730274L;
