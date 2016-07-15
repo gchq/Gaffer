@@ -65,10 +65,6 @@ public class InputFormatTest {
         BYTE_ENTITY_KEY_PACKAGE,
         CLASSIC_KEY_PACKAGE
     }
-    private enum InputFormatType {
-        BATCH_SCANNER_ELEMENT_INPUT_FORMAT,
-        ELEMENT_INPUT_FORMAT
-    }
 
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
@@ -107,24 +103,12 @@ public class InputFormatTest {
             expectedResults.add(element.toString());
         }
         shouldReturnCorrectDataToMapReduceJob(KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
-                InputFormatType.BATCH_SCANNER_ELEMENT_INPUT_FORMAT,
                 view,
                 "instance1",
                 expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
-                InputFormatType.ELEMENT_INPUT_FORMAT,
+        shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
                 view,
                 "instance2",
-                expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
-                InputFormatType.BATCH_SCANNER_ELEMENT_INPUT_FORMAT,
-                view,
-                "instance3",
-                expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
-                InputFormatType.ELEMENT_INPUT_FORMAT,
-                view,
-                "instance4",
                 expectedResults);
     }
 
@@ -138,28 +122,16 @@ public class InputFormatTest {
             }
         }
         shouldReturnCorrectDataToMapReduceJob(KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
-                InputFormatType.BATCH_SCANNER_ELEMENT_INPUT_FORMAT,
                 view,
-                "instance5",
-                expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
-                InputFormatType.ELEMENT_INPUT_FORMAT,
-                view,
-                "instance6",
+                "instance3",
                 expectedResults);
         shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
-                InputFormatType.BATCH_SCANNER_ELEMENT_INPUT_FORMAT,
                 view,
-                "instance7",
-                expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
-                InputFormatType.ELEMENT_INPUT_FORMAT,
-                view,
-                "instance8",
+                "instance4",
                 expectedResults);
     }
 
-    private void shouldReturnCorrectDataToMapReduceJob(final KeyPackage kp, final InputFormatType ip, final View view,
+    private void shouldReturnCorrectDataToMapReduceJob(final KeyPackage kp, final View view,
                                                        final String instanceName, final Set<String> expectedResults)
             throws Exception {
         final AccumuloStore store = new MockAccumuloStore();
@@ -193,7 +165,7 @@ public class InputFormatTest {
         // Run Driver
         final File outputFolder = testFolder.newFolder();
         FileUtils.deleteDirectory(outputFolder);
-        final Driver driver = new Driver(ip, outputFolder.getAbsolutePath());
+        final Driver driver = new Driver(outputFolder.getAbsolutePath());
         driver.setConf(conf);
         driver.run(new String[]{});
 
@@ -219,11 +191,9 @@ public class InputFormatTest {
 
     private class Driver extends Configured implements Tool {
 
-        private final InputFormatType inputFormatType;
         private final String outputDir;
 
-        Driver(final InputFormatType inputFormatType, final String outputDir) {
-            this.inputFormatType = inputFormatType;
+        Driver(final String outputDir) {
             this.outputDir = outputDir;
         }
 
@@ -232,10 +202,7 @@ public class InputFormatTest {
             final Configuration conf = getConf();
             final Job job = new Job(conf);
             job.setJarByClass(getClass());
-            switch (inputFormatType) {
-                case BATCH_SCANNER_ELEMENT_INPUT_FORMAT: job.setInputFormatClass(BatchScannerElementInputFormat.class); break;
-                case ELEMENT_INPUT_FORMAT: job.setInputFormatClass(ElementInputFormat.class);
-            }
+            job.setInputFormatClass(ElementInputFormat.class);
             job.setMapperClass(AMapper.class);
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(NullWritable.class);
