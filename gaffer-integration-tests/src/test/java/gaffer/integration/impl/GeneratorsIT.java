@@ -38,7 +38,7 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreTrait;
 import org.hamcrest.core.IsCollectionContaining;
@@ -105,7 +105,7 @@ public class GeneratorsIT extends AbstractStoreIT {
         graph.execute(opChain, getUser());
 
         // Then - check they were added correctly
-        final List<Element> results = Lists.newArrayList(graph.execute(new GetElementsSeed.Builder<>()
+        final List<Element> results = Lists.newArrayList(graph.execute(new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(NEW_VERTEX))
                 .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));

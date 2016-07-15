@@ -33,7 +33,7 @@ import gaffer.operation.impl.get.GetAllEdges;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
@@ -73,7 +73,7 @@ public interface IOperationService {
     @POST
     @Path("/get/elements/bySeed")
     @ApiOperation(value = "Gets elements by seed from the graph", response = Element.class, responseContainer = "List")
-    Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation,
+    Iterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation,
                                         @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
     );
 
