@@ -38,7 +38,7 @@ import gaffer.operation.impl.get.GetAllEdges;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
@@ -82,8 +82,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetElementsSeed<ElementSeed, Element> getElementsBySeed() {
-        final GetElementsSeed<ElementSeed, Element> op = new GetElementsSeed<>();
+    public GetElementsBySeed<ElementSeed, Element> getElementsBySeed() {
+        final GetElementsBySeed<ElementSeed, Element> op = new GetElementsBySeed<>();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));

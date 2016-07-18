@@ -35,28 +35,28 @@ import gaffer.operation.data.ElementSeed;
  *
  * @param <SEED_TYPE>    the seed seed type
  * @param <ELEMENT_TYPE> the element return type
- * @see GetElementsSeed.Builder
+ * @see GetElementsBySeed.Builder
  * @see gaffer.operation.impl.get.GetElements
  */
-public class GetElementsSeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
-    public GetElementsSeed() {
+    public GetElementsBySeed() {
         super();
     }
 
-    public GetElementsSeed(final Iterable<SEED_TYPE> seeds) {
+    public GetElementsBySeed(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
-    public GetElementsSeed(final View view) {
+    public GetElementsBySeed(final View view) {
         super(view);
     }
 
-    public GetElementsSeed(final View view, final Iterable<SEED_TYPE> seeds) {
+    public GetElementsBySeed(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
-    public GetElementsSeed(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetElementsBySeed(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 
@@ -73,9 +73,9 @@ public class GetElementsSeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends
     }
 
     public static class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends GetElements.Builder<GetElementsSeed<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
+            extends GetElements.Builder<GetElementsBySeed<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
         public Builder() {
-            super(new GetElementsSeed<SEED_TYPE, ELEMENT_TYPE>());
+            super(new GetElementsBySeed<SEED_TYPE, ELEMENT_TYPE>());
         }
 
         @Override
