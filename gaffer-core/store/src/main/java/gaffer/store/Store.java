@@ -42,7 +42,7 @@ import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
@@ -414,7 +414,7 @@ public abstract class Store {
         addOperationHandler(AddElements.class, getAddElementsHandler());
 
         // Get Elements
-        addOperationHandler(GetElementsSeed.class, (OperationHandler) getGetElementsHandler());
+        addOperationHandler(GetElementsBySeed.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetEntitiesBySeed.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetEdgesBySeed.class, (OperationHandler) getGetElementsHandler());
 
