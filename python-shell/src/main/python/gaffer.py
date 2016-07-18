@@ -540,7 +540,7 @@ class GetElementsBySeed(GetOperation):
     def __init__(self, seeds=None, view=None, summarise=True,
                  include_entities=True, include_edges=IncludeEdges.ALL,
                  in_out_type=InOutType.BOTH, options=None):
-        super().__init__('gaffer.operation.impl.get.GetElementsSeed', seeds,
+        super().__init__('gaffer.operation.impl.get.GetElementsBySeed', seeds,
                          view, summarise, include_entities, include_edges,
                          in_out_type, options)
 
