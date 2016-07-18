@@ -21,9 +21,9 @@ import gaffer.serialisation.Serialisation;
 
 /**
  * Serialises integers using a variable-length scheme that means smaller integers get serialised into a smaller
- * number of bytes. For example, integers i where (-112 <= i <= 127) are serialised into one byte. Very large integers
- * may be serialised into 5 bytes. This is particularly well suited to serialising count properties in power-law graphs
- * where the majority of counts will be very small.
+ * number of bytes. For example, integers i which are between -112 and 127 inclusive are serialised into one byte. Very
+ * large integers may be serialised into 5 bytes. This is particularly well suited to serialising count properties in
+ * power-law graphs where the majority of counts will be very small.
  *
  * Note that {@link CompactRawLongSerialiser} does not use any more bytes than this serialiser if it is
  * serialising a long value that is less than or equal to <code>Integer.MAX_VALUE</code> and greater than or

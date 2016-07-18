@@ -21,9 +21,9 @@ import gaffer.serialisation.Serialisation;
 
 /**
  * Serialises longs using a variable-length scheme that means smaller longs get serialised into a smaller
- * number of bytes. For example, longs i where (-112 <= i <= 127) are serialised into one byte. Very large longs
- * may be serialised into 9 bytes. This is particularly well suited to serialising count properties in power-law graphs
- * where the majority of counts will be very small.
+ * number of bytes. For example, longs i which are between -112 and 127 inclusive are serialised into one byte. Very
+ * large longs may be serialised into 9 bytes. This is particularly well suited to serialising count properties in
+ * power-law graphs where the majority of counts will be very small.
  */
 public class CompactRawLongSerialiser implements Serialisation {
 
