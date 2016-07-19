@@ -24,7 +24,7 @@ import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 
 public class GetElementsBySeedExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -32,7 +32,7 @@ public class GetElementsBySeedExample extends OperationExample {
     }
 
     public GetElementsBySeedExample() {
-        super(GetElementsSeed.class);
+        super(GetElementsBySeed.class);
     }
 
     public void runExamples(final Graph graph) throws OperationException {
@@ -41,18 +41,18 @@ public class GetElementsBySeedExample extends OperationExample {
     }
 
     public Iterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3(final Graph graph) throws OperationException {
-        final String opJava = "new GetElementsSeed.Builder<>()\n"
+        final String opJava = "new GetElementsBySeed.Builder<>()\n"
               + "                .addSeed(new EntitySeed(2))\n"
               + "                .addSeed(new EdgeSeed(2, 3, true))\n"
               + "                .build();";
-        return runAndPrintOperation(new GetElementsSeed.Builder<>()
+        return runAndPrintOperation(new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .build(), graph, opJava);
     }
 
     public Iterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1(final Graph graph) throws OperationException {
-        final String opJava = "new GetElementsSeed.Builder<>()\n"
+        final String opJava = "new GetElementsBySeed.Builder<>()\n"
               + "                .addSeed(new EntitySeed(2))\n"
               + "                .addSeed(new EdgeSeed(2, 3, true))\n"
               + "                .view(new View.Builder()\n"
@@ -70,7 +70,7 @@ public class GetElementsBySeedExample extends OperationExample {
               + "                                .build())\n"
               + "                        .build())\n"
               + "                .build();";
-        return runAndPrintOperation(new GetElementsSeed.Builder<>()
+        return runAndPrintOperation(new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()

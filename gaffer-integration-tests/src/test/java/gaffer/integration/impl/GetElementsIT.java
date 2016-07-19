@@ -37,7 +37,7 @@ import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.user.User;
 import org.junit.Before;
@@ -129,7 +129,7 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
         // Given
-        final GetElementsSeed<ElementSeed, Element> op = new GetElementsSeed<>();
+        final GetElementsBySeed<ElementSeed, Element> op = new GetElementsBySeed<>();
 
         // When
         final Iterable<? extends Element> results = graph.execute(op, getUser());
@@ -228,7 +228,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final User user = new User();
         final GetElements<ElementSeed, Element> op;
         if (SeedMatchingType.EQUAL.equals(seedMatching)) {
-            op = new GetElementsSeed<>();
+            op = new GetElementsBySeed<>();
         } else {
             op = new GetRelatedElements<>();
         }
