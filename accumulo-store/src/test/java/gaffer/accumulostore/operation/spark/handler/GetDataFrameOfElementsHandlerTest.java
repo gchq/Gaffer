@@ -207,7 +207,6 @@ public class GetDataFrameOfElementsHandlerTest {
                 .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
         final SparkContext sparkContext = new SparkContext(sparkConf);
-        sparkContext.setLogLevel("DEBUG");
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Get DataFrame
