@@ -93,6 +93,11 @@ public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<
         }
 
         @Override
+        public Builder<ELEMENT_SEED> deduplicate(final boolean deduplicate) {
+            return (Builder<ELEMENT_SEED>) super.deduplicate(deduplicate);
+        }
+
+        @Override
         public Builder<ELEMENT_SEED> inOutType(final IncludeIncomingOutgoingType inOutType) {
             super.inOutType(inOutType);
             return this;

@@ -19,6 +19,7 @@ package gaffer.accumulostore.inputformat;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
@@ -43,13 +44,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
- *
+ * An {@link InputFormatBase} that allows the data in an Accumulo store to be read as {@link Element},
+ * {@link NullWritable} pairs.
  */
 public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
     public static final String KEY_PACKAGE = "KEY_PACKAGE";
-    public static final String SCHEMA = "SCHEMA";
-    public static final String VIEW = "VIEW";
+    public static final String SCHEMA = AccumuloStoreConstants.SCHEMA;
+    public static final String VIEW = AccumuloStoreConstants.VIEW;
 
     @Override
     public RecordReader<Element, NullWritable> createRecordReader(final InputSplit split, final TaskAttemptContext context)
@@ -61,7 +63,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
         final View view = View.fromJson(conf.get(VIEW).getBytes(CommonConstants.UTF_8));
         try {
             return new ElementWithPropertiesRecordReader(keyPackageClass, schema, view);
-        } catch (StoreException | SchemaException | SerialisationException e) {
+        } catch (final StoreException | SchemaException | SerialisationException e) {
             throw new IOException("Exception creating RecordReader", e);
         }
     }
@@ -77,7 +79,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
             final AccumuloKeyPackage keyPackage;
             try {
                 keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
             }
             keyPackage.setSchema(schema);
@@ -100,7 +102,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
                         }
                     }
                     currentV = NullWritable.get();
-                } catch (AccumuloElementConversionException e) {
+                } catch (final AccumuloElementConversionException e) {
                     throw new IOException("Exception converting the key-value to an Element:", e);
                 }
                 if (log.isTraceEnabled()) {

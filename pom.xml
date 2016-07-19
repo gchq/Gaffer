@@ -21,11 +21,12 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.3.9-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
         <module>array-list-store</module>
+        <module>simple-types-library</module>
         <module>simple-function-library</module>
         <module>simple-operation-library</module>
         <module>simple-serialisation-library</module>
@@ -54,7 +55,6 @@
         <hadoop.version>2.6.0</hadoop.version>
         <accumulo.version>1.6.4</accumulo.version>
         <spark.version>1.6.2</spark.version>
-        <geotrellis.version>0.10.0-M1</geotrellis.version>
 
         <avro.version>1.7.7</avro.version>
         <jackson.version>2.4.4</jackson.version>

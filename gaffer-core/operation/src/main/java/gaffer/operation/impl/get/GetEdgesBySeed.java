@@ -99,6 +99,11 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         }
 
         @Override
+        public Builder deduplicate(final boolean deduplicate) {
+            return (Builder) super.deduplicate(deduplicate);
+        }
+
+        @Override
         public Builder populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;

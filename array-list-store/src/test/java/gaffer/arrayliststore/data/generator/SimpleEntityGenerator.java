@@ -20,7 +20,7 @@ import gaffer.arrayliststore.data.SimpleEntityDataObject;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.AlwaysValid;
-import gaffer.data.Validator;
+import gaffer.data.IsEntityValidator;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.generator.OneToOneElementGenerator;
@@ -28,11 +28,7 @@ import gaffer.data.generator.OneToOneElementGenerator;
 public class SimpleEntityGenerator extends OneToOneElementGenerator<SimpleEntityDataObject> {
 
     public SimpleEntityGenerator() {
-        super(new Validator<Element>() {
-            public boolean validate(final Element obj) {
-                return obj instanceof Entity;
-            }
-        }, new AlwaysValid<SimpleEntityDataObject>(), false);
+        super(new IsEntityValidator(), new AlwaysValid<SimpleEntityDataObject>(), false);
     }
 
     public Element getElement(final SimpleEntityDataObject simpleDataObject) {

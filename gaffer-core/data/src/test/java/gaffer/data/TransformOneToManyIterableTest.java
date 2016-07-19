@@ -16,16 +16,6 @@
 
 package gaffer.data;
 
-import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -33,12 +23,23 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 @RunWith(MockitoJUnitRunner.class)
 public class TransformOneToManyIterableTest {
 
     @Test
     public void shouldCreateIteratorThatReturnsOnlyValidStrings() {
         // Given
+        final String item0 = null;
         final String item1 = "item 1";
         final String item2a = "item 2a";
         final String item2b = "item 2b";
@@ -47,11 +48,12 @@ public class TransformOneToManyIterableTest {
         final String item3b = "item 3b";
         final String item3 = item3a + "," + item3b;
         final String item4 = "item 4";
-        final Iterable<String> items = Arrays.asList(item1, item2, item3, item4);
+        final Iterable<String> items = Arrays.asList(item0, item1, item2, item3, item4);
         final Validator<String> validator = mock(Validator.class);
         final TransformOneToManyIterable iterable = new TransformOneToManyIterableImpl(items, validator, true);
         final Iterator<String> itr = iterable.iterator();
 
+        given(validator.validate(item0)).willReturn(true);
         given(validator.validate(item1)).willReturn(true);
         given(validator.validate(item2)).willReturn(false);
         given(validator.validate(item3)).willReturn(true);
@@ -175,6 +177,10 @@ public class TransformOneToManyIterableTest {
          */
         @Override
         protected Iterable<String> transform(final String item) {
+            if (null == item) {
+                return Collections.emptyList();
+            }
+
             return Arrays.asList(item.toUpperCase().split(","));
         }
     }

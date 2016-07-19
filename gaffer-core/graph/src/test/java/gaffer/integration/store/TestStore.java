@@ -36,7 +36,7 @@ public class TestStore extends Store {
     }
 
     @Override
-    protected boolean isValidationRequired() {
+    public boolean isValidationRequired() {
         return false;
     }
 

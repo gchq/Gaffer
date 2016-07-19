@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNull;
 
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
-import gaffer.function.simple.types.FreqMap;
+import gaffer.types.simple.FreqMap;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 

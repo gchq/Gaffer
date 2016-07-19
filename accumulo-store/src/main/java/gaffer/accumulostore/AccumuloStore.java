@@ -145,6 +145,15 @@ public class AccumuloStore extends Store {
         return connection;
     }
 
+    /**
+     * Updates a Hadoop {@link Configuration} with information needed to connect to the Accumulo store. It adds
+     * iterators to apply the provided {@link View}. This method will be used by operations that run MapReduce
+     * or Spark jobs against the Accumulo store.
+     *
+     * @param conf A {@link Configuration} to be updated.
+     * @param view The {@link View} to be applied.
+     * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
+     */
     public void updateConfiguration(final Configuration conf, final View view) throws StoreException {
         try {
             // Table name
@@ -170,10 +179,8 @@ public class AccumuloStore extends Store {
                         .getElementFilterIteratorSetting(view, this);
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementFilter);
             }
-        } catch (final AccumuloSecurityException | UnsupportedEncodingException e) {
+        } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
-        } catch (final IteratorSettingException e) {
-            e.printStackTrace();
         }
     }
 
