@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "string",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "int",
+        "property2": "float",
+        "property3": "double",
+        "property4": "long",
+        "count": "long"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "string",
+      "destination": "string",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "int",
+        "property2": "float",
+        "property3": "double",
+        "property4": "long",
+        "count": "long"
+      }
+    },
+    "BasicEdge2": {
+      "source": "string",
+      "destination": "string",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "int",
+        "property2": "float",
+        "property3": "double",
+        "property4": "long",
+        "count": "long"
+      }
+    }
+  }
+}

@@ -44,6 +44,10 @@ import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import gaffer.accumulostore.operation.spark.handler.GetDataFrameOfElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetJavaRDDOfElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetRDDOfAllElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetRDDOfElementsOperationHandler;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.CommonConstants;
@@ -57,6 +61,10 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.spark.GetDataFrameOfElementsOperation;
+import gaffer.operation.simple.spark.GetJavaRDDOfElementsOperation;
+import gaffer.operation.simple.spark.GetRDDOfAllElementsOperation;
+import gaffer.operation.simple.spark.GetRDDOfElementsOperation;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -209,6 +217,10 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
         addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+        addOperationHandler(GetJavaRDDOfElementsOperation.class, new GetJavaRDDOfElementsOperationHandler());
+        addOperationHandler(GetRDDOfElementsOperation.class, new GetRDDOfElementsOperationHandler());
+        addOperationHandler(GetRDDOfAllElementsOperation.class, new GetRDDOfAllElementsOperationHandler());
+        addOperationHandler(GetDataFrameOfElementsOperation.class, new GetDataFrameOfElementsOperationHandler());
     }
 
     @Override
