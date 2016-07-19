@@ -161,6 +161,7 @@
                                     <include>gaffer:data</include>
                                     <include>gaffer:store</include>
                                     <include>org.slf4j:slf4j-api</include>
+                                    <include>com.fasterxml.jackson.*:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
