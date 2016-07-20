@@ -138,8 +138,8 @@ public class BloomFilterIT {
         Collections.sort(keys);
         final Properties property = new Properties();
         property.put(AccumuloPropertyNames.INT, 10);
-        final Value value = elementConverter.getValueFromProperties(property, TestGroups.ENTITY);
-        final Value value2 = elementConverter.getValueFromProperties(property, TestGroups.EDGE);
+        final Value value = elementConverter.getValueFromProperties(TestGroups.ENTITY, property);
+        final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, property);
 
         // Create Accumulo configuration
         final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration.getDefaultConfiguration());
