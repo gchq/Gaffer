@@ -16,6 +16,7 @@
 
 package gaffer.operation.data;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -37,6 +38,7 @@ public class EdgeSeed extends ElementSeed {
         this.directed = directed;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getSource() {
         return source;
     }
@@ -45,6 +47,7 @@ public class EdgeSeed extends ElementSeed {
         this.source = source;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getDestination() {
         return destination;
     }

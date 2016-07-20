@@ -16,14 +16,16 @@
 
 package gaffer.operation.data;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class EntitySeedTest {
     @Test
@@ -158,5 +160,47 @@ public class EntitySeedTest {
         // Then
         assertFalse(isEqual);
         assertNotEquals(seed1.hashCode(), seed2.hashCode());
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseIntegersAndLongs() throws SerialisationException {
+        // Given
+        final Long vertex1 = 1L;
+        final Integer vertex2 = 2;
+        final EntitySeed seed1 = new EntitySeed(vertex1);
+        final EntitySeed seed2 = new EntitySeed(vertex2);
+        final JSONSerialiser serialiser = new JSONSerialiser();
+
+        // When
+        final byte[] bytes1 = serialiser.serialise(seed1);
+        final byte[] bytes2 = serialiser.serialise(seed2);
+        final EntitySeed seed1Deserialised = serialiser.deserialise(bytes1, EntitySeed.class);
+        final EntitySeed seed2Deserialised = serialiser.deserialise(bytes2, EntitySeed.class);
+
+
+        // Then
+        assertEquals(seed1, seed1Deserialised);
+        assertEquals(seed2, seed2Deserialised);
+        assertTrue(seed1Deserialised.getVertex() instanceof Long);
+        assertTrue(seed2Deserialised.getVertex() instanceof Integer);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseCustomVertexObjects() throws SerialisationException {
+        // Given
+        final CustomVertex vertex = new CustomVertex();
+        vertex.setType("type");
+        vertex.setValue("value");
+        final EntitySeed seed = new EntitySeed(vertex);
+        final JSONSerialiser serialiser = new JSONSerialiser();
+
+        // When
+        final byte[] bytes = serialiser.serialise(seed);
+        final EntitySeed seedDeserialised = serialiser.deserialise(bytes, EntitySeed.class);
+
+        // Then
+        assertTrue(seedDeserialised.getVertex() instanceof CustomVertex);
+        assertEquals("type", ((CustomVertex) seedDeserialised.getVertex()).getType());
+        assertEquals("value", ((CustomVertex)seedDeserialised.getVertex()).getValue());
     }
 }
