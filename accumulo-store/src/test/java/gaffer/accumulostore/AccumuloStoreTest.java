@@ -20,7 +20,11 @@ import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
@@ -42,6 +46,7 @@ import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
@@ -57,18 +62,17 @@ import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.StoreException;
 import gaffer.store.StoreTrait;
+import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
-import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.hamcrest.core.IsCollectionContaining;
-import gaffer.user.User;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,9 +113,14 @@ public class AccumuloStoreTest {
 
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(AccumuloStore store) throws OperationException {
         final List<Element> elements = new ArrayList<>();
-        final Entity e = new Entity(TestGroups.ENTITY);
+        final Entity e = new Entity(TestGroups.ENTITY, "1");
+        e.putProperty(TestPropertyNames.PROP_1, 1);
+        e.putProperty(TestPropertyNames.PROP_2, 2);
+        e.putProperty(TestPropertyNames.PROP_3, 3);
+        e.putProperty(TestPropertyNames.PROP_4, 4);
+        e.putProperty(TestPropertyNames.COUNT, 1);
+
         final User user = new User();
-        e.setVertex("1");
         elements.add(e);
         final AddElements add = new AddElements.Builder()
                 .elements(elements)
