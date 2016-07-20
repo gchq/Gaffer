@@ -18,7 +18,6 @@ package gaffer.accumulostore.retriever.impl;
 
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
@@ -42,14 +41,10 @@ import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import gaffer.user.User;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -311,7 +306,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
         for (final EntitySeed seed : seeds) {
-            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertexForBloomKey(seed.getVertex())));
+            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 
         // Test random items against it - should only have to shouldRetieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a

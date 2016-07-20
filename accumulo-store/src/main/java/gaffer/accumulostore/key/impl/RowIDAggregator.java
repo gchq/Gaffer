@@ -192,7 +192,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
             result = new ColumnQualifierColumnVisibilityValueTriple(
                     elementConverter.buildColumnQualifier(group, properties),
                     elementConverter.buildColumnVisibility(group, properties),
-                    elementConverter.getValueFromProperties(properties, group));
+                    elementConverter.getValueFromProperties(group, properties));
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("ColumnQualifierVisibilityAggregatorIterator failed to re-create an element",
                     e);
