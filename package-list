@@ -2,6 +2,7 @@ example.rest.application
 example.rest.serialisation
 gaffer.accumulostore
 gaffer.accumulostore.bulkimport
+gaffer.accumulostore.inputformat
 gaffer.accumulostore.key
 gaffer.accumulostore.key.core
 gaffer.accumulostore.key.core.impl
@@ -94,6 +95,8 @@ gaffer.store
 gaffer.store.operation.handler
 gaffer.store.operation.handler.export
 gaffer.store.operation.handler.generate
+gaffer.store.operationdeclaration
+gaffer.store.optimiser
 gaffer.store.schema
 gaffer.user
 gaffer.util
