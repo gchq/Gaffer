@@ -29,6 +29,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.Tool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,6 +40,7 @@ import java.util.TreeSet;
 
 public class SplitTableTool extends Configured implements Tool {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SplitTableTool.class);
     public static final int SUCCESS_RESPONSE = 1;
     private AccumuloStore store;
     private SplitTable operation;
@@ -49,28 +52,32 @@ public class SplitTableTool extends Configured implements Tool {
 
     @Override
     public int run(final String[] arg0) throws OperationException {
-        Configuration conf = getConf();
+        LOGGER.info("Running SplitTableTool");
+        final Configuration conf = getConf();
         FileSystem fs;
         try {
             fs = FileSystem.get(conf);
         } catch (IOException e) {
-            throw new OperationException("Failed to get Filesystem from configuraiton : " + e.getMessage(), e);
+            throw new OperationException("Failed to get Filesystem from configuration: " + e.getMessage(), e);
         }
-        SortedSet<Text> splits = new TreeSet<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
+        final SortedSet<Text> splits = new TreeSet<>();
+        try (final BufferedReader br = new BufferedReader(
+                new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
             String line = br.readLine();
             while (line != null) {
                 splits.add(new Text(br.readLine()));
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new OperationException(e.getMessage(), e);
         }
 
         try {
             store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
-        } catch (TableNotFoundException | AccumuloException | AccumuloSecurityException | StoreException e) {
-            throw new OperationException("Failed to add split points to the table specified" + e.getMessage(), e);
+            LOGGER.info("Added {} splits to table {}", splits.size(), store.getProperties().getTable());
+        } catch (final TableNotFoundException | AccumuloException | AccumuloSecurityException | StoreException e) {
+            LOGGER.error("Failed to add {} split points to table {}", splits.size(), store.getProperties().getTable());
+            throw new OperationException("Failed to add split points to the table specified: " + e.getMessage(), e);
         }
 
         return SUCCESS_RESPONSE;

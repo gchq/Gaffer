@@ -24,8 +24,12 @@ import gaffer.accumulostore.operation.hdfs.handler.job.AccumuloAddElementsFromHd
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FetchElementsFromHdfs extends Configured implements Tool {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FetchElementsFromHdfs.class);
     public static final int SUCCESS_RESPONSE = 1;
 
     private final AddElementsFromHdfs operation;
@@ -38,11 +42,12 @@ public class FetchElementsFromHdfs extends Configured implements Tool {
 
     @Override
     public int run(final String[] strings) throws Exception {
+        LOGGER.info("Ensuring table {} exists", store.getProperties().getTable());
         TableUtils.ensureTableExists(store);
 
+        LOGGER.info("Adding elements from HDFS");
         final Job job = new AccumuloAddElementsFromHdfsJobFactory().createJob(operation, store);
         job.waitForCompletion(true);
-
         if (!job.isSuccessful()) {
             throw new OperationException("Error running job");
         }
