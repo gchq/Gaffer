@@ -151,4 +151,8 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
      * @param summarise set to true to summarise results
      */
     void setSummarise(final boolean summarise);
+
+    boolean isDeduplicate();
+
+    void setDeduplicate(final boolean deduplicate);
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.operation.handler.generate;
+package gaffer.store.operation.handler.generate;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;

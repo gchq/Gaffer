@@ -19,6 +19,7 @@ package gaffer.jsonSerialisation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.serialisation.test.ParameterisedTestObject;
@@ -94,6 +95,17 @@ public class JSONSerialiserTest {
     }
 
     @Test
+    public void testParameterisedDAOTypeRefDeserialisation() throws SerialisationException {
+        ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
+        test.setX("Test");
+        test.setK(2);
+        byte[] b = serialiser.serialise(test);
+        ParameterisedTestObject<Integer> o = serialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {});
+        assertEquals("Test", o.getX());
+        assertEquals(Integer.valueOf(2), o.getK());
+    }
+
+    @Test
     public void testParameterisedDeserialisationOfComplexObject() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
@@ -124,5 +136,6 @@ public class JSONSerialiserTest {
         byte[] b = serialiser.serialise(test);
         serialiser.deserialise(b, Integer.class);
     }
+
 
 }

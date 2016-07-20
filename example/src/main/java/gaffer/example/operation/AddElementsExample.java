@@ -37,7 +37,7 @@ public class AddElementsExample extends OperationExample {
 
     public void addElements(final Graph graph) throws OperationException {
         log("#### " + getMethodNameAsSentence() + "\n");
-        printOperationJava("new AddElements.Builder()\n"
+        printJava("new AddElements.Builder()\n"
                 + "                .elements(new Entity.Builder()\n"
                 + "                                .group(\"entity\")\n"
                 + "                                .vertex(6)\n"

@@ -110,6 +110,11 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
         }
 
         @Override
+        public Builder<ELEMENT_SEED> deduplicate(final boolean deduplicate) {
+            return (Builder<ELEMENT_SEED>) super.deduplicate(deduplicate);
+        }
+
+        @Override
         public Builder<ELEMENT_SEED> populateProperties(final boolean populateProperties) {
             super.populateProperties(populateProperties);
             return this;
