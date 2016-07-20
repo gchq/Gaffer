@@ -69,4 +69,9 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
         index++;
         return iterator.next();
     }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 }
