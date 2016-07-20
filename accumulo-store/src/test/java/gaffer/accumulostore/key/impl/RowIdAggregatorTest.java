@@ -193,11 +193,11 @@ public class RowIdAggregatorTest {
             final Key key7 = elementConverter.getKeysFromEdge(edge9).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(properties1, TestGroups.EDGE);
-            final Value value2 = elementConverter.getValueFromProperties(properties2, TestGroups.EDGE);
-            final Value value3 = elementConverter.getValueFromProperties(properties3, TestGroups.EDGE);
-            final Value value4 = elementConverter.getValueFromProperties(properties1, TestGroups.EDGE_2);
-            final Value value5 = elementConverter.getValueFromProperties(properties2, TestGroups.EDGE_2);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties1);
+            final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties2);
+            final Value value3 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties3);
+            final Value value4 = elementConverter.getValueFromProperties(TestGroups.EDGE_2, properties1);
+            final Value value5 = elementConverter.getValueFromProperties(TestGroups.EDGE_2, properties2);
 
             //Create mutation
             final Mutation m1 = new Mutation(key.getRow());

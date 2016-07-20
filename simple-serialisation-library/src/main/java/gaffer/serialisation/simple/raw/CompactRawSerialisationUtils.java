@@ -17,9 +17,9 @@ package gaffer.serialisation.simple.raw;
 
 import gaffer.exception.SerialisationException;
 
-import java.io.DataInput;
-import java.io.DataOutput;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * The methods in this class are used in both {@link CompactRawIntegerSerialiser} and {@link CompactRawLongSerialiser}.
@@ -77,7 +77,7 @@ public final class CompactRawSerialisationUtils {
     }
 
     /**
-     * Writes a long to the provided {@link DataOutput}.
+     * Writes a long to the provided {@link OutputStream}.
      *
      * NB: This code is very similar to the code in the {@link CompactRawSerialisationUtils#writeLong(long)}
      * method. This violates the DRY principle, but the alternative is to implement the code in the
@@ -85,14 +85,14 @@ public final class CompactRawSerialisationUtils {
      * the byte array and then using this method. This approach avoids that expense.
      *
      * @param l The long to write.
-     * @param output The {@link DataOutput} to write data to.
+     * @param output The {@link OutputStream} to write data to.
      * @throws SerialisationException if there is an {@link IOException} writing the long.
      */
-    public static void write(final long l, final DataOutput output) throws SerialisationException {
+    public static void write(final long l, final OutputStream output) throws SerialisationException {
         try {
             long value = l;
             if (value >= -112 && value <= 127) {
-                output.writeByte((byte) value);
+                output.write((byte) value);
                 return;
             }
             int len = -112;
@@ -105,12 +105,12 @@ public final class CompactRawSerialisationUtils {
                 tmp = tmp >> 8;
                 len--;
             }
-            output.writeByte((byte) len);
+            output.write((byte) len);
             len = (len < -120) ? -(len + 120) : -(len + 112);
             for (int idx = len; idx != 0; idx--) {
                 final int shiftbits = (idx - 1) * 8;
                 final long mask = 0xFFL << shiftbits;
-                output.writeByte((byte) ((value & mask) >> shiftbits));
+                output.write((byte) ((value & mask) >> shiftbits));
             }
         } catch (final IOException e) {
             throw new SerialisationException("Exception reading bytes", e);
@@ -118,28 +118,28 @@ public final class CompactRawSerialisationUtils {
     }
 
     /**
-     * Reads a long from the provided {@link DataInput}. This requires the long to have been written
-     * by {@link CompactRawSerialisationUtils#write(long, DataOutput)}.
+     * Reads a long from the provided {@link InputStream}. This requires the long to have been written
+     * by {@link CompactRawSerialisationUtils#write(long, OutputStream)}.
      *
      * NB: This code is very similar to the code in the {@link CompactRawSerialisationUtils#readLong(byte[])}
      * method. This violates the DRY principle, but the alternative is to implement the code in the
      * {@link CompactRawSerialisationUtils#readLong(byte[])} method by creating a ByteArrayInputStream from
      * the byte array and then using this method. This approach avoids that expense.
      *
-     * @param input The {@link DataInput} to read data from.
+     * @param input The {@link InputStream} to read data from.
      * @return The value of the serialised long.
      * @throws SerialisationException if there is an {@link IOException} converting the data to a long.
      */
-    public static long read(final DataInput input) throws SerialisationException {
+    public static long read(final InputStream input) throws SerialisationException {
         try {
-            final byte firstByte = input.readByte();
+            final byte firstByte = (byte) input.read();
             final int len = decodeVIntSize(firstByte);
             if (len == 1) {
                 return (long) firstByte;
             }
             long i = 0;
             for (int idx = 0; idx < len - 1; idx++) {
-                final byte b = input.readByte();
+                final byte b = (byte) input.read();
                 i = i << 8;
                 i = i | (b & 0xFF);
             }
@@ -149,7 +149,7 @@ public final class CompactRawSerialisationUtils {
         }
     }
 
-    private static int decodeVIntSize(final byte value) {
+    public static int decodeVIntSize(final byte value) {
         if (value >= -112) {
             return 1;
         } else if (value < -120) {
