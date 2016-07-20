@@ -36,7 +36,6 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -175,7 +174,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         ColumnQualifierColumnVisibilityValueTriple topVisValPair = reduce(iter);
         topValue = topVisValPair.getValue();
         topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(CommonConstants.UTF_8),
-                    topVisValPair.getColumnQualifier(), topVisValPair.getColumnVisibility(), workKey.getTimestamp());
+                topVisValPair.getColumnQualifier(), topVisValPair.getColumnVisibility(), workKey.getTimestamp());
     }
 
     private ColumnQualifierColumnVisibilityValueTriple reduce(final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter) {
@@ -274,9 +273,14 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                 throw new RuntimeException(e);
             }
             return new ColumnQualifierColumnVisibilityValueTriple(
-                        k.getColumnQualifierData().getBackingArray(),
-                        k.getColumnVisibilityData().getBackingArray(),
-                        v);
+                    k.getColumnQualifierData().getBackingArray(),
+                    k.getColumnVisibilityData().getBackingArray(),
+                    v);
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
         }
     }
 }
