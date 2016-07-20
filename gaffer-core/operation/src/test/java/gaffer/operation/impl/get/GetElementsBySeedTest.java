@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class GetElementsSeedTest implements OperationTest {
+public class GetElementsBySeedTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
@@ -44,7 +44,7 @@ public class GetElementsSeedTest implements OperationTest {
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
 
         // When
-        final GetElementsSeed op = new GetElementsSeed(Collections.singletonList(elementSeed1));
+        final GetElementsBySeed op = new GetElementsBySeed(Collections.singletonList(elementSeed1));
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
@@ -56,11 +56,11 @@ public class GetElementsSeedTest implements OperationTest {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
-        final GetElementsSeed op = new GetElementsSeed(Arrays.asList(elementSeed1, elementSeed2));
+        final GetElementsBySeed op = new GetElementsBySeed(Arrays.asList(elementSeed1, elementSeed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetElementsSeed deserialisedOp = serialiser.deserialise(json, GetElementsSeed.class);
+        final GetElementsBySeed deserialisedOp = serialiser.deserialise(json, GetElementsBySeed.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -73,7 +73,7 @@ public class GetElementsSeedTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
 
-        GetElementsSeed<EntitySeed, Element> getElementsSeed = new GetElementsSeed.Builder<EntitySeed, Element>().addSeed(new EntitySeed("A"))
+        GetElementsBySeed<EntitySeed, Element> getElementsBySeed = new GetElementsBySeed.Builder<EntitySeed, Element>().addSeed(new EntitySeed("A"))
                 .includeEdges(GetOperation.IncludeEdgeType.ALL)
                 .includeEntities(false)
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
@@ -82,13 +82,13 @@ public class GetElementsSeedTest implements OperationTest {
                 .summarise(true)
                 .view(new View.Builder().edge("testEdgeGroup").build()).build();
 
-        assertFalse(getElementsSeed.isIncludeEntities());
-        assertTrue(getElementsSeed.isSummarise());
-        assertFalse(getElementsSeed.isPopulateProperties());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsSeed.getIncludeIncomingOutGoing());
-        assertEquals(GetOperation.IncludeEdgeType.ALL, getElementsSeed.getIncludeEdges());
-        assertEquals("true", getElementsSeed.getOption("testOption"));
-        assertTrue(getElementsSeed.isSummarise());
-        assertNotNull(getElementsSeed.getView());
+        assertFalse(getElementsBySeed.isIncludeEntities());
+        assertTrue(getElementsBySeed.isSummarise());
+        assertFalse(getElementsBySeed.isPopulateProperties());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsBySeed.getIncludeIncomingOutGoing());
+        assertEquals(GetOperation.IncludeEdgeType.ALL, getElementsBySeed.getIncludeEdges());
+        assertEquals("true", getElementsBySeed.getOption("testOption"));
+        assertTrue(getElementsBySeed.isSummarise());
+        assertNotNull(getElementsBySeed.getView());
     }
 }

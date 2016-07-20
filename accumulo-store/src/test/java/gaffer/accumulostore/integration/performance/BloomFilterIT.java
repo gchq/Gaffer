@@ -58,7 +58,6 @@ import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -84,11 +83,10 @@ public class BloomFilterIT {
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory Gaffer1RangeFactory;
     private AccumuloElementConverter gafferV1ElementConverter;
-    private Schema schema;
 
     @Before
     public void setup() {
-        schema = new Schema.Builder()
+        Schema schema = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, Integer.class)
                 .vertexSerialiser(new JavaSerialiser())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -157,8 +155,7 @@ public class BloomFilterIT {
 
         // Open file
         final String suffix = FileOperations.getNewFileExtension(accumuloConf);
-        final String filenameTemp = tempFolder.newFile().getAbsolutePath();
-        FileUtils.fileDelete(filenameTemp);
+        final String filenameTemp = tempFolder.getRoot().getAbsolutePath();
         final String filename = filenameTemp + "." + suffix;
         final File file = new File(filename);
         if (file.exists()) {
