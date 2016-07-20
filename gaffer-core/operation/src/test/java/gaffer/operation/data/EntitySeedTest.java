@@ -184,4 +184,23 @@ public class EntitySeedTest {
         assertTrue(seed1Deserialised.getVertex() instanceof Long);
         assertTrue(seed2Deserialised.getVertex() instanceof Integer);
     }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseCustomVertexObjects() throws SerialisationException {
+        // Given
+        final CustomVertex vertex = new CustomVertex();
+        vertex.setType("type");
+        vertex.setValue("value");
+        final EntitySeed seed = new EntitySeed(vertex);
+        final JSONSerialiser serialiser = new JSONSerialiser();
+
+        // When
+        final byte[] bytes = serialiser.serialise(seed);
+        final EntitySeed seedDeserialised = serialiser.deserialise(bytes, EntitySeed.class);
+
+        // Then
+        assertTrue(seedDeserialised.getVertex() instanceof CustomVertex);
+        assertEquals("type", ((CustomVertex) seedDeserialised.getVertex()).getType());
+        assertEquals("value", ((CustomVertex)seedDeserialised.getVertex()).getValue());
+    }
 }

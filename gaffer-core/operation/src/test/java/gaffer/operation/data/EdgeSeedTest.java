@@ -218,4 +218,30 @@ public class EdgeSeedTest {
         assertTrue(seedDeserialised.getSource() instanceof Long);
         assertTrue(seedDeserialised.getDestination() instanceof Integer);
     }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseCustomVertexObjects() throws SerialisationException {
+        // Given
+        final CustomVertex source = new CustomVertex();
+        source.setType("sourceType");
+        source.setValue("sourceValue");
+        final CustomVertex destination = new CustomVertex();
+        destination.setType("destinationType");
+        destination.setValue("destinationValue");
+        final boolean directed = true;
+        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
+        final JSONSerialiser serialiser = new JSONSerialiser();
+
+        // When
+        final byte[] bytes = serialiser.serialise(seed);
+        final EdgeSeed seedDeserialised = serialiser.deserialise(bytes, EdgeSeed.class);
+
+        // Then
+        assertTrue(seedDeserialised.getSource() instanceof CustomVertex);
+        assertTrue(seedDeserialised.getDestination() instanceof CustomVertex);
+        assertEquals("sourceType", ((CustomVertex) seedDeserialised.getSource()).getType());
+        assertEquals("sourceValue", ((CustomVertex)seedDeserialised.getSource()).getValue());
+        assertEquals("destinationType", ((CustomVertex)seedDeserialised.getDestination()).getType());
+        assertEquals("destinationValue", ((CustomVertex) seedDeserialised.getDestination()).getValue());
+    }
 }
