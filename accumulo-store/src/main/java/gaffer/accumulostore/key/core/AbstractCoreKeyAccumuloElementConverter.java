@@ -29,13 +29,16 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.simple.raw.CompactRawSerialisationUtils;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Date;
@@ -105,7 +108,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return new Value(out.toByteArray());
     }
 
-    protected boolean getBytesFromProperties(final String group, final Properties properties, final StorePositions position, final ByteArrayOutputStream out) throws AccumuloElementConversionException {
+    protected boolean getBytesFromProperties(final String group, final Properties properties, final StorePositions position, final OutputStream out) throws AccumuloElementConversionException {
         final Iterator<String> propertyNames = schema.getElement(group).getProperties().iterator();
         boolean hasValue = false;
         String propertyName;
@@ -116,41 +119,27 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             if (propertyDefinition != null) {
                 if (position.isEqual(propertyDefinition.getPosition())) {
                     Object value = properties.get(propertyName);
-                    if (null != value) {
-                        byte[] bytes;
-                        try {
-                            bytes = propertyDefinition.getSerialiser().serialise(value);
-                        } catch (final SerialisationException e) {
-                            throw new AccumuloElementConversionException("Failed to serialise property " + propertyName, e);
-                        }
-                        length = bytes.length;
-                        if (length > 0) {
-                            hasValue = true;
-                            out.write((byte) (length & 255));
-                            out.write((byte) (length >> 8) & 255);
-                            out.write((byte) (length >> 16) & 255);
-                            out.write((byte) (length >> 24) & 255);
-                            try {
+                    try {
+                        if (null != value) {
+                            final byte[] bytes = propertyDefinition.getSerialiser().serialise(value);
+                            length = bytes.length;
+                            if (length > 0) {
+                                hasValue = true;
+                                CompactRawSerialisationUtils.write(length, out);
                                 out.write(bytes);
-                            } catch (IOException e) {
-                                throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
+                            } else {
+                                CompactRawSerialisationUtils.write(0L, out);
                             }
                         } else {
-                            writeZeroInt(out);
+                            CompactRawSerialisationUtils.write(0L, out);
                         }
-                    } else {
-                        writeZeroInt(out);
+                    } catch (final IOException e) {
+                        throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
                     }
                 }
             }
         }
         return hasValue;
-    }
-
-    private void writeZeroInt(final ByteArrayOutputStream out) {
-        for (int i = 0; i < 4; ++i) {
-            out.write(ByteArrayEscapeUtils.DELIMITER);
-        }
     }
 
     @Override
@@ -172,7 +161,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected void getPropertiesFromBytes(final String group, final byte[] bytes, final StorePositions position, final Properties properties) throws AccumuloElementConversionException {
         int lastDelimiter = 0;
         int arrayLength = bytes.length;
-        int currentPropLength;
+        long currentPropLength;
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
             throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
@@ -182,20 +171,22 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             final String propertyName = propertyNames.next();
             TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             if (position.isEqual(typeDefinition.getPosition())) {
-                currentPropLength = (int) ((int) bytes[lastDelimiter] & 255L
-                        | ((int) bytes[lastDelimiter + 1] & 255L) << 8
-                        | ((int) bytes[lastDelimiter + 2] & 255L) << 16
-                        | ((int) bytes[lastDelimiter + 3] & 255L) << 24);
+                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
+                final byte[] length = new byte[numBytesForLength];
+                System.arraycopy(bytes, lastDelimiter, length, 0, numBytesForLength);
+                try {
+                    currentPropLength = CompactRawSerialisationUtils.readLong(length);
+                } catch (final SerialisationException e) {
+                    throw new AccumuloElementConversionException("Exception reading length of property");
+                }
+                lastDelimiter += numBytesForLength;
                 if (currentPropLength > 0) {
-                    lastDelimiter += 4;
                     try {
                         properties.put(propertyName, typeDefinition.getSerialiser()
                                 .deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
                     } catch (SerialisationException e) {
                         throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                     }
-                } else {
-                    lastDelimiter += 4;
                 }
             }
         }
