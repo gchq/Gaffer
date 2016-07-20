@@ -21,7 +21,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.9-RC3-SNAPSHOT</version>
+        <version>0.3.9</version>
     </parent>
     <artifactId>rest-api</artifactId>
 
