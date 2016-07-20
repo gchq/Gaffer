@@ -17,6 +17,7 @@ package gaffer.accumulostore.key.core.impl;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -237,7 +238,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals(null, properties.get(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValues() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValue() throws AccumuloElementConversionException {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 60);
         properties.put(AccumuloPropertyNames.PROP_2, 166);
@@ -255,7 +256,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValuesMissingMiddleValue() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingMiddleProperty() throws AccumuloElementConversionException {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 60);
         properties.put(AccumuloPropertyNames.PROP_3, 299);
@@ -271,7 +272,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValuesMissingEndValue() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingEndProperty() throws AccumuloElementConversionException {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 60);
         properties.put(AccumuloPropertyNames.PROP_2, 166);
@@ -287,7 +288,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValuesMissingStartValue() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingStartProperty() throws AccumuloElementConversionException {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_2, 166);
         properties.put(AccumuloPropertyNames.PROP_3, 299);
@@ -297,6 +298,24 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Value value = converter.getValueFromProperties(TestGroups.EDGE, properties);
         final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
         assertEquals(166, deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
+        assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
+        assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
+        assertEquals(8, deSerialisedProperties.get(AccumuloPropertyNames.COUNT));
+    }
+
+    @Test
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueWithNullProperty() throws AccumuloElementConversionException {
+        Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.PROP_1, 5);
+        properties.put(AccumuloPropertyNames.PROP_2, null);
+        properties.put(AccumuloPropertyNames.PROP_3, 299);
+        properties.put(AccumuloPropertyNames.PROP_4, 10);
+        properties.put(AccumuloPropertyNames.COUNT, 8);
+
+        final Value value = converter.getValueFromProperties(TestGroups.EDGE, properties);
+        final Properties deSerialisedProperties = converter.getPropertiesFromValue(TestGroups.EDGE, value);
+        assertEquals(5, deSerialisedProperties.get(AccumuloPropertyNames.PROP_1));
+        assertNull(deSerialisedProperties.get(AccumuloPropertyNames.PROP_2));
         assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
         assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
         assertEquals(8, deSerialisedProperties.get(AccumuloPropertyNames.COUNT));
