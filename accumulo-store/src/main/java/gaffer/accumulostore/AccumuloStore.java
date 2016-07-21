@@ -127,6 +127,7 @@ public class AccumuloStore extends Store {
         }
         this.keyPackage.setSchema(schema);
         validateSchemasAgainstKeyDesign();
+        TableUtils.ensureTableExists(this);
     }
 
     /**
@@ -262,7 +263,6 @@ public class AccumuloStore extends Store {
      * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
-        TableUtils.ensureTableExists(this);
         insertGraphElements(elements);
     }
 
