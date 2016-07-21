@@ -35,6 +35,7 @@ def run_with_connector(gc):
     generate_elements(gc)
     generate_domain_objs(gc)
     generate_domain_objects_chain(gc)
+    get_element_group_counts(gc)
     get_sub_graph(gc)
 
 
@@ -224,20 +225,34 @@ def generate_domain_objects_chain(gc):
     print()
 
 
+def get_element_group_counts(gc):
+    # Get Elements
+    elements = gc.execute_operations([
+        g.GetRelatedElements(
+            seeds=[g.EntitySeed('1')]
+        ),
+        g.CountGroups(limit=1000)
+    ])
+    print('Groups counts (limited to 1000 elements)')
+    print(elements)
+    print()
+
+
 def get_sub_graph(gc):
     # Update and Fetch Cache
     result = gc.execute_operations(
         [
+            g.InitialiseSetExport(),
             g.GetAdjacentEntitySeeds(
                 seeds=[g.EntitySeed('1')],
             ),
-            g.UpdateCache(),
+            g.UpdateExport(),
             g.GetAdjacentEntitySeeds(),
-            g.UpdateCache(),
-            g.FetchCachedResult()
+            g.UpdateExport(),
+            g.FetchExport()
         ]
     )
-    print('Update and fetch cache with adjacent entities')
+    print('Initialise, update and fetch export with adjacent entities')
     entity_seeds = g.ResultConverter.to_entity_seeds(result)
     print(entity_seeds)
     print()
