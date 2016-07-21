@@ -77,8 +77,7 @@ public final class TableUtils {
      * @throws StoreException if a connection to accumulo could not be created or there is a failure to create a table/iterator
      */
     public static void ensureTableExists(final AccumuloStore store) throws StoreException {
-        final Connector conn;
-        conn = store.getConnection();
+        final Connector conn = store.getConnection();
         if (!conn.tableOperations().exists(store.getProperties().getTable())) {
             try {
                 TableUtils.createTable(store);
