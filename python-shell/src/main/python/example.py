@@ -239,7 +239,7 @@ def get_element_group_counts(gc):
 
 
 def get_sub_graph(gc):
-    # Update and Fetch Cache
+    # Initialise, update and fetch an in memory set export
     result = gc.execute_operations(
         [
             g.InitialiseSetExport(),
