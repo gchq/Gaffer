@@ -23,7 +23,6 @@ import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.implementation.JavaSerialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.InputStream;
@@ -48,14 +47,12 @@ import java.util.Map.Entry;
  * @see ElementDefinitions
  */
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
 
     /**
-     * The {@link gaffer.serialisation.Serialisation} for all identifiers. By default it is set to
-     * {@link gaffer.serialisation.implementation.JavaSerialiser}.
+     * The {@link gaffer.serialisation.Serialisation} for all vertices.
      */
-    private Serialisation vertexSerialiser = DEFAULT_VERTEX_SERIALISER;
+    private Serialisation vertexSerialiser;
 
     /**
      * A map of keys to positions.
@@ -180,7 +177,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     /**
-     * Returns the vertex serialiser for this schema.
+     * Returns the original vertex serialiser for this schema.
      * <p>
      * There can be only one vertex serialiser for all elements because in order for searches to work correctly,
      * the byte representation of the search term's (seeds) must match the byte representation stored,
@@ -194,25 +191,20 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     public void setVertexSerialiser(final Serialisation vertexSerialiser) {
-        if (null != vertexSerialiser) {
-            this.vertexSerialiser = vertexSerialiser;
-        } else {
-            this.vertexSerialiser = DEFAULT_VERTEX_SERIALISER;
-        }
+        this.vertexSerialiser = vertexSerialiser;
     }
 
     public String getVertexSerialiserClass() {
-        final Class<? extends Serialisation> serialiserClass = vertexSerialiser.getClass();
-        if (!DEFAULT_VERTEX_SERIALISER.getClass().equals(serialiserClass)) {
-            return serialiserClass.getName();
+        if (null == vertexSerialiser) {
+            return null;
         }
 
-        return null;
+        return vertexSerialiser.getClass().getName();
     }
 
     public void setVertexSerialiserClass(final String vertexSerialiserClass) {
         if (null == vertexSerialiserClass) {
-            this.vertexSerialiser = DEFAULT_VERTEX_SERIALISER;
+            this.vertexSerialiser = null;
         } else {
             Class<? extends Serialisation> serialiserClass;
             try {
@@ -275,12 +267,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        if (DEFAULT_VERTEX_SERIALISER.getClass().equals(vertexSerialiser.getClass())) {
-            setVertexSerialiser(schema.getVertexSerialiser());
-        } else if (!DEFAULT_VERTEX_SERIALISER.getClass().equals(schema.getVertexSerialiser().getClass())
-                && !vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
-            throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
-                    + vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
+        if (null != schema.getVertexSerialiser()) {
+            if (null == getVertexSerialiser()) {
+                setVertexSerialiser(schema.getVertexSerialiser());
+            } else if (!vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
+                throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
+                        + vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
+            }
         }
 
         types.merge(schema.getTypes());

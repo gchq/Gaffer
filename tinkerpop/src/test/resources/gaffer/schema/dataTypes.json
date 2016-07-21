@@ -1,7 +1,7 @@
 {
   "types": {
     "id": {
-      "class": "java.lang.Object"
+      "class": "java.io.Serializable"
     },
     "true": {
       "class": "java.lang.Boolean"

@@ -64,6 +64,7 @@ import gaffer.operation.impl.get.GetElementsSeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
+import gaffer.serialisation.Serialisation;
 import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
@@ -152,7 +153,7 @@ public class StoreTest {
         try {
             store.initialise(mySchema, properties);
             fail();
-        } catch (SchemaException exception) {
+        } catch (IllegalArgumentException exception) {
             assertNotNull(exception.getMessage());
         }
     }
@@ -201,11 +202,10 @@ public class StoreTest {
     @Test
     public void shouldDelegateDoOperationToOperationHandler() throws Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
         final StoreImpl store = new StoreImpl();
-        given(schema.validate()).willReturn(true);
         store.initialise(schema, properties);
 
         // When
@@ -219,7 +219,7 @@ public class StoreTest {
     public void shouldThrowExceptionIfOperationViewIsInvalid() throws OperationException, StoreException {
         // Given
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final AddElements addElements = new AddElements();
         final View view = mock(View.class);
@@ -227,7 +227,6 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
 
         addElements.setView(view);
-        given(schema.validate()).willReturn(true);
         given(viewValidator.validate(view, schema)).willReturn(false);
         store.initialise(schema, properties);
         store.setViewValidator(viewValidator);
@@ -245,12 +244,11 @@ public class StoreTest {
     @Test
     public void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass() throws Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation<String, String> operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
 
-        given(schema.validate()).willReturn(true);
         store.initialise(schema, properties);
 
         // When
@@ -286,7 +284,7 @@ public class StoreTest {
     @Test
     public void shouldHandleMultiStepOperations() throws Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final Iterable<Element> getElementsResult = mock(Iterable.class);
@@ -298,7 +296,6 @@ public class StoreTest {
                 .then(getElementsSeed)
                 .build();
 
-        given(schema.validate()).willReturn(true);
 
         given(addElementsHandler.doOperation(addElements1, context, store)).willReturn(null);
         given(getElementsHandler.doOperation(getElementsSeed, context, store)).willReturn(getElementsResult);
@@ -315,7 +312,7 @@ public class StoreTest {
     @Test
     public void shouldReturnAllSupportedOperations() throws Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
@@ -323,9 +320,7 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedNumberOfOperations = 25;
 
-        given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
-
         given(validatable.getOptions()).willReturn(options);
 
         given(validatableHandler.doOperation(validatable, context, store)).
@@ -345,7 +340,7 @@ public class StoreTest {
     @Test
     public void shouldReturnTrueWhenOperationSupported() throws Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
@@ -353,7 +348,6 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final int expectedNumberOfOperations = 15;
 
-        given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
         given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
@@ -373,14 +367,13 @@ public class StoreTest {
     public void shouldReturnFalseWhenUnsupportedOperationRequested() throws
             Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
 
-        given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
         store.initialise(schema, properties);
@@ -395,14 +388,13 @@ public class StoreTest {
     @Test
     public void shouldHandleNullOperationSupportRequest() throws Exception {
         // Given
-        final Schema schema = mock(Schema.class);
+        final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Validatable<Integer> validatable = mock(Validatable.class);
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
 
-        given(schema.validate()).willReturn(true);
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
         store.initialise(schema, properties);
@@ -412,6 +404,13 @@ public class StoreTest {
 
         // Then
         assertFalse(supported);
+    }
+
+    private Schema createSchemaMock() {
+        final Schema schema = mock(Schema.class);
+        given(schema.validate()).willReturn(true);
+        given(schema.getVertexSerialiser()).willReturn(mock(Serialisation.class));
+        return schema;
     }
 
     private class StoreImpl extends Store {

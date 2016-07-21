@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
+package gaffer.serialisation.implementation;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
-@Deprecated
 public class DoubleSerialiser implements Serialisation {
 
     private static final long serialVersionUID = 5647756843689779437L;
@@ -43,7 +42,7 @@ public class DoubleSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return Double.parseDouble(new String(bytes, CommonConstants.ISO_8859_1_ENCODING).trim());
+            return Double.parseDouble(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

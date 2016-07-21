@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
+package gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
 import gaffer.commonutil.CommonConstants;
@@ -24,9 +24,9 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
- * @deprecated please use {@link gaffer.serialisation.implementation.TreeSetStringSerialiser}
+ * A <code>TreeSetStringSerialiser</code> is a serialiser for {@link TreeSet}s with
+ * {@link String} values.
  */
-@Deprecated
 public class TreeSetStringSerialiser implements Serialisation {
     private static final long serialVersionUID = -8241328807929077861L;
     private static final String COMMA = "\\,";
@@ -61,7 +61,7 @@ public class TreeSetStringSerialiser implements Serialisation {
     public TreeSet<String> deserialise(final byte[] bytes) throws SerialisationException {
         final String str;
         try {
-            str = new String(bytes, CommonConstants.UTF_8).trim();
+            str = new String(bytes, CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

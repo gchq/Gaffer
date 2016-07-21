@@ -31,10 +31,9 @@ import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.serialisation.simple.IntegerSerialiser;
-import gaffer.serialisation.simple.LongSerialiser;
-import gaffer.serialisation.simple.StringSerialiser;
+import gaffer.serialisation.implementation.IntegerSerialiser;
+import gaffer.serialisation.implementation.LongSerialiser;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
@@ -173,7 +172,7 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new JavaSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)

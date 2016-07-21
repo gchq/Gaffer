@@ -48,6 +48,8 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.implementation.JavaSerialiser;
+import gaffer.serialisation.implementation.SerialisationFactory;
 import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
@@ -64,7 +66,10 @@ import gaffer.store.operationdeclaration.OperationDeclarations;
 import gaffer.store.optimiser.CoreOperationChainOptimiser;
 import gaffer.store.optimiser.OperationChainOptimiser;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.TypeDefinition;
 import gaffer.store.schema.ViewValidator;
 import gaffer.user.User;
 import org.slf4j.Logger;
@@ -74,6 +79,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -96,6 +102,7 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
+    private final SerialisationFactory serialisationFactory;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
     private ViewValidator viewValidator;
@@ -104,6 +111,7 @@ public abstract class Store {
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
         viewValidator = new ViewValidator();
+        serialisationFactory = getSerialisationFactory();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -233,7 +241,8 @@ public abstract class Store {
     }
 
     /**
-     * Removes any types in the schema that are not used.
+     * Removes any types in the schema that are not used and sets the
+     * default serialisers.
      */
     public void optimiseSchemas() {
         final Set<String> usedTypeNames = new HashSet<>();
@@ -246,10 +255,67 @@ public abstract class Store {
         }
 
         if (null != getSchema().getTypes()) {
-            for (String typeName : new HashSet<>(getSchema().getTypes().keySet())) {
+            for (Entry<String, TypeDefinition> entry : getSchema().getTypes().entrySet()) {
+                final String typeName = entry.getKey();
+                final TypeDefinition typeDef = entry.getValue();
+
+                // Add remove unused types
                 if (!usedTypeNames.contains(typeName)) {
                     getSchema().getTypes().remove(typeName);
                 }
+
+                // Add default serialisers
+                if (null == typeDef.getSerialiser()) {
+                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz()));
+                }
+            }
+        }
+
+        // Add default vertex serialiser
+        if (null == getSchema().getVertexSerialiser()) {
+            final Set<Class<?>> vertexClasses = new HashSet<>();
+            for (SchemaEntityDefinition definition : getSchema().getEntities().values()) {
+                vertexClasses.add(definition.getIdentifierClass(IdentifierType.VERTEX));
+            }
+            for (SchemaEdgeDefinition definition : getSchema().getEdges().values()) {
+                vertexClasses.add(definition.getIdentifierClass(IdentifierType.SOURCE));
+                vertexClasses.add(definition.getIdentifierClass(IdentifierType.DESTINATION));
+            }
+            vertexClasses.remove(null);
+
+            if (!vertexClasses.isEmpty()) {
+                Serialisation serialiser = null;
+
+                if (vertexClasses.size() == 1) {
+                    serialiser = serialisationFactory.getSerialiser(vertexClasses.iterator().next());
+                } else {
+
+                    for (Class<?> clazz : vertexClasses) {
+                        serialiser = serialisationFactory.getSerialiser(clazz);
+                        boolean canHandlerAll = true;
+                        for (Class<?> clazz2 : vertexClasses) {
+                            if (!serialiser.canHandle(clazz2)) {
+                                canHandlerAll = false;
+                                break;
+                            }
+                        }
+
+                        if (canHandlerAll) {
+                            break;
+                        }
+                    }
+                }
+
+                if (null == serialiser) {
+                    throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types, please implement your own or change your vertex class types.");
+                }
+
+                if (serialiser instanceof JavaSerialiser) {
+                    LOGGER.warn("Java serialisation is not recommended for vertex serialisation - it may cause aggregation to fail. Please implement your own or change your vertex class types.");
+                }
+
+                getSchema().setVertexSerialiser(serialiser);
+
             }
         }
     }
@@ -264,8 +330,10 @@ public abstract class Store {
             for (String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                 Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
-
-                if (!serialisation.canHandle(propertyClass)) {
+                if (null == serialisation) {
+                    valid = false;
+                    LOGGER.error("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
+                } else if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
                     LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
                 }
@@ -388,6 +456,10 @@ public abstract class Store {
                         + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
             }
         }
+    }
+
+    protected SerialisationFactory getSerialisationFactory() {
+        return new SerialisationFactory();
     }
 
     private void addOpHandlers() {

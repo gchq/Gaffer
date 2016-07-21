@@ -20,8 +20,11 @@ import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @deprecated please use {@link gaffer.serialisation.implementation.StringSerialiser}
+ */
+@Deprecated
 public class StringSerialiser implements Serialisation {
-
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override

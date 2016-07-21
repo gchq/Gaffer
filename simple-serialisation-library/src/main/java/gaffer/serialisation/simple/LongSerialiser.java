@@ -15,12 +15,15 @@
  */
 package gaffer.serialisation.simple;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
-
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @deprecated please use {@link gaffer.serialisation.implementation.LongSerialiser}
+ */
+@Deprecated
 public class LongSerialiser implements Serialisation {
 
     private static final long serialVersionUID = 5647756843689779437L;
@@ -34,7 +37,7 @@ public class LongSerialiser implements Serialisation {
     public byte[] serialise(final Object object) throws SerialisationException {
         Long value = (Long) object;
         try {
-            return value.toString().getBytes(SimpleSerialisationConstants.ISO_8859_1_ENCODING);
+            return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -43,7 +46,7 @@ public class LongSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return Long.parseLong(new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING).trim());
+            return Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING).trim());
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

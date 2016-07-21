@@ -20,6 +20,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -156,10 +157,9 @@ public class SchemaTest {
 
         TypeDefinition type = edgeDefinition.getPropertyTypeDef(TestPropertyNames.DATE);
         assertEquals(Date.class, type.getClazz());
-        assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
+        assertNull(type.getSerialiser());
         assertEquals("PROPERTY_2", type.getPosition());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
-
 
         // Entity definitions
         SchemaElementDefinition entityDefinition = schema.getEntity(TestGroups.ENTITY);
@@ -167,7 +167,7 @@ public class SchemaTest {
         assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
         type = entityDefinition.getPropertyTypeDef(TestPropertyNames.PROP_1);
         assertEquals(String.class, type.getClazz());
-        assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
+        assertNull(type.getSerialiser());
         assertEquals("PROPERTY_1", type.getPosition());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
@@ -185,8 +185,6 @@ public class SchemaTest {
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
-
-
     }
 
     @Test

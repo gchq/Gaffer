@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
+package gaffer.serialisation.implementation;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 
 /**
  * This class is used to serialise and deserialise a boolean value
- * @deprecated please use {@link gaffer.serialisation.implementation.BooleanSerialiser}
  */
-@Deprecated
 public class BooleanSerialiser implements Serialisation {
 
     private static final long serialVersionUID = -3964992157560886710L;
