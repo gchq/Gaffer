@@ -16,6 +16,8 @@
 package gaffer.serialisation.implementation;
 
 import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 
 /**
  * This class is used to serialise and deserialise a boolean value
@@ -26,8 +28,8 @@ public class SerialisationFactory {
             new DateSerialiser(),
             new DoubleSerialiser(),
             new FloatSerialiser(),
-            new IntegerSerialiser(),
-            new LongSerialiser(),
+            new CompactRawIntegerSerialiser(),
+            new CompactRawLongSerialiser(),
             new StringSerialiser(),
             new TreeSetStringSerialiser(),
             new JavaSerialiser()

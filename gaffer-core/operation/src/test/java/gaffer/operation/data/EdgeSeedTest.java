@@ -16,14 +16,16 @@
 
 package gaffer.operation.data;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
 
 public class EdgeSeedTest {
     @Test
@@ -196,5 +198,50 @@ public class EdgeSeedTest {
 
         // Then
         assertFalse(isEqual);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseIntegersAndLongs() throws SerialisationException {
+        // Given
+        final Long source = 1L;
+        final Integer destination = 2;
+        final boolean directed = true;
+        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
+        final JSONSerialiser serialiser = new JSONSerialiser();
+        // When
+        final byte[] bytes = serialiser.serialise(seed);
+        final EdgeSeed seedDeserialised = serialiser.deserialise(bytes, EdgeSeed.class);
+
+
+        // Then
+        assertEquals(seed, seedDeserialised);
+        assertTrue(seedDeserialised.getSource() instanceof Long);
+        assertTrue(seedDeserialised.getDestination() instanceof Integer);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseCustomVertexObjects() throws SerialisationException {
+        // Given
+        final CustomVertex source = new CustomVertex();
+        source.setType("sourceType");
+        source.setValue("sourceValue");
+        final CustomVertex destination = new CustomVertex();
+        destination.setType("destinationType");
+        destination.setValue("destinationValue");
+        final boolean directed = true;
+        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
+        final JSONSerialiser serialiser = new JSONSerialiser();
+
+        // When
+        final byte[] bytes = serialiser.serialise(seed);
+        final EdgeSeed seedDeserialised = serialiser.deserialise(bytes, EdgeSeed.class);
+
+        // Then
+        assertTrue(seedDeserialised.getSource() instanceof CustomVertex);
+        assertTrue(seedDeserialised.getDestination() instanceof CustomVertex);
+        assertEquals("sourceType", ((CustomVertex) seedDeserialised.getSource()).getType());
+        assertEquals("sourceValue", ((CustomVertex)seedDeserialised.getSource()).getValue());
+        assertEquals("destinationType", ((CustomVertex)seedDeserialised.getDestination()).getType());
+        assertEquals("destinationValue", ((CustomVertex) seedDeserialised.getDestination()).getValue());
     }
 }

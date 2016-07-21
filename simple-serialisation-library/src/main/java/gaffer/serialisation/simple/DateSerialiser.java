@@ -49,7 +49,7 @@ public class DateSerialiser implements Serialisation {
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         Long longR;
         try {
-            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING).trim());
+            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

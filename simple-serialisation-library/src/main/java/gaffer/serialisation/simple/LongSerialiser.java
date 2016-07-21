@@ -20,10 +20,6 @@ import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
-/**
- * @deprecated please use {@link gaffer.serialisation.implementation.LongSerialiser}
- */
-@Deprecated
 public class LongSerialiser implements Serialisation {
 
     private static final long serialVersionUID = 5647756843689779437L;
@@ -46,7 +42,7 @@ public class LongSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING).trim());
+            return Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

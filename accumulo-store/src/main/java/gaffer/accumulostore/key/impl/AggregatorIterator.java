@@ -83,7 +83,7 @@ public class AggregatorIterator extends Combiner {
         properties = new Properties();
         aggregator.state(properties);
         try {
-            return elementConverter.getValueFromProperties(properties, group);
+            return elementConverter.getValueFromProperties(group, properties);
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("Failed to create an accumulo value from an elements properties", e);
         }
