@@ -251,7 +251,6 @@ public class AccumuloStore extends Store {
      * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
-        TableUtils.ensureTableExists(this); // Needed for tests that access store directly
         insertGraphElements(elements);
     }
 
