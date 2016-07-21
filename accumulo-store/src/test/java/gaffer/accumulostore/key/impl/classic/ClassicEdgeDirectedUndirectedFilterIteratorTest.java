@@ -28,6 +28,7 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.operation.OperationException;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.data.Key;
@@ -45,6 +46,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
                     .destination(String.class)
                     .directed(Boolean.class)
                     .build())
+            .vertexSerialiser(new StringSerialiser())
             .build();
 
     private static final List<Edge> EDGES = Arrays.asList(

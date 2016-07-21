@@ -70,6 +70,7 @@ import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.store.schema.TypeDefinition;
+import gaffer.store.schema.TypeDefinitions;
 import gaffer.store.schema.ViewValidator;
 import gaffer.user.User;
 import org.slf4j.Logger;
@@ -79,7 +80,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -254,16 +254,16 @@ public abstract class Store {
             usedTypeNames.addAll(elDef.getPropertyTypeNames());
         }
 
-        if (null != getSchema().getTypes()) {
-            for (Entry<String, TypeDefinition> entry : getSchema().getTypes().entrySet()) {
-                final String typeName = entry.getKey();
-                final TypeDefinition typeDef = entry.getValue();
-
-                // Add remove unused types
+        final TypeDefinitions types = getSchema().getTypes();
+        if (null != types) {
+            for (final String typeName : new HashSet<>(types.keySet())) {
+                // Remove unused types
                 if (!usedTypeNames.contains(typeName)) {
-                    getSchema().getTypes().remove(typeName);
+                    types.remove(typeName);
                 }
+            }
 
+            for (final TypeDefinition typeDef : types.values()) {
                 // Add default serialisers
                 if (null == typeDef.getSerialiser()) {
                     typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz()));

@@ -28,6 +28,7 @@ import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.data.Key;
@@ -186,6 +187,7 @@ public class ElementFilterTest {
                         .source(String.class)
                         .destination(String.class)
                         .build())
+                .vertexSerialiser(new StringSerialiser())
                 .build();
     }
 

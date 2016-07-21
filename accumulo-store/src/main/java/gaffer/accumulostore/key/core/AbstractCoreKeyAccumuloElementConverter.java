@@ -29,13 +29,12 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.raw.CompactRawSerialisationUtils;
+import gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

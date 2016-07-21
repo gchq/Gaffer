@@ -37,7 +37,7 @@ public class SerialisationFactory {
 
     public Serialisation getSerialiser(final Class<?> objClass) {
         if (null == objClass) {
-            throw new IllegalArgumentException("Object class for serialisating is required");
+            throw new IllegalArgumentException("Object class for serialising is required");
         }
 
         for (Serialisation serialiser : SERIALISERS) {

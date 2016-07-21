@@ -31,9 +31,9 @@ import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.serialisation.implementation.IntegerSerialiser;
-import gaffer.serialisation.implementation.LongSerialiser;
 import gaffer.serialisation.implementation.StringSerialiser;
+import gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
@@ -177,12 +177,16 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new IntegerSerialiser())
+                        .serialiser(new CompactRawIntegerSerialiser())
                         .build())
                 .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Sum())
-                        .serialiser(new LongSerialiser())
+                        .serialiser(new CompactRawLongSerialiser())
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Max())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)

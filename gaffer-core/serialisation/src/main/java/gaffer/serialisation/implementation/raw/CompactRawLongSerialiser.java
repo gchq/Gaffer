@@ -18,8 +18,6 @@ package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.implementation.*;
-import gaffer.serialisation.implementation.CompactRawSerialisationUtils;
 
 /**
  * Serialises longs using a variable-length scheme that means smaller longs get serialised into a smaller

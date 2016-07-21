@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.implementation;
+package gaffer.serialisation.implementation.raw;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,34 +22,41 @@ import static org.junit.Assert.assertTrue;
 import gaffer.exception.SerialisationException;
 import org.junit.Test;
 
-public class IntegerSerialiserTest {
+public class CompactRawIntegerSerialiserTest {
 
-    private static final IntegerSerialiser SERIALISER = new IntegerSerialiser();
+    private static final CompactRawIntegerSerialiser SERIALISER = new CompactRawIntegerSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (int i = 0; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
-            assertEquals(Integer.class, o.getClass());
-            assertEquals(i, o);
+            test(i);
+        }
+    }
+
+    @Test
+    public void testCanSerialiseANegativeSampleRange() throws SerialisationException {
+        for (int i = -1000; i < 0; i++) {
+            test(i);
         }
     }
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MIN_VALUE, o);
+        test(Integer.MIN_VALUE);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MAX_VALUE, o);
+        test(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void canSerialiseAllOrdersOfMagnitude() throws SerialisationException {
+        for (int i = 0; i < 32; i++) {
+            int value = (int) Math.pow(2, i);
+            test(value);
+            test(-value);
+        }
     }
 
     @Test
@@ -60,6 +67,13 @@ public class IntegerSerialiserTest {
     @Test
     public void canSerialiseIntegerClass() throws SerialisationException {
         assertTrue(SERIALISER.canHandle(Integer.class));
+    }
+
+    private static void test(final int value) throws SerialisationException {
+        final byte[] b = SERIALISER.serialise(value);
+        final Object o = SERIALISER.deserialise(b);
+        assertEquals(Integer.class, o.getClass());
+        assertEquals(value, o);
     }
 
 }

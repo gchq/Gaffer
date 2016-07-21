@@ -1,11 +1,11 @@
 {
   "types": {
     "prop.integer": {
-      "serialiserClass": "gaffer.serialisation.implementation.IntegerSerialiser",
+      "serialiserClass": "gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser",
       "class": "java.lang.Integer"
     },
     "prop.count": {
-      "serialiserClass": "gaffer.serialisation.implementation.LongSerialiser",
+      "serialiserClass": "gaffer.serialisation.implementation.raw.CompactRawLongSerialiser",
       "class": "java.lang.Long"
     },
     "prop.string": {
