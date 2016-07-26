@@ -34,6 +34,11 @@
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>simple-types-library</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- External libraries -->
         <dependency>
@@ -73,6 +78,8 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream
+                                    </include>
+                                    <include>gaffer:simple-types-library
                                     </include>
                                 </includes>
                             </artifactSet>

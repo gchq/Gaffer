@@ -60,7 +60,7 @@ import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
@@ -170,7 +170,7 @@ public class StoreTest {
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
         assertSame(addElementsHandler, store.getOperationHandlerExposed(AddElements.class));
 
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetElementsSeed.class));
+        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetElementsBySeed.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedElements.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetEntitiesBySeed.class));
         assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
@@ -292,16 +292,16 @@ public class StoreTest {
         final Iterable<Element> getElementsResult = mock(Iterable.class);
 
         final AddElements addElements1 = new AddElements();
-        final GetElementsSeed<ElementSeed, Element> getElementsSeed = new GetElementsSeed<>();
+        final GetElementsBySeed<ElementSeed, Element> getElementsBySeed = new GetElementsBySeed<>();
         final OperationChain<Iterable<Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
-                .then(getElementsSeed)
+                .then(getElementsBySeed)
                 .build();
 
         given(schema.validate()).willReturn(true);
 
         given(addElementsHandler.doOperation(addElements1, context, store)).willReturn(null);
-        given(getElementsHandler.doOperation(getElementsSeed, context, store)).willReturn(getElementsResult);
+        given(getElementsHandler.doOperation(getElementsBySeed, context, store)).willReturn(getElementsResult);
 
         store.initialise(schema, properties);
 

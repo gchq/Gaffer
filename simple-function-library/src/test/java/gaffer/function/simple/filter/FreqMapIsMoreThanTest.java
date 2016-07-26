@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
-import gaffer.function.simple.types.FreqMap;
+import gaffer.types.simple.FreqMap;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Before;
 import org.junit.Test;

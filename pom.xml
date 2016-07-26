@@ -26,6 +26,7 @@
     <modules>
         <module>accumulo-store</module>
         <module>array-list-store</module>
+        <module>simple-types-library</module>
         <module>simple-function-library</module>
         <module>simple-operation-library</module>
         <module>simple-serialisation-library</module>
@@ -50,9 +51,8 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
-        <hadoop.version>2.6.0</hadoop.version>
-        <accumulo.version>1.6.4</accumulo.version>
-        <geotrellis.version>0.10.0-M1</geotrellis.version>
+        <hadoop.version>2.6.3</hadoop.version>
+        <accumulo.version>1.7.2</accumulo.version>
 
         <avro.version>1.7.7</avro.version>
         <jackson.version>2.6.2</jackson.version>
