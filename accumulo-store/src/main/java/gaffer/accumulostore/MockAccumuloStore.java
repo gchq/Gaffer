@@ -37,15 +37,14 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class MockAccumuloStore extends AccumuloStore {
 
-    private static final String USER = "user";
-    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken("password");
+    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken(AccumuloProperties.PASSWORD);
     private MockInstance mockAccumulo = null;
     private Connector mockConnector;
 
     @Override
     public Connector getConnection() throws StoreException {
         try {
-            mockConnector = mockAccumulo.getConnector(USER, PASSWORD_TOKEN);
+            mockConnector = mockAccumulo.getConnector(AccumuloProperties.USER, PASSWORD_TOKEN);
         } catch (AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
@@ -62,7 +61,7 @@ public class MockAccumuloStore extends AccumuloStore {
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
-                USER,
+                AccumuloProperties.USER,
                 PASSWORD_TOKEN);
     }
 
