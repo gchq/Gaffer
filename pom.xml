@@ -21,7 +21,7 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.0-RC2</version>
+    <version>0.4.0-RC3-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
@@ -91,7 +91,7 @@
         <url>${scm.url}</url>
         <connection>${scm.connection}</connection>
         <developerConnection>${scm.developer.connection}</developerConnection>
-        <tag>gaffer2-0.4.0-RC2</tag>
+        <tag>gaffer2-0.4.0-RC3-SNAPSHOT</tag>
     </scm>
 
     <licenses>
