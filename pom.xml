@@ -43,7 +43,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java.version>1.7</java.version>
-        <scala.version>2.10</scala.version>
+        <scala.version>2.10.2</scala.version>
 
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
