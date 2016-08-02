@@ -120,7 +120,7 @@ public class AddElementsFromHdfsIT {
     }
 
     @Test
-    public void shoulThrowExceptionWhendAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
+    public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(failureDir));
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(failureDir + "/someFile.txt"), true)))) {
