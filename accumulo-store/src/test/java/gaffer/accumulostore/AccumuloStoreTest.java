@@ -57,7 +57,7 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.StoreException;
@@ -129,7 +129,7 @@ public class AccumuloStoreTest {
 
         final EntitySeed entitySeed1 = new EntitySeed("1");
 
-        final GetElements<EntitySeed, Element> getBySeed = new GetElementsSeed.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> getBySeed = new GetElementsBySeed.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())

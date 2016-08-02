@@ -1,31 +1,36 @@
 Copyright 2016 Crown Copyright
 
-Gaffer2 contains two classes which are modified versions of classes from Apache Accumulo:
+Gaffer contains two classes which are modified versions of classes from Apache Accumulo:
 
-- gaffer2.accumulostore.key.core.impl.CoreKeyColumnQualifierColumnVisibilityValueCombiner is based on Accumulo's
+- gaffer.accumulostore.key.core.impl.CoreKeyColumnQualifierColumnVisibilityValueCombiner is based on Accumulo's
  Combiner class (org.apache.accumulo.core.iterators.Combiner) which is licensed under the Apache 2 license,
  Copyright 2011-2015 The Apache Software Foundation.
 
-- gaffer2.accumulostore.integration.BloomFilterIT is based on Accumulo's BloomFilterLayerLookupTest class
+- gaffer.accumulostore.integration.BloomFilterIT is based on Accumulo's BloomFilterLayerLookupTest class
 (org.apache.accumulo.core.file.BloomFilterLayerLookupTest) which is licensed under the Apache 2 license,
 Copyright 2011-2015 The Apache Software Foundation.
 
+Gaffer contains code which is a modified version of code from Apache Hadoop:
+
+- gaffer.serialisation.simple.raw.CompactRawSerialisationUtils is based on methods from Hadoop's WritableUtil class
+(org.apache.hadoop.io.WritableUtils) which is licensed under the Apache 2 license, Copyright 2011-2015 The Apache
+Software Foundation.
 
 The Gaffer implementation of TinkerPop was originally based on several classes from TinkerGraph.
 These classes were copied and adjusted to integrate with Gaffer.
 
-Gaffer2 is built using maven. This process will automatically pull in dependencies. We list Gaffer2's dependencies,
+Gaffer is built using maven. This process will automatically pull in dependencies. We list Gaffer2's dependencies,
  and their licenses, below. For information on the dependencies of these dependencies, see the websites of the
  projects below.
 
 
 
-Apache Hadoop (org.apache.hadoop:hadoop-common:2.5.0-cdh5.2.1):
+Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 
 - Apache License, Version 2.0
 
 
-Apache Accumulo (org.apache.accumulo:accumulo-core:1.6.2):
+Apache Accumulo (org.apache.accumulo:accumulo-core:1.7.2):
 
 - Apache License, Version 2.0
 

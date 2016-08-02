@@ -27,7 +27,7 @@ import gaffer.operation.impl.get.GetAllEdges;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
@@ -57,7 +57,7 @@ public interface IExamplesService {
 
     @GET
     @Path("/graph/doOperation/get/elements/bySeed")
-    GetElementsSeed<ElementSeed, Element> getElementsBySeed();
+    GetElementsBySeed<ElementSeed, Element> getElementsBySeed();
 
     @GET
     @Path("/graph/doOperation/get/elements/related")
