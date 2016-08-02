@@ -97,7 +97,7 @@ public class TypeDefinition {
     }
 
     /**
-     * @return the original {@link gaffer.serialisation.Serialisation} for the property.
+     * @return the {@link gaffer.serialisation.Serialisation} for the property.
      */
     @JsonIgnore
     public Serialisation getSerialiser() {

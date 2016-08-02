@@ -177,7 +177,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     /**
-     * Returns the original vertex serialiser for this schema.
+     * Returns the vertex serialiser for this schema.
      * <p>
      * There can be only one vertex serialiser for all elements because in order for searches to work correctly,
      * the byte representation of the search term's (seeds) must match the byte representation stored,
