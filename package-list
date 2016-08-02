@@ -57,7 +57,6 @@ gaffer.function.processor
 gaffer.function.simple.aggregate
 gaffer.function.simple.filter
 gaffer.function.simple.transform
-gaffer.function.simple.types
 gaffer.gafferpop
 gaffer.gafferpop.generator
 gaffer.gafferpop.groovyplugin
@@ -98,5 +97,6 @@ gaffer.store.operation.handler.generate
 gaffer.store.operationdeclaration
 gaffer.store.optimiser
 gaffer.store.schema
+gaffer.types.simple
 gaffer.user
 gaffer.util
