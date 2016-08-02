@@ -28,6 +28,7 @@ import gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
  *
  * @deprecated please use {@link gaffer.serialisation.implementation.raw.CompactRawLongSerialiser}
  */
+@Deprecated
 public class CompactRawLongSerialiser implements Serialisation {
 
     private static final long serialVersionUID = 6104372357426908732L;

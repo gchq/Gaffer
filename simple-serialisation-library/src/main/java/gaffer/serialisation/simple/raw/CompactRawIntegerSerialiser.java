@@ -32,6 +32,7 @@ import gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
  *
  * @deprecated please use {@link gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser}
  */
+@Deprecated
 public class CompactRawIntegerSerialiser implements Serialisation {
 
     private static final long serialVersionUID = -2874472098583724627L;
