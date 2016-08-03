@@ -38,8 +38,8 @@ public class TreeSetStringSerialiserTest {
         set.add("string4");
 
         // When
-        final byte[] serialiedSet = SERIALISER.serialise(set);
-        final TreeSet deserialisedSet = SERIALISER.deserialise(serialiedSet);
+        final byte[] serialisedSet = SERIALISER.serialise(set);
+        final TreeSet deserialisedSet = SERIALISER.deserialise(serialisedSet);
 
         // Then
         assertNotSame(deserialisedSet, set);
@@ -52,8 +52,8 @@ public class TreeSetStringSerialiserTest {
         final TreeSet<String> set = new TreeSet<>();
 
         // When
-        final byte[] serialiedSet = SERIALISER.serialise(set);
-        final TreeSet deserialisedSet = SERIALISER.deserialise(serialiedSet);
+        final byte[] serialisedSet = SERIALISER.serialise(set);
+        final TreeSet deserialisedSet = SERIALISER.deserialise(serialisedSet);
 
         // Then
         assertNotSame(deserialisedSet, set);

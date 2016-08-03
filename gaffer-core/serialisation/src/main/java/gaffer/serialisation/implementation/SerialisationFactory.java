@@ -20,7 +20,8 @@ import gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 
 /**
- * This class is used to serialise and deserialise a boolean value
+ * A <code>SerialisationFactory</code> holds a list of core serialisers and
+ * is design to provide compatible serialisers for given object classes.
  */
 public class SerialisationFactory {
     private static final Serialisation[] SERIALISERS = new Serialisation[]{
@@ -35,6 +36,12 @@ public class SerialisationFactory {
             new JavaSerialiser()
     };
 
+    /**
+     * @param objClass the class of an object to be serialised.
+     * @return a compatible serialiser.
+     * @throws IllegalArgumentException if the object class parameter is null or
+     *                                  no compatible serialiser could be found
+     */
     public Serialisation getSerialiser(final Class<?> objClass) {
         if (null == objClass) {
             throw new IllegalArgumentException("Object class for serialising is required");
