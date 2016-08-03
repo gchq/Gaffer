@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -75,10 +76,17 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      */
     private TypeDefinitions typesLookup;
 
+    /**
+     * A ordered set of property names that should be stored to allow
+     * query time aggregation to group based on their values.
+     */
+    private LinkedHashSet<String> groupBy;
+
     public SchemaElementDefinition() {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
         properties = new LinkedHashMap<>();
         identifiers = new LinkedHashMap<>();
+        groupBy = new LinkedHashSet<>();
     }
 
     /**
@@ -133,6 +141,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         } else if (null != elementDef.getOriginalValidateFunctions()) {
             validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
         }
+
+        if (typesLookup == null) {
+            typesLookup = elementDef.getTypesLookup();
+        } else if (typesLookup != elementDef.getTypesLookup()) {
+            typesLookup.merge(elementDef.getTypesLookup());
+        }
+
+        groupBy.addAll(elementDef.getGroupBy());
     }
 
     public Set<String> getProperties() {
@@ -322,6 +338,18 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
+    public LinkedHashSet<String> getGroupBy() {
+        return groupBy;
+    }
+
+    public void setGroupBy(final LinkedHashSet<String> groupBy) {
+        if (null == groupBy) {
+            this.groupBy = new LinkedHashSet<>();
+        } else {
+            this.groupBy = groupBy;
+        }
+    }
+
     @JsonIgnore
     protected TypeDefinitions getTypesLookup() {
         if (null == typesLookup) {
@@ -407,6 +435,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 throw new IllegalArgumentException("The type provided conflicts with an existing type with the same name");
             }
 
+            return this;
+        }
+
+        protected Builder groupBy(final String... propertyName) {
+            elDef.getGroupBy().addAll(Arrays.asList(propertyName));
             return this;
         }
 

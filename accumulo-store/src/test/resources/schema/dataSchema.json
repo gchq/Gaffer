@@ -9,7 +9,10 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   },
   "edges": {
@@ -24,7 +27,10 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     },
     "BasicEdge2": {
       "source": "id.object",
@@ -37,7 +43,10 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   }
 }

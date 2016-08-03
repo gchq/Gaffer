@@ -3,7 +3,8 @@
     "BasicEntity": {
       "vertex": "id.string",
       "properties": {
-        "property1": "prop.string"
+        "property1": "prop.string",
+        "visibility": "prop.string"
       }
     }
   },
@@ -15,7 +16,11 @@
       "properties": {
         "property2": "prop.string",
         "dateProperty": "prop.date"
-      }
+      },
+      "groupBy": [
+        "dateProperty"
+      ]
     }
-  }
+  },
+  "visibilityProperty": "visibility"
 }

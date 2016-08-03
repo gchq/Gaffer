@@ -1,13 +1,11 @@
 {
   "types": {
     "prop.string": {
-      "position": "PROPERTY_1",
       "aggregateFunction": {
         "class": "gaffer.function.ExampleAggregateFunction"
       }
     },
     "prop.date": {
-      "position": "PROPERTY_2",
       "aggregateFunction": {
         "class": "gaffer.function.ExampleAggregateFunction"
       }
