@@ -25,12 +25,12 @@ Gaffer is built using maven. This process will automatically pull in dependencie
 
 
 
-Apache Hadoop (org.apache.hadoop:hadoop-common:2.5.0-cdh5.2.1):
+Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 
 - Apache License, Version 2.0
 
 
-Apache Accumulo (org.apache.accumulo:accumulo-core:1.6.2):
+Apache Accumulo (org.apache.accumulo:accumulo-core:1.7.2):
 
 - Apache License, Version 2.0
 
