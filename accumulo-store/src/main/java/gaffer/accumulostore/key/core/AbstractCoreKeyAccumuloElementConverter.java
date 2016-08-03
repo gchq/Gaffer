@@ -149,7 +149,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
         final byte[] bytes = value.get();
         int lastDelimiter = 0;
-        int arrayLength = bytes.length;
+        final int arrayLength = bytes.length;
         long currentPropLength;
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
@@ -330,7 +330,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
 
         int lastDelimiter = 0;
-        int arrayLength = bytes.length;
+        final int arrayLength = bytes.length;
         long currentPropLength;
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
