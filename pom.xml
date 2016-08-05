@@ -21,7 +21,7 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.10-SNAPSHOT</version>
+    <version>0.4.1-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
@@ -44,7 +44,7 @@
 
         <java.version>1.7</java.version>
         <scala.version>2.10</scala.version>
-        <scala.minor.version>2.10.6</scala.minor.version>
+        <scala.minor.version>2.10.2</scala.minor.version>
 
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
@@ -93,7 +93,7 @@
         <url>${scm.url}</url>
         <connection>${scm.connection}</connection>
         <developerConnection>${scm.developer.connection}</developerConnection>
-        <tag>HEAD</tag>
+        <tag>gaffer2-0.4.0-RC3-SNAPSHOT</tag>
     </scm>
 
     <licenses>
