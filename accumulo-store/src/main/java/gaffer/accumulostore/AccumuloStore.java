@@ -16,6 +16,11 @@
 
 package gaffer.accumulostore;
 
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -80,17 +85,10 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -118,7 +116,6 @@ public class AccumuloStore extends Store {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
         this.keyPackage.setSchema(schema);
-        validateSchemasAgainstKeyDesign();
         TableUtils.ensureTableExists(this);
     }
 
@@ -317,19 +314,6 @@ public class AccumuloStore extends Store {
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
-    }
-
-    @Override
-    public void validateSchemas() {
-        super.validateSchemas();
-        final Map<String, String> positions = this.getSchema().getPositions();
-        if (positions != null && !positions.isEmpty()) {
-            LOGGER.warn("The schema positions are not used and will be ignored.");
-        }
-    }
-
-    protected void validateSchemasAgainstKeyDesign() {
-        keyPackage.validateSchema(this.getSchema());
     }
 
     @Override

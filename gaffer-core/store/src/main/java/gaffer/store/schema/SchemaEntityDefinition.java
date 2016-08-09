@@ -76,6 +76,11 @@ public class SchemaEntityDefinition extends SchemaElementDefinition {
         }
 
         @Override
+        public Builder groupBy(final String... propertyName) {
+            return (Builder) super.groupBy(propertyName);
+        }
+
+        @Override
         public Builder validator(final ElementFilter validator) {
             return (Builder) super.validator(validator);
         }

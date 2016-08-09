@@ -25,13 +25,13 @@ import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
  */
 public class SerialisationFactory {
     private static final Serialisation[] SERIALISERS = new Serialisation[]{
+            new StringSerialiser(),
+            new CompactRawIntegerSerialiser(),
+            new CompactRawLongSerialiser(),
             new BooleanSerialiser(),
             new DateSerialiser(),
             new DoubleSerialiser(),
             new FloatSerialiser(),
-            new CompactRawIntegerSerialiser(),
-            new CompactRawLongSerialiser(),
-            new StringSerialiser(),
             new TreeSetStringSerialiser(),
             new JavaSerialiser()
     };

@@ -37,7 +37,6 @@ import java.util.List;
 public class TypeDefinition {
     private Class<?> clazz;
     private Serialisation serialiser;
-    private String position;
     private ElementFilter validator;
     private AggregateFunction aggregateFunction;
 
@@ -137,22 +136,6 @@ public class TypeDefinition {
         }
     }
 
-    /**
-     * @return the position to store the property. This can be interpreted differently by different
-     * {@link gaffer.store.Store} implementations. For example it could refer to the column to store the property in.
-     */
-    public String getPosition() {
-        return position;
-    }
-
-    /**
-     * @param position the position to store the property. This can be interpreted differently by different
-     *                 {@link gaffer.store.Store} implementations. For example it could refer to the column to store the property in.
-     */
-    public void setPosition(final String position) {
-        this.position = position;
-    }
-
     public AggregateFunction getAggregateFunction() {
         return aggregateFunction;
     }
@@ -178,13 +161,6 @@ public class TypeDefinition {
             }
         }
 
-        if (null == position) {
-            position = type.getPosition();
-        } else if (null != type.getPosition() && !position.equals(type.getPosition())) {
-            throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") positions, options are: "
-                    + position + " and " + type.getPosition());
-        }
-
         if (null == validator) {
             validator = type.getValidator();
         } else if (null != type.getValidator() && null != type.getValidator().getFunctions()) {
@@ -203,7 +179,6 @@ public class TypeDefinition {
     public String toString() {
         return "TypeDefinition{"
                 + "clazz=" + clazz
-                + ", position='" + position + '\''
                 + ", validator=" + validator
                 + ", aggregateFunction=" + aggregateFunction
                 + ", serialiser=" + serialiser
@@ -230,9 +205,6 @@ public class TypeDefinition {
         if (getSerialiser() != null ? !getSerialiser().equals(type.getSerialiser()) : type.getSerialiser() != null) {
             return false;
         }
-        if (getPosition() != null ? !getPosition().equals(type.getPosition()) : type.getPosition() != null) {
-            return false;
-        }
 
         return !(getAggregateFunction() != null ? !getAggregateFunction().equals(type.getAggregateFunction()) : type.getAggregateFunction() != null);
     }
@@ -242,7 +214,6 @@ public class TypeDefinition {
         int result = getClazz().hashCode();
         result = 31 * result + (getValidator() != null ? getValidator().hashCode() : 0);
         result = 31 * result + (getSerialiser() != null ? getSerialiser().hashCode() : 0);
-        result = 31 * result + (getPosition() != null ? getPosition().hashCode() : 0);
         result = 31 * result + (getAggregateFunction() != null ? getAggregateFunction().hashCode() : 0);
         return result;
     }
@@ -255,11 +226,6 @@ public class TypeDefinition {
 
         public Builder clazz(final Class clazz) {
             type.setClazz(clazz);
-            return this;
-        }
-
-        public Builder position(final String position) {
-            type.setPosition(position);
             return this;
         }
 

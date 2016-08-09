@@ -191,6 +191,7 @@ public abstract class AbstractStoreIT {
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                        .groupBy(TestPropertyNames.INT)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -198,6 +199,7 @@ public abstract class AbstractStoreIT {
                         .directed(TestTypes.DIRECTED_EITHER)
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .groupBy(TestPropertyNames.INT)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();
