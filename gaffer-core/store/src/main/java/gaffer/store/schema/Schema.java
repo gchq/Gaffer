@@ -65,6 +65,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     private String visibilityProperty;
 
+    private String timestampProperty;
+
     public Schema() {
         this(new TypeDefinitions());
     }
@@ -232,6 +234,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         this.visibilityProperty = visibilityProperty;
     }
 
+    public String getTimestampProperty() {
+        return timestampProperty;
+    }
+
+    public void setTimestampProperty(final String timestampProperty) {
+        this.timestampProperty = timestampProperty;
+    }
+
     @Override
     public void merge(final ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> elementDefs) {
         if (elementDefs instanceof Schema) {
@@ -257,6 +267,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         } else if (null != schema.getVisibilityProperty() && !visibilityProperty.equals(schema.getVisibilityProperty())) {
             throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
                     + visibilityProperty + " and " + schema.getVisibilityProperty());
+        }
+
+        if (null == timestampProperty) {
+            setTimestampProperty(schema.getTimestampProperty());
+        } else if (null != schema.getTimestampProperty() && !timestampProperty.equals(schema.getTimestampProperty())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with timestamp property, options are: "
+                    + timestampProperty + " and " + schema.getTimestampProperty());
         }
 
         types.merge(schema.getTypes());
@@ -352,6 +369,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         public Builder visibilityProperty(final String propertyName) {
             getElementDefs().setVisibilityProperty(propertyName);
+            return this;
+        }
+
+        public Builder timestampProperty(final String propertyName) {
+            getElementDefs().setTimestampProperty(propertyName);
             return this;
         }
 

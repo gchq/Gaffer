@@ -110,9 +110,10 @@ public class SchemaTest {
         assertNotNull(edgeDefinition);
 
         final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
-        assertEquals(2, propertyMap.size());
+        assertEquals(3, propertyMap.size());
         assertEquals("prop.string", propertyMap.get(TestPropertyNames.PROP_2));
         assertEquals("prop.date", propertyMap.get(TestPropertyNames.DATE));
+        assertEquals("timestamp", propertyMap.get(TestPropertyNames.TIMESTAMP));
 
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.DATE)),
                 edgeDefinition.getGroupBy());
@@ -157,6 +158,11 @@ public class SchemaTest {
         assertEquals(1, valContext.getSelection().size());
         assertEquals(TestPropertyNames.DATE, valContext.getSelection().get(0).getPropertyName());
 
+        valContext = valContexts.get(index++);
+        assertTrue(valContext.getFunction() instanceof IsA);
+        assertEquals(1, valContext.getSelection().size());
+        assertEquals(TestPropertyNames.TIMESTAMP, valContext.getSelection().get(0).getPropertyName());
+
         assertEquals(index, valContexts.size());
 
         TypeDefinition type = edgeDefinition.getPropertyTypeDef(TestPropertyNames.DATE);
@@ -178,7 +184,7 @@ public class SchemaTest {
 
         ElementAggregator aggregator = edgeDefinition.getAggregator();
         List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
-        assertEquals(2, aggContexts.size());
+        assertEquals(3, aggContexts.size());
 
         PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
@@ -201,6 +207,7 @@ public class SchemaTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING, String.class)
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER, Integer.class)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP, Integer.class)
                         .groupBy(TestPropertyNames.PROP_1)
                         .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
@@ -210,6 +217,7 @@ public class SchemaTest {
                 .type(TestTypes.PROP_STRING, String.class)
                 .type(TestTypes.PROP_INTEGER, Integer.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
     }
 
@@ -221,7 +229,8 @@ public class SchemaTest {
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.string\",%n" +
-                "        \"property2\" : \"prop.integer\"%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
                 "      },%n" +
                 "      \"groupBy\" : [ \"property1\" ],%n" +
                 "      \"validateFunctions\" : [ {%n" +
@@ -240,9 +249,13 @@ public class SchemaTest {
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    }%n" +
                 "  },%n" +
-                "  \"visibilityProperty\" : \"visibility\"%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
                 "}"), new String(schema.toJson(true)));
     }
 
@@ -297,15 +310,16 @@ public class SchemaTest {
 
         assertEquals(1, edges.size());
         final SchemaElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
-        assertEquals(2, edgeGroup.getProperties().size());
+        assertEquals(3, edgeGroup.getProperties().size());
 
         final Map<String, SchemaEntityDefinition> entities = deserialisedSchema.getEntities();
 
         assertEquals(1, entities.size());
         final SchemaElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
-        assertEquals(2, entityGroup.getProperties().size());
+        assertEquals(3, entityGroup.getProperties().size());
 
         assertEquals(TestPropertyNames.VISIBILITY, deserialisedSchema.getVisibilityProperty());
+        assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getTimestampProperty());
     }
 
     @Test

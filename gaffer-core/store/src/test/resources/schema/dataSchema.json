@@ -4,7 +4,8 @@
       "vertex": "id.string",
       "properties": {
         "property1": "prop.string",
-        "visibility": "prop.string"
+        "visibility": "prop.string",
+        "timestamp": "timestamp"
       }
     }
   },
@@ -15,12 +16,14 @@
       "directed": "directed.true",
       "properties": {
         "property2": "prop.string",
-        "dateProperty": "prop.date"
+        "dateProperty": "prop.date",
+        "timestamp": "timestamp"
       },
       "groupBy": [
         "dateProperty"
       ]
     }
   },
-  "visibilityProperty": "visibility"
+  "visibilityProperty": "visibility",
+  "timestampProperty": "timestamp"
 }

@@ -66,14 +66,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final byte[] columnFamily = buildColumnFamily(edge.getGroup());
         final byte[] columnQualifier = buildColumnQualifier(edge.getGroup(), edge.getProperties());
         final byte[] columnVisibility = buildColumnVisibility(edge.getGroup(), edge.getProperties());
-        final long timestamp = System.currentTimeMillis();
-
+        final long timeStamp = buildTimestamp(edge);
         // Create Accumulo keys - note that second row key may be null (if it's
         // a self-edge) and
         // in that case we should return null second key
-        final Key key1 = new Key(rowKeys.getFirst(), columnFamily, columnQualifier, columnVisibility, timestamp);
+        final Key key1 = new Key(rowKeys.getFirst(), columnFamily, columnQualifier, columnVisibility, timeStamp);
         final Key key2 = rowKeys.getSecond() != null
-                ? new Key(rowKeys.getSecond(), columnFamily, columnQualifier, columnVisibility, timestamp) : null;
+                ? new Key(rowKeys.getSecond(), columnFamily, columnQualifier, columnVisibility, timeStamp) : null;
         // Return pair of keys
         return new Pair<>(key1, key2);
     }
@@ -88,10 +87,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         // Column visibility is formed from the visibility
         final byte[] columnVisibility = buildColumnVisibility(entity.getGroup(), entity.getProperties());
 
-        final long timestamp = System.currentTimeMillis();
+        final long timeStamp = buildTimestamp(entity);
 
         // Create and return key
-        return new Key(rowKey, columnFamily, columnQualifier, columnVisibility, timestamp);
+        return new Key(rowKey, columnFamily, columnQualifier, columnVisibility, timeStamp);
     }
 
     @Override
@@ -397,6 +396,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 getPropertiesFromColumnQualifier(element.getGroup(), key.getColumnQualifierData().getBackingArray()));
         element.copyProperties(
                 getPropertiesFromColumnVisibility(element.getGroup(), key.getColumnVisibilityData().getBackingArray()));
+
+        // If the element group requires a timestamp property then add it.
+        if (null != schema.getTimestampProperty() && schema.getElement(element.getGroup()).containsProperty(schema.getTimestampProperty())) {
+            element.putProperty(schema.getTimestampProperty(), key.getTimestamp());
+        }
     }
 
     protected Serialisation getVertexSerialiser() {
@@ -448,6 +452,24 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
-        return !elementDef.getGroupBy().contains(propertyName) && !propertyName.equals(schema.getVisibilityProperty());
+        return !elementDef.getGroupBy().contains(propertyName)
+                && !propertyName.equals(schema.getVisibilityProperty())
+                && !propertyName.equals(schema.getTimestampProperty());
+    }
+
+    protected long buildTimestamp(final Element element) throws AccumuloElementConversionException {
+        final long timestamp;
+        if (null != schema.getTimestampProperty()) {
+            final Object property = element.getProperty(schema.getTimestampProperty());
+            if (property == null) {
+                timestamp = System.currentTimeMillis();
+            } else {
+                timestamp = (Long) property;
+            }
+        } else {
+            timestamp = System.currentTimeMillis();
+        }
+
+        return timestamp;
     }
 }

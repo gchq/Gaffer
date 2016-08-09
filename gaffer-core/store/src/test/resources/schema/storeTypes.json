@@ -9,6 +9,11 @@
       "aggregateFunction": {
         "class": "gaffer.function.ExampleAggregateFunction"
       }
+    },
+    "timestamp": {
+      "aggregateFunction": {
+        "class": "gaffer.function.ExampleAggregateFunction"
+      }
     }
   }
 }
