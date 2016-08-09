@@ -8,8 +8,7 @@
         "property2": "simpleProperty",
         "property3": "simpleProperty",
         "property4": "simpleProperty",
-        "count": "simpleProperty",
-        "timestamp": "timestamp"
+        "count": "simpleProperty"
       },
       "groupBy": [
         "columnQualifier"
