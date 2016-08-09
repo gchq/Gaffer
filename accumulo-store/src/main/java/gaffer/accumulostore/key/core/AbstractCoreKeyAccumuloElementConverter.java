@@ -323,6 +323,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public Properties getPropertiesFromColumnQualifier(final String group, final byte[] bytes)
             throws AccumuloElementConversionException {
+        final SchemaElementDefinition elementDefinition = schema.getElement(group);
+        if (null == elementDefinition) {
+            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+        }
+
         final Properties properties = new Properties();
         if (bytes == null || bytes.length == 0) {
             return properties;
@@ -331,10 +336,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         int lastDelimiter = 0;
         final int arrayLength = bytes.length;
         long currentPropLength;
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
         final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
@@ -451,12 +452,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
     }
 
-    protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
-        return !elementDef.getGroupBy().contains(propertyName)
-                && !propertyName.equals(schema.getVisibilityProperty())
-                && !propertyName.equals(schema.getTimestampProperty());
-    }
-
     protected long buildTimestamp(final Element element) throws AccumuloElementConversionException {
         final long timestamp;
         if (null != schema.getTimestampProperty()) {
@@ -471,5 +466,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
 
         return timestamp;
+    }
+
+    protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
+        return !elementDef.getGroupBy().contains(propertyName)
+                && !propertyName.equals(schema.getVisibilityProperty())
+                && !propertyName.equals(schema.getTimestampProperty());
     }
 }
