@@ -13,41 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package gaffer.example.gettingstarted.serialiser;
+package gaffer.serialisation.simple;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
-public class VisibilitySerialiser implements Serialisation {
-    private static final long serialVersionUID = -8830741085664334048L;
+/**
+ * @deprecated this is not very efficient and should only be used for compatibility
+ * reasons. For new properties use {@link gaffer.serialisation.implementation.raw.RawDoubleSerialiser}
+ * instead.
+ */
+@Deprecated
+public class DoubleSerialiser implements Serialisation {
+    private static final long serialVersionUID = 5647756843689779437L;
 
+    @Override
     public boolean canHandle(final Class clazz) {
-        return String.class.equals(clazz);
+        return Double.class.equals(clazz);
     }
 
+    @Override
     public byte[] serialise(final Object object) throws SerialisationException {
-        String value = (String) object;
+        Double value = (Double) object;
         try {
-            if (value.equals("public")) {
-                value = "(private|public)";
-            }
-            return value.getBytes(CommonConstants.UTF_8);
+            return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
+    @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            String value = new String(bytes, CommonConstants.UTF_8);
-            if (value.equals("(private|public)")) {
-                value = "public";
-            }
-            return value;
-        } catch (UnsupportedEncodingException e) {
+            return Double.parseDouble(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
+        } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

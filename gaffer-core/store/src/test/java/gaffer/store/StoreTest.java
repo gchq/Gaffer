@@ -65,6 +65,7 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
@@ -78,6 +79,8 @@ import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.SchemaOptimiser;
+import gaffer.store.schema.TypeDefinition;
 import gaffer.store.schema.ViewValidator;
 import gaffer.user.User;
 import org.junit.Before;
@@ -100,9 +103,12 @@ public class StoreTest {
     private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
     private OperationHandler<Validate, Iterable<Element>> validateHandler;
     private Schema schema;
+    private SchemaOptimiser schemaOptimiser;
 
     @Before
     public void setup() {
+        schemaOptimiser = mock(SchemaOptimiser.class);
+
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OperationHandler.class);
         getAllElementsHandler = mock(OperationHandler.class);
@@ -112,28 +118,32 @@ public class StoreTest {
 
         schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(String.class)
-                        .destination(String.class)
+                        .source("string")
+                        .destination("string")
                         .directed(Boolean.class)
-                        .property(TestPropertyNames.PROP_1, String.class)
-                        .property(TestPropertyNames.PROP_2, String.class)
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
-                        .source(String.class)
-                        .destination(String.class)
+                        .source("string")
+                        .destination("string")
                         .directed(Boolean.class)
-                        .property(TestPropertyNames.PROP_1, String.class)
-                        .property(TestPropertyNames.PROP_2, String.class)
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(Integer.class)
-                        .property(TestPropertyNames.PROP_1, String.class)
-                        .property(TestPropertyNames.PROP_2, String.class)
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                        .vertex(String.class)
-                        .property(TestPropertyNames.PROP_1, String.class)
-                        .property(TestPropertyNames.PROP_2, String.class)
+                        .vertex("string")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new StringSerialiser())
                         .build())
                 .build();
     }
@@ -143,7 +153,11 @@ public class StoreTest {
         // Given
         final Schema mySchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Store.class)
+                        .property(TestPropertyNames.PROP_1, "invalidType")
+                        .build())
+                .type("invalidType", new TypeDefinition.Builder()
+                        .clazz(Object.class)
+                        .serialiser(new StringSerialiser())
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -153,7 +167,7 @@ public class StoreTest {
         try {
             store.initialise(mySchema, properties);
             fail();
-        } catch (IllegalArgumentException exception) {
+        } catch (final SchemaException exception) {
             assertNotNull(exception.getMessage());
         }
     }
@@ -197,8 +211,9 @@ public class StoreTest {
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
+        verify(schemaOptimiser).optimise(schema, true);
     }
-
+    
     @Test
     public void shouldDelegateDoOperationToOperationHandler() throws Exception {
         // Given
@@ -485,6 +500,16 @@ public class StoreTest {
         @Override
         protected Context createContext(final User user) {
             return context;
+        }
+
+        @Override
+        protected SchemaOptimiser getSchemaOptimiser() {
+            return schemaOptimiser;
+        }
+
+        @Override
+        public boolean isOrdered() {
+            return true;
         }
     }
 }

@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.implementation;
+package gaffer.serialisation.implementation.raw;
 
 
-import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
-public class DateSerialiser implements Serialisation {
-
-    private static final long serialVersionUID = 5647756843689779437L;
+public class RawDateSerialiser implements Serialisation {
+    private static final long serialVersionUID = -3585678555520167582L;
+    private final RawLongSerialiser longSerialiser = new RawLongSerialiser();
 
     @Override
     public boolean canHandle(final Class clazz) {
@@ -33,22 +31,16 @@ public class DateSerialiser implements Serialisation {
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
-        Date value = (Date) object;
-        try {
-            return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+        return longSerialiser.serialise(((Date) object).getTime());
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
-        Long longR;
-        try {
-            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (NumberFormatException | UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
-        return new Date(longR);
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
+        return new Date(longSerialiser.deserialise(bytes));
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

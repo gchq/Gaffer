@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.implementation;
+package gaffer.serialisation.simple;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,28 +21,35 @@ import static org.junit.Assert.assertTrue;
 
 import gaffer.exception.SerialisationException;
 import org.junit.Test;
-import java.util.Date;
 
-public class DateSerialiserTest {
+public class DoubleSerialiserTest {
 
-    private static final DateSerialiser SERIALISER = new DateSerialiser();
+    private static final DoubleSerialiser SERIALISER = new DoubleSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (long i = 121231232; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(new Date(i));
+        for (double i = 0; i < 1000; i += 1.1) {
+            byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Date.class, o.getClass());
-            assertEquals(new Date(i), o);
+            assertEquals(Double.class, o.getClass());
+            assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseEpoch() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(new Date(0));
+    public void canSerialiseDoubleMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Double.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Date.class, o.getClass());
-        assertEquals(new Date(0), o);
+        assertEquals(Double.class, o.getClass());
+        assertEquals(Double.MIN_VALUE, o);
+    }
+
+    @Test
+    public void canSerialiseDoubleMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Double.MAX_VALUE);
+        Object o = SERIALISER.deserialise(b);
+        assertEquals(Double.class, o.getClass());
+        assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
@@ -51,8 +58,8 @@ public class DateSerialiserTest {
     }
 
     @Test
-    public void canSerialiseDateClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Date.class));
+    public void canSerialiseDoubleClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Double.class));
     }
 
 }

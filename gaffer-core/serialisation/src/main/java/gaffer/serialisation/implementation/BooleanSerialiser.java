@@ -31,7 +31,7 @@ public class BooleanSerialiser implements Serialisation {
         return new byte[]{Boolean.TRUE.equals(object) ? TRUE : FALSE};
     }
 
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Boolean deserialise(final byte[] bytes) throws SerialisationException {
         return bytes.length == 1 && TRUE == bytes[0];
     }
 
@@ -41,5 +41,10 @@ public class BooleanSerialiser implements Serialisation {
 
     public boolean canHandle(final Class clazz) {
         return Boolean.class.isAssignableFrom(clazz);
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

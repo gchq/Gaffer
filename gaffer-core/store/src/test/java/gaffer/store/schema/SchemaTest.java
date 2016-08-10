@@ -520,5 +520,10 @@ public class SchemaTest {
         public Object deserialise(final byte[] bytes) throws SerialisationException {
             return null;
         }
+
+        @Override
+        public boolean isByteOrderPreserved() {
+            return true;
+        }
     }
 }

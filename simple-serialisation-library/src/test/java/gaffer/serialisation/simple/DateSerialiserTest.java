@@ -13,43 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.raw;
-
-import gaffer.exception.SerialisationException;
-import org.junit.Test;
+package gaffer.serialisation.simple;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawIntegerSerialiserTest {
+import gaffer.exception.SerialisationException;
+import org.junit.Test;
+import java.util.Date;
 
-    private static final RawIntegerSerialiser SERIALISER = new RawIntegerSerialiser();
+public class DateSerialiserTest {
+
+    private static final DateSerialiser SERIALISER = new DateSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (int i = 0; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(i);
+        for (long i = 121231232; i < (121231232 + 1000); i++) {
+            byte[] b = SERIALISER.serialise(new Date(i));
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Integer.class, o.getClass());
-            assertEquals(i, o);
+            assertEquals(Date.class, o.getClass());
+            assertEquals(new Date(i), o);
         }
     }
 
     @Test
-    public void canSerialiseIntegerMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
+    public void canSerialiseEpoch() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(new Date(0));
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MIN_VALUE, o);
-    }
-
-    @Test
-    public void canSerialiseIntegerMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MAX_VALUE, o);
+        assertEquals(Date.class, o.getClass());
+        assertEquals(new Date(0), o);
     }
 
     @Test
@@ -58,8 +51,8 @@ public class RawIntegerSerialiserTest {
     }
 
     @Test
-    public void canSerialiseIntegerClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Integer.class));
+    public void canSerialiseDateClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Date.class));
     }
 
 }

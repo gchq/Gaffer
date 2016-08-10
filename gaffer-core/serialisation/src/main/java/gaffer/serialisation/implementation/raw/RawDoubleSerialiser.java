@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
@@ -48,7 +48,7 @@ public class RawDoubleSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Double deserialise(final byte[] bytes) throws SerialisationException {
         return Double.longBitsToDouble((long) bytes[0] & 255L
                 | ((long) bytes[1] & 255L) << 8
                 | ((long) bytes[2] & 255L) << 16
@@ -57,5 +57,10 @@ public class RawDoubleSerialiser implements Serialisation {
                 | ((long) bytes[5] & 255L) << 40
                 | ((long) bytes[6] & 255L) << 48
                 | ((long) bytes[7] & 255L) << 56);
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

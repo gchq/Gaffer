@@ -47,4 +47,9 @@ public class StringSerialiser implements Serialisation {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
+    }
 }

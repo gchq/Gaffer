@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 
 /**
- * RawFloatSerialiser serialises Floats into an IEEE floating point little-endian byte array.
+ * RawIntegerSerialiser serialises Integers into a little-endian byte array.
+ * It's significantly faster than {@link gaffer.serialisation.simple.IntegerSerialiser}, but potentially
+ * uses much more space.
  */
-public class RawFloatSerialiser implements Serialisation {
-    private static final long serialVersionUID = -8573401558869574875L;
+public class RawIntegerSerialiser implements Serialisation {
+    private static final long serialVersionUID = -8344193425875811395L;
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Float.class.equals(clazz);
+        return Integer.class.equals(clazz);
     }
 
     @Override
     public byte[] serialise(final Object o) throws SerialisationException {
         final byte[] out = new byte[4];
-        final int value = Float.floatToRawIntBits((Float) o);
+        final int value = (Integer) o;
         out[0] = (byte) ((int) (value & 255));
         out[1] = (byte) ((value >> 8) & 255);
         out[2] = (byte) ((value >> 16) & 255);
@@ -42,10 +44,15 @@ public class RawFloatSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
-        return Float.intBitsToFloat((int) ((int) bytes[0] & 255L
+    public Integer deserialise(final byte[] bytes) throws SerialisationException {
+        return (int) ((int) bytes[0] & 255L
                 | ((int) bytes[1] & 255L) << 8
                 | ((int) bytes[2] & 255L) << 16
-                | ((int) bytes[3] & 255L) << 24));
+                | ((int) bytes[3] & 255L) << 24);
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

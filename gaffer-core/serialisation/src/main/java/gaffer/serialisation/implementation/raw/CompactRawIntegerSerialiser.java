@@ -44,7 +44,7 @@ public class CompactRawIntegerSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Integer deserialise(final byte[] bytes) throws SerialisationException {
         final long result = CompactRawSerialisationUtils.readLong(bytes);
         if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
             throw new SerialisationException("Value too long to fit in integer");
@@ -52,4 +52,8 @@ public class CompactRawIntegerSerialiser implements Serialisation {
         return (int) result;
     }
 
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
 }

@@ -76,4 +76,9 @@ public class TreeSetStringSerialiser implements Serialisation {
 
         return treeSet;
     }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
+    }
 }

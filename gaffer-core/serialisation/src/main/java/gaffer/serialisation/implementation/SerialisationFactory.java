@@ -18,6 +18,11 @@ package gaffer.serialisation.implementation;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import gaffer.serialisation.implementation.raw.RawDateSerialiser;
+import gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
+import gaffer.serialisation.implementation.raw.RawFloatSerialiser;
+import gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
+import gaffer.serialisation.implementation.raw.RawLongSerialiser;
 
 /**
  * A <code>SerialisationFactory</code> holds a list of core serialisers and
@@ -27,11 +32,13 @@ public class SerialisationFactory {
     private static final Serialisation[] SERIALISERS = new Serialisation[]{
             new StringSerialiser(),
             new CompactRawIntegerSerialiser(),
+            new RawIntegerSerialiser(),
             new CompactRawLongSerialiser(),
+            new RawLongSerialiser(),
             new BooleanSerialiser(),
-            new DateSerialiser(),
-            new DoubleSerialiser(),
-            new FloatSerialiser(),
+            new RawDateSerialiser(),
+            new RawDoubleSerialiser(),
+            new RawFloatSerialiser(),
             new TreeSetStringSerialiser(),
             new JavaSerialiser()
     };
@@ -43,12 +50,23 @@ public class SerialisationFactory {
      *                                  no compatible serialiser could be found
      */
     public Serialisation getSerialiser(final Class<?> objClass) {
+        return getSerialiser(objClass, false);
+    }
+
+    /**
+     * @param objClass      the class of an object to be serialised.
+     * @param preserveOrder if true then the returned serialiser should preserve order
+     * @return a compatible serialiser.
+     * @throws IllegalArgumentException if the object class parameter is null or
+     *                                  no compatible serialiser could be found
+     */
+    public Serialisation getSerialiser(final Class<?> objClass, final boolean preserveOrder) {
         if (null == objClass) {
             throw new IllegalArgumentException("Object class for serialising is required");
         }
 
         for (Serialisation serialiser : SERIALISERS) {
-            if (serialiser.canHandle(objClass)) {
+            if (serialiser.canHandle(objClass) && (!preserveOrder || (serialiser.isByteOrderPreserved()))) {
                 return serialiser;
             }
         }

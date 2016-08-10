@@ -40,8 +40,12 @@ public class CompactRawLongSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Long deserialise(final byte[] bytes) throws SerialisationException {
         return CompactRawSerialisationUtils.readLong(bytes);
     }
 
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
 }

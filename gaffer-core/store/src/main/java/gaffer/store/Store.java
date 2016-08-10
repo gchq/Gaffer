@@ -48,8 +48,6 @@ import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.serialisation.implementation.SerialisationFactory;
 import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.DeduplicateHandler;
 import gaffer.store.operation.handler.OperationHandler;
@@ -66,18 +64,14 @@ import gaffer.store.operationdeclaration.OperationDeclarations;
 import gaffer.store.optimiser.CoreOperationChainOptimiser;
 import gaffer.store.optimiser.OperationChainOptimiser;
 import gaffer.store.schema.Schema;
-import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
-import gaffer.store.schema.SchemaEntityDefinition;
-import gaffer.store.schema.TypeDefinition;
-import gaffer.store.schema.TypeDefinitions;
+import gaffer.store.schema.SchemaOptimiser;
 import gaffer.store.schema.ViewValidator;
 import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,7 +96,7 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private final SerialisationFactory serialisationFactory;
+    private final SchemaOptimiser schemaOptimiser;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
 
     private ViewValidator viewValidator;
@@ -111,7 +105,7 @@ public abstract class Store {
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
         viewValidator = new ViewValidator();
-        serialisationFactory = getSerialisationFactory();
+        schemaOptimiser = getSchemaOptimiser();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -120,6 +114,19 @@ public abstract class Store {
         addOpHandlers();
         optimiseSchemas();
         validateSchemas();
+    }
+
+    /**
+     * Ordered stores keep their elements ordered to optimise lookups. An example
+     * of an ordered store is Accumulo, which orders the element keys.
+     * Stores that are ordered have special characteristics such as requiring
+     * serialisers that preserve ordering of the keyed properties.
+     * Returns false by default - override the method if required.
+     *
+     * @return true if the store implementation orders the elements, otherwise false.
+     */
+    public boolean isOrdered() {
+        return false;
     }
 
     /**
@@ -240,84 +247,8 @@ public abstract class Store {
         return properties;
     }
 
-    /**
-     * Removes any types in the schema that are not used and sets the
-     * default serialisers.
-     */
     public void optimiseSchemas() {
-        final Set<String> usedTypeNames = new HashSet<>();
-        final Set<SchemaElementDefinition> schemaElements = new HashSet<>();
-        schemaElements.addAll(getSchema().getEdges().values());
-        schemaElements.addAll(getSchema().getEntities().values());
-        for (SchemaElementDefinition elDef : schemaElements) {
-            usedTypeNames.addAll(elDef.getIdentifierTypeNames());
-            usedTypeNames.addAll(elDef.getPropertyTypeNames());
-        }
-
-        final TypeDefinitions types = getSchema().getTypes();
-        if (null != types) {
-            for (final String typeName : new HashSet<>(types.keySet())) {
-                // Remove unused types
-                if (!usedTypeNames.contains(typeName)) {
-                    types.remove(typeName);
-                }
-            }
-
-            for (final TypeDefinition typeDef : types.values()) {
-                // Add default serialisers
-                if (null == typeDef.getSerialiser()) {
-                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz()));
-                }
-            }
-        }
-
-        // Add default vertex serialiser
-        if (null == getSchema().getVertexSerialiser()) {
-            final Set<Class<?>> vertexClasses = new HashSet<>();
-            for (SchemaEntityDefinition definition : getSchema().getEntities().values()) {
-                vertexClasses.add(definition.getIdentifierClass(IdentifierType.VERTEX));
-            }
-            for (SchemaEdgeDefinition definition : getSchema().getEdges().values()) {
-                vertexClasses.add(definition.getIdentifierClass(IdentifierType.SOURCE));
-                vertexClasses.add(definition.getIdentifierClass(IdentifierType.DESTINATION));
-            }
-            vertexClasses.remove(null);
-
-            if (!vertexClasses.isEmpty()) {
-                Serialisation serialiser = null;
-
-                if (vertexClasses.size() == 1) {
-                    serialiser = serialisationFactory.getSerialiser(vertexClasses.iterator().next());
-                } else {
-
-                    for (Class<?> clazz : vertexClasses) {
-                        serialiser = serialisationFactory.getSerialiser(clazz);
-                        boolean canHandlerAll = true;
-                        for (Class<?> clazz2 : vertexClasses) {
-                            if (!serialiser.canHandle(clazz2)) {
-                                canHandlerAll = false;
-                                break;
-                            }
-                        }
-
-                        if (canHandlerAll) {
-                            break;
-                        }
-                    }
-                }
-
-                if (null == serialiser) {
-                    throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types, please implement your own or change your vertex class types.");
-                }
-
-                if (serialiser instanceof JavaSerialiser) {
-                    LOGGER.warn("Java serialisation is not recommended for vertex serialisation - it may cause aggregation to fail. Please implement your own or change your vertex class types.");
-                }
-
-                getSchema().setVertexSerialiser(serialiser);
-
-            }
-        }
+        schemaOptimiser.optimise(schema, isOrdered());
     }
 
     public void validateSchemas() {
@@ -458,8 +389,8 @@ public abstract class Store {
         }
     }
 
-    protected SerialisationFactory getSerialisationFactory() {
-        return new SerialisationFactory();
+    protected SchemaOptimiser getSchemaOptimiser() {
+        return new SchemaOptimiser();
     }
 
     private void addOpHandlers() {

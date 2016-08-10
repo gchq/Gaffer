@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.implementation;
+package gaffer.serialisation.simple;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @deprecated this is not very efficient and should only be used for compatibility
+ * reasons. For new properties use {@link gaffer.serialisation.implementation.raw.RawFloatSerialiser}
+ * instead.
+ */
+@Deprecated
 public class FloatSerialiser implements Serialisation {
     private static final long serialVersionUID = -4732565151514793209L;
 
@@ -45,5 +51,10 @@ public class FloatSerialiser implements Serialisation {
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

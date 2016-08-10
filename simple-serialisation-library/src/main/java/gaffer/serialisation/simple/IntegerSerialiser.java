@@ -20,8 +20,13 @@ import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @deprecated this is not very efficient and should only be used for compatibility
+ * reasons. For new properties use {@link gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser}
+ * instead.
+ */
+@Deprecated
 public class IntegerSerialiser implements Serialisation {
-
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -46,5 +51,10 @@ public class IntegerSerialiser implements Serialisation {
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }
