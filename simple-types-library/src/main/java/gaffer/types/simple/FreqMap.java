@@ -45,11 +45,11 @@ public class FreqMap extends HashMap<String, Integer> {
      * @param key The key in the map to increment or insert.
      * @param value The value to increment by or initialise to.
      */
-    public void upsert(final String key, final Integer value){
-        if(this.containsKey(key)){
+    public void upsert(final String key, final Integer value) {
+        if (this.containsKey(key)) {
             this.put(key, this.get(key) + value);
-        }else{
-            this.put(key,value);
+        } else {
+            this.put(key, value);
         }
     }
 
@@ -58,7 +58,7 @@ public class FreqMap extends HashMap<String, Integer> {
      * If the key doesn't exist, initialises the value to 1.
      * @param key The key to increment or insert.
      */
-    public void upsert(final String key){
-        upsert(key,1);
+    public void upsert(final String key) {
+        upsert(key, 1);
     }
 }
