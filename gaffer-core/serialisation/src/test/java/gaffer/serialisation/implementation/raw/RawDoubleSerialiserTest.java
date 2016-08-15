@@ -13,43 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.raw;
-
-import gaffer.exception.SerialisationException;
-import org.junit.Test;
+package gaffer.serialisation.implementation.raw;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawFloatSerialiserTest {
+import gaffer.exception.SerialisationException;
+import org.junit.Test;
 
-    private static final RawFloatSerialiser SERIALISER = new RawFloatSerialiser();
+public class RawDoubleSerialiserTest {
+
+    private static final RawDoubleSerialiser SERIALISER = new RawDoubleSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (float i = 0; i < 1000; i+=1.1) {
+        for (double i = 0; i < 1000; i+=1.1) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Float.class, o.getClass());
+            assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseFloatMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MIN_VALUE);
+    public void canSerialiseDoubleMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Double.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Float.class, o.getClass());
-        assertEquals(Float.MIN_VALUE, o);
+        assertEquals(Double.class, o.getClass());
+        assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseFloatMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MAX_VALUE);
+    public void canSerialiseDoubleMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Double.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Float.class, o.getClass());
-        assertEquals(Float.MAX_VALUE, o);
+        assertEquals(Double.class, o.getClass());
+        assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
@@ -58,8 +58,8 @@ public class RawFloatSerialiserTest {
     }
 
     @Test
-    public void canSerialiseFloatClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Float.class));
+    public void canSerialiseDoubleClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Double.class));
     }
 
 }

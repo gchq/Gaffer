@@ -36,7 +36,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
-import gaffer.serialisation.simple.StringSerialiser;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEntityDefinition;

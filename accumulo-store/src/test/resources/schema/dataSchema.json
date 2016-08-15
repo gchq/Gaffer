@@ -1,7 +1,7 @@
 {
   "entities": {
     "BasicEntity": {
-      "vertex": "id.object",
+      "vertex": "vertex.string",
       "properties": {
         "columnQualifier": "colQualProperty",
         "columnQualifier2": "colQualProperty",
@@ -20,8 +20,8 @@
   },
   "edges": {
     "BasicEdge": {
-      "source": "id.object",
-      "destination": "id.object",
+      "source": "vertex.string",
+      "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
@@ -39,8 +39,8 @@
       ]
     },
     "BasicEdge2": {
-      "source": "id.object",
-      "destination": "id.object",
+      "source": "vertex.string",
+      "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",

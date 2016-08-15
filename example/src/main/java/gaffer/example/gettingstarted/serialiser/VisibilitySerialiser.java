@@ -51,4 +51,9 @@ public class VisibilitySerialiser implements Serialisation {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
+    }
 }

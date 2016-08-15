@@ -20,6 +20,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -167,9 +168,8 @@ public class SchemaTest {
 
         TypeDefinition type = edgeDefinition.getPropertyTypeDef(TestPropertyNames.DATE);
         assertEquals(Date.class, type.getClazz());
-        assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
+        assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
-
 
         // Entity definitions
         SchemaElementDefinition entityDefinition = schema.getEntity(TestGroups.ENTITY);
@@ -179,7 +179,7 @@ public class SchemaTest {
         assertEquals(0, entityDefinition.getGroupBy().size());
 
         assertEquals(String.class, type.getClazz());
-        assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
+        assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         ElementAggregator aggregator = edgeDefinition.getAggregator();
@@ -519,6 +519,11 @@ public class SchemaTest {
         @Override
         public Object deserialise(final byte[] bytes) throws SerialisationException {
             return null;
+        }
+
+        @Override
+        public boolean isByteOrderPreserved() {
+            return true;
         }
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
@@ -24,7 +24,6 @@ import gaffer.serialisation.Serialisation;
  * number of bytes. For example, integers i which are between -112 and 127 inclusive are serialised into one byte. Very
  * large integers may be serialised into 5 bytes. This is particularly well suited to serialising count properties in
  * power-law graphs where the majority of counts will be very small.
- *
  * Note that {@link CompactRawLongSerialiser} does not use any more bytes than this serialiser if it is
  * serialising a long value that is less than or equal to <code>Integer.MAX_VALUE</code> and greater than or
  * equal to <code>Integer.MIN_VALUE</code>. This means that, in terms of serialised size, there is no benefit to
@@ -45,7 +44,7 @@ public class CompactRawIntegerSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Integer deserialise(final byte[] bytes) throws SerialisationException {
         final long result = CompactRawSerialisationUtils.readLong(bytes);
         if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
             throw new SerialisationException("Value too long to fit in integer");
@@ -53,4 +52,8 @@ public class CompactRawIntegerSerialiser implements Serialisation {
         return (int) result;
     }
 
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
 }

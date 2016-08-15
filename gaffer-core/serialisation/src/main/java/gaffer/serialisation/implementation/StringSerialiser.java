@@ -13,48 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
-
+package gaffer.serialisation.implementation;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 
-/**
- * @deprecated this is not very efficient and should only be used for compatibility
- * reasons. For new properties use {@link gaffer.serialisation.implementation.raw.RawDateSerialiser}
- * instead.
- */
-@Deprecated
-public class DateSerialiser implements Serialisation {
+public class StringSerialiser implements Serialisation {
+
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Date.class.equals(clazz);
+        return String.class.equals(clazz);
     }
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
-        Date value = (Date) object;
+        String value = (String) object;
         try {
-            return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
+            return value.getBytes(CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
-        Long longR;
+    public String deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (NumberFormatException | UnsupportedEncodingException e) {
+            return new String(bytes, CommonConstants.UTF_8);
+        } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
-        return new Date(longR);
     }
 
     @Override

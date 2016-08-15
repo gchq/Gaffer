@@ -15,14 +15,13 @@
  */
 package gaffer.serialisation.simple;
 
-import gaffer.exception.SerialisationException;
-
-import java.util.Date;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import org.junit.Test;
+import java.util.Date;
 
 public class DateSerialiserTest {
 
@@ -30,7 +29,7 @@ public class DateSerialiserTest {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (long i = 121231232; i < 1000; i++) {
+        for (long i = 121231232; i < (121231232 + 1000); i++) {
             byte[] b = SERIALISER.serialise(new Date(i));
             Object o = SERIALISER.deserialise(b);
             assertEquals(Date.class, o.getClass());

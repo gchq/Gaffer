@@ -36,7 +36,6 @@ import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,7 +91,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(false);
-        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, "Test");
+        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
         final Pair<Key> keys = converter.getKeysFromElement(edge);
@@ -102,7 +101,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(false, newEdge.isDirected());
-        assertEquals("Test", newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
+        assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
 
     @Test
@@ -110,7 +109,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
-        entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, new Date());
+        entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
         final Pair<Key> keys = converter.getKeysFromElement(entity);
@@ -118,7 +117,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // Then
         assertEquals("3", newEntity.getVertex());
-        assertEquals(Date.class, newEntity.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER).getClass());
+        assertEquals(100, newEntity.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
 
     @Test
@@ -128,7 +127,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
-        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, "Test");
+        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
         final Pair<Key> keys = converter.getKeysFromElement(edge);
@@ -138,7 +137,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
-        assertEquals("Test", newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
+        assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
 
     @Test
@@ -146,7 +145,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
-        entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, new Date());
+        entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
         final Pair<Key> keys = converter.getKeysFromElement(entity);
@@ -154,7 +153,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // Then
         assertEquals("3", newEntity.getVertex());
-        assertEquals(Date.class, newEntity.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER).getClass());
+        assertEquals(100, newEntity.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
 
     @Test
@@ -164,7 +163,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
-        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, "Test");
+        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         final Pair<Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
@@ -176,7 +175,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
-        assertEquals("Test", newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
+        assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
 
     @Test
@@ -186,7 +185,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
-        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, "Test");
+        edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         final Pair<Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
@@ -199,7 +198,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals("2", newEdge.getSource());
         assertEquals("1", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
-        assertEquals("Test", newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
+        assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
 
     @Test

@@ -13,41 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
+package gaffer.serialisation.implementation.raw;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import java.io.IOException;
+import java.util.Date;
 
-public class HyperLogLogPlusSerialiser implements Serialisation {
-    private static final long serialVersionUID = 2782098698280905174L;
+public class RawDateSerialiser implements Serialisation {
+    private static final long serialVersionUID = -3585678555520167582L;
+    private final RawLongSerialiser longSerialiser = new RawLongSerialiser();
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return HyperLogLogPlus.class.equals(clazz);
+        return Date.class.equals(clazz);
     }
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
-        try {
-            return ((HyperLogLogPlus) object).getBytes();
-        } catch (IOException exception) {
-            throw new RuntimeException("Failed to get bytes from HyperLogLogPlus sketch", exception);
-        }
+        return longSerialiser.serialise(((Date) object).getTime());
     }
 
     @Override
-    public HyperLogLogPlus deserialise(final byte[] bytes) throws SerialisationException {
-        try {
-            return HyperLogLogPlus.Builder.build(bytes);
-        } catch (IOException exception) {
-            throw new RuntimeException("Failed to create HyperLogLogPlus sketch from given bytes", exception);
-        }
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
+        return new Date(longSerialiser.deserialise(bytes));
     }
 
     @Override
     public boolean isByteOrderPreserved() {
-        return false;
+        return true;
     }
 }
