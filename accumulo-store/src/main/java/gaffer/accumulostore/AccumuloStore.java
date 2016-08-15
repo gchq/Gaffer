@@ -323,6 +323,6 @@ public class AccumuloStore extends Store {
 
     @Override
     public boolean isOrdered() {
-        return super.isOrdered();
+        return true;
     }
 }
