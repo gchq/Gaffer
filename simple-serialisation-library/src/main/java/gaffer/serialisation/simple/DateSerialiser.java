@@ -15,7 +15,6 @@
  */
 package gaffer.serialisation.simple;
 
-
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
@@ -23,6 +22,11 @@ import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
+/**
+ * This is deprecated and will be removed in a future release; use {@link gaffer.serialisation.simple.raw.RawDateSerialiser}
+ * instead.
+ */
+@Deprecated
 public class DateSerialiser implements Serialisation {
 
     private static final long serialVersionUID = 5647756843689779437L;
