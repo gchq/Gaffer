@@ -29,6 +29,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,6 +44,8 @@ import java.util.TreeSet;
  * Utility methods for adding data to Accumulo.
  */
 public final class IngestUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestUtils.class);
     private static final FsPermission ACC_DIR_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
     private static final FsPermission ACC_FILE_PERMS = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
 
@@ -167,6 +171,7 @@ public final class IngestUtils {
         if (!fs.getFileStatus(dirPath).isDirectory()) {
             throw new RuntimeException(dirPath + " is not a directory");
         }
+        LOGGER.info("Setting permission {} on directory {} and all files within", ACC_DIR_PERMS, dirPath);
         fs.setPermission(dirPath, ACC_DIR_PERMS);
         for (final FileStatus file : fs.listStatus(dirPath)) {
             fs.setPermission(file.getPath(), ACC_FILE_PERMS);

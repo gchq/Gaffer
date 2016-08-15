@@ -16,18 +16,14 @@
 
 package gaffer.data.elementdefinition.view;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 /**
  * The <code>View</code> defines the {@link gaffer.data.element.Element}s to be returned for an operation.
@@ -45,8 +41,6 @@ import java.util.List;
  * @see gaffer.data.element.function.ElementTransformer
  */
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> {
-    private List<String> groupByProperties;
-
     public View() {
         super();
     }
@@ -63,56 +57,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return fromJson(View.class, jsonBytes);
     }
 
-    public List<String> getGroupByProperties() {
-        return groupByProperties;
-    }
-
-    public void setSummariseGroupByProperties(final List<String> groupByProperties) {
-        this.groupByProperties = groupByProperties;
-    }
-
-    public void setSummarise(final boolean summarise) {
-        if (summarise) {
-            if (null == groupByProperties) {
-                // An empty list of group by properties will mean all properties
-                // will be aggregated together - none will be held constant.
-                groupByProperties = new ArrayList<>(0);
-            }
-        } else {
-            // Setting group by properties will mean grouping by properties is
-            // disabled and query time aggregation (summarisation) will not be
-            // carried out.
-            groupByProperties = null;
-        }
-    }
-
-    public boolean isSummarise() {
-        return null != groupByProperties;
-    }
-
-    @JsonGetter("summariseGroupByProperties")
-    List<String> getSummariseGroupByPropertiesJson() {
-        if (null == groupByProperties || groupByProperties.isEmpty()) {
-            return null; // the summarise flag in json will be used instead.
-        }
-
-        return groupByProperties;
-    }
-
-    @SuppressFBWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Required so the summarise boolean isn't included in json")
-    @JsonGetter("summarise")
-    Boolean isSummariseJson() {
-        if (null == groupByProperties) {
-            return false;
-        }
-
-        if (groupByProperties.isEmpty()) {
-            return true;
-        }
-
-        return null; // If group by properties have been set then these should be included in the json instead of the summarise flag.
-    }
-
     @Override
     public String toString() {
         try {
@@ -125,6 +69,15 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @Override
     public ViewElementDefinition getElement(final String group) {
         return (ViewElementDefinition) super.getElement(group);
+    }
+
+    public LinkedHashSet<String> getElementGroupBy(final String group) {
+        ViewElementDefinition viewElementDef = (ViewElementDefinition) super.getElement(group);
+        if (null == viewElementDef) {
+            return null;
+        }
+
+        return viewElementDef.getGroupBy();
     }
 
     public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
@@ -167,19 +120,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 entity(group);
             }
 
-            return this;
-        }
-
-        public Builder groupByProperties(final String... groupByProperties) {
-            if (null == getElementDefs().getGroupByProperties()) {
-                getElementDefs().setSummariseGroupByProperties(new ArrayList<String>());
-            }
-            Collections.addAll(getElementDefs().getGroupByProperties(), groupByProperties);
-            return this;
-        }
-
-        public Builder summarise(final boolean summarise) {
-            getElementDefs().setSummarise(summarise);
             return this;
         }
 

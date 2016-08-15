@@ -22,10 +22,8 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
-import gaffer.store.schema.SchemaElementDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,12 +69,12 @@ public interface AccumuloElementConverter {
      * Converts a set of {@link gaffer.data.element.Properties} to an Accumulo
      * {@link org.apache.accumulo.core.data.Value}.
      *
-     * @param properties the properties to use to create a Value
      * @param group      the element group
+     * @param properties the properties to use to create a Value
      * @return A new Accumulo {@link Value} containing the serialised {@link gaffer.data.element.Properties}
      * @throws AccumuloElementConversionException If conversion fails
      */
-    Value getValueFromProperties(final Properties properties, final String group)
+    Value getValueFromProperties(final String group, final Properties properties)
             throws AccumuloElementConversionException;
 
     /**
@@ -160,7 +158,7 @@ public interface AccumuloElementConverter {
      * @return A byte array representing the given object
      * @throws AccumuloElementConversionException If conversion fails
      */
-    byte[] serialiseVertexForBloomKey(final Object vertex) throws AccumuloElementConversionException;
+    byte[] serialiseVertex(final Object vertex) throws AccumuloElementConversionException;
 
     /**
      * Creates a byte array representing a set of
@@ -186,20 +184,6 @@ public interface AccumuloElementConverter {
      * @throws AccumuloElementConversionException If conversion fails
      */
     Properties getPropertiesFromColumnQualifier(final String group, final byte[] columnQualifier)
-            throws AccumuloElementConversionException;
-
-    /**
-     * Gets a list of serialised bytes representing the value associated with
-     * each property name provided. These byte values are extracted out of the
-     * column qualifier.
-     *
-     * @param elDef           the element schema definition
-     * @param columnQualifier the column qualifier containing the property name/value pairs
-     * @param propertyNames   the property names to extract
-     * @return a list of serialised property value bytes
-     * @throws AccumuloElementConversionException If conversion fails
-     */
-    List<byte[]> getPropertyBytesFromColumnQualifier(final SchemaElementDefinition elDef, final byte[] columnQualifier, final List<String> propertyNames)
             throws AccumuloElementConversionException;
 
     /**
@@ -260,4 +244,6 @@ public interface AccumuloElementConverter {
 
     Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException;
+
+    byte[] extractPropertyBytes(final int numProps, final byte[] bytes) throws AccumuloElementConversionException;
 }

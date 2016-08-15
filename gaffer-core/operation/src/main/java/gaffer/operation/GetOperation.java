@@ -137,4 +137,8 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
      * @see gaffer.operation.GetOperation.IncludeEdgeType
      */
     IncludeEdgeType getIncludeEdges();
+
+    boolean isDeduplicate();
+
+    void setDeduplicate(final boolean deduplicate);
 }

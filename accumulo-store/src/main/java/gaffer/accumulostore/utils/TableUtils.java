@@ -77,8 +77,7 @@ public final class TableUtils {
      * @throws StoreException if a connection to accumulo could not be created or there is a failure to create a table/iterator
      */
     public static void ensureTableExists(final AccumuloStore store) throws StoreException {
-        final Connector conn;
-        conn = store.getConnection();
+        final Connector conn = store.getConnection();
         if (!conn.tableOperations().exists(store.getProperties().getTable())) {
             try {
                 TableUtils.createTable(store);
@@ -105,42 +104,41 @@ public final class TableUtils {
         final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
         if (connector.tableOperations().exists(tableName)) {
+            LOGGER.info("Table {} exists, not creating", tableName);
             return;
         }
         try {
+            LOGGER.info("Creating table {} as user {}", tableName, connector.whoami());
             connector.tableOperations().create(tableName);
             final String repFactor = store.getProperties().getTableFileReplicationFactor();
             if (null != repFactor) {
+                LOGGER.info("Table file replication set to {} on table {}", repFactor, tableName);
                 connector.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), repFactor);
             }
 
             // Enable Bloom filters using ElementFunctor
-            LOGGER.info("Enabling Bloom filter on table");
+            LOGGER.info("Enabling Bloom filter on table {}", tableName);
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_ENABLED.getKey(), "true");
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_KEY_FUNCTOR.getKey(),
                     store.getKeyPackage().getKeyFunctor().getClass().getName());
-            LOGGER.info("Bloom filter enabled");
 
             // Remove versioning iterator from table for all scopes
-            LOGGER.info("Removing versioning iterator");
+            LOGGER.info("Removing versioning iterator from table {}", tableName);
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
-            LOGGER.info("Removed Versioning iterator");
 
             // Add Combiner iterator to table for all scopes
-            LOGGER.info("Adding Aggregator iterator to table for all scopes");
+            LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
             connector.tableOperations().attachIterator(tableName,
                     store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-            LOGGER.info("Added Aggregator iterator to table for all scopes");
 
             if (store.getProperties().getEnableValidatorIterator()) {
                 // Add validator iterator to table for all scopes
-                LOGGER.info("Adding Validator iterator to table for all scopes");
+                LOGGER.info("Adding Validator iterator to table {} for all scopes", tableName);
                 connector.tableOperations().attachIterator(tableName,
                         store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
-                LOGGER.info("Added Validator iterator to table for all scopes");
             } else {
-                LOGGER.info("Validator iterator has been disabled");
+                LOGGER.info("Validator iterator has not been added to table {}", tableName);
             }
         } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
@@ -232,6 +230,7 @@ public final class TableUtils {
 
         if (!conn.tableOperations().exists(AccumuloStoreConstants.GAFFER_UTILS_TABLE)) {
             try {
+                LOGGER.info("Creating utils table {} as user {}", AccumuloStoreConstants.GAFFER_UTILS_TABLE, conn.whoami());
                 conn.tableOperations().create(AccumuloStoreConstants.GAFFER_UTILS_TABLE);
             } catch (final TableExistsException e) {
                 // Someone else got there first, never mind...
@@ -257,6 +256,7 @@ public final class TableUtils {
                 getValueFromSchemas(store.getSchema(), store.getKeyPackage()));
         try {
             writer.addMutation(m);
+            LOGGER.info("Added mutation with rowkey {} to table {}", key.getRow(), AccumuloStoreConstants.GAFFER_UTILS_TABLE);
         } catch (final MutationsRejectedException e) {
             LOGGER.error("Failed to create an accumulo key mutation");
         }

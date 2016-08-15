@@ -21,7 +21,6 @@ import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.StorePositions;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -29,6 +28,7 @@ import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.aggregate.StringConcat;
 import gaffer.graph.Graph;
 import gaffer.graph.Graph.Builder;
@@ -81,9 +81,7 @@ public class AccumuloAggregationIT {
         // Given
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
-                .view(new View.Builder()
-                        .summarise(false)
-                        .build())
+                .view(new View())
                 .build();
 
         // When
@@ -135,7 +133,9 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .groupByProperties(AccumuloPropertyNames.COLUMN_QUALIFIER)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER)
+                                .build())
                         .build())
                 .build();
 
@@ -208,9 +208,11 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .groupByProperties(AccumuloPropertyNames.COLUMN_QUALIFIER_2,
-                                AccumuloPropertyNames.COLUMN_QUALIFIER_4,
-                                AccumuloPropertyNames.VISIBILITY)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4,
+                                        AccumuloPropertyNames.VISIBILITY)
+                                .build())
                         .build())
                 .build();
 
@@ -260,7 +262,9 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .groupByProperties(TestPropertyNames.STRING)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(TestPropertyNames.STRING)
+                                .build())
                         .build())
                 .build();
 
@@ -305,8 +309,9 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .groupByProperties(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                                .build())
                         .build())
                 .build();
 
@@ -360,8 +365,9 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .groupByProperties(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                                .build())
                         .build())
                 .build();
 
@@ -403,8 +409,9 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .groupByProperties(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                                .build())
                         .build())
                 .build();
 
@@ -498,8 +505,9 @@ public class AccumuloAggregationIT {
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .groupByProperties(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
+                                .build())
                         .build())
                 .build();
 
@@ -559,13 +567,11 @@ public class AccumuloAggregationIT {
                                 .clazz(String.class)
                                 .aggregateFunction(new StringConcat())
                                 .serialiser(new StringSerialiser())
-                                .position(StorePositions.COLUMN_QUALIFIER.name())
                                 .build())
                         .type("visibility", new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .aggregateFunction(new StringConcat())
                                 .serialiser(new StringSerialiser())
-                                .position(StorePositions.VISIBILITY.name())
                                 .build())
                         .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                                 .vertex(TestTypes.ID_STRING)
@@ -574,7 +580,12 @@ public class AccumuloAggregationIT {
                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
                                 .property(AccumuloPropertyNames.VISIBILITY, "visibility")
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_3,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4)
                                 .build())
+                        .visibilityProperty(AccumuloPropertyNames.VISIBILITY)
                         .build())
                 .build();
     }

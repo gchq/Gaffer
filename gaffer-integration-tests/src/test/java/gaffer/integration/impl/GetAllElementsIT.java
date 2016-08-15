@@ -92,7 +92,6 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .view(new View.Builder()
-                        .summarise(false)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .filter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
@@ -129,8 +128,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .view(new View.Builder()
-                        .summarise(true)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .groupBy()
                                 .filter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
                                         .execute(new IsIn(Arrays.asList((Object) 100, 101)))

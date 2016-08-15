@@ -16,6 +16,7 @@
 
 package gaffer.operation.data;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -32,6 +33,7 @@ public class EntitySeed extends ElementSeed {
         this.vertex = vertex;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getVertex() {
         return vertex;
     }

@@ -63,7 +63,12 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
             extends AbstractGetOperation.Builder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE> {
 
         public Builder() {
-            super(new GetElementsWithinSet());
+            super(new GetElementsWithinSet<ELEMENT_TYPE>());
+        }
+
+        @Override
+        public Builder<ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
+            return (Builder<ELEMENT_TYPE>) super.deduplicate(deduplicate);
         }
 
         @Override

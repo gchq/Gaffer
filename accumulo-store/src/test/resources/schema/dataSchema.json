@@ -12,7 +12,10 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   },
   "edges": {
@@ -30,7 +33,26 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
+    },
+    "BasicEdge2": {
+      "source": "id.object",
+      "destination": "id.object",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "simpleProperty",
+        "property2": "simpleProperty",
+        "property3": "simpleProperty",
+        "property4": "simpleProperty",
+        "count": "simpleProperty"
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   }
 }

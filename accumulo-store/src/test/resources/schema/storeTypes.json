@@ -1,15 +1,13 @@
 {
   "types": {
     "colQualProperty": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
-      "position": "COLUMN_QUALIFIER",
+      "serialiserClass": " gaffer.serialisation.simple.raw.CompactRawIntegerSerialiser",
       "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Sum"
       }
     },
     "simpleProperty": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
-      "position": "VALUE",
+      "serialiserClass": " gaffer.serialisation.simple.raw.CompactRawIntegerSerialiser",
       "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Sum"
       }

@@ -4,7 +4,6 @@ package gaffer.accumulostore.operation.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.Pair;
@@ -60,11 +59,10 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(false)
-                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build())
+                .view(new View.Builder().edge("testEdgeGroup").build())
                 .addSeed(seed).build();
         assertEquals(seed, getEntitiesInRanges.getSeeds().iterator().next());
         assertEquals("true", getEntitiesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertTrue(getEntitiesInRanges.getView().isSummarise());
         assertFalse(getEntitiesInRanges.isPopulateProperties());
         assertNotNull(getEntitiesInRanges.getView());
     }

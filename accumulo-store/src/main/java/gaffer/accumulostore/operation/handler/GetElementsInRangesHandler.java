@@ -17,9 +17,9 @@
 package gaffer.accumulostore.operation.handler;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
-import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
@@ -44,22 +44,15 @@ public class GetElementsInRangesHandler
     public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
                                          final User user,
                                          final AccumuloStore store) throws OperationException {
-        final AccumuloRetriever<?> ret;
+        final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
-            if (operation.getView().isSummarise()) {
-                ret = new AccumuloRangeIDRetriever(store, operation, user,
-                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
-                                store),
-                        store.getKeyPackage().getIteratorFactory()
-                                .getEdgeEntityDirectionFilterIteratorSetting(operation),
-                        store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
-                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
-            } else {
-                ret = new AccumuloRangeIDRetriever(store, operation, user);
-            }
+            return new AccumuloRangeIDRetriever(store, operation, user,
+                    itrFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
+                    itrFactory.getElementPropertyRangeQueryFilter(operation),
+                    itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-        return ret;
     }
 }

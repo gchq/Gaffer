@@ -23,11 +23,9 @@ import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,21 +40,21 @@ import java.util.Set;
 public abstract class AbstractStoreITs {
     private final StoreProperties storeProperties;
     private final Schema schema;
-    private final Collection<? extends Class<? extends AbstractStoreIT>> extraTests;
+    private final Collection<Class<? extends AbstractStoreIT>> extraTests;
     private final Map<Class<? extends AbstractStoreIT>, String> skipTests = new HashMap<>();
 
-    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
+    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
         this.schema = schema;
         this.storeProperties = storeProperties;
         this.extraTests = extraTests;
     }
 
-    public AbstractStoreITs(final StoreProperties storeProperties, final Collection<? extends Class<? extends AbstractStoreIT>> extraTests) {
+    public AbstractStoreITs(final StoreProperties storeProperties, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
         this(storeProperties, new Schema(), extraTests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this(storeProperties, schema, Collections.<Class<? extends AbstractStoreIT>>emptyList());
+        this(storeProperties, schema, new ArrayList<Class<? extends AbstractStoreIT>>());
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
@@ -71,7 +69,11 @@ public abstract class AbstractStoreITs {
         return storeProperties;
     }
 
-    public Collection<? extends Class<? extends AbstractStoreIT>> getExtraTests() {
+    public void addExtraTest(final Class<? extends AbstractStoreIT> extraTest) {
+        extraTests.add(extraTest);
+    }
+
+    public Collection<? extends Class> getExtraTests() {
         return extraTests;
     }
 
@@ -84,8 +86,6 @@ public abstract class AbstractStoreITs {
     }
 
     public static class StoreTestSuite extends Suite {
-        private static final Logger LOGGER = LoggerFactory.getLogger(StoreTestSuite.class);
-
         public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
             super(builder, clazz, getTestClasses(clazz));
 
@@ -105,7 +105,7 @@ public abstract class AbstractStoreITs {
             keepPublicConcreteClasses(classes);
 
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
-            classes.addAll(runner.getExtraTests());
+            classes.addAll((Collection<? extends Class<? extends AbstractStoreIT>>) runner.getExtraTests());
 
             return classes.toArray(new Class[classes.size()]);
         }

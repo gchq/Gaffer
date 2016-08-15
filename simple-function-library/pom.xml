@@ -21,7 +21,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.3.8-SNAPSHOT</version>
+        <version>0.4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>simple-function-library</artifactId>
@@ -31,6 +31,11 @@
         <dependency>
             <groupId>gaffer</groupId>
             <artifactId>function</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>simple-types-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -89,6 +94,8 @@
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>org.apache.commons:commons-lang
+                                    </include>
+                                    <include>gaffer:simple-types-library
                                     </include>
                                 </includes>
                             </artifactSet>

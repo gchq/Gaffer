@@ -20,11 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Iterables;
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -40,10 +40,12 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.AccumuloException;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,23 +55,29 @@ import java.util.Set;
 
 public class AccumuloSingleIDRetrieverTest {
 
-    private final int numEntries = 1000;
-    private AccumuloStore byteEntityStore;
-    private AccumuloStore gaffer1KeyStore;
+    private static final int numEntries = 1000;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloSingleIDRetrieverTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSingleIDRetrieverTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    public AccumuloSingleIDRetrieverTest() {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
 
     @Before
-    public void setup() throws IOException, StoreException {
+    public void reInitialise() throws StoreException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
     }
@@ -304,7 +312,7 @@ public class AccumuloSingleIDRetrieverTest {
         assertEquals(numEntries * 2, count);
     }
 
-    private void setupGraph(final AccumuloStore store, final int numEntries) {
+    private static void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             final Entity entity = new Entity(TestGroups.ENTITY);

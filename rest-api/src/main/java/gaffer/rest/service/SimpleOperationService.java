@@ -16,7 +16,7 @@
 
 package gaffer.rest.service;
 
-import com.google.common.collect.Iterables;
+import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -34,7 +34,7 @@ import gaffer.operation.impl.get.GetAllEdges;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
-import gaffer.operation.impl.get.GetElementsSeed;
+import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
@@ -89,7 +89,7 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Iterable<Element> getElementsBySeed(final GetElementsSeed<ElementSeed, Element> operation, final Integer n) {
+    public Iterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation, final Integer n) {
         return executeGet(operation, n);
     }
 
@@ -198,6 +198,6 @@ public class SimpleOperationService implements IOperationService {
     }
 
     protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
-        return null != n ? Iterables.limit(execute(operation), n) : execute(operation);
+        return null != n ? new LimitedCloseableIterable<>(execute(operation), 0, n) : execute(operation);
     }
 }

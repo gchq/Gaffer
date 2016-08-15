@@ -423,9 +423,31 @@ class GenerateObjects(Operation):
         return result
 
 
-class UpdateCache(Operation):
+class InitialiseSetExport(Operation):
     def __init__(self, key=None, options=None):
-        super().__init__('gaffer.operation.impl.cache.UpdateCache', None,
+        super().__init__(
+            'gaffer.operation.impl.export.initialise.InitialiseSetExport',
+            None,
+            options)
+        if not isinstance(key, str) and key is not None:
+            raise TypeError('key must be a string')
+        self.key = key
+
+    def toJson(self):
+        operation = super().toJson()
+
+        if self.key is not None:
+            operation['key'] = self.key
+
+        return operation
+
+    def convert_result(self, result):
+        return None
+
+
+class UpdateExport(Operation):
+    def __init__(self, key=None, options=None):
+        super().__init__('gaffer.operation.impl.export.UpdateExport', None,
                          options)
         if not isinstance(key, str) and key is not None:
             raise TypeError('key must be a string')
@@ -443,18 +465,18 @@ class UpdateCache(Operation):
         return None
 
 
-class FetchCache(Operation):
+class FetchExporter(Operation):
     def __init__(self, options=None):
-        super().__init__('gaffer.operation.impl.cache.FetchCache', None,
+        super().__init__('gaffer.operation.impl.export.FetchExporter', None,
                          options)
 
     def convert_result(self, result):
         return result
 
 
-class FetchCachedResult(Operation):
+class FetchExport(Operation):
     def __init__(self, key=None, options=None):
-        super().__init__('gaffer.operation.impl.cache.FetchCachedResult', None,
+        super().__init__('gaffer.operation.impl.export.FetchExport', None,
                          options)
         if not isinstance(key, str) and key is not None:
             raise TypeError('key must be a string')
@@ -540,7 +562,7 @@ class GetElementsBySeed(GetOperation):
     def __init__(self, seeds=None, view=None, summarise=True,
                  include_entities=True, include_edges=IncludeEdges.ALL,
                  in_out_type=InOutType.BOTH, options=None):
-        super().__init__('gaffer.operation.impl.get.GetElementsSeed', seeds,
+        super().__init__('gaffer.operation.impl.get.GetElementsBySeed', seeds,
                          view, summarise, include_entities, include_edges,
                          in_out_type, options)
 
@@ -603,3 +625,21 @@ class GetAllEdges(GetOperation):
 
     def convert_result(self, result):
         return ResultConverter.to_elements(result)
+
+
+class CountGroups(Operation):
+    def __init__(self, limit=None, options=None):
+        super().__init__('gaffer.operation.impl.CountGroups',
+                         None, options)
+        self.limit = limit
+
+    def toJson(self):
+        operation = super().toJson()
+
+        if self.limit is not None:
+            operation['limit'] = self.limit
+
+        return operation
+
+    def convert_result(self, result):
+        return result

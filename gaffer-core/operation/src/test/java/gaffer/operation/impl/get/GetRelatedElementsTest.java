@@ -19,7 +19,6 @@ package gaffer.operation.impl.get;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -79,12 +78,10 @@ public class GetRelatedElementsTest implements OperationTest {
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
                 .option("testOption", "true").populateProperties(false)
                 .view(new View.Builder()
-                        .summarise(true)
                         .edge("testEdgeGroup")
                         .build())
                 .build();
         assertEquals("true", getRelatedElements.getOption("testOption"));
-        assertTrue(getRelatedElements.getView().isSummarise());
         assertFalse(getRelatedElements.isPopulateProperties());
         assertFalse(getRelatedElements.isIncludeEntities());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getRelatedElements.getIncludeIncomingOutGoing());

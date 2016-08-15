@@ -165,7 +165,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             boolean destMatchesClientFilter;
             try {
                 destMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(destination)));
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertex(destination)));
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
@@ -175,7 +175,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             boolean sourceMatchesClientFilter;
             try {
                 sourceMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(source)));
+                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertex(source)));
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }

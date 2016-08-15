@@ -20,17 +20,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Iterables;
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -38,9 +39,11 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import gaffer.user.User;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,23 +53,32 @@ import java.util.Set;
 
 public class GetElementsinRangesHandlerTest {
 
-    private View defaultView;
-    private AccumuloStore byteEntityStore;
-    private AccumuloStore gaffer1KeyStore;
+    private static View defaultView;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsinRangesHandlerTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsinRangesHandlerTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsinRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    private User user = new User();
+    private static final User user = new User();
+
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+    }
 
     @Before
-    public void setup() throws StoreException, IOException {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+    public void reInitialise() throws StoreException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, 1000);
         setupGraph(gaffer1KeyStore, 1000);
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
@@ -123,13 +135,19 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        defaultView.setSummarise(true);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final Iterable<Element> elementsInRange = handler.doOperation(operation, user, store);
         int count = 0;
         for (final Element elm : elementsInRange) {
-            elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
             //Make sure every element has been summarised
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             count++;
@@ -142,7 +160,6 @@ public class GetElementsinRangesHandlerTest {
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (final Element elm : elements) {
-            elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
             //Make sure every element has been summarised
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             count++;
@@ -167,8 +184,16 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
-        defaultView.setSummarise(true);
+
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
@@ -176,7 +201,6 @@ public class GetElementsinRangesHandlerTest {
         final Iterable<Element> rangeElements = handler.doOperation(operation, user, store);
         int count = 0;
         for (final Element elm : rangeElements) {
-            elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
             //Make sure every element has been summarised
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             count++;
@@ -189,7 +213,6 @@ public class GetElementsinRangesHandlerTest {
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (Element elm : elements) {
-            elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER);
             //Make sure every element has been summarised
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             count++;
@@ -215,11 +238,18 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-        defaultView.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
@@ -243,11 +273,18 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
-        defaultView.setSummarise(true);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
@@ -256,7 +293,7 @@ public class GetElementsinRangesHandlerTest {
 
     }
 
-    private void setupGraph(final AccumuloStore store, final int numEntries) {
+    private static void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
 

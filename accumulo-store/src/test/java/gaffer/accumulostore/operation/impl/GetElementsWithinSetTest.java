@@ -46,12 +46,11 @@ public class GetElementsWithinSetTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloTestData.SEED_A)
                 .includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(true).view(new View.Builder().summarise(false).edge("testEdgegroup").build()).build();
+                .populateProperties(true).view(new View.Builder().edge("testEdgegroup").build()).build();
         assertEquals("true", getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getElementsWithinSet.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.NONE, getElementsWithinSet.getIncludeEdges());
         assertTrue(getElementsWithinSet.isPopulateProperties());
-        assertFalse(getElementsWithinSet.getView().isSummarise());
         assertEquals(AccumuloTestData.SEED_A, getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
     }

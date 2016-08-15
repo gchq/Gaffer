@@ -24,18 +24,20 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import gaffer.accumulostore.AccumuloProperties;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.utils.AccumuloTestData;
+import gaffer.commonutil.StreamUtil;
+import gaffer.store.schema.Schema;;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -56,21 +58,32 @@ import gaffer.user.User;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
-    private View defaultView;
-    private AccumuloStore byteEntityStore;
-    private AccumuloStore gaffer1KeyStore;
+    private static View defaultView;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+    }
 
     @Before
-    public void setup() throws StoreException, IOException {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+    public void reInitialise() throws StoreException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
@@ -210,17 +223,16 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             op.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
             op.setIncludeEntities(false);
 
-            final Set<Element> results = returnElementsFromOperation(store, op, new User(),false);
+            final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
             assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_2));
 
             op.setIncludeEdges(IncludeEdgeType.DIRECTED);
-            final Set<Element> secondResults = returnElementsFromOperation(store, op, new User(),false);
+            final Set<Element> secondResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
             assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_1));
-
             // Turn off directed / undirected edges only option and check get both EDGE_A1_B1 and EDGE_B2_A2
             op.setIncludeEdges(IncludeEdgeType.ALL);
 
-            final Set<Element> thirdResults = returnElementsFromOperation(store, op, new User(),false);
+            final Set<Element> thirdResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
             assertThat(thirdResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_2));
         } catch (StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
@@ -285,7 +297,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
         for (final EntitySeed seed : seeds) {
-            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertexForBloomKey(seed.getVertex())));
+            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 
         // Test random items against it - should only have to shouldRetieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
@@ -464,7 +476,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         return results;
     }
 
-    private void setupGraph(final AccumuloStore store) {
+    private static void setupGraph(final AccumuloStore store) {
         Set<Element> data = new HashSet<>();
 
         // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
@@ -486,7 +498,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
 
-    private void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
+    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
             store.execute(new AddElements(data), user);
         } catch (OperationException e) {

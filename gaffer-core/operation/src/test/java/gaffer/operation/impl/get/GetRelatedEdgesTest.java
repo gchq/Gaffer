@@ -76,11 +76,9 @@ public class GetRelatedEdgesTest implements OperationTest {
                 .option("testOption", "true")
                 .populateProperties(true)
                 .view(new View.Builder()
-                        .summarise(false)
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertFalse(getRelatedEdges.getView().isSummarise());
         assertTrue(getRelatedEdges.isPopulateProperties());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.OUTGOING, getRelatedEdges.getIncludeIncomingOutGoing());
         assertEquals("true", getRelatedEdges.getOption("testOption"));

@@ -20,8 +20,8 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.RangeFactory;
-import gaffer.accumulostore.utils.CloseableIterable;
-import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -105,9 +105,9 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
                 }
             }
         }
-        scanner.setRanges(Range.mergeOverlapping(ranges));
-        // Currently hard links element class to column family position.
+        scanner.setRanges(ranges);
 
+        // Currently hard links element class to column family position.
         if (IncludeEdgeType.NONE != operation.getIncludeEdges()) {
             for (final String col : operation.getView().getEdgeGroups()) {
                 scanner.fetchColumnFamily(new Text(col));

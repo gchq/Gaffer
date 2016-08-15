@@ -15,7 +15,9 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
+import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.CommonConstants;
 import gaffer.store.Store;
 import org.apache.accumulo.core.data.Key;
@@ -70,14 +72,13 @@ public class SampleDataForSplitPointsJobFactory {
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
+        jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
         Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
         }
-        numTasks = operation.getNumReduceTasks();
-        if (null != numTasks) {
-            jobConf.setNumReduceTasks(numTasks);
-        }
+        jobConf.setNumReduceTasks(1);
     }
 
     protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {

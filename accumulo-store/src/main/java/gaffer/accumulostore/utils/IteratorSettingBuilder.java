@@ -59,6 +59,11 @@ public class IteratorSettingBuilder {
         return this;
     }
 
+    public IteratorSettingBuilder columnFamily(final String columnFamily) {
+        setting.addOption(AccumuloStoreConstants.COLUMN_FAMILY, columnFamily);
+        return this;
+    }
+
     public IteratorSettingBuilder bloomFilter(final BloomFilter filter) throws IteratorSettingException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {

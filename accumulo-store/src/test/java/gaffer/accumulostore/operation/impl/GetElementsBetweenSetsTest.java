@@ -51,13 +51,12 @@ public class GetElementsBetweenSetsTest implements OperationTest {
                 .addSeedB(AccumuloTestData.SEED_A).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
                 .includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .view(new View.Builder().summarise(false).edge("testEdgeGroup").build()).build();
+                .view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getElementsBetweenSets.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertFalse(getElementsBetweenSets.isPopulateProperties());
-        assertFalse(getElementsBetweenSets.getView().isSummarise());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());

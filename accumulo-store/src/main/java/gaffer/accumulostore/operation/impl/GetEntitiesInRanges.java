@@ -76,7 +76,12 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
             extends AbstractGetOperation.Builder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, Entity> {
 
         public Builder() {
-            super(new GetEntitiesInRanges());
+            super(new GetEntitiesInRanges<SEED_TYPE>());
+        }
+
+        @Override
+        public Builder<SEED_TYPE> deduplicate(final boolean deduplicate) {
+            return (Builder<SEED_TYPE>) super.deduplicate(deduplicate);
         }
 
         @Override

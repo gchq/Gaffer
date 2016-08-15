@@ -22,6 +22,7 @@ public class TestPropertyNames {
     public static final String DATE = "dateProperty";
     public static final String TIMESTAMP = "timestamp";
     public static final String COUNT = "count";
+    public static final String VISIBILITY = "visibility";
 
     public static final String PROP_1 = "property1";
     public static final String PROP_2 = "property2";

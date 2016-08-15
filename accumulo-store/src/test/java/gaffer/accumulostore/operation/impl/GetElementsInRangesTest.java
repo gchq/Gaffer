@@ -57,14 +57,13 @@ public class GetElementsInRangesTest implements OperationTest {
                 .includeEntities(false)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .populateProperties(true)
-                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build())
+                .view(new View.Builder().edge("testEdgeGroup").build())
                 .build();
         assertEquals("true", getElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertFalse(getElementsInRanges.isIncludeEntities());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
         assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsInRanges.getIncludeEdges());
         assertTrue(getElementsInRanges.isPopulateProperties());
-        assertTrue(getElementsInRanges.getView().isSummarise());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());
     }

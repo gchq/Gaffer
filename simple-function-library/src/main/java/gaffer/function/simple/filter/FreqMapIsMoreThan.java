@@ -17,11 +17,11 @@ package gaffer.function.simple.filter;
 
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
-import gaffer.function.simple.types.FreqMap;
+import gaffer.types.simple.FreqMap;
 
 /**
  * An <code>FreqMapIsMoreThan</code> is a {@link SimpleFilterFunction} that checks
- * whether the frequency value associated with a specfific {@link gaffer.function.simple.types.FreqMap}
+ * whether the frequency value associated with a specfific {@link gaffer.types.simple.FreqMap}
  * key exists and is greater than a provided value.
  */
 @Inputs(FreqMap.class)

@@ -22,7 +22,8 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import gaffer.accumulostore.utils.BloomFilterUtils;
-import gaffer.accumulostore.utils.CloseableIterator;
+import gaffer.commonutil.iterable.CloseableIterator;
+import gaffer.commonutil.iterable.EmptyCloseableIterator;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -39,7 +40,6 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -81,23 +81,23 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
     }
 
     @Override
-    public Iterator<Element> iterator() {
+    public CloseableIterator<Element> iterator() {
         if (!hasSeeds()) {
-            return Collections.emptyIterator();
+            return new EmptyCloseableIterator<>();
         }
         if (readEntriesIntoMemory) {
             try {
                 iterator = createElementIteratorReadIntoMemory();
             } catch (final RetrieverException e) {
                 LOGGER.error(e.getMessage() + " returning empty iterator");
-                return Collections.emptyIterator();
+                return new EmptyCloseableIterator<>();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
             } catch (final RetrieverException e) {
                 LOGGER.error(e.getMessage() + " returning empty iterator");
-                return Collections.emptyIterator();
+                return new EmptyCloseableIterator<>();
             }
         }
         return iterator;
@@ -146,7 +146,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
 
     private void addToBloomFilter(final Object vertex, final BloomFilter filter) throws RetrieverException {
         try {
-            filter.add(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertexForBloomKey(vertex)));
+            filter.add(new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertex(vertex)));
         } catch (final AccumuloElementConversionException e) {
             throw new RetrieverException("Failed to add identifier to the bloom key", e);
         }

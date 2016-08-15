@@ -21,14 +21,12 @@ import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.ByteUtils;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import gaffer.accumulostore.utils.StorePositions;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
-import gaffer.store.schema.TypeDefinition;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.PartialKey;
@@ -41,10 +39,9 @@ import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -75,7 +72,7 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
         private final SortedKeyValueIterator<Key, Value> source;
         private final AccumuloElementConverter elementConverter;
         private final SchemaElementDefinition schemaElementDefinition;
-        private final List<String> groupByProperties;
+        private final LinkedHashSet<String> groupBy;
         private boolean hasNext;
 
         /**
@@ -83,15 +80,15 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
          * versions of the current topKey of the source
          * {@link SortedKeyValueIterator}.
          *
-         * @param source            The {@link SortedKeyValueIterator} of {@link Key},
-         *                          {@link Value} pairs from which to read data.
-         * @param elementConverter  the elementConverter to use
-         * @param schema            the store schema
-         * @param groupByProperties the properties to group by - if null then don't group by any properties.
+         * @param source           The {@link SortedKeyValueIterator} of {@link Key},
+         *                         {@link Value} pairs from which to read data.
+         * @param elementConverter the elementConverter to use
+         * @param schema           the store schema
+         * @param view             the view
          */
         public KeyValueIterator(final SortedKeyValueIterator<Key, Value> source,
                                 final AccumuloElementConverter elementConverter,
-                                final Schema schema, final List<String> groupByProperties) {
+                                final Schema schema, final View view) {
             this.source = source;
             this.elementConverter = elementConverter;
             final Key unsafeRef = source.getTopKey();
@@ -106,8 +103,7 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
             }
 
             schemaElementDefinition = schema.getElement(group);
-            this.groupByProperties = groupByProperties;
-
+            groupBy = view.getElementGroupBy(group);
             hasNext = _hasNext();
         }
 
@@ -156,8 +152,8 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
                 properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, topColumnVisibility));
                 properties.putAll(elementConverter.getPropertiesFromValue(group, topValue));
                 properties.putAll(elementConverter.getPropertiesFromTimestamp(group, topTimestamp));
-                if (null != groupByProperties) {
-                    properties.remove(groupByProperties);
+                if (null != groupBy) {
+                    properties.remove(groupBy);
                 }
             } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
@@ -177,65 +173,26 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
         }
 
         private boolean checkGroupByProperties(final Key key1, final Key key2) {
-            if (null == groupByProperties) {
-                return false;
-            }
-
-            if (groupByProperties.isEmpty()) {
+            final byte[] colQual1 = key1.getColumnQualifierData().getBackingArray();
+            final byte[] colQual2 = key2.getColumnQualifierData().getBackingArray();
+            if (ByteUtils.areKeyBytesEqual(colQual1, colQual2)) {
                 return true;
             }
 
-            List<String> colQualProps = null;
-            for (String property : groupByProperties) {
-                final TypeDefinition propertyTypeDef = schemaElementDefinition.getPropertyTypeDef(property);
-                if (null != propertyTypeDef) {
-                    final String position = propertyTypeDef.getPosition();
-                    if (StorePositions.VISIBILITY.isEqual(position)) {
-                        if (!ByteUtils.areKeyBytesEqual(key1.getColumnVisibilityData().getBackingArray(), key2.getColumnVisibilityData().getBackingArray())) {
-                            return false;
-                        }
-                    } else if (StorePositions.COLUMN_QUALIFIER.isEqual(position)) {
-                        if (null == colQualProps) {
-                            colQualProps = new ArrayList<>();
-                        }
-                        colQualProps.add(property);
-                    } else {
-                        throw new IllegalArgumentException("Only properties with position " + StorePositions.COLUMN_QUALIFIER.name()
-                                + " or " + StorePositions.VISIBILITY.name() + " can be include in the groupByProperties.");
-                    }
-                }
+            if (null == groupBy || groupBy.isEmpty()) {
+                return false;
             }
 
-            if (null != colQualProps) {
-                final byte[] colQual1 = key1.getColumnQualifierData().getBackingArray();
-                final byte[] colQual2 = key2.getColumnQualifierData().getBackingArray();
-                if (ByteUtils.areKeyBytesEqual(colQual1, colQual2)) {
-                    return true;
-                }
-
-                final List<byte[]> propBytes1;
-                final List<byte[]> propBytes2;
-                try {
-                    propBytes1 = elementConverter.getPropertyBytesFromColumnQualifier(schemaElementDefinition, colQual1, colQualProps);
-                    propBytes2 = elementConverter.getPropertyBytesFromColumnQualifier(schemaElementDefinition, colQual2, colQualProps);
-                } catch (AccumuloElementConversionException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (propBytes1.size() != propBytes2.size()) {
-                    return false;
-                }
-
-                final Iterator<byte[]> itr1 = propBytes1.iterator();
-                final Iterator<byte[]> itr2 = propBytes2.iterator();
-                while (itr1.hasNext()) {
-                    if (!ByteUtils.areKeyBytesEqual(itr1.next(), itr2.next())) {
-                        return false;
-                    }
-                }
+            final byte[] groupByPropBytes1;
+            final byte[] groupByPropBytes2;
+            try {
+                groupByPropBytes1 = elementConverter.extractPropertyBytes(groupBy.size(), colQual1);
+                groupByPropBytes2 = elementConverter.extractPropertyBytes(groupBy.size(), colQual2);
+            } catch (AccumuloElementConversionException e) {
+                throw new RuntimeException(e);
             }
 
-            return true;
+            return ByteUtils.areKeyBytesEqual(groupByPropBytes1, groupByPropBytes2);
         }
     }
 
@@ -300,7 +257,7 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
             }
 
             final Iterator<Properties> iter = new KeyValueIterator(
-                    getSource(), elementConverter, schema, view.getGroupByProperties());
+                    getSource(), elementConverter, schema, view);
             final Properties topProperties = reduce(group, workKey, iter);
 
 
@@ -313,13 +270,13 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
                 aggregatedProperties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, workKey.getColumnVisibilityData().getBackingArray()));
 
                 // Remove any group by properties in case they override the aggregated properties
-                topProperties.remove(view.getGroupByProperties());
+                topProperties.remove(view.getElementGroupBy(group));
                 aggregatedProperties.putAll(topProperties);
 
                 colQual = elementConverter.buildColumnQualifier(group, aggregatedProperties);
                 vis = elementConverter.buildColumnVisibility(group, aggregatedProperties);
                 timestamp = elementConverter.buildTimestamp(group, aggregatedProperties, workKey.getTimestamp());
-                topValue = elementConverter.getValueFromProperties(aggregatedProperties, group);
+                topValue = elementConverter.getValueFromProperties(group, aggregatedProperties);
             } catch (AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
@@ -404,16 +361,12 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
             throw new SchemaException("Unable to deserialise the view", e);
         }
 
-        if (!view.isSummarise()) {
-            throw new IllegalArgumentException("This combiner should only be used with a view that requires summarising.");
-        }
-
         return true;
     }
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME,
+        return new IteratorOptionsBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME,
                 "Applies a reduce function to a set of Properties with identical rowKey, column family and column qualifier constants.")
                 .addSchemaNamedOption().build();
     }

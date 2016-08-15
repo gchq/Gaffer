@@ -70,8 +70,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
         final GetEdgesWithinSet getEdgesWithinSet = new GetEdgesWithinSet.Builder()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
                 .addSeed(AccumuloTestData.SEED_A).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build()).build();
-        assertTrue(getEdgesWithinSet.getView().isSummarise());
+                .view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertFalse(getEdgesWithinSet.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesWithinSet.getIncludeEdges());
         assertEquals("true", getEdgesWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));

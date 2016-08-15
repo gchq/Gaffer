@@ -75,8 +75,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
                 .addSeed(seed).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .view(new View.Builder().summarise(true).edge("testEdgeGroup").build()).build();
-        assertTrue(getEdgesInRanges.getView().isSummarise());
+                .view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertFalse(getEdgesInRanges.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());

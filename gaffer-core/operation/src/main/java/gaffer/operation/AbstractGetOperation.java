@@ -35,6 +35,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
     private boolean populateProperties = true;
+    private boolean deduplicate = false;
 
     protected AbstractGetOperation() {
         super();
@@ -162,6 +163,16 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         this.populateProperties = populateProperties;
     }
 
+    @Override
+    public boolean isDeduplicate() {
+        return deduplicate;
+    }
+
+    @Override
+    public void setDeduplicate(final boolean deduplicate) {
+        this.deduplicate = deduplicate;
+    }
+
     public static class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
             extends AbstractOperation.Builder<OP_TYPE, Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> {
         private List<SEED_TYPE> seeds;
@@ -234,6 +245,16 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          */
         protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             op.setIncludeIncomingOutGoing(inOutType);
+            return this;
+        }
+
+        /**
+         * @param deduplicate sets the deduplicate flag on the operation.
+         * @return this Builder
+         * @see gaffer.operation.GetOperation#setDeduplicate(boolean)
+         */
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> deduplicate(final boolean deduplicate) {
+            op.setDeduplicate(deduplicate);
             return this;
         }
 

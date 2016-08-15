@@ -22,8 +22,10 @@ import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.handler.AddElementsHandler;
 import gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.accumulostore.operation.handler.GetAllElementsHandler;
@@ -31,6 +33,7 @@ import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
+import gaffer.accumulostore.operation.handler.SummariseGroupOverRangesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
@@ -45,10 +48,12 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
-import gaffer.accumulostore.schema.AccumuloViewValidator;
+import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -64,18 +69,25 @@ import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -104,7 +116,7 @@ public class AccumuloStore extends Store {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
         this.keyPackage.setSchema(schema);
-        validateSchemasAgainstKeyDesign();
+        TableUtils.ensureTableExists(this);
     }
 
     /**
@@ -121,6 +133,60 @@ public class AccumuloStore extends Store {
                     getProperties().getUserName(), getProperties().getPassword());
         }
         return connection;
+    }
+
+    /**
+     * Updates a Hadoop {@link Configuration} with information needed to connect to the Accumulo store. It adds
+     * iterators to apply the provided {@link View}. This method will be used by operations that run MapReduce
+     * or Spark jobs against the Accumulo store.
+     *
+     * @param conf A {@link Configuration} to be updated.
+     * @param view The {@link View} to be applied.
+     * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
+     */
+    public void updateConfiguration(final Configuration conf, final View view) throws StoreException {
+        try {
+            // Table name
+            InputConfigurator.setInputTableName(AccumuloInputFormat.class,
+                    conf,
+                    getProperties().getTable());
+            // User
+            addUserToConfiguration(conf);
+            // Authorizations
+            InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class,
+                    conf,
+                    TableUtils.getCurrentAuthorizations(getConnection()));
+            // Zookeeper
+            addZookeeperToConfiguration(conf);
+            // Add keypackage, schema and view to conf
+            conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
+            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toJson(false), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.VIEW, new String(view.toJson(false), CommonConstants.UTF_8));
+            // Add iterators that depend on the view
+            if (!view.getEntityGroups().isEmpty() || !view.getEdgeGroups().isEmpty()) {
+                IteratorSetting elementFilter = getKeyPackage()
+                        .getIteratorFactory()
+                        .getElementFilterIteratorSetting(view, this);
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementFilter);
+            }
+        } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
+            throw new StoreException(e);
+        }
+    }
+
+    protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
+        InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
+                conf,
+                getProperties().getUserName(),
+                new PasswordToken(getProperties().getPassword()));
+    }
+
+    protected void addZookeeperToConfiguration(final Configuration conf) {
+        InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
+                conf,
+                new ClientConfiguration()
+                        .withInstance(getProperties().getInstanceName())
+                        .withZkHosts(getProperties().getZookeepers()));
     }
 
     @Override
@@ -147,6 +213,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(SplitTable.class, new SplitTableHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
+        addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
     }
 
     @Override
@@ -181,7 +248,6 @@ public class AccumuloStore extends Store {
      * @throws StoreException failure to insert the elements into a table
      */
     public void addElements(final Iterable<Element> elements) throws StoreException {
-        TableUtils.ensureTableExists(this);
         insertGraphElements(elements);
     }
 
@@ -251,25 +317,12 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public void validateSchemas() {
-        super.validateSchemas();
-        final Map<String, String> positions = this.getSchema().getPositions();
-        if (positions != null && !positions.isEmpty()) {
-            LOGGER.warn("The schema positions are not used and will be ignored.");
-        }
-    }
-
-    protected void validateSchemasAgainstKeyDesign() {
-        keyPackage.validateSchema(this.getSchema());
-    }
-
-    @Override
     public boolean isValidationRequired() {
         return false;
     }
 
     @Override
-    protected AccumuloViewValidator createViewValidator() {
-        return new AccumuloViewValidator();
+    public boolean isOrdered() {
+        return true;
     }
 }

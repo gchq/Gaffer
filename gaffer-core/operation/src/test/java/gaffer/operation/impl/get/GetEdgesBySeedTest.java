@@ -79,12 +79,10 @@ public class GetEdgesBySeedTest implements OperationTest {
                 .populateProperties(true)
 
                 .view(new View.Builder()
-                        .summarise(true)
                         .edge("testEdgeGroup")
                         .build())
                 .build();
         assertTrue(getEdgesBySeed.isPopulateProperties());
-        assertTrue(getEdgesBySeed.getView().isSummarise());
         assertNotNull(getEdgesBySeed.getView());
         assertEquals("true", getEdgesBySeed.getOption("testOption"));
         assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesBySeed.getIncludeEdges());

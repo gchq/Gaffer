@@ -26,8 +26,13 @@ import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
 import org.apache.hadoop.util.ToolRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs, Void> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
+
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
                             final Context context, final Store store)
@@ -38,18 +43,21 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     public void doOperation(final AddElementsFromHdfs operation, final AccumuloStore store) throws OperationException {
         fetchElements(operation, store);
-        String skipImport = operation.getOption(AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
+        final String skipImport = operation.getOption(AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
         if (null == skipImport || !skipImport.equalsIgnoreCase("TRUE")) {
             importElements(operation, store);
+        } else {
+            LOGGER.info("Skipping import as {} was {}", AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT,
+                    skipImport);
         }
     }
 
     private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)
             throws OperationException {
         final FetchElementsFromHdfs fetchTool = new FetchElementsFromHdfs(operation, store);
-
         final int response;
         try {
+            LOGGER.info("Running FetchElementsFromHdfs job");
             response = ToolRunner.run(fetchTool, new String[0]);
         } catch (final Exception e) {
             throw new OperationException("Failed to fetch elements from HDFS", e);
@@ -66,6 +74,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         final int response;
         importTool = new ImportElementsToAccumulo(operation.getOutputPath(), operation.getFailurePath(), store);
         try {
+            LOGGER.info("Running import job");
             response = ToolRunner.run(importTool, new String[0]);
         } catch (final Exception e) {
             throw new OperationException("Failed to import elements into Accumulo.", e);

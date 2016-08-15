@@ -16,11 +16,9 @@
 
 package gaffer.accumulostore.operation.handler;
 
-import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
@@ -30,8 +28,6 @@ import gaffer.store.Store;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
-import org.apache.accumulo.core.client.IteratorSetting;
-import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
     @Override
@@ -41,21 +37,14 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
     }
 
     public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
-        final AccumuloRetriever<?> ret;
+        final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
         try {
-            final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            final List<IteratorSetting> iteratorSettings = Lists.newArrayList(
-                    iteratorFactory.getElementPropertyRangeQueryFilter(operation),
+            return new AccumuloAllElementsRetriever(store, operation, user, iteratorFactory.getElementPropertyRangeQueryFilter(operation),
                     iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation)
-            );
-            if (operation.getView().isSummarise()) {
-                iteratorSettings.add(iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
-            }
-            ret = new AccumuloAllElementsRetriever(store, operation, user, (IteratorSetting[]) iteratorSettings.toArray(new IteratorSetting[iteratorSettings.size()]));
+                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
+                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-        return ret;
     }
 }

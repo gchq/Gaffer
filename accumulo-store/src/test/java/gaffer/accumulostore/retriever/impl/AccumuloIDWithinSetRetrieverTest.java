@@ -16,15 +16,15 @@
 
 package gaffer.accumulostore.retriever.impl;
 
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -39,12 +39,15 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.HashSet;
@@ -54,18 +57,34 @@ import static org.junit.Assert.*;
 
 public class AccumuloIDWithinSetRetrieverTest {
 
-    private View defaultView;
-    private AccumuloStore byteEntityStore;
-    private AccumuloStore gaffer1KeyStore;
+    private static View defaultView;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDWithinSetRetrieverTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDWithinSetRetrieverTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @Before
-    public void setup() throws IOException, StoreException {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-        setupGraph(byteEntityStore, new User());
-        setupGraph(gaffer1KeyStore, new User());
+    @BeforeClass
+    public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
     }
+
+    @Before
+    public void reInitialise() throws StoreException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        setupGraph(byteEntityStore);
+        setupGraph(gaffer1KeyStore);
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+    }
+
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElements operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
@@ -157,9 +176,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     private void shouldDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
-            final User user = new User();
             // Set outgoing edges only option, and query for the set {C,D}.
-            store.getProperties().setMaxEntriesForBatchScanner("1");
             final Set<EntitySeed> seeds = new HashSet<>();
             seeds.add(new EntitySeed("C"));
             seeds.add(new EntitySeed("D"));
@@ -289,7 +306,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
         for (final EntitySeed seed : seeds) {
-            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertexForBloomKey(seed.getVertex())));
+            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 
         // Test random items against it - should only have to shouldRetieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
@@ -418,7 +435,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertThat(a1A23Results, IsCollectionContaining.hasItems(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY));
     }
 
-    private void setupGraph(final AccumuloStore store, final User user) {
+    private static void setupGraph(final AccumuloStore store) {
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
@@ -447,13 +464,13 @@ public class AccumuloIDWithinSetRetrieverTest {
             }
             data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
             data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-            addElements(data, store, user);
+            addElements(data, store, new User());
         } catch (TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
 
-    private void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
+    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
             store.execute(new AddElements(data), user);
         } catch (OperationException e) {

@@ -75,8 +75,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         final GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder()
                 .includeEdges(GetOperation.IncludeEdgeType.ALL).addSeed(AccumuloTestData.SEED_A).addSeedB(AccumuloTestData.SEED_B)
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(false).view(new View.Builder().summarise(true).edge("testEdgeGroup").build()).build();
-        assertTrue(getEdgesBetweenSets.getView().isSummarise());
+                .populateProperties(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertFalse(getEdgesBetweenSets.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getEdgesBetweenSets.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());

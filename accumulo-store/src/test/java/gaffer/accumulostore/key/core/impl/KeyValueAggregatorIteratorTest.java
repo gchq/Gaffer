@@ -15,28 +15,29 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
+import static gaffer.accumulostore.utils.TableUtils.createTable;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
+import gaffer.accumulostore.AccumuloProperties;
+import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.accumulostore.utils.TableUtils;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
@@ -50,7 +51,9 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Iterator;
@@ -58,21 +61,35 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class KeyValueAggregatorIteratorTest {
-    private MockAccumuloStore byteEntityStore;
-    private MockAccumuloStore gaffer1KeyStore;
-    private AccumuloElementConverter byteEntityElementConverter;
-    private AccumuloElementConverter gaffer1ElementConverter;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(KeyValueAggregatorIteratorTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(KeyValueAggregatorIteratorTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(KeyValueAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    private static AccumuloElementConverter byteEntityElementConverter;
+    private static AccumuloElementConverter gaffer1ElementConverter;
+
+    @BeforeClass
+    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
+    }
 
     @Before
-    public void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
+    public void reInitialise() throws StoreException, TableExistsException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        createTable(byteEntityStore);
+        createTable(gaffer1KeyStore);
+    }
 
-        byteEntityStore.getProperties().setTable("Test");
-        gaffer1KeyStore.getProperties().setTable("Test2");
-
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(gaffer1KeyStore.getSchema());
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(byteEntityStore.getSchema());
+    @AfterClass
+    public static void tearDown() {
+        gaffer1KeyStore = null;
+        byteEntityStore = null;
     }
 
     @Test
@@ -85,12 +102,9 @@ public class KeyValueAggregatorIteratorTest {
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    private void testAggregatingMultiplePropertySets(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    private void testAggregatingMultiplePropertySets(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator).
-            TableUtils.createTable(store);
 
             // Create edge
             final Edge edge = new Edge(TestGroups.EDGE);
@@ -133,9 +147,9 @@ public class KeyValueAggregatorIteratorTest {
             final Key key3 = elementConverter.getKeysFromEdge(edge3).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(edge.getProperties(), TestGroups.EDGE);
-            final Value value2 = elementConverter.getValueFromProperties(edge2.getProperties(), TestGroups.EDGE);
-            final Value value3 = elementConverter.getValueFromProperties(edge3.getProperties(), TestGroups.EDGE);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, edge.getProperties());
+            final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, edge2.getProperties());
+            final Value value3 = elementConverter.getValueFromProperties(TestGroups.EDGE, edge3.getProperties());
 
             // Create mutation
             final Mutation m1 = new Mutation(key.getRow());
@@ -154,7 +168,7 @@ public class KeyValueAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -164,13 +178,15 @@ public class KeyValueAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyValueAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
                     .view(new View.Builder()
-                            .summarise(true)
+                            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                    .groupBy()
+                                    .build())
                             .build())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
@@ -184,11 +200,11 @@ public class KeyValueAggregatorIteratorTest {
             expectedEdge.setDestination("2");
             expectedEdge.setDirected(true);
             expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 9);
+            expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 15);
             expectedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
             expectedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
             expectedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
             expectedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 15);
 
             assertEquals(expectedEdge, readEdge);
             assertEquals(9, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
@@ -198,7 +214,7 @@ public class KeyValueAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableExistsException | TableNotFoundException e) {
+        } catch (AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -213,13 +229,9 @@ public class KeyValueAggregatorIteratorTest {
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingSinglePropertySet(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingSinglePropertySet(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         String visibilityString = "public";
         try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator).
-            TableUtils.createTable(store);
-
             // Create edge
             final Edge edge = new Edge(TestGroups.EDGE);
             edge.setSource("1");
@@ -235,7 +247,7 @@ public class KeyValueAggregatorIteratorTest {
             final Key key = elementConverter.getKeysFromEdge(edge).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(properties1, TestGroups.EDGE);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, properties1);
 
             // Create mutation
             final Mutation m1 = new Mutation(key.getRow());
@@ -246,18 +258,27 @@ public class KeyValueAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.close();
 
+            final Edge expectedEdge = new Edge(TestGroups.EDGE);
+            expectedEdge.setSource("1");
+            expectedEdge.setDestination("2");
+            expectedEdge.setDirected(true);
+            expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
+            expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 1);
+
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyValueAggregatorIterator.class)
                     .all()
                     .view(new View.Builder()
-                            .summarise(true)
+                            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                    .groupBy()
+                                    .build())
                             .build())
                     .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
@@ -266,7 +287,7 @@ public class KeyValueAggregatorIteratorTest {
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             final Entry<Key, Value> entry = it.next();
             final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
-            assertEquals(edge, readEdge);
+            assertEquals(expectedEdge, readEdge);
             assertEquals(8, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(1, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             // Check no more entries
@@ -274,7 +295,7 @@ public class KeyValueAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableExistsException | TableNotFoundException e) {
+        } catch (AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -289,13 +310,9 @@ public class KeyValueAggregatorIteratorTest {
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingEmptyColumnQualifier(final MockAccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingEmptyColumnQualifier(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
         final String visibilityString = "public";
         try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator).
-            TableUtils.createTable(store);
-
             // Create edge
             final Edge edge = new Edge(TestGroups.EDGE);
             edge.setSource("1");
@@ -335,9 +352,9 @@ public class KeyValueAggregatorIteratorTest {
             final Key key3 = elementConverter.getKeysFromEdge(edge3).getFirst();
 
             // Accumulo values
-            final Value value1 = elementConverter.getValueFromProperties(edge.getProperties(), TestGroups.EDGE);
-            final Value value2 = elementConverter.getValueFromProperties(edge2.getProperties(), TestGroups.EDGE);
-            final Value value3 = elementConverter.getValueFromProperties(edge3.getProperties(), TestGroups.EDGE);
+            final Value value1 = elementConverter.getValueFromProperties(TestGroups.EDGE, edge.getProperties());
+            final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, edge2.getProperties());
+            final Value value3 = elementConverter.getValueFromProperties(TestGroups.EDGE, edge3.getProperties());
 
             // Create mutation
             final Mutation m1 = new Mutation(key.getRow());
@@ -356,7 +373,7 @@ public class KeyValueAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getMockConnector().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -364,14 +381,27 @@ public class KeyValueAggregatorIteratorTest {
             writer.addMutation(m5);
             writer.close();
 
+            Edge expectedEdge = new Edge(TestGroups.EDGE);
+            expectedEdge.setSource("1");
+            expectedEdge.setDestination("2");
+            expectedEdge.setDirected(true);
+            expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 8);
+            expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 15);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            expectedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getMockConnector().createScanner(store.getProperties().getTable(), authorizations);
-            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
+            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyValueAggregatorIterator.class)
                     .all()
                     .view(new View.Builder()
-                            .summarise(true)
+                            .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                    .groupBy()
+                                    .build())
                             .build())
                     .schema(store.getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
@@ -380,7 +410,7 @@ public class KeyValueAggregatorIteratorTest {
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             final Entry<Key, Value> entry = it.next();
             final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
-            assertTrue(edge.shallowEquals(readEdge));
+            assertEquals(expectedEdge, readEdge);
             assertEquals(8, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(15, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             // Check no more entries
@@ -388,7 +418,7 @@ public class KeyValueAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableExistsException | TableNotFoundException e) {
+        } catch (AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }

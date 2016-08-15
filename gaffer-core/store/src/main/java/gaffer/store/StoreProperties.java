@@ -16,7 +16,9 @@
 
 package gaffer.store;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.store.operationdeclaration.OperationDeclarations;
 import gaffer.store.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +26,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  */
-public class StoreProperties {
+public class StoreProperties implements Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
+    public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
     private Path propFileLocation;
     private Properties props;
+
+    // Allow classes to register observers for the properties being ready
+    private final List<Runnable> readyObservers = new ArrayList<>();
 
     // Required for loading by reflection.
     public StoreProperties() {
@@ -55,6 +64,14 @@ public class StoreProperties {
     public StoreProperties(final Class<? extends Store> storeClass) {
         this(new Properties());
         setStoreClass(storeClass.getName());
+    }
+
+    public void whenReady(final Runnable o) {
+        if (null != props) {
+            o.run();
+        } else {
+            this.readyObservers.add(o);
+        }
     }
 
     /**
@@ -93,6 +110,31 @@ public class StoreProperties {
             readProperties();
         }
         props.setProperty(key, value);
+    }
+
+    /**
+     * Returns the operation definitions from the file specified in the properties.
+     * This is an optional feature, so if the property does not exist then this function
+     * will return an empty object.
+     *
+     * @return  The Operation Definitions to load dynamically
+     */
+    public OperationDeclarations getOperationDeclarations() {
+        OperationDeclarations declarations = null;
+
+        if (null != this.props) {
+            final String declarationsFilename = get(StoreProperties.OPERATION_DECLARATIONS);
+            if (null != declarationsFilename) {
+                final Path declarationsPath = Paths.get(declarationsFilename);
+                declarations = OperationDeclarations.fromJson(declarationsPath);
+            }
+        }
+
+        if (null == declarations) {
+            declarations = new OperationDeclarations.Builder().build();
+        }
+
+        return declarations;
     }
 
     public String getStoreClass() {
@@ -190,6 +232,13 @@ public class StoreProperties {
         return loadStoreProperties(props);
     }
 
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
+    @Override
+    public StoreProperties clone() {
+        return StoreProperties.loadStoreProperties((Properties) getProperties().clone());
+    }
+
     public static StoreProperties loadStoreProperties(final Properties props) {
         final String storePropertiesClass = props.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
         final StoreProperties storeProperties;
@@ -211,6 +260,10 @@ public class StoreProperties {
             try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
                 props = new Properties();
                 props.load(accIs);
+
+                for (final Runnable r : this.readyObservers) {
+                    r.run();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

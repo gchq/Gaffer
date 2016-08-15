@@ -74,14 +74,12 @@ public class GetEntitiesBySeedTest implements OperationTest {
 
                 .populateProperties(true)
                 .view(new View.Builder()
-                        .summarise(true)
                         .edge("testEdgeGroup")
                         .build())
                 .option("testOption", "true").build();
 
         assertEquals("true", getEntitiesBySeed.getOption("testOption"));
         assertTrue(getEntitiesBySeed.isPopulateProperties());
-        assertTrue(getEntitiesBySeed.getView().isSummarise());
         assertNotNull(getEntitiesBySeed.getView());
     }
 }

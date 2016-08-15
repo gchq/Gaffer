@@ -19,11 +19,11 @@ package gaffer.accumulostore.key.impl;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.MockAccumuloStoreForTest;
-import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -33,9 +33,14 @@ import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import gaffer.user.User;
-import org.junit.After;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,17 +49,17 @@ import java.util.List;
 
 public class AggregatorIteratorTest {
 
-    private View defaultView;
-    private AccumuloStore byteEntityStore;
-    private AccumuloStore gaffer1KeyStore;
+    private static View defaultView;
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloStore gaffer1KeyStore;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AggregatorIteratorTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @Before
-    public void setup() throws IOException, StoreException {
-        byteEntityStore = new MockAccumuloStoreForTest(ByteEntityKeyPackage.class);
-        gaffer1KeyStore = new MockAccumuloStoreForTest(ClassicKeyPackage.class);
-
-        byteEntityStore.getProperties().setTable("Test");
-        gaffer1KeyStore.getProperties().setTable("Test2");
+    @BeforeClass
+    public static void setup() throws IOException, StoreException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
 
         defaultView = new View.Builder()
                 .edge(TestGroups.EDGE)
@@ -62,8 +67,14 @@ public class AggregatorIteratorTest {
                 .build();
     }
 
-    @After
-    public void tearDown() {
+    @Before
+    public void reInitialise() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
@@ -77,7 +88,6 @@ public class AggregatorIteratorTest {
 
     private void test(final AccumuloStore store) throws OperationException {
         // Given
-        final long timestamp = new Date().getTime();
         final Edge expectedResult = new Edge(TestGroups.EDGE);
         expectedResult.setSource("1");
         expectedResult.setDestination("2");

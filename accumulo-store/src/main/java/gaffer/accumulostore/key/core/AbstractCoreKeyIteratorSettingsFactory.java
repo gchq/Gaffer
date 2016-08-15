@@ -23,6 +23,7 @@ import gaffer.accumulostore.key.core.impl.CoreKeyValueAggregatorIterator;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ElementFilter;
+import gaffer.accumulostore.key.impl.RowIDAggregator;
 import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
@@ -58,6 +59,17 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     }
 
     @Override
+    public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
+        return new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
+                .all()
+                .columnFamily(columnFamily)
+                .schema(store.getSchema())
+                .keyConverter(store.getKeyPackage().getKeyConverter())
+                .build();
+    }
+
+    @Override
     public IteratorSetting getValidatorIteratorSetting(final AccumuloStore store) {
         return new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
@@ -70,8 +82,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     @Override
     public IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
-        return new IteratorSettingBuilder(AccumuloStoreConstants.QUERY_TIME_AGGREGATOR_PRIORITY,
-                AccumuloStoreConstants.QUERY_TIME_AGGREGATION_ITERATOR_NAME, CoreKeyValueAggregatorIterator.class)
+        return new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyValueAggregatorIterator.class)
                 .all()
                 .schema(store.getSchema())
                 .view(view)
