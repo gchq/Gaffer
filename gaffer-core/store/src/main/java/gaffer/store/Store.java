@@ -96,16 +96,15 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private final SchemaOptimiser schemaOptimiser;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
-
+    private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
+    private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
-    private List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
 
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
-        viewValidator = new ViewValidator();
-        schemaOptimiser = getSchemaOptimiser();
+        this.viewValidator = new ViewValidator();
+        this.schemaOptimiser = new SchemaOptimiser();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -289,6 +288,10 @@ public abstract class Store {
         }
     }
 
+    protected void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
+        this.schemaOptimiser = schemaOptimiser;
+    }
+
     protected void setViewValidator(final ViewValidator viewValidator) {
         this.viewValidator = viewValidator;
     }
@@ -387,10 +390,6 @@ public abstract class Store {
                         + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
             }
         }
-    }
-
-    protected SchemaOptimiser getSchemaOptimiser() {
-        return new SchemaOptimiser();
     }
 
     private void addOpHandlers() {

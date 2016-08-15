@@ -132,7 +132,7 @@ public class StoreTest {
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(Integer.class)
+                        .vertex("string")
                         .property(TestPropertyNames.PROP_1, "string")
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
@@ -213,7 +213,7 @@ public class StoreTest {
         assertSame(properties, store.getProperties());
         verify(schemaOptimiser).optimise(schema, true);
     }
-    
+
     @Test
     public void shouldDelegateDoOperationToOperationHandler() throws Exception {
         // Given
@@ -239,12 +239,11 @@ public class StoreTest {
         final AddElements addElements = new AddElements();
         final View view = mock(View.class);
         final ViewValidator viewValidator = mock(ViewValidator.class);
-        final StoreImpl store = new StoreImpl();
+        final StoreImpl store = new StoreImpl(viewValidator);
 
         addElements.setView(view);
         given(viewValidator.validate(view, schema)).willReturn(false);
         store.initialise(schema, properties);
-        store.setViewValidator(viewValidator);
 
         // When / Then
         try {
@@ -435,6 +434,15 @@ public class StoreTest {
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private boolean validationRequired;
 
+        public StoreImpl() {
+            setSchemaOptimiser(schemaOptimiser);
+        }
+
+        public StoreImpl(final ViewValidator viewValidator) {
+            this();
+            setViewValidator(viewValidator);
+        }
+
         @Override
         public Set<StoreTrait> getTraits() {
             return TRAITS;
@@ -500,11 +508,6 @@ public class StoreTest {
         @Override
         protected Context createContext(final User user) {
             return context;
-        }
-
-        @Override
-        protected SchemaOptimiser getSchemaOptimiser() {
-            return schemaOptimiser;
         }
 
         @Override

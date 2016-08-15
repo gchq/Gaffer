@@ -145,7 +145,7 @@ public class SchemaOptimiser {
                 }
 
                 if (null == serialiser) {
-                    throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types, please implement your own or change your vertex class types.");
+                    throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types " + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
                 }
 
                 if (serialiser instanceof JavaSerialiser) {
