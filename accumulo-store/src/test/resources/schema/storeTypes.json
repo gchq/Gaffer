@@ -2,14 +2,12 @@
   "types": {
     "colQualProperty": {
       "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
-      "position": "COLUMN_QUALIFIER",
       "aggregateFunction": {
         "class": "gaffer.accumulostore.test.function.ExampleSum"
       }
     },
     "simpleProperty": {
       "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
-      "position": "VALUE",
       "aggregateFunction": {
         "class": "gaffer.accumulostore.test.function.ExampleSum"
       }

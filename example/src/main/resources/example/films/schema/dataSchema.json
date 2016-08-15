@@ -20,7 +20,10 @@
         "rating": "total.long",
         "count": "count.int",
         "userId": "userId.string"
-      }
+      },
+      "groupBy": [
+        "userId"
+      ]
     }
   },
   "edges": {
@@ -33,5 +36,6 @@
         "count": "count.int"
       }
     }
-  }
+  },
+  "visibilityProperty": "certificate"
 }
