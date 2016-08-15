@@ -17,12 +17,12 @@ package gaffer.serialisation.simple.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-
 import java.util.Date;
 
 /**
  * Serialises {@link Date}s to an array of bytes of length 8 by directly converting the underlying long to a
- * byte array. This serialiser preserves ordering, i.e. if date1 < date2 then serialise(date1) < serialise(date2)
+ * byte array. This serialiser preserves ordering, i.e. if date1 is less than date2
+ * then serialise(date1) is less than serialise(date2)
  * where the byte arrays are compared one byte at a time starting with the first.
  */
 public class RawDateSerialiser implements Serialisation {
@@ -52,7 +52,7 @@ public class RawDateSerialiser implements Serialisation {
 
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
-        final long value =  ((long) bytes[0] & 255L) << 56
+        final long value = ((long) bytes[0] & 255L) << 56
                 | ((long) bytes[1] & 255L) << 48
                 | ((long) bytes[2] & 255L) << 40
                 | ((long) bytes[3] & 255L) << 32
