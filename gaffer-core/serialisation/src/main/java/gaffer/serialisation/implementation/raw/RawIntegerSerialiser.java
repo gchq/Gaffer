@@ -21,8 +21,6 @@ import gaffer.serialisation.Serialisation;
 
 /**
  * RawIntegerSerialiser serialises Integers into a little-endian byte array.
- * It's significantly faster than {@link gaffer.serialisation.simple.IntegerSerialiser}, but potentially
- * uses much more space.
  */
 public class RawIntegerSerialiser implements Serialisation {
     private static final long serialVersionUID = -8344193425875811395L;

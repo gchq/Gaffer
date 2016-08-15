@@ -21,8 +21,6 @@ import gaffer.serialisation.Serialisation;
 
 /**
  * RawLongSerialiser serialises Longs into a little-endian byte array.
- * It's significantly faster than {@link gaffer.serialisation.simple.LongSerialiser}, but potentially
- * uses much more space.
  */
 public class RawLongSerialiser implements Serialisation {
     private static final long serialVersionUID = 369129707952407270L;

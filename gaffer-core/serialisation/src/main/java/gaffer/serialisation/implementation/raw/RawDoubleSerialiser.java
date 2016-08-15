@@ -21,8 +21,6 @@ import gaffer.serialisation.Serialisation;
 
 /**
  * RawDoubleSerialiser serialises Doubles into an IEEE floating point little-endian byte array.
- * It's significantly faster than {@link gaffer.serialisation.implementation.DoubleSerialiser}, but potentially
- * uses much more space.
  */
 public class RawDoubleSerialiser implements Serialisation {
     private static final long serialVersionUID = 1568251281744704278L;
