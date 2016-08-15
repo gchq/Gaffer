@@ -15,7 +15,6 @@
  */
 package gaffer.serialisation.simple;
 
-
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
