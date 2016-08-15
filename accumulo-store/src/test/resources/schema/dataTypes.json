@@ -11,6 +11,9 @@
     },
     "colQualProperty": {
       "class": "java.lang.Integer"
+    },
+    "timestamp": {
+      "class": "java.lang.Integer"
     }
   }
 }

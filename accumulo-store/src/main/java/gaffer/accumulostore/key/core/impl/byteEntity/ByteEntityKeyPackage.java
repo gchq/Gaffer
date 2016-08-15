@@ -16,11 +16,11 @@
 
 package gaffer.accumulostore.key.core.impl.byteEntity;
 
-import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import gaffer.store.schema.Schema;
 
-public class ByteEntityKeyPackage extends AbstractCoreKeyPackage {
+public class ByteEntityKeyPackage extends AccumuloKeyPackage {
     public ByteEntityKeyPackage() {
         setIteratorFactory(new ByteEntityIteratorSettingsFactory());
         setKeyFunctor(new CoreKeyBloomFunctor());

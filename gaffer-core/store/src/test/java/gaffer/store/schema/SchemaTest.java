@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Sets;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -49,6 +50,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -108,9 +110,13 @@ public class SchemaTest {
         assertNotNull(edgeDefinition);
 
         final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
-        assertEquals(2, propertyMap.size());
+        assertEquals(3, propertyMap.size());
         assertEquals("prop.string", propertyMap.get(TestPropertyNames.PROP_2));
         assertEquals("prop.date", propertyMap.get(TestPropertyNames.DATE));
+        assertEquals("timestamp", propertyMap.get(TestPropertyNames.TIMESTAMP));
+
+        assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.DATE)),
+                edgeDefinition.getGroupBy());
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
@@ -152,12 +158,16 @@ public class SchemaTest {
         assertEquals(1, valContext.getSelection().size());
         assertEquals(TestPropertyNames.DATE, valContext.getSelection().get(0).getPropertyName());
 
+        valContext = valContexts.get(index++);
+        assertTrue(valContext.getFunction() instanceof IsA);
+        assertEquals(1, valContext.getSelection().size());
+        assertEquals(TestPropertyNames.TIMESTAMP, valContext.getSelection().get(0).getPropertyName());
+
         assertEquals(index, valContexts.size());
 
         TypeDefinition type = edgeDefinition.getPropertyTypeDef(TestPropertyNames.DATE);
         assertEquals(Date.class, type.getClazz());
         assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
-        assertEquals("PROPERTY_2", type.getPosition());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
 
@@ -166,27 +176,25 @@ public class SchemaTest {
         assertNotNull(entityDefinition);
         assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
         type = entityDefinition.getPropertyTypeDef(TestPropertyNames.PROP_1);
+        assertEquals(0, entityDefinition.getGroupBy().size());
+
         assertEquals(String.class, type.getClazz());
         assertEquals(JavaSerialiser.class, type.getSerialiser().getClass());
-        assertEquals("PROPERTY_1", type.getPosition());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         ElementAggregator aggregator = edgeDefinition.getAggregator();
         List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
-        assertEquals(2, aggContexts.size());
+        assertEquals(3, aggContexts.size());
 
         PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
         assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0).getPropertyName());
 
-
         aggContext = aggContexts.get(1);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
-
-
     }
 
     @Test
@@ -199,6 +207,8 @@ public class SchemaTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING, String.class)
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER, Integer.class)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP, Integer.class)
+                        .groupBy(TestPropertyNames.PROP_1)
                         .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
@@ -206,6 +216,8 @@ public class SchemaTest {
                         .build())
                 .type(TestTypes.PROP_STRING, String.class)
                 .type(TestTypes.PROP_INTEGER, Integer.class)
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
     }
 
@@ -217,8 +229,10 @@ public class SchemaTest {
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.string\",%n" +
-                "        \"property2\" : \"prop.integer\"%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
                 "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
@@ -235,8 +249,13 @@ public class SchemaTest {
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    }%n" +
-                "  }%n" +
+                "  },%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
                 "}"), new String(schema.toJson(true)));
     }
 
@@ -291,13 +310,16 @@ public class SchemaTest {
 
         assertEquals(1, edges.size());
         final SchemaElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
-        assertEquals(2, edgeGroup.getProperties().size());
+        assertEquals(3, edgeGroup.getProperties().size());
 
         final Map<String, SchemaEntityDefinition> entities = deserialisedSchema.getEntities();
 
         assertEquals(1, entities.size());
         final SchemaElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
-        assertEquals(1, entityGroup.getProperties().size());
+        assertEquals(3, entityGroup.getProperties().size());
+
+        assertEquals(TestPropertyNames.VISIBILITY, deserialisedSchema.getVisibilityProperty());
+        assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getTimestampProperty());
     }
 
     @Test
@@ -312,9 +334,8 @@ public class SchemaTest {
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
                 .vertexSerialiser(vertexSerialiser)
-                .position(IdentifierType.VERTEX.name(), "position1")
-                .position(IdentifierType.SOURCE.name(), "position2")
                 .type(TestTypes.PROP_STRING, String.class)
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         // Then
@@ -326,10 +347,10 @@ public class SchemaTest {
         assertNotNull(schema.getEntity(TestGroups.ENTITY));
         assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals("position1", schema.getPosition(IdentifierType.VERTEX.name()));
-        assertEquals("position2", schema.getPosition(IdentifierType.SOURCE.name()));
         assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
+
+        assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
     }
 
     @Test
@@ -342,15 +363,14 @@ public class SchemaTest {
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .vertexSerialiser(vertexSerialiser)
-                .position(IdentifierType.VERTEX.name(), "position1")
                 .type(type1, Integer.class)
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         final Schema schema2 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
-                .position(IdentifierType.SOURCE.name(), "position2")
                 .type(type2, String.class)
                 .build();
 
@@ -366,11 +386,10 @@ public class SchemaTest {
         assertNotNull(schema1.getEntity(TestGroups.ENTITY));
         assertNotNull(schema1.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals("position1", schema1.getPosition(IdentifierType.VERTEX.name()));
-        assertEquals("position2", schema1.getPosition(IdentifierType.SOURCE.name()));
         assertEquals(Integer.class, schema1.getType(type1).getClazz());
         assertEquals(String.class, schema1.getType(type2).getClazz());
         assertSame(vertexSerialiser, schema1.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, schema1.getVisibilityProperty());
     }
 
     @Test
@@ -383,15 +402,14 @@ public class SchemaTest {
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .vertexSerialiser(vertexSerialiser)
-                .position(IdentifierType.VERTEX.name(), "position1")
                 .type(type1, Integer.class)
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         final Schema schema2 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
-                .position(IdentifierType.SOURCE.name(), "position2")
                 .type(type2, String.class)
                 .build();
 
@@ -407,19 +425,16 @@ public class SchemaTest {
         assertNotNull(schema2.getEntity(TestGroups.ENTITY));
         assertNotNull(schema2.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals("position1", schema2.getPosition(IdentifierType.VERTEX.name()));
-        assertEquals("position2", schema2.getPosition(IdentifierType.SOURCE.name()));
         assertEquals(Integer.class, schema2.getType(type1).getClazz());
         assertEquals(String.class, schema2.getType(type2).getClazz());
         assertSame(vertexSerialiser, schema2.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, schema2.getVisibilityProperty());
     }
 
 
     @Test
     public void shouldBeAbleToMergeSchemaWithItselfAndNotDuplicateObjects() {
         // Given
-        final String position1 = "position1";
-        final String position2 = "position2";
         final Serialisation vertexSerialiser = mock(Serialisation.class);
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE)
@@ -427,9 +442,8 @@ public class SchemaTest {
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
                 .vertexSerialiser(vertexSerialiser)
-                .position(IdentifierType.VERTEX.name(), position1)
-                .position(IdentifierType.SOURCE.name(), position2)
                 .type(TestTypes.PROP_STRING, String.class)
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         // When
@@ -444,10 +458,9 @@ public class SchemaTest {
         assertNotNull(schema.getEntity(TestGroups.ENTITY));
         assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(position1, schema.getPosition(IdentifierType.VERTEX.name()));
-        assertEquals(position2, schema.getPosition(IdentifierType.SOURCE.name()));
         assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
     }
 
     @Test
@@ -472,15 +485,13 @@ public class SchemaTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenMergeSchemasWithConflictingPosition() {
+    public void shouldThrowExceptionWhenMergeSchemasWithConflictingVisibility() {
         // Given
-        final String position1 = "position1";
-        final String position2 = "position2";
         final Schema schema1 = new Schema.Builder()
-                .position(IdentifierType.SOURCE.name(), position1)
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .position(IdentifierType.SOURCE.name(), position2)
+                .visibilityProperty(TestPropertyNames.COUNT)
                 .build();
 
         // When / Then
@@ -488,7 +499,7 @@ public class SchemaTest {
             schema1.merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("position"));
+            assertTrue(e.getMessage().contains("visibility property"));
         }
     }
 
