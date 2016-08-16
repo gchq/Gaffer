@@ -1,16 +1,16 @@
 {
   "types": {
     "colQualProperty": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
         "class": "gaffer.accumulostore.test.function.ExampleSum"
-      }
+      },
+      "serialiserClass": "gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
     },
     "simpleProperty": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
         "class": "gaffer.accumulostore.test.function.ExampleSum"
-      }
+      },
+      "serialiserClass": "gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
     }
   }
 }

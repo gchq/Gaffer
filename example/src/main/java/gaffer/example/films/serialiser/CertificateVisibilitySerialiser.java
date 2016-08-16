@@ -51,4 +51,9 @@ public class CertificateVisibilitySerialiser implements Serialisation {
 
         return Certificate.valueOf(nameInBrackets.substring(1, nameInBrackets.length() - 1));
     }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
+    }
 }

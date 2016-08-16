@@ -17,7 +17,6 @@
 package gaffer.serialisation;
 
 import gaffer.exception.SerialisationException;
-
 import java.io.Serializable;
 
 /**
@@ -52,5 +51,10 @@ public interface Serialisation extends Serializable {
      * @throws SerialisationException if the object fails to deserialise
      */
     Object deserialise(final byte[] bytes) throws SerialisationException;
+
+    /**
+     * @return true if the serialisation will preserve the order of bytes, otherwise false.
+     */
+    boolean isByteOrderPreserved();
 
 }

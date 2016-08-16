@@ -20,20 +20,25 @@ import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
-public class StringSerialiser implements Serialisation {
-
-    private static final long serialVersionUID = 5647756843689779437L;
+/**
+ * @deprecated this is not very efficient and should only be used for compatibility
+ * reasons. For new properties use {@link gaffer.serialisation.implementation.raw.RawFloatSerialiser}
+ * instead.
+ */
+@Deprecated
+public class FloatSerialiser implements Serialisation {
+    private static final long serialVersionUID = -4732565151514793209L;
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return String.class.equals(clazz);
+        return Float.class.equals(clazz);
     }
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
-        String value = (String) object;
+        Float value = (Float) object;
         try {
-            return value.getBytes(CommonConstants.UTF_8);
+            return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -42,9 +47,14 @@ public class StringSerialiser implements Serialisation {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return new String(bytes, CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+            return Float.parseFloat(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
+        } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }
