@@ -97,4 +97,21 @@ public class FreqMapTests {
         assertEquals(freqMap.get(key),expected);
     }
 
+    @Test
+    public void testKeyExistsButValueNullIsHandled(){
+
+        //given
+        final String key = "test";
+        freqMap.put(key, null);
+        final Integer initialValue = 7;
+        final Integer expectedValue = 8;
+
+        //when
+        freqMap.upsert(key, 7);
+        freqMap.upsert(key);
+
+        //then
+        assertEquals(freqMap.get(key), expectedValue);
+    }
+
 }
