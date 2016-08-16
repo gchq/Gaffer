@@ -125,10 +125,10 @@ public class ViewValidator {
 
     protected boolean validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final LinkedHashSet<String> viewGroupBy = viewElDef.getGroupBy();
-        final LinkedHashSet<String> schemaGroupBy = schemaElDef.getGroupBy();
 
         boolean isValid = true;
         if (null != viewGroupBy && !viewGroupBy.isEmpty()) {
+            final LinkedHashSet<String> schemaGroupBy = schemaElDef.getGroupBy();
             if (null != schemaGroupBy && schemaGroupBy.containsAll(viewGroupBy)) {
                 if (isStoreOrdered) {
                     final LinkedHashSet<String> schemaGroupBySubset = Sets.newLinkedHashSet(Iterables.limit(schemaGroupBy, viewGroupBy.size()));

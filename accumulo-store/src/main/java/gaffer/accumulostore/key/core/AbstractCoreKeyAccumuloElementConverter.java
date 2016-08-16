@@ -66,7 +66,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final byte[] columnFamily = buildColumnFamily(edge.getGroup());
         final byte[] columnQualifier = buildColumnQualifier(edge.getGroup(), edge.getProperties());
         final byte[] columnVisibility = buildColumnVisibility(edge.getGroup(), edge.getProperties());
-        final long timeStamp = buildTimestamp(edge.getGroup(), edge.getProperties(), System.currentTimeMillis());
+        final long timeStamp = buildTimestamp(edge.getProperties(), System.currentTimeMillis());
         // Create Accumulo keys - note that second row key may be null (if it's
         // a self-edge) and
         // in that case we should return null second key
@@ -87,7 +87,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         // Column visibility is formed from the visibility
         final byte[] columnVisibility = buildColumnVisibility(entity.getGroup(), entity.getProperties());
 
-        final long timeStamp = buildTimestamp(entity.getGroup(), entity.getProperties(), System.currentTimeMillis());
+        final long timeStamp = buildTimestamp(entity.getProperties(), System.currentTimeMillis());
 
         // Create and return key
         return new Key(rowKey, columnFamily, columnQualifier, columnVisibility, timeStamp);
@@ -365,7 +365,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public byte[] extractPropertyBytes(final int numProps, final byte[] bytes)
+    public byte[] truncatePropertyBytes(final int numProps, final byte[] bytes)
             throws AccumuloElementConversionException {
         if (numProps == 0 || bytes == null || bytes.length == 0) {
             return new byte[0];
@@ -398,7 +398,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return propertyBytes;
     }
 
-    public long buildTimestamp(final String group, final Properties properties, final long defaultTime) throws AccumuloElementConversionException {
+    @Override
+    public long buildTimestamp(final Properties properties, final long defaultTime) throws AccumuloElementConversionException {
         final long timestamp;
         if (null != schema.getTimestampProperty()) {
             final Object property = properties.get(schema.getTimestampProperty());

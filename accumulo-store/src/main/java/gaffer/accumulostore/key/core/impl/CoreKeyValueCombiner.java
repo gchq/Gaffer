@@ -81,36 +81,36 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
          *
          * @param source           The {@link SortedKeyValueIterator} of {@link Key},
          *                         {@link Value} pairs from which to read data.
+         * @param group            the element group
          * @param elementConverter the elementConverter to use
          * @param schema           the schema
          * @param view             the view
          */
         public KeyValueIterator(final SortedKeyValueIterator<Key, Value> source,
-                                final AccumuloElementConverter elementConverter,
+                                final String group, final AccumuloElementConverter elementConverter,
                                 final Schema schema,
                                 final View view) {
             this.source = source;
+            this.group = group;
             this.elementConverter = elementConverter;
+
             final Key unsafeRef = source.getTopKey();
             topKey = new Key(unsafeRef.getRow().getBytes(),
-                    unsafeRef.getColumnFamily().getBytes(), unsafeRef.getColumnQualifier().getBytes(),
-                    unsafeRef.getColumnVisibility().getBytes(), unsafeRef.getTimestamp(), unsafeRef.isDeleted(), true);
+                    unsafeRef.getColumnFamily().getBytes(),
+                    unsafeRef.getColumnQualifier().getBytes(),
+                    unsafeRef.getColumnVisibility().getBytes(),
+                    unsafeRef.getTimestamp(),
+                    unsafeRef.isDeleted(), true);
 
-            try {
-                group = elementConverter.getGroupFromColumnFamily(topKey.getColumnFamilyData().getBackingArray());
-            } catch (AccumuloElementConversionException e) {
-                throw new RuntimeException(e);
-            }
-
-            schemaGroupBy = schema.getElement(group).getGroupBy();
-            groupBy = view.getElementGroupBy(group);
+            schemaGroupBy = schema.getElement(this.group).getGroupBy();
+            groupBy = view.getElementGroupBy(this.group);
             hasNext = _hasNext();
         }
 
         private boolean _hasNext() {
             return source.hasTop() && !source.getTopKey().isDeleted()
                     && topKey.equals(source.getTopKey(), PartialKey.ROW_COLFAM)
-                    && checkGroupByProperties(topKey, source.getTopKey());
+                    && areGroupByPropertiesEqual(topKey, source.getTopKey());
         }
 
         /**
@@ -142,8 +142,7 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
                 hasNext = _hasNext();
             } catch (final IOException e) {
                 throw new RuntimeException(e); // Looks like a bad idea, but
-                // this is what the in-built
-                // Combiner iterator does
+                // this is what the in-built Combiner iterator does
             }
 
             final Properties properties = new Properties();
@@ -176,7 +175,7 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
             throw new UnsupportedOperationException();
         }
 
-        private boolean checkGroupByProperties(final Key key1, final Key key2) {
+        private boolean areGroupByPropertiesEqual(final Key key1, final Key key2) {
             if (null != groupBy && groupBy.isEmpty()) {
                 return true;
             }
@@ -187,15 +186,15 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
                 return true;
             }
 
-            if (null == groupBy) {
+            if (null == groupBy || groupBy.equals(schemaGroupBy)) {
                 return false;
             }
 
             final byte[] groupByPropBytes1;
             final byte[] groupByPropBytes2;
             try {
-                groupByPropBytes1 = elementConverter.extractPropertyBytes(groupBy.size(), colQual1);
-                groupByPropBytes2 = elementConverter.extractPropertyBytes(groupBy.size(), colQual2);
+                groupByPropBytes1 = elementConverter.truncatePropertyBytes(groupBy.size(), colQual1);
+                groupByPropBytes2 = elementConverter.truncatePropertyBytes(groupBy.size(), colQual2);
             } catch (AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
@@ -255,49 +254,42 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
                 return;
             }
 
-            final byte[] colFam = workKey.getColumnFamilyData().getBackingArray();
-
+            final byte[] columnFamily = workKey.getColumnFamilyData().getBackingArray();
             final String group;
             try {
-                group = elementConverter.getGroupFromColumnFamily(colFam);
+                group = elementConverter.getGroupFromColumnFamily(columnFamily);
             } catch (AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
 
             final Iterator<Properties> iter = new KeyValueIterator(
-                    getSource(), elementConverter, schema, view);
+                    getSource(), group, elementConverter, schema, view);
             final Properties aggregatedProperties = reduce(group, workKey, iter);
 
-
-            final byte[] colQual;
-            final byte[] vis;
-            final long timestamp;
-            final Properties properties;
-            try {
-                properties = elementConverter.getPropertiesFromColumnQualifier(group, workKey.getColumnQualifierData().getBackingArray());
-                properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, workKey.getColumnVisibilityData().getBackingArray()));
-
-                // Remove any group by properties in case they override the aggregated properties
-                final LinkedHashSet<String> groupBy = view.getElementGroupBy(group);
-                if (null == groupBy) {
-                    final LinkedHashSet<String> schemaGroupBy = schema.getElement(group).getGroupBy();
-                    if (null != schemaGroupBy) {
-                        aggregatedProperties.remove(schemaGroupBy);
-                    }
-                } else {
-                    aggregatedProperties.remove(groupBy);
+            // Remove any group by properties from the aggregated properties
+            // as they should be held constant.
+            final LinkedHashSet<String> groupBy = view.getElementGroupBy(group);
+            if (null == groupBy) {
+                final LinkedHashSet<String> schemaGroupBy = schema.getElement(group).getGroupBy();
+                if (null != schemaGroupBy) {
+                    aggregatedProperties.remove(schemaGroupBy);
                 }
-                properties.putAll(aggregatedProperties);
+            } else {
+                aggregatedProperties.remove(groupBy);
+            }
 
-                colQual = elementConverter.buildColumnQualifier(group, properties);
-                vis = elementConverter.buildColumnVisibility(group, properties);
-                timestamp = elementConverter.buildTimestamp(group, properties, workKey.getTimestamp());
+            try {
+                final Properties properties = elementConverter.getPropertiesFromColumnQualifier(group, workKey.getColumnQualifierData().getBackingArray());
+                properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, workKey.getColumnVisibilityData().getBackingArray()));
+                properties.putAll(aggregatedProperties);
                 topValue = elementConverter.getValueFromProperties(group, properties);
+                topKey = new Key(workKey.getRowData().getBackingArray(), columnFamily,
+                        elementConverter.buildColumnQualifier(group, properties),
+                        elementConverter.buildColumnVisibility(group, properties),
+                        elementConverter.buildTimestamp(properties, workKey.getTimestamp()));
             } catch (AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
-
-            topKey = new Key(workKey.getRowData().getBackingArray(), colFam, colQual, vis, timestamp);
 
             while (iter.hasNext()) {
                 iter.next();

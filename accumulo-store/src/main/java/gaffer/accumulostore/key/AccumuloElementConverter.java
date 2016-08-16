@@ -234,16 +234,35 @@ public interface AccumuloElementConverter {
      * Creates a timestamp based on the provided {@link Properties} or the default
      * time provided.
      *
-     * @param group       the element group.
      * @param properties  the element properties
      * @param defaultTime the default time to use if the properties do not have a timestamp
      * @return the timestamp
      * @throws AccumuloElementConversionException If the timestamp extraction fails.
      */
-    long buildTimestamp(final String group, final Properties properties, final long defaultTime) throws AccumuloElementConversionException;
+    long buildTimestamp(final Properties properties, final long defaultTime) throws AccumuloElementConversionException;
 
+    /**
+     * Creates a properties object based on the provided timestamp and group.
+     * If the group contains a timestamp property then this property is populated
+     * in the returned object. Otherwise, the result is an empty properties object.
+     *
+     * @param group     the group of the element - used to determine if the result
+     *                  should contain the timestamp.
+     * @param timestamp the timestamp
+     * @return a properties object populated with the provided timestamp.
+     * @throws AccumuloElementConversionException if timestamp extraction fails.
+     */
     Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException;
 
-    byte[] extractPropertyBytes(final int numProps, final byte[] bytes) throws AccumuloElementConversionException;
+    /**
+     * Truncates the provided bytes, returning the bytes for the specified
+     * number of properties.
+     *
+     * @param numProps the number of properties to extract
+     * @param bytes    the full list of property bytes
+     * @return the truncated property bytes.
+     * @throws AccumuloElementConversionException if truncation of the bytes fails
+     */
+    byte[] truncatePropertyBytes(final int numProps, final byte[] bytes) throws AccumuloElementConversionException;
 }
