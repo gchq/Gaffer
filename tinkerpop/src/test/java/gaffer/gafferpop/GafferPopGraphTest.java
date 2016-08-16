@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GafferPopGraphTest {
-    public static final int VERTEX_1 = 1;
-    public static final int VERTEX_2 = 2;
+    public static final String VERTEX_1 = "1";
+    public static final String VERTEX_2 = "2";
     public static final String SOFTWARE_NAME_GROUP = "software";
     public static final String PERSON_GROUP = "person";
     public static final String DEPENDS_ON_EDGE_GROUP = "dependsOn";

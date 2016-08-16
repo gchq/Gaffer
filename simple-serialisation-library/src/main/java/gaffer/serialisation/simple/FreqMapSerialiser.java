@@ -15,20 +15,20 @@
  */
 package gaffer.serialisation.simple;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
 import gaffer.types.simple.FreqMap;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
 
-public class FreqMapSerialiser implements Serialisation  {
+public class FreqMapSerialiser implements Serialisation {
 
     private static final long serialVersionUID = 3772387954385745791L;
     private static final String SEPERATOR = "\\,";
     private static final String SEPERATOR_REGEX = "\\\\,";
+
     public boolean canHandle(final Class clazz) {
         return FreqMap.class.equals(clazz);
     }
@@ -53,7 +53,7 @@ public class FreqMapSerialiser implements Serialisation  {
             builder.append(SEPERATOR);
         }
         try {
-            return builder.toString().getBytes(SimpleSerialisationConstants.ISO_8859_1_ENCODING);
+            return builder.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -67,7 +67,7 @@ public class FreqMapSerialiser implements Serialisation  {
         }
         String stringMap;
         try {
-            stringMap = new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING);
+            stringMap = new String(bytes, CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -83,5 +83,10 @@ public class FreqMapSerialiser implements Serialisation  {
             freqMap.put(keyValues[i], Integer.parseInt(keyValues[i + 1]));
         }
         return freqMap;
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
     }
 }

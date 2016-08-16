@@ -45,4 +45,9 @@ public class HyperLogLogPlusSerialiser implements Serialisation {
             throw new RuntimeException("Failed to create HyperLogLogPlus sketch from given bytes", exception);
         }
     }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
 }

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
-
-import gaffer.exception.SerialisationException;
-import org.junit.Test;
+package gaffer.serialisation.implementation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import org.junit.Test;
 
 public class StringSerialiserTest {
 
