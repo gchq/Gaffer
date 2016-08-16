@@ -48,7 +48,7 @@ public class FreqMap extends HashMap<String, Integer> {
      */
     public void upsert(final String key, final Integer value) {
         final Integer currentValue = get(key);
-        if(null == currentValue) {
+        if (null == currentValue) {
             put(key, value);
         } else {
             put(key, currentValue + value);

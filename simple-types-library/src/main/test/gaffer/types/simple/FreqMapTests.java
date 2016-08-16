@@ -16,39 +16,39 @@
 
 package gaffer.types.simple;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class FreqMapTests {
 
     private FreqMap freqMap;
 
     @Before
-    public void initialiseFreqMap(){
+    public void initialiseFreqMap() {
         freqMap = new FreqMap();
     }
 
     @Test
-    public void testUpsertCreatesNewKeyValue(){
+    public void testUpsertCreatesNewKeyValue() {
 
         //given
         final String key = "test";
         final Integer value = 6;
 
         //when
-        freqMap.upsert(key,value);
+        freqMap.upsert(key, value);
 
         //then
         assertTrue(freqMap.containsKey(key));
-        assertEquals(value,freqMap.get(key));
+        assertEquals(value, freqMap.get(key));
 
     }
 
     @Test
-    public void testUpsertUpdatesExistingKeyValue(){
+    public void testUpsertUpdatesExistingKeyValue() {
 
         //given
         final String key = "test";
@@ -66,7 +66,7 @@ public class FreqMapTests {
     }
 
     @Test
-    public void testUpsertOverloadedCreateDefaultValue(){
+    public void testUpsertOverloadedCreateDefaultValue() {
 
         //given
         final String key = "test";
@@ -77,28 +77,28 @@ public class FreqMapTests {
 
         //then
         assertTrue(freqMap.containsKey(key));
-        assertEquals(freqMap.get(key),expected);
+        assertEquals(freqMap.get(key), expected);
 
     }
 
     @Test
-    public void testUpsertOverloadedIncrementsDefaultValue(){
+    public void testUpsertOverloadedIncrementsDefaultValue() {
 
         //given
         final String key = "test";
         final Integer initialValue = 57;
         final Integer expected = 58;
-        freqMap.upsert(key,initialValue);
+        freqMap.upsert(key, initialValue);
 
         //when
         freqMap.upsert(key);
 
         //then
-        assertEquals(freqMap.get(key),expected);
+        assertEquals(freqMap.get(key), expected);
     }
 
     @Test
-    public void testKeyExistsButValueNullIsHandled(){
+    public void testKeyExistsButValueNullIsHandled() {
 
         //given
         final String key = "test";
