@@ -19,8 +19,6 @@ import gaffer.commonutil.CommonConstants;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.slf4j.Logger;
@@ -71,17 +69,13 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
         Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
-            LOGGER.info("Set number of map tasks to be {} on job conf", numTasks);
+            LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
         }
         numTasks = operation.getNumReduceTasks();
         if (null != numTasks) {
             jobConf.setNumReduceTasks(numTasks);
-            LOGGER.info("Set number of reduce tasks to be {} on job conf", numTasks);
+            LOGGER.info("Set number of reduce tasks to {} on job conf", numTasks);
         }
-        jobConf.setBoolean("mapreduce.map.output.compress", true);
-        LOGGER.info("Set mapreduce.map.output.compress to true on job conf");
-        jobConf.setClass("mapreduce.map.output.compress.codec", SnappyCodec.class, CompressionCodec.class);
-        LOGGER.info("Set mapreduce.map.output.compress.codec to SnappyCodec");
     }
 
     protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
