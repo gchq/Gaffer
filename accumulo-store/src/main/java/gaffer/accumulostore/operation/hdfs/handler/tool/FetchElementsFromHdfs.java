@@ -54,29 +54,38 @@ public class FetchElementsFromHdfs extends Configured implements Tool {
         final Job job = new AccumuloAddElementsFromHdfsJobFactory().createJob(operation, store);
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
+            LOGGER.error("Error running job");
             throw new OperationException("Error running job");
         }
+        LOGGER.info("Finished adding elements from HDFS");
 
         return SUCCESS_RESPONSE;
     }
 
     private void checkHdfsDirectories(final AddElementsFromHdfs operation) throws IOException {
+        LOGGER.info("Checking that the correct HDFS directories exist");
         final FileSystem fs = FileSystem.get(getConf());
 
         final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
         if (fs.exists(outputPath)) {
             if (fs.listFiles(outputPath, true).hasNext()) {
-                throw new IllegalArgumentException("Output directory is not empty: " + outputPath);
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
             }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
             fs.delete(outputPath, true);
         }
 
         final Path failurePath = new Path(operation.getFailurePath());
+        LOGGER.info("Ensuring failure directory {} exists", failurePath);
         if (fs.exists(failurePath)) {
             if (fs.listFiles(failurePath, true).hasNext()) {
+                LOGGER.error("Failure directory exists and is not empty: {}", failurePath);
                 throw new IllegalArgumentException("Failure directory is not empty: " + failurePath);
             }
         } else {
+            LOGGER.info("Failure directory doesn't exist so creating: {}", failurePath);
             fs.mkdirs(failurePath);
         }
         IngestUtils.setDirectoryPermsForAccumulo(fs, failurePath);
