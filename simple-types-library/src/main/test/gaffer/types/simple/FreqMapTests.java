@@ -16,6 +16,7 @@
 
 package gaffer.types.simple;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -23,13 +24,19 @@ import static org.junit.Assert.assertTrue;
 
 public class FreqMapTests {
 
+    private FreqMap freqMap;
+
+    @Before
+    public void initialiseFreqMap(){
+        freqMap = new FreqMap();
+    }
+
     @Test
     public void testUpsertCreatesNewKeyValue(){
 
         //given
-        FreqMap freqMap = new FreqMap();
-        String key = "test";
-        Integer value = 6;
+        final String key = "test";
+        final Integer value = 6;
 
         //when
         freqMap.upsert(key,value);
@@ -44,11 +51,10 @@ public class FreqMapTests {
     public void testUpsertUpdatesExistingKeyValue(){
 
         //given
-        FreqMap freqMap = new FreqMap();
-        String key = "test";
-        Integer initialValue = 3;
-        Integer increment = 11;
-        Integer expected = 14;
+        final String key = "test";
+        final Integer initialValue = 3;
+        final Integer increment = 11;
+        final Integer expected = 14;
         freqMap.put(key, initialValue);
 
         //when
@@ -63,9 +69,8 @@ public class FreqMapTests {
     public void testUpsertOverloadedCreateDefaultValue(){
 
         //given
-        FreqMap freqMap = new FreqMap();
-        String key = "test";
-        Integer expected = 1;
+        final String key = "test";
+        final Integer expected = 1;
 
         //when
         freqMap.upsert(key);
@@ -80,10 +85,9 @@ public class FreqMapTests {
     public void testUpsertOverloadedIncrementsDefaultValue(){
 
         //given
-        FreqMap freqMap = new FreqMap();
-        String key = "test";
-        Integer initialValue = 57;
-        Integer expected = 58;
+        final String key = "test";
+        final Integer initialValue = 57;
+        final Integer expected = 58;
         freqMap.upsert(key,initialValue);
 
         //when
