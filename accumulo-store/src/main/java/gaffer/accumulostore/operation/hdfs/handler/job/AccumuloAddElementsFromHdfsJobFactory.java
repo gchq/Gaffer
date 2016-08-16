@@ -48,34 +48,40 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
     public void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         super.setupJob(job, operation, store);
 
-        setupMapper(job, operation, store);
-        setupReducer(job, operation, store);
-        setupOutput(job, operation, store);
-        String useAccumuloPartioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
-        if (null != useAccumuloPartioner && useAccumuloPartioner.equalsIgnoreCase("true")) {
-            setupPartioner(job, operation, (AccumuloStore) store);
+        setupMapper(job);
+        setupCombiner(job);
+        setupReducer(job);
+        setupOutput(job, operation);
+        String useAccumuloPartitioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
+        if (null != useAccumuloPartitioner && useAccumuloPartitioner.equalsIgnoreCase("true")) {
+            setupPartitioner(job, operation, (AccumuloStore) store);
         }
     }
 
-    private void setupMapper(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    private void setupMapper(final Job job) throws IOException {
         job.setMapperClass(AddElementsFromHdfsMapper.class);
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupReducer(final Job job, final AddElementsFromHdfs operation, final Store store)
+    private void setupCombiner(final Job job)
+            throws IOException {
+        job.setCombinerClass(AccumuloKeyValueReducer.class);
+    }
+
+    private void setupReducer(final Job job)
             throws IOException {
         job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
     }
 
-    private void setupOutput(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    private void setupOutput(final Job job, final AddElementsFromHdfs operation) throws IOException {
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
         FileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
     }
 
-    private void setupPartioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
+    private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
         String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
         int numReduceTasks;
