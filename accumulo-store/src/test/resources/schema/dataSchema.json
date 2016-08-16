@@ -14,7 +14,10 @@
         "count": "simpleProperty"
       },
       "groupBy": [
-        "columnQualifier"
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
       ]
     }
   },
@@ -35,7 +38,10 @@
         "count": "simpleProperty"
       },
       "groupBy": [
-        "columnQualifier"
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
       ]
     },
     "BasicEdge2": {

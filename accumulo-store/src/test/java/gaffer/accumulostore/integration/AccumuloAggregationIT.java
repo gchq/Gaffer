@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
-import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -59,24 +58,31 @@ public class AccumuloAggregationIT {
             .build();
 
     @Test
-    public void shouldNotAggregateKeyPropertiesWhenSummariseSetToFalse() throws OperationException, UnsupportedEncodingException {
+    public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws OperationException, UnsupportedEncodingException {
         final Graph graph = createGraph();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3a")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
                 .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY)
                 .build();
         final Entity entity2 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3a")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
+                .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
+                .build();
+        final Entity entity3 = new Entity.Builder()
+                .vertex(VERTEX)
+                .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3b")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
 
         // Given
         final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
@@ -91,8 +97,15 @@ public class AccumuloAggregationIT {
         assertNotNull(results);
         assertEquals(2, results.size());
 
+        final Entity expectedSummarisedEntity = new Entity.Builder()
+                .vertex(VERTEX)
+                .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3a")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
+                .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY + "," + PUBLIC_VISIBILITY)
+                .build();
         assertThat(results, IsCollectionContaining.hasItems(
-                entity1, entity2
+                expectedSummarisedEntity, entity3
         ));
     }
 
@@ -163,82 +176,6 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldAggregateOverAllPropertiesExceptForGroupByPropertiesEvenWhenGroupByPropertiesAreNotAtTheStartOfTheColQualAndVisibilityIsInGroupBy() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraph();
-        final Entity entity1 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "some value")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "some value 2")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "some value 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "some value 4")
-                .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY)
-                .build();
-        final Entity entity2 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "some value b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "some value 2")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "some value 3b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "some value 4")
-                .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY)
-                .build();
-        final Entity entity3 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "some value c")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "some value 2")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "some value 3c")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "some value 4c")
-                .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY)
-                .build();
-        final Entity entity4 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "some value c")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "some value 2")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "some value 3c")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "some value 4c")
-                .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
-                .build();
-
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3, entity4)), USER);
-
-        // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
-                .addSeed(new EntitySeed(VERTEX))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER_2,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4,
-                                        AccumuloPropertyNames.VISIBILITY)
-                                .build())
-                        .build())
-                .build();
-
-        // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
-
-        // Then
-        assertNotNull(results);
-        assertEquals(3, results.size());
-
-        final Entity expectedEntity = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "some value,some value b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "some value 2")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "some value 3,some value 3b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "some value 4")
-                .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY)
-                .build();
-
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity, entity3, entity4
-        ));
-    }
-
-    @Test
     public void shouldHandleAggregatationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
         final Graph graph = createGraph();
         final Entity entity1 = new Entity.Builder()
@@ -263,7 +200,7 @@ public class AccumuloAggregationIT {
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .groupBy(TestPropertyNames.STRING)
+                                .groupBy()
                                 .build())
                         .build())
                 .build();
@@ -282,65 +219,6 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
         assertEquals(expectedEntity, results.get(0));
-    }
-
-    @Test
-    public void shouldHandleAggregatationWhenGroupByPropertiesAreEmpty() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraph();
-        final Entity entity1 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, null)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, null)
-                .build();
-        final Entity entity2 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
-
-        // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
-                .addSeed(new EntitySeed(VERTEX))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
-                                .build())
-                        .build())
-                .build();
-
-        // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
-
-        // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
-
-        final Entity expectedEntity1 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .build();
-
-        final Entity expectedEntity2 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2
-        ));
     }
 
     @Test

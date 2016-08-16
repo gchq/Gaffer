@@ -20,6 +20,7 @@
       "view": {
         "entities": {
           "review": {
+            "groupBy": [],
             "transientProperties": {
               "starRating": "java.lang.Float"
             },
@@ -60,8 +61,7 @@
               }
             ]
           }
-        },
-        "summarise": true
+        }
       }
     }
   ]

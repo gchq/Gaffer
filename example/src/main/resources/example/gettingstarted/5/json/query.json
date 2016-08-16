@@ -1,7 +1,4 @@
 {
-  "view": {
-    "summarise": true
-  },
   "seeds": [
     {
       "gaffer.operation.data.EntitySeed": {

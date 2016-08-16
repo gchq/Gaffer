@@ -116,26 +116,14 @@ public abstract class Store {
     }
 
     /**
-     * Ordered stores keep their elements ordered to optimise lookups. An example
-     * of an ordered store is Accumulo, which orders the element keys.
-     * Stores that are ordered have special characteristics such as requiring
-     * serialisers that preserve ordering of the keyed properties.
-     * Returns false by default - override the method if required.
-     *
-     * @return true if the store implementation orders the elements, otherwise false.
-     */
-    public boolean isOrdered() {
-        return false;
-    }
-
-    /**
      * Returns true if the Store can handle the provided trait and false if it cannot.
      *
      * @param storeTrait the Class of the Processor to be checked.
      * @return true if the Processor can be handled and false if it cannot.
      */
     public boolean hasTrait(final StoreTrait storeTrait) {
-        return getTraits().contains(storeTrait);
+        final Set<StoreTrait> traits = getTraits();
+        return null != traits && traits.contains(storeTrait);
     }
 
     /**
@@ -247,7 +235,7 @@ public abstract class Store {
     }
 
     public void optimiseSchemas() {
-        schemaOptimiser.optimise(schema, isOrdered());
+        schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
     }
 
     public void validateSchemas() {
@@ -281,7 +269,7 @@ public abstract class Store {
         }
 
         for (Operation<?, ?> op : operationChain.getOperations()) {
-            if (!viewValidator.validate(op.getView(), schema, isOrdered())) {
+            if (!viewValidator.validate(op.getView(), schema, hasTrait(StoreTrait.ORDERED))) {
                 throw new SchemaException("View for operation "
                         + op.getClass().getName()
                         + " is not valid. See the logs for more information.");

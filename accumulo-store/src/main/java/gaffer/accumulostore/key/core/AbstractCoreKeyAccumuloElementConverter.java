@@ -393,8 +393,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             propIndex++;
         }
 
-        final byte[] propertyBytes = new byte[lastDelimiter + 1];
-        System.arraycopy(bytes, 0, propertyBytes, 0, lastDelimiter + 1);
+        final byte[] propertyBytes = new byte[lastDelimiter];
+        System.arraycopy(bytes, 0, propertyBytes, 0, lastDelimiter);
         return propertyBytes;
     }
 

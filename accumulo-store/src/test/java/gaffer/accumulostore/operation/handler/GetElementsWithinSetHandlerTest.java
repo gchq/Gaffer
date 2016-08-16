@@ -77,6 +77,12 @@ public class GetElementsWithinSetHandlerTest {
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    }
+
+    @Before
+    public void reInitialise() throws StoreException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
@@ -109,16 +115,11 @@ public class GetElementsWithinSetHandlerTest {
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         defaultView = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .build();
-    }
 
-    @Before
-    public void reInitialise() throws StoreException {
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);

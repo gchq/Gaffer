@@ -129,13 +129,13 @@ public class LoadAndQuery {
                                                 .select(Property.USER_ID)
                                                 .execute(new Not(new IsEqual("user02")))
                                                 .build())
+                                        .groupBy() // grouping by nothing will cause all properties to be aggregated
                                         .transformer(new ElementTransformer.Builder()
                                                 .select(Property.RATING, Property.COUNT)
                                                 .project(TransientProperty.FIVE_STAR_RATING)
                                                 .execute(new StarRatingTransform())
                                                 .build())
                                         .build())
-                                .summarise(true)   // Setting the summarise flag to true will aggregate the results when run on a store that supports aggregation
                                 .build())
                         .build())
                 .build();
