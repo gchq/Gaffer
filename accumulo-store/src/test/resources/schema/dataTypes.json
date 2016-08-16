@@ -1,7 +1,7 @@
 {
   "types": {
-    "id.object": {
-      "class": "java.lang.Object"
+    "vertex.string": {
+      "class": "java.lang.String"
     },
     "directed.either": {
       "class": "java.lang.Boolean"
@@ -10,6 +10,9 @@
       "class": "java.lang.Integer"
     },
     "colQualProperty": {
+      "class": "java.lang.Integer"
+    },
+    "timestamp": {
       "class": "java.lang.Integer"
     }
   }

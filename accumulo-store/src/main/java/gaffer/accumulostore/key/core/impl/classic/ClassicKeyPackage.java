@@ -15,11 +15,11 @@
  */
 package gaffer.accumulostore.key.core.impl.classic;
 
-import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import gaffer.store.schema.Schema;
 
-public class ClassicKeyPackage extends AbstractCoreKeyPackage {
+public class ClassicKeyPackage extends AccumuloKeyPackage {
     public ClassicKeyPackage() {
         setIteratorFactory(new ClassicIteratorSettingsFactory());
         setKeyFunctor(new CoreKeyBloomFunctor());

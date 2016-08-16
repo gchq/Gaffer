@@ -17,23 +17,28 @@
 package gaffer.store.schema;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Sets;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
+import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.ExampleAggregateFunction;
+import gaffer.function.ExampleFilterFunction;
 import gaffer.function.IsA;
 import org.junit.Test;
 import java.util.Collections;
 
-public class DataEntityDefinitionTest {
+public class SchemaEntityDefinitionTest {
     @Test
     public void shouldReturnValidatorWithNoFunctionsWhenNoProperties() {
         // Given
@@ -114,6 +119,108 @@ public class DataEntityDefinitionTest {
         assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
         assertEquals(Collections.singletonList(new ElementComponentKey("property")),
                 aggregator.getFunctions().get(0).getSelection());
+    }
 
+    @Test
+    public void shouldMergeDifferentSchemaElementDefinitions() {
+        // Given
+        // When
+        final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
+                .vertex("id.integer", Integer.class)
+                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .validator(new ElementFilter.Builder()
+                        .select(TestPropertyNames.PROP_1)
+                        .execute(new ExampleFilterFunction())
+                        .build())
+                .build();
+
+        final SchemaEntityDefinition elementDef2 = new SchemaEntityDefinition.Builder()
+                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
+                .validator(new ElementFilter.Builder()
+                        .select(TestPropertyNames.PROP_2)
+                        .execute(new ExampleFilterFunction())
+                        .build())
+                .groupBy(TestPropertyNames.PROP_2)
+                .build();
+
+        // When
+        elementDef1.merge(elementDef2);
+
+        // Then
+        assertEquals("id.integer", elementDef1.getVertex());
+        assertEquals(2, elementDef1.getProperties().size());
+        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_1));
+        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_2));
+
+        assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_2)),
+                elementDef1.getGroupBy());
+    }
+
+    @Test
+    public void shouldBeAbleToMergeSchemaElementDefinitionsWithItselfAndNotDuplicateObjects() {
+        // Given
+        // When
+        final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
+                .vertex("id.integer", Integer.class)
+                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .validator(new ElementFilter.Builder()
+                        .select(TestPropertyNames.PROP_1)
+                        .execute(new ExampleFilterFunction())
+                        .build())
+                .groupBy(TestPropertyNames.PROP_1)
+                .build();
+
+        // When
+        elementDef1.merge(elementDef1);
+
+        // Then
+        assertEquals("id.integer", elementDef1.getVertex());
+        assertEquals(1, elementDef1.getProperties().size());
+        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_1));
+
+        assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_1)),
+                elementDef1.getGroupBy());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMergeSchemaElementDefinitionWithConflictingDestination() {
+        // Given
+        // When
+        final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
+                .vertex("vertex.integer", Integer.class)
+                .build();
+
+        final SchemaEntityDefinition elementDef2 = new SchemaEntityDefinition.Builder()
+                .vertex("vertex.string", String.class)
+                .build();
+
+        // When / Then
+        try {
+            elementDef1.merge(elementDef2);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("identifier"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMergeSchemaElementDefinitionWithConflictingProperty() {
+        // Given
+        // When
+        final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
+                .property(TestPropertyNames.PROP_1, Integer.class)
+                .build();
+
+        final SchemaEntityDefinition elementDef2 = new SchemaEntityDefinition.Builder()
+                .property(TestPropertyNames.PROP_1, String.class)
+                .build();
+
+        // When / Then
+        try {
+            elementDef1.merge(elementDef2);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("property"));
+        }
     }
 }

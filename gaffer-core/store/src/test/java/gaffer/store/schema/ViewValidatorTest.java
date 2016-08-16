@@ -156,8 +156,8 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_1, String.class)
+                        .property(TestPropertyNames.PROP_2, Integer.class)
                         .build())
                 .build();
 
@@ -183,8 +183,8 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_1, Double.class)
+                        .property(TestPropertyNames.PROP_2, Integer.class)
                         .property(TestPropertyNames.PROP_3, String.class)
                         .build())
                 .build();
@@ -308,8 +308,8 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_1, Integer.class)
+                        .property(TestPropertyNames.PROP_2, String.class)
                         .build())
                 .build();
 
@@ -335,8 +335,8 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_1, Double.class)
+                        .property(TestPropertyNames.PROP_2, Integer.class)
                         .property(TestPropertyNames.PROP_3, String.class)
                         .build())
                 .build();

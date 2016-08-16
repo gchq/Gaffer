@@ -23,15 +23,12 @@ import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.implementation.JavaSerialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Contains the full list of {@link gaffer.data.element.Element} types to be stored in the graph.
@@ -48,20 +45,13 @@ import java.util.Map.Entry;
  * @see ElementDefinitions
  */
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    private static final Serialisation DEFAULT_VERTEX_SERIALISER = new JavaSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
 
     /**
-     * The {@link gaffer.serialisation.Serialisation} for all identifiers. By default it is set to
-     * {@link gaffer.serialisation.implementation.JavaSerialiser}.
+     * The {@link gaffer.serialisation.Serialisation} for all vertices.
      */
-    private Serialisation vertexSerialiser = DEFAULT_VERTEX_SERIALISER;
+    private Serialisation vertexSerialiser;
 
-    /**
-     * A map of keys to positions.
-     * This could be used to set the identifier, group or general property positions.
-     */
-    private Map<String, String> positions = new HashMap<>();
     /**
      * A map of custom type name to {@link TypeDefinition}.
      *
@@ -69,6 +59,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * @see TypeDefinition
      */
     private final TypeDefinitions types;
+
+    private String visibilityProperty;
+
+    private String timestampProperty;
 
     public Schema() {
         this(new TypeDefinitions());
@@ -159,26 +153,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return types.getType(typeName);
     }
 
-    public String getPosition(final String key) {
-        return positions.get(key);
-    }
-
-    /**
-     * @return a map of keys to positions.
-     * This could be used to set the identifier, group or general property positions.
-     */
-    public Map<String, String> getPositions() {
-        return positions;
-    }
-
-    /**
-     * @param positions a map of keys to positions.
-     *                  This could be used to set the identifier, group or general property positions.
-     */
-    public void setPositions(final Map<String, String> positions) {
-        this.positions = positions;
-    }
-
     /**
      * Returns the vertex serialiser for this schema.
      * <p>
@@ -194,25 +168,20 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     public void setVertexSerialiser(final Serialisation vertexSerialiser) {
-        if (null != vertexSerialiser) {
-            this.vertexSerialiser = vertexSerialiser;
-        } else {
-            this.vertexSerialiser = DEFAULT_VERTEX_SERIALISER;
-        }
+        this.vertexSerialiser = vertexSerialiser;
     }
 
     public String getVertexSerialiserClass() {
-        final Class<? extends Serialisation> serialiserClass = vertexSerialiser.getClass();
-        if (!DEFAULT_VERTEX_SERIALISER.getClass().equals(serialiserClass)) {
-            return serialiserClass.getName();
+        if (null == vertexSerialiser) {
+            return null;
         }
 
-        return null;
+        return vertexSerialiser.getClass().getName();
     }
 
     public void setVertexSerialiserClass(final String vertexSerialiserClass) {
         if (null == vertexSerialiserClass) {
-            this.vertexSerialiser = DEFAULT_VERTEX_SERIALISER;
+            this.vertexSerialiser = null;
         } else {
             Class<? extends Serialisation> serialiserClass;
             try {
@@ -249,6 +218,22 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return (SchemaElementDefinition) super.getElement(group);
     }
 
+    public String getVisibilityProperty() {
+        return visibilityProperty;
+    }
+
+    public void setVisibilityProperty(final String visibilityProperty) {
+        this.visibilityProperty = visibilityProperty;
+    }
+
+    public String getTimestampProperty() {
+        return timestampProperty;
+    }
+
+    public void setTimestampProperty(final String timestampProperty) {
+        this.timestampProperty = timestampProperty;
+    }
+
     @Override
     public void merge(final ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> elementDefs) {
         if (elementDefs instanceof Schema) {
@@ -261,26 +246,27 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     public void merge(final Schema schema) {
         super.merge(schema);
 
-        for (Entry<String, String> entry : schema.getPositions().entrySet()) {
-            final String newPosKey = entry.getKey();
-            final String newPosVal = entry.getValue();
-            if (!positions.containsKey(newPosKey)) {
-                positions.put(newPosKey, newPosVal);
-            } else {
-                final String posVal = positions.get(newPosKey);
-                if (!posVal.equals(newPosVal)) {
-                    throw new SchemaException("Unable to merge schemas. Conflict with position " + newPosKey
-                            + ". Positions are: " + posVal + " and " + newPosVal);
-                }
+        if (null != schema.getVertexSerialiser()) {
+            if (null == getVertexSerialiser()) {
+                setVertexSerialiser(schema.getVertexSerialiser());
+            } else if (!vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
+                throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
+                        + vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
             }
         }
 
-        if (DEFAULT_VERTEX_SERIALISER.getClass().equals(vertexSerialiser.getClass())) {
-            setVertexSerialiser(schema.getVertexSerialiser());
-        } else if (!DEFAULT_VERTEX_SERIALISER.getClass().equals(schema.getVertexSerialiser().getClass())
-                && !vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
-            throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
-                    + vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
+        if (null == visibilityProperty) {
+            setVisibilityProperty(schema.getVisibilityProperty());
+        } else if (null != schema.getVisibilityProperty() && !visibilityProperty.equals(schema.getVisibilityProperty())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
+                    + visibilityProperty + " and " + schema.getVisibilityProperty());
+        }
+
+        if (null == timestampProperty) {
+            setTimestampProperty(schema.getTimestampProperty());
+        } else if (null != schema.getTimestampProperty() && !timestampProperty.equals(schema.getTimestampProperty())) {
+            throw new SchemaException("Unable to merge schemas. Conflict with timestamp property, options are: "
+                    + timestampProperty + " and " + schema.getTimestampProperty());
         }
 
         types.merge(schema.getTypes());
@@ -314,25 +300,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         public Builder(final Schema schema) {
             super(schema);
-        }
-
-        /**
-         * Adds a position for an identifier type, group or property name.
-         *
-         * @param key      the key to add a position for.
-         * @param position the position
-         * @return this Builder
-         * @see Schema#setPositions(java.util.Map)
-         */
-        public Builder position(final String key, final String position) {
-            Map<String, String> positions = getElementDefs().getPositions();
-            if (null == positions) {
-                positions = new HashMap<>();
-                getElementDefs().setPositions(positions);
-            }
-            positions.put(key, position);
-
-            return this;
         }
 
         /**
@@ -390,6 +357,16 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         public Builder types(final TypeDefinitions types) {
             getElementDefs().addTypes(types);
+            return this;
+        }
+
+        public Builder visibilityProperty(final String propertyName) {
+            getElementDefs().setVisibilityProperty(propertyName);
+            return this;
+        }
+
+        public Builder timestampProperty(final String propertyName) {
+            getElementDefs().setTimestampProperty(propertyName);
             return this;
         }
 
