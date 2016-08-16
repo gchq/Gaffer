@@ -25,6 +25,9 @@
     },
     "prop.date": {
       "class": "java.util.Date"
+    },
+    "timestamp": {
+      "class": "java.lang.Long"
     }
   }
 }

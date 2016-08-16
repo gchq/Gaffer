@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
@@ -36,12 +36,16 @@ public class CompactRawLongSerialiser implements Serialisation {
 
     @Override
     public byte[] serialise(final Object o) throws SerialisationException {
-        return CompactRawSerialisationUtils.writeLong((long) o);
+        return gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils.writeLong((long) o);
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Long deserialise(final byte[] bytes) throws SerialisationException {
         return CompactRawSerialisationUtils.readLong(bytes);
     }
 
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
 }

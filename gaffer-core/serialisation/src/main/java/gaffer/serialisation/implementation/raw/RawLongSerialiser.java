@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 
 /**
- * RawDoubleSerialiser serialises Doubles into an IEEE floating point little-endian byte array.
- * It's significantly faster than {@link gaffer.serialisation.simple.DoubleSerialiser}, but potentially
- * uses much more space.
+ * RawLongSerialiser serialises Longs into a little-endian byte array.
  */
-public class RawDoubleSerialiser implements Serialisation {
-    private static final long serialVersionUID = 1568251281744704278L;
+public class RawLongSerialiser implements Serialisation {
+    private static final long serialVersionUID = 369129707952407270L;
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Double.class.equals(clazz);
+        return Long.class.equals(clazz);
     }
 
     @Override
     public byte[] serialise(final Object o) throws SerialisationException {
         final byte[] out = new byte[8];
-        final long value = Double.doubleToRawLongBits((Double) o);
+        final long value = (Long) o;
         out[0] = (byte) ((int) (value & 255));
         out[1] = (byte) ((int) (value >> 8) & 255);
         out[2] = (byte) ((int) (value >> 16) & 255);
@@ -48,14 +46,19 @@ public class RawDoubleSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
-        return Double.longBitsToDouble((long) bytes[0] & 255L
+    public Long deserialise(final byte[] bytes) throws SerialisationException {
+        return (long) bytes[0] & 255L
                 | ((long) bytes[1] & 255L) << 8
                 | ((long) bytes[2] & 255L) << 16
                 | ((long) bytes[3] & 255L) << 24
                 | ((long) bytes[4] & 255L) << 32
                 | ((long) bytes[5] & 255L) << 40
                 | ((long) bytes[6] & 255L) << 48
-                | ((long) bytes[7] & 255L) << 56);
+                | ((long) bytes[7] & 255L) << 56;
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

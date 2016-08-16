@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
+package gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
 import gaffer.commonutil.CommonConstants;
@@ -75,5 +75,10 @@ public class TreeSetStringSerialiser implements Serialisation {
         }
 
         return treeSet;
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

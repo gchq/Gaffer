@@ -1,7 +1,7 @@
 {
   "entities": {
     "BasicEntity": {
-      "vertex": "id.object",
+      "vertex": "vertex.string",
       "properties": {
         "columnQualifier": "colQualProperty",
         "property1": "simpleProperty",
@@ -9,13 +9,16 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   },
   "edges": {
     "BasicEdge": {
-      "source": "id.object",
-      "destination": "id.object",
+      "source": "vertex.string",
+      "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
@@ -24,11 +27,14 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     },
     "BasicEdge2": {
-      "source": "id.object",
-      "destination": "id.object",
+      "source": "vertex.string",
+      "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
@@ -37,7 +43,10 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   }
 }

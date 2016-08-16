@@ -28,6 +28,7 @@ import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.TypeDefinition;
@@ -160,6 +161,7 @@ public class ValidatorFilterTest {
                         .destination(TestTypes.ID_STRING)
                         .directed(TestTypes.DIRECTED_TRUE)
                         .build())
+                .vertexSerialiser(new StringSerialiser())
                 .build();
     }
 }
