@@ -15,20 +15,19 @@
  */
 package gaffer.serialisation.simple;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
- * This is deprecated and will be removed in a future release; use {@link gaffer.serialisation.simple.raw.RawDateSerialiser}
+ * @deprecated this is not very efficient and should only be used for compatibility
+ * reasons. For new properties use {@link gaffer.serialisation.implementation.raw.RawDateSerialiser}
  * instead.
  */
 @Deprecated
 public class DateSerialiser implements Serialisation {
-
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -40,7 +39,7 @@ public class DateSerialiser implements Serialisation {
     public byte[] serialise(final Object object) throws SerialisationException {
         Date value = (Date) object;
         try {
-            return ((Long) value.getTime()).toString().getBytes(SimpleSerialisationConstants.ISO_8859_1_ENCODING);
+            return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -50,10 +49,15 @@ public class DateSerialiser implements Serialisation {
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         Long longR;
         try {
-             longR = Long.parseLong(new String(bytes, SimpleSerialisationConstants.ISO_8859_1_ENCODING));
+            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return new Date(longR);
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 }

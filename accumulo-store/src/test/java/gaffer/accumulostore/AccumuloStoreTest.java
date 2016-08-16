@@ -102,6 +102,12 @@ public class AccumuloStoreTest {
     }
 
     @Test
+    public void shouldBeAnOrderedStore() {
+        assertTrue(byteEntityStore.isOrdered());
+        assertTrue(gaffer1KeyStore.isOrdered());
+    }
+
+    @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(gaffer1KeyStore);
     }

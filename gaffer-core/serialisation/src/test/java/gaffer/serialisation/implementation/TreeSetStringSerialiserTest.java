@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple;
+package gaffer.serialisation.implementation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,8 +38,8 @@ public class TreeSetStringSerialiserTest {
         set.add("string4");
 
         // When
-        final byte[] serialiedSet = SERIALISER.serialise(set);
-        final TreeSet deserialisedSet = SERIALISER.deserialise(serialiedSet);
+        final byte[] serialisedSet = SERIALISER.serialise(set);
+        final TreeSet deserialisedSet = SERIALISER.deserialise(serialisedSet);
 
         // Then
         assertNotSame(deserialisedSet, set);
@@ -52,8 +52,8 @@ public class TreeSetStringSerialiserTest {
         final TreeSet<String> set = new TreeSet<>();
 
         // When
-        final byte[] serialiedSet = SERIALISER.serialise(set);
-        final TreeSet deserialisedSet = SERIALISER.deserialise(serialiedSet);
+        final byte[] serialisedSet = SERIALISER.serialise(set);
+        final TreeSet deserialisedSet = SERIALISER.deserialise(serialisedSet);
 
         // Then
         assertNotSame(deserialisedSet, set);

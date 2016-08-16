@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2016 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,50 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import gaffer.exception.SerialisationException;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+public class CompactRawIntegerSerialiserTest {
 
-import static org.junit.Assert.*;
-
-public class CompactRawLongSerialiserTest {
-
-    private static final CompactRawLongSerialiser SERIALISER = new CompactRawLongSerialiser();
+    private static final CompactRawIntegerSerialiser SERIALISER = new CompactRawIntegerSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (long i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             test(i);
         }
     }
 
     @Test
     public void testCanSerialiseANegativeSampleRange() throws SerialisationException {
-        for (long i = -1000; i < 0; i++) {
+        for (int i = -1000; i < 0; i++) {
             test(i);
         }
     }
 
     @Test
-    public void canSerialiseLongMinValue() throws SerialisationException {
-        test(Long.MIN_VALUE);
+    public void canSerialiseIntegerMinValue() throws SerialisationException {
+        test(Integer.MIN_VALUE);
     }
 
     @Test
-    public void canSerialiseLongMaxValue() throws SerialisationException {
-        test(Long.MAX_VALUE);
+    public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        test(Integer.MAX_VALUE);
     }
 
     @Test
     public void canSerialiseAllOrdersOfMagnitude() throws SerialisationException {
-        for (int i = 0; i < 64; i++) {
-            long value = (long) Math.pow(2, i);
+        for (int i = 0; i < 32; i++) {
+            int value = (int) Math.pow(2, i);
             test(value);
             test(-value);
         }
@@ -68,19 +65,15 @@ public class CompactRawLongSerialiserTest {
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Long.class));
+    public void canSerialiseIntegerClass() throws SerialisationException {
+        assertTrue(SERIALISER.canHandle(Integer.class));
     }
 
-    private static void test(final long value) throws SerialisationException {
+    private static void test(final int value) throws SerialisationException {
         final byte[] b = SERIALISER.serialise(value);
         final Object o = SERIALISER.deserialise(b);
-        assertEquals(Long.class, o.getClass());
+        assertEquals(Integer.class, o.getClass());
         assertEquals(value, o);
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        CompactRawSerialisationUtils.write(value, new DataOutputStream(baos));
-        final long result = CompactRawSerialisationUtils.read(new DataInputStream(new ByteArrayInputStream(baos.toByteArray())));
-        assertEquals(result, value);
     }
 
 }

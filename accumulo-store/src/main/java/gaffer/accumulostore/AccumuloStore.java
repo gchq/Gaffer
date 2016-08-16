@@ -320,4 +320,9 @@ public class AccumuloStore extends Store {
     public boolean isValidationRequired() {
         return false;
     }
+
+    @Override
+    public boolean isOrdered() {
+        return true;
+    }
 }

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -29,7 +28,8 @@ import java.io.OutputStream;
  */
 public final class CompactRawSerialisationUtils {
 
-    private CompactRawSerialisationUtils() { }
+    private CompactRawSerialisationUtils() {
+    }
 
     public static byte[] writeLong(final long l) {
         long value = l;
@@ -78,13 +78,12 @@ public final class CompactRawSerialisationUtils {
 
     /**
      * Writes a long to the provided {@link OutputStream}.
-     *
      * NB: This code is very similar to the code in the {@link CompactRawSerialisationUtils#writeLong(long)}
      * method. This violates the DRY principle, but the alternative is to implement the code in the
      * {@link CompactRawSerialisationUtils#writeLong(long)} method by creating a ByteArrayOutputStream from
      * the byte array and then using this method. This approach avoids that expense.
      *
-     * @param l The long to write.
+     * @param l      The long to write.
      * @param output The {@link OutputStream} to write data to.
      * @throws SerialisationException if there is an {@link IOException} writing the long.
      */
@@ -120,7 +119,6 @@ public final class CompactRawSerialisationUtils {
     /**
      * Reads a long from the provided {@link InputStream}. This requires the long to have been written
      * by {@link CompactRawSerialisationUtils#write(long, OutputStream)}.
-     *
      * NB: This code is very similar to the code in the {@link CompactRawSerialisationUtils#readLong(byte[])}
      * method. This violates the DRY principle, but the alternative is to implement the code in the
      * {@link CompactRawSerialisationUtils#readLong(byte[])} method by creating a ByteArrayInputStream from

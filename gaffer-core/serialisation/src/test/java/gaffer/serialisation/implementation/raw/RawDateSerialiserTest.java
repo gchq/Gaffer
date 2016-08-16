@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.raw;
-
-import gaffer.exception.SerialisationException;
-
-import java.util.Date;
-import org.junit.Test;
+package gaffer.serialisation.implementation.raw;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import gaffer.exception.SerialisationException;
+import org.junit.Test;
+import java.util.Date;
 
 public class RawDateSerialiserTest {
 

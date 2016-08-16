@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.serialisation.simple.raw;
+package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
@@ -26,7 +26,6 @@ import java.util.Date;
  * where the byte arrays are compared one byte at a time starting with the first.
  */
 public class RawDateSerialiser implements Serialisation {
-
     private static final long serialVersionUID = -1470994471883677977L;
 
     @Override
@@ -61,6 +60,11 @@ public class RawDateSerialiser implements Serialisation {
                 | ((long) bytes[6] & 255L) << 8
                 | ((long) bytes[7] & 255L);
         return new Date(value);
+    }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return true;
     }
 
 }
