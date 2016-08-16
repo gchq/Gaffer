@@ -31,7 +31,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
 import java.io.IOException;
 
 public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
@@ -52,8 +51,9 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         setupCombiner(job);
         setupReducer(job);
         setupOutput(job, operation);
-        String useAccumuloPartitioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
-        if (null != useAccumuloPartitioner && useAccumuloPartitioner.equalsIgnoreCase("true")) {
+
+        final String useAccumuloPartitioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
+        if (null == useAccumuloPartitioner || useAccumuloPartitioner.equalsIgnoreCase("true")) {
             setupPartitioner(job, operation, (AccumuloStore) store);
         }
     }
