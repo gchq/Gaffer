@@ -62,15 +62,16 @@ public final class IngestUtils {
      * @param table      - The table name
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
+     * @param maxSplits  - The maximum number of splits
      * @return The number of splits in the table
      * @throws IOException for any IO issues reading from the file system. Other accumulo exceptions are caught and wrapped in an IOException.
      */
     public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
-                                       final Path splitsFile) throws IOException {
+                                       final Path splitsFile, final int maxSplits) throws IOException {
         // Get the splits from the table
         Collection<Text> splits;
         try {
-            splits = conn.tableOperations().listSplits(table);
+            splits = conn.tableOperations().listSplits(table, maxSplits);
         } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new IOException(e.getMessage(), e);
         }
@@ -88,6 +89,11 @@ public final class IngestUtils {
             }
         }
         return splits.size();
+    }
+
+    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
+                                       final Path splitsFile) throws IOException {
+        return createSplitsFile(conn, table, fs, splitsFile, Integer.MAX_VALUE);
     }
 
     /**

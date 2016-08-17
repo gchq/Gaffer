@@ -31,10 +31,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
 
     @Override
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store)
@@ -64,13 +67,11 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupCombiner(final Job job)
-            throws IOException {
+    private void setupCombiner(final Job job) throws IOException {
         job.setCombinerClass(AccumuloKeyValueReducer.class);
     }
 
-    private void setupReducer(final Job job)
-            throws IOException {
+    private void setupReducer(final Job job) throws IOException {
         job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
@@ -84,19 +85,49 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
     private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
         String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
-        int numReduceTasks;
+        final String maxReducersString = operation.getOption(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
+        int numSplits;
         if (null == splitsFilePath || splitsFilePath.equals("")) {
+            // User didn't provide a splits file
             splitsFilePath = store.getProperties().getSplitsFilePath();
+            LOGGER.info("Creating splits file in location {}", splitsFilePath);
+            int maxReducers = -1;
+            if (maxReducersString != null && !maxReducersString.equals("")) {
+                try {
+                    maxReducers = Integer.parseInt(maxReducersString);
+                } catch (final NumberFormatException e) {
+                    LOGGER.error("Error parsing maximum number of reducers option, got {}", maxReducersString);
+                    throw new RuntimeException("Can't parse " + AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE
+                            + " option, got " + maxReducersString);
+                }
+                if (maxReducers < 1) {
+                    LOGGER.error("Invalid maximum number of reducers option - must be >=1, got {}", maxReducers);
+                    throw new RuntimeException(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE + " must be >= 1");
+                }
+                LOGGER.info("Maximum number of reducers option is {}", maxReducers);
+            }
             try {
-                numReduceTasks = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
-                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+                if (maxReducers == -1) {
+                    numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                            FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+                } else {
+                    numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                            FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), maxReducers - 1);
+                }
             } catch (final StoreException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         } else {
-            numReduceTasks = IngestUtils.getNumSplits(FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+            numSplits = IngestUtils.getNumSplits(FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+            if (maxReducersString != null && !maxReducersString.equals("")) {
+                LOGGER.info("Found {} splits in user provided splits file {}, ignoring {} option", numSplits,
+                        splitsFilePath,
+                        AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
+            } else {
+                LOGGER.info("Found {} splits in user provided splits file {}", numSplits, splitsFilePath);
+            }
         }
-        job.setNumReduceTasks(numReduceTasks + 1);
+        job.setNumReduceTasks(numSplits + 1);
         job.setPartitionerClass(KeyRangePartitioner.class);
         KeyRangePartitioner.setSplitFile(job, splitsFilePath);
     }
