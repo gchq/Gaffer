@@ -34,6 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoadAndQuery3 extends LoadAndQuery {
+    public LoadAndQuery3() {
+        super("Filtering");
+    }
+
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery3().run();
     }
@@ -41,60 +45,60 @@ public class LoadAndQuery3 extends LoadAndQuery {
     public Iterable<Edge> run() throws OperationException {
         final User user = new User("user01");
 
-        setDataFileLocation("/example/gettingstarted/3/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/3/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
-
+        //create some edges from the data file using our data generator class
         final List<Element> elements = new ArrayList<>();
-        final DataGenerator3 dataGenerator3 = new DataGenerator3();
+        final DataGenerator3 dataGenerator = new DataGenerator3();
         for (String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator3.getElement(s));
-            log(dataGenerator3.getElement(s).toString());
+            elements.add(dataGenerator.getElement(s));
+        }
+        log("Elements generated from the data file.");
+        for (final Element element : elements) {
+            log("GENERATED_EDGES", element.toString());
         }
         log("");
 
-        final Graph graph3 = new Graph.Builder()
+        //create a graph using our schema and store properties
+        final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 
+        //add the edges to the graph
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
+        graph.execute(addElements, user);
+        log("The elements have been added.\n");
 
-        graph3.execute(addElements, user);
-
+        //get all the edges that contain the vertex "1"
+        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-
-        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
-        final Iterable<Edge> results = graph3.execute(getRelatedEdges, user);
+        final Iterable<Edge> results = graph.execute(getRelatedEdges, user);
         for (Element e : results) {
-            log(e.toString());
+            log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
-        final ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
-                .filter(new ElementFilter.Builder()
-                        .select("count")
-                        .execute(new IsMoreThan(3))
+        //rerun previous query with a filter to return only edges with a count more than 3
+        final View view = new View.Builder()
+                .edge("data", new ViewElementDefinition.Builder()
+                        .filter(new ElementFilter.Builder()
+                                .select("count")
+                                .execute(new IsMoreThan(3))
+                                .build())
                         .build())
                 .build();
-
-        final View view = new View.Builder()
-                .edge("data", viewElementDefinition)
+        final GetRelatedEdges<EntitySeed> getRelatedEdgesWithCountMoreThan3 = new GetRelatedEdges.Builder<EntitySeed>()
+                .addSeed(new EntitySeed("1"))
+                .view(view)
                 .build();
-
-        getRelatedEdges.setView(view);
-
-        log("\nAll edges containing the vertex 1. "
-                + "\nThe counts have been aggregated and we have filtered out edges where the count is less than or equal to 3\n");
-        final Iterable<Edge> filteredResults = graph3.execute(getRelatedEdges, user);
+        final Iterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
+        log("\nAll edges containing the vertex 1 with an aggregated count more than than 3\n");
         for (Element e : filteredResults) {
-            log(e.toString());
+            log("GET_RELATED_ELEMENTS_WITH_COUNT_MORE_THAN_3_RESULT", e.toString());
         }
 
         return filteredResults;
-
     }
 }

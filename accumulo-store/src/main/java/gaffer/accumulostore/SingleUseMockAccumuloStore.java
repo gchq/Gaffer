@@ -21,14 +21,11 @@ import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.client.mock.MockInstance;
 
 /**
- * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
- * provide a {@link Connector}.
- *
+ * An {@link AccumuloStore} that uses an Accumulo {@link org.apache.accumulo.core.client.mock.MockInstance} to
+ * provide a {@link org.apache.accumulo.core.client.Connector}.
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
  */

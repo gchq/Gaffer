@@ -1,13 +1,14 @@
 {
   "operations": [
     {
-      "class": "gaffer.operation.impl.export.initialise.InitialiseSetExport"
+      "class": "gaffer.operation.impl.export.initialise.InitialiseSetExport",
+      "timestamp": 1471521078817
     },
     {
-      "class": "gaffer.operation.impl.get.GetRelatedElements",
+      "class": "gaffer.operation.impl.get.GetRelatedEdges",
       "view": {
         "edges": {
-          "edge": {
+          "data": {
             "filterFunctions": [
               {
                 "function": {
@@ -22,9 +23,6 @@
               }
             ]
           }
-        },
-        "entities": {
-          "entity": {}
         }
       },
       "includeIncomingOutGoing": "OUTGOING",
@@ -50,10 +48,10 @@
       }
     },
     {
-      "class": "gaffer.operation.impl.get.GetRelatedElements",
+      "class": "gaffer.operation.impl.get.GetRelatedEdges",
       "view": {
         "edges": {
-          "edge": {
+          "data": {
             "filterFunctions": [
               {
                 "function": {
@@ -68,28 +66,9 @@
               }
             ]
           }
-        },
-        "entities": {
-          "entity": {}
         }
       },
       "includeIncomingOutGoing": "OUTGOING"
-    },
-    {
-      "class": "gaffer.operation.impl.export.UpdateExport"
-    },
-    {
-      "class": "gaffer.operation.impl.generate.GenerateObjects",
-      "elementGenerator": {
-        "class": "gaffer.operation.data.generator.EntitySeedExtractor",
-        "elementValidator": {
-          "class": "gaffer.data.IsEdgeValidator"
-        },
-        "skipInvalid": true
-      }
-    },
-    {
-      "class": "gaffer.operation.impl.get.GetEntitiesBySeed"
     },
     {
       "class": "gaffer.operation.impl.export.UpdateExport"
