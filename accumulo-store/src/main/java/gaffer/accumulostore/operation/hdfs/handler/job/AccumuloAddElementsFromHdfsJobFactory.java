@@ -84,51 +84,90 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
-        final String maxReducersString = operation.getOption(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
-        int numSplits;
+        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
         if (null == splitsFilePath || splitsFilePath.equals("")) {
             // User didn't provide a splits file
-            splitsFilePath = store.getProperties().getSplitsFilePath();
-            LOGGER.info("Creating splits file in location {}", splitsFilePath);
-            int maxReducers = -1;
-            if (maxReducersString != null && !maxReducersString.equals("")) {
-                try {
-                    maxReducers = Integer.parseInt(maxReducersString);
-                } catch (final NumberFormatException e) {
-                    LOGGER.error("Error parsing maximum number of reducers option, got {}", maxReducersString);
-                    throw new RuntimeException("Can't parse " + AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE
-                            + " option, got " + maxReducersString);
-                }
-                if (maxReducers < 1) {
-                    LOGGER.error("Invalid maximum number of reducers option - must be >=1, got {}", maxReducers);
-                    throw new RuntimeException(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE + " must be >= 1");
-                }
-                LOGGER.info("Maximum number of reducers option is {}", maxReducers);
-            }
-            try {
-                if (maxReducers == -1) {
-                    numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
-                            FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
-                } else {
-                    numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
-                            FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), maxReducers - 1);
-                }
-            } catch (final StoreException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            setUpPartitionerGenerateSplitsFile(job, operation, store);
         } else {
-            numSplits = IngestUtils.getNumSplits(FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
-            if (maxReducersString != null && !maxReducersString.equals("")) {
-                LOGGER.info("Found {} splits in user provided splits file {}, ignoring {} option", numSplits,
-                        splitsFilePath,
-                        AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
-            } else {
-                LOGGER.info("Found {} splits in user provided splits file {}", numSplits, splitsFilePath);
+            // Use provided splits file
+            setUpPartitionerFromUserProvidedSplitsFile(job, operation);
+        }
+    }
+
+    private void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
+                                                    final AccumuloStore store) throws IOException {
+        final String splitsFilePath = store.getProperties().getSplitsFilePath();
+        LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
+        final int maxReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
+        final int minReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
+        if (maxReducers != -1 && minReducers != -1) {
+            if (minReducers > maxReducers) {
+                LOGGER.error("Minimum number of reducers must be less than the maximum number of reducers: minimum was {} "
+                    + "maximum was {}", minReducers, maxReducers);
+                throw new IOException("Minimum number of reducers must be less than the maximum number of reducers");
             }
         }
+        int numSplits;
+        try {
+            if (maxReducers == -1) {
+                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+            } else {
+                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), maxReducers - 1);
+            }
+        } catch (final StoreException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        int numReducers = numSplits + 1;
+        // If neither min or max are specified then nothing to do; if max specified and min not then already taken care of.
+        // If min is specified and the number of reducers is not greater than that then set the appropriate number of
+        // subbins.
+        if (minReducers != -1) {
+            if (numReducers < minReducers) {
+                int factor = minReducers / numReducers;
+                KeyRangePartitioner.setNumSubBins(job, factor);
+                numReducers = numReducers * factor;
+            }
+        }
+        job.setNumReduceTasks(numReducers);
+        job.setPartitionerClass(KeyRangePartitioner.class);
+        KeyRangePartitioner.setSplitFile(job, splitsFilePath);
+    }
+
+    private void setUpPartitionerFromUserProvidedSplitsFile(final Job job, final AddElementsFromHdfs operation)
+            throws IOException {
+        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
+        if (intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS) != -1
+                || intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS) != -1) {
+            LOGGER.info("Using splits file provided by user {}, ignoring options {} and {}", splitsFilePath,
+                    AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS,
+                    AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
+        } else {
+            LOGGER.info("Using splits file provided by user {}", splitsFilePath);
+        }
+        final int numSplits = IngestUtils.getNumSplits(FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
         job.setNumReduceTasks(numSplits + 1);
         job.setPartitionerClass(KeyRangePartitioner.class);
         KeyRangePartitioner.setSplitFile(job, splitsFilePath);
+    }
+
+    private static int intOptionIsValid(final AddElementsFromHdfs operation, final String optionKey) throws IOException {
+        final String option = operation.getOption(optionKey);
+        int result = -1;
+        if (option != null && !option.equals("")) {
+            try {
+                result = Integer.parseInt(option);
+            } catch (final NumberFormatException e) {
+                LOGGER.error("Error parsing {}, got {}", optionKey, option);
+                throw new IOException("Can't parse " + optionKey + " option, got " + option);
+            }
+            if (result < 1) {
+                LOGGER.error("Invalid {} option - must be >=1, got {}", optionKey, result);
+                throw new IOException("Invalid " + optionKey + " option - must be >=1, got " + result);
+            }
+            LOGGER.info("{} option is {}", optionKey, result);
+        }
+        return result;
     }
 }
