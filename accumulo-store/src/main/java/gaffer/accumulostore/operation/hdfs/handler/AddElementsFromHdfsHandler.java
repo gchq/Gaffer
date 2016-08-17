@@ -59,11 +59,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         try {
             LOGGER.info("Running FetchElementsFromHdfs job");
             response = ToolRunner.run(fetchTool, new String[0]);
+            LOGGER.info("Finished running FetchElementsFromHdfs job");
         } catch (final Exception e) {
+            LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());
             throw new OperationException("Failed to fetch elements from HDFS", e);
         }
 
         if (FetchElementsFromHdfs.SUCCESS_RESPONSE != response) {
+            LOGGER.error("Failed to fetch elements from HDFS. Response code was {}", response);
             throw new OperationException("Failed to fetch elements from HDFS. Response code was: " + response);
         }
     }
@@ -76,11 +79,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         try {
             LOGGER.info("Running import job");
             response = ToolRunner.run(importTool, new String[0]);
+            LOGGER.info("Finished running import job");
         } catch (final Exception e) {
-            throw new OperationException("Failed to import elements into Accumulo.", e);
+            LOGGER.error("Failed to import elements into Accumulo: {}", e.getMessage());
+            throw new OperationException("Failed to import elements into Accumulo", e);
         }
 
         if (ImportElementsToAccumulo.SUCCESS_RESPONSE != response) {
+            LOGGER.error("Failed to import elements into Accumulo. Response code was {}", response);
             throw new OperationException("Failed to import elements into Accumulo. Response code was: " + response);
         }
     }

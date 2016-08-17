@@ -108,14 +108,14 @@ public class AddElementsFromHdfsIT {
             addElementsFromHdfs(ByteEntityKeyPackage.class);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Output directory is not empty: " + outputDir, e.getCause().getMessage());
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
         }
 
         try {
             addElementsFromHdfs(ClassicKeyPackage.class);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Output directory is not empty: " + outputDir, e.getCause().getMessage());
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
         }
     }
 

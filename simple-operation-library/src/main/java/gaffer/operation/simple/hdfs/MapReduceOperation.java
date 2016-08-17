@@ -147,7 +147,7 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
             return this;
         }
 
-        protected Builder<OP_TYPE, INPUT, OUTPUT> partioner(final Class<? extends Partitioner> partitioner) {
+        protected Builder<OP_TYPE, INPUT, OUTPUT> partitioner(final Class<? extends Partitioner> partitioner) {
             op.setPartitioner(partitioner);
             return this;
         }
