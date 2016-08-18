@@ -89,12 +89,9 @@ The next file used to instantiate our Graph is StoreTypes. For this example it i
 ${STORE_TYPES_JSON}
 
 The StoreTypes file is specific to a particular Store. In our example we are using an in-memory 'Mock' Accumulo Store. In simple terms, data in Accumulo is stored in rows as keys and values where the key has multiple parts.
+It describes how the data types are mapped into the database that backs the Gaffer Store you've chosen.
 
-Our StoreTypes basically says 'in each row in the database, for the type `"count.int"` put the value into the `"value"` position in Accumulo. Other positions are explained in the ${ACCUMULO_USER_GUIDE}.
-
-The StoreTypes file describes how the data types are mapped into the database that backs the Gaffer Store you've chosen.
-
-For the count type we also supply an ${AGGREGATE_FUNCTION}. Gaffer allows Edges of the same Group to be aggregated at query time.
+In our StoreTypes file we supply an ${AGGREGATE_FUNCTION} for the count.int type. Gaffer allows Edges of the same Group to be aggregated at query time.
 
 If you run this example you'll see that the last thing that's printed to the console is:
 

@@ -18,7 +18,7 @@ The generated elements are:
 ${GENERATED_EDGES}
 ```
 
-Because we've added an extra property we need to add it to the DataSchema - all the edges get a new `"visibility"` property:
+Because we've added an extra property we need to add it to the DataSchema - all the edges get a new `"visibility"` property. We have also told Gaffer that whenever it sees a property called 'visibility' this is a special property and should be used for restricting a user's visibility of the data.:
 ${DATA_SCHEMA_JSON}
 
 and we've defined a new `"visibility.string"` type in our DataTypes, which is a Java String and must be non-null to be loaded into the Graph.:
@@ -83,14 +83,11 @@ Accumulo is a key value store, but the key has some structure, consisting of a n
 * Column Visibility
 * TimeStamp
 
+
 The AccumuloStore requires some way of mapping parts of a Gaffer Element into an Accumulo Row. This is done using a ${ACCUMULO_KEY_PACKAGE} and the `storeTypes.json`. Let’s take another look at the `storeTypes.json` file for this example:
 ${STORE_TYPES_JSON}
 
-You’ll see that there’s a `position` that tells Gaffer where to put the property of a given type in the Accumulo key. In this example, the `count` property goes into the Accumulo value and the `visibility` property goes into the Accumulo Column Visibility. The `AccumuloKeyPackage` is then used to do the work to serialise these objects into the Accumulo rows. By default standard Java serialisation is used. 
-
-The `AccumuloKeyPackage` fixes what’s written into the RowId and Column Family. For an Edge, the vertices go in the RowId and the group goes in the Column Family. For an Entity, the vertex goes in the RowId and the Group in the Column Family. (More on Entities in future examples). 
-
-We’ve override the default serialisation for the `visibility.string` type to use our own custom serialiser for the visibility property: [`gaffer.example.gettingstarted.serialiser.VisibilitySerialiser`](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/blob/master/example/src/main/java/gaffer/example/gettingstarted/serialiser/VisibilitySerialiser.java). To see how this works we need to understand how Accumulo’s row level security works, at least at a high level.
+We’ve override the default serialisation for the `visibility.string` type to use our own custom serialiser for the visibility property: [`gaffer.example.gettingstarted.serialiser.VisibilitySerialiser`](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/blob/master/example/src/main/java/gaffer/example/gettingstarted/serialiser/VisibilitySerialiser.java). To see how this works we need to understand how Accumulo’s row level security works, at least at a high level. In our DataSchema we assigned the visibilityProperty field to the property name 'visibility', this tells Accumulo to store that property in the visibility column.
 
 #####Accumulo's Visibility Column and Visibility Serialisers
 
@@ -134,16 +131,7 @@ ${GET_PRIVATE_AGGREGATED_RELATED_EDGES_RESULT}
 
 To do this we need to use a custom aggregator function: ${VISIBILITY_AGGREGATOR_LINK}. If you look at this function you’ll see that it does just what we described above - takes a set of visibilities and returns `private` if one or more are `private` and public otherwise. (Notice it also complains if there is a visibility which is not `public` or `private`).
 
-We supply this aggregator function in `storeTypes.json` with the `visibility.string` type:
-
-```json
-"visibility.string": {
-      "position": "VISIBILITY",
-      "serialiserClass": "gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
-      "aggregateFunction": {
-        "class": "gaffer.example.gettingstarted.function.VisibilityAggregator"
-      }
-    }
+We supply this aggregator function in `storeTypes.json` with the `visibility.string` type.
 ```
 
 You might say, ‘But we had already supplied that when we ran the previous query but we still didn’t aggregate across visibilities’. And you are correct.
