@@ -25,7 +25,9 @@ import scala.reflect.ClassTag$;
  */
 public final class ClassTagConstants {
 
-    private ClassTagConstants() { }
+    private ClassTagConstants() {
+
+    }
 
     public static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTag$.MODULE$.apply(Element.class);
     public static final ClassTag<Row> ROW_CLASS_TAG = ClassTag$.MODULE$.apply(Row.class);

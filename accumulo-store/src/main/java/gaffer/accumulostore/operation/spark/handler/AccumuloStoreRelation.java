@@ -31,9 +31,9 @@ import gaffer.function.simple.filter.IsIn;
 import gaffer.function.simple.filter.IsLessThan;
 import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.function.simple.filter.Not;
-import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
+import gaffer.operation.simple.spark.AbstractGetRDDOperation;
 import gaffer.operation.simple.spark.GetRDDOfAllElementsOperation;
 import gaffer.operation.simple.spark.GetRDDOfElementsOperation;
 import gaffer.store.schema.SchemaEdgeDefinition;
@@ -86,8 +86,7 @@ import java.util.Set;
  * the schema for the <code>DataFrame</code>.
  * <p>
  * <code>AccumuloStoreRelation</code> implements the {@link TableScan} interface which allows all {@link Element}s to
- * of the specified group to be returned to the <code>DataFrame</code>. This is unlikely to be performant for large
- * graphs.
+ * of the specified group to be returned to the <code>DataFrame</code>.
  * <p>
  * <code>AccumuloStoreRelation</code> implements the {@link PrunedScan} interface which allows all {@link Element}s
  * of the specified group to be returned to the <code>DataFrame</code> but with only the specified columns returned.
@@ -162,7 +161,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final RDD<Element> rdd = store.execute(operation, user).iterator().next();
             return rdd.map(new ElementToRow(usedProperties), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
-            LOGGER.error("OperationException while executing operation {}", e);
+            LOGGER.error("OperationException while executing operation: {}", e);
             return null;
         }
     }
@@ -218,18 +217,20 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 filters.length, ArrayUtils.toString(filters));
         // If any of the filters can be translated into Accumulo queries (i.e. specifying ranges rather than a full
         // table scan) then do this.
-        AbstractGetOperation<?, RDD<Element>> operation = null;
+        AbstractGetRDDOperation<?> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
                 final EqualTo equalTo = (EqualTo) filter;
                 final String attribute = equalTo.attribute();
                 if (attribute.equals(SRC_COL_NAME) || attribute.equals(DST_COL_NAME) || attribute.equals(VERTEX_COL_NAME)) {
+                    LOGGER.debug("Found EqualTo filter with attribute {}, creating GetRDDOfElementsOperation", attribute);
                     operation = new GetRDDOfElementsOperation(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
                 }
                 break;
             }
         }
         if (operation == null) {
+            LOGGER.debug("Creating GetRDDOfAllElementsOperation");
             operation = new GetRDDOfAllElementsOperation(sqlContext.sparkContext());
         }
         // Create view based on filters and add to operation
@@ -332,6 +333,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     private void buildSchema() {
+        LOGGER.info("Building Spark SQL schema for group {}", group);
         final SchemaElementDefinition elementDefn = store.getSchema().getElement(group);
         final List<StructField> structFieldList = new ArrayList<>();
         if (elementDefn instanceof SchemaEntityDefinition) {
@@ -342,6 +344,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             if (vertexType == null) {
                 throw new RuntimeException("Vertex must be a recognised type: found " + vertexClass);
             }
+            LOGGER.info("Group {} is an entity group - {} is of type {}", group, VERTEX_COL_NAME, vertexType);
             structFieldList.add(new StructField(VERTEX_COL_NAME, vertexType, false, Metadata.empty()));
             usedProperties.add(VERTEX_COL_NAME);
         } else {
@@ -355,6 +358,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 throw new RuntimeException("Both source and destination must be recognised types: source was "
                         + srcClass + " destination was " + dstClass);
             }
+            LOGGER.info("Group {} is an edge group - {} is of type {}, {} is of type {}", group, SRC_COL_NAME, srcType,
+                    DST_COL_NAME, dstType);
             structFieldList.add(new StructField(SRC_COL_NAME, srcType, false, Metadata.empty()));
             structFieldList.add(new StructField(DST_COL_NAME, dstType, false, Metadata.empty()));
             usedProperties.add(SRC_COL_NAME);
@@ -367,6 +372,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             if (propertyType == null) {
                 LOGGER.warn("Ignoring property {} as not a recognised type", property);
             } else {
+                LOGGER.info("Property {} is of type {}", property, propertyType);
                 structFieldList.add(new StructField(property, propertyType, false, Metadata.empty()));
                 usedProperties.add(property);
             }
