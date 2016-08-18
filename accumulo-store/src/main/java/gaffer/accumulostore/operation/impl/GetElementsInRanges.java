@@ -99,5 +99,10 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
         public Builder<SEED_TYPE, ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.inOutType(inOutType);
         }
+
+        @Override
+        public Builder<SEED_TYPE, ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }

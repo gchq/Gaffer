@@ -141,4 +141,8 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
     boolean isDeduplicate();
 
     void setDeduplicate(final boolean deduplicate);
+
+    Integer getResultLimit();
+
+    void setResultLimit(final Integer resultLimit);
 }

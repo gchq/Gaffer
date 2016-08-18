@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
@@ -420,6 +421,54 @@ public class StoreTest {
 
         // Then
         assertFalse(supported);
+    }
+
+    @Test
+    public void shouldLimitResultsOfGetOperation() throws Exception {
+        // Given
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        final GetElements<ElementSeed, Element> getElements = mock(GetElements.class);
+        final int resultLimit = 5;
+        final Iterable<Element> expectedResult = mock(Iterable.class);
+        final StoreImpl store = new StoreImpl();
+        store.initialise(schema, properties);
+
+        given(getElements.getResultLimit()).willReturn(resultLimit);
+        given(getElementsHandler.doOperation(getElements, context, store)).willReturn(expectedResult);
+
+        // When
+        final Iterable<? extends Element> result = store.execute(getElements, user);
+
+        // Then
+        assertTrue(result instanceof LimitedCloseableIterable);
+        assertEquals(0, ((LimitedCloseableIterable) result).getStart());
+        assertEquals(resultLimit, ((LimitedCloseableIterable) result).getEnd());
+        verify(getElementsHandler).doOperation(getElements, context, store);
+
+        result.iterator();
+        verify(expectedResult).iterator();
+    }
+
+    @Test
+    public void shouldNotLimitResultsOfGetOperationWhenLimitIsNull() throws Exception {
+        // Given
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        final GetElements<ElementSeed, Element> getElements = mock(GetElements.class);
+        final Integer resultLimit = null;
+        final Iterable<Element> expectedResult = mock(Iterable.class);
+        final StoreImpl store = new StoreImpl();
+        store.initialise(schema, properties);
+
+        given(getElements.getResultLimit()).willReturn(resultLimit);
+        given(getElementsHandler.doOperation(getElements, context, store)).willReturn(expectedResult);
+
+        // When
+        final Iterable<? extends Element> result = store.execute(getElements, user);
+
+        // Then
+        assertSame(expectedResult, result);
     }
 
     private Schema createSchemaMock() {

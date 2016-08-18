@@ -106,5 +106,10 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
         public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
             return (Builder) super.includeEdges(includeEdgeType);
         }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
     }
 }

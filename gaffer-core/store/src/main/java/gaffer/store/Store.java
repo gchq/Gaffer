@@ -17,6 +17,7 @@
 package gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -359,9 +360,12 @@ public abstract class Store {
 
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
-        final OUTPUT result;
+        OUTPUT result;
         if (null != handler) {
             result = handler.doOperation(operation, context, this);
+            if (operation instanceof GetElements) {
+                result = limitResult(result, (GetElements) operation);
+            }
         } else {
             result = doUnhandledOperation(operation, context);
         }
@@ -380,6 +384,13 @@ public abstract class Store {
             }
         }
     }
+
+    private <OUTPUT> OUTPUT limitResult(final OUTPUT result, final GetElements operation) {
+        return null != operation.getResultLimit()
+                ? (OUTPUT) new LimitedCloseableIterable((Iterable) result, 0, operation.getResultLimit())
+                : result;
+    }
+
 
     private void addOpHandlers() {
         addCoreOpHandlers();

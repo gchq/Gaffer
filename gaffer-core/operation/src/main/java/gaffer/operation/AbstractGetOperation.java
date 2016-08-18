@@ -36,6 +36,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
     private boolean populateProperties = true;
     private boolean deduplicate = false;
+    private Integer resultLimit;
 
     protected AbstractGetOperation() {
         super();
@@ -173,6 +174,16 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         this.deduplicate = deduplicate;
     }
 
+    @Override
+    public Integer getResultLimit() {
+        return resultLimit;
+    }
+
+    @Override
+    public void setResultLimit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
     public static class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
             extends AbstractOperation.Builder<OP_TYPE, Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> {
         private List<SEED_TYPE> seeds;
@@ -255,6 +266,11 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          */
         protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> deduplicate(final boolean deduplicate) {
             op.setDeduplicate(deduplicate);
+            return this;
+        }
+
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> limitResults(final Integer resultLimit) {
+            op.setResultLimit(resultLimit);
             return this;
         }
 

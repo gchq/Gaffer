@@ -106,5 +106,9 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
             return (Builder<ELEMENT_TYPE>) super.includeEntities(includeEntities);
         }
 
+        @Override
+        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }
