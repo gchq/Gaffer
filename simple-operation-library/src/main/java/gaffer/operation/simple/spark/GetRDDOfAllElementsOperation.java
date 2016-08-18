@@ -15,6 +15,7 @@
  */
 package gaffer.operation.simple.spark;
 
+import gaffer.data.elementdefinition.view.View;
 import org.apache.spark.SparkContext;
 
 public class GetRDDOfAllElementsOperation extends AbstractGetRDDOperation<Void> {
@@ -25,4 +26,28 @@ public class GetRDDOfAllElementsOperation extends AbstractGetRDDOperation<Void> 
         setSparkContext(sparkContext);
     }
 
+    public static class Builder extends AbstractGetRDDOperation.Builder<GetRDDOfAllElementsOperation, Void> {
+        public Builder() {
+            this(new GetRDDOfAllElementsOperation());
+        }
+
+        public Builder(final GetRDDOfAllElementsOperation op) {
+            super(op);
+        }
+
+        public Builder sparkContext(final SparkContext sparkContext) {
+            super.sparkContext(sparkContext);
+            return this;
+        }
+
+        public Builder view(final View view) {
+            super.view(view);
+            return this;
+        }
+
+        @Override
+        public GetRDDOfAllElementsOperation build() {
+            return (GetRDDOfAllElementsOperation) super.build();
+        }
+    }
 }

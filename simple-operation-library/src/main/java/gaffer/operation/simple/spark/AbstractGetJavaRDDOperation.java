@@ -16,6 +16,7 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -30,5 +31,33 @@ public abstract class AbstractGetJavaRDDOperation<INPUT> extends AbstractGetOper
 
     public void setJavaSparkContext(final JavaSparkContext javaSparkContext) {
         this.javaSparkContext = javaSparkContext;
+    }
+
+    protected static class Builder<OP_TYPE extends AbstractGetJavaRDDOperation<INPUT>, INPUT>
+            extends AbstractGetOperation.Builder<OP_TYPE, INPUT, JavaRDD<Element>> {
+
+        public Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        public Builder javaSparkContext(final JavaSparkContext sparkContext) {
+            op.setJavaSparkContext(sparkContext);
+            return this;
+        }
+
+        public Builder seeds(final Iterable<INPUT> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder view(final View view) {
+            super.view(view);
+            return this;
+        }
+
+        @Override
+        public OP_TYPE build() {
+            return (OP_TYPE) super.build();
+        }
     }
 }

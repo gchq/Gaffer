@@ -15,6 +15,7 @@
  */
 package gaffer.operation.simple.spark;
 
+import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
 import org.apache.spark.SparkContext;
 
@@ -33,4 +34,33 @@ public class GetRDDOfElementsOperation extends AbstractGetRDDOperation<EntitySee
         this(sparkContext, Collections.singleton(entitySeed));
     }
 
+    public static class Builder extends AbstractGetRDDOperation.Builder<GetRDDOfElementsOperation, EntitySeed> {
+        public Builder() {
+            this(new GetRDDOfElementsOperation());
+        }
+
+        public Builder(final GetRDDOfElementsOperation op) {
+            super(op);
+        }
+
+        public Builder sparkContext(final SparkContext sparkContext) {
+            super.sparkContext(sparkContext);
+            return this;
+        }
+
+        public Builder seeds(final Iterable<EntitySeed> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder view(final View view) {
+            super.view(view);
+            return this;
+        }
+
+        @Override
+        public GetRDDOfElementsOperation build() {
+            return (GetRDDOfElementsOperation) super.build();
+        }
+    }
 }
