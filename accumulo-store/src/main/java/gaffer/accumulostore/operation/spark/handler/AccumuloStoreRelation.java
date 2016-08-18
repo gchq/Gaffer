@@ -42,6 +42,7 @@ import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.user.User;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
@@ -79,7 +80,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a {@link org.apache.spark.sql.DataFrame}.
+ * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a <code>DataFrame</code>. Spark's Java API
+ * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link Dataset} of {@link Row}s.
  * As a <code>DataFrame</code> is required to have a known schema, an <code>AccumuloStoreRelation</code> requires a
  * group to be specified. The schema for that group is used to create the schema for the <code>DataFrame</code>.
  * <p>
@@ -95,7 +97,7 @@ import java.util.Set;
  * <p>
  * <code>AccumuloStoreRelation</code> implements the {@link PrunedFilteredScan} interface which allows only
  * {@link Element}s that match the the provided {@link Filter}s to be returned. The majority of these are implemented
- * by adding them to the {@Link View}, which causes them to be applied on Accumulo's tablet server (i.e. before
+ * by adding them to the {@link View}, which causes them to be applied on Accumulo's tablet server (i.e. before
  * the data is sent to a Spark executor). If a {@link Filter} is specified that specifies either the vertex in an
  * {@link Entity} or either the source or destination vertex in an {@link Edge} then this is applied by using the
  * appropriate range scan on Accumulo. Queries against this <code>DataFrame</code> that do this should be very
@@ -198,7 +200,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     /**
      * Creates a <code>DataFrame</code> of all {@link Element}s from <code>group</code> with columns that are not
-     * required filtered out and with (some of) the supplied {@Link Filter}s applied.
+     * required filtered out and with (some of) the supplied {@link Filter}s applied.
      * <p>
      * Note that Spark also applies the provided {@link Filter}s - applying them here is an optimisation to reduce
      * the amount of data transferred from the store to Spark's executors (this is known as "predicate pushdown").

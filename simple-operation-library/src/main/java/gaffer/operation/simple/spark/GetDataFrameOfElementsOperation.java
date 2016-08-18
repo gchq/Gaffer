@@ -17,10 +17,11 @@ package gaffer.operation.simple.spark;
 
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.data.EntitySeed;
-import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-public class GetDataFrameOfElementsOperation extends AbstractGetOperation<EntitySeed, DataFrame> {
+public class GetDataFrameOfElementsOperation extends AbstractGetOperation<EntitySeed, Dataset<Row>> {
 
     private SQLContext sqlContext;
     private String group;

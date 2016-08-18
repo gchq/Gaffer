@@ -21,7 +21,7 @@ import scala.reflect.ClassTag;
 import scala.reflect.ClassTag$;
 
 /**
- * Constants that provide {@Link ClassTag}s of various types.
+ * Constants that provide {@link ClassTag}s of various types.
  */
 public final class ClassTagConstants {
 

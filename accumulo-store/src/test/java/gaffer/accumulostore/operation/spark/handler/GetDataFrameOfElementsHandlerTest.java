@@ -20,13 +20,12 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.simple.spark.GetDataFrameOfElementsOperation;
 import gaffer.user.User;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
-import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
@@ -66,11 +65,11 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Edges group - check get correct edges
         GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation(sqlContext, EDGE_GROUP);
-        Iterable<DataFrame> dataFrames = graph1.execute(dfOperation, user);
+        Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");
         }
-        DataFrame dataFrame = dataFrames.iterator().next();
+        Dataset<Row> dataFrame = dataFrames.iterator().next();
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -147,11 +146,11 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Get all edges
         final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation(sqlContext, EDGE_GROUP);
-        final Iterable<DataFrame> dataFrames = graph1.execute(dfOperation, user);
+        final Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");
         }
-        final DataFrame dataFrame = dataFrames.iterator().next();
+        final Dataset<Row> dataFrame = dataFrames.iterator().next();
 
         // Check get correct rows when ask for src, dst and property2 columns
         Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2").collectAsList());
@@ -211,11 +210,11 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Get DataFrame
         final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation(sqlContext, EDGE_GROUP);
-        final Iterable<DataFrame> dataFrames = graph1.execute(dfOperation, user);
+        final Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");
         }
-        final DataFrame dataFrame = dataFrames.iterator().next();
+        final Dataset<Row> dataFrame = dataFrames.iterator().next();
 
         // Check get correct rows when ask for all columns but only rows where property2 > 4.0
         Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0").collectAsList());

@@ -54,10 +54,10 @@
 
         <hadoop.version>2.6.3</hadoop.version>
         <accumulo.version>1.7.2</accumulo.version>
-        <spark.version>1.6.2</spark.version>
+        <spark.version>2.0.0</spark.version>
 
         <avro.version>1.7.7</avro.version>
-        <jackson.version>2.4.4</jackson.version>
+        <jackson.version>2.6.2</jackson.version>
 
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
