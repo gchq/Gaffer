@@ -69,6 +69,11 @@ public class AvroSerialiser implements Serialisation {
         }
     }
 
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
+
     public boolean canHandle(final Class clazz) {
         if (clazz.getName().equals("java.lang.Class")) {
             return false;

@@ -28,6 +28,7 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.operation.OperationException;
+import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
@@ -49,6 +50,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex(String.class)
                     .build())
+            .vertexSerialiser(new StringSerialiser())
             .build();
 
     private static final List<Element> ELEMENTS = Arrays.asList(

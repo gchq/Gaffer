@@ -27,7 +27,6 @@ import gaffer.function.AggregateFunction;
 import gaffer.function.FilterFunction;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.implementation.JavaSerialiser;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,11 +35,8 @@ import java.util.List;
  * It is used to deserialise/serialise a {@link Schema} to/from JSON.
  */
 public class TypeDefinition {
-    private static final Serialisation DEFAULT_SERIALISER = new JavaSerialiser();
-
     private Class<?> clazz;
-    private Serialisation serialiser = DEFAULT_SERIALISER;
-    private String position;
+    private Serialisation serialiser;
     private ElementFilter validator;
     private AggregateFunction aggregateFunction;
 
@@ -100,8 +96,7 @@ public class TypeDefinition {
     }
 
     /**
-     * @return the {@link gaffer.serialisation.Serialisation} for the property. If one has not been explicitly set then
-     * it will default to a {@link gaffer.serialisation.implementation.JavaSerialiser}.
+     * @return the {@link gaffer.serialisation.Serialisation} for the property.
      */
     @JsonIgnore
     public Serialisation getSerialiser() {
@@ -109,29 +104,23 @@ public class TypeDefinition {
     }
 
     /**
-     * @param serialiser the {@link gaffer.serialisation.Serialisation} for the property. If null then
-     *                   a {@link gaffer.serialisation.implementation.JavaSerialiser} will be set instead.
+     * @param serialiser the {@link gaffer.serialisation.Serialisation} for the property.
      */
     public void setSerialiser(final Serialisation serialiser) {
-        if (null == serialiser) {
-            this.serialiser = DEFAULT_SERIALISER;
-        } else {
-            this.serialiser = serialiser;
-        }
+        this.serialiser = serialiser;
     }
 
     public String getSerialiserClass() {
-        final Class<? extends Serialisation> serialiserClass = serialiser.getClass();
-        if (!DEFAULT_SERIALISER.getClass().equals(serialiserClass)) {
-            return serialiserClass.getName();
+        if (null == serialiser) {
+            return null;
         }
 
-        return null;
+        return serialiser.getClass().getName();
     }
 
     public void setSerialiserClass(final String clazz) {
         if (null == clazz) {
-            this.serialiser = DEFAULT_SERIALISER;
+            this.serialiser = null;
         } else {
             final Class<? extends Serialisation> serialiserClass;
             try {
@@ -145,22 +134,6 @@ public class TypeDefinition {
                 throw new SchemaException(e.getMessage(), e);
             }
         }
-    }
-
-    /**
-     * @return the position to store the property. This can be interpreted differently by different
-     * {@link gaffer.store.Store} implementations. For example it could refer to the column to store the property in.
-     */
-    public String getPosition() {
-        return position;
-    }
-
-    /**
-     * @param position the position to store the property. This can be interpreted differently by different
-     *                 {@link gaffer.store.Store} implementations. For example it could refer to the column to store the property in.
-     */
-    public void setPosition(final String position) {
-        this.position = position;
     }
 
     public AggregateFunction getAggregateFunction() {
@@ -179,19 +152,13 @@ public class TypeDefinition {
                     + clazz.getName() + " and " + type.getClazz().getName());
         }
 
-        if (DEFAULT_SERIALISER.getClass().equals(serialiser.getClass())) {
-            setSerialiser(type.getSerialiser());
-        } else if (!serialiser.getClass().equals(type.getSerialiser().getClass())
-                && !DEFAULT_SERIALISER.getClass().equals(type.getSerialiser().getClass())) {
-            throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") serialiser, options are: "
-                    + serialiser.getClass().getName() + " and " + type.getSerialiser().getClass().getName());
-        }
-
-        if (null == position) {
-            position = type.getPosition();
-        } else if (null != type.getPosition() && !position.equals(type.getPosition())) {
-            throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") positions, options are: "
-                    + position + " and " + type.getPosition());
+        if (null != type.getSerialiser()) {
+            if (null == getSerialiser()) {
+                setSerialiser(type.getSerialiser());
+            } else if (!getSerialiser().getClass().equals(type.getSerialiser().getClass())) {
+                throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") serialiser, options are: "
+                        + getSerialiser().getClass().getName() + " and " + type.getSerialiser().getClass().getName());
+            }
         }
 
         if (null == validator) {
@@ -212,7 +179,6 @@ public class TypeDefinition {
     public String toString() {
         return "TypeDefinition{"
                 + "clazz=" + clazz
-                + ", position='" + position + '\''
                 + ", validator=" + validator
                 + ", aggregateFunction=" + aggregateFunction
                 + ", serialiser=" + serialiser
@@ -239,9 +205,6 @@ public class TypeDefinition {
         if (getSerialiser() != null ? !getSerialiser().equals(type.getSerialiser()) : type.getSerialiser() != null) {
             return false;
         }
-        if (getPosition() != null ? !getPosition().equals(type.getPosition()) : type.getPosition() != null) {
-            return false;
-        }
 
         return !(getAggregateFunction() != null ? !getAggregateFunction().equals(type.getAggregateFunction()) : type.getAggregateFunction() != null);
     }
@@ -251,7 +214,6 @@ public class TypeDefinition {
         int result = getClazz().hashCode();
         result = 31 * result + (getValidator() != null ? getValidator().hashCode() : 0);
         result = 31 * result + (getSerialiser() != null ? getSerialiser().hashCode() : 0);
-        result = 31 * result + (getPosition() != null ? getPosition().hashCode() : 0);
         result = 31 * result + (getAggregateFunction() != null ? getAggregateFunction().hashCode() : 0);
         return result;
     }
@@ -264,11 +226,6 @@ public class TypeDefinition {
 
         public Builder clazz(final Class clazz) {
             type.setClazz(clazz);
-            return this;
-        }
-
-        public Builder position(final String position) {
-            type.setPosition(position);
             return this;
         }
 

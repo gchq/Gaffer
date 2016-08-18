@@ -79,4 +79,9 @@ public class JavaSerialiser implements Serialisation {
     public boolean canHandle(final Class clazz) {
         return SERIALISABLE.isAssignableFrom(clazz);
     }
+
+    @Override
+    public boolean isByteOrderPreserved() {
+        return false;
+    }
 }

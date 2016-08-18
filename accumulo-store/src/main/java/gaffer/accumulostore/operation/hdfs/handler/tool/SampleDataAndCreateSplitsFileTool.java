@@ -32,6 +32,8 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -40,6 +42,7 @@ import java.io.PrintStream;
 
 public class SampleDataAndCreateSplitsFileTool extends Configured implements Tool {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataAndCreateSplitsFileTool.class);
     public static final int SUCCESS_RESPONSE = 1;
 
     private final SampleDataForSplitPoints operation;
@@ -54,75 +57,97 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
     @Override
     public int run(final String[] strings) throws OperationException {
         try {
+            LOGGER.info("Creating job using SampleDataForSplitPointsJobFactory");
             job = new SampleDataForSplitPointsJobFactory().createJob(operation, store);
-        } catch (IOException e) {
-            throw new OperationException("Failed to create the hadoop job : " + e.getMessage(), e);
+        } catch (final IOException e) {
+            LOGGER.error("Failed to create Hadoop job: {}", e.getMessage());
+            throw new OperationException("Failed to create the Hadoop job: " + e.getMessage(), e);
         }
         try {
+            LOGGER.info("Running SampleDataForSplitPoints job (job name is {})", job.getJobName());
             job.waitForCompletion(true);
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
-            throw new OperationException("Erorr while waiting for job to complete : " + e.getMessage(), e);
+        } catch (final IOException | InterruptedException | ClassNotFoundException e) {
+            LOGGER.error("Exception running job: {}", e.getMessage());
+            throw new OperationException("Error while waiting for job to complete: " + e.getMessage(), e);
         }
 
         try {
             if (!job.isSuccessful()) {
+                LOGGER.error("Job was not successful (job name is {})", job.getJobName());
                 throw new OperationException("Error running job");
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            LOGGER.error("Exception running job: {}", e.getMessage());
             throw new OperationException("Error running job" + e.getMessage(), e);
         }
 
-        // Number of records output
+        // Find the number of records output
         // NB In the following line use mapred.Task.Counter.REDUCE_OUTPUT_RECORDS rather than
         // mapreduce.TaskCounter.REDUCE_OUTPUT_RECORDS as this is more compatible with earlier
         // versions of Hadoop.
         Counter counter;
         try {
             counter = job.getCounters().findCounter(org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS);
-        } catch (IOException e) {
+            LOGGER.info("Number of records output = {}", counter);
+        } catch (final IOException e) {
+            LOGGER.error("Failed to get counter org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS from job: {}", e.getMessage());
             throw new OperationException("Failed to get counter: " + org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS, e);
         }
 
         int numberTabletServers;
         try {
             numberTabletServers = store.getConnection().instanceOperations().getTabletServers().size();
-        } catch (StoreException e) {
+            LOGGER.info("Number of tablet servers is {}", numberTabletServers);
+        } catch (final StoreException e) {
+            LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
             throw new OperationException(e.getMessage(), e);
         }
 
         long outputEveryNthRecord = counter.getValue() / (numberTabletServers - 1);
+        final Path resultsFile = new Path(operation.getOutputPath(), "part-r-00000");
+        LOGGER.info("Will output every {}-th record from {}", outputEveryNthRecord, resultsFile);
 
         // Read through resulting file, pick out the split points and write to file.
-        Configuration conf = getConf();
-        FileSystem fs;
+        final Configuration conf = getConf();
+        final FileSystem fs;
         try {
             fs = FileSystem.get(conf);
-        } catch (IOException e) {
-            throw new OperationException("Failed to get Filesystem from configuraiton : " + e.getMessage(), e);
+        } catch (final IOException e) {
+            LOGGER.error("Exception getting filesystem: {}", e.getMessage());
+            throw new OperationException("Failed to get filesystem from configuration: " + e.getMessage(), e);
         }
-        Path resultsFile = new Path(operation.getOutputPath(), "part-r-00000");
-        Key key = new Key();
-        Value value = new Value();
+        LOGGER.info("Writing splits to {}", operation.getResultingSplitsFilePath());
+        final Key key = new Key();
+        final Value value = new Value();
         long count = 0;
         int numberSplitPointsOutput = 0;
-        try (SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, conf);
-             PrintStream splitsWriter = new PrintStream(new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)), false, CommonConstants.UTF_8)
+        try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, conf);
+             final PrintStream splitsWriter = new PrintStream(
+                     new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)),
+                     false, CommonConstants.UTF_8)
         ) {
             while (reader.next(key, value) && numberSplitPointsOutput < numberTabletServers - 1) {
                 count++;
                 if (count % outputEveryNthRecord == 0) {
+                    LOGGER.debug("Outputting split point number {} ({})",
+                            numberSplitPointsOutput,
+                            Base64.encodeBase64(key.getRow().getBytes()));
                     numberSplitPointsOutput++;
                     splitsWriter.println(new String(Base64.encodeBase64(key.getRow().getBytes()), CommonConstants.UTF_8));
                 }
             }
-        } catch (IOException e) {
+            LOGGER.info("Total number of records read was {}", count);
+        } catch (final IOException e) {
+            LOGGER.error("Exception reading results file and outputting split points: {}", e.getMessage());
             throw new OperationException(e.getMessage(), e);
         }
 
         try {
             fs.delete(resultsFile, true);
-        } catch (IOException e) {
-            throw new OperationException("Failed to delete the mapreduce result file : " + e.getMessage(), e);
+            LOGGER.info("Deleted the results file {}", resultsFile);
+        } catch (final IOException e) {
+            LOGGER.error("Failed to delete the results file {}", resultsFile);
+            throw new OperationException("Failed to delete the results file: " + e.getMessage(), e);
         }
 
         return SUCCESS_RESPONSE;
