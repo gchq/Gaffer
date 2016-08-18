@@ -17,12 +17,10 @@
   },
   "types": {
     "prop.integer": {
-      "class": "java.lang.Integer",
-      "position": "PROPERTY_1"
+      "class": "java.lang.Integer"
     },
     "prop.string": {
-      "class": "java.lang.String",
-      "position": "PROPERTY_2"
+      "class": "java.lang.String"
     }
   }
 }

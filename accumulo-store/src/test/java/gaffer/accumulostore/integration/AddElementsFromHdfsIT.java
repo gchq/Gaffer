@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
-import gaffer.accumulostore.key.core.AbstractCoreKeyPackage;
+import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.commonutil.StreamUtil;
@@ -108,14 +108,14 @@ public class AddElementsFromHdfsIT {
             addElementsFromHdfs(ByteEntityKeyPackage.class);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Output directory is not empty: " + outputDir, e.getCause().getMessage());
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
         }
 
         try {
             addElementsFromHdfs(ClassicKeyPackage.class);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Output directory is not empty: " + outputDir, e.getCause().getMessage());
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
         }
     }
 
@@ -142,7 +142,7 @@ public class AddElementsFromHdfsIT {
         }
     }
 
-    private void addElementsFromHdfs(Class<? extends AbstractCoreKeyPackage> keyPackageClass)
+    private void addElementsFromHdfs(Class<? extends AccumuloKeyPackage> keyPackageClass)
             throws Exception {
         // Given
         createInputFile();
@@ -189,7 +189,7 @@ public class AddElementsFromHdfsIT {
         return conf;
     }
 
-    private Graph createGraph(final Class<? extends AbstractCoreKeyPackage> keyPackageClass) throws StoreException {
+    private Graph createGraph(final Class<? extends AccumuloKeyPackage> keyPackageClass) throws StoreException {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());

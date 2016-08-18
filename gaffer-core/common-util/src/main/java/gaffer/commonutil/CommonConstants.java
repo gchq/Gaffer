@@ -18,6 +18,7 @@ package gaffer.commonutil;
 
 public final class CommonConstants {
     public static final String UTF_8 = "UTF-8";
+    public static final String ISO_8859_1_ENCODING = "ISO-8859-1";
 
     private CommonConstants() {
         // constants class so it should not be constructed

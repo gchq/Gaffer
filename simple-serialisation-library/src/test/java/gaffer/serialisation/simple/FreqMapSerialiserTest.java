@@ -15,17 +15,14 @@
  */
 package gaffer.serialisation.simple;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.simple.constants.SimpleSerialisationConstants;
 import gaffer.types.simple.FreqMap;
 import org.junit.Test;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class FreqMapSerialiserTest {
 
@@ -36,7 +33,7 @@ public class FreqMapSerialiserTest {
         byte[] b = SERIALISER.serialise(new FreqMap());
         Object o = SERIALISER.deserialise(b);
         assertEquals(FreqMap.class, o.getClass());
-        assertEquals(0, ((FreqMap)o).size());
+        assertEquals(0, ((FreqMap) o).size());
     }
 
     @Test
@@ -46,11 +43,11 @@ public class FreqMapSerialiserTest {
         freqMap.put("y", 5);
         freqMap.put("z", 20);
         byte[] b = SERIALISER.serialise(freqMap);
-        FreqMap o = (FreqMap)SERIALISER.deserialise(b);
+        FreqMap o = (FreqMap) SERIALISER.deserialise(b);
         assertEquals(FreqMap.class, o.getClass());
-        assertEquals((Integer)10, o.get("x"));
-        assertEquals((Integer)5, o.get("y"));
-        assertEquals((Integer)20, o.get("z"));
+        assertEquals((Integer) 10, o.get("x"));
+        assertEquals((Integer) 5, o.get("y"));
+        assertEquals((Integer) 20, o.get("z"));
     }
 
     @Test
@@ -60,11 +57,11 @@ public class FreqMapSerialiserTest {
         freqMap.put("y", 5);
         freqMap.put("z", 20);
         byte[] b = SERIALISER.serialise(freqMap);
-        FreqMap o = (FreqMap)SERIALISER.deserialise(b);
+        FreqMap o = (FreqMap) SERIALISER.deserialise(b);
         assertEquals(FreqMap.class, o.getClass());
         assertNull(o.get("x"));
-        assertEquals((Integer)5, o.get("y"));
-        assertEquals((Integer)20, o.get("z"));
+        assertEquals((Integer) 5, o.get("y"));
+        assertEquals((Integer) 20, o.get("z"));
     }
 
     @Test
