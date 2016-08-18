@@ -15,7 +15,11 @@
  */
 package gaffer.operation.simple.spark;
 
+import gaffer.data.element.Element;
+import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.data.EntitySeed;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
 public class GetJavaRDDOfElementsOperation extends AbstractGetJavaRDDOperation<EntitySeed> {
@@ -25,6 +29,36 @@ public class GetJavaRDDOfElementsOperation extends AbstractGetJavaRDDOperation<E
     public GetJavaRDDOfElementsOperation(final JavaSparkContext sparkContext, final Iterable<EntitySeed> entitySeeds) {
         setJavaSparkContext(sparkContext);
         setInput(entitySeeds);
+    }
+
+    public static class Builder extends AbstractGetOperation.Builder<GetJavaRDDOfElementsOperation, EntitySeed, JavaRDD<Element>> {
+        public Builder() {
+            this(new GetJavaRDDOfElementsOperation());
+        }
+
+        public Builder(final GetJavaRDDOfElementsOperation op) {
+            super(op);
+        }
+
+        public Builder javaSparkContext(final JavaSparkContext javaSparkContext) {
+            op.setJavaSparkContext(javaSparkContext);
+            return this;
+        }
+
+        public Builder seeds(final Iterable<EntitySeed> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder view(final View view) {
+            super.view(view);
+            return this;
+        }
+
+        @Override
+        public GetJavaRDDOfElementsOperation build() {
+            return (GetJavaRDDOfElementsOperation) super.build();
+        }
     }
 
 }

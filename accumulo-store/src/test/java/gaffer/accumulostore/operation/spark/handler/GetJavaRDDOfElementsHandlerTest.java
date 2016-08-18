@@ -90,7 +90,10 @@ public class GetJavaRDDOfElementsHandlerTest {
         final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
         // Check get correct edges for "1"
-        GetJavaRDDOfElementsOperation rddQuery = new GetJavaRDDOfElementsOperation(sparkContext, Collections.singleton(new EntitySeed("1")));
+        GetJavaRDDOfElementsOperation rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+                .javaSparkContext(sparkContext)
+                .seeds(Collections.singleton(new EntitySeed("1")))
+                .build();
         Iterable<JavaRDD<Element>> rdds = graph1.execute(rddQuery, user);
         if (rdds == null || !rdds.iterator().hasNext()) {
             fail("No RDD returned");
@@ -116,9 +119,13 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify entities only
-        rddQuery.setView(new View.Builder()
-                .entity(ENTITY_GROUP)
-                .build());
+        rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+                .javaSparkContext(sparkContext)
+                .seeds(Collections.singleton(new EntitySeed("1")))
+                .view(new View.Builder()
+                        .entity(ENTITY_GROUP)
+                        .build())
+                .build();
         rdds = graph1.execute(rddQuery, user);
         if (rdds == null || !rdds.iterator().hasNext()) {
             fail("No RDD returned");
@@ -130,9 +137,13 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify edges only
-        rddQuery.setView(new View.Builder()
-                .edge(EDGE_GROUP)
-                .build());
+        rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+                .javaSparkContext(sparkContext)
+                .seeds(Collections.singleton(new EntitySeed("1")))
+                .view(new View.Builder()
+                        .edge(EDGE_GROUP)
+                        .build())
+                .build();
         rdds = graph1.execute(rddQuery, user);
         if (rdds == null || !rdds.iterator().hasNext()) {
             fail("No RDD returned");
@@ -148,7 +159,10 @@ public class GetJavaRDDOfElementsHandlerTest {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("1"));
         seeds.add(new EntitySeed("5"));
-        rddQuery = new GetJavaRDDOfElementsOperation(sparkContext, seeds);
+        rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+                .javaSparkContext(sparkContext)
+                .seeds(seeds)
+                .build();
         rdds = graph1.execute(rddQuery, user);
         if (rdds == null || !rdds.iterator().hasNext()) {
             fail("No RDD returned");

@@ -20,7 +20,7 @@ import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-public class AbstractGetJavaRDDOperation<INPUT> extends AbstractGetOperation<INPUT, JavaRDD<Element>> {
+public abstract class AbstractGetJavaRDDOperation<INPUT> extends AbstractGetOperation<INPUT, JavaRDD<Element>> {
 
     private JavaSparkContext javaSparkContext;
 
