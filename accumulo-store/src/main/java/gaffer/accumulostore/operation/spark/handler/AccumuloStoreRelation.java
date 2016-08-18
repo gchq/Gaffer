@@ -42,7 +42,6 @@ import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.user.User;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
@@ -81,9 +80,10 @@ import java.util.Set;
 
 /**
  * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a <code>DataFrame</code>. Spark's Java API
- * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link Dataset} of {@link Row}s.
- * As a <code>DataFrame</code> is required to have a known schema, an <code>AccumuloStoreRelation</code> requires a
- * group to be specified. The schema for that group is used to create the schema for the <code>DataFrame</code>.
+ * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link
+ * org.apache.spark.sql.Dataset} of {@link Row}s. As a <code>DataFrame</code> is required to have a known schema, an
+ * <code>AccumuloStoreRelation</code> requires a group to be specified. The schema for that group is used to create
+ * the schema for the <code>DataFrame</code>.
  * <p>
  * <code>AccumuloStoreRelation</code> implements the {@link TableScan} interface which allows all {@link Element}s to
  * of the specified group to be returned to the <code>DataFrame</code>. This is unlikely to be performant for large

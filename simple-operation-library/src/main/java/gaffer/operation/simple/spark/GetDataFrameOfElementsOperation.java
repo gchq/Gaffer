@@ -49,4 +49,29 @@ public class GetDataFrameOfElementsOperation extends AbstractGetOperation<Entity
     public String getGroup() {
         return group;
     }
+
+    public static class Builder extends AbstractGetOperation.Builder<GetDataFrameOfElementsOperation, EntitySeed, Dataset<Row>> {
+        public Builder() {
+            this(new GetDataFrameOfElementsOperation());
+        }
+
+        public Builder(final GetDataFrameOfElementsOperation op) {
+            super(op);
+        }
+
+        public Builder sqlContext(final SQLContext sqlContext) {
+            op.setSqlContext(sqlContext);
+            return this;
+        }
+
+        public Builder group(final String group) {
+            op.setGroup(group);
+            return this;
+        }
+
+        @Override
+        public GetDataFrameOfElementsOperation build() {
+            return (GetDataFrameOfElementsOperation) super.build();
+        }
+    }
 }

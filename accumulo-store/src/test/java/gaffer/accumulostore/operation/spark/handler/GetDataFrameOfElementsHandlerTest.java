@@ -64,7 +64,10 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Edges group - check get correct edges
-        GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation(sqlContext, EDGE_GROUP);
+        GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation.Builder()
+                .sqlContext(sqlContext)
+                .group(EDGE_GROUP)
+                .build();
         Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");
@@ -97,7 +100,10 @@ public class GetDataFrameOfElementsHandlerTest {
         assertEquals(expectedRows, results);
 
         // Entities group - check get correct entities
-        dfOperation = new GetDataFrameOfElementsOperation(sqlContext, ENTITY_GROUP);
+        dfOperation = new GetDataFrameOfElementsOperation.Builder()
+                .sqlContext(sqlContext)
+                .group(ENTITY_GROUP)
+                .build();
         dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");
@@ -145,7 +151,10 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Get all edges
-        final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation(sqlContext, EDGE_GROUP);
+        final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation.Builder()
+                .sqlContext(sqlContext)
+                .group(EDGE_GROUP)
+                .build();
         final Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");
@@ -209,7 +218,10 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Get DataFrame
-        final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation(sqlContext, EDGE_GROUP);
+        final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation.Builder()
+                .sqlContext(sqlContext)
+                .group(EDGE_GROUP)
+                .build();
         final Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
         if (dataFrames == null || !dataFrames.iterator().hasNext()) {
             fail("No DataFrame returned");

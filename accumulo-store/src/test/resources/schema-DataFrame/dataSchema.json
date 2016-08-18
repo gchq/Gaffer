@@ -9,7 +9,10 @@
         "property3": "double",
         "property4": "long",
         "count": "long"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   },
   "edges": {
@@ -24,7 +27,10 @@
         "property3": "double",
         "property4": "long",
         "count": "long"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     },
     "BasicEdge2": {
       "source": "string",
@@ -37,7 +43,10 @@
         "property3": "double",
         "property4": "long",
         "count": "long"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   }
 }
