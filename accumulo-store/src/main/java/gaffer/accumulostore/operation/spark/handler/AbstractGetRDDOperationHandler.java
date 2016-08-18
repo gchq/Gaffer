@@ -24,6 +24,7 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
+import gaffer.store.operation.handler.OperationHandler;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
@@ -40,7 +41,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractGetRDDOperationHandler {
+public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends GetOperation<?, OUTPUT>>
+        implements OperationHandler<OP_TYPE, Iterable<OUTPUT>> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 

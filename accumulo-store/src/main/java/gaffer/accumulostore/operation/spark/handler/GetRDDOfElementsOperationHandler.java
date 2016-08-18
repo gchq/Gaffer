@@ -22,7 +22,6 @@ import gaffer.operation.OperationException;
 import gaffer.operation.simple.spark.GetRDDOfElementsOperation;
 import gaffer.store.Context;
 import gaffer.store.Store;
-import gaffer.store.operation.handler.OperationHandler;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.SparkContext;
@@ -32,8 +31,7 @@ import scala.Tuple2;
 import java.util.Collections;
 
 public class GetRDDOfElementsOperationHandler
-        extends AbstractGetRDDOperationHandler
-        implements OperationHandler<GetRDDOfElementsOperation, Iterable<RDD<Element>>> {
+        extends AbstractGetRDDOperationHandler<RDD<Element>, GetRDDOfElementsOperation> {
 
     @Override
     public Iterable<RDD<Element>> doOperation(final GetRDDOfElementsOperation operation,
@@ -43,9 +41,9 @@ public class GetRDDOfElementsOperationHandler
         return doOperation(operation, context, (AccumuloStore) store);
     }
 
-    public Iterable<RDD<Element>> doOperation(final GetRDDOfElementsOperation operation,
-                                              final Context context,
-                                              final AccumuloStore accumuloStore)
+    private Iterable<RDD<Element>> doOperation(final GetRDDOfElementsOperation operation,
+                                               final Context context,
+                                               final AccumuloStore accumuloStore)
             throws OperationException {
         final SparkContext sparkContext = operation.getSparkContext();
         final Configuration conf = getConfiguration(operation);
