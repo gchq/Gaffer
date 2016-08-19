@@ -17,28 +17,34 @@ package gaffer.operation.simple.spark;
 
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.EntitySeed;
-import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.SparkContext;
 
-public class GetJavaRDDOfElementsOperation extends AbstractGetJavaRDDOperation<EntitySeed> {
+import java.util.Collections;
 
-    public GetJavaRDDOfElementsOperation() { }
+public class GetRDDOfElements extends AbstractGetRDD<EntitySeed> {
 
-    public GetJavaRDDOfElementsOperation(final JavaSparkContext sparkContext, final Iterable<EntitySeed> entitySeeds) {
-        setJavaSparkContext(sparkContext);
+    public GetRDDOfElements() { }
+
+    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<EntitySeed> entitySeeds) {
+        setSparkContext(sparkContext);
         setInput(entitySeeds);
     }
 
-    public static class Builder extends AbstractGetJavaRDDOperation.Builder<GetJavaRDDOfElementsOperation, EntitySeed> {
+    public GetRDDOfElements(final SparkContext sparkContext, final EntitySeed entitySeed) {
+        this(sparkContext, Collections.singleton(entitySeed));
+    }
+
+    public static class Builder extends AbstractGetRDD.Builder<GetRDDOfElements, EntitySeed> {
         public Builder() {
-            this(new GetJavaRDDOfElementsOperation());
+            this(new GetRDDOfElements());
         }
 
-        public Builder(final GetJavaRDDOfElementsOperation op) {
+        public Builder(final GetRDDOfElements op) {
             super(op);
         }
 
-        public Builder javaSparkContext(final JavaSparkContext javaSparkContext) {
-            super.javaSparkContext(javaSparkContext);
+        public Builder sparkContext(final SparkContext sparkContext) {
+            super.sparkContext(sparkContext);
             return this;
         }
 
@@ -53,9 +59,8 @@ public class GetJavaRDDOfElementsOperation extends AbstractGetJavaRDDOperation<E
         }
 
         @Override
-        public GetJavaRDDOfElementsOperation build() {
-            return (GetJavaRDDOfElementsOperation) super.build();
+        public GetRDDOfElements build() {
+            return (GetRDDOfElements) super.build();
         }
     }
-
 }

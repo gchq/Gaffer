@@ -15,37 +15,34 @@
  */
 package gaffer.operation.simple.spark;
 
-import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
-import org.apache.spark.SparkContext;
-import org.apache.spark.rdd.RDD;
+import gaffer.operation.data.EntitySeed;
+import org.apache.spark.api.java.JavaSparkContext;
 
-public abstract class AbstractGetRDDOperation<INPUT> extends AbstractGetOperation<INPUT, RDD<Element>> {
+public class GetJavaRDDOfElements extends AbstractGetJavaRDD<EntitySeed> {
 
-    private SparkContext sparkContext;
+    public GetJavaRDDOfElements() { }
 
-    public SparkContext getSparkContext() {
-        return sparkContext;
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<EntitySeed> entitySeeds) {
+        setJavaSparkContext(sparkContext);
+        setInput(entitySeeds);
     }
 
-    public void setSparkContext(final SparkContext sparkContext) {
-        this.sparkContext = sparkContext;
-    }
+    public static class Builder extends AbstractGetJavaRDD.Builder<GetJavaRDDOfElements, EntitySeed> {
+        public Builder() {
+            this(new GetJavaRDDOfElements());
+        }
 
-    protected static class Builder<OP_TYPE extends AbstractGetRDDOperation<INPUT>, INPUT>
-            extends AbstractGetOperation.Builder<OP_TYPE, INPUT, RDD<Element>> {
-
-        public Builder(final OP_TYPE op) {
+        public Builder(final GetJavaRDDOfElements op) {
             super(op);
         }
 
-        public Builder sparkContext(final SparkContext sparkContext) {
-            op.setSparkContext(sparkContext);
+        public Builder javaSparkContext(final JavaSparkContext javaSparkContext) {
+            super.javaSparkContext(javaSparkContext);
             return this;
         }
 
-        public Builder seeds(final Iterable<INPUT> seeds) {
+        public Builder seeds(final Iterable<EntitySeed> seeds) {
             super.seeds(seeds);
             return this;
         }
@@ -56,8 +53,9 @@ public abstract class AbstractGetRDDOperation<INPUT> extends AbstractGetOperatio
         }
 
         @Override
-        public OP_TYPE build() {
-            return (OP_TYPE) super.build();
+        public GetJavaRDDOfElements build() {
+            return (GetJavaRDDOfElements) super.build();
         }
     }
+
 }

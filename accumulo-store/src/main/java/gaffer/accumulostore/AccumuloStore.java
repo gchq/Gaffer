@@ -66,10 +66,10 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
-import gaffer.operation.simple.spark.GetDataFrameOfElementsOperation;
-import gaffer.operation.simple.spark.GetJavaRDDOfElementsOperation;
-import gaffer.operation.simple.spark.GetRDDOfAllElementsOperation;
-import gaffer.operation.simple.spark.GetRDDOfElementsOperation;
+import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.operation.simple.spark.GetJavaRDDOfElements;
+import gaffer.operation.simple.spark.GetRDDOfAllElements;
+import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -222,10 +222,10 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
         addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
-        addOperationHandler(GetJavaRDDOfElementsOperation.class, new GetJavaRDDOfElementsOperationHandler());
-        addOperationHandler(GetRDDOfElementsOperation.class, new GetRDDOfElementsOperationHandler());
-        addOperationHandler(GetRDDOfAllElementsOperation.class, new GetRDDOfAllElementsOperationHandler());
-        addOperationHandler(GetDataFrameOfElementsOperation.class, new GetDataFrameOfElementsOperationHandler());
+        addOperationHandler(GetJavaRDDOfElements.class, new GetJavaRDDOfElementsOperationHandler());
+        addOperationHandler(GetRDDOfElements.class, new GetRDDOfElementsOperationHandler());
+        addOperationHandler(GetRDDOfAllElements.class, new GetRDDOfAllElementsOperationHandler());
+        addOperationHandler(GetDataFrameOfElements.class, new GetDataFrameOfElementsOperationHandler());
     }
 
     @Override

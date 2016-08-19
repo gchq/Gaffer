@@ -33,9 +33,9 @@ import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.function.simple.filter.Not;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.simple.spark.AbstractGetRDDOperation;
-import gaffer.operation.simple.spark.GetRDDOfAllElementsOperation;
-import gaffer.operation.simple.spark.GetRDDOfElementsOperation;
+import gaffer.operation.simple.spark.AbstractGetRDD;
+import gaffer.operation.simple.spark.GetRDDOfAllElements;
+import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
@@ -149,8 +149,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     @Override
     public RDD<Row> buildScan() {
         try {
-            LOGGER.info("Building GetRDDOfAllElementsOperation with view set to group {}", group);
-            final GetRDDOfAllElementsOperation operation = new GetRDDOfAllElementsOperation(sqlContext.sparkContext());
+            LOGGER.info("Building GetRDDOfAllElements with view set to group {}", group);
+            final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             View view;
             if (entityOrEdge.equals(EntityOrEdge.ENTITY)) {
                 view = new View.Builder().entity(group).build();
@@ -180,8 +180,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     public RDD<Row> buildScan(final String[] requiredColumns) {
         try {
             LOGGER.info("Building scan with required columns: {}", ArrayUtils.toString(requiredColumns));
-            LOGGER.info("Building GetRDDOfAllElementsOperation with view set to group {}", group);
-            final GetRDDOfAllElementsOperation operation = new GetRDDOfAllElementsOperation(sqlContext.sparkContext());
+            LOGGER.info("Building GetRDDOfAllElements with view set to group {}", group);
+            final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             View view;
             if (entityOrEdge.equals(EntityOrEdge.ENTITY)) {
                 view = new View.Builder().entity(group).build();
@@ -217,21 +217,21 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 filters.length, ArrayUtils.toString(filters));
         // If any of the filters can be translated into Accumulo queries (i.e. specifying ranges rather than a full
         // table scan) then do this.
-        AbstractGetRDDOperation<?> operation = null;
+        AbstractGetRDD<?> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
                 final EqualTo equalTo = (EqualTo) filter;
                 final String attribute = equalTo.attribute();
                 if (attribute.equals(SRC_COL_NAME) || attribute.equals(DST_COL_NAME) || attribute.equals(VERTEX_COL_NAME)) {
-                    LOGGER.debug("Found EqualTo filter with attribute {}, creating GetRDDOfElementsOperation", attribute);
-                    operation = new GetRDDOfElementsOperation(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
+                    LOGGER.debug("Found EqualTo filter with attribute {}, creating GetRDDOfElements", attribute);
+                    operation = new GetRDDOfElements(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
                 }
                 break;
             }
         }
         if (operation == null) {
-            LOGGER.debug("Creating GetRDDOfAllElementsOperation");
-            operation = new GetRDDOfAllElementsOperation(sqlContext.sparkContext());
+            LOGGER.debug("Creating GetRDDOfAllElements");
+            operation = new GetRDDOfAllElements(sqlContext.sparkContext());
         }
         // Create view based on filters and add to operation
         final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> filterList = new ArrayList<>();

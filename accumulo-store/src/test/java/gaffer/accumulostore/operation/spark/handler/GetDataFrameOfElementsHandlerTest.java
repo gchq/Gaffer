@@ -21,7 +21,7 @@ import gaffer.data.element.Entity;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.simple.spark.GetDataFrameOfElementsOperation;
+import gaffer.operation.simple.spark.GetDataFrameOfElements;
 import gaffer.user.User;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
@@ -64,7 +64,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Edges group - check get correct edges
-        GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation.Builder()
+        GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .group(EDGE_GROUP)
                 .build();
@@ -100,7 +100,7 @@ public class GetDataFrameOfElementsHandlerTest {
         assertEquals(expectedRows, results);
 
         // Entities group - check get correct entities
-        dfOperation = new GetDataFrameOfElementsOperation.Builder()
+        dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .group(ENTITY_GROUP)
                 .build();
@@ -151,7 +151,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Get all edges
-        final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation.Builder()
+        final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .group(EDGE_GROUP)
                 .build();
@@ -218,7 +218,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Get DataFrame
-        final GetDataFrameOfElementsOperation dfOperation = new GetDataFrameOfElementsOperation.Builder()
+        final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .group(EDGE_GROUP)
                 .build();

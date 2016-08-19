@@ -15,28 +15,38 @@
  */
 package gaffer.operation.simple.spark;
 
+import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.SparkContext;
+import org.apache.spark.rdd.RDD;
 
-public class GetRDDOfAllElementsOperation extends AbstractGetRDDOperation<Void> {
+public abstract class AbstractGetRDD<INPUT> extends AbstractGetOperation<INPUT, RDD<Element>> {
 
-    public GetRDDOfAllElementsOperation() { }
+    private SparkContext sparkContext;
 
-    public GetRDDOfAllElementsOperation(final SparkContext sparkContext) {
-        setSparkContext(sparkContext);
+    public SparkContext getSparkContext() {
+        return sparkContext;
     }
 
-    public static class Builder extends AbstractGetRDDOperation.Builder<GetRDDOfAllElementsOperation, Void> {
-        public Builder() {
-            this(new GetRDDOfAllElementsOperation());
-        }
+    public void setSparkContext(final SparkContext sparkContext) {
+        this.sparkContext = sparkContext;
+    }
 
-        public Builder(final GetRDDOfAllElementsOperation op) {
+    protected static class Builder<OP_TYPE extends AbstractGetRDD<INPUT>, INPUT>
+            extends AbstractGetOperation.Builder<OP_TYPE, INPUT, RDD<Element>> {
+
+        public Builder(final OP_TYPE op) {
             super(op);
         }
 
         public Builder sparkContext(final SparkContext sparkContext) {
-            super.sparkContext(sparkContext);
+            op.setSparkContext(sparkContext);
+            return this;
+        }
+
+        public Builder seeds(final Iterable<INPUT> seeds) {
+            super.seeds(seeds);
             return this;
         }
 
@@ -46,8 +56,8 @@ public class GetRDDOfAllElementsOperation extends AbstractGetRDDOperation<Void> 
         }
 
         @Override
-        public GetRDDOfAllElementsOperation build() {
-            return (GetRDDOfAllElementsOperation) super.build();
+        public OP_TYPE build() {
+            return (OP_TYPE) super.build();
         }
     }
 }

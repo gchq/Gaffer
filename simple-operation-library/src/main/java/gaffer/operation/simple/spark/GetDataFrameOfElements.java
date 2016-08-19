@@ -21,14 +21,14 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-public class GetDataFrameOfElementsOperation extends AbstractGetOperation<EntitySeed, Dataset<Row>> {
+public class GetDataFrameOfElements extends AbstractGetOperation<EntitySeed, Dataset<Row>> {
 
     private SQLContext sqlContext;
     private String group;
 
-    public GetDataFrameOfElementsOperation() { }
+    public GetDataFrameOfElements() { }
 
-    public GetDataFrameOfElementsOperation(final SQLContext sqlContext,
+    public GetDataFrameOfElements(final SQLContext sqlContext,
                                            final String group) {
         this.sqlContext = sqlContext;
         this.group = group;
@@ -50,12 +50,12 @@ public class GetDataFrameOfElementsOperation extends AbstractGetOperation<Entity
         return group;
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetDataFrameOfElementsOperation, EntitySeed, Dataset<Row>> {
+    public static class Builder extends AbstractGetOperation.Builder<GetDataFrameOfElements, EntitySeed, Dataset<Row>> {
         public Builder() {
-            this(new GetDataFrameOfElementsOperation());
+            this(new GetDataFrameOfElements());
         }
 
-        public Builder(final GetDataFrameOfElementsOperation op) {
+        public Builder(final GetDataFrameOfElements op) {
             super(op);
         }
 
@@ -70,8 +70,8 @@ public class GetDataFrameOfElementsOperation extends AbstractGetOperation<Entity
         }
 
         @Override
-        public GetDataFrameOfElementsOperation build() {
-            return (GetDataFrameOfElementsOperation) super.build();
+        public GetDataFrameOfElements build() {
+            return (GetDataFrameOfElements) super.build();
         }
     }
 }

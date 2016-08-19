@@ -23,7 +23,7 @@ import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.simple.spark.GetJavaRDDOfElementsOperation;
+import gaffer.operation.simple.spark.GetJavaRDDOfElements;
 import gaffer.user.User;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -90,7 +90,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
         // Check get correct edges for "1"
-        GetJavaRDDOfElementsOperation rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+        GetJavaRDDOfElements rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .build();
@@ -119,7 +119,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify entities only
-        rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+        rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
@@ -137,7 +137,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify edges only
-        rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+        rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
@@ -159,7 +159,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("1"));
         seeds.add(new EntitySeed("5"));
-        rddQuery = new GetJavaRDDOfElementsOperation.Builder()
+        rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
                 .seeds(seeds)
                 .build();

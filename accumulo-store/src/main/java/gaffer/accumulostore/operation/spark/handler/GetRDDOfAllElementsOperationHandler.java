@@ -19,7 +19,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.spark.GetRDDOfAllElementsOperation;
+import gaffer.operation.simple.spark.GetRDDOfAllElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
@@ -31,17 +31,17 @@ import scala.Tuple2;
 import java.util.Collections;
 
 public class GetRDDOfAllElementsOperationHandler
-        extends AbstractGetRDDOperationHandler<RDD<Element>, GetRDDOfAllElementsOperation> {
+        extends AbstractGetRDDOperationHandler<RDD<Element>, GetRDDOfAllElements> {
 
     @Override
-    public Iterable<RDD<Element>> doOperation(final GetRDDOfAllElementsOperation operation,
+    public Iterable<RDD<Element>> doOperation(final GetRDDOfAllElements operation,
                                               final Context context,
                                               final Store store)
             throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 
-    private Iterable<RDD<Element>> doOperation(final GetRDDOfAllElementsOperation operation,
+    private Iterable<RDD<Element>> doOperation(final GetRDDOfAllElements operation,
                                                final Context context,
                                                final AccumuloStore accumuloStore)
             throws OperationException {

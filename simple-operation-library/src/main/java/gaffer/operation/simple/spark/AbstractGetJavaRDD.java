@@ -21,7 +21,7 @@ import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-public abstract class AbstractGetJavaRDDOperation<INPUT> extends AbstractGetOperation<INPUT, JavaRDD<Element>> {
+public abstract class AbstractGetJavaRDD<INPUT> extends AbstractGetOperation<INPUT, JavaRDD<Element>> {
 
     private JavaSparkContext javaSparkContext;
 
@@ -33,7 +33,7 @@ public abstract class AbstractGetJavaRDDOperation<INPUT> extends AbstractGetOper
         this.javaSparkContext = javaSparkContext;
     }
 
-    protected static class Builder<OP_TYPE extends AbstractGetJavaRDDOperation<INPUT>, INPUT>
+    protected static class Builder<OP_TYPE extends AbstractGetJavaRDD<INPUT>, INPUT>
             extends AbstractGetOperation.Builder<OP_TYPE, INPUT, JavaRDD<Element>> {
 
         public Builder(final OP_TYPE op) {
