@@ -126,9 +126,13 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         // subbins.
         if (minReducers != -1) {
             if (numReducers < minReducers) {
-                int factor = minReducers / numReducers;
+                LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
+                        minReducers);
+                int factor = (minReducers / numReducers) + 1;
+                LOGGER.info("Setting number of subbins on KeyRangePartitioner to {}", factor);
                 KeyRangePartitioner.setNumSubBins(job, factor);
                 numReducers = numReducers * factor;
+                LOGGER.info("Number of reducers is {}", numReducers);
             }
         }
         job.setNumReduceTasks(numReducers);

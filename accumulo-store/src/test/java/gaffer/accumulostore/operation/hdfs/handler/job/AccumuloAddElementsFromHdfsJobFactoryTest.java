@@ -1,8 +1,7 @@
 package gaffer.accumulostore.operation.hdfs.handler.job;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -156,7 +155,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         factory.setupJob(job, operation, store);
 
         // Then
-        assert(job.getNumReduceTasks() <= 10);
+        assertTrue(job.getNumReduceTasks() <= 10);
 
         // When
         operation = new AddElementsFromHdfs.Builder()
@@ -168,7 +167,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         factory.setupJob(job, operation, store);
 
         // Then
-        assert(job.getNumReduceTasks() <= 100);
+        assertTrue(job.getNumReduceTasks() <= 100);
 
         // When
         operation = new AddElementsFromHdfs.Builder()
@@ -180,7 +179,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         factory.setupJob(job, operation, store);
 
         // Then
-        assert(job.getNumReduceTasks() <= 1000);
+        assertTrue(job.getNumReduceTasks() <= 1000);
     }
 
     @Test
@@ -217,7 +216,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         factory.setupJob(job, operation, store);
 
         // Then
-        assert(job.getNumReduceTasks() >= 10);
+        assertTrue(job.getNumReduceTasks() >= 10);
 
         // When
         operation = new AddElementsFromHdfs.Builder()
@@ -229,7 +228,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         factory.setupJob(job, operation, store);
 
         // Then
-        assert(job.getNumReduceTasks() >= 100);
+        assertTrue(job.getNumReduceTasks() >= 100);
 
         // When
         operation = new AddElementsFromHdfs.Builder()
@@ -241,7 +240,74 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         factory.setupJob(job, operation, store);
 
         // Then
-        assert(job.getNumReduceTasks() >= 1000);
+        assertTrue(job.getNumReduceTasks() >= 1000);
+    }
+
+    @Test
+    public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
+        // Given
+        final MockAccumuloStore store = new MockAccumuloStore();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        store.initialise(schema, properties);
+        final JobConf localConf = createLocalConf();
+        final FileSystem fs = FileSystem.getLocal(localConf);
+        fs.mkdirs(new Path(outputDir));
+        fs.mkdirs(new Path(splitsDir));
+        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
+        for (int i = 100; i < 200; i++) {
+            writer.write(i + "\n");
+        }
+        writer.close();
+        final SplitTable splitTable = new SplitTable.Builder()
+                .inputPath(splitsFile)
+                .build();
+        store.execute(splitTable, new User());
+        final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
+        final Job job = Job.getInstance(localConf);
+
+        // When
+        AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "10")
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "20")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assertTrue(job.getNumReduceTasks() >= 10);
+        assertTrue(job.getNumReduceTasks() <= 20);
+
+        // When
+        operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "100")
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "200")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assertTrue(job.getNumReduceTasks() >= 100);
+        assertTrue(job.getNumReduceTasks() <= 200);
+
+        // When
+        operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "1000")
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "2000")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assertTrue(job.getNumReduceTasks() >= 1000);
+        assertTrue(job.getNumReduceTasks() <= 2000);
     }
 
     private void shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitionerFlag(final String partitionerFlag) throws IOException {
