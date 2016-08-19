@@ -120,6 +120,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
             throw new RuntimeException(e.getMessage(), e);
         }
         int numReducers = numSplits + 1;
+        LOGGER.info("Number of splits is {}; number of reducers is {}", numSplits, numReducers);
         // If neither min or max are specified then nothing to do; if max specified and min not then already taken care of.
         // If min is specified and the number of reducers is not greater than that then set the appropriate number of
         // subbins.

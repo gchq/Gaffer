@@ -8,18 +8,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.AccumuloStoreTest;
+import gaffer.accumulostore.MockAccumuloStore;
+import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.CommonConstants;
+import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.generator.OneToOneElementGenerator;
+import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
 import gaffer.operation.simple.hdfs.handler.mapper.TextMapperGenerator;
+import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
+import gaffer.user.User;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.KeyRangePartitioner;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -30,6 +41,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
@@ -108,6 +120,67 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
         shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitionerFlag("false");
+    }
+
+    @Test
+    public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
+        // Given
+        final MockAccumuloStore store = new MockAccumuloStore();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        store.initialise(schema, properties);
+        final JobConf localConf = createLocalConf();
+        final FileSystem fs = FileSystem.getLocal(localConf);
+        fs.mkdirs(new Path(outputDir));
+        fs.mkdirs(new Path(splitsDir));
+        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
+        for (int i = 100; i < 200; i++) {
+            writer.write(i + "\n");
+        }
+        writer.close();
+        final SplitTable splitTable = new SplitTable.Builder()
+                .inputPath(splitsFile)
+                .build();
+        store.execute(splitTable, new User());
+        final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
+        final Job job = Job.getInstance(localConf);
+
+        // When
+        AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "10")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assert(job.getNumReduceTasks() <= 10);
+
+        // When
+        operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "100")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assert(job.getNumReduceTasks() <= 100);
+
+        // When
+        operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "1000")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assert(job.getNumReduceTasks() <= 1000);
     }
 
     private void shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitionerFlag(final String partitionerFlag) throws IOException {
