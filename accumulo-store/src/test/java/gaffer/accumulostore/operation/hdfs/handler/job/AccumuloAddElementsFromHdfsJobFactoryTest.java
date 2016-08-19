@@ -183,6 +183,67 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         assert(job.getNumReduceTasks() <= 1000);
     }
 
+    @Test
+    public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
+        // Given
+        final MockAccumuloStore store = new MockAccumuloStore();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        store.initialise(schema, properties);
+        final JobConf localConf = createLocalConf();
+        final FileSystem fs = FileSystem.getLocal(localConf);
+        fs.mkdirs(new Path(outputDir));
+        fs.mkdirs(new Path(splitsDir));
+        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
+        for (int i = 100; i < 200; i++) {
+            writer.write(i + "\n");
+        }
+        writer.close();
+        final SplitTable splitTable = new SplitTable.Builder()
+                .inputPath(splitsFile)
+                .build();
+        store.execute(splitTable, new User());
+        final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
+        final Job job = Job.getInstance(localConf);
+
+        // When
+        AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "10")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assert(job.getNumReduceTasks() >= 10);
+
+        // When
+        operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "100")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assert(job.getNumReduceTasks() >= 100);
+
+        // When
+        operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "1000")
+                .build();
+        factory.setupJobConf(localConf, operation, store);
+        factory.setupJob(job, operation, store);
+
+        // Then
+        assert(job.getNumReduceTasks() >= 1000);
+    }
+
     private void shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitionerFlag(final String partitionerFlag) throws IOException {
         // Given
         final JobConf localConf = createLocalConf();
