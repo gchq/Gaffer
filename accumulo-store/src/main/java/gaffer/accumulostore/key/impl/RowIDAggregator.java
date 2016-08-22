@@ -170,13 +170,13 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
             return;
         }
         PropertiesIterator iter = new PropertiesIterator(source, currentRange, currentColumnFamilies, currentColumnFamiliesInclusive, group, workKey, elementConverter);
-        Properties topVisValPair = reduce(iter);
+        Properties topProperties = reduce(iter);
         try {
-            topValue = elementConverter.getValueFromProperties(group, topVisValPair);
+            topValue = elementConverter.getValueFromProperties(group, topProperties);
             topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(CommonConstants.UTF_8),
-                    elementConverter.buildColumnQualifier(group, topVisValPair),
-                    elementConverter.buildColumnVisibility(group, topVisValPair),
-                    elementConverter.buildTimestamp(topVisValPair, workKey.getTimestamp()));
+                    elementConverter.buildColumnQualifier(group, topProperties),
+                    elementConverter.buildColumnVisibility(group, topProperties),
+                    elementConverter.buildTimestamp(topProperties, workKey.getTimestamp()));
         } catch (AccumuloElementConversionException e) {
             throw new RuntimeException(e);
         }

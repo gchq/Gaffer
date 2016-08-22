@@ -180,7 +180,7 @@ public class KeyValueAggregatorIteratorTest {
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-                    "KeyCombiner", CoreKeyValueAggregatorIterator.class)
+                    "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
                     .schema(store.getSchema())
                     .view(new View.Builder()
@@ -273,7 +273,7 @@ public class KeyValueAggregatorIteratorTest {
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-                    "KeyCombiner", CoreKeyValueAggregatorIterator.class)
+                    "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
                     .view(new View.Builder()
                             .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -396,7 +396,7 @@ public class KeyValueAggregatorIteratorTest {
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-                    "KeyCombiner", CoreKeyValueAggregatorIterator.class)
+                    "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
                     .view(new View.Builder()
                             .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()

@@ -50,7 +50,7 @@ import java.util.NoSuchElementException;
  * <p>
  * Users extending this class must specify a reduce() method.
  */
-public abstract class CoreKeyValueCombiner extends WrappingIterator
+public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         implements OptionDescriber {
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
     protected Schema schema;
@@ -193,8 +193,8 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
             final byte[] groupByPropBytes1;
             final byte[] groupByPropBytes2;
             try {
-                groupByPropBytes1 = elementConverter.truncatePropertyBytes(groupBy.size(), colQual1);
-                groupByPropBytes2 = elementConverter.truncatePropertyBytes(groupBy.size(), colQual2);
+                groupByPropBytes1 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual1, groupBy.size());
+                groupByPropBytes2 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual2, groupBy.size());
             } catch (AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
@@ -333,7 +333,7 @@ public abstract class CoreKeyValueCombiner extends WrappingIterator
 
     @Override
     public SortedKeyValueIterator<Key, Value> deepCopy(final IteratorEnvironment env) {
-        CoreKeyValueCombiner newInstance;
+        CoreKeyGroupByCombiner newInstance;
         try {
             newInstance = this.getClass().newInstance();
         } catch (final Exception e) {

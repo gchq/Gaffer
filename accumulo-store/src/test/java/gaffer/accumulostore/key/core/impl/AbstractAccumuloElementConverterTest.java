@@ -339,7 +339,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final byte[] bytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
-        final byte[] truncatedBytes = converter.truncatePropertyBytes(2, bytes);
+        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
         final Properties truncatedProperties = new Properties() {
@@ -357,7 +357,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final byte[] bytes = new byte[0];
 
         // When
-        final byte[] truncatedBytes = converter.truncatePropertyBytes(2, bytes);
+        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
         assertEquals(0, truncatedBytes.length);
