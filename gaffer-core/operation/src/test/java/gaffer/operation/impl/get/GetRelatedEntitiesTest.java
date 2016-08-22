@@ -19,7 +19,6 @@ package gaffer.operation.impl.get;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.data.elementdefinition.view.View;
@@ -80,7 +79,6 @@ public class GetRelatedEntitiesTest implements OperationTest {
                 .addSeed(seed)
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
                         .edge(TestGroups.ENTITY)
                         .build())
@@ -88,7 +86,6 @@ public class GetRelatedEntitiesTest implements OperationTest {
 
         // Then
         assertEquals("true", getRelatedElements.getOption("testOption"));
-        assertTrue(getRelatedElements.isSummarise());
         assertFalse(getRelatedElements.isPopulateProperties());
         assertNotNull(getRelatedElements.getView());
         assertEquals(seed, getRelatedElements.getSeeds().iterator().next());

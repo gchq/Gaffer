@@ -138,20 +138,6 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
      */
     IncludeEdgeType getIncludeEdges();
 
-    /**
-     * @return true if the graph should aggregate results where partial key matches are found,
-     * e.g. summarised over time. Otherwise false.
-     */
-    boolean isSummarise();
-
-    /**
-     * If true then the graph should aggregate results where partial key matches are found.
-     * e.g. summarised over time
-     *
-     * @param summarise set to true to summarise results
-     */
-    void setSummarise(final boolean summarise);
-
     boolean isDeduplicate();
 
     void setDeduplicate(final boolean deduplicate);

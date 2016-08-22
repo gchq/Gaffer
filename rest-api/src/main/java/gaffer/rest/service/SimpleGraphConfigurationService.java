@@ -121,7 +121,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     private static void keepPublicConcreteClasses(final Collection<Class> classes) {
         if (null != classes) {
             final Iterator<Class> itr = classes.iterator();
-            while(itr.hasNext()) {
+            while (itr.hasNext()) {
                 final Class clazz = itr.next();
                 if (null != clazz) {
                     final int modifiers = clazz.getModifiers();

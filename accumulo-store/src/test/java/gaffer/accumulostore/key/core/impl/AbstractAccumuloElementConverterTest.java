@@ -17,7 +17,9 @@ package gaffer.accumulostore.key.core.impl;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -31,6 +33,7 @@ import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
@@ -236,6 +239,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         // Then
         assertEquals(null, properties.get(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
+
     @Test
     public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValue() throws AccumuloElementConversionException {
         Properties properties = new Properties();
@@ -318,5 +322,191 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals(299, deSerialisedProperties.get(AccumuloPropertyNames.PROP_3));
         assertEquals(10, deSerialisedProperties.get(AccumuloPropertyNames.PROP_4));
         assertEquals(8, deSerialisedProperties.get(AccumuloPropertyNames.COUNT));
+    }
+
+    @Test
+    public void shouldTruncatePropertyBytes() throws AccumuloElementConversionException {
+        // Given
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_3, 3);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
+            }
+        };
+
+        final byte[] bytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
+
+        // When
+        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
+
+        // Then
+        final Properties truncatedProperties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
+            }
+        };
+        assertEquals(truncatedProperties, converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, truncatedBytes));
+    }
+
+    @Test
+    public void shouldTruncatePropertyBytesWithEmptyBytes() throws AccumuloElementConversionException {
+        // Given
+        final byte[] bytes = new byte[0];
+
+        // When
+        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
+
+        // Then
+        assertEquals(0, truncatedBytes.length);
+    }
+
+    @Test
+    public void shouldBuildTimestampFromProperty() throws AccumuloElementConversionException {
+        // Given
+        // add extra timestamp property to schema
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        converter = createConverter(new Schema.Builder(schema)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(AccumuloPropertyNames.TIMESTAMP, Long.class)
+                        .build())
+                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .build());
+
+        final long propertyTimestamp = 10L;
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.PROP_1, 2);
+                put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
+            }
+        };
+        final long defaultTime = System.currentTimeMillis();
+
+        // When
+        final long timestamp = converter.buildTimestamp(properties, defaultTime);
+
+        // Then
+        assertEquals(propertyTimestamp, timestamp);
+    }
+
+    @Test
+    public void shouldBuildTimestampFromDefaultTimeWhenPropertyIsNull() throws AccumuloElementConversionException {
+        // Given
+        // add extra timestamp property to schema
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        converter = createConverter(new Schema.Builder(schema)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(AccumuloPropertyNames.TIMESTAMP, Long.class)
+                        .build())
+                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .build());
+
+        final Long propertyTimestamp = null;
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.PROP_1, 2);
+                put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
+            }
+        };
+        final long defaultTime = System.currentTimeMillis();
+
+        // When
+        final long timestamp = converter.buildTimestamp(properties, defaultTime);
+
+        // Then
+        assertEquals(defaultTime, timestamp);
+    }
+
+    @Test
+    public void shouldBuildTimestampFromDefaultTime() throws AccumuloElementConversionException {
+        // Given
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.PROP_1, 2);
+            }
+        };
+        final long defaultTime = System.currentTimeMillis();
+
+
+        // When
+        final long timestamp = converter.buildTimestamp(properties, defaultTime);
+
+        // Then
+        assertEquals(defaultTime, timestamp);
+    }
+
+    @Test
+    public void shouldGetPropertiesFromTimestamp() throws AccumuloElementConversionException {
+        // Given
+        // add extra timestamp property to schema
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        converter = createConverter(new Schema.Builder(schema)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(AccumuloPropertyNames.TIMESTAMP, Long.class)
+                        .build())
+                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .build());
+
+        final long timestamp = System.currentTimeMillis();
+        final String group = TestGroups.EDGE;
+
+        // When
+        final Properties properties = converter.getPropertiesFromTimestamp(group, timestamp);
+
+        // Then
+        assertEquals(1, properties.size());
+        assertEquals(timestamp, properties.get(AccumuloPropertyNames.TIMESTAMP));
+    }
+
+    @Test
+    public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampPropertyInGroup() throws AccumuloElementConversionException {
+        // Given
+        // add timestamp property name but don't add the property to the edge group
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        converter = createConverter(new Schema.Builder(schema)
+                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .build());
+
+        final long timestamp = System.currentTimeMillis();
+        final String group = TestGroups.EDGE;
+
+        // When
+        final Properties properties = converter.getPropertiesFromTimestamp(group, timestamp);
+
+        // Then
+        assertEquals(0, properties.size());
+    }
+
+    @Test
+    public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampProperty() throws AccumuloElementConversionException {
+        // Given
+        final long timestamp = System.currentTimeMillis();
+        final String group = TestGroups.EDGE;
+
+        // When
+        final Properties properties = converter.getPropertiesFromTimestamp(group, timestamp);
+
+        // Then
+        assertEquals(0, properties.size());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetPropertiesFromTimestampWhenGroupIsNotFound() {
+        // Given
+        final long timestamp = System.currentTimeMillis();
+        final String group = "unknownGroup";
+
+        // When / Then
+        try {
+            converter.getPropertiesFromTimestamp(group, timestamp);
+            fail("Exception expected");
+        } catch (final AccumuloElementConversionException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 }

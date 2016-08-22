@@ -40,6 +40,7 @@ public class SingleUseMockAccumuloStore extends MockAccumuloStore {
         try {
             getConnection().tableOperations().delete(getProperties().getTable());
         } catch (StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
+            // no action required
         }
         super.initialise(schema, properties);
     }

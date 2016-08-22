@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,9 +47,35 @@ public class ViewElementDefinition implements ElementDefinition {
     private ElementFilter filter;
 
     /**
+     * This field overrides the group by properties in the schema.
+     * They must be sub set of the group by properties in the schema.
+     * If the store is ordered, then it must be a truncated copy of the schema
+     * group by properties.
+     * <p>
+     * If null, then the group by properties in the schema are used.
+     * </p>
+     * <p>
+     * If empty, then all group by properties are summarised.
+     * </p>
+     * <p>
+     * If 1 or more properties, then the specified properties are not
+     * summarised.
+     * </p>
+     */
+    private LinkedHashSet<String> groupBy;
+
+    /**
      * Transient property map of property name to class.
      */
     private LinkedHashMap<String, Class<?>> transientProperties = new LinkedHashMap<>();
+
+    public LinkedHashSet<String> getGroupBy() {
+        return groupBy;
+    }
+
+    public void setGroupBy(final LinkedHashSet<String> groupBy) {
+        this.groupBy = groupBy;
+    }
 
     @Override
     public void merge(final ElementDefinition elementDef) {
@@ -186,6 +213,14 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public Builder transformer(final ElementTransformer transformer) {
             getElementDef().setTransformer(transformer);
+            return this;
+        }
+
+        public Builder groupBy(final String... groupBy) {
+            if (null == getElementDef().getGroupBy()) {
+                getElementDef().setGroupBy(new LinkedHashSet<String>());
+            }
+            Collections.addAll(getElementDef().getGroupBy(), groupBy);
             return this;
         }
 

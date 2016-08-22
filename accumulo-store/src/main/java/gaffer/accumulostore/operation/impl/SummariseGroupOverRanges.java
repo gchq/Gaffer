@@ -48,11 +48,6 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
         }
 
         @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> summarise(final boolean summarise) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.summarise(summarise);
-        }
-
-        @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
             return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.populateProperties(populateProperties);
         }

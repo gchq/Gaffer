@@ -4,6 +4,9 @@
       "vertex": "vertex.string",
       "properties": {
         "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",
@@ -11,7 +14,10 @@
         "count": "simpleProperty"
       },
       "groupBy": [
-        "columnQualifier"
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
       ]
     }
   },
@@ -22,6 +28,9 @@
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",
@@ -29,7 +38,10 @@
         "count": "simpleProperty"
       },
       "groupBy": [
-        "columnQualifier"
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
       ]
     },
     "BasicEdge2": {
