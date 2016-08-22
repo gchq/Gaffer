@@ -80,12 +80,6 @@ public class GetAllEntities extends GetAllElements<Entity> {
         }
 
         @Override
-        public Builder summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder deduplicate(final boolean deduplicate) {
             return (Builder) super.deduplicate(deduplicate);
         }

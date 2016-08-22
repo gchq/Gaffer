@@ -18,6 +18,7 @@ package gaffer.store;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -242,7 +243,8 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl(viewValidator);
 
         addElements.setView(view);
-        given(viewValidator.validate(view, schema)).willReturn(false);
+        given(schema.validate()).willReturn(true);
+        given(viewValidator.validate(view, schema, true)).willReturn(false);
         store.initialise(schema, properties);
 
         // When / Then
@@ -250,7 +252,7 @@ public class StoreTest {
             store.execute(addElements, user);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            verify(viewValidator).validate(view, schema);
+            verify(viewValidator).validate(view, schema, true);
             assertTrue(e.getMessage().contains("View"));
         }
     }
@@ -428,7 +430,7 @@ public class StoreTest {
     }
 
     private class StoreImpl extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, ORDERED));
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
@@ -508,11 +510,6 @@ public class StoreTest {
         @Override
         protected Context createContext(final User user) {
             return context;
-        }
-
-        @Override
-        public boolean isOrdered() {
-            return true;
         }
     }
 }

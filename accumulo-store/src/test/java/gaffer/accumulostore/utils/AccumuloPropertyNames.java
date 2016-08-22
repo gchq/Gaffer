@@ -20,5 +20,9 @@ import gaffer.commonutil.TestPropertyNames;
 
 public class AccumuloPropertyNames extends TestPropertyNames {
     public static final String COLUMN_QUALIFIER = "columnQualifier";
+    public static final String COLUMN_QUALIFIER_2 = "columnQualifier2";
+    public static final String COLUMN_QUALIFIER_3 = "columnQualifier3";
+    public static final String COLUMN_QUALIFIER_4 = "columnQualifier4";
+    public static final String VISIBILITY = "visibility";
     public static final String TIMESTAMP = "timestamp";
 }

@@ -80,12 +80,19 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .userId("privateUser")
                 .dataAuth("private")
                 .build();
+<<<<<<< HEAD
         final GetRelatedEdges<EntitySeed> getPrivateRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final Iterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         for (Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
+=======
+        log("\nGet edges with the private visibility. We should get the public edges too and the edges should be aggregated together based on the rules in gaffer.example.gettingstarted.function.VisibilityAggregator.\n");
+        final Iterable<Edge> privatePublicResults = graph5.execute(getRelatedEdges, privateUser);
+        for (Element e : privatePublicResults) {
+            log(e.toString());
+>>>>>>> develop
         }
 
         log("\nGet edges with the public visibility. We shouldn't see any of the private ones. Notice that the Edges are aggregated within visibilities\n");
@@ -101,6 +108,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
             log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
         }
 
+<<<<<<< HEAD
         log("\nGet edges with the private visibility again but this time, aggregate the visibilities based on the rules in gaffer.example.gettingstarted.function.VisibilityAggregator.\n");
         final GetRelatedEdges<EntitySeed> getPrivateAggregatedRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
@@ -112,5 +120,8 @@ public class LoadAndQuery5 extends LoadAndQuery {
         }
 
         return privateAggregatedResults;
+=======
+        return publicResults;
+>>>>>>> develop
     }
 }

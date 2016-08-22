@@ -105,12 +105,6 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
         }
 
         @Override
-        public Builder<ELEMENT_TYPE> summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder<ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
             return (Builder<ELEMENT_TYPE>) super.deduplicate(deduplicate);
         }

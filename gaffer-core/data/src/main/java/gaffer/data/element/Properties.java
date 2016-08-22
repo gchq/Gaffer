@@ -61,8 +61,10 @@ public class Properties extends HashMap<String, Object> {
     }
 
     public void remove(final Collection<String> propertiesToRemove) {
-        for (String property : propertiesToRemove) {
-            remove(property);
+        if (null != propertiesToRemove) {
+            for (String property : propertiesToRemove) {
+                remove(property);
+            }
         }
     }
 
