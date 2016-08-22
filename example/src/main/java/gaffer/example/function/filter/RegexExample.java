@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.example.operation;
+package gaffer.example.function.filter;
 
-import gaffer.example.util.ExamplesRunner;
-import gaffer.operation.Operation;
+import gaffer.function.simple.filter.Regex;
 
-/**
- * This runner will run all operation examples.
- */
-public class OperationExamplesRunner extends ExamplesRunner {
-    public static void main(final String[] args) throws Exception {
-        new OperationExamplesRunner().run();
+public class RegexExample extends FilterFunctionExample {
+    public static void main(final String[] args) {
+        new RegexExample().run();
     }
 
-    public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
+    public RegexExample() {
+        super(Regex.class);
+    }
+
+    public void runExamples() {
+        regexWithPattern();
+    }
+
+    public void regexWithPattern() {
+        runExample(new Regex("[a-d0-4]"),
+                "new Regex(\"[a-d0-4]\")",
+                "a", "z", "az", 'a', "2", 2, 2L);
     }
 }

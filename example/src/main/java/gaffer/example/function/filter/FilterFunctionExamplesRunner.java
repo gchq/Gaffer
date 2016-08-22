@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.example.operation;
+package gaffer.example.function.filter;
 
 import gaffer.example.util.ExamplesRunner;
-import gaffer.operation.Operation;
+import gaffer.function.FilterFunction;
 
 /**
- * This runner will run all operation examples.
+ * This runner will run all filter function examples.
  */
-public class OperationExamplesRunner extends ExamplesRunner {
+public class FilterFunctionExamplesRunner extends ExamplesRunner {
     public static void main(final String[] args) throws Exception {
-        new OperationExamplesRunner().run();
+        new FilterFunctionExamplesRunner().run();
     }
 
     public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
+        run(FilterFunctionExample.class, FilterFunction.class, "function");
     }
 }

@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.example.operation;
+package gaffer.example.function.filter;
 
-import gaffer.example.util.ExamplesRunner;
-import gaffer.operation.Operation;
 
-/**
- * This runner will run all operation examples.
- */
-public class OperationExamplesRunner extends ExamplesRunner {
-    public static void main(final String[] args) throws Exception {
-        new OperationExamplesRunner().run();
+import gaffer.function.simple.filter.IsFalse;
+
+public class IsFalseExample extends FilterFunctionExample {
+    public static void main(final String[] args) {
+        new IsFalseExample().run();
     }
 
-    public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
+    public IsFalseExample() {
+        super(IsFalse.class);
+    }
+
+    public void runExamples() {
+        isFalse();
+    }
+
+    public void isFalse() {
+        runExample(new IsFalse(), "new IsFalse()", true, false, null, "true");
     }
 }

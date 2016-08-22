@@ -51,7 +51,7 @@ import javax.ws.rs.core.MediaType;
  * {@link gaffer.graph.Graph}.
  */
 @Path("/graph/doOperation")
-@Api(value = "/graph/doOperation", description = "Allows operations to be executed on the graph")
+@Api(value = "/graph/doOperation", description = "Allows operations to be executed on the graph. See <a href='https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface IOperationService {
@@ -72,7 +72,9 @@ public interface IOperationService {
 
     @POST
     @Path("/get/elements/bySeed")
-    @ApiOperation(value = "Gets elements by seed from the graph", response = Element.class, responseContainer = "List")
+    @ApiOperation(value = "Gets elements by seed from the graph",
+            response = Element.class,
+            responseContainer = "List")
     Iterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation,
                                         @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
     );

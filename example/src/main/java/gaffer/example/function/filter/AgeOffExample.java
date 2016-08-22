@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.example.operation;
+package gaffer.example.function.filter;
 
-import gaffer.example.util.ExamplesRunner;
-import gaffer.operation.Operation;
+import gaffer.function.simple.filter.AgeOff;
 
-/**
- * This runner will run all operation examples.
- */
-public class OperationExamplesRunner extends ExamplesRunner {
-    public static void main(final String[] args) throws Exception {
-        new OperationExamplesRunner().run();
+public class AgeOffExample extends FilterFunctionExample {
+    public static void main(final String[] args) {
+        new AgeOffExample().run();
     }
 
-    public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
+    public AgeOffExample() {
+        super(AgeOff.class);
+    }
+
+    public void runExamples() {
+        ageOffInMilliseconds();
+    }
+
+    public void ageOffInMilliseconds() {
+        final long now = System.currentTimeMillis();
+        runExample(new AgeOff(100000L),
+                "new AgeOff(100000L)",
+                now, now - 100000L, now + 100000L, String.valueOf(now));
     }
 }

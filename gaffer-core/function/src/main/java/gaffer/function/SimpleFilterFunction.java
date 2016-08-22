@@ -32,7 +32,7 @@ public abstract class SimpleFilterFunction<T> extends FilterFunction {
         try {
             return isValid((T) input[0]);
         } catch (final ClassCastException e) {
-            throw new IllegalArgumentException("Input does not match parametrised type");
+            throw new IllegalArgumentException("Input does not match parametrised type", e);
         }
     }
 

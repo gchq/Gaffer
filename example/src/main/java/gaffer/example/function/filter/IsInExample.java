@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.example.operation;
+package gaffer.example.function.filter;
 
-import gaffer.example.util.ExamplesRunner;
-import gaffer.operation.Operation;
+import gaffer.function.simple.filter.IsIn;
 
-/**
- * This runner will run all operation examples.
- */
-public class OperationExamplesRunner extends ExamplesRunner {
-    public static void main(final String[] args) throws Exception {
-        new OperationExamplesRunner().run();
+public class IsInExample extends FilterFunctionExample {
+    public static void main(final String[] args) {
+        new IsInExample().run();
     }
 
-    public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
+    public IsInExample() {
+        super(IsIn.class);
+    }
+
+    public void runExamples() {
+        isInSet();
+    }
+
+    public void isInSet() {
+        runExample(new IsIn(5, 5L, "5", '5'),
+                "new IsIn(5, 5L, \"5\", '5')",
+                5, 5L, "5", '5', 1, 1L, "1", '1');
     }
 }

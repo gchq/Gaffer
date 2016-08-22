@@ -15,56 +15,84 @@
  */
 package gaffer.example.operation;
 
-import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.example.gettingstarted.util.DataUtils;
 import gaffer.example.operation.generator.DataGenerator;
-import gaffer.exception.SerialisationException;
+import gaffer.example.util.Example;
 import gaffer.graph.Graph;
-import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Locale;
 
-public abstract class OperationExample {
+public abstract class OperationExample extends Example {
+    private final Graph graph = createExampleGraph();
 
-    public static final String CAPITALS_AND_NUMBERS_REGEX = "((?=[A-Z])|(?<=[0-9])(?=[a-zA-Z])|(?<=[a-zA-Z])(?=[0-9]))";
-    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    public static final String DIVIDER = "-----------------------------------------------";
-    public static final String TITLE_DIVIDER = DIVIDER;
-    public static final String METHOD_DIVIDER = DIVIDER + "\n";
-    private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
-    private final Class<? extends Operation> operationClass;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    public OperationExample(final Class<? extends Operation> operationClass) {
-        this.operationClass = operationClass;
+    public OperationExample(final Class<? extends Operation> classForExample) {
+        super(classForExample);
     }
 
-    public void run() throws OperationException {
-        log(operationClass.getSimpleName() + " example");
-        log(TITLE_DIVIDER);
-        log("See [javadoc](" + JAVA_DOC_URL_PREFIX + operationClass.getName().replace(".", "/") + ".html).\n");
-
-        final Graph graph = createExampleGraph();
-        runExamples(graph);
+    @Override
+    protected void runExamples() {
+        // not used - implement runExample(Graph) instead.
     }
 
-    public Class<? extends Operation> getOperationClass() {
-        return operationClass;
+    protected Graph getGraph() {
+        return graph;
     }
 
-    protected abstract void runExamples(final Graph graph) throws OperationException;
+    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation, final String operationJava) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        printGraph();
+        printJava(operationJava);
+        printAsJson(operation);
 
-    public Graph createExampleGraph() {
+        final RESULT_TYPE results;
+        try {
+            results = getGraph().execute(
+                    operation, new User("user01"));
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
+
+        log("Results:");
+        log("\n```");
+        for (Object result : results) {
+            log(result.toString());
+        }
+        log("```");
+
+        log(METHOD_DIVIDER);
+        return results;
+    }
+
+    protected <RESULT_TYPE> RESULT_TYPE runExample(final OperationChain<RESULT_TYPE> operationChain, final String operationJava) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        printGraph();
+        printJava(operationJava);
+        printAsJson(operationChain);
+
+        final RESULT_TYPE result;
+        try {
+            result = getGraph().execute(
+                    operationChain, new User("user01"));
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
+
+        log("Result:");
+        log("\n```");
+        log(result.toString());
+        log("```");
+
+        log(METHOD_DIVIDER);
+        return result;
+    }
+
+    protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
                 .addSchemas(StreamUtil.openStreams(getClass(), "/example/operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "/example/operation/mockaccumulostore.properties"))
@@ -93,6 +121,10 @@ public abstract class OperationExample {
             throw new RuntimeException(e);
         }
 
+        return graph;
+    }
+
+    protected void printGraph() {
         log("Using this simple directed graph:");
         log("\n```");
         log("    --> 4 <--");
@@ -101,106 +133,6 @@ public abstract class OperationExample {
         log("1  -->  2  -->  3");
         log("         \\");
         log("           -->  5");
-        log("```");
-
-        log(METHOD_DIVIDER);
-
-        return graph;
-    }
-
-    protected String getMethodNameAsSentence(final int parentMethod) {
-        final String[] words = Thread.currentThread().getStackTrace()[parentMethod + 2].getMethodName().split(CAPITALS_AND_NUMBERS_REGEX);
-        final StringBuilder sentence = new StringBuilder();
-        for (String word : words) {
-            sentence.append(word.toLowerCase(Locale.getDefault()))
-                    .append(" ");
-        }
-        sentence.replace(0, 1, sentence.substring(0, 1).toUpperCase(Locale.getDefault()));
-        sentence.replace(sentence.length() - 1, sentence.length(), "");
-        return sentence.toString();
-    }
-
-    protected String getMethodNameAsSentence() {
-        return getMethodNameAsSentence(1);
-    }
-
-    protected String getOperationJson(final Operation operation) {
-        try {
-            return new String(JSON_SERIALISER.serialise(operation, true), CommonConstants.UTF_8);
-        } catch (final SerialisationException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected String getOperationChainJson(final OperationChain operationChain) {
-        try {
-            return new String(JSON_SERIALISER.serialise(operationChain, true), CommonConstants.UTF_8);
-        } catch (final SerialisationException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runAndPrintOperation(final Operation<?, RESULT_TYPE> operation, final Graph graph, final String operationJava) throws OperationException {
-        log("#### " + getMethodNameAsSentence(1) + "\n");
-        final String operationJson = getOperationJson(operation);
-        printJava(operationJava);
-
-        final RESULT_TYPE results = graph.execute(
-                operation, new User("user01"));
-
-        log("Results:");
-        log("\n```");
-        for (Object result : results) {
-            log(result.toString());
-        }
-        log("```");
-
-        printOperationJson(operationJson);
-
-        log(METHOD_DIVIDER);
-        return results;
-    }
-
-    protected <RESULT_TYPE> RESULT_TYPE runAndPrintOperationChainResult(final OperationChain<RESULT_TYPE> operationChain, final Graph graph, final String operationJava) throws OperationException {
-        log("#### " + getMethodNameAsSentence(1) + "\n");
-        final String operationChainJson = getOperationChainJson(operationChain);
-        printJava(operationJava);
-
-        final RESULT_TYPE result = graph.execute(
-                operationChain, new User("user01"));
-
-        log("Result:");
-        log("\n```");
-        log(result.toString());
-        log("```");
-
-        printOperationChainJson(operationChainJson);
-
-        log(METHOD_DIVIDER);
-        return result;
-    }
-
-    protected void printJava(final String java) {
-        log("\n```java");
-        log(java);
-        log("```\n\n");
-    }
-
-    protected void printOperationJson(final String operationJson) {
-        log("\nThis operation can also be written in JSON:");
-        log("\n```json");
-        log(operationJson);
         log("```\n");
-    }
-
-    protected void printOperationChainJson(final String operationChainJson) {
-        log("\nThis operation chain can also be written in JSON:");
-        log("\n```json");
-        log(operationChainJson);
-        log("```\n");
-    }
-
-    protected void log(final String message) {
-        logger.info(message);
     }
 }

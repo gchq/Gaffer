@@ -20,13 +20,11 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.impl.get.GetEdgesBySeed;
 
 public class GetEdgesBySeedExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetEdgesBySeedExample().run();
     }
 
@@ -34,23 +32,23 @@ public class GetEdgesBySeedExample extends OperationExample {
         super(GetEdgesBySeed.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getEdgesByEdgeSeeds1to2and2to3(graph);
-        getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2(graph);
+    public void runExamples() {
+        getEdgesByEdgeSeeds1to2and2to3();
+        getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2();
     }
 
-    public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3(final Graph graph) throws OperationException {
+    public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3() {
         final String opJava = "new GetEdgesBySeed.Builder()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .addSeed(new EdgeSeed(2, 3, true))\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetEdgesBySeed.Builder()
+        return runExample(new GetEdgesBySeed.Builder()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2(final Graph graph) throws OperationException {
+    public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2() {
         final String opJava = "new GetEdgesBySeed.Builder()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .addSeed(new EdgeSeed(2, 3, true))\n"
@@ -63,7 +61,7 @@ public class GetEdgesBySeedExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetEdgesBySeed.Builder()
+        return runExample(new GetEdgesBySeed.Builder()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
@@ -74,6 +72,6 @@ public class GetEdgesBySeedExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }
