@@ -21,6 +21,7 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -62,18 +63,45 @@ public final class IngestUtils {
      * @param table      - The table name
      * @param fs         - The FileSystem in which to create the splits file
      * @param splitsFile - A Path for the output splits file
+     * @param maxSplits  - The maximum number of splits
      * @return The number of splits in the table
      * @throws IOException for any IO issues reading from the file system. Other accumulo exceptions are caught and wrapped in an IOException.
      */
     public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
-                                       final Path splitsFile) throws IOException {
+                                       final Path splitsFile, final int maxSplits) throws IOException {
+        LOGGER.info("Creating splits file in location {} from table {} with maximum splits {}", splitsFile,
+                table, maxSplits);
         // Get the splits from the table
         Collection<Text> splits;
         try {
-            splits = conn.tableOperations().listSplits(table);
+            splits = conn.tableOperations().listSplits(table, maxSplits);
         } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new IOException(e.getMessage(), e);
         }
+        // This should have returned at most maxSplits splits, but this is not implemented properly in MockInstance.
+        if (splits.size() > maxSplits) {
+            if (conn instanceof MockConnector) {
+                LOGGER.info("Manually reducing the number of splits to {} due to MockInstance not implementing"
+                        + " listSplits(table, maxSplits) properly", maxSplits);
+            } else {
+                LOGGER.info("Manually reducing the number of splits to {} (number of splits was {})", maxSplits, splits.size());
+            }
+            final Collection<Text> filteredSplits = new TreeSet<>();
+            final int outputEveryNth = splits.size() / maxSplits;
+            LOGGER.info("Outputting every {}-th split from {} total", outputEveryNth, splits.size());
+            int i = 0;
+            for (final Text text : splits) {
+                if (i % outputEveryNth == 0) {
+                    filteredSplits.add(text);
+                }
+                i++;
+                if (filteredSplits.size() >= maxSplits) {
+                    break;
+                }
+            }
+            splits = filteredSplits;
+        }
+        LOGGER.info("Found {} splits from table {}", splits.size(), table);
 
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
                 CommonConstants.UTF_8)) {
@@ -88,6 +116,11 @@ public final class IngestUtils {
             }
         }
         return splits.size();
+    }
+
+    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
+                                       final Path splitsFile) throws IOException {
+        return createSplitsFile(conn, table, fs, splitsFile, Integer.MAX_VALUE);
     }
 
     /**
