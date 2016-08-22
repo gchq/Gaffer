@@ -49,6 +49,7 @@ public abstract class OperationExample extends Example {
         printGraph();
         printJava(operationJava);
         printAsJson(operation);
+        printOperationClass(operation);
 
         final RESULT_TYPE results;
         try {
@@ -90,6 +91,13 @@ public abstract class OperationExample extends Example {
 
         log(METHOD_DIVIDER);
         return result;
+    }
+
+    protected void printOperationClass(final Operation operation) {
+        log("When used in a chain add the class as a property:");
+        log("\n```json");
+        log("\"class\" : \"" + operation.getClass().getName() + "\"");
+        log("```\n");
     }
 
     protected Graph createExampleGraph() {

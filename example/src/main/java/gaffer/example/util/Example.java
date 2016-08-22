@@ -41,7 +41,7 @@ public abstract class Example {
     public void run() {
         log(classForExample.getSimpleName() + " example");
         log(TITLE_DIVIDER);
-        log("See [javadoc](" + JAVA_DOC_URL_PREFIX + classForExample.getName().replace(".", "/") + ".html).\n");
+        log("See javadoc - [" + classForExample.getName() + "](" + JAVA_DOC_URL_PREFIX + classForExample.getName().replace(".", "/") + ".html).\n");
 
         runExamples();
     }
