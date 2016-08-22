@@ -16,9 +16,9 @@
 
 package gaffer.operation.impl.get;
 
-import gaffer.operation.data.EntitySeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.EntitySeed;
 
 /**
  * Restricts {@link gaffer.operation.impl.get.GetEntities} to match seeds that are equal.
@@ -76,12 +76,6 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
         @Override
         public Builder addSeed(final EntitySeed seed) {
             super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder summarise(final boolean summarise) {
-            super.summarise(summarise);
             return this;
         }
 

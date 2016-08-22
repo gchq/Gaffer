@@ -1,6 +1,11 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -8,11 +13,8 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Iterator;
-
-import static org.junit.Assert.*;
 
 public class GetElementsWithinSetTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -44,12 +46,11 @@ public class GetElementsWithinSetTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloTestData.SEED_A)
                 .includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(true).summarise(false).view(new View.Builder().edge("testEdgegroup").build()).build();
+                .populateProperties(true).view(new View.Builder().edge("testEdgegroup").build()).build();
         assertEquals("true", getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertTrue(getElementsWithinSet.isIncludeEntities());
         assertEquals(GetOperation.IncludeEdgeType.NONE, getElementsWithinSet.getIncludeEdges());
         assertTrue(getElementsWithinSet.isPopulateProperties());
-        assertFalse(getElementsWithinSet.isSummarise());
         assertEquals(AccumuloTestData.SEED_A, getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
     }

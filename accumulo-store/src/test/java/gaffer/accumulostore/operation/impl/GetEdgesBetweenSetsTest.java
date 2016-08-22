@@ -1,6 +1,12 @@
 package gaffer.accumulostore.operation.impl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -8,17 +14,14 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Iterator;
-
-import static org.junit.Assert.*;
 
 public class GetEdgesBetweenSetsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
-    public void shouldNotReturnEntities(){
+    public void shouldNotReturnEntities() {
 
         final GetEdgesBetweenSets op = new GetEdgesBetweenSets();
         assertFalse(op.isIncludeEntities());
@@ -26,7 +29,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
     }
 
     @Test
-    public void shouldNotBeAbleToSetNoEdges(){
+    public void shouldNotBeAbleToSetNoEdges() {
 
         final GetEdgesBetweenSets op = new GetEdgesBetweenSets();
 
@@ -72,8 +75,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         final GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder()
                 .includeEdges(GetOperation.IncludeEdgeType.ALL).addSeed(AccumuloTestData.SEED_A).addSeedB(AccumuloTestData.SEED_B)
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(false).summarise(true).view(new View.Builder().edge("testEdgeGroup").build()).build();
-        assertTrue(getEdgesBetweenSets.isSummarise());
+                .populateProperties(false).view(new View.Builder().edge("testEdgeGroup").build()).build();
         assertFalse(getEdgesBetweenSets.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getEdgesBetweenSets.getIncludeEdges());
         assertEquals(GetOperation.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());

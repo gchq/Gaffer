@@ -16,6 +16,10 @@
 
 package gaffer.accumulostore.operation.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
@@ -29,6 +33,7 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
@@ -51,8 +56,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-
 public class GetElementsWithinSetHandlerTest {
 
     private static View defaultView;
@@ -74,6 +77,12 @@ public class GetElementsWithinSetHandlerTest {
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    }
+
+    @Before
+    public void reInitialise() throws StoreException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
@@ -106,13 +115,11 @@ public class GetElementsWithinSetHandlerTest {
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
-    }
+        defaultView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .build();
 
-    @Before
-    public void reInitialise() throws StoreException {
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
@@ -138,8 +145,6 @@ public class GetElementsWithinSetHandlerTest {
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-
-        operation.setSummarise(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -159,8 +164,18 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldSummarise(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.setSummarise(true);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -180,9 +195,19 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
         operation.setIncludeEntities(false);
-        operation.setSummarise(true);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -208,7 +233,7 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
-        operation.setSummarise(true);
+
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final Iterable<Element> elements = handler.doOperation(operation, user, store);
 

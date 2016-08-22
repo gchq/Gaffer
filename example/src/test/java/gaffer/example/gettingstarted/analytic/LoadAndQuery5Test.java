@@ -57,9 +57,9 @@ public class LoadAndQuery5Test {
     public void shouldReturnExpectedEdgesViaJson() throws OperationException, SerialisationException {
         // Given
         final User basicUser = new User("basicUser");
-        final User privateUser = new User.Builder()
-                .userId("privateUser")
-                .dataAuth("private")
+        final User publicUser = new User.Builder()
+                .userId("publicUser")
+                .dataAuth("public")
                 .build();
         final JSONSerialiser serialiser = new JSONSerialiser();
         final AddElements addElements = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), AddElements.class);
@@ -73,7 +73,7 @@ public class LoadAndQuery5Test {
 
         // When
         graph.execute(addElements, basicUser); // Execute the add operation chain on the graph
-        final Iterable<Edge> results = graph.execute(getRelatedEdges, privateUser); // Execute the query operation on the graph.
+        final Iterable<Edge> results = graph.execute(getRelatedEdges, publicUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
@@ -86,16 +86,8 @@ public class LoadAndQuery5Test {
                         .source("1")
                         .dest("2")
                         .directed(false)
-                        .property(VISIBILITY, "private")
-                        .property(COUNT, 4)
-                        .build(),
-                new Edge.Builder()
-                        .group(GROUP)
-                        .source("1")
-                        .dest("3")
-                        .directed(false)
-                        .property(VISIBILITY, "private")
-                        .property(COUNT, 1)
+                        .property(VISIBILITY, "public")
+                        .property(COUNT, 2)
                         .build(),
                 new Edge.Builder()
                         .group(GROUP)
@@ -104,7 +96,7 @@ public class LoadAndQuery5Test {
                         .directed(false)
                         .property(VISIBILITY, "public")
                         .property(COUNT, 2)
-                        .build()
+                        .build(),
         };
 
         final List<Edge> results = Lists.newArrayList(resultsItr);
