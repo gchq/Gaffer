@@ -202,13 +202,11 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     private static String getJavaFromGitHub(final String className, final String modulePath) {
-        String result;
         try {
             final String javaCode = org.apache.commons.io.IOUtils.toString(new URL(GITHUB_RAW_URL_PREFIX + modulePath + JAVA_SRC_PATH + className.replace(".", "/") + ".java"));
-            result = "\n```java\n" + javaCode.substring(javaCode.indexOf("public class ")) + "```";
+            return "\n```java\n" + javaCode.substring(javaCode.indexOf("public class ")) + "```";
         } catch (final IOException e) {
-            result = getGitHubCodeLink(className, modulePath);
+            throw new RuntimeException("Unable to get java source code form github", e);
         }
-        return result;
     }
 }
