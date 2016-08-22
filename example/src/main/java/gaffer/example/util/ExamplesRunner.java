@@ -43,7 +43,7 @@ public abstract class ExamplesRunner {
         printTableOfContents(exampleParentClass);
 
         final Set<? extends Class<?>> classes = Sets.newHashSet(getSubClasses(classForExample));
-        for (Class<? extends Example> aClass : getSubClasses(exampleParentClass)) {
+        for (Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
             final Example functionExample = aClass.newInstance();
             classes.remove(functionExample.getClassForExample());
             functionExample.run();
@@ -77,9 +77,9 @@ public abstract class ExamplesRunner {
                 + "_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/tree/master/example/src/main/java/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
     }
 
-    private void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
+    protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
         int index = 1;
-        for (Class<? extends Example> aClass : getSubClasses(exampleParentClass)) {
+        for (Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
             final String opClass = aClass.newInstance().getClassForExample().getSimpleName();
             log(index + ". [" + opClass + "](#" + opClass.toLowerCase(Locale.getDefault()) + "-example)");
             index++;
@@ -88,10 +88,16 @@ public abstract class ExamplesRunner {
     }
 
     private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {
+        return getSubClasses(clazz, null);
+    }
+
+
+    private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz, final String packageName) {
         final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("gaffer"));
 
         final List<Class<? extends CLASS>> classes = new ArrayList<>(new Reflections(urls).getSubTypesOf(clazz));
         keepPublicConcreteClasses(classes);
+        keepClassesInPackage(classes, packageName);
         Collections.sort(classes, new Comparator<Class>() {
             @Override
             public int compare(final Class class1, final Class class2) {
@@ -102,10 +108,25 @@ public abstract class ExamplesRunner {
         return classes;
     }
 
+    private static void keepClassesInPackage(final List classes, final String packageName) {
+        if (null != classes && null != packageName) {
+            final Iterator<Class> itr = classes.iterator();
+            while (itr.hasNext()) {
+                final Class clazz = itr.next();
+                if (null != clazz) {
+                    if (!clazz.getPackage().getName().equals(packageName)) {
+                        itr.remove();
+                    }
+                }
+            }
+        }
+    }
+
     private static void keepPublicConcreteClasses(final List classes) {
         if (null != classes) {
             final Iterator<Class> itr = classes.iterator();
-            for (Class clazz = null; itr.hasNext(); clazz = itr.next()) {
+            while (itr.hasNext()) {
+                final Class clazz = itr.next();
                 if (null != clazz) {
                     final int modifiers = clazz.getModifiers();
                     if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers)) {

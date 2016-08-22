@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.example.operation;
+package gaffer.example.operation.accumulo;
 
-import gaffer.example.util.Example;
+import gaffer.example.operation.OperationExample;
 import gaffer.example.util.ExamplesRunner;
 import gaffer.operation.Operation;
 
 /**
  * This runner will run all operation examples.
  */
-public class OperationExamplesRunner extends ExamplesRunner {
+public class AccumuloOperationExamplesRunner extends ExamplesRunner {
     public static void main(final String[] args) throws Exception {
-        new OperationExamplesRunner().run();
+        new AccumuloOperationExamplesRunner().run();
     }
 
     public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
-    }
-
-    @Override
-    protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
-        super.printTableOfContents(exampleParentClass);
-        log("In addition to these core operations, stores can implement their own specific operations. See [Accumulo specific operation examples](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Accumulo-specific-operation-examples).\n");
+        run(OperationExample.class, Operation.class, "Acccumulo operation");
     }
 }

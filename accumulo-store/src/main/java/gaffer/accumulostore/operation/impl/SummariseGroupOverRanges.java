@@ -27,10 +27,9 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.data.element.Element} that represents the aggregated form of all data between the provided range for the provided group.
  * Note that one result per tablet on which data in the desired range resides will be returned, with large data sets and/or large ranges
  * more likely to produce multiple results and you will need to cache the results and aggregate them again to get a final answer.
- *
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
- *
  * Standard filtering will still occur before the final aggregation of the vertices.
+ *
  * @see gaffer.operation.GetOperation
  */
 public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element> extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE> {
@@ -45,7 +44,7 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
     public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
             extends AbstractGetOperation.Builder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
         public Builder() {
-            super(new SummariseGroupOverRanges());
+            super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
         }
 
         @Override

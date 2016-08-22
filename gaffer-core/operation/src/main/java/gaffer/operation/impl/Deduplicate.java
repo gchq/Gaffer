@@ -37,7 +37,7 @@ public class Deduplicate<T> extends AbstractOperation<Iterable<T>, Iterable<T>> 
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        protected Builder<T> input(final Iterable<T> input) {
+        public Builder<T> input(final Iterable<T> input) {
             return (Builder<T>) super.input(input);
         }
 

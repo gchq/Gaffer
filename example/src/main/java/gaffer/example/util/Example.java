@@ -18,6 +18,7 @@ package gaffer.example.util;
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
@@ -33,15 +34,22 @@ public abstract class Example {
     private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
     private final Class<?> classForExample;
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final String description;
 
     public Example(final Class<?> classForExample) {
+        this(classForExample, "");
+    }
+
+    public Example(final Class<?> classForExample, final String description) {
         this.classForExample = classForExample;
+        this.description = description;
     }
 
     public void run() {
         log(classForExample.getSimpleName() + " example");
         log(TITLE_DIVIDER);
         log("See javadoc - [" + classForExample.getName() + "](" + JAVA_DOC_URL_PREFIX + classForExample.getName().replace(".", "/") + ".html).\n");
+        printDescription();
 
         runExamples();
     }
@@ -62,6 +70,12 @@ public abstract class Example {
         sentence.replace(0, 1, sentence.substring(0, 1).toUpperCase(Locale.getDefault()));
         sentence.replace(sentence.length() - 1, sentence.length(), "");
         return sentence.toString();
+    }
+
+    protected void printDescription() {
+        if (StringUtils.isNotEmpty(description)) {
+            log(description);
+        }
     }
 
     protected void printJava(final String java) {

@@ -35,6 +35,10 @@ public abstract class OperationExample extends Example {
         super(classForExample);
     }
 
+    public OperationExample(final Class<? extends Operation> classForExample, final String description) {
+        super(classForExample, description);
+    }
+
     @Override
     protected void runExamples() {
         // not used - implement runExample(Graph) instead.
@@ -86,7 +90,13 @@ public abstract class OperationExample extends Example {
 
         log("Result:");
         log("\n```");
-        log(result.toString());
+        if (result instanceof Iterable) {
+            for (Object item : ((Iterable) result)) {
+                log(item.toString());
+            }
+        } else {
+            log(result.toString());
+        }
         log("```");
 
         log(METHOD_DIVIDER);
