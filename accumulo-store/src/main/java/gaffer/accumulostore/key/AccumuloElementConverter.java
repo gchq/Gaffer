@@ -187,6 +187,18 @@ public interface AccumuloElementConverter {
             throws AccumuloElementConversionException;
 
     /**
+     * Truncates the provided columnQualifier, returning the byte representation of the serialised version of the specified
+     * properties.
+     *
+     * @param group           the element group
+     * @param bytes    the full list of property bytes
+     * @param numProps the number of properties to extract
+     * @return the truncated property bytes.
+     * @throws AccumuloElementConversionException if truncation of the bytes fails
+     */
+    byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps) throws AccumuloElementConversionException;
+
+    /**
      * Creates a byte array representing the group.
      *
      * @param group the element group
@@ -255,14 +267,4 @@ public interface AccumuloElementConverter {
     Properties getPropertiesFromTimestamp(final String group, final long timestamp)
             throws AccumuloElementConversionException;
 
-    /**
-     * Truncates the provided bytes, returning the bytes for the specified
-     * number of properties.
-     *
-     * @param numProps the number of properties to extract
-     * @param bytes    the full list of property bytes
-     * @return the truncated property bytes.
-     * @throws AccumuloElementConversionException if truncation of the bytes fails
-     */
-    byte[] truncatePropertyBytes(final int numProps, final byte[] bytes) throws AccumuloElementConversionException;
 }

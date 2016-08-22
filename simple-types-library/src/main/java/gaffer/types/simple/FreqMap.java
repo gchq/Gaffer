@@ -19,9 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <code>FreqMap</code> simply extends {@link HashMap} with String keys and Integer values.
+ * <code>FreqMap</code> extends {@link HashMap} with String keys and Integer values, adding an upsert operation.
  */
 public class FreqMap extends HashMap<String, Integer> {
+
     private static final long serialVersionUID = -6178586775831730274L;
 
     public FreqMap(final Map<? extends String, ? extends Integer> m) {
@@ -37,5 +38,29 @@ public class FreqMap extends HashMap<String, Integer> {
 
     public FreqMap(final int initialCapacity, final float loadFactor) {
         super(initialCapacity, loadFactor);
+    }
+
+    /**
+     * Adds a new key and value to the map if the key is not already there.
+     * If the key is already there, the value supplied is added to the existing value for the key and the result is inserted into the map.
+     * @param key The key in the map to increment or insert.
+     * @param value The value to increment by or initialise to.
+     */
+    public void upsert(final String key, final Integer value) {
+        final Integer currentValue = get(key);
+        if (null == currentValue) {
+            put(key, value);
+        } else {
+            put(key, currentValue + value);
+        }
+    }
+
+    /**
+     * Increments the value of an existing key by 1.
+     * If the key doesn't exist, initialises the value to 1.
+     * @param key The key to increment or insert.
+     */
+    public void upsert(final String key) {
+        upsert(key, 1);
     }
 }

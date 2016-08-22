@@ -31,7 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
 
-public class CoreKeyValueAggregatorIterator extends CoreKeyValueCombiner {
+public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
 
     @Override
     public Properties reduce(final String group, final Key key, final Iterator<Properties> iter) {
