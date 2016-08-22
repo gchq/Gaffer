@@ -429,7 +429,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInGafferOneStore() throws StoreException, AccumuloElementConversionException {
         shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
