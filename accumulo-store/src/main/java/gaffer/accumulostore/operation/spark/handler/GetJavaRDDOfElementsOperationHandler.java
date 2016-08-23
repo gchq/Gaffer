@@ -19,6 +19,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
 import gaffer.operation.simple.spark.GetJavaRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
@@ -32,8 +33,8 @@ import scala.Tuple2;
 
 import java.util.Collections;
 
-public class GetJavaRDDOfElementsOperationHandler
-        extends AbstractGetRDDOperationHandler<JavaRDD<Element>, GetJavaRDDOfElements> {
+public class GetJavaRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
+        extends AbstractGetRDDOperationHandler<JavaRDD<Element>, GetJavaRDDOfElements<SEED_TYPE>> {
 
     @Override
     public Iterable<JavaRDD<Element>> doOperation(final GetJavaRDDOfElements operation,
@@ -46,7 +47,7 @@ public class GetJavaRDDOfElementsOperationHandler
                                                    final Context context,
                                                    final AccumuloStore accumuloStore) throws OperationException {
         final JavaSparkContext sparkContext = operation.getJavaSparkContext();
-        final Configuration conf = new Configuration();
+        final Configuration conf = getConfiguration(operation);
         addIterators(accumuloStore, conf, operation);
         addRanges(accumuloStore, conf, operation);
         final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,

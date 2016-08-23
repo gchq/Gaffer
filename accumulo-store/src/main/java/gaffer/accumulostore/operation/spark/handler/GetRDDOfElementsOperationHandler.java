@@ -19,6 +19,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
 import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
@@ -30,8 +31,8 @@ import scala.Tuple2;
 
 import java.util.Collections;
 
-public class GetRDDOfElementsOperationHandler
-        extends AbstractGetRDDOperationHandler<RDD<Element>, GetRDDOfElements> {
+public class GetRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
+        extends AbstractGetRDDOperationHandler<RDD<Element>, GetRDDOfElements<SEED_TYPE>> {
 
     @Override
     public Iterable<RDD<Element>> doOperation(final GetRDDOfElements operation,

@@ -16,51 +16,63 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.EntitySeed;
+import gaffer.operation.data.ElementSeed;
 import org.apache.spark.SparkContext;
 
 import java.util.Collections;
 
-public class GetRDDOfElements extends AbstractGetRDD<EntitySeed> {
+public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
 
     public GetRDDOfElements() { }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<EntitySeed> entitySeeds) {
+    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
         setSparkContext(sparkContext);
-        setInput(entitySeeds);
+        setInput(seeds);
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final EntitySeed entitySeed) {
-        this(sparkContext, Collections.singleton(entitySeed));
+    public GetRDDOfElements(final SparkContext sparkContext, final SEED_TYPE seed) {
+        this(sparkContext, Collections.singleton(seed));
     }
 
-    public static class Builder extends AbstractGetRDD.Builder<GetRDDOfElements, EntitySeed> {
+    public static class Builder<SEED_TYPE extends ElementSeed>
+            extends AbstractGetRDD.Builder<GetRDDOfElements<SEED_TYPE>, SEED_TYPE> {
+
         public Builder() {
-            this(new GetRDDOfElements());
+            this(new GetRDDOfElements<SEED_TYPE>());
         }
 
-        public Builder(final GetRDDOfElements op) {
+        public Builder(final GetRDDOfElements<SEED_TYPE> op) {
             super(op);
         }
 
-        public Builder sparkContext(final SparkContext sparkContext) {
+        public Builder<SEED_TYPE> sparkContext(final SparkContext sparkContext) {
             super.sparkContext(sparkContext);
             return this;
         }
 
-        public Builder seeds(final Iterable<EntitySeed> seeds) {
+        public Builder<SEED_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
             super.seeds(seeds);
             return this;
         }
 
-        public Builder view(final View view) {
+        public Builder<SEED_TYPE> view(final View view) {
             super.view(view);
             return this;
         }
 
+        public Builder<SEED_TYPE> setIncludeEntities(final boolean includeEntities) {
+            super.includeEntities(includeEntities);
+            return this;
+        }
+
+        public Builder<SEED_TYPE> setIncludeEdges(final IncludeEdgeType includeEdgeType) {
+            super.includeEdges(includeEdgeType);
+            return this;
+        }
+
         @Override
-        public GetRDDOfElements build() {
-            return (GetRDDOfElements) super.build();
+        public GetRDDOfElements<SEED_TYPE> build() {
+            return (GetRDDOfElements<SEED_TYPE>) super.build();
         }
     }
 }

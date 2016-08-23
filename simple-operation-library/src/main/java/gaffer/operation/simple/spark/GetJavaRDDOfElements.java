@@ -16,19 +16,21 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.data.EntitySeed;
+import gaffer.operation.data.ElementSeed;
 import org.apache.spark.api.java.JavaSparkContext;
 
-public class GetJavaRDDOfElements extends AbstractGetJavaRDD<EntitySeed> {
+public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetJavaRDD<SEED_TYPE> {
 
     public GetJavaRDDOfElements() { }
 
-    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<EntitySeed> entitySeeds) {
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
         setJavaSparkContext(sparkContext);
-        setInput(entitySeeds);
+        setInput(seeds);
     }
 
-    public static class Builder extends AbstractGetJavaRDD.Builder<GetJavaRDDOfElements, EntitySeed> {
+    public static class Builder<SEED_TYPE extends ElementSeed>
+            extends AbstractGetJavaRDD.Builder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE> {
+
         public Builder() {
             this(new GetJavaRDDOfElements());
         }
@@ -37,24 +39,34 @@ public class GetJavaRDDOfElements extends AbstractGetJavaRDD<EntitySeed> {
             super(op);
         }
 
-        public Builder javaSparkContext(final JavaSparkContext javaSparkContext) {
+        public Builder<SEED_TYPE> javaSparkContext(final JavaSparkContext javaSparkContext) {
             super.javaSparkContext(javaSparkContext);
             return this;
         }
 
-        public Builder seeds(final Iterable<EntitySeed> seeds) {
+        public Builder<SEED_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
             super.seeds(seeds);
             return this;
         }
 
-        public Builder view(final View view) {
+        public Builder<SEED_TYPE> view(final View view) {
             super.view(view);
             return this;
         }
 
+        public Builder<SEED_TYPE> setIncludeEntities(final boolean includeEntities) {
+            super.includeEntities(includeEntities);
+            return this;
+        }
+
+        public Builder<SEED_TYPE> setIncludeEdges(final IncludeEdgeType includeEdgeType) {
+            super.includeEdges(includeEdgeType);
+            return this;
+        }
+
         @Override
-        public GetJavaRDDOfElements build() {
-            return (GetJavaRDDOfElements) super.build();
+        public GetJavaRDDOfElements<SEED_TYPE> build() {
+            return super.build();
         }
     }
 

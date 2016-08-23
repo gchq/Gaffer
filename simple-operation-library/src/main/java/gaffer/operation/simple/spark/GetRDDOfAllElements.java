@@ -27,6 +27,7 @@ public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
     }
 
     public static class Builder extends AbstractGetRDD.Builder<GetRDDOfAllElements, Void> {
+
         public Builder() {
             this(new GetRDDOfAllElements());
         }
@@ -45,9 +46,19 @@ public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
             return this;
         }
 
+        public Builder setIncludeEntities(final boolean includeEntities) {
+            super.includeEntities(includeEntities);
+            return this;
+        }
+
+        public Builder setIncludeEdges(final IncludeEdgeType includeEdgeType) {
+            super.includeEdges(includeEdgeType);
+            return this;
+        }
+
         @Override
         public GetRDDOfAllElements build() {
-            return (GetRDDOfAllElements) super.build();
+            return super.build();
         }
     }
 }

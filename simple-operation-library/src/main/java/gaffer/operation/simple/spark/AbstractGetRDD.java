@@ -21,7 +21,7 @@ import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 
-public abstract class AbstractGetRDD<INPUT> extends AbstractGetOperation<INPUT, RDD<Element>> {
+public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetOperation<SEED_TYPE, RDD<Element>> {
 
     private SparkContext sparkContext;
 
@@ -33,31 +33,31 @@ public abstract class AbstractGetRDD<INPUT> extends AbstractGetOperation<INPUT, 
         this.sparkContext = sparkContext;
     }
 
-    protected static class Builder<OP_TYPE extends AbstractGetRDD<INPUT>, INPUT>
-            extends AbstractGetOperation.Builder<OP_TYPE, INPUT, RDD<Element>> {
+    protected static class Builder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>, SEED_TYPE>
+            extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, RDD<Element>> {
 
         public Builder(final OP_TYPE op) {
             super(op);
         }
 
-        public Builder sparkContext(final SparkContext sparkContext) {
+        public Builder<OP_TYPE, SEED_TYPE> sparkContext(final SparkContext sparkContext) {
             op.setSparkContext(sparkContext);
             return this;
         }
 
-        public Builder seeds(final Iterable<INPUT> seeds) {
+        public Builder<OP_TYPE, SEED_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
             super.seeds(seeds);
             return this;
         }
 
-        public Builder view(final View view) {
+        public Builder<OP_TYPE, SEED_TYPE> view(final View view) {
             super.view(view);
             return this;
         }
 
         @Override
         public OP_TYPE build() {
-            return (OP_TYPE) super.build();
+            return super.build();
         }
     }
 }

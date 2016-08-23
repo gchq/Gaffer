@@ -16,12 +16,11 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.data.EntitySeed;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-public class GetDataFrameOfElements extends AbstractGetOperation<EntitySeed, Dataset<Row>> {
+public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<Row>> {
 
     private SQLContext sqlContext;
     private String group;
@@ -29,7 +28,7 @@ public class GetDataFrameOfElements extends AbstractGetOperation<EntitySeed, Dat
     public GetDataFrameOfElements() { }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
-                                           final String group) {
+                                  final String group) {
         this.sqlContext = sqlContext;
         this.group = group;
     }
@@ -50,7 +49,8 @@ public class GetDataFrameOfElements extends AbstractGetOperation<EntitySeed, Dat
         return group;
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetDataFrameOfElements, EntitySeed, Dataset<Row>> {
+    public static class Builder extends AbstractGetOperation.Builder<GetDataFrameOfElements, Void, Dataset<Row>> {
+
         public Builder() {
             this(new GetDataFrameOfElements());
         }
@@ -71,7 +71,7 @@ public class GetDataFrameOfElements extends AbstractGetOperation<EntitySeed, Dat
 
         @Override
         public GetDataFrameOfElements build() {
-            return (GetDataFrameOfElements) super.build();
+            return super.build();
         }
     }
 }
