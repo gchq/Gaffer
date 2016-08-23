@@ -53,16 +53,16 @@ public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends Get
             // Update configuration with instance name, table name, zookeepers, and with view
             accumuloStore.updateConfiguration(conf, operation.getView());
             // Add iterators based on operation-specific (i.e. not view related) options
-            IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
+            final IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getEdgeEntityDirectionFilterIteratorSetting(operation);
             if (edgeEntityDirectionFilter != null) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirectionFilter);
             }
-            if (operation.isSummarise()) {
-                IteratorSetting queryTimeAggregator = accumuloStore.getKeyPackage()
-                        .getIteratorFactory()
-                        .getQueryTimeAggregatorIteratorSetting(accumuloStore);
+            final IteratorSetting queryTimeAggregator = accumuloStore.getKeyPackage()
+                    .getIteratorFactory()
+                    .getQueryTimeAggregatorIteratorSetting(operation.getView(), accumuloStore);
+            if (queryTimeAggregator != null) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, queryTimeAggregator);
             }
         } catch (final StoreException | IteratorSettingException e) {
@@ -73,7 +73,7 @@ public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends Get
     <ELEMENT_SEED extends ElementSeed> void addRanges(final AccumuloStore accumuloStore,
                                                       final Configuration conf,
                                                       final GetOperation<ELEMENT_SEED, ?> operation)
-                                                      throws OperationException {
+            throws OperationException {
         final List<Range> ranges = new ArrayList<>();
         for (final ELEMENT_SEED entitySeed : operation.getSeeds()) {
             try {
