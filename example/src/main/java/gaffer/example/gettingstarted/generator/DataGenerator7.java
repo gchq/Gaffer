@@ -27,33 +27,26 @@ public class DataGenerator7 extends OneToOneElementGenerator<String> {
     @Override
     public Element getElement(final String line) {
         final String[] t = line.split(",");
+        final Edge edge = new Edge("data");
+        edge.setSource(t[0]);
+        edge.setDestination(t[1]);
+        edge.setDirected(true);
 
-        final Element element;
-        if (t.length > 2) {
-            element = new Edge.Builder()
-                    .group("edge")
-                    .source(t[0])
-                    .dest(t[1])
-                    .directed(true)
-                    .property("count", Integer.parseInt(t[2]))
-                    .build();
+        final int count;
+        if (t.length > 2 && null != t[2]) {
+            count = Integer.parseInt(t[2]);
         } else {
-            element = new Entity.Builder()
-                    .group("entity")
-                    .vertex(t[0])
-                    .property("count", Integer.parseInt(t[1]))
-                    .build();
+            count = 1;
         }
-
-        return element;
+        edge.putProperty("count", count);
+        return edge;
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public String getObject(final Element element) {
         if (element instanceof Entity) {
-            final Entity entity = ((Entity) element);
-            return entity.getVertex() + "," + entity.getProperty("count");
+            throw new UnsupportedOperationException();
         } else {
             final Edge edge = ((Edge) element);
             return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("count");

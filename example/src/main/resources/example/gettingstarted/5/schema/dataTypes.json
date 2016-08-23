@@ -10,16 +10,6 @@
         }
       ]
     },
-    "false": {
-      "class": "java.lang.Boolean",
-      "validateFunctions": [
-        {
-          "function": {
-            "class": "gaffer.function.simple.filter.IsFalse"
-          }
-        }
-      ]
-    },
     "count.int": {
       "class": "java.lang.Integer",
       "validateFunctions": [
@@ -38,6 +28,16 @@
         {
           "function": {
             "class": "gaffer.function.simple.filter.Exists"
+          }
+        }
+      ]
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsFalse"
           }
         }
       ]
