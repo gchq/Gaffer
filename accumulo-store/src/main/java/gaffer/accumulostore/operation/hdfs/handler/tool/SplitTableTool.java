@@ -65,7 +65,7 @@ public class SplitTableTool extends Configured implements Tool {
                 new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
             String line = br.readLine();
             while (line != null) {
-                splits.add(new Text(br.readLine()));
+                splits.add(new Text(line));
                 line = br.readLine();
             }
         } catch (final IOException e) {

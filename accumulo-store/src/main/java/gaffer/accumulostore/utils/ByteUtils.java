@@ -35,4 +35,51 @@ public final class ByteUtils {
 
         return bytes1.length - bytes2.length;
     }
+
+    /**
+     * Copy of the isEqual method in {@link org.apache.accumulo.core.data.Key}.
+     *
+     * @param bytes1 first array of bytes to test
+     * @param bytes2 second array of bytes to test
+     * @return true if the provided bytes are equal
+     */
+    public static boolean areKeyBytesEqual(final byte[] bytes1, final byte[] bytes2) {
+        if (bytes1 == bytes2) {
+            return true;
+        }
+
+        int last = bytes1.length;
+
+        if (last != bytes2.length) {
+            return false;
+        }
+
+        if (last == 0) {
+            return true;
+        }
+
+        // since sorted data is usually compared in accumulo,
+        // the prefixes will normally be the same... so compare
+        // the last two charachters first.. the most likely place
+        // to have disorder is at end of the strings when the
+        // data is sorted... if those are the same compare the rest
+        // of the data forward... comparing backwards is slower
+        // (compiler and cpu optimized for reading data forward)..
+        // do not want slower comparisons when data is equal...
+        // sorting brings equals data together
+
+        last--;
+
+        if (bytes1[last] == bytes2[last]) {
+            for (int i = 0; i < last; i++) {
+                if (bytes1[i] != bytes2[i]) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
 }

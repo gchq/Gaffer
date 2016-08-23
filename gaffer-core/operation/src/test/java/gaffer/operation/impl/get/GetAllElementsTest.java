@@ -19,7 +19,6 @@ package gaffer.operation.impl.get;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Element;
@@ -56,18 +55,15 @@ public class GetAllElementsTest implements OperationTest {
                 .includeEntities(false)
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
         assertFalse(getAllElements.isIncludeEntities());
-        assertTrue(getAllElements.isSummarise());
         assertFalse(getAllElements.isPopulateProperties());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getAllElements.getIncludeEdges());
         assertEquals("true", getAllElements.getOption("testOption"));
-        assertTrue(getAllElements.isSummarise());
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 }

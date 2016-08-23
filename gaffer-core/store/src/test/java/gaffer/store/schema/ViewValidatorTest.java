@@ -38,7 +38,7 @@ public class ViewValidatorTest {
         final Schema schema = new Schema();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertTrue(isValid);
@@ -60,7 +60,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -82,7 +82,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertTrue(isValid);
@@ -108,7 +108,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -135,7 +135,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -162,7 +162,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -190,7 +190,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertTrue(isValid);
@@ -213,7 +213,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -235,7 +235,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertTrue(isValid);
@@ -260,7 +260,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -287,7 +287,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -314,7 +314,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertFalse(isValid);
@@ -342,9 +342,190 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema);
+        final boolean isValid = validator.validate(view, schema, false);
 
         // Then
         assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueNoGroupByProperties() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("vertex", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("vertex")
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(Boolean.class)
+                        .build())
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueForNullView() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View();
+        final Schema schema = new Schema.Builder()
+                .type("vertex", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("vertex")
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(Boolean.class)
+                        .build())
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueWhenGroupByPropertiesInSchema() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("vertex", String.class)
+                .type("string|ColumnQualifier", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string|Value", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("vertex")
+                        .property(TestPropertyNames.PROP_1, "string|ColumnQualifier")
+                        .property(TestPropertyNames.PROP_2, "string|ColumnQualifier")
+                        .property(TestPropertyNames.PROP_3, "string|Value")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(Boolean.class)
+                        .property(TestPropertyNames.PROP_1, "string|ColumnQualifier")
+                        .property(TestPropertyNames.PROP_2, "string|ColumnQualifier")
+                        .property(TestPropertyNames.PROP_3, "string|Value")
+                        .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .visibilityProperty(TestPropertyNames.PROP_2)
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenTimestampGroupByPropertyUsedInEntity() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("vertex", String.class)
+                .type("string|Timestamp", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string|Value", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("vertex")
+                        .property(TestPropertyNames.PROP_1, "string|Timestamp")
+                        .property(TestPropertyNames.PROP_2, "string|Value")
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(Boolean.class)
+                        .property(TestPropertyNames.PROP_2, "string|Value")
+                        .build())
+                .timestampProperty(TestPropertyNames.PROP_1)
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, false);
+
+        // Then
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenGroupByPropertyNotInSchema() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_2)
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("vertex", String.class)
+                .type("string|Timestamp", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string|Value", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("vertex")
+                        .property(TestPropertyNames.PROP_2, "string|Value")
+                        .groupBy(TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(Boolean.class)
+                        .property(TestPropertyNames.PROP_1, "string|Timestamp")
+                        .property(TestPropertyNames.PROP_2, "string|Value")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .timestampProperty(TestPropertyNames.PROP_1)
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, true);
+
+        // Then
+        assertFalse(isValid);
     }
 }

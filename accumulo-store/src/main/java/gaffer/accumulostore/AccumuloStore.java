@@ -18,6 +18,7 @@ package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 
@@ -109,7 +110,7 @@ import java.util.Set;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION));
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -331,10 +332,5 @@ public class AccumuloStore extends Store {
     @Override
     public boolean isValidationRequired() {
         return false;
-    }
-
-    @Override
-    public boolean isOrdered() {
-        return true;
     }
 }

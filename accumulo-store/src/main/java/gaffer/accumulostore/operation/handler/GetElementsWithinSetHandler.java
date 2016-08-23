@@ -19,7 +19,6 @@ package gaffer.accumulostore.operation.handler;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloIDWithinSetRetriever;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
@@ -41,18 +40,12 @@ public class GetElementsWithinSetHandler implements OperationHandler<GetElements
     public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
                                          final User user, final AccumuloStore store)
             throws OperationException {
-        final AccumuloRetriever<?> ret;
         try {
-            if (operation.isSummarise()) {
-                ret = new AccumuloIDWithinSetRetriever(store, operation, user,
-                        store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(store));
-            } else {
-                ret = new AccumuloIDWithinSetRetriever(store, operation, user);
-            }
+            return new AccumuloIDWithinSetRetriever(store, operation, user,
+                    store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-        return ret;
     }
 
 }

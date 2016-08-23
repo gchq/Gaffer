@@ -44,5 +44,13 @@ public enum StoreTrait {
      * be invalid based on {@link gaffer.function.FilterFunction}s defined in the
      * {@link gaffer.store.schema.Schema}.
      */
-    STORE_VALIDATION
+    STORE_VALIDATION,
+
+    /**
+     * Ordered stores keep their elements ordered to optimise lookups. An example
+     * of an ordered store is Accumulo, which orders the element keys.
+     * Stores that are ordered have special characteristics such as requiring
+     * serialisers that preserve ordering of the keyed properties.
+     */
+    ORDERED
 }

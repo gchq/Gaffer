@@ -19,7 +19,7 @@ package gaffer.accumulostore.key.core;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
-import gaffer.accumulostore.key.core.impl.CoreKeyColumnQualifierVisibilityValueAggregatorIterator;
+import gaffer.accumulostore.key.core.impl.CoreKeyGroupByAggregatorIterator;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
 import gaffer.accumulostore.key.impl.ElementFilter;
@@ -28,6 +28,10 @@ import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
 
@@ -80,14 +84,48 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     }
 
     @Override
-    public IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store)
+    public IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
+        if (!queryTimeAggregatorRequired(view, store)) {
+            return null;
+        }
         return new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyColumnQualifierVisibilityValueAggregatorIterator.class)
-                .all()
-                .schema(store.getSchema())
-                .keyConverter(store.getKeyPackage().getKeyConverter())
-                .build();
+            AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyGroupByAggregatorIterator.class)
+            .all()
+            .schema(store.getSchema())
+            .view(view)
+            .keyConverter(store.getKeyPackage().getKeyConverter())
+            .build();
+    }
+
+    public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
+        Schema schema = store.getSchema();
+        String visibilityProp = schema.getVisibilityProperty();
+        for (String edgeGroup : view.getEdgeGroups()) {
+            SchemaEdgeDefinition edgeDefinition = schema.getEdge(edgeGroup);
+            if (edgeDefinition.containsProperty(visibilityProp)) {
+                return true;
+            }
+            ViewElementDefinition viewElementDefinition = view.getEdge(edgeGroup);
+            if (viewElementDefinition.getGroupBy() != null) {
+                if (edgeDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
+                    return true;
+                }
+            }
+        }
+        for (String entityGroup : view.getEntityGroups()) {
+            SchemaEntityDefinition entityDefinition = schema.getEntity(entityGroup);
+            if (entityDefinition.containsProperty(visibilityProp)) {
+                return true;
+            }
+            ViewElementDefinition viewElementDefinition = view.getElement(entityGroup);
+            if (viewElementDefinition.getGroupBy() != null)  {
+                if (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -97,14 +135,11 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 return getAggregatorIteratorSetting(store);
             case AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME:
                 return getValidatorIteratorSetting(store);
-            case AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME:
-                return getQueryTimeAggregatorIteratorSetting(store);
             default:
                 throw new IllegalArgumentException("Iterator name is not allowed: " + iteratorName
                         + ". Allowed iterator names are: "
                         + AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME + ","
-                        + AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME + " and "
-                        + AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME);
+                        + AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
         }
     }
 }

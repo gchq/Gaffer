@@ -16,8 +16,6 @@
 package gaffer.accumulostore.key.core.impl;
 
 import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
-import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
@@ -33,55 +31,29 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
 
-public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
-        extends CoreKeyColumnQualifierColumnVisibilityValueCombiner {
-    private ElementAggregator aggregator;
+public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
 
     @Override
-    public ColumnQualifierColumnVisibilityValueTriple reduce(final Key key,
-                                                             final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter) {
-        ColumnQualifierColumnVisibilityValueTriple triple;
-        final String group;
-        try {
-            group = elementConverter.getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
-        } catch (final AccumuloElementConversionException e) {
-            throw new RuntimeException(e);
-        }
-        aggregator = schema.getElement(group).getAggregator();
-        triple = iter.next();
+    public Properties reduce(final String group, final Key key, final Iterator<Properties> iter) {
         if (!iter.hasNext()) {
-            return triple;
+            return new Properties();
         }
-        while (iter.hasNext()) {
-            aggregateProperties(group, triple);
-            triple = iter.next();
-        }
-        aggregateProperties(group, triple);
-        final Properties properties = new Properties();
-        aggregator.state(properties);
-        final ColumnQualifierColumnVisibilityValueTriple result;
-        try {
-            result = new ColumnQualifierColumnVisibilityValueTriple(
-                    elementConverter.buildColumnQualifier(group, properties),
-                    elementConverter.buildColumnVisibility(group, properties),
-                    elementConverter.getValueFromProperties(group, properties));
-        } catch (final AccumuloElementConversionException e) {
-            throw new AggregationException("ColumnQualifierVisibilityAggregatorIterator failed to re-create an element",
-                    e);
-        }
-        return result;
-    }
 
-    private void aggregateProperties(final String group, final ColumnQualifierColumnVisibilityValueTriple triple) {
-        final Properties properties = new Properties();
-        try {
-            properties.putAll(elementConverter.getPropertiesFromColumnQualifier(group, triple.getColumnQualifier()));
-            properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, triple.getColumnVisibility()));
-            properties.putAll(elementConverter.getPropertiesFromValue(group, triple.getValue()));
-        } catch (final AccumuloElementConversionException e) {
-            throw new RuntimeException(e);
+        final Properties properties = iter.next();
+        if (!iter.hasNext()) {
+            return properties;
         }
+
+        final ElementAggregator aggregator = schema.getElement(group).getAggregator();
         aggregator.aggregate(properties);
+        while (iter.hasNext()) {
+            aggregator.aggregate(iter.next());
+        }
+
+        final Properties aggregatedProperties = new Properties();
+        aggregator.state(aggregatedProperties);
+
+        return aggregatedProperties;
     }
 
     @Override
@@ -112,8 +84,9 @@ public class CoreKeyColumnQualifierVisibilityValueAggregatorIterator
 
     @Override
     public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addSchemaNamedOption()
-                .addElementConverterClassNamedOption().build();
+        return new IteratorOptionsBuilder(super.describeOptions())
+                .addSchemaNamedOption()
+                .addElementConverterClassNamedOption()
+                .build();
     }
-
 }
