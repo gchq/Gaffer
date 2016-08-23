@@ -224,7 +224,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 final String attribute = equalTo.attribute();
                 if (attribute.equals(SRC_COL_NAME) || attribute.equals(DST_COL_NAME) || attribute.equals(VERTEX_COL_NAME)) {
                     LOGGER.debug("Found EqualTo filter with attribute {}, creating GetRDDOfElements", attribute);
-                    operation = new GetRDDOfElements(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
+                    operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
                 }
                 break;
             }
