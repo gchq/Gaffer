@@ -15,17 +15,84 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.StreamUtil;
+import gaffer.example.gettingstarted.walkthrough.WalkthroughStrSubstitutor;
+import gaffer.operation.OperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.IOUtils;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-public class LoadAndQuery {
-    private String dataFileLocation;
-    private String schemaFolderLocation;
-    private String storePropertiesLocation;
-
+public abstract class LoadAndQuery {
+    public static final String DESCRIPTION_LOG_KEY = "description";
+    private final Map<String, StringBuilder> logCache = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private boolean cacheLogs;
+    private final int exampleId;
+    private final String header;
+
+    private final String dataFileLocation;
+    private final String schemaFolderLocation;
+    private final String storePropertiesLocation;
+
+    public LoadAndQuery(final String header) {
+
+        exampleId = Integer.parseInt(getClass().getSimpleName().replace(LoadAndQuery.class.getSimpleName(), ""));
+        this.header = "Example " + exampleId + " - " + header;
+        dataFileLocation = "/example/gettingstarted/" + exampleId + "/data.txt";
+        schemaFolderLocation = "/example/gettingstarted/" + exampleId + "/schema";
+        storePropertiesLocation = "/example/gettingstarted/mockaccumulostore.properties";
+    }
+
+    public abstract Iterable run() throws OperationException;
+
+    public void log(final String message) {
+        log(DESCRIPTION_LOG_KEY, message);
+    }
+
+    public void log(final String key, final String message) {
+        if (cacheLogs) {
+            StringBuilder logs = logCache.get(key);
+            if (null == logs) {
+                logs = new StringBuilder();
+                logCache.put(key, logs);
+            } else {
+                logs.append("\n");
+            }
+            logs.append(message);
+        } else {
+            logger.info(message);
+        }
+    }
+
+    public Map<String, StringBuilder> getLogCache() {
+        return logCache;
+    }
+
+    public String walkthrough() throws OperationException {
+        cacheLogs = true;
+        final String walkthrough;
+        try (final InputStream stream = StreamUtil.openStream(getClass(), "/example/gettingstarted/" + exampleId + "/walkthrough.md")) {
+            if (null == stream) {
+                throw new RuntimeException("Missing walkthrough file");
+            }
+            walkthrough = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        final String formattedWalkthrough = WalkthroughStrSubstitutor.substitute(walkthrough, this, exampleId, header);
+        cacheLogs = false;
+
+        return formattedWalkthrough;
+    }
+
+    public String getHeader() {
+        return header;
+    }
 
     protected InputStream getData() {
         return StreamUtil.openStream(LoadAndQuery.class, dataFileLocation, true);
@@ -37,21 +104,5 @@ public class LoadAndQuery {
 
     protected InputStream getStoreProperties() {
         return StreamUtil.openStream(LoadAndQuery.class, storePropertiesLocation, true);
-    }
-
-    public void setDataFileLocation(final String dataFileLocation) {
-        this.dataFileLocation = dataFileLocation;
-    }
-
-    public void setSchemaFolderLocation(final String schemaFolderLocation) {
-        this.schemaFolderLocation = schemaFolderLocation;
-    }
-
-    public void setStorePropertiesLocation(final String storePropertiesLocation) {
-        this.storePropertiesLocation = storePropertiesLocation;
-    }
-
-    public void log(final String message) {
-        logger.info(message);
     }
 }
