@@ -75,7 +75,20 @@ public class LoadAndQuery5 extends LoadAndQuery {
         }
         log("We get nothing back");
 
-        log("\nGet edges with the private visibility. We should get the public edges too\n");
+        log("\nGet edges with the public visibility. We shouldn't see any of the private ones.\n");
+        final User publicUser = new User.Builder()
+                .userId("publicUser")
+                .dataAuth("public")
+                .build();
+        final GetRelatedEdges<EntitySeed> getPublicRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+                .addSeed(new EntitySeed("1"))
+                .build();
+        final Iterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
+        for (Element e : publicResults) {
+            log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
+        }
+
+        log("\nGet edges with the private visibility. We should get the public edges too.\n");
         final User privateUser = new User.Builder()
                 .userId("privateUser")
                 .dataAuth("private")
@@ -87,19 +100,6 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final Iterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         for (Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
-        }
-
-        log("\nGet edges with the public visibility. We shouldn't see any of the private ones. Notice that the Edges are aggregated within visibilities\n");
-        final User publicUser = new User.Builder()
-                .userId("publicUser")
-                .dataAuth("public")
-                .build();
-        final GetRelatedEdges<EntitySeed> getPublicRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
-                .build();
-        final Iterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
-        for (Element e : publicResults) {
-            log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
         }
 
         return publicResults;
