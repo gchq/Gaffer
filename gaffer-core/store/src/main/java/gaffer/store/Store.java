@@ -17,6 +17,7 @@
 package gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -303,14 +304,14 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetElements}
      */
-    protected abstract OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler();
+    protected abstract OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}. All Stores must implement this.
      *
      * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}
      */
-    protected abstract OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler();
+    protected abstract OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAdjacentEntitySeeds}.
@@ -318,7 +319,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetAdjacentEntitySeeds}
      */
-    protected abstract OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler();
+    protected abstract OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.add.AddElements}. All Stores must implement this.
