@@ -28,6 +28,14 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="accumulostore.utils.TableUtils">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="server.handler.ContextHandler">
+        <level value="WARN"/>
+    </logger>
+
     <root>
         <priority value="info"></priority>
         <appender-ref ref="console"></appender-ref>
