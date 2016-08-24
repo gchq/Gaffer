@@ -16,8 +16,8 @@
 package gaffer.accumulostore.operation.hdfs.handler;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.hdfs.handler.tool.SampleDataAndCreateSplitsFileTool;
-import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.handler.job.tool.SampleDataAndCreateSplitsFileTool;
+import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import gaffer.operation.OperationException;
 import gaffer.store.Context;
 import gaffer.store.Store;

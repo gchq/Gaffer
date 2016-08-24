@@ -17,8 +17,8 @@
 package gaffer.accumulostore.operation.hdfs.handler;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.hdfs.handler.tool.ImportElementsToAccumulo;
-import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.handler.job.tool.ImportElementsToAccumuloTool;
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import gaffer.operation.OperationException;
 import gaffer.store.Context;
 import gaffer.store.Store;
@@ -39,7 +39,7 @@ public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<Impo
     }
 
     private void splitTable(final ImportAccumuloKeyValueFiles operation, final AccumuloStore store) throws OperationException {
-        final ImportElementsToAccumulo importTool = new ImportElementsToAccumulo(operation.getInputPath(), operation.getFailurePath(), store);
+        final ImportElementsToAccumuloTool importTool = new ImportElementsToAccumuloTool(operation.getInputPath(), operation.getFailurePath(), store);
         try {
             ToolRunner.run(importTool, new String[0]);
         } catch (final Exception e) {

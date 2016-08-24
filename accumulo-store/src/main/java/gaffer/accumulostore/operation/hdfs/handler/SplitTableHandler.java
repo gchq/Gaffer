@@ -16,8 +16,8 @@
 package gaffer.accumulostore.operation.hdfs.handler;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.hdfs.handler.tool.SplitTableTool;
-import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.hdfs.handler.job.tool.SplitTableTool;
+import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.operation.OperationException;
 import gaffer.store.Context;
 import gaffer.store.Store;
