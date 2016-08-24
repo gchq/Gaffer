@@ -1,6 +1,7 @@
 package gaffer.accumulostore.operation.hdfs.impl;
 
 
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
