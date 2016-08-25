@@ -20,6 +20,7 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.OperationException;
@@ -37,9 +38,9 @@ public class GenerateObjectsHandlerTest {
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
         final Store store = mock(Store.class);
         final GenerateObjects<Element, String> operation = mock(GenerateObjects.class);
-        final Iterable<Element> elements = mock(Iterable.class);
+        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
-        final Iterable<String> objs = mock(Iterable.class);
+        final CloseableIterable<String> objs = mock(CloseableIterable.class);
         final Context context = new Context();
 
         given(elementGenerator.getObjects(elements)).willReturn(objs);

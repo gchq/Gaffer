@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
@@ -39,12 +40,22 @@ public abstract class GetEdges<SEED_TYPE extends ElementSeed> extends GetElement
         setIncludeEdges(IncludeEdgeType.ALL);
     }
 
+    public GetEdges(final CloseableIterable<SEED_TYPE> seeds) {
+        super(seeds);
+        setIncludeEdges(IncludeEdgeType.ALL);
+    }
+
     public GetEdges(final View view) {
         super(view);
         setIncludeEdges(IncludeEdgeType.ALL);
     }
 
     public GetEdges(final View view, final Iterable<SEED_TYPE> seeds) {
+        super(view, seeds);
+        setIncludeEdges(IncludeEdgeType.ALL);
+    }
+
+    public GetEdges(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
         setIncludeEdges(IncludeEdgeType.ALL);
     }

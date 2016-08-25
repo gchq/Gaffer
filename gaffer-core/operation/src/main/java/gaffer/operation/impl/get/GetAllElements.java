@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
@@ -54,7 +55,7 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
-    public void setInput(final Iterable<ElementSeed> input) {
+    public void setInput(final CloseableIterable<ElementSeed> input) {
         if (null != input) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
         }
@@ -66,7 +67,7 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
-    public Iterable<ElementSeed> getInput() {
+    public CloseableIterable<ElementSeed> getInput() {
         return null;
     }
 

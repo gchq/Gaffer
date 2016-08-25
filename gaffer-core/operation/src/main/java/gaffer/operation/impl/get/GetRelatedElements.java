@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
@@ -48,11 +49,19 @@ public class GetRelatedElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exte
         super(seeds);
     }
 
+    public GetRelatedElements(final CloseableIterable<SEED_TYPE> seeds) {
+        super(seeds);
+    }
+
     public GetRelatedElements(final View view) {
         super(view);
     }
 
     public GetRelatedElements(final View view, final Iterable<SEED_TYPE> seeds) {
+        super(view, seeds);
+    }
+
+    public GetRelatedElements(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
@@ -80,6 +89,11 @@ public class GetRelatedElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exte
 
         @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder<SEED_TYPE, ELEMENT_TYPE> seeds(final CloseableIterable<SEED_TYPE> seeds) {
             super.seeds(seeds);
             return this;
         }

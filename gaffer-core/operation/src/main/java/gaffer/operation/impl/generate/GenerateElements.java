@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.generator.ElementGenerator;
@@ -28,13 +30,13 @@ import gaffer.operation.AbstractOperation;
 import java.util.List;
 
 /**
- * An <code>GenerateElements</code> operation generates an {@link java.lang.Iterable} of
- * {@link gaffer.data.element.Element}s from an {@link java.lang.Iterable} of objects.
+ * An <code>GenerateElements</code> operation generates an {@link CloseableIterable} of
+ * {@link gaffer.data.element.Element}s from an {@link CloseableIterable} of objects.
  *
  * @param <OBJ> the type of objects in the input iterable.
  * @see gaffer.operation.impl.generate.GenerateElements.Builder
  */
-public class GenerateElements<OBJ> extends AbstractOperation<Iterable<OBJ>, Iterable<Element>> {
+public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<OBJ>, CloseableIterable<Element>> {
     private ElementGenerator<OBJ> elementGenerator;
 
     public GenerateElements() {
@@ -62,6 +64,18 @@ public class GenerateElements<OBJ> extends AbstractOperation<Iterable<OBJ>, Iter
      *                         {@link gaffer.data.element.Element}s
      */
     public GenerateElements(final Iterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
+        this(new WrappedCloseableIterable<>(objects), elementGenerator);
+    }
+
+    /**
+     * Constructs a <code>GenerateElements</code> operation with input objects and a
+     * {@link gaffer.data.generator.ElementGenerator} to convert the objects into {@link gaffer.data.element.Element}s.
+     *
+     * @param objects          an {@link CloseableIterable} of objects to be converted
+     * @param elementGenerator an {@link gaffer.data.generator.ElementGenerator} to convert objects into
+     *                         {@link gaffer.data.element.Element}s
+     */
+    public GenerateElements(final CloseableIterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
         super(objects);
         this.elementGenerator = elementGenerator;
     }
@@ -69,7 +83,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<Iterable<OBJ>, Iter
     /**
      * @return the input objects to be converted into {@link gaffer.data.element.Element}s
      */
-    public Iterable<OBJ> getObjects() {
+    public CloseableIterable<OBJ> getObjects() {
         return getInput();
     }
 
@@ -83,8 +97,12 @@ public class GenerateElements<OBJ> extends AbstractOperation<Iterable<OBJ>, Iter
 
     @JsonIgnore
     @Override
-    public Iterable<OBJ> getInput() {
+    public CloseableIterable<OBJ> getInput() {
         return super.getInput();
+    }
+
+    public void setInput(final Iterable elements) {
+        super.setInput(new WrappedCloseableIterable<OBJ>(elements));
     }
 
     /**
@@ -111,10 +129,10 @@ public class GenerateElements<OBJ> extends AbstractOperation<Iterable<OBJ>, Iter
      */
     @JsonProperty(value = "objects")
     void setObjectsList(final List<OBJ> objs) {
-        setInput(objs);
+        setInput(new WrappedCloseableIterable<OBJ>(objs));
     }
 
-    public static class Builder<OBJ> extends AbstractOperation.Builder<GenerateElements<OBJ>, Iterable<OBJ>, Iterable<Element>> {
+    public static class Builder<OBJ> extends AbstractOperation.Builder<GenerateElements<OBJ>, CloseableIterable<OBJ>, CloseableIterable<Element>> {
         public Builder() {
             super(new GenerateElements<OBJ>());
         }
@@ -125,6 +143,16 @@ public class GenerateElements<OBJ> extends AbstractOperation<Iterable<OBJ>, Iter
          * @see gaffer.operation.Operation#setInput(Object)
          */
         public Builder<OBJ> objects(final Iterable<OBJ> objects) {
+            op.setInput(new WrappedCloseableIterable(objects));
+            return this;
+        }
+
+        /**
+         * @param objects the {@link CloseableIterable} of objects to set as the input to the operation
+         * @return this Builder
+         * @see gaffer.operation.Operation#setInput(Object)
+         */
+        public Builder<OBJ> objects(final CloseableIterable<OBJ> objects) {
             op.setInput(objects);
             return this;
         }

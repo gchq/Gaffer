@@ -21,6 +21,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.Deduplicate;
 import gaffer.store.Context;
@@ -32,7 +34,7 @@ public class DeduplicateHandlerTest {
     @Test
     public void shouldDeduplicateResults() throws OperationException {
         // Given
-        final Iterable<Integer> originalResults = Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10);
+        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10));
         final DeduplicateHandler<Integer> handler = new DeduplicateHandler<>();
         final Deduplicate<Integer> operation = mock(Deduplicate.class);
 
@@ -48,7 +50,7 @@ public class DeduplicateHandlerTest {
     @Test
     public void shouldDeduplicateResultsAndMaintainOrder() throws OperationException {
         // Given
-        final Iterable<Integer> originalResults = Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1);
+        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1));
         final DeduplicateHandler<Integer> handler = new DeduplicateHandler<>();
         final Deduplicate<Integer> operation = mock(Deduplicate.class);
 

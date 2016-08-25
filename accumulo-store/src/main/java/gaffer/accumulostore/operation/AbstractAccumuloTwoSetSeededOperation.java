@@ -89,6 +89,7 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
 
         @Override
         public OP_TYPE build() {
+            super.build();
             if (!this.seedsB.isEmpty()) {
                 final Iterable<SEED_TYPE> seeds = this.op.getSeedsB();
                 if (null != seeds) {

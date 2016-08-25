@@ -308,7 +308,7 @@ public class StoreTest {
 
         final AddElements addElements1 = new AddElements();
         final GetElementsBySeed<ElementSeed, Element> getElementsBySeed = new GetElementsBySeed<>();
-        final OperationChain<Iterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
                 .then(getElementsBySeed)
                 .build();
