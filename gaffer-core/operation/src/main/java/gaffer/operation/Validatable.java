@@ -49,12 +49,12 @@ public interface Validatable<OUTPUT> extends Operation<CloseableIterable<Element
     void setValidate(final boolean validate);
 
     /**
-     * @return the input {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s in the operation.
+     * @return the input {@link CloseableIterable} of {@link gaffer.data.element.Element}s in the operation.
      */
     CloseableIterable<Element> getElements();
 
     /**
-     * @param elements the {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s to be set as the
+     * @param elements the {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be set as the
      *                 input for the operation.
      */
     void setElements(final CloseableIterable<Element> elements);

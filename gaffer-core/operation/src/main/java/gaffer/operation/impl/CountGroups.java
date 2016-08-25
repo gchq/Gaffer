@@ -46,9 +46,9 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
     }
 
     /**
-     * @return the input {@link Iterable} of {@link Element}s to be validated.
+     * @return the input {@link CloseableIterable} of {@link Element}s to be validated.
      */
-    public Iterable<Element> getElements() {
+    public CloseableIterable<Element> getElements() {
         return getInput();
     }
 
@@ -56,7 +56,7 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
      * @param elements the input {@link Iterable} of {@link Element}s to be validated.
      */
     public void setElements(final Iterable<Element> elements) {
-        setInput(new WrappedCloseableIterable<Element>(elements));
+        setElements(new WrappedCloseableIterable<Element>(elements));
     }
 
     /**
@@ -85,7 +85,7 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
      */
     @JsonProperty(value = "elements")
     List<Element> getElementList() {
-        final Iterable<Element> input = getInput();
+        final CloseableIterable<Element> input = getInput();
         return null != input ? Lists.newArrayList(input) : null;
     }
 
@@ -94,7 +94,7 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
      */
     @JsonProperty(value = "elements")
     void setElementList(final List<Element> elements) {
-        setInput(new WrappedCloseableIterable<Element>(elements));
+        setInput(new WrappedCloseableIterable<>(elements));
     }
 
     public static class Builder extends AbstractOperation.Builder<CountGroups, CloseableIterable<Element>, GroupCounts> {
@@ -113,6 +113,11 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
             return this;
         }
 
+        /**
+         * @param elements the input {@link CloseableIterable} of {@link Element}s to be set on the operation.
+         * @return this Builder
+         * @see CountGroups#setElements(CloseableIterable)
+         */
         public Builder elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);
             return this;

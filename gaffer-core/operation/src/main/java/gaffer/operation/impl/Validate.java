@@ -56,7 +56,7 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
     }
 
     /**
-     * @return the input {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s to be validated.
+     * @return the input {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be validated.
      */
     public CloseableIterable<Element> getElements() {
         return getInput();
@@ -66,7 +66,7 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
      * @param elements the input {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s to be validated.
      */
     public void setElements(final Iterable<Element> elements) {
-        setInput(new WrappedCloseableIterable<Element>(elements));
+        setElements(new WrappedCloseableIterable<>(elements));
     }
 
     /**
@@ -101,7 +101,7 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
      */
     @JsonProperty(value = "elements")
     List<Element> getElementList() {
-        final Iterable<Element> input = getInput();
+        final CloseableIterable<Element> input = getInput();
         return null != input ? Lists.newArrayList(input) : null;
     }
 
@@ -110,7 +110,7 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
      */
     @JsonProperty(value = "elements")
     void setElementList(final List<Element> elements) {
-        setInput(new WrappedCloseableIterable<Element>(elements));
+        setInput(new WrappedCloseableIterable<>(elements));
     }
 
     public static class Builder extends AbstractOperation.Builder<Validate, CloseableIterable<Element>, CloseableIterable<Element>> {
@@ -131,7 +131,7 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
         /**
          * @param elements the input {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be set on the operation.
          * @return this Builder
-         * @see gaffer.operation.impl.Validate#setElements(Iterable)
+         * @see gaffer.operation.impl.Validate#setElements(CloseableIterable)
          */
         public Builder elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);

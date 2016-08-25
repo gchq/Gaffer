@@ -55,6 +55,13 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
+    public void setSeeds(final CloseableIterable<ElementSeed> seeds) {
+        if (null != seeds) {
+            throw new IllegalArgumentException("This operation does not allow seeds to be set");
+        }
+    }
+
+    @Override
     public void setInput(final CloseableIterable<ElementSeed> input) {
         if (null != input) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
@@ -62,7 +69,7 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
-    public Iterable<ElementSeed> getSeeds() {
+    public CloseableIterable<ElementSeed> getSeeds() {
         return null;
     }
 

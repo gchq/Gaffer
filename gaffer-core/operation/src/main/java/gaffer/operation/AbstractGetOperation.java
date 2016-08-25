@@ -44,7 +44,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     protected AbstractGetOperation(final Iterable<SEED_TYPE> seeds) {
-        super(new WrappedCloseableIterable<>(seeds));
+        this(new WrappedCloseableIterable<>(seeds));
     }
 
     protected AbstractGetOperation(final CloseableIterable<SEED_TYPE> seeds) {
@@ -56,7 +56,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     protected AbstractGetOperation(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, new WrappedCloseableIterable<SEED_TYPE>(seeds));
+        this(view, new WrappedCloseableIterable<SEED_TYPE>(seeds));
     }
 
     protected AbstractGetOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
@@ -86,15 +86,15 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     @Override
-    public Iterable<SEED_TYPE> getSeeds() {
+    public CloseableIterable<SEED_TYPE> getSeeds() {
         return getInput();
     }
 
-    @Override
     public void setSeeds(final Iterable<SEED_TYPE> seeds) {
-        setInput(new WrappedCloseableIterable<>(seeds));
+        setSeeds(new WrappedCloseableIterable<>(seeds));
     }
 
+    @Override
     public void setSeeds(final CloseableIterable<SEED_TYPE> seeds) {
         setInput(seeds);
     }
@@ -114,7 +114,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
 
     @JsonSetter(value = "seeds")
     void setSeedArray(final SEED_TYPE[] seeds) {
-        setInput(new WrappedCloseableIterable<SEED_TYPE>(Arrays.asList(seeds)));
+        setInput(new WrappedCloseableIterable<>(Arrays.asList(seeds)));
     }
 
     @Override
@@ -225,7 +225,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
-         * Sets an {@link java.lang.Iterable} of SEED_TYPE on the operation.
+         * Sets an {@link CloseableIterable} of SEED_TYPE on the operation.
          * It should not be used in conjunction with addSeed(SEED_TYPE).
          *
          * @param newSeeds an {@link CloseableIterable} of SEED_TYPE to set on the operation.

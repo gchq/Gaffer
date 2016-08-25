@@ -117,10 +117,6 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         setInput(new WrappedCloseableIterable<Element>(elements));
     }
 
-    void setElementList(final CloseableIterable<Element> elements) {
-        setInput(elements);
-    }
-
     @Override
     public boolean isSkipInvalidElements() {
         return skipInvalidElements;

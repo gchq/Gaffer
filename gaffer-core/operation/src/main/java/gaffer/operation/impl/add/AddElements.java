@@ -41,7 +41,7 @@ public class AddElements extends AbstractValidatable<Void> implements VoidOutput
     }
 
     /**
-     * Constructs an <code>AddElements</code> with the given {@link java.lang.Iterable} of
+     * Constructs an <code>AddElements</code> with the given {@link CloseableIterable} of
      * {@link gaffer.data.element.Element}s to be added.
      *
      * @param elements the {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be added.
