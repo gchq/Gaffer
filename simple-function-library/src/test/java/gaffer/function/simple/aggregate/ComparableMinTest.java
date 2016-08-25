@@ -1,39 +1,36 @@
 package gaffer.function.simple.aggregate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 
-public class ComparableMaxTest extends AggregateFunctionTest {
+import static org.junit.Assert.*;
+
+public class ComparableMinTest extends AggregateFunctionTest {
     @Test
-    public void shouldReturnMaximumValue() {
+    public void shouldReturnMinimumValue() {
         // Given
-        final ComparableMax aggregator = getInstance();
+        final ComparableMin aggregator = getInstance();
         aggregator.init();
 
         // When
-        aggregator._aggregate(1);
         aggregator._aggregate(3);
+        aggregator._aggregate(1);
         aggregator._aggregate(2);
 
         // Then
-        assertEquals(3, aggregator.state()[0]);
+        assertEquals(1, aggregator.state()[0]);
     }
 
     @Test
     public void shouldCloneAggregator() {
         // Given
-        final ComparableMax aggregator = getInstance();
+        final ComparableMin aggregator = getInstance();
         aggregator._aggregate(1);
 
         // When
-        final ComparableMax clone = aggregator.statelessClone();
+        final ComparableMin clone = aggregator.statelessClone();
 
         // Then
         assertNotSame(aggregator, clone);
@@ -44,30 +41,30 @@ public class ComparableMaxTest extends AggregateFunctionTest {
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final ComparableMax aggregator = getInstance();
+        final ComparableMin aggregator = getInstance();
 
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
 
         // Then 1
         assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.ComparableMax\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.ComparableMin\"%n" +
                 "}"), json);
 
         // When 2
-        final ComparableMax deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), getFunctionClass());
+        final ComparableMin deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), getFunctionClass());
 
         // Then 2
         assertNotNull(deserialisedAggregator);
     }
 
     @Override
-    protected ComparableMax getInstance() {
-        return new ComparableMax();
+    protected ComparableMin getInstance() {
+        return new ComparableMin();
     }
 
     @Override
-    protected Class<ComparableMax> getFunctionClass() {
-        return ComparableMax.class;
+    protected Class<ComparableMin> getFunctionClass() {
+        return ComparableMin.class;
     }
 }
