@@ -31,10 +31,9 @@ import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.serialisation.implementation.JavaSerialiser;
-import gaffer.serialisation.simple.IntegerSerialiser;
-import gaffer.serialisation.simple.LongSerialiser;
-import gaffer.serialisation.simple.StringSerialiser;
+import gaffer.serialisation.implementation.StringSerialiser;
+import gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import gaffer.store.StoreProperties;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
@@ -173,21 +172,26 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new JavaSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new IntegerSerialiser())
+                        .serialiser(new CompactRawIntegerSerialiser())
                         .build())
                 .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Sum())
-                        .serialiser(new LongSerialiser())
+                        .serialiser(new CompactRawLongSerialiser())
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Max())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                        .groupBy(TestPropertyNames.INT)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -195,6 +199,7 @@ public abstract class AbstractStoreIT {
                         .directed(TestTypes.DIRECTED_EITHER)
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .groupBy(TestPropertyNames.INT)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();

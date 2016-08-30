@@ -17,9 +17,9 @@
 package gaffer.accumulostore.operation.handler;
 
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
-import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Element;
@@ -44,30 +44,28 @@ public class SummariseGroupOverRangesHandler
     public Iterable<Element> doOperation(final SummariseGroupOverRanges<Pair<ElementSeed>, Element> operation,
                                          final User user,
                                          final AccumuloStore store) throws OperationException {
-
-        int numEdgeGroups = operation.getView().getEdgeGroups().size();
-        int numEntityGroups = operation.getView().getEntityGroups().size();
+        final int numEdgeGroups = operation.getView().getEdgeGroups().size();
+        final int numEntityGroups = operation.getView().getEntityGroups().size();
         if ((numEdgeGroups + numEntityGroups) != 1) {
             throw new OperationException("You may only set one Group in your view for this operation.");
         }
-        String columnFamily;
+
+        final String columnFamily;
         if (numEdgeGroups == 1) {
             columnFamily = (String) operation.getView().getEdgeGroups().toArray()[0];
         } else {
             columnFamily = (String) operation.getView().getEntityGroups().toArray()[0];
         }
-        final AccumuloRetriever<?> ret;
+
+        final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
-            ret = new AccumuloRangeIDRetriever(store, operation, user,
-                        store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(),
-                                store),
-                        store.getKeyPackage().getIteratorFactory()
-                                .getEdgeEntityDirectionFilterIteratorSetting(operation),
-                        store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
-                        store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, columnFamily));
+            return new AccumuloRangeIDRetriever(store, operation, user,
+                    itrFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
+                    itrFactory.getElementPropertyRangeQueryFilter(operation),
+                    itrFactory.getRowIDAggregatorIteratorSetting(store, columnFamily));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
-        return ret;
     }
 }

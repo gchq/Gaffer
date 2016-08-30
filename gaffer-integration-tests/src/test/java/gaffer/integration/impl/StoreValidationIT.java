@@ -10,7 +10,6 @@ import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
-import gaffer.function.simple.aggregate.Max;
 import gaffer.function.simple.filter.AgeOff;
 import gaffer.function.simple.filter.IsLessThan;
 import gaffer.integration.AbstractStoreIT;
@@ -38,11 +37,9 @@ public class StoreValidationIT extends AbstractStoreIT {
         final Schema schema = super.createSchema();
         schema.merge(new Schema.Builder()
                 .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
-                        .clazz(Long.class)
                         .validator(new ElementFilter.Builder()
                                 .execute(new AgeOff(AGE_OFF_TIME))
                                 .build())
-                        .aggregateFunction(new Max())
                         .build())
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .validator(new ElementFilter.Builder()

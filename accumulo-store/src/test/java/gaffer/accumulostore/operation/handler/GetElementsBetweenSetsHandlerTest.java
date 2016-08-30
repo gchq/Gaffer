@@ -32,6 +32,7 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.OperationException;
@@ -74,8 +75,18 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    }
+
+    @Before
+    public void reInitialise() throws StoreException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
         expectedEdge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
         expectedEdge2.putProperty(AccumuloPropertyNames.COUNT, 23);
@@ -92,16 +103,11 @@ public class GetElementsBetweenSetsHandlerTest {
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         defaultView = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .build();
-    }
 
-    @Before
-    public void reInitialise() throws StoreException {
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
@@ -147,7 +153,14 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private void shouldReturnSummarisedElements(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.setSummarise(true);
+        defaultView = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, user, store);
 
@@ -169,7 +182,14 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.setSummarise(true);
+        defaultView = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
@@ -184,7 +204,7 @@ public class GetElementsBetweenSetsHandlerTest {
     @Test
     public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
         shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
-     }
+    }
 
     @Test
     public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
@@ -214,8 +234,15 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.setSummarise(true);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, user, store);
@@ -237,8 +264,15 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.setSummarise(true);
+        final View view = new View.Builder(defaultView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final Iterable<Element> elements = handler.doOperation(op, user, store);
@@ -260,6 +294,10 @@ public class GetElementsBetweenSetsHandlerTest {
             final Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
             edge.putProperty(AccumuloPropertyNames.COUNT, 23);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+            edge.putProperty(AccumuloPropertyNames.PROP_1, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
+            edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
             data.add(edge);
 
             final Edge edge2 = new Edge(TestGroups.EDGE, "A0", "A" + i, true);

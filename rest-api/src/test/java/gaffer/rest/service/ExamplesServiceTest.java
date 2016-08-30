@@ -148,7 +148,7 @@ public class ExamplesServiceTest {
         assertNotNull(view);
 
         final ViewValidator viewValidator = new ViewValidator();
-        final boolean validate = viewValidator.validate(view, schema);
+        final boolean validate = viewValidator.validate(view, schema, false);
         assertTrue(validate);
     }
 

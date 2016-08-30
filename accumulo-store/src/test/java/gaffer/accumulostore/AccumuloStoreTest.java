@@ -18,6 +18,7 @@ package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertEquals;
@@ -34,9 +35,9 @@ import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
-import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
-import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
-import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -59,7 +60,7 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.StoreException;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
@@ -99,6 +100,12 @@ public class AccumuloStoreTest {
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
+    }
+
+    @Test
+    public void shouldBeAnOrderedStore() {
+        assertTrue(byteEntityStore.hasTrait(StoreTrait.ORDERED));
+        assertTrue(gaffer1KeyStore.hasTrait(StoreTrait.ORDERED));
     }
 
     @Test
@@ -210,11 +217,12 @@ public class AccumuloStoreTest {
     public void testStoreTraits(AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 4", traits.size() == 4);
+        assertTrue("Collection size should be 4", traits.size() == 5);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
         assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING));
         assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
+        assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
     }
 
 }

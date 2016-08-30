@@ -29,75 +29,79 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoadAndQuery5 extends LoadAndQuery {
+    public LoadAndQuery5() {
+        super("Visibilities");
+    }
+
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery5().run();
     }
 
     public Iterable<Edge> run() throws OperationException {
+        final User basicUser = new User("basicUser");
 
-        setDataFileLocation("/example/gettingstarted/5/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/5/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
+        //create some edges from the data file using our data generator class
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator5 dataGenerator = new DataGenerator5();
+        for (String s : DataUtils.loadData(getData())) {
+            elements.add(dataGenerator.getElement(s));
+        }
+        log("Elements generated from the data file.");
+        for (final Element element : elements) {
+            log("GENERATED_EDGES", element.toString());
+        }
+        log("");
 
-        final Graph graph5 = new Graph.Builder()
+        //create a graph using our schema and store properties
+        final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        final List<Element> elements = new ArrayList<>();
-        final DataGenerator5 dataGenerator5 = new DataGenerator5();
-        log("\nTurn the data into Graph Edges\n");
-        for (String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator5.getElement(s));
-            log(dataGenerator5.getElement(s).toString());
-        }
-        log("");
-
+        //add the edges to the graph
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
+        graph.execute(addElements, basicUser);
+        log("The elements have been added.\n");
 
-        final User basicUser = new User("basicUser");
-        graph5.execute(addElements, basicUser);
-
+        log("\nNow run a simple query to get edges\n");
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-
-        log("\nNow run a simple query to get edges\n");
-        final Iterable<Edge> results = graph5.execute(getRelatedEdges, basicUser);
-        for (Element e : results) {
-            log(e.toString());
+        final Iterable<Edge> resultsWithBasicUser = graph.execute(getRelatedEdges, basicUser);
+        for (Element e : resultsWithBasicUser) {
+            log("GET_RELATED_EDGES_RESULT", e.toString());
         }
         log("We get nothing back");
 
+        log("\nGet edges with the private visibility. We should get the public edges too\n");
         final User privateUser = new User.Builder()
                 .userId("privateUser")
                 .dataAuth("private")
                 .build();
-        log("\nGet edges with the private visibility. We should get the public edges too\n");
-        final Iterable<Edge> privatePublicResults = graph5.execute(getRelatedEdges, privateUser);
-        for (Element e : privatePublicResults) {
-            log(e.toString());
+
+        final GetRelatedEdges<EntitySeed> getPrivateRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+                .addSeed(new EntitySeed("1"))
+                .build();
+        final Iterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
+        for (Element e : privateResults) {
+            log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
         }
 
+        log("\nGet edges with the public visibility. We shouldn't see any of the private ones. Notice that the Edges are aggregated within visibilities\n");
         final User publicUser = new User.Builder()
                 .userId("publicUser")
                 .dataAuth("public")
                 .build();
-        log("\nGet edges with the public visibility. We shouldn't see any of the private ones. Notice that the Edges are aggregated within visibilities\n");
-        final Iterable<Edge> publicResults = graph5.execute(getRelatedEdges, publicUser);
+        final GetRelatedEdges<EntitySeed> getPublicRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+                .addSeed(new EntitySeed("1"))
+                .build();
+        final Iterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
         for (Element e : publicResults) {
-            log(e.toString());
+            log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
         }
 
-        getRelatedEdges.setSummarise(true);
-        log("\nGet edges with the private visibility again but this time, aggregate the visibilities based on the rules in gaffer.example.gettingstarted.function.VisibilityAggregator.\n");
-        final Iterable<Edge> privatePublicAggregatedResults = graph5.execute(getRelatedEdges, privateUser);
-        for (Element e : privatePublicAggregatedResults) {
-            log(e.toString());
-        }
-
-        return privatePublicAggregatedResults;
+        return publicResults;
     }
 }

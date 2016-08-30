@@ -16,6 +16,12 @@
 
 package gaffer.accumulostore;
 
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.ORDERED;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -33,9 +39,9 @@ import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
-import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
-import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
-import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -56,7 +62,7 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -80,17 +86,10 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -103,7 +102,7 @@ import static gaffer.store.StoreTrait.TRANSFORMATION;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION));
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -118,7 +117,6 @@ public class AccumuloStore extends Store {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
         this.keyPackage.setSchema(schema);
-        validateSchemasAgainstKeyDesign();
         TableUtils.ensureTableExists(this);
     }
 
@@ -317,19 +315,6 @@ public class AccumuloStore extends Store {
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
-    }
-
-    @Override
-    public void validateSchemas() {
-        super.validateSchemas();
-        final Map<String, String> positions = this.getSchema().getPositions();
-        if (positions != null && !positions.isEmpty()) {
-            LOGGER.warn("The schema positions are not used and will be ignored.");
-        }
-    }
-
-    protected void validateSchemasAgainstKeyDesign() {
-        keyPackage.validateSchema(this.getSchema());
     }
 
     @Override

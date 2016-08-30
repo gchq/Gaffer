@@ -71,11 +71,6 @@ public class GetElementsBetweenSets<ELEMENT_TYPE extends Element>
         }
 
         @Override
-        public Builder<ELEMENT_TYPE> summarise(final boolean summarise) {
-            return (Builder<ELEMENT_TYPE>) super.summarise(summarise);
-        }
-
-        @Override
         public Builder<ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
             return (Builder<ELEMENT_TYPE>) super.deduplicate(deduplicate);
         }

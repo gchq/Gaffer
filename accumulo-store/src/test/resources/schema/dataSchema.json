@@ -1,34 +1,52 @@
 {
   "entities": {
     "BasicEntity": {
-      "vertex": "id.object",
+      "vertex": "vertex.string",
       "properties": {
         "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
+      ]
     }
   },
   "edges": {
     "BasicEdge": {
-      "source": "id.object",
-      "destination": "id.object",
+      "source": "vertex.string",
+      "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
         "property1": "simpleProperty",
         "property2": "simpleProperty",
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
+      ]
     },
     "BasicEdge2": {
-      "source": "id.object",
-      "destination": "id.object",
+      "source": "vertex.string",
+      "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
@@ -37,7 +55,10 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty"
-      }
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   }
 }

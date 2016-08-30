@@ -17,11 +17,11 @@
 package gaffer.accumulostore.operation.hdfs.handler;
 
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.operation.hdfs.handler.tool.FetchElementsFromHdfs;
-import gaffer.accumulostore.operation.hdfs.handler.tool.ImportElementsToAccumulo;
+import gaffer.accumulostore.operation.hdfs.handler.job.tool.FetchElementsFromHdfsTool;
+import gaffer.accumulostore.operation.hdfs.handler.job.tool.ImportElementsToAccumuloTool;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
@@ -54,33 +54,39 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)
             throws OperationException {
-        final FetchElementsFromHdfs fetchTool = new FetchElementsFromHdfs(operation, store);
+        final FetchElementsFromHdfsTool fetchTool = new FetchElementsFromHdfsTool(operation, store);
         final int response;
         try {
-            LOGGER.info("Running FetchElementsFromHdfs job");
+            LOGGER.info("Running FetchElementsFromHdfsTool job");
             response = ToolRunner.run(fetchTool, new String[0]);
+            LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
+            LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());
             throw new OperationException("Failed to fetch elements from HDFS", e);
         }
 
-        if (FetchElementsFromHdfs.SUCCESS_RESPONSE != response) {
+        if (FetchElementsFromHdfsTool.SUCCESS_RESPONSE != response) {
+            LOGGER.error("Failed to fetch elements from HDFS. Response code was {}", response);
             throw new OperationException("Failed to fetch elements from HDFS. Response code was: " + response);
         }
     }
 
     private void importElements(final AddElementsFromHdfs operation, final AccumuloStore store)
             throws OperationException {
-        final ImportElementsToAccumulo importTool;
+        final ImportElementsToAccumuloTool importTool;
         final int response;
-        importTool = new ImportElementsToAccumulo(operation.getOutputPath(), operation.getFailurePath(), store);
+        importTool = new ImportElementsToAccumuloTool(operation.getOutputPath(), operation.getFailurePath(), store);
         try {
             LOGGER.info("Running import job");
             response = ToolRunner.run(importTool, new String[0]);
+            LOGGER.info("Finished running import job");
         } catch (final Exception e) {
-            throw new OperationException("Failed to import elements into Accumulo.", e);
+            LOGGER.error("Failed to import elements into Accumulo: {}", e.getMessage());
+            throw new OperationException("Failed to import elements into Accumulo", e);
         }
 
-        if (ImportElementsToAccumulo.SUCCESS_RESPONSE != response) {
+        if (ImportElementsToAccumuloTool.SUCCESS_RESPONSE != response) {
+            LOGGER.error("Failed to import elements into Accumulo. Response code was {}", response);
             throw new OperationException("Failed to import elements into Accumulo. Response code was: " + response);
         }
     }

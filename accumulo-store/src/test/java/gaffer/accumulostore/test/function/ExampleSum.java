@@ -27,17 +27,17 @@ public class ExampleSum extends SimpleAggregateFunction<Integer> {
 
     @Override
     public void init() {
-        aggregate = 0;
+        aggregate = null;
     }
 
     @Override
     protected void _aggregate(final Integer input) {
-        if (aggregate == null) {
-            init();
-        }
-
         if (input != null) {
-            aggregate = aggregate + input;
+            if (aggregate == null) {
+                aggregate = input;
+            } else {
+                aggregate = aggregate + input;
+            }
         }
     }
 

@@ -31,6 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoadAndQuery2 extends LoadAndQuery {
+    public LoadAndQuery2() {
+        super("Querying for specific Groups");
+    }
+
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery2().run();
     }
@@ -38,53 +42,54 @@ public class LoadAndQuery2 extends LoadAndQuery {
     public Iterable<Edge> run() throws OperationException {
         final User user = new User("user01");
 
-        setDataFileLocation("/example/gettingstarted/2/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/2/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
+        //create some edges from the data file using our data generator class
+        final List<Element> elements = new ArrayList<>();
+        final DataGenerator2 dataGenerator = new DataGenerator2();
+        for (String s : DataUtils.loadData(getData())) {
+            elements.add(dataGenerator.getElement(s));
+        }
+        log("Elements generated from the data file.");
+        for (final Element element : elements) {
+            log("GENERATED_EDGES", element.toString());
+        }
+        log("");
 
-        final Graph graph2 = new Graph.Builder()
+        //create a graph using our schema and store properties
+        final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
 
-        final List<Element> elements = new ArrayList<>();
-        final DataGenerator2 dataGenerator2 = new DataGenerator2();
-        log("\nTurn the data into Graph Edges\n");
-        for (String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator2.getElement(s));
-            log(dataGenerator2.getElement(s).toString());
-        }
-        log("");
-
+        //add the edges to the graph
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
+        graph.execute(addElements, user);
+        log("The elements have been added.\n");
 
-        graph2.execute(addElements, user);
-
-        //get all the edges
+        //get all the edges related to vertex 1
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-
+        final Iterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
         log("\nAll edges containing vertex 1");
         log("\nNotice that the edges are aggregated within their groups");
-        final Iterable<Edge> allColoursResults = graph2.execute(getRelatedEdges, user);
         for (Element e : allColoursResults) {
-            log(e.toString());
+            log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
-        //create a View to specify which subset of results we want
+        //rerun the previous query with a View to specify which subset of results we want
         final View view = new View.Builder()
                 .edge("red")
                 .build();
-        //rerun the previous query with our view
-        getRelatedEdges.setView(view);
-
+        final GetRelatedEdges<EntitySeed> getRelatedRedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+                .addSeed(new EntitySeed("1"))
+                .view(view)
+                .build();
+        final Iterable<Edge> redResults = graph.execute(getRelatedRedEdges, user);
         log("\nAll red edges containing vertex 1\n");
-        final Iterable<Edge> redResults = graph2.execute(getRelatedEdges, user);
         for (Element e : redResults) {
-            log(e.toString());
+            log("GET_RELATED_RED_EDGES_RESULT", e.toString());
         }
 
         return redResults;

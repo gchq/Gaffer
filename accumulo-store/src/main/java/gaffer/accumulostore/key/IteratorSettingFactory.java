@@ -94,11 +94,12 @@ public interface IteratorSettingFactory {
      * Returns an Iterator that will aggregate values at query time this is to
      * be used for the summarise option on getElement queries.
      *
+     * @param view  the operation view
      * @param store the accumulo store
      * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
-    IteratorSetting getQueryTimeAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
+    IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store) throws IteratorSettingException;
 
     /**
      * Returns an Iterator that will aggregate properties across a range of RowID's for a given columnFamily
@@ -116,7 +117,6 @@ public interface IteratorSettingFactory {
      * key creation.  Examples of things that may not work correctly on
      * Range operations without this iterator are
      * Edge/Entity/Undirected/Directed Edge filtering
-     *
      * This method May return null if this type of iterator is not required for example
      * if all needed filtering is applied elsewhere.
      *

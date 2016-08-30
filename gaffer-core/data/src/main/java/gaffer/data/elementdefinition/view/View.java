@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
  * The <code>View</code> defines the {@link gaffer.data.element.Element}s to be returned for an operation.
@@ -68,6 +69,15 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @Override
     public ViewElementDefinition getElement(final String group) {
         return (ViewElementDefinition) super.getElement(group);
+    }
+
+    public LinkedHashSet<String> getElementGroupBy(final String group) {
+        ViewElementDefinition viewElementDef = (ViewElementDefinition) super.getElement(group);
+        if (null == viewElementDef) {
+            return null;
+        }
+
+        return viewElementDef.getGroupBy();
     }
 
     public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
@@ -116,6 +126,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         public View build() {
             return (View) super.build();
+        }
+
+        @Override
+        protected View getElementDefs() {
+            return (View) super.getElementDefs();
         }
     }
 }

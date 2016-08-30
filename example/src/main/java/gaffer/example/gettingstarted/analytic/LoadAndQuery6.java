@@ -32,6 +32,9 @@ import gaffer.user.User;
 import java.util.List;
 
 public class LoadAndQuery6 extends LoadAndQuery {
+    public LoadAndQuery6() {
+        super("Operation Chains");
+    }
 
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery6().run();
@@ -39,10 +42,6 @@ public class LoadAndQuery6 extends LoadAndQuery {
 
     public Iterable<String> run() throws OperationException {
         final User user = new User("user01");
-
-        setDataFileLocation("/example/gettingstarted/6/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/6/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create a graph using our schema and store properties
         final Graph graph = new Graph.Builder()
@@ -92,7 +91,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         final Iterable<String> results = graph.execute(opChain, user);
         log("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");
         for (String result : results) {
-            log(result);
+            log("RESULT", result);
         }
 
         return results;
