@@ -34,6 +34,14 @@ public enum StoreTrait {
     FILTERING,
 
     /**
+     * Most stores should have this trait if they have Transformations as if you use Operation.validatePostFilter(Element) in you handlers,
+     * it will deal with the filtering for you.
+     * {@link gaffer.data.element.Element}s are filtered using {@link gaffer.function.FilterFunction}s defined in a
+     * {@link gaffer.data.elementdefinition.view.View}.
+     */
+    POST_FILTERING,
+
+    /**
      * {@link gaffer.data.element.Element} {@link gaffer.data.element.Properties} are transformed using
      * {@link gaffer.function.TransformFunction}s defined in a {@link gaffer.data.elementdefinition.view.View}.
      */

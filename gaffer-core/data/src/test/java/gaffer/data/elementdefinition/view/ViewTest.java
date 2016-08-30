@@ -106,6 +106,10 @@ public class ViewTest {
                                 .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
                                 .build())
+                        .postFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new ExampleFilterFunction())
+                                .build())
                         .build())
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .filter(new ElementFilter.Builder()
@@ -125,6 +129,14 @@ public class ViewTest {
                 "      \"transientProperties\" : {%n" +
                 "        \"property3\" : \"java.lang.String\"%n" +
                 "      },%n" +
+                "      \"postTransformFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ {%n" +
+                "          \"key\" : \"property3\"%n" +
+                "        } ]%n" +
+                "      } ],%n" +
                 "      \"transformFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleTransformFunction\"%n" +
@@ -166,6 +178,10 @@ public class ViewTest {
                                 .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
                                 .build())
+                        .postFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new ExampleFilterFunction())
+                                .build())
                         .build())
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .filter(new ElementFilter.Builder()
@@ -200,5 +216,9 @@ public class ViewTest {
         assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(1).getPropertyName());
         assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().size());
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection().get(0).getPropertyName());
+        assertEquals(1, edgeDef.getPostFilter().getFunctions().size());
+        assertTrue(edgeDef.getPostFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, edgeDef.getPostFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostFilter().getFunctions().get(0).getSelection().get(0).getPropertyName());
     }
 }

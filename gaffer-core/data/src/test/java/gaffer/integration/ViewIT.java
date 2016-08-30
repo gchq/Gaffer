@@ -25,11 +25,15 @@ import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
+import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.function.ExampleFilterFunction;
 import gaffer.function.ExampleTransformFunction;
+import gaffer.function.FilterFunction;
 import gaffer.function.TransformFunction;
+import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.ConsumerProducerFunctionContext;
 import org.junit.Test;
 import java.io.IOException;
@@ -59,9 +63,24 @@ public class ViewIT {
 
         final List<ElementComponentKey> projection = contexts.get(0).getProjection();
         assertEquals(1, projection.size());
-        assertEquals("concatProperty", projection.get(0).getPropertyName());
+        assertEquals(TestPropertyNames.TRANSIENT_1, projection.get(0).getPropertyName());
 
         assertTrue(contexts.get(0).getFunction() instanceof ExampleTransformFunction);
+
+        final ElementFilter postFilter = edge.getPostFilter();
+        assertNotNull(postFilter);
+
+        final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> filterContexts = postFilter.getFunctions();
+        assertEquals(1, contexts.size());
+
+        final List<ElementComponentKey> postFilterSelection = filterContexts.get(0).getSelection();
+        assertEquals(1, postFilterSelection.size());
+        assertEquals(TestPropertyNames.TRANSIENT_1, postFilterSelection.get(0).getPropertyName());
+
+        assertTrue(filterContexts.get(0).getFunction() instanceof ExampleFilterFunction);
+
+
+
     }
 
     @Test

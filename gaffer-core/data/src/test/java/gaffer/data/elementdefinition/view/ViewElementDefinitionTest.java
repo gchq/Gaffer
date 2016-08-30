@@ -32,6 +32,8 @@ public class ViewElementDefinitionTest {
         // Given
         final ElementTransformer transformer = mock(ElementTransformer.class);
         final ElementFilter filter = mock(ElementFilter.class);
+        final ElementFilter postFilter = mock(ElementFilter.class);
+
 
         // When
         final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
@@ -39,6 +41,7 @@ public class ViewElementDefinitionTest {
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
                 .transformer(transformer)
                 .filter(filter)
+                .postFilter(postFilter)
                 .build();
 
         // Then
@@ -47,6 +50,7 @@ public class ViewElementDefinitionTest {
         assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_2));
 
         assertSame(filter, elementDef.getFilter());
+        assertSame(postFilter, elementDef.getPostFilter());
         assertSame(transformer, elementDef.getTransformer());
     }
 }

@@ -40,11 +40,13 @@ import java.util.Set;
 
 /**
  * A <code>ViewElementDefinition</code> is an {@link ElementDefinition} containing
- * transient properties, an {@link ElementTransformer} and a {@link ElementFilter}.
+ * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}'s.
  */
 public class ViewElementDefinition implements ElementDefinition {
     private ElementTransformer transformer;
     private ElementFilter filter;
+    private ElementFilter postFilter;
+
 
     /**
      * This field overrides the group by properties in the schema.
@@ -175,6 +177,29 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
+    public ElementFilter getPostFilter() {
+        return postFilter;
+    }
+
+    public void setPostFilter(final ElementFilter postFilter) {
+        this.postFilter = postFilter;
+    }
+
+    @JsonGetter("postFilterFunctions")
+    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPostTransformFilterFunctions() {
+        return null != postFilter ? postFilter.getFunctions() : null;
+    }
+
+    @JsonSetter("postFilterFunctions")
+    public void addPostTransformFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+        if (null == postFilter) {
+            postFilter = new ElementFilter();
+        }
+
+        postFilter.addFunctions(functions);
+    }
+
+    @JsonIgnore
     public ElementTransformer getTransformer() {
         return transformer;
     }
@@ -208,6 +233,11 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public Builder filter(final ElementFilter filter) {
             getElementDef().setFilter(filter);
+            return this;
+        }
+
+        public Builder postFilter(final ElementFilter postFilter) {
+            getElementDef().setPostFilter(postFilter);
             return this;
         }
 

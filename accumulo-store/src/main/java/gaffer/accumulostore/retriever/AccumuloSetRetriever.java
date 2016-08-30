@@ -212,7 +212,6 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             }
             Element nextReturn = nextElm;
             nextElm = null;
-            doTransformation(nextReturn);
             return nextReturn;
 
         }
@@ -292,7 +291,10 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
                         continue;
                     }
                     if (secondaryCheck(nextElm)) {
-                        return true;
+                        doTransformation(nextElm);
+                        if (doPostFilter(nextElm)) {
+                            return true;
+                        }
                     }
                 }
             } catch (final RetrieverException e) {
@@ -313,7 +315,6 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             }
             Element nextReturn = nextElm;
             nextElm = null;
-            doTransformation(nextReturn);
             return nextReturn;
         }
 

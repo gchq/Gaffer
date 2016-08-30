@@ -96,6 +96,12 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     }
 
     @Override
+    public boolean validatePostFilter(final Element element) {
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostFilter() || elementDef.getPostFilter().filter(element));
+    }
+
+    @Override
     public INPUT getInput() {
         return input;
     }

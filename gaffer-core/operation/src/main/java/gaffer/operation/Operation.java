@@ -73,6 +73,14 @@ public interface Operation<INPUT, OUTPUT> {
     boolean validateFilter(final Element element);
 
     /**
+     * Validates an element against the post filters contained in the operation View.
+     *
+     * @param element the element to validate
+     * @return true if the element is validate
+     */
+    boolean validatePostFilter(final Element element);
+
+    /**
      * @return the operation input.
      */
     INPUT getInput();
