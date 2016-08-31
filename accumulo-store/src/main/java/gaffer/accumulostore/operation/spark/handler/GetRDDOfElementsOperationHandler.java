@@ -23,6 +23,8 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.SparkContext;
@@ -48,6 +50,8 @@ public class GetRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
             throws OperationException {
         final SparkContext sparkContext = operation.getSparkContext();
         final Configuration conf = getConfiguration(operation);
+        // Use batch scan option when performing seeded operation
+        InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
         addIterators(accumuloStore, conf, operation);
         addRanges(accumuloStore, conf, operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
