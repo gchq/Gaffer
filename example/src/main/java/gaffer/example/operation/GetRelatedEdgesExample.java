@@ -20,14 +20,13 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 
+
 public class GetRelatedEdgesExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetRelatedEdgesExample().run();
     }
 
@@ -35,33 +34,33 @@ public class GetRelatedEdgesExample extends OperationExample {
         super(GetRelatedEdges.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getAllEdgesThatAreConnectedToVertex2(graph);
-        getAllOutboundEdgesThatAreConnectedToVertex2(graph);
-        getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1(graph);
+    public void runExamples() {
+        getAllEdgesThatAreConnectedToVertex2();
+        getAllOutboundEdgesThatAreConnectedToVertex2();
+        getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1();
     }
 
-    public Iterable<Edge> getAllEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
+    public Iterable<Edge> getAllEdgesThatAreConnectedToVertex2() {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build()";
-        return runAndPrintOperation(new GetRelatedEdges.Builder<EntitySeed>()
+        return runExample(new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
+    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2() {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetRelatedEdges.Builder<EntitySeed>()
+        return runExample(new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1() {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
@@ -74,7 +73,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetRelatedEdges.Builder<EntitySeed>()
+        return runExample(new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
@@ -85,7 +84,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
 }

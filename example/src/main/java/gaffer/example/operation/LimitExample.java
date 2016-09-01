@@ -16,7 +16,6 @@
 package gaffer.example.operation;
 
 import gaffer.data.element.Element;
-import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.Limit;
@@ -32,22 +31,22 @@ public class LimitExample extends OperationExample {
     }
 
     @Override
-    public void runExamples(final Graph graph) throws OperationException {
-        limitElementsTo3(graph);
+    public void runExamples() {
+        limitElementsTo3();
     }
 
-    public Iterable<Element> limitElementsTo3(final Graph graph) throws OperationException {
+    public Iterable<Element> limitElementsTo3() {
         final String opJava = "new OperationChain.Builder()\n" +
                 "                .first(new GetAllElements<>())\n" +
                 "                .then(new Limit.Builder<Element>()\n" +
                 "                        .limitResults(3)\n" +
                 "                        .build())\n" +
                 "                .build()";
-        return runAndPrintOperationChainResult(new OperationChain.Builder()
+        return runExample(new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new Limit.Builder<Element>()
                         .limitResults(3)
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }
