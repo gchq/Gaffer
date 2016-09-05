@@ -20,7 +20,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.4.2-SNAPSHOT</version>
     </parent>
     <artifactId>simple-serialisation-library</artifactId>
     <name>simple-serialisation-library</name>
