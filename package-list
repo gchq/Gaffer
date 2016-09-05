@@ -8,7 +8,6 @@ gaffer.accumulostore.key.core
 gaffer.accumulostore.key.core.impl
 gaffer.accumulostore.key.core.impl.byteEntity
 gaffer.accumulostore.key.core.impl.classic
-gaffer.accumulostore.key.core.impl.model
 gaffer.accumulostore.key.exception
 gaffer.accumulostore.key.impl
 gaffer.accumulostore.operation
@@ -86,10 +85,9 @@ gaffer.rest.service
 gaffer.rest.swagger
 gaffer.serialisation
 gaffer.serialisation.implementation
+gaffer.serialisation.implementation.raw
 gaffer.serialisation.simple
-gaffer.serialisation.simple.constants
 gaffer.serialisation.simple.json.hyperloglogplus
-gaffer.serialisation.simple.raw
 gaffer.store
 gaffer.store.operation.handler
 gaffer.store.operation.handler.export
