@@ -18,6 +18,7 @@ package gaffer.accumulostore;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertEquals;
@@ -99,6 +100,12 @@ public class AccumuloStoreTest {
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
+    }
+
+    @Test
+    public void shouldBeAnOrderedStore() {
+        assertTrue(byteEntityStore.hasTrait(StoreTrait.ORDERED));
+        assertTrue(gaffer1KeyStore.hasTrait(StoreTrait.ORDERED));
     }
 
     @Test
@@ -210,11 +217,12 @@ public class AccumuloStoreTest {
     public void testStoreTraits(AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 4", traits.size() == 4);
+        assertTrue("Collection size should be 4", traits.size() == 5);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
         assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING));
         assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
+        assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
     }
 
 }

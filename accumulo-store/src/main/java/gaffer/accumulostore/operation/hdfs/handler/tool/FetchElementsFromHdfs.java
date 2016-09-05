@@ -15,17 +15,20 @@
  */
 package gaffer.accumulostore.operation.hdfs.handler.tool;
 
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.util.Tool;
-
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.handler.job.AccumuloAddElementsFromHdfsJobFactory;
+import gaffer.accumulostore.utils.IngestUtils;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 public class FetchElementsFromHdfs extends Configured implements Tool {
 
@@ -42,6 +45,8 @@ public class FetchElementsFromHdfs extends Configured implements Tool {
 
     @Override
     public int run(final String[] strings) throws Exception {
+        checkHdfsDirectories(operation);
+
         LOGGER.info("Ensuring table {} exists", store.getProperties().getTable());
         TableUtils.ensureTableExists(store);
 
@@ -49,9 +54,40 @@ public class FetchElementsFromHdfs extends Configured implements Tool {
         final Job job = new AccumuloAddElementsFromHdfsJobFactory().createJob(operation, store);
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
+            LOGGER.error("Error running job");
             throw new OperationException("Error running job");
         }
+        LOGGER.info("Finished adding elements from HDFS");
 
         return SUCCESS_RESPONSE;
+    }
+
+    private void checkHdfsDirectories(final AddElementsFromHdfs operation) throws IOException {
+        LOGGER.info("Checking that the correct HDFS directories exist");
+        final FileSystem fs = FileSystem.get(getConf());
+
+        final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
+        if (fs.exists(outputPath)) {
+            if (fs.listFiles(outputPath, true).hasNext()) {
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
+            }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
+            fs.delete(outputPath, true);
+        }
+
+        final Path failurePath = new Path(operation.getFailurePath());
+        LOGGER.info("Ensuring failure directory {} exists", failurePath);
+        if (fs.exists(failurePath)) {
+            if (fs.listFiles(failurePath, true).hasNext()) {
+                LOGGER.error("Failure directory exists and is not empty: {}", failurePath);
+                throw new IllegalArgumentException("Failure directory is not empty: " + failurePath);
+            }
+        } else {
+            LOGGER.info("Failure directory doesn't exist so creating: {}", failurePath);
+            fs.mkdirs(failurePath);
+        }
+        IngestUtils.setDirectoryPermsForAccumulo(fs, failurePath);
     }
 }

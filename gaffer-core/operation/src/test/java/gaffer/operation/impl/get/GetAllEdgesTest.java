@@ -19,7 +19,6 @@ package gaffer.operation.impl.get;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.data.elementdefinition.view.View;
@@ -52,16 +51,13 @@ public class GetAllEdgesTest implements OperationTest {
         GetAllEdges getAllEdges = new GetAllEdges.Builder()
                 .option("testOption", "true")
                 .populateProperties(false)
-                .summarise(true)
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertTrue(getAllEdges.isSummarise());
         assertFalse(getAllEdges.isPopulateProperties());
         assertEquals("true", getAllEdges.getOption("testOption"));
-        assertTrue(getAllEdges.isSummarise());
         assertNotNull(getAllEdges.getView().getEdge(TestGroups.EDGE));
     }
 }

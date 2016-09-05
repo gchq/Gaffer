@@ -21,10 +21,14 @@ import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAddElementsFromHdfsJobFactory.class);
 
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific
@@ -55,16 +59,22 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     }
 
     protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
+        LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
+        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
+        LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
         Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
+            LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
         }
         numTasks = operation.getNumReduceTasks();
         if (null != numTasks) {
             jobConf.setNumReduceTasks(numTasks);
+            LOGGER.info("Set number of reduce tasks to {} on job conf", numTasks);
         }
     }
 

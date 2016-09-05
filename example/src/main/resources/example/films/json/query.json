@@ -7,9 +7,6 @@
           "viewing": {}
         }
       },
-      "options": {
-        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
-      },
       "seeds": [
         {
           "gaffer.operation.data.EntitySeed": {
@@ -23,6 +20,7 @@
       "view": {
         "entities": {
           "review": {
+            "groupBy": [],
             "transientProperties": {
               "starRating": "java.lang.Float"
             },
@@ -64,11 +62,7 @@
             ]
           }
         }
-      },
-      "options": {
-        "accumulostore.operation.authorisations": "U,PG,_12A,_15,_18"
-      },
-      "summarise": true
+      }
     }
   ]
 }

@@ -109,12 +109,6 @@ public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exten
         }
 
         @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> summarise(final boolean summarise) {
-            super.summarise(summarise);
-            return this;
-        }
-
-        @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
             return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.deduplicate(deduplicate);
         }

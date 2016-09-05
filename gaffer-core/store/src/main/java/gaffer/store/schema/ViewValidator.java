@@ -16,6 +16,8 @@
 
 package gaffer.store.schema;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import gaffer.data.element.ElementComponentKey;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -26,6 +28,7 @@ import gaffer.function.context.ConsumerProducerFunctionContext;
 import gaffer.function.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 
 /**
@@ -43,11 +46,12 @@ public class ViewValidator {
      * compatible with the identifiers and properties in the {@link Schema}
      * and transient properties in the {@link View}.
      *
-     * @param view   the {@link View} to validate
-     * @param schema the {@link Schema} to validate the view against
+     * @param view           the {@link View} to validate
+     * @param schema         the {@link Schema} to validate the view against
+     * @param isStoreOrdered true if the store is ordered
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public boolean validate(final View view, final Schema schema) {
+    public boolean validate(final View view, final Schema schema, final boolean isStoreOrdered) {
         boolean isValid = true;
 
         if (null != view) {
@@ -73,6 +77,10 @@ public class ViewValidator {
                         }
 
                         if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
+                            isValid = false;
+                        }
+
+                        if (!validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef)) {
                             isValid = false;
                         }
                     }
@@ -103,6 +111,10 @@ public class ViewValidator {
                         if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
                             isValid = false;
                         }
+
+                        if (!validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef)) {
+                            isValid = false;
+                        }
                     }
                 }
             }
@@ -110,6 +122,30 @@ public class ViewValidator {
 
         return isValid;
     }
+
+    protected boolean validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+        final LinkedHashSet<String> viewGroupBy = viewElDef.getGroupBy();
+
+        boolean isValid = true;
+        if (null != viewGroupBy && !viewGroupBy.isEmpty()) {
+            final LinkedHashSet<String> schemaGroupBy = schemaElDef.getGroupBy();
+            if (null != schemaGroupBy && schemaGroupBy.containsAll(viewGroupBy)) {
+                if (isStoreOrdered) {
+                    final LinkedHashSet<String> schemaGroupBySubset = Sets.newLinkedHashSet(Iterables.limit(schemaGroupBy, viewGroupBy.size()));
+                    if (!viewGroupBy.equals(schemaGroupBySubset)) {
+                        LOGGER.error("Group by properties for group " + group + " are not in the same order as the group by properties in the schema. View groupBy:" + viewGroupBy + ". Schema groupBy:" + schemaGroupBy);
+                        isValid = false;
+                    }
+                }
+            } else {
+                LOGGER.error("Group by properties for group " + group + " in the view are not all included in the group by field in the schema. View groupBy:" + viewGroupBy + ". Schema groupBy:" + schemaGroupBy);
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+
 
     /**
      * Checks all function inputs and outputs are compatible with the property, identifier types
@@ -120,6 +156,7 @@ public class ViewValidator {
      * @param schemaElDef the schema element definition
      * @return boolean - true if function argument types are valid. Otherwise false and the reason is logged.
      */
+
     private boolean validateFunctionArgumentTypes(
             final Processor<ElementComponentKey, ? extends ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction>> processor,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {

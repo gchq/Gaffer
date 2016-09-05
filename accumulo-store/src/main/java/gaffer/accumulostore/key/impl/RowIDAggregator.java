@@ -17,7 +17,6 @@ package gaffer.accumulostore.key.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.AccumuloElementConverter;
-import gaffer.accumulostore.key.core.impl.model.ColumnQualifierColumnVisibilityValueTriple;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.AggregationException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -170,66 +169,53 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         if (!source.hasTop()) {
             return;
         }
-        ColumnQualifierColumnVisibilityValueTripleIterator iter = new ColumnQualifierColumnVisibilityValueTripleIterator(source, currentRange, currentColumnFamilies, currentColumnFamiliesInclusive, group, workKey);
-        ColumnQualifierColumnVisibilityValueTriple topVisValPair = reduce(iter);
-        topValue = topVisValPair.getValue();
-        topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(CommonConstants.UTF_8),
-                topVisValPair.getColumnQualifier(), topVisValPair.getColumnVisibility(), workKey.getTimestamp());
-    }
-
-    private ColumnQualifierColumnVisibilityValueTriple reduce(final Iterator<ColumnQualifierColumnVisibilityValueTriple> iter) {
-        ColumnQualifierColumnVisibilityValueTriple triple;
-        while (iter.hasNext()) {
-            triple = iter.next();
-            if (triple != null) {
-                aggregateTriple(triple);
-            }
-        }
-        final Properties properties = new Properties();
-        aggregator.state(properties);
-        final ColumnQualifierColumnVisibilityValueTriple result;
+        PropertiesIterator iter = new PropertiesIterator(source, currentRange, currentColumnFamilies, currentColumnFamiliesInclusive, group, workKey, elementConverter);
+        Properties topProperties = reduce(iter);
         try {
-            result = new ColumnQualifierColumnVisibilityValueTriple(
-                    elementConverter.buildColumnQualifier(group, properties),
-                    elementConverter.buildColumnVisibility(group, properties),
-                    elementConverter.getValueFromProperties(group, properties));
-        } catch (final AccumuloElementConversionException e) {
-            throw new AggregationException("ColumnQualifierVisibilityAggregatorIterator failed to re-create an element",
-                    e);
-        }
-        return result;
-    }
-
-
-    private void aggregateTriple(final ColumnQualifierColumnVisibilityValueTriple triple) {
-        try {
-            aggregator.aggregate(elementConverter.getPropertiesFromValue(group, triple.getValue()));
-            aggregator.aggregate(elementConverter.getPropertiesFromColumnQualifier(group, triple.getColumnQualifier()));
-            aggregator.aggregate(elementConverter.getPropertiesFromColumnVisibility(group, triple.getColumnVisibility()));
+            topValue = elementConverter.getValueFromProperties(group, topProperties);
+            topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(CommonConstants.UTF_8),
+                    elementConverter.buildColumnQualifier(group, topProperties),
+                    elementConverter.buildColumnVisibility(group, topProperties),
+                    elementConverter.buildTimestamp(topProperties, workKey.getTimestamp()));
         } catch (AccumuloElementConversionException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static class ColumnQualifierColumnVisibilityValueTripleIterator
-            implements Iterator<ColumnQualifierColumnVisibilityValueTriple> {
+    private Properties reduce(final Iterator<Properties> iter) {
+        Properties properties;
+        while (iter.hasNext()) {
+            properties = iter.next();
+            if (properties != null) {
+                aggregator.aggregate(properties);
+            }
+        }
+
+        final Properties result = new Properties();
+        aggregator.state(result);
+        return result;
+    }
+
+    public static class PropertiesIterator implements Iterator<Properties> {
 
         private final Range currentRange;
         private final SortedKeyValueIterator<Key, Value> source;
         private final Collection<ByteSequence> currentColumnFamilies;
         private final boolean currentColumnFamiliesInclusive;
+        private final AccumuloElementConverter elementConverter;
         private Key currentKey;
         private Value currentValue;
         private Key workKeyRef;
         private String group;
 
-        public ColumnQualifierColumnVisibilityValueTripleIterator(final SortedKeyValueIterator<Key, Value> source, final Range currentRange, final Collection<ByteSequence> currentColumnFamilies, final boolean currentColumnFamiliesInclusive, final String group, final Key workKeyRef) throws IOException {
+        public PropertiesIterator(final SortedKeyValueIterator<Key, Value> source, final Range currentRange, final Collection<ByteSequence> currentColumnFamilies, final boolean currentColumnFamiliesInclusive, final String group, final Key workKeyRef, final AccumuloElementConverter elementConverter) throws IOException {
             this.source = source;
             this.currentColumnFamilies = currentColumnFamilies;
             this.currentColumnFamiliesInclusive = currentColumnFamiliesInclusive;
             this.currentRange = currentRange;
             this.workKeyRef = workKeyRef;
             this.group = group;
+            this.elementConverter = elementConverter;
         }
 
         @Override
@@ -261,21 +247,28 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         }
 
         @Override
-        public ColumnQualifierColumnVisibilityValueTriple next() {
+        public Properties next() {
             return nextRecordFound(currentKey, currentValue);
         }
 
-        private ColumnQualifierColumnVisibilityValueTriple nextRecordFound(final Key k, final Value v) {
-            this.workKeyRef.set(k);
+        private Properties nextRecordFound(final Key key, final Value value) {
+            this.workKeyRef.set(key);
             try {
                 source.next();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            return new ColumnQualifierColumnVisibilityValueTriple(
-                    k.getColumnQualifierData().getBackingArray(),
-                    k.getColumnVisibilityData().getBackingArray(),
-                    v);
+            final Properties properties;
+            try {
+                properties = elementConverter.getPropertiesFromColumnQualifier(group, key.getColumnQualifierData().getBackingArray());
+                properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, key.getColumnVisibilityData().getBackingArray()));
+                properties.putAll(elementConverter.getPropertiesFromTimestamp(group, key.getTimestamp()));
+                properties.putAll(elementConverter.getPropertiesFromValue(group, value));
+            } catch (AccumuloElementConversionException e) {
+                throw new RuntimeException(e);
+            }
+
+            return properties;
         }
 
         @Override

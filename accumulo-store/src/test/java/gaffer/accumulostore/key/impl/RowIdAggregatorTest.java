@@ -15,41 +15,56 @@
  */
 package gaffer.accumulostore.key.impl;
 
+import static gaffer.accumulostore.utils.TableUtils.createTable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.RangeFactory;
-import gaffer.accumulostore.key.core.impl.byteEntity.*;
+import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
-import gaffer.accumulostore.utils.*;
+import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.accumulostore.utils.Pair;
+import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
-import gaffer.data.element.*;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
 import gaffer.data.element.Properties;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
-import org.apache.accumulo.core.client.*;
-import org.apache.accumulo.core.data.*;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchScanner;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.BatchWriterConfig;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Range;
+import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static gaffer.accumulostore.utils.TableUtils.createTable;
-import static org.junit.Assert.*;
 
 
 public class RowIdAggregatorTest {
@@ -257,10 +272,6 @@ public class RowIdAggregatorTest {
             expectedEdge.setDestination("8");
             expectedEdge.setDirected(true);
             expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 5);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
             expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 3);
 
             assertEquals(expectedEdge, readEdge);
@@ -275,10 +286,6 @@ public class RowIdAggregatorTest {
             expectedEdge.setDestination("9");
             expectedEdge.setDirected(true);
             expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            expectedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
             expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 1);
             assertEquals(expectedEdge, readEdge);
             //Check no additional rows are found. (For a table of this size we shouldn't see this)

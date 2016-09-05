@@ -137,8 +137,8 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         }
 
         @Override
-        public Builder partioner(final Class<? extends Partitioner> partitioner) {
-            return (Builder) super.partioner(partitioner);
+        public Builder partitioner(final Class<? extends Partitioner> partitioner) {
+            return (Builder) super.partitioner(partitioner);
         }
     }
 }

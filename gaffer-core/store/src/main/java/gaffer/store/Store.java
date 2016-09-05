@@ -65,13 +65,13 @@ import gaffer.store.optimiser.CoreOperationChainOptimiser;
 import gaffer.store.optimiser.OperationChainOptimiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.SchemaOptimiser;
 import gaffer.store.schema.ViewValidator;
 import gaffer.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,13 +97,14 @@ public abstract class Store {
     private StoreProperties properties;
 
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
-
+    private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
+    private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
-    private List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
 
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
-        viewValidator = new ViewValidator();
+        this.viewValidator = new ViewValidator();
+        this.schemaOptimiser = new SchemaOptimiser();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -121,7 +122,8 @@ public abstract class Store {
      * @return true if the Processor can be handled and false if it cannot.
      */
     public boolean hasTrait(final StoreTrait storeTrait) {
-        return getTraits().contains(storeTrait);
+        final Set<StoreTrait> traits = getTraits();
+        return null != traits && traits.contains(storeTrait);
     }
 
     /**
@@ -232,26 +234,8 @@ public abstract class Store {
         return properties;
     }
 
-    /**
-     * Removes any types in the schema that are not used.
-     */
     public void optimiseSchemas() {
-        final Set<String> usedTypeNames = new HashSet<>();
-        final Set<SchemaElementDefinition> schemaElements = new HashSet<>();
-        schemaElements.addAll(getSchema().getEdges().values());
-        schemaElements.addAll(getSchema().getEntities().values());
-        for (SchemaElementDefinition elDef : schemaElements) {
-            usedTypeNames.addAll(elDef.getIdentifierTypeNames());
-            usedTypeNames.addAll(elDef.getPropertyTypeNames());
-        }
-
-        if (null != getSchema().getTypes()) {
-            for (String typeName : new HashSet<>(getSchema().getTypes().keySet())) {
-                if (!usedTypeNames.contains(typeName)) {
-                    getSchema().getTypes().remove(typeName);
-                }
-            }
-        }
+        schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
     }
 
     public void validateSchemas() {
@@ -264,8 +248,10 @@ public abstract class Store {
             for (String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                 Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
-
-                if (!serialisation.canHandle(propertyClass)) {
+                if (null == serialisation) {
+                    valid = false;
+                    LOGGER.error("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
+                } else if (!serialisation.canHandle(propertyClass)) {
                     valid = false;
                     LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
                 }
@@ -276,18 +262,23 @@ public abstract class Store {
         }
     }
 
-    protected void validateOperationChain(final OperationChain<?> operationChain, final User user) {
+    protected void validateOperationChain(
+            final OperationChain<?> operationChain, final User user) {
         if (operationChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
 
         for (Operation<?, ?> op : operationChain.getOperations()) {
-            if (!viewValidator.validate(op.getView(), schema)) {
+            if (!viewValidator.validate(op.getView(), schema, hasTrait(StoreTrait.ORDERED))) {
                 throw new SchemaException("View for operation "
                         + op.getClass().getName()
                         + " is not valid. See the logs for more information.");
             }
         }
+    }
+
+    protected void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
+        this.schemaOptimiser = schemaOptimiser;
     }
 
     protected void setViewValidator(final ViewValidator viewValidator) {
