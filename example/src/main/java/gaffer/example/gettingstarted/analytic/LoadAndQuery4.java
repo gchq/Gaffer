@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementTransformer;
@@ -42,7 +43,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         new LoadAndQuery4().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Edge> run() throws OperationException {
         final User user = new User("user01");
 
         //create some edges from the data file using our data generator class
@@ -74,7 +75,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> results = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
         log("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
         for (Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
@@ -100,7 +101,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final Iterable<Edge> transientResults = graph.execute(getRelatedEdgesWithMean, user);
+        final CloseableIterable<Edge> transientResults = graph.execute(getRelatedEdgesWithMean, user);
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (Element e : transientResults) {
             log("GET_RELATED_ELEMENTS_WITH_MEAN_RESULT", e.toString());

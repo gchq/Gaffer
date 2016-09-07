@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -132,7 +133,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final GetElementsBySeed<ElementSeed, Element> op = new GetElementsBySeed<>();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         assertFalse(results.iterator().hasNext());
@@ -144,7 +145,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final GetRelatedElements<ElementSeed, Element> op = new GetRelatedElements<>();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         assertFalse(results.iterator().hasNext());
@@ -243,7 +244,7 @@ public class GetElementsIT extends AbstractStoreIT {
 
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);

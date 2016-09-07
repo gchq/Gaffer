@@ -71,7 +71,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
     }
 
     protected AbstractValidatable(final View view, final Iterable<Element> elements, final boolean validate, final boolean skipInvalidElements) {
-        this(view, new WrappedCloseableIterable<Element>(elements), validate, skipInvalidElements);
+        this(view, new WrappedCloseableIterable<>(elements), validate, skipInvalidElements);
     }
 
     protected AbstractValidatable(final View view, final CloseableIterable<Element> elements, final boolean validate, final boolean skipInvalidElements) {

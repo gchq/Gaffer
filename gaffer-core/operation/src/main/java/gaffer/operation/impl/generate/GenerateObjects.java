@@ -25,7 +25,6 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.AbstractOperation;
-
 import java.util.List;
 
 /**
@@ -78,7 +77,7 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
      *                         {@link gaffer.data.element.Element}s into objects
      */
     public GenerateObjects(final Iterable<ELEMENT_TYPE> elements, final ElementGenerator<OBJ> elementGenerator) {
-        this(new WrappedCloseableIterable<ELEMENT_TYPE>(elements), elementGenerator);
+        this(new WrappedCloseableIterable<>(elements), elementGenerator);
     }
 
     /**

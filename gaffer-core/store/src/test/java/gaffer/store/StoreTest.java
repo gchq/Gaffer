@@ -320,7 +320,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final Iterable<Element> result = store.execute(opChain, user);
+        final CloseableIterable<Element> result = store.execute(opChain, user);
 
         // Then
         assertSame(getElementsResult, result);

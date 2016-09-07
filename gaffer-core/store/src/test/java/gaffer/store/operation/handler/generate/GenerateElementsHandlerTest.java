@@ -21,13 +21,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
-import gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import org.junit.Test;
 
 public class GenerateElementsHandlerTest {
@@ -43,14 +43,16 @@ public class GenerateElementsHandlerTest {
         final CloseableIterable<String> objs = mock(CloseableIterable.class);
         final Context context = new Context();
 
+        final CloseableIterator<Element> elementsIter = mock(CloseableIterator.class);
+        given(elements.iterator()).willReturn(elementsIter);
         given(elementGenerator.getElements(objs)).willReturn(elements);
         given(operation.getObjects()).willReturn(objs);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
-        final Iterable<Element> result = handler.doOperation(operation, context, store);
+        final CloseableIterable<Element> result = handler.doOperation(operation, context, store);
 
         // Then
-        assertSame(elements, result);
+        assertSame(elementsIter, result.iterator());
     }
 }

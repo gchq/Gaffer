@@ -26,7 +26,6 @@ import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.AbstractOperation;
-
 import java.util.List;
 
 /**
