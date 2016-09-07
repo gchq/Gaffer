@@ -33,11 +33,13 @@ import gaffer.store.schema.SchemaEdgeDefinition;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
+import org.apache.hadoop.io.Text;
 import org.junit.Test;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class TableUtilsTest {
     public static final String TABLE_NAME = "table1";
@@ -91,5 +93,31 @@ public class TableUtilsTest {
         }
 
         assertEquals(0, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
+    }
+
+    @Test
+    public void shouldCreateTableWithCorrectLocalityGroups() throws Exception {
+        final MockAccumuloStore store = new MockAccumuloStore();
+        final Schema schema = new Schema.Builder()
+                .type(TestTypes.ID_STRING, String.class)
+                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_TRUE)
+                        .build())
+                .build();
+
+        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        store.initialise(schema, props);
+
+        // When
+        TableUtils.createTable(store);
+
+        final Map<String, Set<Text>> localityGroups = store.getConnection().tableOperations().getLocalityGroups(TABLE_NAME);
+        assertEquals(1, localityGroups.size());
+        Set<Text> localityGroup = localityGroups.get(TestGroups.EDGE);
+        assertEquals(1, localityGroup.size());
+        assertEquals(new Text(TestGroups.EDGE), localityGroup.toArray()[0]);
     }
 }
