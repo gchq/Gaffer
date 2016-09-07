@@ -23,7 +23,9 @@ public final class AccumuloStoreConstants {
     public static final String VALIDATOR_ITERATOR_NAME = "Validator";
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
     public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
-    public static final String ELEMENT_FILTER_ITERATOR_NAME = "Element_Filter";
+    public static final String ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME = "Element_Pre_Aggregation_Filter";
+    public static final String ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME = "Element_Post_Aggregation_Filter";
+
     public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Incoming_Outgoing_Filter";
     public static final String COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME = "Column_Qualifier_Aggregator";
     public static final String ROW_ID_AGGREGATOR_ITERATOR_NAME = "Row_ID_Aggregator";
@@ -60,11 +62,13 @@ public final class AccumuloStoreConstants {
     // Applied only during scans.
     public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY = 33;
     // Applied only during scans.
-    public static final int ELEMENT_FILTER_ITERATOR_PRIORITY = 34;
+    public static final int ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY = 34;
     // Applied only during scans.
     public static final int ROW_ID_AGGREGATOR_ITERATOR_PRIORITY = 35;
     // Applied only during scans.
     public static final int COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY = 36;
+    // Applied only during scans.
+    public static final int ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY = 37;
     // Applied only during scans.
     public static final int TRANSFORM_PRIORITY = 50;
 

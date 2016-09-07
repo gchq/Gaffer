@@ -93,7 +93,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
                                         .execute(new IsIn(Arrays.asList((Object) 100, 101)))
                                         .build())
@@ -130,7 +130,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .groupBy()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
                                         .execute(new IsIn(Arrays.asList((Object) 100, 101)))
                                         .build())
@@ -148,7 +148,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
@@ -169,14 +169,14 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .populateProperties(true)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(IdentifierType.VERTEX)
                                         .execute(new IsEqual("A1"))
                                         .build())
@@ -193,14 +193,14 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.FILTERING})
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING  })
     @Test
     public void shouldGetAllTransformedFilteredElements() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .populateProperties(true)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(IdentifierType.VERTEX)
                                         .execute(new IsEqual("A1"))
                                         .build())

@@ -53,7 +53,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     public void testFilteringGroups() throws OperationException {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
@@ -96,7 +96,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     public void testFilteringIdentifiers() throws OperationException {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
@@ -111,7 +111,7 @@ public class FilteringIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(IdentifierType.DESTINATION)
                                         .execute(new IsEqual("B3"))
                                         .build())
@@ -146,7 +146,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     public void testFilteringProperties() throws OperationException {
         // Given
         final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
@@ -161,13 +161,13 @@ public class FilteringIT extends AbstractStoreIT {
                 .seeds(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(IdentifierType.VERTEX)
                                         .execute(new IsEqual("A5"))
                                         .build())
                                 .build())
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
                                         .execute(new IsLessThan(2))
                                         .build())
@@ -206,4 +206,120 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A5")
         ));
     }
+
+    @Test
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
+    public void testPostAggregationFilteringIdentifiers() throws OperationException {
+        // Given
+        final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
+
+        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetRelatedElements.Builder<>()
+                        .seeds(seeds)
+                        .build();
+
+        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+                .seeds(seeds)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(IdentifierType.DESTINATION)
+                                        .execute(new IsEqual("B3"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When - without filtering
+        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+
+        // When - with filtering
+        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+
+        // Then - without filtering
+        assertNotNull(resultsWithoutFiltering);
+        assertEquals(5, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+                getEntity("A3")
+        ));
+
+        // Then - with filtering
+        assertNotNull(resultsWithFiltering);
+        assertEquals(2, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "B3", false),
+                getEntity("A3")
+        ));
+    }
+
+    @Test
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
+    public void testPostAggregationFilteringProperties() throws OperationException {
+        // Given
+        final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
+                new EdgeSeed("A5", "B5", false));
+
+        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetRelatedElements.Builder<>()
+                        .seeds(seeds)
+                        .build();
+
+        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+                .seeds(seeds)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(IdentifierType.VERTEX)
+                                        .execute(new IsEqual("A5"))
+                                        .build())
+                                .build())
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.INT)
+                                        .execute(new IsLessThan(2))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When - without filtering
+        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+
+        // When - with filtering
+        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+
+        // Then - without filtering
+        assertNotNull(resultsWithoutFiltering);
+        assertEquals(8, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+                getEdge("A5", "B5", false),
+                getEntity("A5"),
+                getEntity("B5")
+        ));
+
+        // Then - with filtering
+        assertNotNull(resultsWithFiltering);
+        assertEquals(6, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A5", "B5", false),
+                getEdge("A3", "D3", false),
+                getEdge("A3", "C3", false),
+                getEntity("A5")
+        ));
+    }
+
+
+
+
 }

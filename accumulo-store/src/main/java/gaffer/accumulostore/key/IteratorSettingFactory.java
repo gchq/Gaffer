@@ -55,7 +55,20 @@ public interface IteratorSettingFactory {
      * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link gaffer.data.element.Element}s based on a {@link View}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
-    IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store)
+    IteratorSetting getElementPreAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
+            throws IteratorSettingException;
+
+    /**
+     * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that
+     * can be used to apply an iterator that will filter elements based on
+     * predicates to a {@link org.apache.accumulo.core.client.Scanner}.
+     *
+     * @param view  the operation view
+     * @param store the accumulo store
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link gaffer.data.element.Element}s based on a {@link View}
+     * @throws IteratorSettingException if an iterator setting could not be created
+     */
+    IteratorSetting getElementPostAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException;
 
     /**

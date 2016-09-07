@@ -85,12 +85,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.AGGREGATION;
 import static gaffer.store.StoreTrait.ORDERED;
-import static gaffer.store.StoreTrait.POST_FILTERING;
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 
 /**
@@ -104,7 +105,7 @@ import static gaffer.store.StoreTrait.POST_FILTERING;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, POST_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -167,11 +168,16 @@ public class AccumuloStore extends Store {
             conf.set(ElementInputFormat.VIEW, new String(view.toJson(false), CommonConstants.UTF_8));
             // Add iterators that depend on the view
             if (!view.getEntityGroups().isEmpty() || !view.getEdgeGroups().isEmpty()) {
-                IteratorSetting elementFilter = getKeyPackage()
+                IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
-                        .getElementFilterIteratorSetting(view, this);
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementFilter);
+                        .getElementPreAggregationFilterIteratorSetting(view, this);
+                IteratorSetting elementPostFilter = getKeyPackage()
+                        .getIteratorFactory()
+                        .getElementPostAggregationFilterIteratorSetting(view, this);
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
             }
+
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }

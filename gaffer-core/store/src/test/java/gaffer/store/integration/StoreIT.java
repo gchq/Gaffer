@@ -17,7 +17,7 @@
 package gaffer.store.integration;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -73,7 +73,7 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
         public Set<StoreTrait> getTraits() {

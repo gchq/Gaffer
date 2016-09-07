@@ -88,7 +88,7 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
     public boolean doPostFilter(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
         if (viewDef != null) {
-            return postFilter(element, viewDef.getPostFilter());
+            return postFilter(element, viewDef.getPostTransformFilter());
         }
         return true;
     }

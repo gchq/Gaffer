@@ -65,20 +65,28 @@ public interface Operation<INPUT, OUTPUT> {
     OUTPUT castToOutputType(final Object result);
 
     /**
-     * Validates an element against the filters contained in the operation View.
+     * Validates an element against the pre aggregation contained in the operation View.
      *
      * @param element the element to validate
      * @return true if the element is validate
      */
-    boolean validateFilter(final Element element);
+    boolean validatePreAggregationFilter(final Element element);
 
     /**
-     * Validates an element against the post filters contained in the operation View.
+     * Validates an element against the post aggregation filters contained in the operation View.
      *
      * @param element the element to validate
      * @return true if the element is validate
      */
-    boolean validatePostFilter(final Element element);
+    boolean validatePostAggregationFilter(final Element element);
+
+    /**
+     * Validates an element against the post transform filters contained in the operation View.
+     *
+     * @param element the element to validate
+     * @return true if the element is validate
+     */
+    boolean validatePostTransformFilter(final Element element);
 
     /**
      * @return the operation input.

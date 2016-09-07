@@ -17,7 +17,7 @@
 package gaffer.store;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertEquals;
@@ -430,7 +430,7 @@ public class StoreTest {
     }
 
     private class StoreImpl extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
 
         private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();

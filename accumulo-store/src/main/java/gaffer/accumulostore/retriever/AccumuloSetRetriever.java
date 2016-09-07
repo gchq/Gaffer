@@ -161,7 +161,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             IteratorSetting elementFilter = null;
             IteratorSetting bloomFilter = null;
             try {
-                elementFilter = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(), store);
+                elementFilter = iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store);
             } catch (final IteratorSettingException e) {
                 LOGGER.error(
                         "Failed to apply the element filter to the retriever, creating the gaffer.accumulostore.retriever without the element filter",
@@ -368,7 +368,13 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperatio
             }
             IteratorSetting elementFilterSetting = null;
             try {
-                elementFilterSetting = iteratorSettingFactory.getElementFilterIteratorSetting(operation.getView(),
+                elementFilterSetting = iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(),
+                        store);
+            } catch (final IteratorSettingException e) {
+                LOGGER.error("Error creating filter iterator continuing query without filter");
+            }
+            try {
+                elementFilterSetting = iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(),
                         store);
             } catch (final IteratorSettingException e) {
                 LOGGER.error("Error creating filter iterator continuing query without filter");

@@ -67,7 +67,7 @@ public class ViewIT {
 
         assertTrue(contexts.get(0).getFunction() instanceof ExampleTransformFunction);
 
-        final ElementFilter postFilter = edge.getPostFilter();
+        final ElementFilter postFilter = edge.getPostTransformFilter();
         assertNotNull(postFilter);
 
         final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> filterContexts = postFilter.getFunctions();

@@ -50,7 +50,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         if (null != operation.getSeeds()) {
             if (operation.isIncludeEntities()) {
                 for (final Entity entity : store.getEntities()) {
-                    if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
+                    if (operation.validateFlags(entity) && operation.validatePreAggregationFilter(entity)) {
                         if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
                             if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
                                 result.add(entity);
@@ -65,7 +65,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
             }
             if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
                 for (final Edge edge : store.getEdges()) {
-                    if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
+                    if (operation.validateFlags(edge) && operation.validatePreAggregationFilter(edge)) {
                         if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
                             if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
                                 result.add(edge);

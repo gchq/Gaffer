@@ -159,10 +159,14 @@ public class AccumuloStoreTest {
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
 
-        final GetRelatedElements<EntitySeed, Element> getRelatedWithPostFilter = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetRelatedElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetRelatedElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                     .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                            .postFilter(new ElementFilter.Builder()
+                            .preAggregationFilter(new ElementFilter.Builder()
+                                    .select(TestPropertyNames.PROP_1)
+                                    .execute(new IsMoreThan(0))
+                                    .build())
+                            .postAggregationFilter(new ElementFilter.Builder()
                                     .select(TestPropertyNames.COUNT)
                                     .execute(new IsMoreThan(6))
                                     .build())
@@ -170,7 +174,7 @@ public class AccumuloStoreTest {
                 .build())
                 .addSeed(entitySeed1)
                 .build();
-        relatedResults = store.execute(getRelatedWithPostFilter, user);
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));
     }
 
@@ -233,11 +237,12 @@ public class AccumuloStoreTest {
     public void testStoreTraits(AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 6", traits.size() == 6);
+        assertTrue("Collection size should be 7", traits.size() == 7);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
-        assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING));
+        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
+        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
         assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
-        assertTrue("Collection should contain POST_FILTERING trait", traits.contains(POST_FILTERING));
+        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
     }

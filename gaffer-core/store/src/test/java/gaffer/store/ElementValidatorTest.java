@@ -135,7 +135,7 @@ public class ElementValidatorTest {
 
         given(elm.getGroup()).willReturn(group);
         given(view.getElement(group)).willReturn(elementDef);
-        given(elementDef.getFilter()).willReturn(filter);
+        given(elementDef.getPreAggregationFilter()).willReturn(filter);
         given(filter.filter(elm)).willReturn(true);
 
         // When
@@ -157,7 +157,7 @@ public class ElementValidatorTest {
 
         given(elm.getGroup()).willReturn(group);
         given(view.getElement(group)).willReturn(elementDef);
-        given(elementDef.getFilter()).willReturn(filter);
+        given(elementDef.getPreAggregationFilter()).willReturn(filter);
         given(filter.filter(elm)).willReturn(false);
 
         // When

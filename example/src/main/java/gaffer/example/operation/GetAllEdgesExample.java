@@ -57,7 +57,7 @@ public class GetAllEdgesExample extends OperationExample {
         return runAndPrintOperation(new GetAllEdges.Builder()
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())

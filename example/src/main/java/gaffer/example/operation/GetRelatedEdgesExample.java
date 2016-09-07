@@ -79,7 +79,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())

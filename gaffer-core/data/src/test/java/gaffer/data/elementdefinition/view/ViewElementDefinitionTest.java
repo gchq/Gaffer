@@ -40,8 +40,8 @@ public class ViewElementDefinitionTest {
                 .transientProperty(TestPropertyNames.PROP_1, String.class)
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
                 .transformer(transformer)
-                .filter(filter)
-                .postFilter(postFilter)
+                .preAggregationFilter(filter)
+                .postTransformFilter(postFilter)
                 .build();
 
         // Then
@@ -49,8 +49,8 @@ public class ViewElementDefinitionTest {
         assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_1));
         assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_2));
 
-        assertSame(filter, elementDef.getFilter());
-        assertSame(postFilter, elementDef.getPostFilter());
+        assertSame(filter, elementDef.getPreAggregationFilter());
+        assertSame(postFilter, elementDef.getPostTransformFilter());
         assertSame(transformer, elementDef.getTransformer());
     }
 }

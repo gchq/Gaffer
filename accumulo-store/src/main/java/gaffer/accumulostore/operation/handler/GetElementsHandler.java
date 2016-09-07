@@ -44,7 +44,8 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloSingleIDRetriever(store, operation, user,
-                    itrFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
