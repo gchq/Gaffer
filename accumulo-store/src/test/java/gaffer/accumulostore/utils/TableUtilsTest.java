@@ -43,6 +43,8 @@ import java.util.Set;
 
 public class TableUtilsTest {
     public static final String TABLE_NAME = "table1";
+    public static final String LOCALITY_TABLE_NAME = "localityTest";
+
 
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
@@ -109,12 +111,13 @@ public class TableUtilsTest {
                 .build();
 
         final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        props.setTable(LOCALITY_TABLE_NAME);
         store.initialise(schema, props);
 
         // When
         TableUtils.createTable(store);
 
-        final Map<String, Set<Text>> localityGroups = store.getConnection().tableOperations().getLocalityGroups(TABLE_NAME);
+        final Map<String, Set<Text>> localityGroups = store.getConnection().tableOperations().getLocalityGroups(LOCALITY_TABLE_NAME);
         assertEquals(1, localityGroups.size());
         Set<Text> localityGroup = localityGroups.get(TestGroups.EDGE);
         assertEquals(1, localityGroup.size());
