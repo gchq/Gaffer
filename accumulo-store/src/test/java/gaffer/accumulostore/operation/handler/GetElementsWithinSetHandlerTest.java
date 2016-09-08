@@ -29,6 +29,7 @@ import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -146,11 +147,12 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
         //Without query compaction the result size should be 5
         assertEquals(5, Iterables.size(elements));
         assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
+        elements.close();
     }
 
     @Test
@@ -177,11 +179,12 @@ public class GetElementsWithinSetHandlerTest {
                 .build();
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
         //After query compaction the result size should be 3
         assertEquals(3, Iterables.size(elements));
         assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
+        elements.close();
     }
 
     @Test
@@ -209,7 +212,7 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
         operation.setIncludeEntities(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
         final Collection<Element> forTest = new LinkedList<>();
         Iterables.addAll(forTest, elements);
@@ -217,7 +220,7 @@ public class GetElementsWithinSetHandlerTest {
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
         assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
-
+        elements.close();
     }
 
     @Test
@@ -235,11 +238,12 @@ public class GetElementsWithinSetHandlerTest {
         operation.setIncludeEdges(IncludeEdgeType.NONE);
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final Iterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
         //The result size should be 2
         assertEquals(2, Iterables.size(elements));
         assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
+        elements.close();
     }
 
     private static void setupGraph(final AccumuloStore store) {

@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -41,7 +42,7 @@ public class GetRelatedElementsExample extends OperationExample {
         getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1(graph);
     }
 
-    public Iterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedElements.Builder<EntitySeed, Element>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build();";
@@ -50,7 +51,7 @@ public class GetRelatedElementsExample extends OperationExample {
                 .build(), graph, opJava);
     }
 
-    public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedElements.Builder<EdgeSeed, Element>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .build();";
@@ -59,7 +60,7 @@ public class GetRelatedElementsExample extends OperationExample {
                 .build(), graph, opJava);
     }
 
-    public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedElements.Builder<EdgeSeed, Element>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .view(new View.Builder()\n"

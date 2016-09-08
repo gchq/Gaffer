@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.example.films.data.Certificate;
 import gaffer.example.films.data.schema.Group;
@@ -43,7 +44,7 @@ public class LoadAndQueryTest {
         final LoadAndQuery query = new LoadAndQuery();
 
         // When
-        final Iterable<Entity> results = query.run();
+        final CloseableIterable<Entity> results = query.run();
 
         // Then
         verifyResults(results);
@@ -63,7 +64,7 @@ public class LoadAndQueryTest {
                 .build();
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<Void> populateChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/load.json"), OperationChain.class);
-        final OperationChain<Iterable<Entity>> queryChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/query.json"), OperationChain.class);
+        final OperationChain<CloseableIterable<Entity>> queryChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, "/example/films/json/query.json"), OperationChain.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -73,13 +74,13 @@ public class LoadAndQueryTest {
 
         // When
         graph.execute(populateChain, user); // Execute the populate operation chain on the graph
-        final Iterable<Entity> results = graph.execute(queryChain, user); // Execute the query operation chain on the graph.
+        final CloseableIterable<Entity> results = graph.execute(queryChain, user); // Execute the query operation chain on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<Entity> resultsItr) {
+    private void verifyResults(final CloseableIterable<Entity> resultsItr) {
         final List<Entity> expectedResults = new ArrayList<>();
         final Entity entity = new Entity(Group.REVIEW, "filmA");
         entity.putProperty(Property.USER_ID, "user01,user03");

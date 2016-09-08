@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.data.elementdefinition.view.View;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -115,7 +116,7 @@ public class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopEdge> edges = mock(Iterator.class);
+        final CloseableIterator<GafferPopEdge> edges = mock(CloseableIterator.class);
         final View view = mock(View.class);
         given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, view)).willReturn(edges);
 
@@ -131,7 +132,7 @@ public class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
+        final CloseableIterator<GafferPopVertex> vertices = mock(CloseableIterator.class);
         given(graph.adjVertices(GafferPopGraph.ID_LABEL, Direction.IN, TestGroups.EDGE)).willReturn(vertices);
 
         // When
@@ -147,7 +148,7 @@ public class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
+        final CloseableIterator<GafferPopVertex> vertices = mock(CloseableIterator.class);
         final View view = mock(View.class);
         given(graph.adjVerticesWithView(GafferPopGraph.ID_LABEL, Direction.IN, view)).willReturn(vertices);
 

@@ -18,6 +18,7 @@ package gaffer.integration.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationException;
@@ -101,7 +102,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<EntitySeed> results = graph.execute(operation, user);
+        final CloseableIterable<EntitySeed> results = graph.execute(operation, user);
 
         // Then
         List<String> resultSeeds = new ArrayList<>();
