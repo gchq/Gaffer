@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -41,11 +42,19 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
         super(seeds);
     }
 
+    public GetElements(final CloseableIterable<SEED_TYPE> seeds) {
+        super(seeds);
+    }
+
     public GetElements(final View view) {
         super(view);
     }
 
     public GetElements(final View view, final Iterable<SEED_TYPE> seeds) {
+        super(view, seeds);
+    }
+
+    public GetElements(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 

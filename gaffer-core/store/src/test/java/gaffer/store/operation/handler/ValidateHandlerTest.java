@@ -22,6 +22,8 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.operation.OperationException;
@@ -60,7 +62,7 @@ public class ValidateHandlerTest {
         final Store store = mock(Store.class);
         final Validate validate = mock(Validate.class);
         final Element elm1 = mock(Element.class);
-        final Iterable<Element> elements = Collections.singletonList(elm1);
+        final CloseableIterable<Element> elements = new WrappedCloseableIterable<>(Collections.singletonList(elm1));
         final Schema schema = mock(Schema.class);
         final Context context = new Context();
 

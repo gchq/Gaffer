@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -38,12 +39,12 @@ public class GetAllEdgesExample extends OperationExample {
         getAllEdgesWithCountGreaterThan2(graph);
     }
 
-    public Iterable<Edge> getAllEdges(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllEdges(final Graph graph) throws OperationException {
         final String opJava = "new GetAllEdges();";
         return runAndPrintOperation(new GetAllEdges(), graph, opJava);
     }
 
-    public Iterable<Edge> getAllEdgesWithCountGreaterThan2(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllEdgesWithCountGreaterThan2(final Graph graph) throws OperationException {
         final String opJava = "new GetAllEdges.Builder()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"

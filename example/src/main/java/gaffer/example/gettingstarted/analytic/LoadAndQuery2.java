@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
@@ -39,7 +40,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         new LoadAndQuery2().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Edge> run() throws OperationException {
         final User user = new User("user01");
 
         //create some edges from the data file using our data generator class
@@ -71,7 +72,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
         log("\nAll edges containing vertex 1");
         log("\nNotice that the edges are aggregated within their groups");
         for (Element e : allColoursResults) {
@@ -86,7 +87,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final Iterable<Edge> redResults = graph.execute(getRelatedRedEdges, user);
+        final CloseableIterable<Edge> redResults = graph.execute(getRelatedRedEdges, user);
         log("\nAll red edges containing vertex 1\n");
         for (Element e : redResults) {
             log("GET_RELATED_RED_EDGES_RESULT", e.toString());

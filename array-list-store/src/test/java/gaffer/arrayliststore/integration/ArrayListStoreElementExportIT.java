@@ -73,7 +73,7 @@ public class ArrayListStoreElementExportIT extends AbstractStoreIT {
         final Graph graphExport = export.getGraphExport();
 
         // Then
-        final Iterable<Element> results = graphExport.execute(new GetAllElements<>(), getUser());
+        final CloseableIterable<Element> results = graphExport.execute(new GetAllElements<>(), getUser());
         final List<Element> resultsList = Lists.newArrayList(results);
         assertEquals(2, resultsList.size());
     }

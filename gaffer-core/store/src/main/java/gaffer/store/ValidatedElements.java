@@ -73,4 +73,9 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
     protected Element transform(final Element item) {
         return item;
     }
+
+    @Override
+    public void close() {
+
+    }
 }

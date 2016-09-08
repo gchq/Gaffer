@@ -20,13 +20,14 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.store.Context;
 import gaffer.store.Store;
-import gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import org.junit.Test;
 
 public class GenerateObjectsHandlerTest {
@@ -37,19 +38,21 @@ public class GenerateObjectsHandlerTest {
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
         final Store store = mock(Store.class);
         final GenerateObjects<Element, String> operation = mock(GenerateObjects.class);
-        final Iterable<Element> elements = mock(Iterable.class);
+        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
-        final Iterable<String> objs = mock(Iterable.class);
+        final CloseableIterable<String> objs = mock(CloseableIterable.class);
         final Context context = new Context();
 
+        final CloseableIterator<String> objsIter = mock(CloseableIterator.class);
+        given(objs.iterator()).willReturn(objsIter);
         given(elementGenerator.getObjects(elements)).willReturn(objs);
         given(operation.getElements()).willReturn(elements);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
-        final Iterable<String> result = handler.doOperation(operation, context, store);
+        final CloseableIterable<String> result = handler.doOperation(operation, context, store);
 
         // Then
-        assertSame(objs, result);
+        assertSame(objsIter, result.iterator());
     }
 }

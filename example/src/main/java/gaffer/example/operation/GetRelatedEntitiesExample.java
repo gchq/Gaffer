@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -40,7 +41,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
         getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1(graph);
     }
 
-    public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedEntities.Builder<EdgeSeed>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .build()";
@@ -49,7 +50,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
                 .build(), graph, opJava);
     }
 
-    public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedEntities.Builder<EdgeSeed>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .view(new View.Builder()\n"

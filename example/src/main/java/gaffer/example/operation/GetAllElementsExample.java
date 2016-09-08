@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -38,12 +39,12 @@ public class GetAllElementsExample extends OperationExample {
         getAllElementsWithCountGreaterThan2(graph);
     }
 
-    public Iterable<Element> getAllElements(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getAllElements(final Graph graph) throws OperationException {
         final String opJava = "new GetAllElements<>();";
         return runAndPrintOperation(new GetAllElements<>(), graph, opJava);
     }
 
-    public Iterable<Element> getAllElementsWithCountGreaterThan2(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getAllElementsWithCountGreaterThan2(final Graph graph) throws OperationException {
         final String opJava = "new GetAllElements.Builder<>()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
