@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -39,24 +40,24 @@ public class GenerateElementsExample extends OperationExample {
         generateElementsFromDomainObjects(graph);
     }
 
-    public Iterable<Element> generateElementsFromStrings(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> generateElementsFromStrings(final Graph graph) throws OperationException {
         final String opJava = "new GenerateElements.Builder<String>()\n"
-              + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
-              + "                .generator(new DataGenerator())\n"
-              + "                .build();";
+                + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
+                + "                .generator(new DataGenerator())\n"
+                + "                .build();";
         return runAndPrintOperation(new GenerateElements.Builder<String>()
                 .objects(Arrays.asList("1,1", "1,2,1"))
                 .generator(new DataGenerator())
                 .build(), graph, opJava);
     }
 
-    public Iterable<Element> generateElementsFromDomainObjects(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> generateElementsFromDomainObjects(final Graph graph) throws OperationException {
         final String opJava = "new GenerateElements.Builder<>()\n"
-              + "                .objects(Arrays.asList(\n"
-              + "                        new DomainObject1(1, 1),\n"
-              + "                        new DomainObject2(1, 2, 1)))\n"
-              + "                .generator(new DomainObjectGenerator())\n"
-              + "                .build();";
+                + "                .objects(Arrays.asList(\n"
+                + "                        new DomainObject1(1, 1),\n"
+                + "                        new DomainObject2(1, 2, 1)))\n"
+                + "                .generator(new DomainObjectGenerator())\n"
+                + "                .build();";
         return runAndPrintOperation(new GenerateElements.Builder<>()
                 .objects(Arrays.asList(
                         new DomainObject1(1, 1),

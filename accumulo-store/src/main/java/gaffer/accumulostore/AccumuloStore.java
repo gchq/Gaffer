@@ -57,6 +57,7 @@ import gaffer.accumulostore.operation.spark.handler.GetRDDOfElementsOperationHan
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.CommonConstants;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
@@ -230,17 +231,17 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
         return new GetAdjacentEntitySeedsHandler();
     }
 

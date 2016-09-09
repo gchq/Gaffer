@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
@@ -46,7 +47,7 @@ public class CoreOperationChainOptimiserTest {
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
         final Validatable<Integer> validatable1 = mock(Validatable.class);
         final boolean skipInvalidElements = true;
-        final Iterable<Element> elements = mock(Iterable.class);
+        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
         final Map<String, String> options = mock(HashMap.class);
         given(validatable1.getOptions()).willReturn(options);
@@ -73,7 +74,7 @@ public class CoreOperationChainOptimiserTest {
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
         final Validatable<Integer> validatable1 = mock(Validatable.class);
         final boolean skipInvalidElements = true;
-        final Iterable<Element> elements = mock(Iterable.class);
+        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final OperationChain<Integer> opChain = new OperationChain<>(validatable1);
 
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
@@ -116,7 +117,7 @@ public class CoreOperationChainOptimiserTest {
         // Given
         final Store store = mock(Store.class);
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
-        final Iterable<Element> elements = mock(Iterable.class);
+        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final Validatable<Integer> validatable1 = mock(Validatable.class);
         final Operation<Iterable<Element>, Iterable<Element>> nonValidatable1 = mock(Operation.class);
         final Validatable<Iterable<Element>> validatable2 = mock(Validatable.class);

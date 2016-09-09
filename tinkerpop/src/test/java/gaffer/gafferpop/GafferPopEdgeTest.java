@@ -30,6 +30,8 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterator;
+import gaffer.commonutil.iterable.WrappedCloseableIterator;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -136,7 +138,7 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, "source", "dest", graph);
         final GafferPopVertex inVertex = new GafferPopVertex(TestGroups.ENTITY, "source", graph);
-        final Iterator<Vertex> inVertices = Collections.singleton((Vertex) inVertex).iterator();
+        final CloseableIterator<Vertex> inVertices = new WrappedCloseableIterator<>(Collections.singleton((Vertex) inVertex).iterator());
         given(graph.vertices("dest")).willReturn(inVertices);
 
         // When
@@ -152,7 +154,7 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, "source", "dest", graph);
         final GafferPopVertex outVertex = new GafferPopVertex(TestGroups.ENTITY, "dest", graph);
-        final Iterator<Vertex> outVertices = Collections.singleton((Vertex) outVertex).iterator();
+        final CloseableIterator<Vertex> outVertices = new WrappedCloseableIterator<>(Collections.singleton((Vertex) outVertex).iterator());
         given(graph.vertices("source")).willReturn(outVertices);
 
         // When
@@ -169,7 +171,7 @@ public class GafferPopEdgeTest {
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, "source", "dest", graph);
         final GafferPopVertex inVertex = new GafferPopVertex(TestGroups.ENTITY, "source", graph);
         final GafferPopVertex outVertex = new GafferPopVertex(TestGroups.ENTITY, "dest", graph);
-        final Iterator<Vertex> vertices = Arrays.asList((Vertex) inVertex, outVertex).iterator();
+        final CloseableIterator<Vertex> vertices = new WrappedCloseableIterator<>(Arrays.asList((Vertex) inVertex, outVertex).iterator());
         given(graph.vertices("source", "dest")).willReturn(vertices);
 
         // When

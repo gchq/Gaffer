@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
@@ -98,11 +99,11 @@ public class StoreTest {
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements, Void> addElementsHandler;
-    private OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getElementsHandler;
-    private OperationHandler<GetAllElements<Element>, Iterable<Element>> getAllElementsHandler;
-    private OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler;
+    private OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getElementsHandler;
+    private OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getAllElementsHandler;
+    private OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler;
     private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
-    private OperationHandler<Validate, Iterable<Element>> validateHandler;
+    private OperationHandler<Validate, CloseableIterable<Element>> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
 
@@ -303,11 +304,11 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
-        final Iterable<Element> getElementsResult = mock(Iterable.class);
+        final CloseableIterable<Element> getElementsResult = mock(CloseableIterable.class);
 
         final AddElements addElements1 = new AddElements();
         final GetElementsBySeed<ElementSeed, Element> getElementsBySeed = new GetElementsBySeed<>();
-        final OperationChain<Iterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
                 .then(getElementsBySeed)
                 .build();
@@ -319,7 +320,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final Iterable<Element> result = store.execute(opChain, user);
+        final CloseableIterable<Element> result = store.execute(opChain, user);
 
         // Then
         assertSame(getElementsResult, result);
@@ -465,17 +466,17 @@ public class StoreTest {
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+        protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
             return getAdjacentEntitySeedsHandler;
         }
 

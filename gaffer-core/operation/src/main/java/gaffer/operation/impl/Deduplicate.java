@@ -16,6 +16,8 @@
 
 package gaffer.operation.impl;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.AbstractOperation;
 
 /**
@@ -24,9 +26,9 @@ import gaffer.operation.AbstractOperation;
  *
  * @see Deduplicate.Builder
  */
-public class Deduplicate<T> extends AbstractOperation<Iterable<T>, Iterable<T>> {
+public class Deduplicate<T> extends AbstractOperation<CloseableIterable<T>, CloseableIterable<T>> {
 
-    public static class Builder<T> extends AbstractOperation.Builder<Deduplicate<T>, Iterable<T>, Iterable<T>> {
+    public static class Builder<T> extends AbstractOperation.Builder<Deduplicate<T>, CloseableIterable<T>, CloseableIterable<T>> {
 
         public Builder() {
             super(new Deduplicate<T>());
@@ -38,6 +40,15 @@ public class Deduplicate<T> extends AbstractOperation<Iterable<T>, Iterable<T>> 
          * @see gaffer.operation.Operation#setInput(Object)
          */
         protected Builder<T> input(final Iterable<T> input) {
+            return (Builder<T>) super.input(new WrappedCloseableIterable<T>(input));
+        }
+
+        /**
+         * @param input the input to set on the operation
+         * @return this Builder
+         * @see gaffer.operation.Operation#setInput(Object)
+         */
+        protected Builder<T> input(final CloseableIterable<T> input) {
             return (Builder<T>) super.input(input);
         }
 
