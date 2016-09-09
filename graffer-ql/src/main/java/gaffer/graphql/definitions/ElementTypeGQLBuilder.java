@@ -42,6 +42,8 @@ public abstract class ElementTypeGQLBuilder<
     protected abstract GraphQLInterfaceType getInterfaceType();
 
     protected abstract void contribute(final GraphQLObjectType.Builder builder);
+    protected abstract void addToQuery(final GraphQLObjectType type,
+                                       final GraphQLObjectType.Builder queryTypeBuilder);
 
     public abstract B self();
 
@@ -49,6 +51,7 @@ public abstract class ElementTypeGQLBuilder<
     private String name;
     private S elementDefinition;
     private Schema schema;
+    private GraphQLObjectType.Builder queryTypeBuilder;
 
     public B dataObjectTypes(final Map<String, GraphQLObjectType> dataObjectTypes) {
         this.dataObjectTypes = dataObjectTypes;
@@ -67,6 +70,11 @@ public abstract class ElementTypeGQLBuilder<
 
     public B schema(final Schema schema) {
         this.schema = schema;
+        return self();
+    }
+
+    public B queryTypeBuilder(final GraphQLObjectType.Builder queryTypeBuilder) {
+        this.queryTypeBuilder = queryTypeBuilder;
         return self();
     }
 
@@ -99,6 +107,9 @@ public abstract class ElementTypeGQLBuilder<
         if (null == this.elementDefinition) {
             throw new GrafferQLException("elementDefinition given to data type builder is null");
         }
+        if (null == this.queryTypeBuilder) {
+            throw new GrafferQLException("queryTypeBuilder given to data type builder is null");
+        }
 
         // Create a builder
         final GraphQLObjectType.Builder builder = newObject()
@@ -117,6 +128,8 @@ public abstract class ElementTypeGQLBuilder<
         }
 
         contribute(builder);
-        return builder.build();
+        final GraphQLObjectType type = builder.build();
+        addToQuery(type, queryTypeBuilder);
+        return type;
     }
 }

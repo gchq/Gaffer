@@ -32,6 +32,7 @@ import java.util.Map;
 import static graphql.Scalars.GraphQLString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +46,10 @@ public class EntityTypeGQLBuilderTest {
         /**
          * Given
          */
+        final GraphQLObjectType.Builder queryBuilder = mock(GraphQLObjectType.Builder.class);
+        when(queryBuilder.field(any(GraphQLFieldDefinition.class))).thenReturn(queryBuilder);
+        when(queryBuilder.build()).thenReturn(mock(GraphQLObjectType.class));
+
         final Schema schema = mock(Schema.class);
         final SchemaEntityDefinition entityDefinition = mock(SchemaEntityDefinition.class);
         when(entityDefinition.getVertex()).thenReturn(VERTEX_TYPE_NAME);
@@ -61,6 +66,7 @@ public class EntityTypeGQLBuilderTest {
                 .schema(schema)
                 .dataObjectTypes(dataObjectTypes)
                 .elementDefinition(entityDefinition)
+                .queryTypeBuilder(queryBuilder)
                 .build();
 
         /**

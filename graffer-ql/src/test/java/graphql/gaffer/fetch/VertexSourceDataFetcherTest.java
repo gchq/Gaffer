@@ -16,7 +16,6 @@
 
 package graphql.gaffer.fetch;
 
-import gaffer.graphql.fetch.VertexArgDataFetcher;
 import gaffer.graphql.fetch.VertexSourceDataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import org.junit.Test;

@@ -31,6 +31,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +49,10 @@ public class DataTypeGQLBuilderTest {
         /**
          * Given
          */
+        final GraphQLObjectType.Builder queryBuilder = mock(GraphQLObjectType.Builder.class);
+        when(queryBuilder.field(any(GraphQLFieldDefinition.class))).thenReturn(queryBuilder);
+        when(queryBuilder.build()).thenReturn(mock(GraphQLObjectType.class));
+
         final Schema schema = mock(Schema.class);
         // Setup an entity with the type as a vertex
         final Map<String, SchemaEntityDefinition> entityTypes = new HashMap<>();
@@ -65,6 +70,7 @@ public class DataTypeGQLBuilderTest {
                 .gafferSchema(schema)
                 .name(VERTEX_TYPE_NAME)
                 .typeDefinition(typeDefinition)
+                .queryTypeBuilder(queryBuilder)
                 .build();
 
         /**
@@ -80,6 +86,10 @@ public class DataTypeGQLBuilderTest {
         /**
          * Given
          */
+        final GraphQLObjectType.Builder queryBuilder = mock(GraphQLObjectType.Builder.class);
+        when(queryBuilder.field(any(GraphQLFieldDefinition.class))).thenReturn(queryBuilder);
+        when(queryBuilder.build()).thenReturn(mock(GraphQLObjectType.class));
+
         final Schema schema = mock(Schema.class);
         // Setup an entity with the type as a vertex
         final Map<String, SchemaEdgeDefinition> edgeTypes = new HashMap<>();
@@ -97,6 +107,7 @@ public class DataTypeGQLBuilderTest {
                 .gafferSchema(schema)
                 .name(VERTEX_TYPE_NAME)
                 .typeDefinition(typeDefinition)
+                .queryTypeBuilder(queryBuilder)
                 .build();
 
         /**

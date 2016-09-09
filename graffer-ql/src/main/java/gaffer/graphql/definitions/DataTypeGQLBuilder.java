@@ -18,6 +18,7 @@ package gaffer.graphql.definitions;
 import gaffer.graphql.GrafferQLException;
 import gaffer.graphql.fetch.EdgeByVertexDataFetcher;
 import gaffer.graphql.fetch.EntityByVertexDataFetcher;
+import gaffer.graphql.fetch.VertexArgDataFetcher;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
@@ -32,6 +33,7 @@ import org.apache.commons.lang.CharUtils;
 import java.util.Map;
 
 import static graphql.Scalars.GraphQLString;
+import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static graphql.schema.GraphQLObjectType.newObject;
@@ -51,6 +53,7 @@ public class DataTypeGQLBuilder {
     private String rawName;
     private Schema gafferSchema;
     private TypeDefinition typeDefinition;
+    private GraphQLObjectType.Builder queryTypeBuilder;
 
     public DataTypeGQLBuilder() {
     }
@@ -70,6 +73,11 @@ public class DataTypeGQLBuilder {
         return this;
     }
 
+    public DataTypeGQLBuilder queryTypeBuilder(final GraphQLObjectType.Builder queryTypeBuilder) {
+        this.queryTypeBuilder = queryTypeBuilder;
+        return this;
+    }
+
     public GraphQLObjectType build() throws GrafferQLException {
         if (null == this.rawName) {
             throw new GrafferQLException("Name given to data type builder is null");
@@ -78,7 +86,10 @@ public class DataTypeGQLBuilder {
             throw new GrafferQLException("Gaffer Schema given to data type builder is null");
         }
         if (null == this.typeDefinition) {
-            throw new GrafferQLException("Gaffer Schema given to data type builder is null");
+            throw new GrafferQLException("Type Definition given to data type builder is null");
+        }
+        if (null == this.queryTypeBuilder) {
+            throw new GrafferQLException("Query Type given to data type builder is null");
         }
         final GraphQLObjectType.Builder vertexTypeBuilder = newObject()
                 .name(getSafeName(rawName))
@@ -118,7 +129,19 @@ public class DataTypeGQLBuilder {
             }
         }
 
-        return vertexTypeBuilder.build();
+        final GraphQLObjectType type = vertexTypeBuilder.build();
+        queryTypeBuilder
+                .field(newFieldDefinition()
+                        .name(type.getName())
+                        .type(type)
+                        .argument(newArgument()
+                                .name(Constants.VERTEX)
+                                .type(GraphQLString)
+                                .build())
+                        .dataFetcher(new VertexArgDataFetcher(Constants.VERTEX))
+                        .build())
+                .build();
+        return type;
     }
 
     /**

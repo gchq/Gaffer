@@ -16,13 +16,16 @@
 package gaffer.graphql.definitions;
 
 import gaffer.data.element.Entity;
+import gaffer.graphql.fetch.EntityByArgDataFetcher;
 import gaffer.graphql.fetch.VertexSourceDataFetcher;
 import gaffer.store.schema.SchemaEntityDefinition;
 import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 
 import static graphql.Scalars.GraphQLString;
+import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 
@@ -57,6 +60,22 @@ public class EntityTypeGQLBuilder extends ElementTypeGQLBuilder<Entity, SchemaEn
                         .type(new GraphQLNonNull(vertexType))
                         .dataFetcher(new VertexSourceDataFetcher(Constants.VERTEX_VALUE))
                         .build());
+    }
+
+    @Override
+    protected void addToQuery(final GraphQLObjectType type,
+                              final GraphQLObjectType.Builder queryTypeBuilder) {
+        queryTypeBuilder
+                .field(newFieldDefinition()
+                        .name(type.getName())
+                        .type(new GraphQLList(type))
+                        .argument(newArgument()
+                                .name(Constants.VERTEX)
+                                .type(GraphQLString)
+                                .build())
+                        .dataFetcher(new EntityByArgDataFetcher(type.getName()))
+                        .build())
+                .build();
     }
 
     @Override
