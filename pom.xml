@@ -36,6 +36,7 @@
         <module>gaffer-integration-tests</module>
         <module>example-rest</module>
         <module>tinkerpop</module>
+        <module>graffer-ql</module>
     </modules>
 
     <properties>
