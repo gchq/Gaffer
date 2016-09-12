@@ -20,6 +20,8 @@ import static gaffer.operation.GetOperation.IncludeEdgeType;
 import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 
 import gaffer.arrayliststore.ArrayListStore;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -37,12 +39,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
                                          final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, (ArrayListStore) store);
+        return new WrappedCloseableIterable(doOperation(operation, (ArrayListStore) store));
     }
 
     private List<Element> doOperation(final GetElements<ElementSeed, Element> operation, final ArrayListStore store) {

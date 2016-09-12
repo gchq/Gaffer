@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -39,7 +40,7 @@ public class GetEntitiesBySeedExample extends OperationExample {
         getEntitiesByEntitySeed1And2WithCountGreaterThan1(graph);
     }
 
-    public Iterable<Entity> getEntitiesByEntitySeed1And2(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2(final Graph graph) throws OperationException {
         final String opJava = "new GetEntitiesBySeed.Builder()\n"
                 + "                .addSeed(new EntitySeed(1))\n"
                 + "                .addSeed(new EntitySeed(2))\n"
@@ -50,7 +51,7 @@ public class GetEntitiesBySeedExample extends OperationExample {
                 .build(), graph, opJava);
     }
 
-    public Iterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1(final Graph graph) throws OperationException {
         final String opJava = "new GetEntitiesBySeed.Builder()\n"
                 + "                .addSeed(new EntitySeed(1))\n"
                 + "                .addSeed(new EntitySeed(2))\n"

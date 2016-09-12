@@ -238,7 +238,6 @@ public class SimpleExamplesService implements IExamplesService {
         if (hasEdges()) {
             elements.add(getEdge(1, 2));
         }
-
         op.setInput(elements);
         populateOperation(op);
         return op;

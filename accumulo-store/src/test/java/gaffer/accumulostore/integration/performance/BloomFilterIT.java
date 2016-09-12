@@ -137,7 +137,7 @@ public class BloomFilterIT {
         final ArrayList<Key> keys = new ArrayList<>(keysSet);
         Collections.sort(keys);
         final Properties property = new Properties();
-        property.put(AccumuloPropertyNames.INT, 10);
+        property.put(AccumuloPropertyNames.COUNT, 10);
         final Value value = elementConverter.getValueFromProperties(TestGroups.ENTITY, property);
         final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, property);
 

@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -40,36 +41,36 @@ public class GetElementsBySeedExample extends OperationExample {
         getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1(graph);
     }
 
-    public Iterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3(final Graph graph) throws OperationException {
         final String opJava = "new GetElementsBySeed.Builder<>()\n"
-              + "                .addSeed(new EntitySeed(2))\n"
-              + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-              + "                .build();";
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+                + "                .build();";
         return runAndPrintOperation(new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .build(), graph, opJava);
     }
 
-    public Iterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1(final Graph graph) throws OperationException {
         final String opJava = "new GetElementsBySeed.Builder<>()\n"
-              + "                .addSeed(new EntitySeed(2))\n"
-              + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-              + "                .view(new View.Builder()\n"
-              + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-              + "                                .filter(new ElementFilter.Builder()\n"
-              + "                                        .select(\"count\")\n"
-              + "                                        .execute(new IsMoreThan(1))\n"
-              + "                                        .build())\n"
-              + "                                .build())\n"
-              + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-              + "                                .filter(new ElementFilter.Builder()\n"
-              + "                                        .select(\"count\")\n"
-              + "                                        .execute(new IsMoreThan(1))\n"
-              + "                                        .build())\n"
-              + "                                .build())\n"
-              + "                        .build())\n"
-              + "                .build();";
+                + "                .addSeed(new EntitySeed(2))\n"
+                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+                + "                .view(new View.Builder()\n"
+                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
+                + "                                .filter(new ElementFilter.Builder()\n"
+                + "                                        .select(\"count\")\n"
+                + "                                        .execute(new IsMoreThan(1))\n"
+                + "                                        .build())\n"
+                + "                                .build())\n"
+                + "                        .build())\n"
+                + "                .build();";
         return runAndPrintOperation(new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))

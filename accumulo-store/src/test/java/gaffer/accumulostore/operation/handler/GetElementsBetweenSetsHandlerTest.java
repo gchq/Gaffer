@@ -28,6 +28,7 @@ import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -134,11 +135,12 @@ public class GetElementsBetweenSetsHandlerTest {
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
         //Without query compaction the result size should be 4
         assertEquals(4, Iterables.size(elements));
 
         assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1));
+        elements.close();
     }
 
     @Test
@@ -162,12 +164,13 @@ public class GetElementsBetweenSetsHandlerTest {
                         .build())
                 .build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
         //With query compaction the result size should be 2
         assertEquals(2, Iterables.size(elements));
 
         assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1));
+        elements.close();
     }
 
     @Test
@@ -193,12 +196,13 @@ public class GetElementsBetweenSetsHandlerTest {
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
         //With query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
 
         assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
+        elements.close();
     }
 
     @Test
@@ -215,12 +219,13 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
         op.setIncludeEdges(IncludeEdgeType.NONE);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
         //The result size should be 1
         assertEquals(1, Iterables.size(elements));
 
         assertThat(elements, IsCollectionContaining.hasItem(expectedEntity1));
+        elements.close();
     }
 
     @Test
@@ -245,12 +250,13 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
         //With query compaction the result size should be 2
         assertEquals(2, Iterables.size(elements));
 
         assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedSummarisedEdge));
+        elements.close();
     }
 
     @Test
@@ -275,12 +281,13 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        final Iterable<Element> elements = handler.doOperation(op, user, store);
+        final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
         //The result size should be 1
         assertEquals(1, Iterables.size(elements));
 
         assertThat(elements, IsCollectionContaining.hasItem(expectedEntity1));
+        elements.close();
     }
 
     private static void setupGraph(final AccumuloStore store) {

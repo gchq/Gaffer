@@ -15,6 +15,7 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator5;
@@ -37,7 +38,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         new LoadAndQuery5().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Edge> run() throws OperationException {
         final User basicUser = new User("basicUser");
 
         //create some edges from the data file using our data generator class
@@ -69,7 +70,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> resultsWithBasicUser = graph.execute(getRelatedEdges, basicUser);
+        final CloseableIterable<Edge> resultsWithBasicUser = graph.execute(getRelatedEdges, basicUser);
         for (Element e : resultsWithBasicUser) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
@@ -84,7 +85,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getPrivateRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
+        final CloseableIterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         for (Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
         }
@@ -97,7 +98,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getPublicRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
+        final CloseableIterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
         for (Element e : publicResults) {
             log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
         }

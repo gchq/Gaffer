@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -41,7 +42,7 @@ public class GetRelatedEdgesExample extends OperationExample {
         getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1(graph);
     }
 
-    public Iterable<Edge> getAllEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build()";
@@ -50,7 +51,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                 .build(), graph, opJava);
     }
 
-    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
@@ -61,7 +62,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                 .build(), graph, opJava);
     }
 
-    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1(final Graph graph) throws OperationException {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"

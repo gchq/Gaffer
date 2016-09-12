@@ -16,6 +16,7 @@
 
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
@@ -42,7 +43,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         new LoadAndQuery3().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Edge> run() throws OperationException {
         final User user = new User("user01");
 
         //create some edges from the data file using our data generator class
@@ -75,7 +76,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> results = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
         for (Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
@@ -93,7 +94,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
                 .addSeed(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final Iterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
+        final CloseableIterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
         log("\nAll edges containing the vertex 1 with an aggregated count more than than 3\n");
         for (Element e : filteredResults) {
             log("GET_RELATED_ELEMENTS_WITH_COUNT_MORE_THAN_3_RESULT", e.toString());
