@@ -16,13 +16,13 @@
 
 package gaffer.data.element;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import java.io.Serializable;
 import java.util.Map;
 
@@ -149,6 +149,11 @@ public abstract class Element implements Serializable {
     public String toString() {
         return ", group='" + group
                 + "\', properties=" + properties;
+    }
+
+    @JsonGetter("class")
+    String getClassName() {
+        return getClass().getName();
     }
 }
 
