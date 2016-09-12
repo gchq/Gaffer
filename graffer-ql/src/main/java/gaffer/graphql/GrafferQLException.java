@@ -17,7 +17,7 @@
 package gaffer.graphql;
 
 /**
- * General purpose exception for errors encountered during Gaffer -> GraphQL conversion.
+ * General purpose exception for errors encountered during Gaffer to GraphQL conversion.
  */
 public class GrafferQLException extends Exception {
     public GrafferQLException(final String s) {
