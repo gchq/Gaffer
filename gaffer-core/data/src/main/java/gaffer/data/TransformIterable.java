@@ -16,6 +16,9 @@
 
 package gaffer.data;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.CloseableIterator;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -26,7 +29,7 @@ import java.util.NoSuchElementException;
  * @param <INPUT>  The input iterable type.
  * @param <OUTPUT> the output iterable type.
  */
-public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPUT> {
+public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableIterable<OUTPUT> {
     private final Iterable<INPUT> input;
     private final Validator<INPUT> validator;
     private final boolean skipInvalid;
@@ -51,6 +54,10 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
         this(input, validator, false);
     }
 
+    public Iterable<INPUT> getInput() {
+        return this.input;
+    }
+
     /**
      * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable},
      * {@link gaffer.data.Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
@@ -68,8 +75,13 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
     /**
      * @return an {@link java.util.Iterator} that lazy transforms the INPUT items to OUTPUT items
      */
-    public Iterator<OUTPUT> iterator() {
-        return new Iterator<OUTPUT>() {
+    public CloseableIterator<OUTPUT> iterator() {
+        return new CloseableIterator<OUTPUT>() {
+            @Override
+            public void close() {
+
+            }
+
             private final Iterator<INPUT> inputItr = input.iterator();
 
             private OUTPUT nextElement;
@@ -117,6 +129,14 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
                 throw new UnsupportedOperationException("Cannot call remove on a " + getIterableClass().getSimpleName() + " iterator");
             }
         };
+    }
+
+    /**
+     * Should be overridden and to close any resources used in the creation of the transform iterable.
+     * This can include the input.
+     */
+    public void close() {
+
     }
 
     /**

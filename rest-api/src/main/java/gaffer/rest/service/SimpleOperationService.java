@@ -16,6 +16,7 @@
 
 package gaffer.rest.service;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -79,7 +80,7 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Iterable<Element> generateElements(final GenerateElements operation) {
+    public CloseableIterable<Element> generateElements(final GenerateElements operation) {
         return execute((GenerateElements<?>) operation);
     }
 
@@ -89,52 +90,52 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Iterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation, final Integer n) {
+    public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, final Integer n) {
+    public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, final Integer n) {
+    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Entity> getRelatedEntities(final GetRelatedEntities operation, final Integer n) {
+    public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, final Integer n) {
+    public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Edge> getRelatedEdges(final GetRelatedEdges operation, final Integer n) {
+    public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Element> getAllElements(final GetAllElements<Element> operation, final Integer n) {
+    public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Entity> getAllEntities(final GetAllEntities operation, final Integer n) {
+    public CloseableIterable<Entity> getAllEntities(final GetAllEntities operation, final Integer n) {
         return executeGet(operation, n);
     }
 
     @Override
-    public Iterable<Edge> getAllEdges(final GetAllEdges operation, final Integer n) {
+    public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation, final Integer n) {
         return executeGet(operation, n);
     }
 
@@ -197,7 +198,7 @@ public class SimpleOperationService implements IOperationService {
         }
     }
 
-    protected <OUTPUT> Iterable<OUTPUT> executeGet(final Operation<?, Iterable<OUTPUT>> operation, final Integer n) {
+    protected <OUTPUT> CloseableIterable<OUTPUT> executeGet(final Operation<?, CloseableIterable<OUTPUT>> operation, final Integer n) {
         return null != n ? new LimitedCloseableIterable<>(execute(operation), 0, n) : execute(operation);
     }
 }

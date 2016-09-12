@@ -314,6 +314,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     public Iterable<TypeDefinition> getPropertyTypeDefs() {
         return new TransformIterable<String, TypeDefinition>(getPropertyMap().values()) {
             @Override
+            public void close() {
+
+            }
+
+            @Override
             protected TypeDefinition transform(final String typeName) {
                 return getTypeDef(typeName);
             }

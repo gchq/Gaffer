@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -38,7 +39,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1();
     }
 
-    public Iterable<EntitySeed> getAdjacentEntitySeedsFromVertex2() {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsFromVertex2() {
         final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build();";
@@ -47,7 +48,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
         final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
@@ -58,7 +59,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
         final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"

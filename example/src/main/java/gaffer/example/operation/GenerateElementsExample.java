@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -39,7 +40,7 @@ public class GenerateElementsExample extends OperationExample {
         generateElementsFromDomainObjects();
     }
 
-    public Iterable<Element> generateElementsFromStrings() {
+    public CloseableIterable<Element> generateElementsFromStrings() {
         final String opJava = "new GenerateElements.Builder<String>()\n"
                 + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
                 + "                .generator(new DataGenerator())\n"
@@ -50,7 +51,7 @@ public class GenerateElementsExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<Element> generateElementsFromDomainObjects() {
+    public CloseableIterable<Element> generateElementsFromDomainObjects() {
         final String opJava = "new GenerateElements.Builder<>()\n"
                 + "                .objects(Arrays.asList(\n"
                 + "                        new DomainObject1(1, 1),\n"

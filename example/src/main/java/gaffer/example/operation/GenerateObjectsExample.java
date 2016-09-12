@@ -16,6 +16,7 @@
 package gaffer.example.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -38,7 +39,7 @@ public class GenerateObjectsExample extends OperationExample {
         generateDomainObjectsFromElements();
     }
 
-    public Iterable<String> generateStringsFromElements() {
+    public CloseableIterable<String> generateStringsFromElements() {
         final String opJava = "new GenerateObjects.Builder<Element, String>()\n"
                 + "                .elements(Arrays.asList(\n"
                 + "                        new Entity.Builder()\n"
@@ -69,7 +70,7 @@ public class GenerateObjectsExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<Object> generateDomainObjectsFromElements() {
+    public CloseableIterable<Object> generateDomainObjectsFromElements() {
         final String opJava = "new GenerateObjects.Builder<>()\n"
                 + "                .elements(Arrays.asList(\n"
                 + "                        new Entity.Builder()\n"

@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.retriever.impl.AccumuloIDWithinSetRetriever;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.store.Context;
@@ -28,16 +29,16 @@ import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet<Element>, Iterable<Element>> {
+public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet<Element>, CloseableIterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
                                          final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElementsWithinSet<Element> operation,
                                          final User user, final AccumuloStore store)
             throws OperationException {
         try {

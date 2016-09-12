@@ -16,6 +16,7 @@
 
 package gaffer.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 
 /**
@@ -25,7 +26,7 @@ import gaffer.data.element.Element;
  *
  * @param <OUTPUT> the output type
  */
-public interface Validatable<OUTPUT> extends Operation<Iterable<Element>, OUTPUT> {
+public interface Validatable<OUTPUT> extends Operation<CloseableIterable<Element>, OUTPUT> {
     /**
      * @return true if invalid elements should be skipped. Otherwise false if the operation should fail.
      */
@@ -48,13 +49,13 @@ public interface Validatable<OUTPUT> extends Operation<Iterable<Element>, OUTPUT
     void setValidate(final boolean validate);
 
     /**
-     * @return the input {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s in the operation.
+     * @return the input {@link CloseableIterable} of {@link gaffer.data.element.Element}s in the operation.
      */
-    Iterable<Element> getElements();
+    CloseableIterable<Element> getElements();
 
     /**
-     * @param elements the {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s to be set as the
+     * @param elements the {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be set as the
      *                 input for the operation.
      */
-    void setElements(final Iterable<Element> elements);
+    void setElements(final CloseableIterable<Element> elements);
 }

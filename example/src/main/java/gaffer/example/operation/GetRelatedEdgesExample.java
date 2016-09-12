@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -40,7 +41,7 @@ public class GetRelatedEdgesExample extends OperationExample {
         getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1();
     }
 
-    public Iterable<Edge> getAllEdgesThatAreConnectedToVertex2() {
+    public CloseableIterable<Edge> getAllEdgesThatAreConnectedToVertex2() {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build()";
@@ -49,7 +50,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2() {
+    public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2() {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
@@ -60,7 +61,7 @@ public class GetRelatedEdgesExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1() {
+    public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1() {
         final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"

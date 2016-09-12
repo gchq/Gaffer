@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.TestTypes;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
@@ -70,7 +71,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When 1 - before age off
-        final Iterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
+        final CloseableIterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .build(), user);
 
@@ -86,7 +87,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         }
 
         // When 2 - after age off
-        final Iterable<Entity> results2 = graph.execute(new GetEntitiesBySeed.Builder()
+        final CloseableIterable<Entity> results2 = graph.execute(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .build(), user);
 
@@ -110,7 +111,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When
-        final Iterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
+        final CloseableIterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(VERTEX))
                 .build(), user);
 

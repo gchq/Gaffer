@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.exception.SerialisationException;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -41,7 +42,7 @@ public class LoadAndQuery6Test {
         final LoadAndQuery6 query = new LoadAndQuery6();
 
         // When
-        final Iterable<String> results = query.run();
+        final CloseableIterable<String> results = query.run();
 
         // Then
         verifyResults(results);
@@ -54,7 +55,7 @@ public class LoadAndQuery6Test {
         final User user01 = new User("user01");
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<?> addOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), OperationChain.class);
-        final OperationChain<Iterable<String>> queryOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), OperationChain.class);
+        final OperationChain<CloseableIterable<String>> queryOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), OperationChain.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -64,13 +65,13 @@ public class LoadAndQuery6Test {
 
         // When
         graph.execute(addOpChain, user01); // Execute the add operation chain on the graph
-        final Iterable<String> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
+        final CloseableIterable<String> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<String> resultsItr) {
+    private void verifyResults(final CloseableIterable<String> resultsItr) {
         final String[] expectedResults = {
                 "2,3,1",
                 "3,1,1",
