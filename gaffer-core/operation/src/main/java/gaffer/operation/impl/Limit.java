@@ -16,6 +16,8 @@
 
 package gaffer.operation.impl;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.AbstractGetOperation;
 
 /**
@@ -40,6 +42,15 @@ public class Limit<T> extends AbstractGetOperation<T, T> {
          * @see gaffer.operation.Operation#setInput(Object)
          */
         public Builder<T> input(final Iterable<T> input) {
+            return input(new WrappedCloseableIterable<>(input));
+        }
+
+        /**
+         * @param input the input to set on the operation
+         * @return this Builder
+         * @see gaffer.operation.Operation#setInput(Object)
+         */
+        public Builder<T> input(final CloseableIterable<T> input) {
             return (Builder<T>) super.input(input);
         }
 

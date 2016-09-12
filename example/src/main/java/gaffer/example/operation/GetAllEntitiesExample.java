@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -36,12 +37,12 @@ public class GetAllEntitiesExample extends OperationExample {
         getAllEntitiesWithCountGreaterThan2();
     }
 
-    public Iterable<Entity> getAllEntities() {
+    public CloseableIterable<Entity> getAllEntities() {
         final String opJava = "new GetAllEntities();";
         return runExample(new GetAllEntities(), opJava);
     }
 
-    public Iterable<Entity> getAllEntitiesWithCountGreaterThan2() {
+    public CloseableIterable<Entity> getAllEntitiesWithCountGreaterThan2() {
         final String opJava = "new GetAllEntities.Builder()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"

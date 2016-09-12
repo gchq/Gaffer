@@ -16,6 +16,7 @@
 
 package gaffer.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -45,7 +46,7 @@ public class AbstractGetOperationTest implements OperationTest {
         final GetOperation.IncludeEdgeType includeEdges = GetOperation.IncludeEdgeType.ALL;
         final boolean includeEntities = true;
         final boolean populateProperties = true;
-        final Iterable<ElementSeed> input = mock(Iterable.class);
+        final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
 
         given(operationToCopy.getView()).willReturn(view);
         given(operationToCopy.getIncludeEdges()).willReturn(includeEdges);

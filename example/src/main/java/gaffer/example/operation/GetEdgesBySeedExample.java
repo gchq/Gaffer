@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -37,7 +38,7 @@ public class GetEdgesBySeedExample extends OperationExample {
         getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2();
     }
 
-    public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3() {
+    public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3() {
         final String opJava = "new GetEdgesBySeed.Builder()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .addSeed(new EdgeSeed(2, 3, true))\n"
@@ -48,7 +49,7 @@ public class GetEdgesBySeedExample extends OperationExample {
                 .build(), opJava);
     }
 
-    public Iterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2() {
+    public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2() {
         final String opJava = "new GetEdgesBySeed.Builder()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .addSeed(new EdgeSeed(2, 3, true))\n"

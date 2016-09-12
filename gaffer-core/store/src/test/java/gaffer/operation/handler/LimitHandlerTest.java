@@ -21,7 +21,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.LimitedCloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.impl.Limit;
 import gaffer.store.operation.handler.LimitHandler;
 import org.junit.Test;
@@ -55,7 +57,7 @@ public class LimitHandlerTest {
     @Test
     public void shouldNotLimitResultsOfGetOperationWhenLimitIsNull() throws Exception {
         // Given
-        final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
+        final CloseableIterable<Integer> input = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 3, 4, 5));
         final Integer resultLimit = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)

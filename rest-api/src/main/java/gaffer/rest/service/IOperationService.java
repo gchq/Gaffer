@@ -18,6 +18,7 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -66,59 +67,58 @@ public interface IOperationService {
     @POST
     @Path("/generate/elements")
     @ApiOperation(value = "Generate elements from objects", response = Element.class, responseContainer = "List")
-    Iterable<Element> generateElements(final GenerateElements operation);
+    CloseableIterable<Element> generateElements(final GenerateElements operation);
 
     @POST
     @Path("/get/elements/bySeed")
     @ApiOperation(value = "Gets elements by seed from the graph",
-            response = Element.class,
-            responseContainer = "List")
-    Iterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation);
+            response = Element.class, responseContainer = "List")
+    CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/elements/related")
     @ApiOperation(value = "Gets related elements from the graph", response = Element.class, responseContainer = "List")
-    Iterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
+    CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/entities/bySeed")
     @ApiOperation(value = "Gets entities by seed from the graph", response = Entity.class, responseContainer = "List")
-    Iterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
+    CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
 
     @POST
     @Path("/get/entities/related")
     @ApiOperation(value = "Gets related entities from the graph", response = Entity.class, responseContainer = "List")
-    Iterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation);
+    CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation);
 
     @POST
     @Path("/get/edges/bySeed")
     @ApiOperation(value = "Gets edge by seed from the graph", response = Edge.class, responseContainer = "List")
-    Iterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
+    CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
 
     @POST
     @Path("/get/edges/related")
     @ApiOperation(value = "Gets related edges from the graph", response = Edge.class, responseContainer = "List")
-    Iterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation);
+    CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation);
 
     @POST
     @Path("/get/entitySeeds/adjacent")
     @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
-    Iterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
+    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
 
     @POST
     @Path("/get/elements/all")
     @ApiOperation(value = "Gets all elements", response = Element.class, responseContainer = "List")
-    Iterable<Element> getAllElements(final GetAllElements<Element> operation);
+    CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation);
 
     @POST
     @Path("/get/entities/all")
     @ApiOperation(value = "Gets all entities", response = Entity.class, responseContainer = "List")
-    Iterable<Entity> getAllEntities(final GetAllEntities operation);
+    CloseableIterable<Entity> getAllEntities(final GetAllEntities operation);
 
     @POST
     @Path("/get/edges/all")
     @ApiOperation(value = "Gets all edges", response = Edge.class, responseContainer = "List")
-    Iterable<Edge> getAllEdges(final GetAllEdges operation);
+    CloseableIterable<Edge> getAllEdges(final GetAllEdges operation);
 
     @PUT
     @Path("/add/elements")

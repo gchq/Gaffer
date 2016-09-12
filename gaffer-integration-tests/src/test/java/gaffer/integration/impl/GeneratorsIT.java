@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -64,7 +65,7 @@ public class GeneratorsIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.AGGREGATION)
     public void shouldConvertToDomainObjects() throws OperationException, UnsupportedEncodingException {
         // Given
-        final OperationChain<Iterable<DomainObject>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<DomainObject>> opChain = new OperationChain.Builder()
                 .first(new GetRelatedElements.Builder<>()
                         .addSeed(new EntitySeed(SOURCE_1))
                         .build())

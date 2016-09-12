@@ -16,6 +16,7 @@
 
 package gaffer.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 
@@ -28,7 +29,7 @@ import gaffer.data.element.Entity;
  * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
  */
 public interface GetOperation<SEED_TYPE, RETURN_TYPE>
-        extends Operation<Iterable<SEED_TYPE>, Iterable<RETURN_TYPE>> {
+        extends Operation<CloseableIterable<SEED_TYPE>, CloseableIterable<RETURN_TYPE>> {
 
     /**
      * A <code>IncludeEdgeType</code> defines whether {@link gaffer.data.element.Edge}s used in the operation should
@@ -75,14 +76,14 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
     SeedMatchingType getSeedMatching();
 
     /**
-     * @return the {@link java.lang.Iterable} of input seeds (SEED_TYPE) for the operation.
+     * @return the {@link CloseableIterable} of input seeds (SEED_TYPE) for the operation.
      */
-    Iterable<SEED_TYPE> getSeeds();
+    CloseableIterable<SEED_TYPE> getSeeds();
 
     /**
-     * @param seeds the {@link java.lang.Iterable} of input seeds (SEED_TYPE) for the operation.
+     * @param seeds the {@link CloseableIterable} of input seeds (SEED_TYPE) for the operation.
      */
-    void setSeeds(final Iterable<SEED_TYPE> seeds);
+    void setSeeds(final CloseableIterable<SEED_TYPE> seeds);
 
     /**
      * @param entity the entity to validate.

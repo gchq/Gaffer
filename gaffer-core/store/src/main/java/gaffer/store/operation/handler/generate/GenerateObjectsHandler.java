@@ -16,6 +16,8 @@
 
 package gaffer.store.operation.handler.generate;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateObjects;
@@ -30,11 +32,11 @@ import gaffer.store.operation.handler.OperationHandler;
  *
  * @param <OBJ> the type of output objects from the operation.
  */
-public class GenerateObjectsHandler<OBJ> implements OperationHandler<GenerateObjects<Element, OBJ>, Iterable<OBJ>> {
+public class GenerateObjectsHandler<OBJ> implements OperationHandler<GenerateObjects<Element, OBJ>, CloseableIterable<OBJ>> {
     @Override
-    public Iterable<OBJ> doOperation(final GenerateObjects<Element, OBJ> operation,
-                                     final Context context, final Store store)
+    public CloseableIterable<OBJ> doOperation(final GenerateObjects<Element, OBJ> operation,
+                                              final Context context, final Store store)
             throws OperationException {
-        return operation.getElementGenerator().getObjects(operation.getElements());
+        return new WrappedCloseableIterable<>(operation.getElementGenerator().getObjects(operation.getElements()));
     }
 }

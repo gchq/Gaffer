@@ -15,6 +15,7 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator1;
@@ -37,7 +38,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         new LoadAndQuery1().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Edge> run() throws OperationException {
         final User user = new User("user01");
 
         //create some edges from the data file using our data generator class
@@ -69,7 +70,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> query = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-        final Iterable<Edge> results = graph.execute(query, user);
+        final CloseableIterable<Edge> results = graph.execute(query, user);
         log("All edges containing the vertex 1. The counts have been aggregated.");
         for (Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());

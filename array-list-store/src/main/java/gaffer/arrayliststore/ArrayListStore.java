@@ -23,6 +23,7 @@ import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetElementsHandler;
 import gaffer.arrayliststore.operation.handler.InitialiseArrayListStoreExport;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -68,17 +69,17 @@ public class ArrayListStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
         return new GetAdjacentEntitySeedsHandler();
     }
 

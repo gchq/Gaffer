@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.ElementComponentKey;
@@ -102,7 +103,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -139,7 +140,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -159,7 +160,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -185,7 +186,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -216,7 +217,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -250,7 +251,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);

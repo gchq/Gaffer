@@ -20,6 +20,8 @@ import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING
 import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
 
 import gaffer.arrayliststore.ArrayListStore;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
@@ -30,12 +32,12 @@ import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
+public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
     @Override
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+    public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
                                             final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, (ArrayListStore) store);
+        return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
     private List<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final ArrayListStore store) {

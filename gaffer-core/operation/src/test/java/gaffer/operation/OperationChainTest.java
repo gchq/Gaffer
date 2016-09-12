@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -68,7 +69,7 @@ public class OperationChainTest {
         final GetRelatedElements<EntitySeed, Element> getRelElements = mock(GetRelatedElements.class);
 
         // When
-        final OperationChain<Iterable<Element>> opChain = new Builder()
+        final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
                 .then(getAdj2)
@@ -91,7 +92,7 @@ public class OperationChainTest {
         final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
         final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
         final GetRelatedElements<EntitySeed, Element> getRelElements = new GetRelatedElements<>();
-        final OperationChain<Iterable<Element>> opChain = new Builder()
+        final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
                 .then(getAdj2)

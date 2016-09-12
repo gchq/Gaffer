@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.add;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractValidatable;
@@ -30,13 +31,23 @@ import gaffer.operation.VoidOutput;
  *
  * @see gaffer.operation.impl.add.AddElements.Builder
  */
-public class AddElements extends AbstractValidatable<Void> implements VoidOutput<Iterable<Element>> {
+public class AddElements extends AbstractValidatable<Void> implements VoidOutput<CloseableIterable<Element>> {
     /**
      * Constructs an <code>AddElements</code> with no {@link gaffer.data.element.Element}s to add. This could be used
      * in an operation chain where the elements are provided by the previous operation.
      */
     public AddElements() {
         super();
+    }
+
+    /**
+     * Constructs an <code>AddElements</code> with the given {@link CloseableIterable} of
+     * {@link gaffer.data.element.Element}s to be added.
+     *
+     * @param elements the {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be added.
+     */
+    public AddElements(final CloseableIterable<Element> elements) {
+        super(elements);
     }
 
     /**
@@ -62,6 +73,12 @@ public class AddElements extends AbstractValidatable<Void> implements VoidOutput
 
         @Override
         public Builder elements(final Iterable<Element> elements) {
+            super.elements(elements);
+            return this;
+        }
+
+        @Override
+        public Builder elements(final CloseableIterable<Element> elements) {
             super.elements(elements);
             return this;
         }
