@@ -151,11 +151,11 @@ public abstract class WalkthroughStrSubstitutor {
 
         params.put("MEAN_TRANSFORM_LINK", getGitHubCodeLink(MeanTransform.class, "example"));
         params.put("VISIBILITY_AGGREGATOR_LINK", getGitHubCodeLink(VisibilityAggregator.class, "example"));
+        params.put("VISIBILITY_SERIALISER_LINK", getGitHubCodeLink(VisibilitySerialiser.class, "example"));
         params.put("ACCUMULO_USER_GUIDE", "[Accumulo Store User Guide](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Accumulo-Store-User-Guide)");
         params.put("AGGREGATE_FUNCTION", getGitHubCodeLink(AggregateFunction.class, "gaffer-core/function"));
         params.put("ACCUMULO_KEY_PACKAGE", getGitHubCodeLink(AccumuloKeyPackage.class, "accumulo-store"));
 
-        params.put("VISIBILITY_SERIALISER_CODE", getJavaFromGitHub(VisibilitySerialiser.class, "example"));
 
         params.put("OPERATION_EXAMPLES_LINK", getGitHubWikiLink("Operation Examples"));
         return params;
@@ -195,10 +195,6 @@ public abstract class WalkthroughStrSubstitutor {
     private static String getGitHubCodeLink(final String className, final String modulePath) {
         final String simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
         return "[" + simpleClassName + "](" + GITHUB_URL_PREFIX + modulePath + JAVA_SRC_PATH + className.replaceAll("\\.", "/") + ".java)";
-    }
-
-    private static String getJavaFromGitHub(final Class<?> clazz, final String modulePath) {
-        return getJavaFromGitHub(clazz.getName(), modulePath);
     }
 
     private static String getJavaFromGitHub(final String className, final String modulePath) {

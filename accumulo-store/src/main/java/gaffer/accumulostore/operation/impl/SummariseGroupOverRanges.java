@@ -45,7 +45,7 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
     public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
             extends AbstractGetOperation.Builder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
         public Builder() {
-            super(new SummariseGroupOverRanges());
+            super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
         }
 
         @Override

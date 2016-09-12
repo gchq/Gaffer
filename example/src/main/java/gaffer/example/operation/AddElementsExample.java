@@ -17,7 +17,6 @@ package gaffer.example.operation;
 
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
-import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.user.User;
@@ -31,24 +30,18 @@ public class AddElementsExample extends OperationExample {
         super(AddElements.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        addElements(graph);
+    @Override
+    public void runExamples() {
+        try {
+            addElements();
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void addElements(final Graph graph) throws OperationException {
-        log("#### " + getMethodNameAsSentence() + "\n");
-        printJava("new AddElements.Builder()\n"
-                + "                .elements(new Entity.Builder()\n"
-                + "                                .group(\"entity\")\n"
-                + "                                .vertex(6)\n"
-                + "                                .property(\"count\", 1)\n"
-                + "                                .build(),\n"
-                + "                        new Edge.Builder()\n"
-                + "                                .group(\"edge\")\n"
-                + "                                .source(5).dest(6).directed(true)\n"
-                + "                                .property(\"count\", 1)\n"
-                + "                                .build())\n"
-                + "                .build();");
+    public void addElements() throws OperationException {
+        log("#### " + getMethodNameAsSentence(0) + "\n");
+        printGraph();
 
         final AddElements operation = new AddElements.Builder()
                 .elements(new Entity.Builder()
@@ -62,9 +55,23 @@ public class AddElementsExample extends OperationExample {
                                 .property("count", 1)
                                 .build())
                 .build();
-        final String operationJson = getOperationJson(operation);
+        printJava("new AddElements.Builder()\n"
+                + "                .elements(new Entity.Builder()\n"
+                + "                                .group(\"entity\")\n"
+                + "                                .vertex(6)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build(),\n"
+                + "                        new Edge.Builder()\n"
+                + "                                .group(\"edge\")\n"
+                + "                                .source(5).dest(6).directed(true)\n"
+                + "                                .property(\"count\", 1)\n"
+                + "                                .build())\n"
+                + "                .build();");
+        printAsJson(operation);
+        printOperationClass(operation);
 
-        graph.execute(operation, new User("user01"));
+        getGraph().execute(operation, new User("user01"));
+
         log("Updated graph:");
         log("```");
         log("    --> 4 <--");
@@ -74,7 +81,5 @@ public class AddElementsExample extends OperationExample {
         log("         \\");
         log("           -->  5  -->  6");
         log("```");
-
-        printOperationJson(operationJson);
     }
 }
