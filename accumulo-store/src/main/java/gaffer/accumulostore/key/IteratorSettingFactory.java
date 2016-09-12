@@ -48,7 +48,7 @@ public interface IteratorSettingFactory {
     /**
      * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that
      * can be used to apply an iterator that will filter elements based on
-     * predicates to a {@link org.apache.accumulo.core.client.Scanner}.
+     * predicates specified in the preAggregation block in the view to a {@link org.apache.accumulo.core.client.Scanner}.
      *
      * @param view  the operation view
      * @param store the accumulo store
@@ -61,7 +61,7 @@ public interface IteratorSettingFactory {
     /**
      * Returns an {@link org.apache.accumulo.core.client.IteratorSetting} that
      * can be used to apply an iterator that will filter elements based on
-     * predicates to a {@link org.apache.accumulo.core.client.Scanner}.
+     * predicates specified in the postAggregation block in the view to a {@link org.apache.accumulo.core.client.Scanner}.
      *
      * @param view  the operation view
      * @param store the accumulo store

@@ -100,13 +100,6 @@ public abstract class AbstractElementFilter extends Filter {
         return true;
     }
 
-    @Override
-    public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
-                .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns elements that pass validation against the given view").build();
-    }
-
     protected abstract boolean validate(final Element element);
 
     protected ElementValidator getElementValidator(final Map<String, String> options) {

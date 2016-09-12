@@ -16,6 +16,8 @@
 package gaffer.accumulostore.key.impl;
 
 import gaffer.accumulostore.key.AbstractElementFilter;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.data.element.Element;
 
 public class ElementPreAggregationFilter extends AbstractElementFilter {
@@ -25,4 +27,10 @@ public class ElementPreAggregationFilter extends AbstractElementFilter {
         return validator.validateInput(element);
     }
 
+    @Override
+    public IteratorOptions describeOptions() {
+        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
+                .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME)
+                .setIteratorDescription("Only returns elements that pass validation against the given view").build();
+    }
 }
