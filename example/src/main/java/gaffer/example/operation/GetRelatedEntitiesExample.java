@@ -15,19 +15,16 @@
  */
 package gaffer.example.operation;
 
-import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.impl.get.GetRelatedEntities;
 
 public class GetRelatedEntitiesExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetRelatedEntitiesExample().run();
     }
 
@@ -36,21 +33,21 @@ public class GetRelatedEntitiesExample extends OperationExample {
     }
 
     @Override
-    public void runExamples(final Graph graph) throws OperationException {
-        getAllEntitiesThatAreConnectedToEdge1to2(graph);
-        getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1(graph);
+    public void runExamples() {
+        getAllEntitiesThatAreConnectedToEdge1to2();
+        getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1();
     }
 
-    public CloseableIterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2(final Graph graph) throws OperationException {
+    public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2() {
         final String opJava = "new GetRelatedEntities.Builder<EdgeSeed>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .build()";
-        return runAndPrintOperation(new GetRelatedEntities.Builder<EdgeSeed>()
+        return runExample(new GetRelatedEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public CloseableIterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1() {
         final String opJava = "new GetRelatedEntities.Builder<EdgeSeed>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .view(new View.Builder()\n"
@@ -62,7 +59,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetRelatedEntities.Builder<EdgeSeed>()
+        return runExample(new GetRelatedEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
@@ -72,6 +69,6 @@ public class GetRelatedEntitiesExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }
