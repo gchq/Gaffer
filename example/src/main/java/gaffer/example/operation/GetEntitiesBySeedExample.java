@@ -21,13 +21,11 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 
 public class GetEntitiesBySeedExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetEntitiesBySeedExample().run();
     }
 
@@ -35,23 +33,23 @@ public class GetEntitiesBySeedExample extends OperationExample {
         super(GetEntitiesBySeed.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getEntitiesByEntitySeed1And2(graph);
-        getEntitiesByEntitySeed1And2WithCountGreaterThan1(graph);
+    public void runExamples() {
+        getEntitiesByEntitySeed1And2();
+        getEntitiesByEntitySeed1And2WithCountGreaterThan1();
     }
 
-    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2() {
         final String opJava = "new GetEntitiesBySeed.Builder()\n"
                 + "                .addSeed(new EntitySeed(1))\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetEntitiesBySeed.Builder()
+        return runExample(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1() {
         final String opJava = "new GetEntitiesBySeed.Builder()\n"
                 + "                .addSeed(new EntitySeed(1))\n"
                 + "                .addSeed(new EntitySeed(2))\n"
@@ -64,7 +62,7 @@ public class GetEntitiesBySeedExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetEntitiesBySeed.Builder()
+        return runExample(new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .view(new View.Builder()
@@ -75,6 +73,6 @@ public class GetEntitiesBySeedExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }
