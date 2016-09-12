@@ -68,7 +68,16 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetFilterFunctions() throws IOException {
         // When
-        final List<Class> classes = service.getFilterFunctions();
+        final List<Class> classes = service.getFilterFunctions(null);
+
+        // Then
+        assertTrue(classes.size() > 0);
+    }
+
+    @Test
+    public void shouldGetFilterFunctionsWithInputClass() throws IOException {
+        // When
+        final List<Class> classes = service.getFilterFunctions(String.class.getName());
 
         // Then
         assertTrue(classes.size() > 0);
