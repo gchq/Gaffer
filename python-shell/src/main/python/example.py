@@ -259,4 +259,4 @@ def get_sub_graph(gc):
 
 
 if __name__ == '__main__':
-    run('http://localhost:8080/example-rest/v1', True)
+    run('http://localhost:8080/example-rest/v1')
