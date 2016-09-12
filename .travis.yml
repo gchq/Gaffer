@@ -1,5 +1,5 @@
 language: java
 jdk:
   - oraclejdk8
-install: mvn install -PreducedMemory -Dfindbugs.skip=true | egrep -v "(^Download|^Loading|^Generating)"
-script: mvn findbugs:findbugs | egrep -v "(^Download|^Loading|^Generating)" && mvn javadoc:javadoc | egrep -v "(^Download|^Loading|^Generating)"
+install: mvn -q install -PreducedMemory -Dfindbugs.skip=true
+script: mvn -q findbugs:findbugs && mvn -q javadoc:javadoc
