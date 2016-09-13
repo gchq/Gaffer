@@ -44,7 +44,7 @@ public interface IGraphConfigurationService {
 
     @GET
     @Path("/filterFunctions")
-    @ApiOperation(value = "Gets available filter functions", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions. See <a href='https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
     List<Class> getFilterFunctions();
 
     @GET
@@ -59,7 +59,7 @@ public interface IGraphConfigurationService {
 
     @GET
     @Path("/operations")
-    @ApiOperation(value = "Gets all operations supported by the store", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets all operations supported by the store. See <a href='https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/operation-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
     Set<Class<? extends Operation>> getOperations();
 
     @GET

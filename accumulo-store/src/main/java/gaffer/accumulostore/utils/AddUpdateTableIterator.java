@@ -154,6 +154,7 @@ public final class AddUpdateTableIterator {
         } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
             throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
         }
+        TableUtils.setLocalityGroups(store);
     }
 
     public static void main(final String[] args) throws StoreException, SchemaException, IOException {

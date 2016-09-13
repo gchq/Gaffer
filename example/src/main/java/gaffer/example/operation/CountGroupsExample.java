@@ -16,12 +16,10 @@
 package gaffer.example.operation;
 
 import gaffer.data.GroupCounts;
-import gaffer.graph.Graph;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.CountGroups;
 import gaffer.operation.impl.get.GetAllElements;
-import gaffer.operation.impl.get.GetRelatedEntities;
 
 public class CountGroupsExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -29,34 +27,34 @@ public class CountGroupsExample extends OperationExample {
     }
 
     public CountGroupsExample() {
-        super(GetRelatedEntities.class);
+        super(CountGroups.class);
     }
 
     @Override
-    public void runExamples(final Graph graph) throws OperationException {
-        countAllElementGroups(graph);
-        countAllElementGroupsWithLimit(graph);
+    public void runExamples() {
+        countAllElementGroups();
+        countAllElementGroupsWithLimit();
     }
 
-    public GroupCounts countAllElementGroups(final Graph graph) throws OperationException {
+    public GroupCounts countAllElementGroups() {
         final String opJava = "new OperationChain.Builder()\n"
                 + "                .first(new GetAllElements<>())\n"
                 + "                .then(new CountGroups())\n"
                 + "                .build()";
-        return runAndPrintOperationChainResult(new OperationChain.Builder()
+        return runExample(new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new CountGroups())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public GroupCounts countAllElementGroupsWithLimit(final Graph graph) throws OperationException {
+    public GroupCounts countAllElementGroupsWithLimit() {
         final String opJava = "new OperationChain.Builder()\n"
                 + "                .first(new GetAllElements<>())\n"
                 + "                .then(new CountGroups(5))\n"
                 + "                .build()";
-        return runAndPrintOperationChainResult(new OperationChain.Builder()
+        return runExample(new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new CountGroups(5))
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }
