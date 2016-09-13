@@ -31,7 +31,7 @@ import gaffer.operation.data.EntitySeed;
  * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
  * @see gaffer.operation.GetOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, EntitySeed> {
+public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, CloseableIterable<EntitySeed>> {
     public GetAdjacentEntitySeeds() {
     }
 
@@ -63,9 +63,8 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
     public SeedMatchingType getSeedMatching() {
         return SeedMatchingType.RELATED;
     }
-
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
+            extends AbstractGetOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }

@@ -109,5 +109,10 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
         protected Builder<ELEMENT_SEED> self() {
             return this;
         }
+
+        @Override
+        public Builder<ELEMENT_SEED> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_SEED>) super.limitResults(resultLimit);
+        }
     }
 }

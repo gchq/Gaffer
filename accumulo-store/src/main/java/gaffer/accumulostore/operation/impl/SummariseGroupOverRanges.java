@@ -17,6 +17,7 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -42,7 +43,7 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+            extends AbstractGetOperation.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>, CHILD_CLASS> {
         public BaseBuilder() {
             super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
         }

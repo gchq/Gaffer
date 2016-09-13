@@ -32,6 +32,7 @@ import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.Validatable;
 import gaffer.operation.impl.Deduplicate;
+import gaffer.operation.impl.Limit;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
 import gaffer.store.schema.Schema;
@@ -166,6 +167,7 @@ public class CoreOperationChainOptimiserTest {
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
         final GetOperation getOperation = mock(GetOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
+        given(getOperation.getResultLimit()).willReturn(null);
         given(getOperation.isDeduplicate()).willReturn(true);
 
         // When
@@ -184,6 +186,7 @@ public class CoreOperationChainOptimiserTest {
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
         final GetOperation getOperation = mock(GetOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
+        given(getOperation.getResultLimit()).willReturn(null);
         given(getOperation.isDeduplicate()).willReturn(false);
 
         // When
@@ -192,5 +195,66 @@ public class CoreOperationChainOptimiserTest {
         // Then
         assertEquals(1, optimisedOpChain.getOperations().size());
         assertSame(getOperation, optimisedOpChain.getOperations().get(0));
+    }
+
+    @Test
+    public void shouldAddLimitOperationForGetOperationsWithLimit() throws Exception {
+        // Given
+        final Store store = mock(Store.class);
+        final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
+        final GetOperation getOperation = mock(GetOperation.class);
+        final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
+        final int resultLimit = 5;
+        given(getOperation.getResultLimit()).willReturn(resultLimit);
+
+        // When
+        final OperationChain<Integer> optimisedOpChain = optimiser.optimise(opChain);
+
+        // Then
+        assertEquals(2, optimisedOpChain.getOperations().size());
+        assertSame(getOperation, optimisedOpChain.getOperations().get(0));
+        assertTrue(optimisedOpChain.getOperations().get(1) instanceof Limit);
+        assertEquals(resultLimit, (int) ((Limit) optimisedOpChain.getOperations().get(1)).getResultLimit());
+    }
+
+    @Test
+    public void shouldNotAddLimitOperationForGetOperationsWithoutLimit() throws Exception {
+        // Given
+        final Store store = mock(Store.class);
+        final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
+        final GetOperation getOperation = mock(GetOperation.class);
+        final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
+        final Integer resultLimit = null;
+        given(getOperation.getResultLimit()).willReturn(resultLimit);
+
+        // When
+        final OperationChain<Integer> optimisedOpChain = optimiser.optimise(opChain);
+
+
+        // Then
+        assertEquals(1, optimisedOpChain.getOperations().size());
+        assertSame(getOperation, optimisedOpChain.getOperations().get(0));
+    }
+
+    @Test
+    public void shouldAddLimitOperationBeforeDeduplicateOperationForPerformance() throws Exception {
+        // Given
+        final Store store = mock(Store.class);
+        final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
+        final GetOperation getOperation = mock(GetOperation.class);
+        final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
+        final int resultLimit = 5;
+        given(getOperation.getResultLimit()).willReturn(resultLimit);
+        given(getOperation.isDeduplicate()).willReturn(true);
+
+        // When
+        final OperationChain<Integer> optimisedOpChain = optimiser.optimise(opChain);
+
+        // Then
+        assertEquals(3, optimisedOpChain.getOperations().size());
+        assertSame(getOperation, optimisedOpChain.getOperations().get(0));
+        assertTrue(optimisedOpChain.getOperations().get(1) instanceof Limit);
+        assertEquals(resultLimit, (int) ((Limit) optimisedOpChain.getOperations().get(1)).getResultLimit());
+        assertTrue(optimisedOpChain.getOperations().get(2) instanceof Deduplicate);
     }
 }

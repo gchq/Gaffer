@@ -97,5 +97,10 @@ public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exten
         protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
             return this;
         }
+
+        @Override
+        public Builder<SEED_TYPE, ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }

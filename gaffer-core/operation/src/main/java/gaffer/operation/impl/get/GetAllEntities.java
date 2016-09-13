@@ -76,6 +76,13 @@ public class GetAllEntities extends GetAllElements<Entity> {
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final GetAllEntities op) {
+            super(op);
+        }
+
         @Override
         protected Builder self() {
             return this;

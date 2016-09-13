@@ -31,13 +31,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
-        extends AbstractOperation<CloseableIterable<SEED_TYPE>, CloseableIterable<RESULT_TYPE>> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
+        extends AbstractOperation<CloseableIterable<SEED_TYPE>, RESULT_TYPE> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
     private boolean includeEntities = true;
     private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
     private boolean populateProperties = true;
     private boolean deduplicate = false;
+    private Integer resultLimit;
 
     protected AbstractGetOperation() {
         super();
@@ -187,13 +188,24 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         this.deduplicate = deduplicate;
     }
 
+    @Override
+    public Integer getResultLimit() {
+        return resultLimit;
+    }
+
+    @Override
+    public void setResultLimit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
     public abstract static class BaseBuilder<
             OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>,
             SEED_TYPE,
             RESULT_TYPE,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, ?>
             >
-            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<SEED_TYPE>, CloseableIterable<RESULT_TYPE>, CHILD_CLASS> {
+            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE, CHILD_CLASS> {
+
         private List<SEED_TYPE> seeds;
 
         protected BaseBuilder(final OP_TYPE op) {
@@ -299,6 +311,11 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          */
         public CHILD_CLASS deduplicate(final boolean deduplicate) {
             op.setDeduplicate(deduplicate);
+            return self();
+        }
+
+        public CHILD_CLASS limitResults(final Integer resultLimit) {
+            op.setResultLimit(resultLimit);
             return self();
         }
 

@@ -84,5 +84,10 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
         protected BaseBuilder<Builder> self() {
             return this;
         }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
     }
 }

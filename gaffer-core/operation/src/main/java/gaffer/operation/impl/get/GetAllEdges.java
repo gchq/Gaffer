@@ -73,6 +73,13 @@ public class GetAllEdges extends GetAllElements<Edge> {
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final GetAllEdges op) {
+            super(op);
+        }
+
         @Override
         public Builder self() {
             return this;

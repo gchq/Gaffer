@@ -133,7 +133,7 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
+            <version>${scala.minor.version}</version>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>

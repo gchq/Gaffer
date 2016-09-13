@@ -33,7 +33,7 @@ import gaffer.operation.data.ElementSeed;
  * @see gaffer.operation.GetOperation
  */
 public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
+        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
     public GetElements() {
         super();
     }
@@ -70,7 +70,7 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
             SEED_TYPE extends ElementSeed,
             ELEMENT_TYPE extends Element,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>, CHILD_CLASS> {
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }

@@ -91,5 +91,10 @@ public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<
         protected Builder<ELEMENT_SEED> self() {
             return this;
         }
+
+        @Override
+        public Builder<ELEMENT_SEED> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_SEED>) super.limitResults(resultLimit);
+        }
     }
 }

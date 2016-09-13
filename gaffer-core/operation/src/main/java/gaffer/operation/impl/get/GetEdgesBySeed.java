@@ -85,5 +85,10 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         protected Builder self() {
             return this;
         }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
     }
 }

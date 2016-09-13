@@ -75,5 +75,10 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
         protected Builder self() {
             return this;
         }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
     }
 }
