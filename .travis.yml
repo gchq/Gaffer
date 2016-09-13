@@ -1,5 +1,5 @@
 language: java
 jdk:
   - oraclejdk8
-install: mvn -q install -PreducedMemory -Dfindbugs.skip=true
-script: mvn -q findbugs:findbugs && mvn -q javadoc:javadoc
+install: travis_wait mvn -q install -PreducedMemory -Dfindbugs.skip=true
+script: travis_wait mvn -q findbugs:findbugs && mvn -q javadoc:javadoc
