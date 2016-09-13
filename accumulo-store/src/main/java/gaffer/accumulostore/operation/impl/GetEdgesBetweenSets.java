@@ -117,6 +117,11 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
         public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
             return (Builder) super.inOutType(inOutType);
         }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
     }
 
 }

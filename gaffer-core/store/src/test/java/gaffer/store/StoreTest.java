@@ -335,7 +335,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 25;
+        final int expectedNumberOfOperations = 26;
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);

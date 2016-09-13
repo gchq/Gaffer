@@ -17,7 +17,6 @@
 package gaffer.rest.service;
 
 import gaffer.commonutil.iterable.CloseableIterable;
-import gaffer.commonutil.iterable.LimitedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -90,53 +89,53 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getAllEntities(final GetAllEntities operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Entity> getAllEntities(final GetAllEntities operation) {
+        return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation, final Integer n) {
-        return executeGet(operation, n);
+    public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation) {
+        return execute(operation);
     }
 
     /**
@@ -149,6 +148,7 @@ public class SimpleOperationService implements IOperationService {
      *
      * @return the user querying Gaffer.
      */
+
     protected User createUser() {
         return new User();
     }
@@ -196,9 +196,5 @@ public class SimpleOperationService implements IOperationService {
                 postOperationHook(opChain, user);
             }
         }
-    }
-
-    protected <OUTPUT> CloseableIterable<OUTPUT> executeGet(final Operation<?, CloseableIterable<OUTPUT>> operation, final Integer n) {
-        return null != n ? new LimitedCloseableIterable<>(execute(operation), 0, n) : execute(operation);
     }
 }
