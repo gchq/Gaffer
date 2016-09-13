@@ -17,6 +17,7 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -73,7 +74,7 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
     }
 
     public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>>
-            extends AbstractGetOperation.Builder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, Entity> {
+            extends AbstractGetOperation.Builder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, CloseableIterable<Entity>> {
 
         public Builder() {
             super(new GetEntitiesInRanges<SEED_TYPE>());
