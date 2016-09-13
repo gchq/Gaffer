@@ -18,9 +18,9 @@ package gaffer.function.simple.filter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Sets;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +40,10 @@ public class IsIn extends SimpleFilterFunction<Object> {
 
     public IsIn(final Collection<Object> controlData) {
         this.allowedValues = new HashSet<>(controlData);
+    }
+
+    public IsIn(final Object... controlData) {
+        this.allowedValues = Sets.newHashSet(controlData);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
