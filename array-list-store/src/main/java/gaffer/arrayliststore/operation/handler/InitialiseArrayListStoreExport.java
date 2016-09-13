@@ -29,9 +29,17 @@ public class InitialiseArrayListStoreExport extends InitialiseExport {
         return ((ArrayListStoreExporter) super.getExporter());
     }
 
-    public static class Builder extends InitialiseExport.Builder<InitialiseArrayListStoreExport> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends InitialiseExport.BaseBuilder<InitialiseArrayListStoreExport, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new InitialiseArrayListStoreExport());
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }

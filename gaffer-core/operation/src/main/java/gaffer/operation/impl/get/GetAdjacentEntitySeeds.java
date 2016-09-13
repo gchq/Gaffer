@@ -64,66 +64,16 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         return SeedMatchingType.RELATED;
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder seeds(final Iterable<EntitySeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        public Builder seeds(final CloseableIterable<EntitySeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder addSeed(final EntitySeed seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder includeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
-            return this;
-        }
-
-        @Override
-        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
-        @Override
-        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
-            super.inOutType(inOutType);
-            return this;
-        }
-
-        @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

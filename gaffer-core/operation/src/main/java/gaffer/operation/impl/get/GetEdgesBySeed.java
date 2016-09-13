@@ -72,60 +72,17 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         return SeedMatchingType.EQUAL;
     }
 
-    public static class Builder extends GetEdges.Builder<GetEdgesBySeed, EdgeSeed> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends GetEdges.BaseBuilder<GetEdgesBySeed, EdgeSeed, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetEdgesBySeed());
         }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
 
         @Override
-        public Builder seeds(final Iterable<EdgeSeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        public Builder seeds(final CloseableIterable<EdgeSeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder addSeed(final EdgeSeed seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
-        @Override
-        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
-            super.inOutType(inOutType);
-            return this;
-        }
-
-        @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

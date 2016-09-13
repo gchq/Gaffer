@@ -59,52 +59,20 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
                 getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
     }
 
-    public static class Builder<ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE> {
+    public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, ?>>
+            extends AbstractGetOperation.BaseBuilder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new GetElementsWithinSet<ELEMENT_TYPE>());
         }
+    }
+
+    public static final class Builder<ELEMENT_TYPE extends Element>
+            extends BaseBuilder<ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
 
         @Override
-        public Builder<ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
-            return (Builder<ELEMENT_TYPE>) super.deduplicate(deduplicate);
+        protected Builder self() {
+            return this;
         }
-
-        @Override
-        public Builder<ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
-            return (Builder<ELEMENT_TYPE>) super.populateProperties(populateProperties);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> view(final View view) {
-            return (Builder<ELEMENT_TYPE>) super.view(view);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> option(final String name, final String value) {
-            return (Builder<ELEMENT_TYPE>) super.option(name, value);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> seeds(final Iterable<EntitySeed> newSeeds) {
-            return (Builder<ELEMENT_TYPE>) super.seeds(newSeeds);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> addSeed(final EntitySeed seed) {
-            return (Builder<ELEMENT_TYPE>) super.addSeed(seed);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
-            return (Builder<ELEMENT_TYPE>) super.includeEdges(includeEdgeType);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> includeEntities(final boolean includeEntities) {
-            return (Builder<ELEMENT_TYPE>) super.includeEntities(includeEntities);
-        }
-
     }
 }

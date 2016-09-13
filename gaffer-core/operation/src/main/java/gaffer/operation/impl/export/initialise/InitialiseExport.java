@@ -67,24 +67,30 @@ public abstract class InitialiseExport extends AbstractOperation<Object, Object>
         exporter.setTimestamp(timestamp);
     }
 
-    public static class Builder<OP_TYPE extends InitialiseExport> extends AbstractOperation.Builder<OP_TYPE, Object, Object> {
+    public abstract static class BaseBuilder<OP_TYPE extends InitialiseExport, CHILD_CLASS extends BaseBuilder<OP_TYPE, ?>>
+            extends AbstractOperation.BaseBuilder<OP_TYPE, Object, Object, CHILD_CLASS> {
+        protected BaseBuilder(final OP_TYPE initialiseExport) {
+            super(initialiseExport);
+        }
+
+        public CHILD_CLASS timestamp(final long timestamp) {
+            getOp().setTimestamp(timestamp);
+            return self();
+        }
+
+        public CHILD_CLASS key(final String key) {
+            getOp().setKey(key);
+            return self();
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends InitialiseExport> extends BaseBuilder<OP_TYPE, Builder<OP_TYPE>> {
         protected Builder(final OP_TYPE initialiseExport) {
             super(initialiseExport);
         }
 
-        public Builder<OP_TYPE> timestamp(final long timestamp) {
-            getOp().setTimestamp(timestamp);
-            return this;
-        }
-
-        public Builder key(final String key) {
-            getOp().setKey(key);
-            return this;
-        }
-
         @Override
-        public Builder<OP_TYPE> option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

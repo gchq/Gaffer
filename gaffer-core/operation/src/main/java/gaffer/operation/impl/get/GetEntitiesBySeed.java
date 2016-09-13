@@ -71,43 +71,17 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
         return SeedMatchingType.EQUAL;
     }
 
-    public static class Builder extends GetEntities.Builder<GetEntitiesBySeed, EntitySeed> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends GetEntities.BaseBuilder<GetEntitiesBySeed, EntitySeed, BaseBuilder<CHILD_CLASS>> {
+        public BaseBuilder() {
             super(new GetEntitiesBySeed());
         }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
 
         @Override
-        public Builder seeds(final Iterable<EntitySeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        public Builder seeds(final CloseableIterable<EntitySeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder addSeed(final EntitySeed seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected BaseBuilder<Builder> self() {
             return this;
         }
     }

@@ -29,9 +29,17 @@ import java.util.Map;
  */
 public class FetchExporters extends ExportOperation<Void, Map<String, Exporter>>
         implements VoidInput<Map<String, Exporter>> {
-    public static class Builder extends ExportOperation.Builder<FetchExporters, Void, Map<String, Exporter>> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends ExportOperation.BaseBuilder<FetchExporters, Void, Map<String, Exporter>, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new FetchExporters());
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }

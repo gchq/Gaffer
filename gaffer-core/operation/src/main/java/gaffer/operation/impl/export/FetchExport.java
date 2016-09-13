@@ -61,29 +61,27 @@ public class FetchExport extends ExportOperation<Void, CloseableIterable<?>> {
         this.end = end;
     }
 
-    public static class Builder extends ExportOperation.Builder<FetchExport, Void, CloseableIterable<?>> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends ExportOperation.BaseBuilder<FetchExport, Void, CloseableIterable<?>, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new FetchExport());
         }
 
-        public Builder start(final int start) {
+        public CHILD_CLASS start(final int start) {
             getOp().setStart(start);
-            return this;
+            return self();
         }
 
-        public Builder end(final int end) {
+        public CHILD_CLASS end(final int end) {
             getOp().setEnd(end);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
             return this;
-        }
-
-        @Override
-        public Builder key(final String key) {
-            return (Builder) super.key(key);
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
         }
     }
 }

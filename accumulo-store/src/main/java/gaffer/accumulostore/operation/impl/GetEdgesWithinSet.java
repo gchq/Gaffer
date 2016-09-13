@@ -67,44 +67,18 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
         }
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetEdgesWithinSet, EntitySeed, Edge> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetOperation.BaseBuilder<GetEdgesWithinSet, EntitySeed, Edge, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetEdgesWithinSet());
         }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
 
         @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            return (Builder) super.populateProperties(populateProperties);
-        }
-
-        @Override
-        public Builder view(final View view) {
-            return (Builder) super.view(view);
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
-        }
-
-        @Override
-        public Builder seeds(final Iterable<EntitySeed> newSeeds) {
-            return (Builder) super.seeds(newSeeds);
-        }
-
-        @Override
-        public Builder addSeed(final EntitySeed seed) {
-            return (Builder) super.addSeed(seed);
-        }
-
-        @Override
-        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
-            return (Builder) super.includeEdges(includeEdgeType);
+        protected Builder self() {
+            return this;
         }
     }
 }

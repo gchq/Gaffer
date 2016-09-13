@@ -61,47 +61,21 @@ public class GetAllEdges extends GetAllElements<Edge> {
         super.setIncludeEdges(includeEdges);
     }
 
-    public static class Builder extends GetAllElements.Builder<Edge> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends GetAllElements.BaseBuilder<GetAllEdges, Edge, CHILD_CLASS> {
+        public BaseBuilder() {
             this(new GetAllEdges());
         }
 
-        public Builder(final GetAllEdges op) {
+        public BaseBuilder(final GetAllEdges op) {
             super(op);
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
+        public Builder self() {
             return this;
-        }
-
-        @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
-
-        @Override
-        public GetAllEdges build() {
-            return (GetAllEdges) super.build();
         }
     }
 }

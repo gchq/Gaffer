@@ -62,14 +62,32 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
         super(operation);
     }
 
-    public static class Builder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
-        protected Builder(final OP_TYPE op) {
+    public void setSeedMatching(final SeedMatchingType seedMatching) {
+        super.setSeedMatching(seedMatching);
+    }
+
+    public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
+            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+        protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
     }
 
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        super.setSeedMatching(seedMatching);
+    public static final class Builder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element>
+            extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE>> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> self() {
+            return this;
+        }
     }
 }

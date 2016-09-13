@@ -18,10 +18,8 @@ package gaffer.accumulostore.operation.hdfs.operation;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.simple.hdfs.operation.MapReduceOperation;
-import gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser;
 import gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator;
 import org.apache.hadoop.mapreduce.Partitioner;
-import java.util.List;
 
 
 /**
@@ -30,7 +28,7 @@ import java.util.List;
  * This operation requires an input and output path as well as a path to a file to use as the resulitngSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
- * {@link JobInitialiser}.
+ * {@link gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser}.
  * <p>
  * For normal operation handlers the operation {@link gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
@@ -102,67 +100,38 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
         throw new IllegalArgumentException(getClass().getSimpleName() + " is not able to set its own partitioner");
     }
 
-    public static class Builder extends MapReduceOperation.Builder<SampleDataForSplitPoints, Void, String> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends MapReduceOperation.BaseBuilder<SampleDataForSplitPoints, Void, String, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new SampleDataForSplitPoints());
         }
 
-        public Builder resultingSplitsFilePath(final String resultingSplitsFilePath) {
+        public CHILD_CLASS resultingSplitsFilePath(final String resultingSplitsFilePath) {
             op.setResultingSplitsFilePath(resultingSplitsFilePath);
-            return this;
+            return self();
         }
 
-        public Builder validate(final boolean validate) {
+        public CHILD_CLASS validate(final boolean validate) {
             op.setValidate(validate);
-            return this;
+            return self();
         }
 
-        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+        public CHILD_CLASS mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             op.setMapperGeneratorClassName(mapperGeneratorClass);
-            return this;
+            return self();
         }
 
-        public Builder proportionToSample(final float proportionToSample) {
+        public CHILD_CLASS proportionToSample(final float proportionToSample) {
             op.setProportionToSample(proportionToSample);
-            return this;
+            return self();
         }
-
-        @Override
-        public Builder inputPaths(final List<String> inputPaths) {
-            return (Builder) super.inputPaths(inputPaths);
-        }
-
-        @Override
-        public Builder addInputPaths(final List<String> inputPaths) {
-            return (Builder) super.addInputPaths(inputPaths);
-        }
-
-        @Override
-        public Builder addInputPath(final String inputPath) {
-            return (Builder) super.addInputPath(inputPath);
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
-        }
-
-
-        @Override
-        public Builder outputPath(final String outputPath) {
-            return (Builder) super.outputPath(outputPath);
-        }
-
-        @Override
-        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
-            return (Builder) super.jobInitialiser(jobInitialiser);
-        }
-
-        @Override
-        public Builder mappers(final Integer numMapTasks) {
-            return (Builder) super.mappers(numMapTasks);
-        }
-
     }
 
+    public static final class Builder extends BaseBuilder<Builder> {
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    }
 }
