@@ -18,7 +18,6 @@ package gaffer.data;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.CloseableIterator;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -52,10 +51,6 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      */
     public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator) {
         this(input, validator, false);
-    }
-
-    public Iterable<INPUT> getInput() {
-        return this.input;
     }
 
     /**
@@ -157,6 +152,10 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
     protected void handleInvalidItem(final INPUT item) throws IllegalArgumentException {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
+    }
+
+    protected Iterable<INPUT> getInput() {
+        return this.input;
     }
 
     private Class<? extends TransformIterable> getIterableClass() {

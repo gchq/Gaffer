@@ -158,7 +158,7 @@ def get_adj_seeds(gc):
 def get_all_elements(gc):
     # Adjacent Elements - chain 2 adjacent entities together
     all_elements = gc.execute_operation(
-        g.GetAllElements(summarise=False)
+        g.GetAllElements()
     )
     print('All elements')
     print(all_elements)
