@@ -19,8 +19,10 @@ import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.Validatable;
 import gaffer.operation.impl.Deduplicate;
+import gaffer.operation.impl.Limit;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Store;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,10 +71,15 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
      * @return the validate operation if required, otherwise an empty list.
      */
     protected List<Operation> addPostOperations(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
-        if (doesOperationNeedDeduplicating(currentOp, nextOp)) {
-            return Collections.singletonList((Operation) createDeduplicateOperation((GetOperation<?, ?>) currentOp));
+        final List<Operation> postOps = new ArrayList<>();
+        if (doesOperationResultsNeedLimiting(currentOp, nextOp)) {
+            postOps.add((Operation) createLimitOperation((GetOperation<?, ?>) currentOp));
         }
-        return Collections.emptyList();
+        if (doesOperationNeedDeduplicating(currentOp, nextOp)) {
+            postOps.add((Operation) createDeduplicateOperation((GetOperation<?, ?>) currentOp));
+        }
+
+        return postOps;
     }
 
     /**
@@ -113,10 +120,22 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
         return validate;
     }
 
+    private Limit<?> createLimitOperation(final GetOperation<?, ?> currentOp) {
+        final Limit<?> limit = new Limit();
+        limit.setResultLimit(currentOp.getResultLimit());
+        limit.setOptions(currentOp.getOptions());
+        return limit;
+    }
+
     private Deduplicate<?> createDeduplicateOperation(final GetOperation<?, ?> currentOp) {
         final Deduplicate<?> duplicate = new Deduplicate();
         duplicate.setOptions(currentOp.getOptions());
         return duplicate;
+    }
+
+    private boolean doesOperationResultsNeedLimiting(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
+        return currentOp instanceof GetOperation
+                && null != ((GetOperation) currentOp).getResultLimit();
     }
 
     private boolean doesOperationNeedDeduplicating(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {

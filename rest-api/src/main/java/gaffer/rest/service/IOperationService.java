@@ -18,7 +18,6 @@ package gaffer.rest.service;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -44,7 +43,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -73,73 +71,54 @@ public interface IOperationService {
 
     @POST
     @Path("/get/elements/bySeed")
-    @ApiOperation(value = "Gets elements by seed from the graph", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation,
-                                                 @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    @ApiOperation(value = "Gets elements by seed from the graph",
+            response = Element.class, responseContainer = "List")
+    CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/elements/related")
     @ApiOperation(value = "Gets related elements from the graph", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation,
-                                                  @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/entities/bySeed")
     @ApiOperation(value = "Gets entities by seed from the graph", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation,
-                                                @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
 
     @POST
     @Path("/get/entities/related")
     @ApiOperation(value = "Gets related entities from the graph", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities operation,
-                                                 @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation);
 
     @POST
     @Path("/get/edges/bySeed")
     @ApiOperation(value = "Gets edge by seed from the graph", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation,
-                                           @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
 
     @POST
     @Path("/get/edges/related")
     @ApiOperation(value = "Gets related edges from the graph", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges operation,
-                                            @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation);
 
     @POST
     @Path("/get/entitySeeds/adjacent")
     @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
-    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation,
-                                                         @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
 
     @POST
     @Path("/get/elements/all")
     @ApiOperation(value = "Gets all elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation,
-                                              @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation);
 
     @POST
     @Path("/get/entities/all")
     @ApiOperation(value = "Gets all entities", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getAllEntities(final GetAllEntities operation,
-                                             @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Entity> getAllEntities(final GetAllEntities operation);
 
     @POST
     @Path("/get/edges/all")
     @ApiOperation(value = "Gets all edges", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getAllEdges(final GetAllEdges operation,
-                                        @ApiParam(value = "Number of results to return", required = false) @QueryParam("n") Integer n
-    );
+    CloseableIterable<Edge> getAllEdges(final GetAllEdges operation);
 
     @PUT
     @Path("/add/elements")

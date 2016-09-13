@@ -134,5 +134,10 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
             super.option(name, value);
             return this;
         }
+
+        @Override
+        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }

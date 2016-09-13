@@ -116,6 +116,11 @@ public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> ext
         public Builder<SEED_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             return (Builder<SEED_TYPE>) super.inOutType(inOutType);
         }
+
+        @Override
+        public Builder<SEED_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<SEED_TYPE>) super.limitResults(resultLimit);
+        }
     }
 
 }

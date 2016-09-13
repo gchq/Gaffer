@@ -103,6 +103,11 @@ public class GetAllEntities extends GetAllElements<Entity> {
         }
 
         @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
+
+        @Override
         public GetAllEntities build() {
             return (GetAllEntities) super.build();
         }
