@@ -94,6 +94,11 @@ public class GetAllEdges extends GetAllElements<Edge> {
         }
 
         @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
+
+        @Override
         public Builder option(final String name, final String value) {
             super.option(name, value);
             return this;

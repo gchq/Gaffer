@@ -40,6 +40,14 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
         this.end = end;
     }
 
+    public int getStart() {
+        return start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
     @Override
     public void close() {
         iterable.close();
