@@ -17,6 +17,8 @@
 package gaffer.store.operation.handler;
 
 import com.google.common.collect.Sets;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.Deduplicate;
 import gaffer.store.Context;
@@ -27,9 +29,9 @@ import gaffer.store.Store;
  * Adds all the operation input items into a {@link java.util.LinkedHashSet} to
  * remove duplicate items.
  */
-public class DeduplicateHandler<T> implements OperationHandler<Deduplicate<T>, Iterable<T>> {
+public class DeduplicateHandler<T> implements OperationHandler<Deduplicate<T>, CloseableIterable<T>> {
     @Override
-    public Iterable<T> doOperation(final Deduplicate<T> operation, final Context context, final Store store) throws OperationException {
-        return Sets.newLinkedHashSet(operation.getInput());
+    public CloseableIterable<T> doOperation(final Deduplicate<T> operation, final Context context, final Store store) throws OperationException {
+        return new WrappedCloseableIterable<>(Sets.newLinkedHashSet(operation.getInput()));
     }
 }
