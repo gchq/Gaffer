@@ -30,7 +30,6 @@ import org.apache.accumulo.core.client.TableNotFoundException;
  * is deleted.
  */
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {
-
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {

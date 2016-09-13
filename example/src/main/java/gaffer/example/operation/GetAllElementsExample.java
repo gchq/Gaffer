@@ -21,12 +21,10 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
-import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllElements;
 
 public class GetAllElementsExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetAllElementsExample().run();
     }
 
@@ -34,17 +32,17 @@ public class GetAllElementsExample extends OperationExample {
         super(GetAllElements.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getAllElements(graph);
-        getAllElementsWithCountGreaterThan2(graph);
+    public void runExamples() {
+        getAllElements();
+        getAllElementsWithCountGreaterThan2();
     }
 
-    public CloseableIterable<Element> getAllElements(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getAllElements() {
         final String opJava = "new GetAllElements<>();";
-        return runAndPrintOperation(new GetAllElements<>(), graph, opJava);
+        return runExample(new GetAllElements<>(), opJava);
     }
 
-    public CloseableIterable<Element> getAllElementsWithCountGreaterThan2(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> getAllElementsWithCountGreaterThan2() {
         final String opJava = "new GetAllElements.Builder<>()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
@@ -61,7 +59,7 @@ public class GetAllElementsExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetAllElements.Builder<>()
+        return runExample(new GetAllElements.Builder<>()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -76,6 +74,6 @@ public class GetAllElementsExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }

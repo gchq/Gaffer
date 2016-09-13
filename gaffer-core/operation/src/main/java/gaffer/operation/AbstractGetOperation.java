@@ -31,7 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
-        extends AbstractOperation<CloseableIterable<SEED_TYPE>, CloseableIterable<RESULT_TYPE>> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
+        extends AbstractOperation<CloseableIterable<SEED_TYPE>, RESULT_TYPE> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
     private boolean includeEntities = true;
     private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
@@ -188,7 +188,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     public static class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
-            extends AbstractOperation.Builder<OP_TYPE, CloseableIterable<SEED_TYPE>, CloseableIterable<RESULT_TYPE>> {
+            extends AbstractOperation.Builder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE> {
         private List<SEED_TYPE> seeds;
 
         protected Builder(final OP_TYPE op) {
