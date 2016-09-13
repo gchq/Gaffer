@@ -31,7 +31,7 @@ import gaffer.operation.data.EntitySeed;
  * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
  * @see gaffer.operation.GetOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, EntitySeed> {
+public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, CloseableIterable<EntitySeed>> {
     public GetAdjacentEntitySeeds() {
     }
 
@@ -64,7 +64,7 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         return SeedMatchingType.RELATED;
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
+    public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>> {
         public Builder() {
             super(new GetAdjacentEntitySeeds());
         }
@@ -125,6 +125,11 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         public Builder option(final String name, final String value) {
             super.option(name, value);
             return this;
+        }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
         }
     }
 }

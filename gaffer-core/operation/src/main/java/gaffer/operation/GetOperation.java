@@ -29,7 +29,7 @@ import gaffer.data.element.Entity;
  * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
  */
 public interface GetOperation<SEED_TYPE, RETURN_TYPE>
-        extends Operation<CloseableIterable<SEED_TYPE>, CloseableIterable<RETURN_TYPE>> {
+        extends Operation<CloseableIterable<SEED_TYPE>, RETURN_TYPE> {
 
     /**
      * A <code>IncludeEdgeType</code> defines whether {@link gaffer.data.element.Edge}s used in the operation should
@@ -142,4 +142,8 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
     boolean isDeduplicate();
 
     void setDeduplicate(final boolean deduplicate);
+
+    Integer getResultLimit();
+
+    void setResultLimit(final Integer resultLimit);
 }

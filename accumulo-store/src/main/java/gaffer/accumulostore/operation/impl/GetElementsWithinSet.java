@@ -16,6 +16,7 @@
 
 package gaffer.accumulostore.operation.impl;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -27,7 +28,7 @@ import gaffer.operation.data.EntitySeed;
  * set and/or {@link gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetOperation<EntitySeed, ELEMENT_TYPE> {
+public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetOperation<EntitySeed, CloseableIterable<ELEMENT_TYPE>> {
 
     public GetElementsWithinSet() {
     }
@@ -60,7 +61,7 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
     }
 
     public static class Builder<ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE> {
+            extends AbstractGetOperation.Builder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, CloseableIterable<ELEMENT_TYPE>> {
 
         public Builder() {
             super(new GetElementsWithinSet<ELEMENT_TYPE>());
@@ -106,5 +107,9 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
             return (Builder<ELEMENT_TYPE>) super.includeEntities(includeEntities);
         }
 
+        @Override
+        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }

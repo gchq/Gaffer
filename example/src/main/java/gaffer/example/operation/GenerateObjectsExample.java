@@ -22,13 +22,11 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.generator.OneToOneElementGenerator;
 import gaffer.example.operation.generator.DataGenerator;
-import gaffer.graph.Graph;
-import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateObjects;
 import java.util.Arrays;
 
 public class GenerateObjectsExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GenerateObjectsExample().run();
     }
 
@@ -36,12 +34,12 @@ public class GenerateObjectsExample extends OperationExample {
         super(GenerateObjects.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        generateStringsFromElements(graph);
-        generateDomainObjectsFromElements(graph);
+    public void runExamples() {
+        generateStringsFromElements();
+        generateDomainObjectsFromElements();
     }
 
-    public CloseableIterable<String> generateStringsFromElements(final Graph graph) throws OperationException {
+    public CloseableIterable<String> generateStringsFromElements() {
         final String opJava = "new GenerateObjects.Builder<Element, String>()\n"
                 + "                .elements(Arrays.asList(\n"
                 + "                        new Entity.Builder()\n"
@@ -56,7 +54,7 @@ public class GenerateObjectsExample extends OperationExample {
                 + "                                .build()))\n"
                 + "                .generator(new DataGenerator())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GenerateObjects.Builder<Element, String>()
+        return runExample(new GenerateObjects.Builder<Element, String>()
                 .elements(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
@@ -69,10 +67,10 @@ public class GenerateObjectsExample extends OperationExample {
                                 .property("count", 1)
                                 .build()))
                 .generator(new DataGenerator())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public CloseableIterable<Object> generateDomainObjectsFromElements(final Graph graph) throws OperationException {
+    public CloseableIterable<Object> generateDomainObjectsFromElements() {
         final String opJava = "new GenerateObjects.Builder<>()\n"
                 + "                .elements(Arrays.asList(\n"
                 + "                        new Entity.Builder()\n"
@@ -87,7 +85,7 @@ public class GenerateObjectsExample extends OperationExample {
                 + "                                .build()))\n"
                 + "                .generator(new DomainObjectGenerator())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GenerateObjects.Builder<>()
+        return runExample(new GenerateObjects.Builder<>()
                 .elements(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
@@ -100,7 +98,7 @@ public class GenerateObjectsExample extends OperationExample {
                                 .property("count", 1)
                                 .build()))
                 .generator(new DomainObjectGenerator())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
     public static class DomainObject1 {

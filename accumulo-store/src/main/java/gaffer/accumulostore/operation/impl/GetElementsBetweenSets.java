@@ -104,5 +104,10 @@ public class GetElementsBetweenSets<ELEMENT_TYPE extends Element>
         public Builder<ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             return (Builder<ELEMENT_TYPE>) super.inOutType(inOutType);
         }
+
+        @Override
+        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }
