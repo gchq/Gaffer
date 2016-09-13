@@ -57,12 +57,12 @@ public interface IOperationService {
 
     @POST
     @ApiOperation(value = "Performs the given operation chain on the graph", response = Object.class)
-    Object execute(final OperationChain operation);
+    Object execute(final OperationChain opChain);
 
     @POST
     @Path("/generate/objects")
-    @ApiOperation(value = "Generate objects from elements", response = Object.class)
-    Object generateObjects(final GenerateObjects operation);
+    @ApiOperation(value = "Generate objects from elements", response = Object.class, responseContainer = "List")
+    CloseableIterable<Object> generateObjects(final GenerateObjects<Element, Object> operation);
 
     @POST
     @Path("/generate/elements")
