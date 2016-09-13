@@ -28,9 +28,9 @@ import gaffer.operation.AbstractGetOperation;
  *
  * @see Limit.Builder
  */
-public class Limit<T> extends AbstractGetOperation<T, T> {
+public class Limit<T> extends AbstractGetOperation<T, CloseableIterable<T>> {
 
-    public static class Builder<T> extends AbstractGetOperation.Builder<Limit<T>, T, T> {
+    public static class Builder<T> extends AbstractGetOperation.Builder<Limit<T>, T, CloseableIterable<T>> {
 
         public Builder() {
             super(new Limit<T>());

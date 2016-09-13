@@ -74,8 +74,8 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public Object generateObjects(final GenerateObjects operation) {
-        return execute((GenerateObjects<?, ?>) operation);
+    public CloseableIterable<Object> generateObjects(final GenerateObjects<Element, Object> operation) {
+        return execute(operation);
     }
 
     @Override

@@ -44,7 +44,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java.version>1.7</java.version>
-        <scala.version>2.10.2</scala.version>
+        <scala.version>2.10</scala.version>
+        <scala.minor.version>2.10.2</scala.minor.version>
 
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
@@ -54,6 +55,7 @@
 
         <hadoop.version>2.6.3</hadoop.version>
         <accumulo.version>1.7.2</accumulo.version>
+        <spark.version>2.0.0</spark.version>
 
         <avro.version>1.7.7</avro.version>
         <jackson.version>2.6.2</jackson.version>
