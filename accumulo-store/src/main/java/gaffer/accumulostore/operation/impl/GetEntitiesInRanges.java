@@ -109,5 +109,10 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
         public Builder<SEED_TYPE> addSeed(final SEED_TYPE seed) {
             return (Builder<SEED_TYPE>) super.addSeed(seed);
         }
+
+        @Override
+        public Builder<SEED_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<SEED_TYPE>) super.limitResults(resultLimit);
+        }
     }
 }

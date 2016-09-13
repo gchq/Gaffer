@@ -128,5 +128,10 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
             super.option(name, value);
             return this;
         }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
+        }
     }
 }

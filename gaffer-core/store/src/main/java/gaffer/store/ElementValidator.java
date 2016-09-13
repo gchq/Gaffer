@@ -21,8 +21,8 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaElementDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class ElementValidator implements Validator<Element> {
      * validate {@link Element}s.
      *
      * @param schema the {@link Schema} to use to
-     *                   validate {@link Element}s.
+     *               validate {@link Element}s.
      */
     public ElementValidator(final Schema schema) {
         this(schema, true);
@@ -57,7 +57,7 @@ public class ElementValidator implements Validator<Element> {
      * them can be useful when you already know the data is of the correct type
      * and therefore you are able to improve the performance.
      *
-     * @param schema the {@link Schema} to use to
+     * @param schema     the {@link Schema} to use to
      *                   validate {@link gaffer.data.element.Element}s.
      * @param includeIsA if true then the ISA validate functions are used, otherwise they are skipped.
      */
@@ -140,7 +140,6 @@ public class ElementValidator implements Validator<Element> {
         }
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
         if (null == elementDef) {
-            LOGGER.warn("No element definition found for : " + element.getGroup());
             return false;
         }
 

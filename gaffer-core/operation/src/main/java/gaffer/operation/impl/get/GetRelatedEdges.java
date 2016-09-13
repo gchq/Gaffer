@@ -128,5 +128,10 @@ public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<
             super.option(name, value);
             return this;
         }
+
+        @Override
+        public Builder<ELEMENT_SEED> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_SEED>) super.limitResults(resultLimit);
+        }
     }
 }
