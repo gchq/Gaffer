@@ -15,7 +15,7 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import gaffer.commonutil.ByteArrayEscapeUtils;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
