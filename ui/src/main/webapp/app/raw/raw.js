@@ -26,6 +26,8 @@ angular.module('app').factory('rawData', ['$http', 'settings', function($http, s
 
     rawData.loadSchema = function() {
         var schema;
+        rawData.schema = {};
+        updateSchemaVertices();
         $http.get(settings.restUrl + "/graph/schema")
              .success(function(data){
                 rawData.schema = data;

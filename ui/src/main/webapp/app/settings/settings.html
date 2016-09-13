@@ -5,7 +5,8 @@
 
     <div class="form-group">
         <label for="resturl">Rest api url:</label>
-        <input type="text" class="form-control" ng-model="settings.restUrl"
+        <input type="text" onblur="rawData.loadSchema()" class="form-control"
+               ng-model="settings.restUrl"
                id="resturl">
 
         <label for="resultLimit">Default result limit:</label>
