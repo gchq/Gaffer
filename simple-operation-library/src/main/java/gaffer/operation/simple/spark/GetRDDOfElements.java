@@ -15,19 +15,25 @@
  */
 package gaffer.operation.simple.spark;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
 import org.apache.spark.SparkContext;
-
 import java.util.Collections;
 
 public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
 
-    public GetRDDOfElements() { }
+    public GetRDDOfElements() {
+    }
 
     public GetRDDOfElements(final SparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
+        this(sparkContext, new WrappedCloseableIterable<>(seeds));
+    }
+
+    public GetRDDOfElements(final SparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
         setSparkContext(sparkContext);
-        setInput(seeds);
+        setInput(new WrappedCloseableIterable<>(seeds));
     }
 
     public GetRDDOfElements(final SparkContext sparkContext, final SEED_TYPE seed) {

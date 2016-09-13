@@ -31,22 +31,20 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
 
-import java.util.Collections;
-
 public class GetRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
         extends AbstractGetRDDOperationHandler<RDD<Element>, GetRDDOfElements<SEED_TYPE>> {
 
     @Override
-    public Iterable<RDD<Element>> doOperation(final GetRDDOfElements operation,
-                                              final Context context,
-                                              final Store store)
+    public RDD<Element> doOperation(final GetRDDOfElements operation,
+                                    final Context context,
+                                    final Store store)
             throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 
-    private Iterable<RDD<Element>> doOperation(final GetRDDOfElements operation,
-                                               final Context context,
-                                               final AccumuloStore accumuloStore)
+    private RDD<Element> doOperation(final GetRDDOfElements operation,
+                                     final Context context,
+                                     final AccumuloStore accumuloStore)
             throws OperationException {
         final SparkContext sparkContext = operation.getSparkContext();
         final Configuration conf = getConfiguration(operation);
@@ -58,8 +56,7 @@ public class GetRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
                 ElementInputFormat.class,
                 Element.class,
                 NullWritable.class);
-        final RDD<Element> rdd = pairRDD.map(new FirstElement(), ClassTagConstants.ELEMENT_CLASS_TAG);
-        return Collections.singleton(rdd);
+        return pairRDD.map(new FirstElement(), ClassTagConstants.ELEMENT_CLASS_TAG);
     }
 
 }

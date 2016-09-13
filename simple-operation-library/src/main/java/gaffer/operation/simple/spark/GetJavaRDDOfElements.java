@@ -15,15 +15,22 @@
  */
 package gaffer.operation.simple.spark;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
 import org.apache.spark.api.java.JavaSparkContext;
 
 public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetJavaRDD<SEED_TYPE> {
 
-    public GetJavaRDDOfElements() { }
+    public GetJavaRDDOfElements() {
+    }
 
     public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
+        this(sparkContext, new WrappedCloseableIterable<>(seeds));
+    }
+
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
         setJavaSparkContext(sparkContext);
         setInput(seeds);
     }
@@ -32,10 +39,10 @@ public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends Abstrac
             extends AbstractGetJavaRDD.Builder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE> {
 
         public Builder() {
-            this(new GetJavaRDDOfElements());
+            this(new GetJavaRDDOfElements<SEED_TYPE>());
         }
 
-        public Builder(final GetJavaRDDOfElements op) {
+        public Builder(final GetJavaRDDOfElements<SEED_TYPE> op) {
             super(op);
         }
 
@@ -45,6 +52,11 @@ public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends Abstrac
         }
 
         public Builder<SEED_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder<SEED_TYPE> seeds(final CloseableIterable<SEED_TYPE> seeds) {
             super.seeds(seeds);
             return this;
         }

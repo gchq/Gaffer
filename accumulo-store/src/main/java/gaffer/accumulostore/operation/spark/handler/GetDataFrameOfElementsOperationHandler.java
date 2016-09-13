@@ -20,28 +20,25 @@ import gaffer.operation.OperationException;
 import gaffer.operation.simple.spark.GetDataFrameOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
-
 import gaffer.store.operation.handler.OperationHandler;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-import java.util.Collections;
-
-public class GetDataFrameOfElementsOperationHandler implements OperationHandler<GetDataFrameOfElements, Iterable<Dataset<Row>>> {
+public class GetDataFrameOfElementsOperationHandler implements OperationHandler<GetDataFrameOfElements, Dataset<Row>> {
 
     @Override
-    public Iterable<Dataset<Row>> doOperation(final GetDataFrameOfElements operation, final Context context,
-                                                 final Store store) throws OperationException {
+    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
+                                    final Store store) throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 
-    public Iterable<Dataset<Row>> doOperation(final GetDataFrameOfElements operation, final Context context,
-                                           final AccumuloStore store) throws OperationException {
+    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
+                                    final AccumuloStore store) throws OperationException {
         final SQLContext sqlContext = operation.getSqlContext();
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, operation.getGroup(), store,
                 context.getUser());
-        return Collections.singleton(sqlContext.baseRelationToDataFrame(relation));
+        return sqlContext.baseRelationToDataFrame(relation);
     }
 
 }

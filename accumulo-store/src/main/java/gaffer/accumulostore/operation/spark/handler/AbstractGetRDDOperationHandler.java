@@ -33,7 +33,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -42,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends GetOperation<?, OUTPUT>>
-        implements OperationHandler<OP_TYPE, Iterable<OUTPUT>> {
+        implements OperationHandler<OP_TYPE, OUTPUT> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 

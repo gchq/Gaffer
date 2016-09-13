@@ -57,9 +57,9 @@ import org.apache.spark.sql.sources.IsNotNull;
 import org.apache.spark.sql.sources.IsNull;
 import org.apache.spark.sql.sources.LessThan;
 import org.apache.spark.sql.sources.LessThanOrEqual;
-import org.apache.spark.sql.sources.TableScan;
 import org.apache.spark.sql.sources.PrunedFilteredScan;
 import org.apache.spark.sql.sources.PrunedScan;
+import org.apache.spark.sql.sources.TableScan;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
@@ -68,7 +68,6 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.runtime.AbstractFunction1;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,9 +104,11 @@ import java.util.Set;
 public class AccumuloStoreRelation extends BaseRelation implements TableScan, PrunedScan, PrunedFilteredScan {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
+
     private enum EntityOrEdge {
         ENTITY, EDGE
     }
+
     public static final String VERTEX_COL_NAME = "vertex";
     public static final String SRC_COL_NAME = "src";
     public static final String DST_COL_NAME = "dst";
@@ -158,7 +159,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 view = new View.Builder().edge(group).build();
             }
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user).iterator().next();
+            final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(usedProperties), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation: {}", e);
@@ -189,7 +190,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 view = new View.Builder().edge(group).build();
             }
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user).iterator().next();
+            final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns))), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation {}", e);
@@ -208,7 +209,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * not in the transform). Issue 320 refers to this.
      *
      * @param requiredColumns The columns to return.
-     * @param filters The {@link Filter}s to apply.
+     * @param filters         The {@link Filter}s to apply.
      * @return An {@link RDD} of {@link Row}s containing the requested columns.
      */
     @Override
@@ -249,7 +250,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         operation.setView(view);
         // Create RDD
         try {
-            final RDD<Element> rdd = store.execute(operation, user).iterator().next();
+            final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns))), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation {}", e);
@@ -384,7 +385,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * Converts an {@link Entity} to a {@link Row}, only including properties whose name is in the provided
      * {@link LinkedHashSet}.
      *
-     * @param entity The {@link Entity} to convert.
+     * @param entity     The {@link Entity} to convert.
      * @param properties The properties to be included in the conversion.
      * @return a {@link Row} containing the vertex and the required properties.
      */
@@ -392,8 +393,11 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
-                case VERTEX_COL_NAME: fields.appendElem(entity.getVertex()); break;
-                default: fields.appendElem(entity.getProperties().get(property));
+                case VERTEX_COL_NAME:
+                    fields.appendElem(entity.getVertex());
+                    break;
+                default:
+                    fields.appendElem(entity.getProperties().get(property));
             }
         }
         return Row$.MODULE$.fromSeq(fields);
@@ -403,7 +407,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * Converts an {@link Edge} to a {@link Row}, only including properties whose name is in the provided
      * {@link LinkedHashSet}.
      *
-     * @param edge The {@link Edge} to convert.
+     * @param edge       The {@link Edge} to convert.
      * @param properties The properties to be included in the conversion.
      * @return A {@link Row} containing the source, destination, and the required properties.
      */
@@ -411,9 +415,14 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
-                case SRC_COL_NAME: fields.appendElem(edge.getSource()); break;
-                case DST_COL_NAME: fields.appendElem(edge.getDestination()); break;
-                default: fields.appendElem(edge.getProperties().get(property));
+                case SRC_COL_NAME:
+                    fields.appendElem(edge.getSource());
+                    break;
+                case DST_COL_NAME:
+                    fields.appendElem(edge.getDestination());
+                    break;
+                default:
+                    fields.appendElem(edge.getProperties().get(property));
             }
         }
         return Row$.MODULE$.fromSeq(fields);
@@ -421,15 +430,24 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     private static DataType getType(final String className) {
         switch (className) {
-            case "java.lang.String":    return DataTypes.StringType;
-            case "java.lang.Integer":   return DataTypes.IntegerType;
-            case "java.lang.Long":      return DataTypes.LongType;
-            case "java.lang.Boolean":   return DataTypes.BooleanType;
-            case "java.lang.Double":    return DataTypes.DoubleType;
-            case "java.lang.Float":     return DataTypes.FloatType;
-            case "java.lang.Byte":      return DataTypes.ByteType;
-            case "java.lang.Short":     return DataTypes.ShortType;
-            default: return null;
+            case "java.lang.String":
+                return DataTypes.StringType;
+            case "java.lang.Integer":
+                return DataTypes.IntegerType;
+            case "java.lang.Long":
+                return DataTypes.LongType;
+            case "java.lang.Boolean":
+                return DataTypes.BooleanType;
+            case "java.lang.Double":
+                return DataTypes.DoubleType;
+            case "java.lang.Float":
+                return DataTypes.FloatType;
+            case "java.lang.Byte":
+                return DataTypes.ByteType;
+            case "java.lang.Short":
+                return DataTypes.ShortType;
+            default:
+                return null;
         }
     }
 

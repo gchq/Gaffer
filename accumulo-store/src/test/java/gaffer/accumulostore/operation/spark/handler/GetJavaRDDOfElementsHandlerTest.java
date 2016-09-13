@@ -15,6 +15,9 @@
  */
 package gaffer.accumulostore.operation.spark.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -34,7 +37,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.Test;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,9 +44,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class GetJavaRDDOfElementsHandlerTest {
 
@@ -104,11 +103,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        Iterable<JavaRDD<Element>> rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        JavaRDD<Element> rdd = rdds.iterator().next();
         final Set<Element> results = new HashSet<>(rdd.collect());
         final Set<Element> expectedElements = new HashSet<>();
         final Entity entity1 = new Entity(ENTITY_GROUP);
@@ -137,11 +135,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        rdd = rdds.iterator().next();
         results.clear();
         results.addAll(rdd.collect());
         expectedElements.clear();
@@ -157,11 +154,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        rdd = rdds.iterator().next();
         results.clear();
         results.addAll(rdd.collect());
         expectedElements.clear();
@@ -178,11 +174,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .seeds(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        rdd = rdds.iterator().next();
         results.clear();
         results.addAll(rdd.collect());
         final Entity entity5 = new Entity(ENTITY_GROUP);
@@ -264,11 +259,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .setIncludeEntities(false)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        Iterable<JavaRDD<Element>> rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        JavaRDD<Element> rdd = rdds.iterator().next();
         final Set<Element> results = new HashSet<>();
         results.addAll(rdd.collect());
         final Set<Element> expectedElements = new HashSet<>();
@@ -288,11 +282,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .setIncludeEdges(GetOperation.IncludeEdgeType.NONE)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        rdd = rdds.iterator().next();
         results.clear();
         results.addAll(rdd.collect());
         expectedElements.clear();
@@ -312,11 +305,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .setIncludeEdges(GetOperation.IncludeEdgeType.ALL)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        rdd = rdds.iterator().next();
         results.clear();
         results.addAll(rdd.collect());
         expectedElements.clear();
@@ -333,11 +325,10 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .seeds(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdds = graph1.execute(rddQuery, user);
-        if (rdds == null || !rdds.iterator().hasNext()) {
+        rdd = graph1.execute(rddQuery, user);
+        if (rdd == null) {
             fail("No RDD returned");
         }
-        rdd = rdds.iterator().next();
         results.clear();
         results.addAll(rdd.collect());
         final Edge edge5C = new Edge(EDGE_GROUP);

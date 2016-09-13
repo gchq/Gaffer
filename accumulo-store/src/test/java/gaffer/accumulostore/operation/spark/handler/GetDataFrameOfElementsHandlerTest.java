@@ -15,6 +15,9 @@
  */
 package gaffer.accumulostore.operation.spark.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -30,11 +33,10 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
 import org.junit.Test;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class GetDataFrameOfElementsHandlerTest {
 
@@ -68,11 +70,10 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .group(EDGE_GROUP)
                 .build();
-        Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
-        if (dataFrames == null || !dataFrames.iterator().hasNext()) {
+        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
             fail("No DataFrame returned");
         }
-        Dataset<Row> dataFrame = dataFrames.iterator().next();
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -104,11 +105,10 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .group(ENTITY_GROUP)
                 .build();
-        dataFrames = graph1.execute(dfOperation, user);
-        if (dataFrames == null || !dataFrames.iterator().hasNext()) {
+        dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
             fail("No DataFrame returned");
         }
-        dataFrame = dataFrames.iterator().next();
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -155,11 +155,10 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .group(EDGE_GROUP)
                 .build();
-        final Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
-        if (dataFrames == null || !dataFrames.iterator().hasNext()) {
+        final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
             fail("No DataFrame returned");
         }
-        final Dataset<Row> dataFrame = dataFrames.iterator().next();
 
         // Check get correct rows when ask for src, dst and property2 columns
         Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2").collectAsList());
@@ -222,11 +221,10 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .group(EDGE_GROUP)
                 .build();
-        final Iterable<Dataset<Row>> dataFrames = graph1.execute(dfOperation, user);
-        if (dataFrames == null || !dataFrames.iterator().hasNext()) {
+        final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
             fail("No DataFrame returned");
         }
-        final Dataset<Row> dataFrame = dataFrames.iterator().next();
 
         // Check get correct rows when ask for all columns but only rows where property2 > 4.0
         Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0").collectAsList());

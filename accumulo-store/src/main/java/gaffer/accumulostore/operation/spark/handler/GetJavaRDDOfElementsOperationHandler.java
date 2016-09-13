@@ -33,21 +33,19 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import scala.Tuple2;
 
-import java.util.Collections;
-
 public class GetJavaRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
         extends AbstractGetRDDOperationHandler<JavaRDD<Element>, GetJavaRDDOfElements<SEED_TYPE>> {
 
     @Override
-    public Iterable<JavaRDD<Element>> doOperation(final GetJavaRDDOfElements operation,
-                                                  final Context context,
-                                                  final Store store) throws OperationException {
+    public JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
+                                        final Context context,
+                                        final Store store) throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 
-    private Iterable<JavaRDD<Element>> doOperation(final GetJavaRDDOfElements operation,
-                                                   final Context context,
-                                                   final AccumuloStore accumuloStore) throws OperationException {
+    private JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
+                                         final Context context,
+                                         final AccumuloStore accumuloStore) throws OperationException {
         final JavaSparkContext sparkContext = operation.getJavaSparkContext();
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
@@ -59,7 +57,7 @@ public class GetJavaRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
                 Element.class,
                 NullWritable.class);
         final JavaRDD<Element> rdd = pairRDD.map(new FirstElement());
-        return Collections.singleton(rdd);
+        return rdd;
     }
 
     static class FirstElement implements Function<Tuple2<Element, NullWritable>, Element> {
