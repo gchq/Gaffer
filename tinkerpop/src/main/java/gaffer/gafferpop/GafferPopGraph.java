@@ -25,7 +25,6 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.gafferpop.generator.GafferPopEdgeGenerator;
 import gaffer.gafferpop.generator.GafferPopVertexGenerator;
 import gaffer.graph.Graph;
-import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -41,6 +40,7 @@ import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllEdges;
 import gaffer.operation.impl.get.GetAllEntities;
 import gaffer.operation.impl.get.GetEdgesBySeed;
+import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedEntities;
@@ -211,7 +211,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public CloseableIterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
 
-        final GetOperation<? extends ElementSeed, Entity> getOperation;
+        final GetElements<? extends ElementSeed, Entity> getOperation;
         final List<Vertex> idVertices = new LinkedList<>();
         if (getAll) {
             getOperation = new GetAllEntities();
@@ -354,7 +354,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public Iterator<Edge> edges(final Object... edgeIds) {
         final boolean getAll = null == edgeIds || 0 == edgeIds.length;
 
-        final GetOperation<? extends ElementSeed, gaffer.data.element.Edge> getOperation;
+        final GetElements<? extends ElementSeed, gaffer.data.element.Edge> getOperation;
         if (getAll) {
             getOperation = new GetAllEdges();
         } else {
@@ -477,7 +477,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final boolean getAll = null == seeds || seeds.isEmpty();
         final LinkedList<Vertex> idVertices = new LinkedList<>();
 
-        final GetOperation<? extends ElementSeed, Entity> getOperation;
+        final GetElements<? extends ElementSeed, Entity> getOperation;
         if (getAll) {
             getOperation = new GetAllEntities.Builder()
                     .view(view)
@@ -532,7 +532,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private CloseableIterator<GafferPopEdge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
 
-        final GetOperation<? extends ElementSeed, gaffer.data.element.Edge> getOperation;
+        final GetElements<? extends ElementSeed, gaffer.data.element.Edge> getOperation;
         if (getAll) {
             getOperation = new GetAllEdges.Builder()
                     .view(view)
