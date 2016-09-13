@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
