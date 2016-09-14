@@ -106,9 +106,13 @@ public class ViewTest {
                                 .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
                                 .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new ExampleFilterFunction())
+                                .build())
                         .build())
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .filter(new ElementFilter.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
@@ -125,6 +129,14 @@ public class ViewTest {
                 "      \"transientProperties\" : {%n" +
                 "        \"property3\" : \"java.lang.String\"%n" +
                 "      },%n" +
+                "      \"postTransformFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ {%n" +
+                "          \"key\" : \"property3\"%n" +
+                "        } ]%n" +
+                "      } ],%n" +
                 "      \"transformFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleTransformFunction\"%n" +
@@ -142,7 +154,7 @@ public class ViewTest {
                 "  },%n" +
                 "  \"entities\" : {%n" +
                 "    \"BasicEntity\" : {%n" +
-                "      \"filterFunctions\" : [ {%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
@@ -166,9 +178,13 @@ public class ViewTest {
                                 .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
                                 .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new ExampleFilterFunction())
+                                .build())
                         .build())
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .filter(new ElementFilter.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
@@ -184,15 +200,15 @@ public class ViewTest {
         final ViewElementDefinition entityDef = deserialisedView.getEntity(TestGroups.ENTITY);
         assertTrue(entityDef.getTransientProperties().isEmpty());
         assertNull(entityDef.getTransformer());
-        assertEquals(1, entityDef.getFilter().getFunctions().size());
-        assertTrue(entityDef.getFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, entityDef.getFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, entityDef.getFilter().getFunctions().get(0).getSelection().get(0).getPropertyName());
+        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().size());
+        assertTrue(entityDef.getPreAggregationFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0).getPropertyName());
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
         assertEquals(1, edgeDef.getTransientProperties().size());
         assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
-        assertNull(edgeDef.getFilter());
+        assertNull(edgeDef.getPreAggregationFilter());
         assertEquals(1, edgeDef.getTransformer().getFunctions().size());
         assertTrue(edgeDef.getTransformer().getFunctions().get(0).getFunction() instanceof ExampleTransformFunction);
         assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().size());
@@ -200,5 +216,9 @@ public class ViewTest {
         assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(1).getPropertyName());
         assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().size());
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection().get(0).getPropertyName());
+        assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().size());
+        assertTrue(edgeDef.getPostTransformFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().get(0).getPropertyName());
     }
 }

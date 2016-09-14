@@ -77,7 +77,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     }
 
     protected boolean isValid(final Element element) {
-        return elementValidator.validate(element);
+        return elementValidator.validateInput(element);
     }
 
 

@@ -41,7 +41,8 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
         final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloAllElementsRetriever(store, operation, user, iteratorFactory.getElementPropertyRangeQueryFilter(operation),
-                    iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {

@@ -286,7 +286,7 @@ public class SimpleExamplesService implements IExamplesService {
         if (hasEntities()) {
             viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
                     .transientProperty(TRANSFORMED_PROPERTIES, String.class)
-                    .filter(new ElementFilter.Builder()
+                    .preAggregationFilter(new ElementFilter.Builder()
                             .select(getAnEntityPropertyName())
                             .execute(new ExampleFilterFunction())
                             .build())
@@ -301,7 +301,7 @@ public class SimpleExamplesService implements IExamplesService {
         if (hasEdges()) {
             viewBuilder.edge(getAnEdgeGroup(), new ViewElementDefinition.Builder()
                     .transientProperty(TRANSFORMED_PROPERTIES, String.class)
-                    .filter(new ElementFilter.Builder()
+                    .preAggregationFilter(new ElementFilter.Builder()
                             .select(getAnEdgePropertyName())
                             .execute(new ExampleFilterFunction())
                             .build())
