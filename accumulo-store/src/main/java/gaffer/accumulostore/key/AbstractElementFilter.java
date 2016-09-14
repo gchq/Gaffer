@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.key.impl;
+package gaffer.accumulostore.key;
 
-import gaffer.accumulostore.key.AccumuloElementConverter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.ElementFilterException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -38,11 +37,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
- * The ElementFilter will filter out {@link Element}s based on the filtering
+ * The AbstractElementFilter will filter out {@link Element}s based on the filtering
  * instructions given in the {@link View} that is passed to this iterator
  */
-public class ElementFilter extends Filter {
-    private ElementValidator validator;
+public abstract class AbstractElementFilter extends Filter {
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "validator is initialised in validateOptions method, which is always called first")
+    protected ElementValidator validator;
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "elementConverter is initialised in validateOptions method, which is always called first")
     private AccumuloElementConverter elementConverter;
 
     @Override
@@ -54,7 +55,7 @@ public class ElementFilter extends Filter {
             throw new ElementFilterException(
                     "Element filter iterator failed to create an element from an accumulo key value pair", e);
         }
-        return validator.validate(element);
+        return validate(element);
     }
 
     @Override
@@ -98,12 +99,7 @@ public class ElementFilter extends Filter {
         return true;
     }
 
-    @Override
-    public IteratorOptions describeOptions() {
-        return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
-                .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns elements that pass validation against the given view").build();
-    }
+    protected abstract boolean validate(final Element element);
 
     protected ElementValidator getElementValidator(final Map<String, String> options) {
         if (!options.containsKey(AccumuloStoreConstants.VIEW)) {

@@ -84,7 +84,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         //rerun previous query with a filter to return only edges with a count more than 3
         final View view = new View.Builder()
                 .edge("data", new ViewElementDefinition.Builder()
-                        .filter(new ElementFilter.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
                                 .select("count")
                                 .execute(new IsMoreThan(3))
                                 .build())

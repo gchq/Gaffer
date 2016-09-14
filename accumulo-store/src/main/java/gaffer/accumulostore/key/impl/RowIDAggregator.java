@@ -71,7 +71,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME,
                 "Applies a findTop function to triples of (column qualifier, column visibility, value) with identical (rowKey, column family)")
-                .addSchemaNamedOption().build();
+                .addSchemaNamedOption().addElementConverterClassNamedOption().build();
     }
 
     @Override

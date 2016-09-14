@@ -2,7 +2,7 @@
   "view": {
     "edges": {
       "data": {
-        "filterFunctions": [
+        "preAggregationFilterFunctions": [
           {
             "function": {
               "class": "gaffer.function.simple.filter.IsMoreThan",
