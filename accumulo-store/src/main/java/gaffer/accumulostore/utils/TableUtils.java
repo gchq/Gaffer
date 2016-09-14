@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.commonutil.CommonConstants;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
