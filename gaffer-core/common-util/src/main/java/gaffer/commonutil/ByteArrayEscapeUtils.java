@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.accumulostore.utils;
+package gaffer.commonutil;
 
 /**
  * Removes the 0 byte from a byte array. Preserves ordering.
