@@ -28,14 +28,14 @@ Setup
 ------------------
 An example can be seen in graphql.gaffer.GrafferQlTest.
 
-1. Create a Gaffer graph in the normal way
+Create a Gaffer graph in the normal way
 
     Graph graph = new Graph.Builder()
         .storeProperties(...stuff...)
         .addSchemas(...stuff...)
         .build();
         
-2. Use the GafferQLSchemaBuilder class to build a graphql.GraphQL instance
+Use the GafferQLSchemaBuilder class to build a graphql.GraphQL instance
 
     GraphQL graphQL = new GafferQLSchemaBuilder()
         .gafferSchema(graph.getSchema())
@@ -43,34 +43,32 @@ An example can be seen in graphql.gaffer.GrafferQlTest.
         
 For each request/operation chain you wish to run, do the following
 
-1. Construct a User
+Construct a User
 
     User user = new User.Builder()
         .userId("me")
         .dataAuth("see_everything")
                 
-2. Build a context for GrafferQL to use, this requires
-a. The gaffer.graph.Gaffer graph
-b. The gaffer.user.User
+Build a context for GrafferQL to use, this requires the gaffer.graph.Gaffer graph and the gaffer.user.User
 
     GrafferQLContext context = new GrafferQLContext.Builder()
         .graph(graph) // will be same value for all requests to this graph
         .user(user) // potentially different for each request, 
         .build();
                 
-3. Reset the GrafferQLContext if being reused across requests
+Reset the GrafferQLContext if being reused across requests
 
     context.reset();
   
-4. Compose your GraphQL query
+Compose your GraphQL query
 
     String query = "{person(vertex:\"user03\"){name{value} age{value}}}"
   
-5. Run the query
+Run the query
 
     ExecutionResult result = graphQL.execute(query, context);
   
-6. Interrogate the Execution Result for data, it will be a nest of HashMap<String, Object>.
+Interrogate the Execution Result for data, it will be a nest of HashMap<String, Object>.
 
 Notes
 ------------------
@@ -99,8 +97,7 @@ Why do the properties need to be referenced by {value}? Some properties are of t
 used as vertices. For example a film review has a property called userId. But because I used the GraphQLObject type
 for the vertex as the property I can hop out from that property value to Entities attached to that vertex.
 
-This query shows me jumping from review (entity) -> vertex -> film -> name.value
-                                                 -> userId -> person -> name.value
+This query shows me jumping from review (entity) -> (vertex -> film -> name.value) and (userId -> person -> name.value)
 
     {review(vertex:"filmA"){vertex{film{name{value}}} userId{person{name{value}}}}}
 
