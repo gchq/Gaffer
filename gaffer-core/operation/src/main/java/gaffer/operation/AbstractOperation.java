@@ -81,19 +81,32 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
 
     @Override
     public boolean validate(final Edge edge) {
-        return validateFilter(edge);
+        return validatePreAggregationFilter(edge) && validatePostAggregationFilter(edge) && validatePostTransformFilter(edge);
     }
 
     @Override
     public boolean validate(final Entity entity) {
-        return validateFilter(entity);
+        return validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
     }
 
     @Override
-    public boolean validateFilter(final Element element) {
+    public boolean validatePreAggregationFilter(final Element element) {
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getFilter() || elementDef.getFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
     }
+
+    @Override
+    public boolean validatePostAggregationFilter(final Element element) {
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
+    }
+
+    @Override
+    public boolean validatePostTransformFilter(final Element element) {
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
+    }
+
 
     @Override
     public INPUT getInput() {
@@ -140,10 +153,13 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         return options.isEmpty() ? null : options;
     }
 
-    public static class Builder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>, INPUT, OUTPUT> {
+    public abstract static class BaseBuilder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>,
+            INPUT,
+            OUTPUT,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, ?>> {
         protected OP_TYPE op;
 
-        protected Builder(final OP_TYPE op) {
+        protected BaseBuilder(final OP_TYPE op) {
             this.op = op;
         }
 
@@ -161,9 +177,9 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        protected Builder<OP_TYPE, INPUT, OUTPUT> input(final INPUT input) {
+        public CHILD_CLASS input(final INPUT input) {
             op.setInput(input);
-            return this;
+            return self();
         }
 
         /**
@@ -171,9 +187,9 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
          * @return this Builder
          * @see gaffer.operation.Operation#setView(View)
          */
-        protected Builder<OP_TYPE, INPUT, OUTPUT> view(final View view) {
+        public CHILD_CLASS view(final View view) {
             op.setView(view);
-            return this;
+            return self();
         }
 
         /**
@@ -182,13 +198,28 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
          * @return this Builder
          * @see gaffer.operation.Operation#addOption(String, String)
          */
-        protected Builder<OP_TYPE, INPUT, OUTPUT> option(final String name, final String value) {
+        public CHILD_CLASS option(final String name, final String value) {
             op.addOption(name, value);
-            return this;
+            return self();
         }
+
+        protected abstract CHILD_CLASS self();
 
         protected OP_TYPE getOp() {
             return op;
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>, INPUT, OUTPUT>
+            extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, Builder<OP_TYPE, INPUT, OUTPUT>> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, INPUT, OUTPUT> self() {
+            return this;
         }
     }
 }

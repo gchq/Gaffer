@@ -35,9 +35,17 @@ public class FetchExporter extends ExportOperation<Void, Exporter> implements Vo
         super(key);
     }
 
-    public static class Builder extends ExportOperation.Builder<FetchExporter, Void, Exporter> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends ExportOperation.BaseBuilder<FetchExporter, Void, Exporter, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new FetchExporter());
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }

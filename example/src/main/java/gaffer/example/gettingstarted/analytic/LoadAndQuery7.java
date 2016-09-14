@@ -82,7 +82,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // duplicate edges.
         final View view = new View.Builder()
                 .edge("data", new ViewElementDefinition.Builder()
-                        .filter(new ElementFilter.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
                                 .select("count")
                                 .execute(new IsMoreThan(1))
                                 .build())

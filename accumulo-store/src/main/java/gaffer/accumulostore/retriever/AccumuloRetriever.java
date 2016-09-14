@@ -23,6 +23,7 @@ import gaffer.accumulostore.key.RangeFactory;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.data.element.Element;
+import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetOperation;
@@ -78,6 +79,20 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         }
     }
 
+    /**
+     * Performs any post Filtering specified in a view on an element
+     *
+     * @param element the element to post Filter
+     * @return the result of validating the element against the post filters
+     */
+    public boolean doPostFilter(final Element element) {
+        final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
+        if (viewDef != null) {
+            return postFilter(element, viewDef.getPostTransformFilter());
+        }
+        return true;
+    }
+
     @Override
     public void close() {
         if (iterator != null) {
@@ -125,5 +140,9 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> impl
         if (transformer != null) {
             transformer.transform(element);
         }
+    }
+
+    protected boolean postFilter(final Element element, final ElementFilter postFilter) {
+        return postFilter != null ? postFilter.filter(element) : true;
     }
 }

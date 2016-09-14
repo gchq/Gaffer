@@ -73,46 +73,19 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
         }
     }
 
-    public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>>
-            extends AbstractGetOperation.Builder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, CloseableIterable<Entity>> {
-
-        public Builder() {
+    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
+            extends AbstractGetOperation.BaseBuilder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, CloseableIterable<Entity>, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetEntitiesInRanges<SEED_TYPE>());
         }
+    }
+
+    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>>
+            extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
 
         @Override
-        public Builder<SEED_TYPE> deduplicate(final boolean deduplicate) {
-            return (Builder<SEED_TYPE>) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder<SEED_TYPE> populateProperties(final boolean populateProperties) {
-            return (Builder<SEED_TYPE>) super.populateProperties(populateProperties);
-        }
-
-        @Override
-        public Builder<SEED_TYPE> view(final View view) {
-            return (Builder<SEED_TYPE>) super.view(view);
-        }
-
-        @Override
-        public Builder<SEED_TYPE> option(final String name, final String value) {
-            return (Builder<SEED_TYPE>) super.option(name, value);
-        }
-
-        @Override
-        public Builder<SEED_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
-            return (Builder<SEED_TYPE>) super.seeds(newSeeds);
-        }
-
-        @Override
-        public Builder<SEED_TYPE> addSeed(final SEED_TYPE seed) {
-            return (Builder<SEED_TYPE>) super.addSeed(seed);
-        }
-
-        @Override
-        public Builder<SEED_TYPE> limitResults(final Integer resultLimit) {
-            return (Builder<SEED_TYPE>) super.limitResults(resultLimit);
+        protected Builder<SEED_TYPE> self() {
+            return this;
         }
     }
 }

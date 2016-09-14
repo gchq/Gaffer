@@ -18,17 +18,14 @@ package gaffer.operation.simple.hdfs.operation;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
 import gaffer.operation.VoidOutput;
-import gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser;
 import gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator;
-import org.apache.hadoop.mapreduce.Partitioner;
-import java.util.List;
 
 /**
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link gaffer.data.element.Element}s from HDFS.
  * This operation requires an input, output and failure path.
  * It order to be generic and deal with any type of input file you also need to provide a
- * {@link MapperGenerator} class name and a
- * {@link JobInitialiser}.
+ * {@link gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator} class name and a
+ * {@link gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser}.
  * <p>
  * For normal operation handlers the operation {@link gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
@@ -76,69 +73,32 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    public static class Builder extends MapReduceOperation.Builder<AddElementsFromHdfs, Void, Void> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends MapReduceOperation.BaseBuilder<AddElementsFromHdfs, Void, Void, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new AddElementsFromHdfs());
         }
 
-        public Builder validate(final boolean validate) {
+        public CHILD_CLASS validate(final boolean validate) {
             op.setValidate(validate);
-            return this;
+            return self();
         }
 
-        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+        public CHILD_CLASS mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             op.setMapperGeneratorClassName(mapperGeneratorClass);
-            return this;
+            return self();
         }
 
-        public Builder failurePath(final String failurePath) {
+        public CHILD_CLASS failurePath(final String failurePath) {
             op.setFailurePath(failurePath);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
             return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
-        }
-
-        @Override
-        public Builder inputPaths(final List<String> inputPaths) {
-            return (Builder) super.inputPaths(inputPaths);
-        }
-
-        @Override
-        public Builder addInputPaths(final List<String> inputPaths) {
-            return (Builder) super.addInputPaths(inputPaths);
-        }
-
-        @Override
-        public Builder addInputPath(final String inputPath) {
-            return (Builder) super.addInputPath(inputPath);
-        }
-
-        @Override
-        public Builder outputPath(final String outputPath) {
-            return (Builder) super.outputPath(outputPath);
-        }
-
-        @Override
-        public Builder jobInitialiser(final JobInitialiser jobInitialiser) {
-            return (Builder) super.jobInitialiser(jobInitialiser);
-        }
-
-        @Override
-        public Builder reducers(final Integer numReduceTasks) {
-            return (Builder) super.reducers(numReduceTasks);
-        }
-
-        @Override
-        public Builder mappers(final Integer numMapTasks) {
-            return (Builder) super.mappers(numMapTasks);
-        }
-
-        @Override
-        public Builder partitioner(final Class<? extends Partitioner> partitioner) {
-            return (Builder) super.partitioner(partitioner);
         }
     }
 }

@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.AbstractOperation;
 import java.util.List;
@@ -131,9 +130,12 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
         setInput(new WrappedCloseableIterable<>(elements));
     }
 
-    public static class Builder<ELEMENT_TYPE extends Element, OBJ>
-            extends AbstractOperation.Builder<GenerateObjects<ELEMENT_TYPE, OBJ>, CloseableIterable<ELEMENT_TYPE>, CloseableIterable<OBJ>> {
-        public Builder() {
+    public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, OBJ, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, OBJ, ?>>
+            extends AbstractOperation.BaseBuilder<GenerateObjects<ELEMENT_TYPE, OBJ>,
+            CloseableIterable<ELEMENT_TYPE>,
+            CloseableIterable<OBJ>,
+            CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GenerateObjects<ELEMENT_TYPE, OBJ>());
         }
 
@@ -142,9 +144,9 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        public Builder<ELEMENT_TYPE, OBJ> elements(final CloseableIterable<ELEMENT_TYPE> elements) {
+        public CHILD_CLASS elements(final CloseableIterable<ELEMENT_TYPE> elements) {
             op.setInput(elements);
-            return this;
+            return self();
         }
 
         /**
@@ -152,9 +154,9 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        public Builder<ELEMENT_TYPE, OBJ> elements(final Iterable<ELEMENT_TYPE> elements) {
+        public CHILD_CLASS elements(final Iterable<ELEMENT_TYPE> elements) {
             op.setInput(new WrappedCloseableIterable<>(elements));
-            return this;
+            return self();
         }
 
         /**
@@ -162,20 +164,16 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
          * @return this Builder
          * @see gaffer.operation.impl.generate.GenerateObjects#setElementGenerator(gaffer.data.generator.ElementGenerator)
          */
-        public Builder<ELEMENT_TYPE, OBJ> generator(final ElementGenerator<OBJ> generator) {
+        public CHILD_CLASS generator(final ElementGenerator<OBJ> generator) {
             op.setElementGenerator(generator);
-            return this;
+            return self();
         }
+    }
 
+    public static final class Builder<ELEMENT_TYPE extends Element, OBJ>
+            extends BaseBuilder<ELEMENT_TYPE, OBJ, Builder<ELEMENT_TYPE, OBJ>> {
         @Override
-        public Builder<ELEMENT_TYPE, OBJ> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE, OBJ> option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder<ELEMENT_TYPE, OBJ> self() {
             return this;
         }
     }

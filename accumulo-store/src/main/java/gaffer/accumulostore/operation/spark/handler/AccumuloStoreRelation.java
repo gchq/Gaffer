@@ -209,7 +209,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * not in the transform). Issue 320 refers to this.
      *
      * @param requiredColumns The columns to return.
-     * @param filters         The {@link Filter}s to apply.
+     * @param filters         The pre Aggregation {@link Filter}s to apply.
      * @return An {@link RDD} of {@link Row}s containing the requested columns.
      */
     @Override
@@ -240,7 +240,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             filterList.addAll(getFunctionsFromFilter(filter));
         }
         final ViewElementDefinition ved = new ViewElementDefinition();
-        ved.addFilterFunctions(filterList);
+        ved.addPreAggregationElementFilterFunctions(filterList);
         View view;
         if (entityOrEdge.equals(EntityOrEdge.ENTITY)) {
             view = new View.Builder().entity(group, ved).build();

@@ -48,7 +48,8 @@ public class GetElementsInRangesHandler
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloRangeIDRetriever(store, operation, user,
-                    itrFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getElementPropertyRangeQueryFilter(operation),
                     itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));

@@ -69,22 +69,25 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         this.seedsB = seedsB;
     }
 
-    public static class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends GetElements.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
-        List<SEED_TYPE> seedsB = new ArrayList<>();
+    public abstract static class BaseBuilder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
+            extends GetElements.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+        private final List<SEED_TYPE> seedsB = new ArrayList<>();
 
-        protected Builder(final OP_TYPE op) {
+        protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
 
-        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> seedsB(final Iterable<SEED_TYPE> seedsB) {
+        public CHILD_CLASS seedsB(final Iterable<SEED_TYPE> seedsB) {
             this.op.setSeedsB(seedsB);
-            return this;
+            return self();
         }
 
-        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> addSeedB(final SEED_TYPE seed) {
+        public CHILD_CLASS addSeedB(final SEED_TYPE seed) {
             this.seedsB.add(seed);
-            return this;
+            return self();
         }
 
         @Override
@@ -101,7 +104,21 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
             }
             return this.op;
         }
+    }
 
+    public static final class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element>
+            extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE>> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> self() {
+            return this;
+        }
     }
 
 }

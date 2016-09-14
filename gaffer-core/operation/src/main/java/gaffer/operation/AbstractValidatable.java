@@ -137,9 +137,12 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         this.validate = validate;
     }
 
-    public static class Builder<OP_TYPE extends AbstractValidatable<OUTPUT>, OUTPUT>
-            extends AbstractOperation.Builder<OP_TYPE, CloseableIterable<Element>, OUTPUT> {
-        protected Builder(final OP_TYPE op) {
+    public abstract static class BaseBuilder<
+            OP_TYPE extends AbstractValidatable<OUTPUT>,
+            OUTPUT,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, OUTPUT, ?>>
+            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<Element>, OUTPUT, CHILD_CLASS> {
+        protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
 
@@ -148,12 +151,12 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
          * @return this Builder
          * @see gaffer.operation.Validatable#setElements(CloseableIterable)
          */
-        public Builder<OP_TYPE, OUTPUT> elements(final Element... elements) {
+        public CHILD_CLASS elements(final Element... elements) {
             if (null != elements) {
                 elements(Arrays.asList(elements));
             }
 
-            return this;
+            return self();
         }
 
         /**
@@ -161,9 +164,9 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
          * @return this Builder
          * @see gaffer.operation.Validatable#setElements(CloseableIterable)
          */
-        public Builder<OP_TYPE, OUTPUT> elements(final CloseableIterable<Element> elements) {
+        public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
         }
 
         /**
@@ -171,9 +174,9 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
          * @return this Builder
          * @see gaffer.operation.Validatable#setElements(CloseableIterable)
          */
-        public Builder<OP_TYPE, OUTPUT> elements(final Iterable<Element> elements) {
+        public CHILD_CLASS elements(final Iterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
         }
 
         /**
@@ -181,9 +184,9 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
          * @return this Builder
          * @see gaffer.operation.Validatable#setSkipInvalidElements(boolean)
          */
-        public Builder<OP_TYPE, OUTPUT> skipInvalidElements(final boolean skipInvalidElements) {
+        public CHILD_CLASS skipInvalidElements(final boolean skipInvalidElements) {
             op.setSkipInvalidElements(skipInvalidElements);
-            return this;
+            return self();
         }
 
         /**
@@ -191,8 +194,21 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
          * @return this Builder
          * @see gaffer.operation.Validatable#setValidate(boolean)
          */
-        public Builder<OP_TYPE, OUTPUT> validate(final boolean validate) {
+        public CHILD_CLASS validate(final boolean validate) {
             op.setValidate(validate);
+            return self();
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends AbstractValidatable<OUTPUT>, OUTPUT>
+            extends BaseBuilder<OP_TYPE, OUTPUT, Builder<OP_TYPE, OUTPUT>> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, OUTPUT> self() {
             return this;
         }
     }

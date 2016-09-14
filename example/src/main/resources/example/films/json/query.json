@@ -24,7 +24,7 @@
             "transientProperties": {
               "starRating": "java.lang.Float"
             },
-            "filterFunctions": [
+            "preAggregationFilterFunctions": [
               {
                 "function": {
                   "class": "gaffer.function.simple.filter.Not",

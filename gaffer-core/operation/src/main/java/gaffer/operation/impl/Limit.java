@@ -30,9 +30,9 @@ import gaffer.operation.AbstractGetOperation;
  */
 public class Limit<T> extends AbstractGetOperation<T, CloseableIterable<T>> {
 
-    public static class Builder<T> extends AbstractGetOperation.Builder<Limit<T>, T, CloseableIterable<T>> {
+    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractGetOperation.BaseBuilder<Limit<T>, T, CloseableIterable<T>, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new Limit<T>());
         }
 
@@ -41,27 +41,15 @@ public class Limit<T> extends AbstractGetOperation<T, CloseableIterable<T>> {
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        public Builder<T> input(final Iterable<T> input) {
+        public CHILD_CLASS input(final Iterable<T> input) {
             return input(new WrappedCloseableIterable<>(input));
         }
+    }
 
-        /**
-         * @param input the input to set on the operation
-         * @return this Builder
-         * @see gaffer.operation.Operation#setInput(Object)
-         */
-        public Builder<T> input(final CloseableIterable<T> input) {
-            return (Builder<T>) super.input(input);
-        }
+    public static final class Builder<T> extends BaseBuilder<T, Builder<T>> {
 
         @Override
-        public Builder<T> limitResults(final Integer resultLimit) {
-            return (Builder<T>) super.limitResults(resultLimit);
-        }
-
-        @Override
-        public Builder<T> option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder<T> self() {
             return this;
         }
     }

@@ -32,9 +32,17 @@ public class InitialiseSetExport extends InitialiseExport {
         return ((SetExporter) super.getExporter());
     }
 
-    public static class Builder extends InitialiseExport.Builder<InitialiseSetExport> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends InitialiseExport.BaseBuilder<InitialiseSetExport, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new InitialiseSetExport());
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }

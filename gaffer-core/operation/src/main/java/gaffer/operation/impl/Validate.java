@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractOperation;
 import java.util.List;
 
@@ -113,9 +112,10 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
         setInput(new WrappedCloseableIterable<>(elements));
     }
 
-    public static class Builder extends AbstractOperation.Builder<Validate, CloseableIterable<Element>, CloseableIterable<Element>> {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<Validate, CloseableIterable<Element>, CloseableIterable<Element>, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new Validate());
         }
 
@@ -124,18 +124,18 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
          * @return this Builder
          * @see gaffer.operation.impl.Validate#setElements(Iterable)
          */
-        public Builder elements(final Iterable<Element> elements) {
+        public CHILD_CLASS elements(final Iterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
         }
         /**
          * @param elements the input {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be set on the operation.
          * @return this Builder
          * @see gaffer.operation.impl.Validate#setElements(CloseableIterable)
          */
-        public Builder elements(final CloseableIterable<Element> elements) {
+        public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
         }
 
         /**
@@ -143,20 +143,15 @@ public class Validate extends AbstractOperation<CloseableIterable<Element>, Clos
          * @return this Builder
          * @see gaffer.operation.impl.Validate#setSkipInvalidElements(boolean)
          */
-        public Builder skipInvalidElements(final boolean skipInvalidElements) {
+        public CHILD_CLASS skipInvalidElements(final boolean skipInvalidElements) {
             op.setSkipInvalidElements(skipInvalidElements);
-            return this;
+            return self();
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

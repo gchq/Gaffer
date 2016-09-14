@@ -15,50 +15,40 @@
  */
 package gaffer.operation.simple.spark;
 
-import gaffer.data.elementdefinition.view.View;
 import org.apache.spark.SparkContext;
 
 public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
 
-    public GetRDDOfAllElements() { }
+    public GetRDDOfAllElements() {
+    }
 
     public GetRDDOfAllElements(final SparkContext sparkContext) {
         setSparkContext(sparkContext);
     }
 
-    public static class Builder extends AbstractGetRDD.Builder<GetRDDOfAllElements, Void> {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetRDD.BaseBuilder<GetRDDOfAllElements, Void, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             this(new GetRDDOfAllElements());
+        }
+
+        public BaseBuilder(final GetRDDOfAllElements op) {
+            super(op);
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
         }
 
         public Builder(final GetRDDOfAllElements op) {
             super(op);
         }
 
-        public Builder sparkContext(final SparkContext sparkContext) {
-            super.sparkContext(sparkContext);
-            return this;
-        }
-
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        public Builder setIncludeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
-            return this;
-        }
-
-        public Builder setIncludeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
         @Override
-        public GetRDDOfAllElements build() {
-            return super.build();
+        protected Builder self() {
+            return this;
         }
     }
 }

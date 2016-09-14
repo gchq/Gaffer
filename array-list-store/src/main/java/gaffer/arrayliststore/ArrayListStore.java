@@ -16,7 +16,7 @@
 
 package gaffer.arrayliststore;
 
-import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 import gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
@@ -54,7 +54,7 @@ import java.util.Set;
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Collections.singletonList(FILTERING));
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Collections.singletonList(PRE_AGGREGATION_FILTERING));
     private final List<Entity> entities = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
 

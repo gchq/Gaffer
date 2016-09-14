@@ -107,54 +107,63 @@ public abstract class MapReduceOperation<INPUT, OUTPUT> extends AbstractOperatio
         this.partitioner = partitioner;
     }
 
-    public static class Builder<OP_TYPE extends MapReduceOperation<INPUT, OUTPUT>, INPUT, OUTPUT> extends AbstractOperation.Builder<OP_TYPE, INPUT, OUTPUT> {
+    public abstract static class BaseBuilder<OP_TYPE extends MapReduceOperation<INPUT, OUTPUT>, INPUT, OUTPUT, CHILD_CLASS extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, ?>>
+            extends AbstractOperation.BaseBuilder<OP_TYPE, INPUT, OUTPUT, CHILD_CLASS> {
+        protected BaseBuilder(final OP_TYPE op) {
+            super(op);
+        }
+
+        public CHILD_CLASS inputPaths(final List<String> inputPaths) {
+            op.setInputPaths(inputPaths);
+            return self();
+        }
+
+        public CHILD_CLASS addInputPaths(final List<String> inputPaths) {
+            op.addInputPaths(inputPaths);
+            return self();
+        }
+
+        public CHILD_CLASS addInputPath(final String inputPath) {
+            op.addInputPath(inputPath);
+            return self();
+        }
+
+        public CHILD_CLASS outputPath(final String outputPath) {
+            op.setOutputPath(outputPath);
+            return self();
+        }
+
+        public CHILD_CLASS jobInitialiser(final JobInitialiser jobInitialiser) {
+            op.setJobInitialiser(jobInitialiser);
+            return self();
+        }
+
+        public CHILD_CLASS reducers(final Integer numReduceTasks) {
+            op.setNumReduceTasks(numReduceTasks);
+            return self();
+        }
+
+        public CHILD_CLASS mappers(final Integer numMapTasks) {
+            op.setNumMapTasks(numMapTasks);
+            return self();
+        }
+
+        public CHILD_CLASS partitioner(final Class<? extends Partitioner> partitioner) {
+            op.setPartitioner(partitioner);
+            return self();
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends MapReduceOperation<INPUT, OUTPUT>, INPUT, OUTPUT>
+        extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, Builder<OP_TYPE, INPUT, OUTPUT>> {
+
         protected Builder(final OP_TYPE op) {
             super(op);
         }
 
-        protected Builder<OP_TYPE, INPUT, OUTPUT> inputPaths(final List<String> inputPaths) {
-            op.setInputPaths(inputPaths);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> addInputPaths(final List<String> inputPaths) {
-            op.addInputPaths(inputPaths);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> addInputPath(final String inputPath) {
-            op.addInputPath(inputPath);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> outputPath(final String outputPath) {
-            op.setOutputPath(outputPath);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> jobInitialiser(final JobInitialiser jobInitialiser) {
-            op.setJobInitialiser(jobInitialiser);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> reducers(final Integer numReduceTasks) {
-            op.setNumReduceTasks(numReduceTasks);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> mappers(final Integer numMapTasks) {
-            op.setNumMapTasks(numMapTasks);
-            return this;
-        }
-
-        protected Builder<OP_TYPE, INPUT, OUTPUT> partitioner(final Class<? extends Partitioner> partitioner) {
-            op.setPartitioner(partitioner);
-            return this;
-        }
-
         @Override
-        protected Builder<OP_TYPE, INPUT, OUTPUT> option(final String name, final String value) {
-            return (Builder<OP_TYPE, INPUT, OUTPUT>) super.option(name, value);
+        protected Builder<OP_TYPE, INPUT, OUTPUT> self() {
+            return this;
         }
     }
 }

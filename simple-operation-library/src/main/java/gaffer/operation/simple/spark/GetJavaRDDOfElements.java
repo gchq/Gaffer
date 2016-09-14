@@ -17,7 +17,6 @@ package gaffer.operation.simple.spark;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
 import org.apache.spark.api.java.JavaSparkContext;
 
@@ -35,51 +34,31 @@ public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends Abstrac
         setInput(seeds);
     }
 
-    public static class Builder<SEED_TYPE extends ElementSeed>
-            extends AbstractGetJavaRDD.Builder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE> {
+    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
+            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
+
+        public BaseBuilder() {
+            this(new GetJavaRDDOfElements<SEED_TYPE>());
+        }
+
+        public BaseBuilder(final GetJavaRDDOfElements<SEED_TYPE> op) {
+            super(op);
+        }
+    }
+
+    public static final class Builder<SEED_TYPE extends ElementSeed>
+            extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
 
         public Builder() {
-            this(new GetJavaRDDOfElements<SEED_TYPE>());
         }
 
         public Builder(final GetJavaRDDOfElements<SEED_TYPE> op) {
             super(op);
         }
 
-        public Builder<SEED_TYPE> javaSparkContext(final JavaSparkContext javaSparkContext) {
-            super.javaSparkContext(javaSparkContext);
-            return this;
-        }
-
-        public Builder<SEED_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        public Builder<SEED_TYPE> seeds(final CloseableIterable<SEED_TYPE> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        public Builder<SEED_TYPE> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        public Builder<SEED_TYPE> setIncludeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
-            return this;
-        }
-
-        public Builder<SEED_TYPE> setIncludeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
         @Override
-        public GetJavaRDDOfElements<SEED_TYPE> build() {
-            return super.build();
+        protected Builder self() {
+            return this;
         }
     }
-
 }
