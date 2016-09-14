@@ -42,15 +42,16 @@ An example can be seen in graphql.gaffer.GrafferQlTest.
         .build();
         
 For each request/operation chain you wish to run, do the following
-1. Construct a User to act as
+
+1. Construct a User
 
     User user = new User.Builder()
         .userId("me")
         .dataAuth("see_everything")
                 
 2. Build a context for GrafferQL to use, this requires
-  a. The gaffer.graph.Gaffer graph
-  b. The gaffer.user.User
+a. The gaffer.graph.Gaffer graph
+b. The gaffer.user.User
 
     GrafferQLContext context = new GrafferQLContext.Builder()
         .graph(graph) // will be same value for all requests to this graph
@@ -83,28 +84,30 @@ In a GrafferQL schema, Edges, Entities, Vertices and Properties are all treated 
 
 This allows you to hop from a property that happens to be the same data type as a vertex to another Entity.
 
-E.g for a schema that contains the following
-Vertex Type: userId.string
-Entity Type: User (with vertex of userId.string)
-  property: name (name.string)
-Entity: FilmReview (with vertex of filmId.string)
-  Property: userId (userId.string)
+E.g for the films example schema
   
-I can write a query
+I can write a query that returns the vertex value, certificate and name of a film
 
-    {FilmReview(vertex:"filmA"): {userId{User{name{value}}}}}
+    {film(vertex:"filmC"){vertex{value} certificate{value} name{value}}}
 
-This shows me jumping from a property (Review.userId) to an Entity (User).
+This shows me jumping from Person (Entity) along Viewing (Edge) to a Film (Entity)
+picking up the startTime, and film name.
 
-The flip side of this is that every property must be dereferenced with {value} to read the value.
-So to see the name and certificate of a film you have to write
+    {person(vertex:"user01"){vertex{viewing{startTime{value} destination{film{name{value}}}}}}}
 
-    {film(vertex:"filmA"){name{value} certificate{value}}}
-  
+Why do the properties need to be referenced by {value}? Some properties are of types that are also
+used as vertices. For example a film review has a property called userId. But because I used the GraphQLObject type
+for the vertex as the property I can hop out from that property value to Entities attached to that vertex.
+
+This query shows me jumping from review (entity) -> vertex -> film -> name.value
+                                                 -> userId -> person -> name.value
+
+    {review(vertex:"filmA"){vertex{film{name{value}}} userId{person{name{value}}}}}
+
 Queries can start at any Element (Entity or Edge) and must be given the appropriate vertexes to work with.
 For instance, to start a query at an Entity you must provide a value for 'vertex'.
 
-    {Film(vertex:"filmA"):{name{value}}}
+    {film(vertex:"filmA"):{name{value}}}
   
 To get Edges you must provide either
 1. The source vertex as 'source'
@@ -112,12 +115,10 @@ To get Edges you must provide either
 3. Both 'source' and 'destination'
 4. Either source or destination as 'vertex'
 
-E.g (assuming FriendsWith is directional)
-
-    {FriendsWith(source:"user01"){friendsSince}} // Anybody that user01 is friends with
-    {FriendsWith(destination:"user03"){friendsSince}} // Anybody who is friends with user03
-    {Viewing(source:"user01", destination:"user03"){friendsSince}} // search for a specific relationship
-    {Viewing(vertex:"user02"){friendsSince}} // effectively a bi-directional search on user02
+    {viewing(source:"user01"){friendsSince}} // Anybody viewing by user01
+    {viewing(destination:"filmB"){friendsSince}} // Any viewing of filmA
+    {viewing(source:"user03", destination:"filmC"){friendsSince}} // search for a specific relationship
+    {viewing(vertex:"user04"){startTime}} // effectively a bi-directional search on user02
   
 Performance
 ------------------
