@@ -104,15 +104,9 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
 
     public static final class Builder<ELEMENT_SEED extends ElementSeed>
             extends BaseBuilder<ELEMENT_SEED, Builder<ELEMENT_SEED>> {
-
         @Override
         protected Builder<ELEMENT_SEED> self() {
             return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> limitResults(final Integer resultLimit) {
-            return (Builder<ELEMENT_SEED>) super.limitResults(resultLimit);
         }
     }
 }

@@ -17,8 +17,8 @@ package gaffer.accumulostore.operation.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import gaffer.operation.VoidInput;
-import gaffer.operation.simple.hdfs.operation.MapReduceOperation;
 import gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator;
+import gaffer.operation.simple.hdfs.operation.MapReduceOperation;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 
@@ -128,7 +128,6 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         @Override
         protected Builder self() {
             return this;

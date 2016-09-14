@@ -74,6 +74,7 @@ public class GetAllEdges extends GetAllElements<Edge> {
 
     public static final class Builder extends BaseBuilder<Builder> {
         public Builder() {
+            this(new GetAllEdges());
         }
 
         public Builder(final GetAllEdges op) {

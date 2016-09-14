@@ -96,7 +96,6 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         @Override
         protected Builder self() {
             return this;

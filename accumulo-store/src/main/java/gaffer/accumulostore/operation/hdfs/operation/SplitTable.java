@@ -53,7 +53,6 @@ public class SplitTable extends AbstractOperation<String, Void> implements VoidO
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         @Override
         protected Builder self() {
             return this;

@@ -62,7 +62,6 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void>
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         @Override
         protected Builder self() {
             return this;

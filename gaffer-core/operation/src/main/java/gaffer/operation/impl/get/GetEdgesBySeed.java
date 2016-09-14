@@ -80,15 +80,9 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         @Override
         protected Builder self() {
             return this;
-        }
-
-        @Override
-        public Builder limitResults(final Integer resultLimit) {
-            return (Builder) super.limitResults(resultLimit);
         }
     }
 }

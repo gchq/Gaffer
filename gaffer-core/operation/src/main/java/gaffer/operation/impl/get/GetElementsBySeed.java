@@ -91,16 +91,11 @@ public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exten
     }
 
     public static final class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
+            extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
 
         @Override
         protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
             return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> limitResults(final Integer resultLimit) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }

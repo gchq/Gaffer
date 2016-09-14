@@ -47,21 +47,15 @@ public class GetElementsBetweenSets<ELEMENT_TYPE extends Element>
             extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetElementsBetweenSets<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE, CHILD_CLASS> {
 
         public BaseBuilder() {
-            super(new GetElementsBetweenSets());
+            super(new GetElementsBetweenSets<ELEMENT_TYPE>());
         }
     }
 
     public static final class Builder<ELEMENT_TYPE extends Element>
             extends BaseBuilder<ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
-
         @Override
         protected Builder<ELEMENT_TYPE> self() {
             return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
-            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }

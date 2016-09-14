@@ -19,7 +19,8 @@ import org.apache.spark.SparkContext;
 
 public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
 
-    public GetRDDOfAllElements() { }
+    public GetRDDOfAllElements() {
+    }
 
     public GetRDDOfAllElements(final SparkContext sparkContext) {
         setSparkContext(sparkContext);
@@ -38,7 +39,6 @@ public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         public Builder() {
         }
 
