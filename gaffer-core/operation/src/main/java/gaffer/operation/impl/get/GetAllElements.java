@@ -90,54 +90,21 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
         }
     }
 
-    public static class Builder<ELEMENT_TYPE extends Element>
-            extends GetElements.Builder<GetAllElements<ELEMENT_TYPE>, ElementSeed, ELEMENT_TYPE> {
-        public Builder() {
-            this(new GetAllElements<ELEMENT_TYPE>());
-        }
-
-        public Builder(final GetAllElements<ELEMENT_TYPE> op) {
+    public abstract static class BaseBuilder<OP_TYPE extends GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<OP_TYPE, ELEMENT_TYPE, ?>>
+            extends GetElements.BaseBuilder<OP_TYPE, ElementSeed, ELEMENT_TYPE, CHILD_CLASS> {
+        public BaseBuilder(final OP_TYPE op) {
             super(op);
         }
+    }
+
+    public static final class Builder<ELEMENT_TYPE extends Element> extends BaseBuilder<GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
+        public Builder() {
+            super(new GetAllElements<ELEMENT_TYPE>());
+        }
 
         @Override
-        public Builder<ELEMENT_TYPE> includeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
+        protected Builder<ELEMENT_TYPE> self() {
             return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
-            return (Builder<ELEMENT_TYPE>) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
-            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }

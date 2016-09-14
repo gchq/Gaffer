@@ -44,24 +44,26 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void>
         this.failurePath = failurePath;
     }
 
-    public static class Builder extends AbstractOperation.Builder<ImportAccumuloKeyValueFiles, String, Void> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<ImportAccumuloKeyValueFiles, String, Void, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new ImportAccumuloKeyValueFiles());
         }
 
-        public Builder inputPath(final String inputPath) {
+        public CHILD_CLASS inputPath(final String inputPath) {
             op.setInputPath(inputPath);
-            return this;
+            return self();
         }
 
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
-
-        public Builder failurePath(final String failurePath) {
+        public CHILD_CLASS failurePath(final String failurePath) {
             op.setFailurePath(failurePath);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
             return this;
         }
     }

@@ -18,7 +18,6 @@ package gaffer.operation.impl.add;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractValidatable;
 import gaffer.operation.VoidOutput;
 
@@ -60,50 +59,16 @@ public class AddElements extends AbstractValidatable<Void> implements VoidOutput
         super(elements);
     }
 
-    public static class Builder extends AbstractValidatable.Builder<AddElements, Void> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractValidatable.BaseBuilder<AddElements, Void, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new AddElements());
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder elements(final Element... elements) {
-            super.elements(elements);
-            return this;
-        }
-
-        @Override
-        public Builder elements(final Iterable<Element> elements) {
-            super.elements(elements);
-            return this;
-        }
-
-        @Override
-        public Builder elements(final CloseableIterable<Element> elements) {
-            super.elements(elements);
-            return this;
-        }
-
-        @Override
-        public Builder skipInvalidElements(final boolean skipInvalidElements) {
-            super.skipInvalidElements(skipInvalidElements);
-            return this;
-        }
-
-        @Override
-        public Builder validate(final boolean validate) {
-            super.validate(validate);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

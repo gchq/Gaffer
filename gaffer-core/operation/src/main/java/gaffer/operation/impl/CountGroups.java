@@ -97,9 +97,10 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
         setInput(new WrappedCloseableIterable<>(elements));
     }
 
-    public static class Builder extends AbstractOperation.Builder<CountGroups, CloseableIterable<Element>, GroupCounts> {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<CountGroups, CloseableIterable<Element>, GroupCounts, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new CountGroups());
         }
 
@@ -108,9 +109,9 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
          * @return this Builder
          * @see CountGroups#setElements(Iterable)
          */
-        public Builder elements(final Iterable<Element> elements) {
+        public CHILD_CLASS elements(final Iterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
         }
 
         /**
@@ -118,9 +119,9 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
          * @return this Builder
          * @see CountGroups#setElements(CloseableIterable)
          */
-        public Builder elements(final CloseableIterable<Element> elements) {
+        public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
         }
 
         /**
@@ -128,14 +129,15 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
          * @return this Builder
          * @see CountGroups#setLimit(Integer)
          */
-        public Builder limit(final Integer limit) {
+        public CHILD_CLASS limit(final Integer limit) {
             op.setLimit(limit);
-            return this;
+            return self();
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

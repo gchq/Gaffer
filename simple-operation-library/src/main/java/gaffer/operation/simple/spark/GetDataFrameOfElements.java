@@ -49,29 +49,39 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
         return group;
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetDataFrameOfElements, Void, Dataset<Row>> {
+    public abstract static class BaseBuilder <CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetOperation.BaseBuilder<GetDataFrameOfElements, Void, Dataset<Row>, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             this(new GetDataFrameOfElements());
+        }
+
+        public BaseBuilder(final GetDataFrameOfElements op) {
+            super(op);
+        }
+
+        public CHILD_CLASS sqlContext(final SQLContext sqlContext) {
+            op.setSqlContext(sqlContext);
+            return self();
+        }
+
+        public CHILD_CLASS group(final String group) {
+            op.setGroup(group);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
         }
 
         public Builder(final GetDataFrameOfElements op) {
             super(op);
         }
 
-        public Builder sqlContext(final SQLContext sqlContext) {
-            op.setSqlContext(sqlContext);
-            return this;
-        }
-
-        public Builder group(final String group) {
-            op.setGroup(group);
-            return this;
-        }
-
         @Override
-        public GetDataFrameOfElements build() {
-            return super.build();
+        protected Builder self() {
+            return this;
         }
     }
 }

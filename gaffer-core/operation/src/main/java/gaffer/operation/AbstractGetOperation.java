@@ -198,11 +198,17 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         this.resultLimit = resultLimit;
     }
 
-    public static class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
-            extends AbstractOperation.Builder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE> {
+    public abstract static class BaseBuilder<
+            OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>,
+            SEED_TYPE,
+            RESULT_TYPE,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, ?>
+            >
+            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE, CHILD_CLASS> {
+
         private List<SEED_TYPE> seeds;
 
-        protected Builder(final OP_TYPE op) {
+        protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
 
@@ -227,12 +233,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @param newSeeds an {@link java.lang.Iterable} of SEED_TYPE to set on the operation.
          * @return this Builder
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
+        public CHILD_CLASS seeds(final Iterable<SEED_TYPE> newSeeds) {
             if (null != seeds) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
             op.setSeeds(newSeeds);
-            return this;
+            return self();
         }
 
         /**
@@ -242,12 +248,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @param newSeeds an {@link CloseableIterable} of SEED_TYPE to set on the operation.
          * @return this Builder
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final CloseableIterable<SEED_TYPE> newSeeds) {
+        public CHILD_CLASS seeds(final CloseableIterable<SEED_TYPE> newSeeds) {
             if (null != seeds) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
             op.setSeeds(newSeeds);
-            return this;
+            return self();
         }
 
         /**
@@ -257,7 +263,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @param seed a single SEED_TYPE to add to a {@link java.util.LinkedList} of seeds on the operation.
          * @return this Builder
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> addSeed(final SEED_TYPE seed) {
+        public CHILD_CLASS addSeed(final SEED_TYPE seed) {
             if (null != op.getSeeds()) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
@@ -265,7 +271,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
                 seeds = new LinkedList<>();
             }
             seeds.add(seed);
-            return this;
+            return self();
         }
 
         /**
@@ -273,9 +279,9 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @return this Builder
          * @see gaffer.operation.GetOperation#setIncludeEntities(boolean)
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> includeEntities(final boolean includeEntities) {
+        public CHILD_CLASS includeEntities(final boolean includeEntities) {
             op.setIncludeEntities(includeEntities);
-            return this;
+            return self();
         }
 
         /**
@@ -283,9 +289,9 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @return this Builder
          * @see gaffer.operation.GetOperation#setIncludeEdges(IncludeEdgeType)
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
+        public CHILD_CLASS includeEdges(final IncludeEdgeType includeEdgeType) {
             op.setIncludeEdges(includeEdgeType);
-            return this;
+            return self();
         }
 
         /**
@@ -293,9 +299,9 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @return this Builder
          * @see gaffer.operation.GetOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
+        public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
             op.setIncludeIncomingOutGoing(inOutType);
-            return this;
+            return self();
         }
 
         /**
@@ -303,14 +309,14 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @return this Builder
          * @see gaffer.operation.GetOperation#setDeduplicate(boolean)
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> deduplicate(final boolean deduplicate) {
+        public CHILD_CLASS deduplicate(final boolean deduplicate) {
             op.setDeduplicate(deduplicate);
-            return this;
+            return self();
         }
 
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> limitResults(final Integer resultLimit) {
+        public CHILD_CLASS limitResults(final Integer resultLimit) {
             op.setResultLimit(resultLimit);
-            return this;
+            return self();
         }
 
         /**
@@ -318,8 +324,21 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @return this Builder
          * @see gaffer.operation.GetOperation#setPopulateProperties(boolean)
          */
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> populateProperties(final boolean populateProperties) {
+        public CHILD_CLASS populateProperties(final boolean populateProperties) {
             op.setPopulateProperties(populateProperties);
+            return self();
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
+            extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE>> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> self() {
             return this;
         }
     }
