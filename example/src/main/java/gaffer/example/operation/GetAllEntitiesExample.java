@@ -56,7 +56,7 @@ public class GetAllEntitiesExample extends OperationExample {
         return runExample(new GetAllEntities.Builder()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())

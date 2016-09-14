@@ -63,7 +63,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(1))
                                         .build())

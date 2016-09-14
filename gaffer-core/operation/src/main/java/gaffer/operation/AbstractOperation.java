@@ -81,19 +81,32 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
 
     @Override
     public boolean validate(final Edge edge) {
-        return validateFilter(edge);
+        return validatePreAggregationFilter(edge) && validatePostAggregationFilter(edge) && validatePostTransformFilter(edge);
     }
 
     @Override
     public boolean validate(final Entity entity) {
-        return validateFilter(entity);
+        return validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
     }
 
     @Override
-    public boolean validateFilter(final Element element) {
+    public boolean validatePreAggregationFilter(final Element element) {
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getFilter() || elementDef.getFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
     }
+
+    @Override
+    public boolean validatePostAggregationFilter(final Element element) {
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
+    }
+
+    @Override
+    public boolean validatePostTransformFilter(final Element element) {
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
+    }
+
 
     @Override
     public INPUT getInput() {

@@ -46,7 +46,7 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
         for (final Edge edge : store.getEdges()) {
             if (operation.validateFlags(edge)) {
                 extractOtherEndOfSeededEdge(edge, operation, reuseableTuple);
-                if ((null != reuseableTuple[0] || null != reuseableTuple[1]) && operation.validateFilter(edge)) {
+                if ((null != reuseableTuple[0] || null != reuseableTuple[1]) && operation.validatePreAggregationFilter(edge)) {
                     if (null != reuseableTuple[0]) {
                         result.add(reuseableTuple[0]);
                     }
