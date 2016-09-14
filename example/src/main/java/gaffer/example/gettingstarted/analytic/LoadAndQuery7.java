@@ -18,7 +18,7 @@ package gaffer.example.gettingstarted.analytic;
 import com.google.common.collect.Lists;
 import gaffer.data.AlwaysValid;
 import gaffer.data.IsEdgeValidator;
-import gaffer.data.element.Element;
+import gaffer.data.element.Edge;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
@@ -38,23 +38,20 @@ import gaffer.operation.impl.export.UpdateExport;
 import gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.operation.impl.generate.GenerateObjects;
-import gaffer.operation.impl.get.GetEntitiesBySeed;
-import gaffer.operation.impl.get.GetRelatedElements;
+import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.user.User;
-import java.util.List;
 
 public class LoadAndQuery7 extends LoadAndQuery {
+    public LoadAndQuery7() {
+        super("Subgraphs");
+    }
 
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery7().run();
     }
 
-    public Iterable<Element> run() throws OperationException {
+    public Iterable<Edge> run() throws OperationException {
         final User user = new User("user01");
-
-        setDataFileLocation("/example/gettingstarted/7/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/7/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create a graph using our schema and store properties
         final Graph graph = new Graph.Builder()
@@ -62,19 +59,13 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 .storeProperties(getStoreProperties())
                 .build();
 
-        // Create data generator
-        final DataGenerator7 dataGenerator = new DataGenerator7();
-
-        // Load data into memory
-        final List<String> data = DataUtils.loadData(getData());
-
         //add the edges to the graph using an operation chain consisting of:
         //generateElements - generating edges from the data (note these are directed edges)
         //addElements - add the edges to the graph
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .generator(dataGenerator)
-                        .objects(data)
+                        .generator(new DataGenerator7())
+                        .objects(DataUtils.loadData(getData()))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -85,18 +76,12 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // Create some starting seeds for the sub graph.
         final Iterable<EntitySeed> seeds = Lists.newArrayList(new EntitySeed("1"));
 
-        // The number of hops around the graph, this is the number of edges to traverse along.
-        final int hops = 2;
-
-        // Create a view to filter out elements.
-        // This view will return all entities with group 'entity' and all edges
-        // with group 'edge' that have a count <= 1
+        // Create a view to return only edges that have a count more than 1
         // Note we could have used a different view for each hop in order to
         // specify the edges we wish to hop down or to attempt to prevent caching
-        // duplicate edges and entities.
+        // duplicate edges.
         final View view = new View.Builder()
-                .entity("entity")
-                .edge("edge", new ViewElementDefinition.Builder()
+                .edge("data", new ViewElementDefinition.Builder()
                         .filter(new ElementFilter.Builder()
                                 .select("count")
                                 .execute(new IsMoreThan(1))
@@ -105,22 +90,6 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 .build();
 
         // Create a sub graph using an operation chain
-        final OperationChain<Iterable<Element>> subGraphOpChain = createSubGraphOpChain(seeds, hops, view);
-
-        // Execute the sub graph operation chain
-        final Iterable<Element> subGraph = graph.execute(subGraphOpChain, user);
-        log("\nSub graph:");
-        for (final Element result : subGraph) {
-            log(result.toString());
-        }
-
-        return subGraph;
-    }
-
-    private OperationChain<Iterable<Element>> createSubGraphOpChain(
-            final Iterable<EntitySeed> seeds, final int hops, final View view)
-            throws OperationException {
-
         // This generator will extract just the destination vertices from edges
         // and skip any entities.
         final EntitySeedExtractor destVerticesExtractor = new EntitySeedExtractor(
@@ -130,41 +99,35 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 IdentifierType.DESTINATION);
 
         // Start the operation chain by initialising the export to use a set.
-        // Then do a get related elements with the given seeds.
+        // Then do a get related edges with the given seeds.
         // Then update the export with the results
-        OperationChain.TypelessBuilder builder = new OperationChain.Builder()
+        // Between each hop we need to extract the destination vertices of the
+        // previous edges.
+        // Finally finish off by returning all the edges in the export.
+        final OperationChain opChain = new OperationChain.Builder()
                 .first(new InitialiseSetExport())
-                .then(new GetRelatedElements.Builder<EntitySeed, Element>()
+                .then(new GetRelatedEdges.Builder<EntitySeed>()
                         .seeds(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
-                .then(new UpdateExport());
-
-        // For each additional hop, extract the destination vertices of the
-        // previous edges. Then again get the related elements to these vertices.
-        // Then update the export with the results.
-        for (int i = 1; i < hops; i++) {
-            builder = builder
-                    .then(new GenerateObjects<>(destVerticesExtractor))
-                    .then(new GetRelatedElements.Builder<EntitySeed, Element>()
-                            .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                            .view(view)
-                            .build())
-                    .then(new UpdateExport());
-        }
-
-        // Finally finish off by getting the entities at the destination of the
-        // previous edges.
-        // Update the export.
-        // Then return all the elements in the export.
-        final OperationChain opChain = builder
-                .then(new GenerateObjects<>(destVerticesExtractor))
-                .then(new GetEntitiesBySeed())
+                .then(new UpdateExport())
+                .then(new GenerateObjects<Edge, EntitySeed>(destVerticesExtractor))
+                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                        .inOutType(IncludeIncomingOutgoingType.OUTGOING)
+                        .view(view)
+                        .build())
                 .then(new UpdateExport())
                 .then(new FetchExport())
                 .build();
 
-        return (OperationChain<Iterable<Element>>) opChain;
+        // Execute the sub graph operation chain
+        final Iterable<Edge> subGraph = (Iterable<Edge>) graph.execute(opChain, user);
+        log("\nSub graph:");
+        for (final Edge edge : subGraph) {
+            log("SUB_GRAPH", edge.toString());
+        }
+
+        return subGraph;
     }
 }

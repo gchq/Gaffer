@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.exception.SerialisationException;
 import gaffer.graph.Graph;
@@ -46,7 +47,7 @@ public class LoadAndQuery5Test {
         final LoadAndQuery5 query = new LoadAndQuery5();
 
         // When
-        final Iterable<Edge> results = query.run();
+        final CloseableIterable<Edge> results = query.run();
 
         // Then
         verifyResults(results);
@@ -73,13 +74,13 @@ public class LoadAndQuery5Test {
 
         // When
         graph.execute(addElements, basicUser); // Execute the add operation chain on the graph
-        final Iterable<Edge> results = graph.execute(getRelatedEdges, publicUser); // Execute the query operation on the graph.
+        final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, publicUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<Edge> resultsItr) {
+    private void verifyResults(final CloseableIterable<Edge> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .group(GROUP)

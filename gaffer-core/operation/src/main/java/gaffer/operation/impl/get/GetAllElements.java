@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.data.ElementSeed;
@@ -54,19 +55,26 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
-    public void setInput(final Iterable<ElementSeed> input) {
+    public void setSeeds(final CloseableIterable<ElementSeed> seeds) {
+        if (null != seeds) {
+            throw new IllegalArgumentException("This operation does not allow seeds to be set");
+        }
+    }
+
+    @Override
+    public void setInput(final CloseableIterable<ElementSeed> input) {
         if (null != input) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
         }
     }
 
     @Override
-    public Iterable<ElementSeed> getSeeds() {
+    public CloseableIterable<ElementSeed> getSeeds() {
         return null;
     }
 
     @Override
-    public Iterable<ElementSeed> getInput() {
+    public CloseableIterable<ElementSeed> getInput() {
         return null;
     }
 
@@ -125,6 +133,11 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
         public Builder<ELEMENT_TYPE> option(final String name, final String value) {
             super.option(name, value);
             return this;
+        }
+
+        @Override
+        public Builder<ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }

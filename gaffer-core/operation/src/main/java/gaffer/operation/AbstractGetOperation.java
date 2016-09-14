@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
@@ -29,19 +31,24 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
-        extends AbstractOperation<Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
+        extends AbstractOperation<CloseableIterable<SEED_TYPE>, RESULT_TYPE> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
     private boolean includeEntities = true;
     private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
     private boolean populateProperties = true;
     private boolean deduplicate = false;
+    private Integer resultLimit;
 
     protected AbstractGetOperation() {
         super();
     }
 
     protected AbstractGetOperation(final Iterable<SEED_TYPE> seeds) {
+        this(new WrappedCloseableIterable<>(seeds));
+    }
+
+    protected AbstractGetOperation(final CloseableIterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
@@ -50,6 +57,10 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     protected AbstractGetOperation(final View view, final Iterable<SEED_TYPE> seeds) {
+        this(view, new WrappedCloseableIterable<SEED_TYPE>(seeds));
+    }
+
+    protected AbstractGetOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
@@ -76,18 +87,22 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     @Override
-    public Iterable<SEED_TYPE> getSeeds() {
+    public CloseableIterable<SEED_TYPE> getSeeds() {
         return getInput();
     }
 
-    @Override
     public void setSeeds(final Iterable<SEED_TYPE> seeds) {
+        setSeeds(new WrappedCloseableIterable<>(seeds));
+    }
+
+    @Override
+    public void setSeeds(final CloseableIterable<SEED_TYPE> seeds) {
         setInput(seeds);
     }
 
     @JsonIgnore
     @Override
-    public Iterable<SEED_TYPE> getInput() {
+    public CloseableIterable<SEED_TYPE> getInput() {
         return super.getInput();
     }
 
@@ -100,7 +115,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
 
     @JsonSetter(value = "seeds")
     void setSeedArray(final SEED_TYPE[] seeds) {
-        setInput(Arrays.asList(seeds));
+        setInput(new WrappedCloseableIterable<>(Arrays.asList(seeds)));
     }
 
     @Override
@@ -173,12 +188,36 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         this.deduplicate = deduplicate;
     }
 
+    @Override
+    public Integer getResultLimit() {
+        return resultLimit;
+    }
+
+    @Override
+    public void setResultLimit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
     public static class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
-            extends AbstractOperation.Builder<OP_TYPE, Iterable<SEED_TYPE>, Iterable<RESULT_TYPE>> {
+            extends AbstractOperation.Builder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE> {
         private List<SEED_TYPE> seeds;
 
         protected Builder(final OP_TYPE op) {
             super(op);
+        }
+
+        /**
+         * Builds the operation and returns it.
+         *
+         * @return the built operation.
+         */
+        public OP_TYPE build() {
+            if (null == op.getSeeds()) {
+                if (seeds != null) {
+                    op.setSeeds(seeds);
+                }
+            }
+            return op;
         }
 
         /**
@@ -197,6 +236,21 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
+         * Sets an {@link CloseableIterable} of SEED_TYPE on the operation.
+         * It should not be used in conjunction with addSeed(SEED_TYPE).
+         *
+         * @param newSeeds an {@link CloseableIterable} of SEED_TYPE to set on the operation.
+         * @return this Builder
+         */
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> seeds(final CloseableIterable<SEED_TYPE> newSeeds) {
+            if (null != seeds) {
+                throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
+            }
+            op.setSeeds(newSeeds);
+            return this;
+        }
+
+        /**
          * Adds a single SEED_TYPE to a {@link java.util.LinkedList} of seeds on the operation.
          * It should not be used in conjunction with seeds(Iterable).
          *
@@ -204,16 +258,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          * @return this Builder
          */
         protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> addSeed(final SEED_TYPE seed) {
-            if (null == seeds) {
-                if (null != op.getSeeds()) {
-                    throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
-                }
-                seeds = new LinkedList<>();
-                op.setSeeds(seeds);
-            } else if (seeds != op.getSeeds()) {
+            if (null != op.getSeeds()) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
-
+            if (null == seeds) {
+                seeds = new LinkedList<>();
+            }
             seeds.add(seed);
             return this;
         }
@@ -255,6 +305,11 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
          */
         protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> deduplicate(final boolean deduplicate) {
             op.setDeduplicate(deduplicate);
+            return this;
+        }
+
+        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> limitResults(final Integer resultLimit) {
+            op.setResultLimit(resultLimit);
             return this;
         }
 

@@ -15,18 +15,17 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 
 public class GetAdjacentEntitySeedsExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetAdjacentEntitySeedsExample().run();
     }
 
@@ -34,33 +33,33 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         super(GetAdjacentEntitySeeds.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getAdjacentEntitySeedsFromVertex2(graph);
-        getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2(graph);
-        getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1(graph);
+    public void runExamples() {
+        getAdjacentEntitySeedsFromVertex2();
+        getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2();
+        getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1();
     }
 
-    public Iterable<EntitySeed> getAdjacentEntitySeedsFromVertex2(final Graph graph) throws OperationException {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsFromVertex2() {
         final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetAdjacentEntitySeeds.Builder()
+        return runExample(new GetAdjacentEntitySeeds.Builder()
                 .addSeed(new EntitySeed(2))
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public Iterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2(final Graph graph) throws OperationException {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
         final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetAdjacentEntitySeeds.Builder()
+        return runExample(new GetAdjacentEntitySeeds.Builder()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public Iterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1(final Graph graph) throws OperationException {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
         final String opJava = "new GetAdjacentEntitySeeds.Builder()\n"
                 + "                .addSeed(new EntitySeed(2))\n"
                 + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
@@ -79,7 +78,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetAdjacentEntitySeeds.Builder()
+        return runExample(new GetAdjacentEntitySeeds.Builder()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
@@ -96,6 +95,6 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }

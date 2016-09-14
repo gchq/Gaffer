@@ -21,6 +21,7 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.IsEdgeValidator;
 import gaffer.data.TransformIterable;
 import gaffer.data.element.Edge;
@@ -35,16 +36,16 @@ import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, Iterable<EntitySeed>> {
+public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
 
     @Override
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+    public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
                                             final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public Iterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+    public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
                                             final User user,
                                             final AccumuloStore store)
             throws OperationException {
@@ -72,6 +73,11 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
         @Override
         protected EntitySeed transform(final Element element) {
             return new EntitySeed(((Edge) element).getDestination());
+        }
+
+        @Override
+        public void close() {
+            ((CloseableIterable) super.getInput()).close();
         }
     }
 }

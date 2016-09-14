@@ -35,9 +35,9 @@ import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
-import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
-import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
-import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -48,6 +48,7 @@ import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
@@ -60,7 +61,7 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.StoreException;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
@@ -142,7 +143,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final Iterable<Element> results = store.execute(getBySeed, user);
+        final CloseableIterable<Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
@@ -153,7 +154,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final Iterable<Element> relatedResults = store.execute(getRelated, user);
+        final CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
     }

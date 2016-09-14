@@ -17,6 +17,7 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -28,7 +29,7 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.operation.data.ElementSeed}s.
  */
 public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
+        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
 
     public GetElementsInRanges() {
     }
@@ -50,7 +51,7 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
     }
 
     public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
+            extends AbstractGetOperation.Builder<GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
         public Builder() {
             super(new GetElementsInRanges());
         }
@@ -98,6 +99,11 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
         @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.inOutType(inOutType);
+        }
+
+        @Override
+        public Builder<SEED_TYPE, ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }

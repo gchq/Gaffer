@@ -17,6 +17,7 @@
 package gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -27,6 +28,7 @@ import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.CountGroups;
 import gaffer.operation.impl.Deduplicate;
+import gaffer.operation.impl.Limit;
 import gaffer.operation.impl.Validate;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.export.FetchExport;
@@ -50,6 +52,7 @@ import gaffer.operation.impl.get.GetRelatedEntities;
 import gaffer.serialisation.Serialisation;
 import gaffer.store.operation.handler.CountGroupsHandler;
 import gaffer.store.operation.handler.DeduplicateHandler;
+import gaffer.store.operation.handler.LimitHandler;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.operation.handler.export.FetchExportHandler;
@@ -303,14 +306,14 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetElements}
      */
-    protected abstract OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler();
+    protected abstract OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}. All Stores must implement this.
      *
      * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetAllElements}
      */
-    protected abstract OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler();
+    protected abstract OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.get.GetAdjacentEntitySeeds}.
@@ -318,7 +321,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link gaffer.operation.impl.get.GetAdjacentEntitySeeds}
      */
-    protected abstract OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler();
+    protected abstract OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link gaffer.operation.impl.add.AddElements}. All Stores must implement this.
@@ -359,7 +362,7 @@ public abstract class Store {
 
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
-        final OUTPUT result;
+        OUTPUT result;
         if (null != handler) {
             result = handler.doOperation(operation, context, this);
         } else {
@@ -393,6 +396,7 @@ public abstract class Store {
         addOperationHandler(Validate.class, new ValidateHandler());
         addOperationHandler(Deduplicate.class, new DeduplicateHandler());
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
+        addOperationHandler(Limit.class, new LimitHandler());
 
         // Export
         addOperationHandler(InitialiseSetExport.class, new InitialiseExportHandler());

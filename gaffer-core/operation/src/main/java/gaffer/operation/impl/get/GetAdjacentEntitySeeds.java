@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
@@ -30,11 +31,15 @@ import gaffer.operation.data.EntitySeed;
  * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
  * @see gaffer.operation.GetOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, EntitySeed> {
+public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, CloseableIterable<EntitySeed>> {
     public GetAdjacentEntitySeeds() {
     }
 
     public GetAdjacentEntitySeeds(final Iterable<EntitySeed> seeds) {
+        super(seeds);
+    }
+
+    public GetAdjacentEntitySeeds(final CloseableIterable<EntitySeed> seeds) {
         super(seeds);
     }
 
@@ -43,6 +48,10 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
     }
 
     public GetAdjacentEntitySeeds(final View view, final Iterable<EntitySeed> seeds) {
+        super(view, seeds);
+    }
+
+    public GetAdjacentEntitySeeds(final View view, final CloseableIterable<EntitySeed> seeds) {
         super(view, seeds);
     }
 
@@ -55,13 +64,18 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         return SeedMatchingType.RELATED;
     }
 
-    public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
+    public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>> {
         public Builder() {
             super(new GetAdjacentEntitySeeds());
         }
 
         @Override
         public Builder seeds(final Iterable<EntitySeed> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder seeds(final CloseableIterable<EntitySeed> seeds) {
             super.seeds(seeds);
             return this;
         }
@@ -111,6 +125,11 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         public Builder option(final String name, final String value) {
             super.option(name, value);
             return this;
+        }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
         }
     }
 }

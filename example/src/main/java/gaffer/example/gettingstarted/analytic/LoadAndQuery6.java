@@ -15,6 +15,7 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.example.gettingstarted.generator.DataGenerator6;
 import gaffer.example.gettingstarted.util.DataUtils;
@@ -32,17 +33,16 @@ import gaffer.user.User;
 import java.util.List;
 
 public class LoadAndQuery6 extends LoadAndQuery {
+    public LoadAndQuery6() {
+        super("Operation Chains");
+    }
 
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery6().run();
     }
 
-    public Iterable<String> run() throws OperationException {
+    public CloseableIterable<String> run() throws OperationException {
         final User user = new User("user01");
-
-        setDataFileLocation("/example/gettingstarted/6/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/6/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create a graph using our schema and store properties
         final Graph graph = new Graph.Builder()
@@ -74,7 +74,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         //GetAdjacentEntitySeeds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
         //GetRelatedEdges - get outbound edges
         //GenerateObjects - convert the edges back into comma separated strings
-        final OperationChain<Iterable<String>> opChain =
+        final OperationChain<CloseableIterable<String>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAdjacentEntitySeeds.Builder()
                                 .addSeed(new EntitySeed("1"))
@@ -89,10 +89,10 @@ public class LoadAndQuery6 extends LoadAndQuery {
                         .build();
 
         // Execute the operation chain query
-        final Iterable<String> results = graph.execute(opChain, user);
+        final CloseableIterable<String> results = graph.execute(opChain, user);
         log("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");
         for (String result : results) {
-            log(result);
+            log("RESULT", result);
         }
 
         return results;

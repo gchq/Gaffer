@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-
 import java.io.IOException;
 
 public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlus> {
@@ -40,6 +39,11 @@ public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlu
         typeSer.writeTypePrefixForObject(value, gen);
         _serialise(value, gen);
         typeSer.writeTypeSuffixForObject(value, gen);
+    }
+
+    @Override
+    public Class<HyperLogLogPlus> handledType() {
+        return HyperLogLogPlus.class;
     }
 
     private void _serialise(final HyperLogLogPlus hyperLogLogPlus, final JsonGenerator jsonGenerator) throws IOException {

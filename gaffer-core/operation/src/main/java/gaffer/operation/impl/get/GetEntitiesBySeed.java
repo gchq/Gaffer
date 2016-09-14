@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EntitySeed;
@@ -38,11 +39,19 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
         super(seeds);
     }
 
+    public GetEntitiesBySeed(final CloseableIterable<EntitySeed> seeds) {
+        super(seeds);
+    }
+
     public GetEntitiesBySeed(final View view) {
         super(view);
     }
 
     public GetEntitiesBySeed(final View view, final Iterable<EntitySeed> seeds) {
+        super(view, seeds);
+    }
+
+    public GetEntitiesBySeed(final View view, final CloseableIterable<EntitySeed> seeds) {
         super(view, seeds);
     }
 
@@ -73,6 +82,11 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
             return this;
         }
 
+        public Builder seeds(final CloseableIterable<EntitySeed> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
         @Override
         public Builder addSeed(final EntitySeed seed) {
             super.addSeed(seed);
@@ -95,6 +109,11 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
         public Builder option(final String name, final String value) {
             super.option(name, value);
             return this;
+        }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
         }
     }
 }

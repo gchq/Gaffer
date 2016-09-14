@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.EdgeSeed;
@@ -39,11 +40,19 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         super(seeds);
     }
 
+    public GetEdgesBySeed(final CloseableIterable<EdgeSeed> seeds) {
+        super(seeds);
+    }
+
     public GetEdgesBySeed(final View view) {
         super(view);
     }
 
     public GetEdgesBySeed(final View view, final Iterable<EdgeSeed> seeds) {
+        super(view, seeds);
+    }
+
+    public GetEdgesBySeed(final View view, final CloseableIterable<EdgeSeed> seeds) {
         super(view, seeds);
     }
 
@@ -70,6 +79,11 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
 
         @Override
         public Builder seeds(final Iterable<EdgeSeed> seeds) {
+            super.seeds(seeds);
+            return this;
+        }
+
+        public Builder seeds(final CloseableIterable<EdgeSeed> seeds) {
             super.seeds(seeds);
             return this;
         }
@@ -113,6 +127,11 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         public Builder option(final String name, final String value) {
             super.option(name, value);
             return this;
+        }
+
+        @Override
+        public Builder limitResults(final Integer resultLimit) {
+            return (Builder) super.limitResults(resultLimit);
         }
     }
 }

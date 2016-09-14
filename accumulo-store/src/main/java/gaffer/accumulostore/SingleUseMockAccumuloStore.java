@@ -24,13 +24,12 @@ import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 
 /**
- * An {@link AccumuloStore} that uses an Accumulo {@link  org.apache.accumulo.core.client.mock.MockInstance} to
+ * An {@link AccumuloStore} that uses an Accumulo {@link org.apache.accumulo.core.client.mock.MockInstance} to
  * provide a {@link org.apache.accumulo.core.client.Connector}.
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
  */
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {
-
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {

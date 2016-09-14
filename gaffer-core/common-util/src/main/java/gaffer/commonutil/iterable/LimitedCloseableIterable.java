@@ -16,6 +16,8 @@
 
 package gaffer.commonutil.iterable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
     private final CloseableIterable<T> iterable;
     private final int start;
@@ -38,6 +40,16 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
 
         this.start = start;
         this.end = end;
+    }
+
+    @JsonIgnore
+    public int getStart() {
+        return start;
+    }
+
+    @JsonIgnore
+    public int getEnd() {
+        return end;
     }
 
     @Override

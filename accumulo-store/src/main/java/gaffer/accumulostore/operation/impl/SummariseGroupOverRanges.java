@@ -17,6 +17,7 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -42,9 +43,9 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
     }
 
     public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
+            extends AbstractGetOperation.Builder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
         public Builder() {
-            super(new SummariseGroupOverRanges());
+            super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
         }
 
         @Override
@@ -85,6 +86,11 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
         @Override
         public Builder<SEED_TYPE, ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
             return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.inOutType(inOutType);
+        }
+
+        @Override
+        public Builder<SEED_TYPE, ELEMENT_TYPE> limitResults(final Integer resultLimit) {
+            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }
