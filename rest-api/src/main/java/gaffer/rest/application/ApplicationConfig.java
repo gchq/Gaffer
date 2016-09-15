@@ -16,32 +16,44 @@
 
 package gaffer.rest.application;
 
-import com.wordnik.swagger.jaxrs.JaxrsApiReader;
-import com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider;
-import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
-import com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON;
-import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
+import gaffer.rest.SystemProperty;
+import gaffer.rest.serialisation.RestJsonProvider;
 import gaffer.rest.service.SimpleExamplesService;
 import gaffer.rest.service.SimpleGraphConfigurationService;
 import gaffer.rest.service.SimpleOperationService;
 import gaffer.rest.service.StatusService;
-
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>AbstractApplicationConfig</code> sets up the application resources and singletons.
- * To use this REST API this class should be extended and registered using the class annotation
- * ApplicationPath("your application path")
+ * An <code>ApplicationConfig</code> sets up the application resources and singletons.
  */
-public abstract class AbstractApplicationConfig extends Application {
+public class ApplicationConfig extends Application {
     protected final Set<Object> singletons = new HashSet<>();
     protected final Set<Class<?>> resources = new HashSet<>();
 
-    public AbstractApplicationConfig() {
+    public ApplicationConfig() {
         addSystemResources();
         addServices();
+        setupBeanConfig();
+    }
+
+    protected void setupBeanConfig() {
+        BeanConfig beanConfig = new BeanConfig();
+        beanConfig.setSchemes(new String[]{"http"});
+        beanConfig.setHost(System.getProperty(SystemProperty.HOST_AND_PORT, SystemProperty.HOST_AND_PORT_DEFAULT));
+        String baseUrl = System.getProperty(SystemProperty.BASE_URL, SystemProperty.BASE_URL_DEFAULT);
+        if (!baseUrl.startsWith("/")) {
+            baseUrl = "/" + baseUrl;
+        }
+        beanConfig.setBasePath(baseUrl);
+        beanConfig.setVersion(System.getProperty(SystemProperty.VERSION, SystemProperty.CORE_VERSION));
+        beanConfig.setResourcePackage(System.getProperty(SystemProperty.SERVICES_PACKAGE_PREFIX, SystemProperty.SERVICES_PACKAGE_PREFIX_DEFAULT));
+        beanConfig.setScan(true);
     }
 
     protected void addServices() {
@@ -52,12 +64,9 @@ public abstract class AbstractApplicationConfig extends Application {
     }
 
     protected void addSystemResources() {
-        resources.add(JaxrsApiReader.class);
         resources.add(ApiListingResource.class);
-        resources.add(ApiDeclarationProvider.class);
-        resources.add(ApiListingResourceJSON.class);
-        resources.add(ResourceListingProvider.class);
-        resources.add(ApiListingResourceJSON.class);
+        resources.add(SwaggerSerializers.class);
+        resources.add(RestJsonProvider.class);
     }
 
     @Override

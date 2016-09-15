@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 function addExampleButtons(){
-$("#resource_graph\\/doOperation .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
+$("#resource_graphdoOperation .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
 }
 
 function loadExample(exampleButton){
@@ -35,7 +35,7 @@ function log() {
 
 function init(){
       window.swaggerUi = new SwaggerUi({
-      url:"/example-rest/v1/api-docs/",
+      url:"/rest/v1/swagger.json",
       dom_id:"swagger-ui-container",
       supportedSubmitMethods: ['get','post','put','delete'],
       onComplete: function(swaggerApi, swaggerUi){
