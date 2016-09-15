@@ -184,7 +184,7 @@ class ElementDefinition(ToJson):
         super().__init__()
         self.group = group
         self.transientProperties = transient_properties
-        self.filterFunctions = filter_functions
+        self.preAggregationFilterFunctions = filter_functions
         self.transformFunctions = transform_functions
         if group_by is None:
             group_by = []
@@ -197,11 +197,11 @@ class ElementDefinition(ToJson):
             for prop in self.transientProperties:
                 props[prop.name] = prop.class_name
             element_def['transientProperties'] = props
-        if self.filterFunctions is not None:
+        if self.preAggregationFilterFunctions is not None:
             funcs = []
-            for func in self.filterFunctions:
+            for func in self.preAggregationFilterFunctions:
                 funcs.append(func.toJson())
-            element_def['filterFunctions'] = funcs
+            element_def['preAggregationFilterFunctions'] = funcs
         if self.transformFunctions is not None:
             funcs = []
             for func in self.transformFunctions:
