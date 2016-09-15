@@ -40,19 +40,21 @@ public class SplitTable extends AbstractOperation<String, Void> implements VoidO
         this.inputPath = inputPath;
     }
 
-    public static class Builder extends AbstractOperation.Builder<SplitTable, String, Void> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<SplitTable, String, Void, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new SplitTable());
         }
 
-        public Builder inputPath(final String inputPath) {
+        public CHILD_CLASS inputPath(final String inputPath) {
             op.setInputPath(inputPath);
-            return this;
+            return self();
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

@@ -40,11 +40,14 @@ import java.util.Set;
 
 /**
  * A <code>ViewElementDefinition</code> is an {@link ElementDefinition} containing
- * transient properties, an {@link ElementTransformer} and a {@link ElementFilter}.
+ * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}'s.
  */
 public class ViewElementDefinition implements ElementDefinition {
     private ElementTransformer transformer;
-    private ElementFilter filter;
+    private ElementFilter preAggregationFilter;
+    private ElementFilter postAggregationFilter;
+    private ElementFilter postTransformFilter;
+
 
     /**
      * This field overrides the group by properties in the schema.
@@ -152,26 +155,72 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
-    public ElementFilter getFilter() {
-        return filter;
+    public ElementFilter getPreAggregationFilter() {
+        return preAggregationFilter;
     }
 
-    public void setFilter(final ElementFilter filter) {
-        this.filter = filter;
+    public void setPreAggregationFilter(final ElementFilter preAggregationFilter) {
+        this.preAggregationFilter = preAggregationFilter;
     }
 
-    @JsonGetter("filterFunctions")
-    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getFilterFunctions() {
-        return null != filter ? filter.getFunctions() : null;
+    @JsonGetter("preAggregationFilterFunctions")
+    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPreAggregationFilterFunctions() {
+        return null != preAggregationFilter ? preAggregationFilter.getFunctions() : null;
     }
 
-    @JsonSetter("filterFunctions")
-    public void addFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
-        if (null == filter) {
-            filter = new ElementFilter();
+    @JsonSetter("preAggregationFilterFunctions")
+    public void addPreAggregationElementFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+        if (null == preAggregationFilter) {
+            preAggregationFilter = new ElementFilter();
         }
 
-        filter.addFunctions(functions);
+        preAggregationFilter.addFunctions(functions);
+    }
+
+    @JsonIgnore
+    public ElementFilter getPostAggregationFilter() {
+        return postAggregationFilter;
+    }
+
+    public void setPostAggregationFilter(final ElementFilter postAggregationFilter) {
+        this.postAggregationFilter = postAggregationFilter;
+    }
+
+    @JsonGetter("postAggregationFilterFunctions")
+    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPostAggregationFilterFunctions() {
+        return null != postAggregationFilter ? postAggregationFilter.getFunctions() : null;
+    }
+
+    @JsonSetter("postAggregationFilterFunctions")
+    public void addPostAggregationElementFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+        if (null == postAggregationFilter) {
+            postAggregationFilter = new ElementFilter();
+        }
+
+        postAggregationFilter.addFunctions(functions);
+    }
+
+    @JsonIgnore
+    public ElementFilter getPostTransformFilter() {
+        return postTransformFilter;
+    }
+
+    public void setPostTransformFilter(final ElementFilter postFilter) {
+        this.postTransformFilter = postFilter;
+    }
+
+    @JsonGetter("postTransformFilterFunctions")
+    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPostTransformFilterFunctions() {
+        return null != postTransformFilter ? postTransformFilter.getFunctions() : null;
+    }
+
+    @JsonSetter("postTransformFilterFunctions")
+    public void addPostTransformFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+        if (null == postTransformFilter) {
+            postTransformFilter = new ElementFilter();
+        }
+
+        postTransformFilter.addFunctions(functions);
     }
 
     @JsonIgnore
@@ -206,8 +255,18 @@ public class ViewElementDefinition implements ElementDefinition {
             return this;
         }
 
-        public Builder filter(final ElementFilter filter) {
-            getElementDef().setFilter(filter);
+        public Builder preAggregationFilter(final ElementFilter filter) {
+            getElementDef().setPreAggregationFilter(filter);
+            return this;
+        }
+
+        public Builder postAggregationFilter(final ElementFilter filter) {
+            getElementDef().setPostAggregationFilter(filter);
+            return this;
+        }
+
+        public Builder postTransformFilter(final ElementFilter postFilter) {
+            getElementDef().setPostTransformFilter(postFilter);
             return this;
         }
 

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import gaffer.accumulostore.key.AbstractElementFilter;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
@@ -38,11 +39,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ElementFilterTest {
+public class ElementPreAggregationFilterTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoSchema() throws Exception {
         // Given
-        final ElementFilter filter = new ElementFilter();
+        final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
 
         final Map<String, String> options = new HashMap<>();
@@ -62,7 +63,7 @@ public class ElementFilterTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoView() throws Exception {
         // Given
-        final ElementFilter filter = new ElementFilter();
+        final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.SCHEMA, getSchemaJson());
@@ -81,7 +82,7 @@ public class ElementFilterTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithElementConverterClass() throws Exception {
         // Given
-        final ElementFilter filter = new ElementFilter();
+        final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.SCHEMA, getSchemaJson());
@@ -99,7 +100,7 @@ public class ElementFilterTest {
     @Test
     public void shouldReturnTrueWhenValidOptions() throws Exception {
         // Given
-        final ElementFilter filter = new ElementFilter();
+        final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.SCHEMA, getSchemaJson());
@@ -117,7 +118,7 @@ public class ElementFilterTest {
     @Test
     public void shouldAcceptElementWhenViewValidatorAcceptsElement() throws Exception {
         // Given
-        final ElementFilter filter = new ElementFilter();
+        final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.SCHEMA, getSchemaJson());
@@ -143,7 +144,7 @@ public class ElementFilterTest {
     @Test
     public void shouldNotAcceptElementWhenViewValidatorDoesNotAcceptElement() throws Exception {
         // Given
-        final ElementFilter filter = new ElementFilter();
+        final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.SCHEMA, getSchemaJson());

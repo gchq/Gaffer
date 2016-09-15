@@ -61,67 +61,18 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
         super.setIncludeEdges(includeEdges);
     }
 
-    public static class Builder
-            extends AbstractAccumuloTwoSetSeededOperation.Builder<GetEdgesBetweenSets, EntitySeed, Edge> {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetEdgesBetweenSets, EntitySeed, Edge, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new GetEdgesBetweenSets());
-        }
-
-        @Override
-        public Builder seedsB(final Iterable<EntitySeed> seedsB) {
-            return (Builder) super.seedsB(seedsB);
-        }
-
-        @Override
-        public Builder addSeedB(final EntitySeed seed) {
-            return (Builder) super.addSeedB(seed);
-        }
-
-        @Override
-        public Builder seeds(final Iterable<EntitySeed> newSeeds) {
-            return (Builder) super.seeds(newSeeds);
-        }
-
-        @Override
-        public Builder addSeed(final EntitySeed seed) {
-            return (Builder) super.addSeed(seed);
-        }
-
-        @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            return (Builder) super.populateProperties(populateProperties);
-        }
-
-        @Override
-        public Builder view(final View view) {
-            return (Builder) super.view(view);
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
-        }
-
-        @Override
-        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
-            return (Builder) super.includeEdges(includeEdgeType);
-        }
-
-        @Override
-        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
-            return (Builder) super.inOutType(inOutType);
-        }
-
-        @Override
-        public Builder limitResults(final Integer resultLimit) {
-            return (Builder) super.limitResults(resultLimit);
         }
     }
 
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    }
 }

@@ -20,19 +20,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
 
 /**
- * A <code>JacksonJsonProvider</code> enables the automatic serialisation and deserialisation to/from JSON.
+ * A <code>RestJsonProvider</code> enables the automatic serialisation and deserialisation to/from JSON.
  * By default the JSON will not include nulls.
- * To accept json in the rest api this class must be extended.
- * To register it as a provider add the class annotations: @Provider and @Produces(MediaType.APPLICATION_JSON).
  */
-public abstract class AbstractJacksonJsonProvider extends JacksonJaxbJsonProvider {
-    public AbstractJacksonJsonProvider() {
+@Provider
+@Produces(MediaType.APPLICATION_JSON)
+public class RestJsonProvider extends JacksonJaxbJsonProvider {
+    public RestJsonProvider() {
         super.setMapper(createMapper());
     }
 
-    public AbstractJacksonJsonProvider(final ObjectMapper mapper) {
+    public RestJsonProvider(final ObjectMapper mapper) {
         super.setMapper(mapper);
     }
 

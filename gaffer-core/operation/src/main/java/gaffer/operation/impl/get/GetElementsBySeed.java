@@ -81,73 +81,21 @@ public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exten
         return SeedMatchingType.EQUAL;
     }
 
-    public static class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends GetElements.Builder<GetElementsBySeed<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
-        public Builder() {
+    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element,
+            CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
+            extends GetElements.BaseBuilder<GetElementsBySeed<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetElementsBySeed<SEED_TYPE, ELEMENT_TYPE>());
         }
+    }
+
+    public static final class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+            extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
 
         @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
-            super.seeds(seeds);
+        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
             return this;
-        }
-
-        public Builder<SEED_TYPE, ELEMENT_TYPE> seeds(final CloseableIterable<SEED_TYPE> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> addSeed(final SEED_TYPE seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> includeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
-            super.inOutType(inOutType);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> deduplicate(final boolean deduplicate) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> limitResults(final Integer resultLimit) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.limitResults(resultLimit);
         }
     }
 }

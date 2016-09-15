@@ -168,12 +168,12 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
         for(var i in $scope.expandEntities) {
             var entity = $scope.expandEntities[i];
             var filterFunctions = convertFilterFunctions($scope.expandEntitiesContent[entity]);
-            operation.view.entities[entity] = {filterFunctions: filterFunctions};
+            operation.view.entities[entity] = {preAggregationFilterFunctions: filterFunctions};
         }
         for(var i in $scope.expandEdges) {
             var edge = $scope.expandEdges[i];
             var filterFunctions = convertFilterFunctions($scope.expandEdgesContent[edge]);
-            operation.view.edges[edge] = {filterFunctions: filterFunctions};
+            operation.view.edges[edge] = {preAggregationFilterFunctions: filterFunctions};
         }
 
         operation.includeIncomingOutGoing = $scope.inOutFlag;

@@ -48,20 +48,31 @@ public abstract class ExportOperation<INPUT, OUTPUT> extends AbstractOperation<I
         this.key = key;
     }
 
-    public static class Builder<OP_TYPE extends ExportOperation<INPUT, OUTPUT>, INPUT, OUTPUT>
-            extends AbstractOperation.Builder<OP_TYPE, INPUT, OUTPUT> {
+    public abstract static class BaseBuilder<OP_TYPE extends ExportOperation<INPUT, OUTPUT>,
+            INPUT,
+            OUTPUT,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, ?>>
+            extends AbstractOperation.BaseBuilder<OP_TYPE, INPUT, OUTPUT, CHILD_CLASS> {
+        public BaseBuilder(final OP_TYPE exportOperation) {
+            super(exportOperation);
+        }
+
+        public CHILD_CLASS key(final String key) {
+            getOp().setKey(key);
+            return self();
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends ExportOperation<INPUT, OUTPUT>, INPUT, OUTPUT> extends
+            BaseBuilder<OP_TYPE, INPUT, OUTPUT, Builder<OP_TYPE, INPUT, OUTPUT>> {
+
         public Builder(final OP_TYPE exportOperation) {
             super(exportOperation);
         }
 
-        public Builder key(final String key) {
-            getOp().setKey(key);
-            return this;
-        }
-
         @Override
-        public Builder<OP_TYPE, INPUT, OUTPUT> option(final String name, final String value) {
-            return (Builder<OP_TYPE, INPUT, OUTPUT>) super.option(name, value);
+        protected Builder<OP_TYPE, INPUT, OUTPUT> self() {
+            return this;
         }
     }
 }

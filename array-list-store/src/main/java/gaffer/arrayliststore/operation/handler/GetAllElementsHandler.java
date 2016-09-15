@@ -43,14 +43,14 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
         final List<Element> result = new ArrayList<>();
         if (operation.isIncludeEntities()) {
             for (final Entity entity : store.getEntities()) {
-                if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
+                if (operation.validateFlags(entity) && operation.validate(entity)) {
                     result.add(entity);
                 }
             }
         }
         if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
             for (final Edge edge : store.getEdges()) {
-                if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
+                if (operation.validateFlags(edge) && operation.validate(edge)) {
                     result.add(edge);
                 }
             }

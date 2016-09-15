@@ -96,7 +96,7 @@ public class ViewValidatorTest {
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
-                        .filter(new ElementFilter.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
@@ -248,7 +248,7 @@ public class ViewValidatorTest {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
-                        .filter(new ElementFilter.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
@@ -528,4 +528,68 @@ public class ViewValidatorTest {
         // Then
         assertFalse(isValid);
     }
+
+    @Test
+    public void shouldValidateAndReturnTrueWhenPostTransformerFilterSet() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .transientProperty(TestPropertyNames.PROP_3, String.class)
+                        .transformer(new ElementTransformer.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .project(TestPropertyNames.PROP_3)
+                                .execute(new ExampleTransformFunction())
+                                .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, Object.class)
+                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .build())
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenPostTransformerSelectionDoesNotExist() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .transientProperty(TestPropertyNames.PROP_3, String.class)
+                        .transformer(new ElementTransformer.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .project(TestPropertyNames.PROP_3)
+                                .execute(new ExampleTransformFunction())
+                                .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.TRANSIENT_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, Object.class)
+                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .build())
+                .build();
+
+        // When
+        final boolean isValid = validator.validate(view, schema, false);
+        // Then
+        assertFalse(isValid);
+    }
+
 }

@@ -28,9 +28,10 @@ import gaffer.operation.AbstractOperation;
  */
 public class Deduplicate<T> extends AbstractOperation<CloseableIterable<T>, CloseableIterable<T>> {
 
-    public static class Builder<T> extends AbstractOperation.Builder<Deduplicate<T>, CloseableIterable<T>, CloseableIterable<T>> {
+    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>
+            extends AbstractOperation.BaseBuilder<Deduplicate<T>, CloseableIterable<T>, CloseableIterable<T>, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new Deduplicate<T>());
         }
 
@@ -39,8 +40,8 @@ public class Deduplicate<T> extends AbstractOperation<CloseableIterable<T>, Clos
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        public Builder<T> input(final Iterable<T> input) {
-            return (Builder<T>) super.input(new WrappedCloseableIterable<T>(input));
+        public CHILD_CLASS input(final Iterable<T> input) {
+            return super.input(new WrappedCloseableIterable<T>(input));
         }
 
         /**
@@ -48,13 +49,15 @@ public class Deduplicate<T> extends AbstractOperation<CloseableIterable<T>, Clos
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        public Builder<T> input(final CloseableIterable<T> input) {
-            return (Builder<T>) super.input(input);
+        public CHILD_CLASS input(final CloseableIterable<T> input) {
+            return super.input(input);
         }
+    }
+
+    public static final class Builder<T> extends BaseBuilder<T, Builder<T>> {
 
         @Override
-        public Builder<T> option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder<T> self() {
             return this;
         }
     }

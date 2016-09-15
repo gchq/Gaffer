@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
@@ -76,6 +77,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         private int count;
         private BatchScanner scanner;
         private Iterator<Map.Entry<Key, Value>> scannerIterator;
+        private Element nextElm;
 
         protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
             idsIterator = idIterator;
@@ -103,8 +105,25 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (scannerIterator.hasNext()) {
+            if (null != nextElm) {
                 return true;
+            }
+            while (scannerIterator.hasNext()) {
+                final Map.Entry<Key, Value> entry = scannerIterator.next();
+                try {
+                    nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
+                            operation.getOptions());
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
+                            e);
+                    continue;
+                }
+                doTransformation(nextElm);
+                if (doPostFilter(nextElm)) {
+                    return true;
+                } else {
+                    nextElm = null;
+                }
             }
             // If current scanner is spent then go back to the iterator
             // through the provided entities, and see if there are more.
@@ -133,23 +152,21 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? exten
             if (!scannerIterator.hasNext()) {
                 scanner.close();
                 return false;
+            } else {
+                return hasNext();
             }
-            return true;
         }
 
         @Override
         public Element next() {
-            final Map.Entry<Key, Value> entry = scannerIterator.next();
-            try {
-                final Element elm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
-                        operation.getOptions());
-                doTransformation(elm);
-                return elm;
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
-                        e);
-                return null;
+            if (null == nextElm) {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
             }
+            Element nextReturn = nextElm;
+            nextElm = null;
+            return nextReturn;
         }
 
         @Override

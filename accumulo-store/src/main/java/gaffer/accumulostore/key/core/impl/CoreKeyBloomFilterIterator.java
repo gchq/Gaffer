@@ -18,8 +18,8 @@ package gaffer.accumulostore.key.core.impl;
 
 import gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
 import gaffer.accumulostore.utils.IteratorOptionsBuilder;
+import gaffer.commonutil.ByteArrayEscapeUtils;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;

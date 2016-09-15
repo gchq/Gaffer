@@ -78,60 +78,18 @@ public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<
         return SeedMatchingType.RELATED;
     }
 
-    public static class Builder<ELEMENT_SEED extends ElementSeed> extends GetEdges.Builder<GetRelatedEdges<ELEMENT_SEED>, ELEMENT_SEED> {
-        public Builder() {
+    public abstract static class BaseBuilder<ELEMENT_SEED extends ElementSeed, CHILD_CLASS extends BaseBuilder<ELEMENT_SEED, ?>>
+            extends GetEdges.BaseBuilder<GetRelatedEdges<ELEMENT_SEED>, ELEMENT_SEED, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetRelatedEdges<ELEMENT_SEED>());
         }
+    }
 
+    public static final class Builder<ELEMENT_SEED extends ElementSeed>
+            extends BaseBuilder<ELEMENT_SEED, Builder<ELEMENT_SEED>> {
         @Override
-        public Builder<ELEMENT_SEED> seeds(final Iterable<ELEMENT_SEED> seeds) {
-            super.seeds(seeds);
+        protected Builder<ELEMENT_SEED> self() {
             return this;
-        }
-
-        public Builder<ELEMENT_SEED> seeds(final CloseableIterable<ELEMENT_SEED> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> addSeed(final ELEMENT_SEED seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> deduplicate(final boolean deduplicate) {
-            return (Builder<ELEMENT_SEED>) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> inOutType(final IncludeIncomingOutgoingType inOutType) {
-            super.inOutType(inOutType);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> limitResults(final Integer resultLimit) {
-            return (Builder<ELEMENT_SEED>) super.limitResults(resultLimit);
         }
     }
 }

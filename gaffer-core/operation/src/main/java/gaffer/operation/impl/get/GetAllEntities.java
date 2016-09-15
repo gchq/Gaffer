@@ -64,9 +64,19 @@ public class GetAllEntities extends GetAllElements<Entity> {
         }
     }
 
-    public static class Builder extends GetAllElements.Builder<Entity> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends GetAllElements.BaseBuilder<GetAllEntities, Entity, CHILD_CLASS> {
+        public BaseBuilder() {
             this(new GetAllEntities());
+        }
+
+        public BaseBuilder(final GetAllEntities op) {
+            super(op);
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
         }
 
         public Builder(final GetAllEntities op) {
@@ -74,42 +84,8 @@ public class GetAllEntities extends GetAllElements<Entity> {
         }
 
         @Override
-        public Builder includeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
+        protected Builder self() {
             return this;
-        }
-
-        @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
-            return this;
-        }
-
-        @Override
-        public Builder limitResults(final Integer resultLimit) {
-            return (Builder) super.limitResults(resultLimit);
-        }
-
-        @Override
-        public GetAllEntities build() {
-            return (GetAllEntities) super.build();
         }
     }
 }

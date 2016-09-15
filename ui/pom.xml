@@ -70,7 +70,7 @@
                                     <asWebapp>true</asWebapp>
                                 </webapp>
                                 <webapp>
-                                    <contextPath>/example-rest</contextPath>
+                                    <contextPath>/rest</contextPath>
                                     <groupId>gaffer</groupId>
                                     <artifactId>example-rest</artifactId>
                                     <version>${project.parent.version}</version>

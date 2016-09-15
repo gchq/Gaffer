@@ -58,30 +58,22 @@ public class UpdateExport extends ExportOperation<CloseableIterable<Object>, Clo
         super.setInput(new WrappedCloseableIterable<Object>(input));
     }
 
-    public static class Builder extends ExportOperation.Builder<UpdateExport, CloseableIterable<Object>, CloseableIterable<Object>> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends ExportOperation.BaseBuilder<UpdateExport, CloseableIterable<Object>, CloseableIterable<Object>, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new UpdateExport());
         }
 
-        @Override
-        public Builder input(final CloseableIterable input) {
+        public CHILD_CLASS input(final Iterable input) {
             getOp().setInput(input);
-            return this;
+            return self();
         }
+    }
 
-        public Builder input(final Iterable input) {
-            getOp().setInput(input);
-            return this;
-        }
-
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder key(final String key) {
-            return (Builder) super.key(key);
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
+        protected Builder self() {
+            return this;
         }
     }
 }

@@ -16,8 +16,10 @@
 
 package gaffer.accumulostore.key.impl;
 
+import gaffer.accumulostore.key.AbstractElementFilter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.CommonConstants;
+import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.store.ElementValidator;
 import gaffer.store.schema.Schema;
@@ -31,7 +33,7 @@ import java.util.Map;
  * <p>
  * If a {@link gaffer.function.FilterFunction} returns false then the Element is removed.
  */
-public class ValidatorFilter extends ElementFilter {
+public class ValidatorFilter extends AbstractElementFilter {
     @Override
     public IteratorOptions describeOptions() {
         final Map<String, String> namedOptions = new HashMap<>();
@@ -39,6 +41,11 @@ public class ValidatorFilter extends ElementFilter {
         return new IteratorOptions(AccumuloStoreConstants.SCHEMA,
                 "Only returns elements that are valid",
                 namedOptions, null);
+    }
+
+    @Override
+    protected boolean validate(final Element element) {
+        return validator.validate(element);
     }
 
     @Override

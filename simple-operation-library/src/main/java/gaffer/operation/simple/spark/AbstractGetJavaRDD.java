@@ -16,7 +16,6 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -33,31 +32,41 @@ public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetOperation
         this.javaSparkContext = javaSparkContext;
     }
 
-    protected static class Builder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>, SEED_TYPE>
-            extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, JavaRDD<Element>> {
+    protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>,
+            SEED_TYPE,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
+            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, JavaRDD<Element>, CHILD_CLASS> {
+
+        public BaseBuilder(final OP_TYPE op) {
+            super(op);
+        }
+
+        public CHILD_CLASS javaSparkContext(final JavaSparkContext sparkContext) {
+            op.setJavaSparkContext(sparkContext);
+            return self();
+        }
+
+        public CHILD_CLASS setIncludeEdges(final IncludeEdgeType value) {
+            op.setIncludeEdges(value);
+            return self();
+        }
+
+        public CHILD_CLASS setIncludeEntities(final boolean b) {
+            op.setIncludeEntities(b);
+            return self();
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>, SEED_TYPE>
+            extends BaseBuilder<OP_TYPE, SEED_TYPE, Builder<OP_TYPE, SEED_TYPE>> {
 
         public Builder(final OP_TYPE op) {
             super(op);
         }
 
-        public Builder<OP_TYPE, SEED_TYPE> javaSparkContext(final JavaSparkContext sparkContext) {
-            op.setJavaSparkContext(sparkContext);
-            return this;
-        }
-
-        public Builder<OP_TYPE, SEED_TYPE> seeds(final Iterable<SEED_TYPE> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        public Builder<OP_TYPE, SEED_TYPE> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
         @Override
-        public OP_TYPE build() {
-            return super.build();
+        protected Builder<OP_TYPE, SEED_TYPE> self() {
+            return this;
         }
     }
 }

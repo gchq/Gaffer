@@ -127,7 +127,7 @@ public class LoadAndQuery {
                         .view(new View.Builder()
                                 .entity(Group.REVIEW, new ViewElementDefinition.Builder()
                                         .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)
-                                        .filter(new ElementFilter.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
                                                 .select(Property.USER_ID)
                                                 .execute(new Not(new IsEqual("user02")))
                                                 .build())

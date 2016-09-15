@@ -17,6 +17,6 @@
 angular.module('app').factory('settings', [function(){
   return {
      resultLimit: 300,
-     restUrl: "http://localhost:8080/example-rest/v1"
+     restUrl: "http://localhost:8080/rest/v1"
    };
 } ]);
