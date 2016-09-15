@@ -79,10 +79,8 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.rest-api.basePath>/example-rest/v1</gaffer.rest-api.basePath>
-                                <gaffer.storeProperties>${project.build.outputDirectory}/mockaccumulostore.properties</gaffer.storeProperties>
-                                <!-- this should point to your Gaffer schema file(s) -->
                                 <gaffer.schemas>${project.build.outputDirectory}/example-schema.json</gaffer.schemas>
+                                <gaffer.storeProperties>${project.build.outputDirectory}/mockaccumulostore.properties</gaffer.storeProperties>
                             </systemProperties>
                         </configuration>
                         <dependencies>
