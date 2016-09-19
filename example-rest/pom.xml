@@ -82,6 +82,10 @@
                             <war>${project.basedir}/target/${project.artifactId}.war</war>
                             <systemProperties>
                                 <systemProperty>
+                                    <name>gaffer.rest-api.basePath</name>
+                                    <value>rest/v1</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <name>gaffer.schemas</name>
                                     <value>${project.build.outputDirectory}/example-schema.json</value>
                                 </systemProperty>
