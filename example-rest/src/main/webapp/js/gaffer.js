@@ -19,7 +19,7 @@ $("#resource_graphdoOperation .operation-params").find("td:eq(2)").append("<inpu
 
 function loadExample(exampleButton){
     var urlSuffix = $(exampleButton).closest('.operation').find(".path").text().trim();
-    var exampleUrl = getRestUrl() + "/example" + urlSuffix;
+    var exampleUrl = getVersion() + "/example" + urlSuffix;
     var onSuccess = function(response){
         var json=JSON.stringify(response, null,"   ");
         $(exampleButton.parentElement.parentElement).find("textarea").val(json);
@@ -35,7 +35,7 @@ function log() {
 
 function init(){
       window.swaggerUi = new SwaggerUi({
-      url: getRestUrl() + "/swagger.json",
+      url: getVersion() + "/swagger.json",
       dom_id:"swagger-ui-container",
       supportedSubmitMethods: ['get','post','put','delete'],
       onComplete: function(swaggerApi, swaggerUi){
@@ -53,15 +53,6 @@ function init(){
     });
 
     window.swaggerUi.load();
-}
-
-function getRestUrl() {
-    var baseUrl = window.location.href.split(/[?#]/)[0];
-    if(!baseUrl.endsWith('/')) {
-        baseUrl = baseUrl + "/";
-    }
-
-    return baseUrl + getVersion();
 }
 
 function getVersion() {
