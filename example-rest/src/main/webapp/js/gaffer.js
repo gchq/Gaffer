@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 function addExampleButtons(){
-$("#resource_graph\\/doOperation .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
+$("#resource_graphdoOperation .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
 }
 
 function loadExample(exampleButton){
-   var urlSuffix = $(exampleButton).closest('.operation').find(".path").text().trim();
-    var exampleUrl = window.location.origin + window.location.pathname + "v1/example" + urlSuffix;
+    var urlSuffix = $(exampleButton).closest('.operation').find(".path").text().trim();
+    var exampleUrl = getVersion() + "/example" + urlSuffix;
     var onSuccess = function(response){
         var json=JSON.stringify(response, null,"   ");
         $(exampleButton.parentElement.parentElement).find("textarea").val(json);
@@ -35,7 +35,7 @@ function log() {
 
 function init(){
       window.swaggerUi = new SwaggerUi({
-      url:"/example-rest/v1/api-docs/",
+      url: getVersion() + "/swagger.json",
       dom_id:"swagger-ui-container",
       supportedSubmitMethods: ['get','post','put','delete'],
       onComplete: function(swaggerApi, swaggerUi){
@@ -53,4 +53,8 @@ function init(){
     });
 
     window.swaggerUi.load();
+}
+
+function getVersion() {
+    return "v1";
 }

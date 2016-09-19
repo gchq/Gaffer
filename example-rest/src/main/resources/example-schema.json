@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "entity": {
+      "vertex": "string",
+      "properties": {
+        "count": "int"
+      }
+    }
+  },
+  "edges": {
+    "edge": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    }
+  },
+  "types": {
+    "int": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "gaffer.function.simple.aggregate.Sum"
+      }
+    },
+    "string": {
+      "class": "java.lang.String"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "gaffer.function.simple.filter.IsTrue"
+          }
+        }
+      ]
+    }
+  }
+}

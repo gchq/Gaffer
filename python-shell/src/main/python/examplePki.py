@@ -30,4 +30,4 @@ def create_connector(host, pki, verbose=False):
 
 
 if __name__ == "__main__":
-    run('localhost:8080/example-rest/v1')
+    run('localhost:8080/rest/v1')

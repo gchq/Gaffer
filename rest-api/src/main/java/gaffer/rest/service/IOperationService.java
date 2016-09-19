@@ -16,8 +16,6 @@
 
 package gaffer.rest.service;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -38,6 +36,8 @@ import gaffer.operation.impl.get.GetEntitiesBySeed;
 import gaffer.operation.impl.get.GetRelatedEdges;
 import gaffer.operation.impl.get.GetRelatedElements;
 import gaffer.operation.impl.get.GetRelatedEntities;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;

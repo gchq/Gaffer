@@ -31,7 +31,6 @@ To deploy it to a server of your choice, take target/example-rest.war and deploy
 
 In order for the application to function, it needs a number of system properties to be set up on the server:
 e.g.
-gaffer.rest-api.basePath=/example-rest/v1
 gaffer.schemas=${SOME PATH}/schema
 gaffer.storeProperties=${SOME PATH}/mockaccumulostore.properties
 
@@ -55,7 +54,7 @@ To build it and its dependencies, use the following command from the parent dire
 This uses the 'standalone' profile to run jetty with the example-rest project after it and its dependencies have been built.
 
 This should launch an embedded jetty container, which can then be accessed via your browser pointing to the following url:
-http://localhost:8080/example-rest/
+http://localhost:8080/rest/
 
 If you need to change the start-up port or customise anything else jetty related, you can change the class example.rest.launcher.Main accordingly and rebuild.
 
@@ -64,10 +63,6 @@ files and the data store .properties file. As a default, these point to the same
 
 ```xml
 <systemProperties>
-  <systemProperty>
-      <name>gaffer.rest-api.basePath</name>
-      <value>/example-rest/v1</value>
-  </systemProperty>
   <systemProperty>
       <name>gaffer.schemas</name>
       <!-- this needs to point to your Gaffer schema folder-->
