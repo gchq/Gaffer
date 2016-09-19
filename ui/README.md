@@ -15,7 +15,8 @@ limitations under the License.
 
 UI
 ============
-This module contains a Gaffer UI that connects to a Gaffer REST API.
+This module contains a Gaffer UI prototype that connects to a Gaffer REST API.
+
 
 There are two options for building and then running it:
 
