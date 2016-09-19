@@ -16,13 +16,21 @@
 
 package gaffer.rest.service;
 
-import static gaffer.store.StoreTrait.*;
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import gaffer.function.IsA;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.Operation;
@@ -31,6 +39,7 @@ import gaffer.rest.GraphFactory;
 import gaffer.store.Store;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
@@ -68,7 +77,7 @@ public class SimpleGraphConfigurationServiceTest {
         final List<Class> classes = service.getFilterFunctions(null);
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
     }
 
     @Test
@@ -77,7 +86,39 @@ public class SimpleGraphConfigurationServiceTest {
         final List<Class> classes = service.getFilterFunctions(String.class.getName());
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() throws IOException {
+        // When / Then
+        try {
+            service.getFilterFunctions("an unknown class name");
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldGetSerialisedFields() throws IOException {
+        // When
+        final List<String> fields = service.getSerialisedFields(IsA.class.getName());
+
+        // Then
+        assertEquals(1, fields.size());
+        assertEquals("type", fields.get(0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() throws IOException {
+        // When / Then
+        try {
+            service.getSerialisedFields("an unknown class name");
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -93,9 +134,7 @@ public class SimpleGraphConfigurationServiceTest {
         assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
         assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
-
     }
-
 
     @Test
     public void shouldGetTransformFunctions() throws IOException {
@@ -136,7 +175,6 @@ public class SimpleGraphConfigurationServiceTest {
         }
     }
 
-
     @Test
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
         // When
@@ -153,6 +191,4 @@ public class SimpleGraphConfigurationServiceTest {
         assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION.name()));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION.name()));
     }
-
-
 }

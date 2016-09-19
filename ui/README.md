@@ -38,7 +38,7 @@ The application can be built and then run as a basic executable standalone war f
 To build it and its dependencies, use the following command from the parent directory:
 
 'mvn clean install -P standalone-ui'
-This uses the 'standalone-ui' profile to start a tomcat server with the ui  and example-rest wars deployed.
+This uses the 'standalone-ui' profile to start a tomcat server with the ui and example-rest wars deployed.
 
-The ui can then be accessed via http://localhost:8080/ui/
+The ui can then be accessed via http://localhost:8080/ui and the rest api is at The ui can then be accessed via http://localhost:8080/rest
 
