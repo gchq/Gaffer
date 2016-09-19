@@ -15,12 +15,12 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllEdges;
 
@@ -33,17 +33,18 @@ public class GetAllEdgesExample extends OperationExample {
         super(GetAllEdges.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getAllEdges(graph);
-        getAllEdgesWithCountGreaterThan2(graph);
+    @Override
+    public void runExamples() {
+        getAllEdges();
+        getAllEdgesWithCountGreaterThan2();
     }
 
-    public Iterable<Edge> getAllEdges(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllEdges() {
         final String opJava = "new GetAllEdges();";
-        return runAndPrintOperation(new GetAllEdges(), graph, opJava);
+        return runExample(new GetAllEdges(), opJava);
     }
 
-    public Iterable<Edge> getAllEdgesWithCountGreaterThan2(final Graph graph) throws OperationException {
+    public CloseableIterable<Edge> getAllEdgesWithCountGreaterThan2() {
         final String opJava = "new GetAllEdges.Builder()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
@@ -54,15 +55,15 @@ public class GetAllEdgesExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetAllEdges.Builder()
+        return runExample(new GetAllEdges.Builder()
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }

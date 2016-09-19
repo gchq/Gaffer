@@ -22,6 +22,7 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
@@ -32,22 +33,23 @@ import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
 public class GetElementsInRangesHandler
-        implements OperationHandler<GetElementsInRanges<Pair<ElementSeed>, Element>, Iterable<Element>> {
+        implements OperationHandler<GetElementsInRanges<Pair<ElementSeed>, Element>, CloseableIterable<Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
                                          final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElementsInRanges<Pair<ElementSeed>, Element> operation,
                                          final User user,
                                          final AccumuloStore store) throws OperationException {
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloRangeIDRetriever(store, operation, user,
-                    itrFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getElementPropertyRangeQueryFilter(operation),
                     itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));

@@ -16,6 +16,8 @@
 
 package gaffer.data;
 
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.CloseableIterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -26,7 +28,7 @@ import java.util.NoSuchElementException;
  * @param <INPUT>  The input iterable type.
  * @param <OUTPUT> the output iterable type.
  */
-public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPUT> {
+public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableIterable<OUTPUT> {
     private final Iterable<INPUT> input;
     private final Validator<INPUT> validator;
     private final boolean skipInvalid;
@@ -68,8 +70,13 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
     /**
      * @return an {@link java.util.Iterator} that lazy transforms the INPUT items to OUTPUT items
      */
-    public Iterator<OUTPUT> iterator() {
-        return new Iterator<OUTPUT>() {
+    public CloseableIterator<OUTPUT> iterator() {
+        return new CloseableIterator<OUTPUT>() {
+            @Override
+            public void close() {
+
+            }
+
             private final Iterator<INPUT> inputItr = input.iterator();
 
             private OUTPUT nextElement;
@@ -120,6 +127,14 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
     }
 
     /**
+     * Should be overridden and to close any resources used in the creation of the transform iterable.
+     * This can include the input.
+     */
+    public void close() {
+
+    }
+
+    /**
      * Transforms the INPUT item into an OUTPUT item
      *
      * @param item the INPUT item to be transformed
@@ -137,6 +152,10 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements Iterable<OUTPU
     protected void handleInvalidItem(final INPUT item) throws IllegalArgumentException {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
+    }
+
+    protected Iterable<INPUT> getInput() {
+        return this.input;
     }
 
     private Class<? extends TransformIterable> getIterableClass() {

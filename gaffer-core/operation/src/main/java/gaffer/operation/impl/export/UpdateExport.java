@@ -16,7 +16,9 @@
 
 package gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 
 /**
  * A <code>UpdateExport</code> allows the results of a previous operation in an
@@ -29,7 +31,7 @@ import gaffer.commonutil.iterable.CloseableIterable;
  * @see FetchExporter
  * @see FetchExport
  */
-public class UpdateExport extends ExportOperation<Iterable<Object>, CloseableIterable<Object>> {
+public class UpdateExport extends ExportOperation<CloseableIterable<Object>, CloseableIterable<Object>> {
     /**
      * Constructs an <code>UpdateExport</code> with the key set to 'ALL'.
      */
@@ -46,30 +48,32 @@ public class UpdateExport extends ExportOperation<Iterable<Object>, CloseableIte
         super(key);
     }
 
+    @JsonIgnore
     @Override
-    public void setInput(final Iterable input) {
+    public void setInput(final CloseableIterable input) {
         super.setInput(input);
     }
 
-    public static class Builder extends ExportOperation.Builder<UpdateExport, Iterable<Object>, CloseableIterable<Object>> {
-        public Builder() {
+    public void setInput(final Iterable input) {
+        super.setInput(new WrappedCloseableIterable<Object>(input));
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends ExportOperation.BaseBuilder<UpdateExport, CloseableIterable<Object>, CloseableIterable<Object>, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new UpdateExport());
         }
 
-        @Override
-        public Builder input(final Iterable input) {
+        public CHILD_CLASS input(final Iterable input) {
             getOp().setInput(input);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
             return this;
-        }
-
-        @Override
-        public Builder key(final String key) {
-            return (Builder) super.key(key);
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            return (Builder) super.option(name, value);
         }
     }
 }

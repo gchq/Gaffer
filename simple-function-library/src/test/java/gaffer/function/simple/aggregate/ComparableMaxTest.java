@@ -12,9 +12,9 @@ import org.junit.Test;
 
 public class ComparableMaxTest extends AggregateFunctionTest {
     @Test
-    public void shouldConcatArraysTogether() {
+    public void shouldReturnMaximumValue() {
         // Given
-        final ComparableMax aggregator = new ComparableMax();
+        final ComparableMax aggregator = getInstance();
         aggregator.init();
 
         // When
@@ -29,7 +29,7 @@ public class ComparableMaxTest extends AggregateFunctionTest {
     @Test
     public void shouldCloneAggregator() {
         // Given
-        final ComparableMax aggregator = new ComparableMax();
+        final ComparableMax aggregator = getInstance();
         aggregator._aggregate(1);
 
         // When
@@ -44,7 +44,7 @@ public class ComparableMaxTest extends AggregateFunctionTest {
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final ComparableMax aggregator = new ComparableMax();
+        final ComparableMax aggregator = getInstance();
 
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));

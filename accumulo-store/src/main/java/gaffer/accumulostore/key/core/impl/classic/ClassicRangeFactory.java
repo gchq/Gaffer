@@ -18,7 +18,7 @@ package gaffer.accumulostore.key.core.impl.classic;
 import gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.ByteArrayEscapeUtils;
+import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.exception.SerialisationException;
 import gaffer.operation.GetOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;

@@ -16,12 +16,11 @@
 
 package gaffer.rest.service;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 import gaffer.rest.SystemStatus;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -36,8 +35,8 @@ import javax.ws.rs.core.MediaType;
 public class StatusService {
     @GET
     @ApiOperation(value = "Returns the status of the service", response = SystemStatus.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something wrong in Server") })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Something wrong in Server")})
     public SystemStatus status() {
         return new SystemStatus("The system is working normally.");
     }

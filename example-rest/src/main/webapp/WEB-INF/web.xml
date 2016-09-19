@@ -1,18 +1,37 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         version="3.0">
-    
-  <display-name>Gaffer REST example</display-name>
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <display-name>Gaffer REST example</display-name>
+
+    <context-param>
+        <param-name>resteasy.servlet.mapping.prefix</param-name>
+        <param-value>/v1</param-value>
+    </context-param>
 
     <servlet>
-        <servlet-name>Resteasy</servlet-name>
+        <servlet-name>resteasy</servlet-name>
         <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>example.rest.application.ApplicationConfig</param-value>
+            <param-value>gaffer.rest.application.ApplicationConfig</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>resteasy</servlet-name>
+        <url-pattern>/v1/*</url-pattern>
+    </servlet-mapping>
 
+    <filter>
+        <filter-name>OriginFilter</filter-name>
+        <filter-class>gaffer.rest.filter.OriginFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>OriginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>
+

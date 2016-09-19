@@ -16,6 +16,7 @@
 package gaffer.function.simple.filter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
 
@@ -41,6 +42,7 @@ public class IsEqual extends SimpleFilterFunction<Object> {
     }
 
     @JsonProperty("value")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     public Object getControlValue() {
         return controlValue;
     }

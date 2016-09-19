@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -32,12 +33,16 @@ import gaffer.operation.data.ElementSeed;
  * @see gaffer.operation.GetOperation
  */
 public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
+        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
     public GetElements() {
         super();
     }
 
     public GetElements(final Iterable<SEED_TYPE> seeds) {
+        super(seeds);
+    }
+
+    public GetElements(final CloseableIterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
@@ -49,18 +54,40 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
         super(view, seeds);
     }
 
+    public GetElements(final View view, final CloseableIterable<SEED_TYPE> seeds) {
+        super(view, seeds);
+    }
+
     public GetElements(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 
-    public static class Builder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> {
-        protected Builder(final OP_TYPE op) {
+    public void setSeedMatching(final SeedMatchingType seedMatching) {
+        super.setSeedMatching(seedMatching);
+    }
+
+    public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
+            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>, CHILD_CLASS> {
+        protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
     }
 
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        super.setSeedMatching(seedMatching);
+    public static final class Builder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            ELEMENT_TYPE extends Element>
+            extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE>> {
+
+        protected Builder(final OP_TYPE op) {
+            super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> self() {
+            return this;
+        }
     }
 }

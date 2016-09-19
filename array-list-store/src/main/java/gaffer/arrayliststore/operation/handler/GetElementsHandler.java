@@ -20,6 +20,8 @@ import static gaffer.operation.GetOperation.IncludeEdgeType;
 import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 
 import gaffer.arrayliststore.ArrayListStore;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -37,12 +39,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
                                          final Context context, final Store store)
             throws OperationException {
-        return doOperation(operation, (ArrayListStore) store);
+        return new WrappedCloseableIterable(doOperation(operation, (ArrayListStore) store));
     }
 
     private List<Element> doOperation(final GetElements<ElementSeed, Element> operation, final ArrayListStore store) {
@@ -50,7 +52,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         if (null != operation.getSeeds()) {
             if (operation.isIncludeEntities()) {
                 for (final Entity entity : store.getEntities()) {
-                    if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
+                    if (operation.validateFlags(entity) && operation.validatePreAggregationFilter(entity)) {
                         if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
                             if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
                                 result.add(entity);
@@ -65,7 +67,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
             }
             if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
                 for (final Edge edge : store.getEdges()) {
-                    if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
+                    if (operation.validateFlags(edge) && operation.validatePreAggregationFilter(edge)) {
                         if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
                             if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
                                 result.add(edge);

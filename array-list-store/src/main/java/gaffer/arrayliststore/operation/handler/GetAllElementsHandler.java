@@ -19,6 +19,8 @@ package gaffer.arrayliststore.operation.handler;
 import static gaffer.operation.GetOperation.IncludeEdgeType;
 
 import gaffer.arrayliststore.ArrayListStore;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -29,11 +31,11 @@ import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation,
+    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation,
                                          final Context context, final Store store) {
-        return doOperation(operation, (ArrayListStore) store);
+        return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
     private List<Element> doOperation(final GetAllElements<Element> operation,
@@ -41,14 +43,14 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
         final List<Element> result = new ArrayList<>();
         if (operation.isIncludeEntities()) {
             for (final Entity entity : store.getEntities()) {
-                if (operation.validateFlags(entity) && operation.validateFilter(entity)) {
+                if (operation.validateFlags(entity) && operation.validate(entity)) {
                     result.add(entity);
                 }
             }
         }
         if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
             for (final Edge edge : store.getEdges()) {
-                if (operation.validateFlags(edge) && operation.validateFilter(edge)) {
+                if (operation.validateFlags(edge) && operation.validate(edge)) {
                     result.add(edge);
                 }
             }

@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
@@ -37,11 +38,19 @@ public abstract class GetEntities<SEED_TYPE extends ElementSeed> extends GetElem
         super(seeds);
     }
 
+    public GetEntities(final CloseableIterable<SEED_TYPE> seeds) {
+        super(seeds);
+    }
+
     public GetEntities(final View view) {
         super(view);
     }
 
     public GetEntities(final View view, final Iterable<SEED_TYPE> seeds) {
+        super(view, seeds);
+    }
+
+    public GetEntities(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
@@ -73,10 +82,25 @@ public abstract class GetEntities<SEED_TYPE extends ElementSeed> extends GetElem
         }
     }
 
-    public static class Builder<OP_TYPE extends GetEntities<SEED_TYPE>, SEED_TYPE extends ElementSeed>
-            extends GetElements.Builder<OP_TYPE, SEED_TYPE, Entity> {
+    public abstract static class BaseBuilder<OP_TYPE extends GetEntities<SEED_TYPE>,
+            SEED_TYPE extends ElementSeed,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
+            extends GetElements.BaseBuilder<OP_TYPE, SEED_TYPE, Entity, CHILD_CLASS> {
+        protected BaseBuilder(final OP_TYPE op) {
+            super(op);
+        }
+    }
+
+    public static final class Builder<OP_TYPE extends GetEntities<SEED_TYPE>, SEED_TYPE extends ElementSeed>
+            extends BaseBuilder<OP_TYPE, SEED_TYPE, Builder<OP_TYPE, SEED_TYPE>> {
+
         protected Builder(final OP_TYPE op) {
             super(op);
+        }
+
+        @Override
+        protected Builder<OP_TYPE, SEED_TYPE> self() {
+            return this;
         }
     }
 }

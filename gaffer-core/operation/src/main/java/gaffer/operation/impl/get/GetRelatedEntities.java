@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
@@ -62,11 +63,19 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
         super(seeds);
     }
 
+    public GetRelatedEntities(final CloseableIterable<ELEMENT_SEED> seeds) {
+        super(seeds);
+    }
+
     public GetRelatedEntities(final View view) {
         super(view);
     }
 
     public GetRelatedEntities(final View view, final Iterable<ELEMENT_SEED> seeds) {
+        super(view, seeds);
+    }
+
+    public GetRelatedEntities(final View view, final CloseableIterable<ELEMENT_SEED> seeds) {
         super(view, seeds);
     }
 
@@ -86,43 +95,17 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
         return SeedMatchingType.RELATED;
     }
 
-    public static class Builder<ELEMENT_SEED extends ElementSeed> extends GetEntities.Builder<GetRelatedEntities<ELEMENT_SEED>, ELEMENT_SEED> {
-        public Builder() {
+    public abstract static class BaseBuilder<ELEMENT_SEED extends ElementSeed, CHILD_CLASS extends BaseBuilder<ELEMENT_SEED, ?>>
+            extends GetEntities.BaseBuilder<GetRelatedEntities<ELEMENT_SEED>, ELEMENT_SEED, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetRelatedEntities<ELEMENT_SEED>());
         }
+    }
 
+    public static final class Builder<ELEMENT_SEED extends ElementSeed>
+            extends BaseBuilder<ELEMENT_SEED, Builder<ELEMENT_SEED>> {
         @Override
-        public Builder<ELEMENT_SEED> seeds(final Iterable<ELEMENT_SEED> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> addSeed(final ELEMENT_SEED seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> deduplicate(final boolean deduplicate) {
-            return (Builder<ELEMENT_SEED>) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_SEED> option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder<ELEMENT_SEED> self() {
             return this;
         }
     }

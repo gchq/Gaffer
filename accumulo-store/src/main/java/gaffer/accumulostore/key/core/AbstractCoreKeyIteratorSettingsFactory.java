@@ -22,7 +22,8 @@ import gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
 import gaffer.accumulostore.key.core.impl.CoreKeyGroupByAggregatorIterator;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.impl.AggregatorIterator;
-import gaffer.accumulostore.key.impl.ElementFilter;
+import gaffer.accumulostore.key.impl.ElementPostAggregationFilter;
+import gaffer.accumulostore.key.impl.ElementPreAggregationFilter;
 import gaffer.accumulostore.key.impl.RowIDAggregator;
 import gaffer.accumulostore.key.impl.ValidatorFilter;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -36,7 +37,6 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
 
 public abstract class AbstractCoreKeyIteratorSettingsFactory implements IteratorSettingFactory {
-    private static final String ELEMENT_FILTER_CLASS_NAME = ElementFilter.class.getName();
 
     @Override
     public IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException {
@@ -45,10 +45,18 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     }
 
     @Override
-    public IteratorSetting getElementFilterIteratorSetting(final View view, final AccumuloStore store)
+    public IteratorSetting getElementPreAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
-        return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.ELEMENT_FILTER_ITERATOR_NAME, ELEMENT_FILTER_CLASS_NAME).schema(store.getSchema())
+        return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, ElementPreAggregationFilter.class).schema(store.getSchema())
+                .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
+    }
+
+    @Override
+    public IteratorSetting getElementPostAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
+            throws IteratorSettingException {
+        return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, ElementPostAggregationFilter.class).schema(store.getSchema())
                 .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
     }
 

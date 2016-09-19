@@ -158,7 +158,7 @@ def get_adj_seeds(gc):
 def get_all_elements(gc):
     # Adjacent Elements - chain 2 adjacent entities together
     all_elements = gc.execute_operation(
-        g.GetAllElements(summarise=False)
+        g.GetAllElements()
     )
     print('All elements')
     print(all_elements)
@@ -259,4 +259,4 @@ def get_sub_graph(gc):
 
 
 if __name__ == '__main__':
-    run('http://localhost:8080/example-rest/v1')
+    run('http://localhost:8080/rest/v1')

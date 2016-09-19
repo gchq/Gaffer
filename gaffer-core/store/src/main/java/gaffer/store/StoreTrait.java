@@ -26,12 +26,28 @@ public enum StoreTrait {
     AGGREGATION,
 
     /**
-     * Most stores should have this trait as if you use Operation.validateFilter(Element) in you handlers,
+     * Most stores should have this trait if they deal with Aggregation as if you use Operation.validatePreAggregationFilter(Element) in you handlers,
      * it will deal with the filtering for you.
      * {@link gaffer.data.element.Element}s are filtered using {@link gaffer.function.FilterFunction}s defined in a
      * {@link gaffer.data.elementdefinition.view.View}.
      */
-    FILTERING,
+    PRE_AGGREGATION_FILTERING,
+
+    /**
+     * Most stores should have this trait if they deal with Aggregation as if you use Operation.validatePostFilter(Element) in you handlers,
+     * it will deal with the filtering for you.
+     * {@link gaffer.data.element.Element}s are filtered using {@link gaffer.function.FilterFunction}s defined in a
+     * {@link gaffer.data.elementdefinition.view.View}.
+     */
+    POST_AGGREGATION_FILTERING,
+
+    /**
+     * Most stores should have this trait if they support Transformations as if you use Operation.validatePostTransformationFilter(Element) in you handlers,
+     * it will deal with the filtering for you.
+     * {@link gaffer.data.element.Element}s are filtered using {@link gaffer.function.FilterFunction}s defined in a
+     * {@link gaffer.data.elementdefinition.view.View}.
+     */
+    POST_TRANSFORMATION_FILTERING,
 
     /**
      * {@link gaffer.data.element.Element} {@link gaffer.data.element.Properties} are transformed using

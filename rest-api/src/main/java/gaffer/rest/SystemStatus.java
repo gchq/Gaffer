@@ -16,7 +16,8 @@
 
 package gaffer.rest;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
+
+import io.swagger.annotations.ApiModelProperty;
 
 public class SystemStatus {
     @ApiModelProperty

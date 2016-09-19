@@ -15,6 +15,7 @@
  */
 package gaffer.example.gettingstarted.analytic;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.example.gettingstarted.generator.DataGenerator1;
@@ -29,31 +30,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoadAndQuery1 extends LoadAndQuery {
+    public LoadAndQuery1() {
+        super("Load some data and run a simple query");
+    }
 
     public static void main(final String[] args) throws OperationException {
         new LoadAndQuery1().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Edge> run() throws OperationException {
         final User user = new User("user01");
-
-        setDataFileLocation("/example/gettingstarted/1/data.txt");
-        setSchemaFolderLocation("/example/gettingstarted/1/schema");
-        setStorePropertiesLocation("/example/gettingstarted/mockaccumulostore.properties");
 
         //create some edges from the data file using our data generator class
         final List<Element> elements = new ArrayList<>();
-        final DataGenerator1 data1Generator = new DataGenerator1();
-        log("Turn the data into Graph Edges\n");
+        final DataGenerator1 dataGenerator = new DataGenerator1();
         for (String s : DataUtils.loadData(getData())) {
-            log(data1Generator.getElement(s).toString());
-            elements.add(data1Generator.getElement(s));
+            elements.add(dataGenerator.getElement(s));
+        }
+        log("Elements generated from the data file.");
+        for (final Element element : elements) {
+            log("GENERATED_EDGES", element.toString());
         }
         log("");
 
-
         //create a graph using our schema and store properties
-        final Graph graph1 = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
@@ -62,19 +63,17 @@ public class LoadAndQuery1 extends LoadAndQuery {
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
-
-        graph1.execute(addElements, user);
+        graph.execute(addElements, user);
+        log("The elements have been added.\n");
 
         //get all the edges that contain the vertex "1"
         final GetRelatedEdges<EntitySeed> query = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
-
-        // Execute query
-        final Iterable<Edge> results = graph1.execute(query, user);
-        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        final CloseableIterable<Edge> results = graph.execute(query, user);
+        log("All edges containing the vertex 1. The counts have been aggregated.");
         for (Element e : results) {
-            log(e.toString());
+            log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
         return results;

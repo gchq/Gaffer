@@ -39,7 +39,8 @@ public class AccumuloSingleIDRetriever
                                      final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
-                store.getKeyPackage().getIteratorFactory().getElementFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
 

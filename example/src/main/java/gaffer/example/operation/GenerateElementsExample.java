@@ -15,12 +15,12 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.generator.OneToOneElementGenerator;
 import gaffer.example.operation.generator.DataGenerator;
-import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.generate.GenerateElements;
 import java.util.Arrays;
@@ -34,35 +34,36 @@ public class GenerateElementsExample extends OperationExample {
         super(GenerateElements.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        generateElementsFromStrings(graph);
-        generateElementsFromDomainObjects(graph);
+    @Override
+    public void runExamples() {
+        generateElementsFromStrings();
+        generateElementsFromDomainObjects();
     }
 
-    public Iterable<Element> generateElementsFromStrings(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> generateElementsFromStrings() {
         final String opJava = "new GenerateElements.Builder<String>()\n"
-              + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
-              + "                .generator(new DataGenerator())\n"
-              + "                .build();";
-        return runAndPrintOperation(new GenerateElements.Builder<String>()
+                + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
+                + "                .generator(new DataGenerator())\n"
+                + "                .build();";
+        return runExample(new GenerateElements.Builder<String>()
                 .objects(Arrays.asList("1,1", "1,2,1"))
                 .generator(new DataGenerator())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
-    public Iterable<Element> generateElementsFromDomainObjects(final Graph graph) throws OperationException {
+    public CloseableIterable<Element> generateElementsFromDomainObjects() {
         final String opJava = "new GenerateElements.Builder<>()\n"
-              + "                .objects(Arrays.asList(\n"
-              + "                        new DomainObject1(1, 1),\n"
-              + "                        new DomainObject2(1, 2, 1)))\n"
-              + "                .generator(new DomainObjectGenerator())\n"
-              + "                .build();";
-        return runAndPrintOperation(new GenerateElements.Builder<>()
+                + "                .objects(Arrays.asList(\n"
+                + "                        new DomainObject1(1, 1),\n"
+                + "                        new DomainObject2(1, 2, 1)))\n"
+                + "                .generator(new DomainObjectGenerator())\n"
+                + "                .build();";
+        return runExample(new GenerateElements.Builder<>()
                 .objects(Arrays.asList(
                         new DomainObject1(1, 1),
                         new DomainObject2(1, 2, 1)))
                 .generator(new DomainObjectGenerator())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 
     public static class DomainObject1 {

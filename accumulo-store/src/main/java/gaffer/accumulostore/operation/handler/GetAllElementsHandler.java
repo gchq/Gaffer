@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllElements;
@@ -29,18 +30,19 @@ import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, Iterable<Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
+    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
+    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
         final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloAllElementsRetriever(store, operation, user, iteratorFactory.getElementPropertyRangeQueryFilter(operation),
-                    iteratorFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {

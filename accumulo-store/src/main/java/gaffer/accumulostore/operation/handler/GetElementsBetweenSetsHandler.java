@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.retriever.impl.AccumuloIDBetweenSetsRetriever;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.store.Context;
@@ -29,16 +30,16 @@ import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
 public class GetElementsBetweenSetsHandler
-        implements OperationHandler<GetElementsBetweenSets<Element>, Iterable<? extends Element>> {
+        implements OperationHandler<GetElementsBetweenSets<Element>, CloseableIterable<? extends Element>> {
 
     @Override
-    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
                                          final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
                                          final User user, final AccumuloStore store)
             throws OperationException {
         try {

@@ -16,6 +16,7 @@
 
 package gaffer.operation.impl.get;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
@@ -30,11 +31,15 @@ import gaffer.operation.data.EntitySeed;
  * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
  * @see gaffer.operation.GetOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, EntitySeed> {
+public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, CloseableIterable<EntitySeed>> {
     public GetAdjacentEntitySeeds() {
     }
 
     public GetAdjacentEntitySeeds(final Iterable<EntitySeed> seeds) {
+        super(seeds);
+    }
+
+    public GetAdjacentEntitySeeds(final CloseableIterable<EntitySeed> seeds) {
         super(seeds);
     }
 
@@ -46,6 +51,10 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
         super(view, seeds);
     }
 
+    public GetAdjacentEntitySeeds(final View view, final CloseableIterable<EntitySeed> seeds) {
+        super(view, seeds);
+    }
+
     public GetAdjacentEntitySeeds(final GetOperation<EntitySeed, ?> operation) {
         super(operation);
     }
@@ -54,62 +63,16 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Ent
     public SeedMatchingType getSeedMatching() {
         return SeedMatchingType.RELATED;
     }
-
-    public static class Builder extends AbstractGetOperation.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed> {
-        public Builder() {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>, CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder seeds(final Iterable<EntitySeed> seeds) {
-            super.seeds(seeds);
-            return this;
-        }
-
-        @Override
-        public Builder addSeed(final EntitySeed seed) {
-            super.addSeed(seed);
-            return this;
-        }
-
-        @Override
-        public Builder includeEntities(final boolean includeEntities) {
-            super.includeEntities(includeEntities);
-            return this;
-        }
-
-        @Override
-        public Builder includeEdges(final IncludeEdgeType includeEdgeType) {
-            super.includeEdges(includeEdgeType);
-            return this;
-        }
-
-        @Override
-        public Builder inOutType(final IncludeIncomingOutgoingType inOutType) {
-            super.inOutType(inOutType);
-            return this;
-        }
-
-        @Override
-        public Builder deduplicate(final boolean deduplicate) {
-            return (Builder) super.deduplicate(deduplicate);
-        }
-
-        @Override
-        public Builder populateProperties(final boolean populateProperties) {
-            super.populateProperties(populateProperties);
-            return this;
-        }
-
-        @Override
-        public Builder view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

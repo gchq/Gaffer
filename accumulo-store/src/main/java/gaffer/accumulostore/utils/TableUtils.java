@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
+import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.commonutil.CommonConstants;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
@@ -45,6 +46,7 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +58,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -143,7 +149,30 @@ public final class TableUtils {
         } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }
+        setLocalityGroups(store);
         addUpdateUtilsTable(store);
+    }
+
+    public static void setLocalityGroups(final AccumuloStore store) throws StoreException {
+        final String tableName = store.getProperties().getTable();
+        Map<String, Set<Text>> localityGroups =
+                new HashMap<>();
+        for (String entityGroup : store.getSchema().getEntityGroups()) {
+            HashSet<Text> localityGroup = new HashSet<>();
+            localityGroup.add(new Text(entityGroup));
+            localityGroups.put(entityGroup, localityGroup);
+        }
+        for (String edgeGroup : store.getSchema().getEdgeGroups()) {
+            HashSet<Text> localityGroup = new HashSet<>();
+            localityGroup.add(new Text(edgeGroup));
+            localityGroups.put(edgeGroup, localityGroup);
+        }
+        LOGGER.info("Setting locality groups on table {}", tableName);
+        try {
+            store.getConnection().tableOperations().setLocalityGroups(tableName, localityGroups);
+        } catch (AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
     }
 
     /**

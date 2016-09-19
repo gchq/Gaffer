@@ -15,17 +15,16 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.graph.Graph;
-import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllEntities;
 
 public class GetAllEntitiesExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
+    public static void main(final String[] args) {
         new GetAllEntitiesExample().run();
     }
 
@@ -33,17 +32,17 @@ public class GetAllEntitiesExample extends OperationExample {
         super(GetAllEntities.class);
     }
 
-    public void runExamples(final Graph graph) throws OperationException {
-        getAllEntities(graph);
-        getAllEntitiesWithCountGreaterThan2(graph);
+    public void runExamples() {
+        getAllEntities();
+        getAllEntitiesWithCountGreaterThan2();
     }
 
-    public Iterable<Entity> getAllEntities(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getAllEntities() {
         final String opJava = "new GetAllEntities();";
-        return runAndPrintOperation(new GetAllEntities(), graph, opJava);
+        return runExample(new GetAllEntities(), opJava);
     }
 
-    public Iterable<Entity> getAllEntitiesWithCountGreaterThan2(final Graph graph) throws OperationException {
+    public CloseableIterable<Entity> getAllEntitiesWithCountGreaterThan2() {
         final String opJava = "new GetAllEntities.Builder()\n"
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
@@ -54,15 +53,15 @@ public class GetAllEntitiesExample extends OperationExample {
                 + "                                .build())\n"
                 + "                        .build())\n"
                 + "                .build();";
-        return runAndPrintOperation(new GetAllEntities.Builder()
+        return runExample(new GetAllEntities.Builder()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(2))
                                         .build())
                                 .build())
                         .build())
-                .build(), graph, opJava);
+                .build(), opJava);
     }
 }

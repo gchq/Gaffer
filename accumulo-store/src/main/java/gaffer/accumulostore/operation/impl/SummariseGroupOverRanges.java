@@ -17,6 +17,7 @@ package gaffer.accumulostore.operation.impl;
 
 
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
@@ -41,50 +42,19 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
         super(view, seeds);
     }
 
-    public static class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-            extends AbstractGetOperation.Builder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE> {
-        public Builder() {
-            super(new SummariseGroupOverRanges());
+    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
+            extends AbstractGetOperation.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
         }
+    }
+
+    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
+        extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
 
         @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> populateProperties(final boolean populateProperties) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.populateProperties(populateProperties);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> view(final View view) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.view(view);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> option(final String name, final String value) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.option(name, value);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> seeds(final Iterable<SEED_TYPE> newSeeds) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.seeds(newSeeds);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> addSeed(final SEED_TYPE seed) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.addSeed(seed);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> includeEntities(final boolean includeEntities) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.includeEntities(includeEntities);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> includeEdges(final IncludeEdgeType includeEdgeType) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.includeEdges(includeEdgeType);
-        }
-
-        @Override
-        public Builder<SEED_TYPE, ELEMENT_TYPE> inOutType(final IncludeIncomingOutgoingType inOutType) {
-            return (Builder<SEED_TYPE, ELEMENT_TYPE>) super.inOutType(inOutType);
+        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
+            return this;
         }
     }
 }

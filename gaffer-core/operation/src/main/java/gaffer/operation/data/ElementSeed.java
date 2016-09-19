@@ -16,6 +16,10 @@
 
 package gaffer.operation.data;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -29,6 +33,7 @@ import gaffer.data.element.Entity;
  * @see EntitySeed
  * @see EdgeSeed
  */
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
 public abstract class ElementSeed {
     /**
      * @param that the {@link ElementSeed} to compare
@@ -53,6 +58,11 @@ public abstract class ElementSeed {
 
     public static EdgeSeed createSeed(final Edge edge) {
         return new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
+    }
+
+    @JsonGetter("class")
+    String getClassName() {
+        return getClass().getName();
     }
 
     public enum Matches {

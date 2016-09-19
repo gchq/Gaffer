@@ -43,7 +43,7 @@ class GafferConnector:
 
         # Create the opener
         self._opener = urllib.request.build_opener(
-            urllib.request.HTTPHandler(self._host))
+            urllib.request.HTTPHandler())
 
     def execute_operation(self, operation):
         """
@@ -67,7 +67,8 @@ class GafferConnector:
 
         # Query Gaffer
         if self._verbose:
-            print('Query operations: ' + str(operation_chain.toJson()))
+            print('\nQuery operations:\n' + json.dumps(operation_chain.toJson(),
+                                                       indent=4) + '\n')
 
         # Convert the query dictionary into JSON and post the query to Gaffer
         json_body = bytes(json.dumps(operation_chain.toJson()), 'ascii')

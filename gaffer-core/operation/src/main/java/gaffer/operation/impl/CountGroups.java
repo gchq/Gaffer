@@ -19,6 +19,8 @@ package gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.GroupCounts;
 import gaffer.data.element.Element;
 import gaffer.operation.AbstractOperation;
@@ -32,7 +34,7 @@ import java.util.List;
  *
  * @see CountGroups.Builder
  */
-public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCounts> {
+public class CountGroups extends AbstractOperation<CloseableIterable<Element>, GroupCounts> {
     private Integer limit;
 
     public CountGroups() {
@@ -44,9 +46,9 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
     }
 
     /**
-     * @return the input {@link Iterable} of {@link Element}s to be validated.
+     * @return the input {@link CloseableIterable} of {@link Element}s to be validated.
      */
-    public Iterable<Element> getElements() {
+    public CloseableIterable<Element> getElements() {
         return getInput();
     }
 
@@ -54,6 +56,13 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
      * @param elements the input {@link Iterable} of {@link Element}s to be validated.
      */
     public void setElements(final Iterable<Element> elements) {
+        setElements(new WrappedCloseableIterable<Element>(elements));
+    }
+
+    /**
+     * @param elements the input {@link CloseableIterable} of {@link Element}s to be validated.
+     */
+    public void setElements(final CloseableIterable<Element> elements) {
         setInput(elements);
     }
 
@@ -67,7 +76,7 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
 
     @JsonIgnore
     @Override
-    public Iterable<Element> getInput() {
+    public CloseableIterable<Element> getInput() {
         return super.getInput();
     }
 
@@ -76,7 +85,7 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
      */
     @JsonProperty(value = "elements")
     List<Element> getElementList() {
-        final Iterable<Element> input = getInput();
+        final CloseableIterable<Element> input = getInput();
         return null != input ? Lists.newArrayList(input) : null;
     }
 
@@ -85,12 +94,13 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
      */
     @JsonProperty(value = "elements")
     void setElementList(final List<Element> elements) {
-        setInput(elements);
+        setInput(new WrappedCloseableIterable<>(elements));
     }
 
-    public static class Builder extends AbstractOperation.Builder<CountGroups, Iterable<Element>, GroupCounts> {
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<CountGroups, CloseableIterable<Element>, GroupCounts, CHILD_CLASS> {
 
-        public Builder() {
+        public BaseBuilder() {
             super(new CountGroups());
         }
 
@@ -99,9 +109,19 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
          * @return this Builder
          * @see CountGroups#setElements(Iterable)
          */
-        public Builder elements(final Iterable<Element> elements) {
+        public CHILD_CLASS elements(final Iterable<Element> elements) {
             op.setElements(elements);
-            return this;
+            return self();
+        }
+
+        /**
+         * @param elements the input {@link CloseableIterable} of {@link Element}s to be set on the operation.
+         * @return this Builder
+         * @see CountGroups#setElements(CloseableIterable)
+         */
+        public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
+            op.setElements(elements);
+            return self();
         }
 
         /**
@@ -109,14 +129,15 @@ public class CountGroups extends AbstractOperation<Iterable<Element>, GroupCount
          * @return this Builder
          * @see CountGroups#setLimit(Integer)
          */
-        public Builder limit(final Integer limit) {
+        public CHILD_CLASS limit(final Integer limit) {
             op.setLimit(limit);
-            return this;
+            return self();
         }
+    }
 
+    public static final class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder self() {
             return this;
         }
     }

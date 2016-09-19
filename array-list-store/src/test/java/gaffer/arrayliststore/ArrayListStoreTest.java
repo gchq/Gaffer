@@ -28,6 +28,7 @@ import gaffer.arrayliststore.data.generator.SimpleGenerator;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
@@ -64,13 +65,13 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the edges
-        final OperationChain<Iterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetRelatedEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                        .filter(new ElementFilter.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
                                         .build())
@@ -82,7 +83,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final Iterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
+        final CloseableIterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -114,6 +115,7 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("142", obj.getProperties());
         }
+        results.close();
     }
 
     @Test
@@ -122,12 +124,12 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
-        final OperationChain<Iterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetRelatedEntities.Builder<>()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                        .filter(new ElementFilter.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
                                         .build())
@@ -139,7 +141,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
+        final CloseableIterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -161,6 +163,7 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("Orange", obj.getProperties());
         }
+        results.close();
     }
 
     @Test
@@ -169,12 +172,12 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
-        final OperationChain<Iterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEntitiesBySeed.Builder()
                         .addSeed(new EntitySeed(1))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                        .filter(new ElementFilter.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
                                         .build())
@@ -187,7 +190,7 @@ public class ArrayListStoreTest {
 
 
         //now do the hop
-        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
+        final CloseableIterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -204,6 +207,7 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("Red", obj.getProperties());
         }
+        results.close();
     }
 
     @Test
@@ -212,12 +216,12 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the edges
-        final OperationChain<Iterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEdgesBySeed.Builder()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                        .filter(new ElementFilter.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
                                         .build())
@@ -230,7 +234,7 @@ public class ArrayListStoreTest {
 
 
         //now do the hop
-        final Iterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
+        final CloseableIterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -250,6 +254,7 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("121", obj.getProperties());
         }
+        results.close();
     }
 
     @Test
@@ -258,7 +263,7 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
-        final OperationChain<Iterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetRelatedEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .build())
@@ -268,7 +273,7 @@ public class ArrayListStoreTest {
                 .then(new GetEntitiesBySeed.Builder()
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                        .filter(new ElementFilter.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
                                                 .select(TestPropertyNames.INT).execute(new IsLessThan(2))
                                                 .build())
                                         .build())
@@ -280,7 +285,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final Iterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
+        final CloseableIterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -296,6 +301,7 @@ public class ArrayListStoreTest {
             assertEquals(1, resultList.get(0).getVisibility());
             assertEquals("Red", resultList.get(0).getProperties());
         }
+        results.close();
     }
 
     private Graph createGraph() {

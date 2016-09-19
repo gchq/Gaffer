@@ -16,12 +16,6 @@
 
 package gaffer.accumulostore;
 
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.ORDERED;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -39,9 +33,9 @@ import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
-import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
-import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
-import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -50,9 +44,14 @@ import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import gaffer.accumulostore.operation.spark.handler.GetDataFrameOfElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetJavaRDDOfElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetRDDOfAllElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetRDDOfElementsOperationHandler;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.CommonConstants;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.Operation;
@@ -62,7 +61,11 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
+import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.operation.simple.spark.GetJavaRDDOfElements;
+import gaffer.operation.simple.spark.GetRDDOfAllElements;
+import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.StoreException;
@@ -91,6 +94,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static gaffer.store.StoreTrait.ORDERED;
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+
+
 /**
  * An Accumulo Implementation of the Gaffer Framework
  * <p>
@@ -102,7 +114,7 @@ import java.util.Set;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -165,11 +177,16 @@ public class AccumuloStore extends Store {
             conf.set(ElementInputFormat.VIEW, new String(view.toJson(false), CommonConstants.UTF_8));
             // Add iterators that depend on the view
             if (!view.getEntityGroups().isEmpty() || !view.getEdgeGroups().isEmpty()) {
-                IteratorSetting elementFilter = getKeyPackage()
+                IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
-                        .getElementFilterIteratorSetting(view, this);
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementFilter);
+                        .getElementPreAggregationFilterIteratorSetting(view, this);
+                IteratorSetting elementPostFilter = getKeyPackage()
+                        .getIteratorFactory()
+                        .getElementPostAggregationFilterIteratorSetting(view, this);
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
             }
+
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }
@@ -215,20 +232,24 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
         addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+        addOperationHandler(GetJavaRDDOfElements.class, new GetJavaRDDOfElementsOperationHandler());
+        addOperationHandler(GetRDDOfElements.class, new GetRDDOfElementsOperationHandler());
+        addOperationHandler(GetRDDOfAllElements.class, new GetRDDOfAllElementsOperationHandler());
+        addOperationHandler(GetDataFrameOfElements.class, new GetDataFrameOfElementsOperationHandler());
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
         return new GetAdjacentEntitySeedsHandler();
     }
 

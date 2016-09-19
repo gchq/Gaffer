@@ -19,11 +19,11 @@ package gaffer.operation.impl.generate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
+import gaffer.commonutil.iterable.CloseableIterable;
+import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.operation.AbstractOperation;
-
 import java.util.List;
 
 /**
@@ -33,7 +33,7 @@ import java.util.List;
  * @param <OBJ> the type of objects in the output iterable.
  * @see gaffer.operation.impl.generate.GenerateObjects.Builder
  */
-public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends AbstractOperation<Iterable<ELEMENT_TYPE>, Iterable<OBJ>> {
+public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends AbstractOperation<CloseableIterable<ELEMENT_TYPE>, CloseableIterable<OBJ>> {
     private ElementGenerator<OBJ> elementGenerator;
 
     public GenerateObjects() {
@@ -58,13 +58,25 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
      * Constructs a <code>GenerateObjects</code> operation with input {@link gaffer.data.element.Element}s and an
      * {@link gaffer.data.generator.ElementGenerator} to convert the elements into objects.
      *
+     * @param elements         an {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be converted
+     * @param elementGenerator an {@link gaffer.data.generator.ElementGenerator} to convert
+     *                         {@link gaffer.data.element.Element}s into objects
+     */
+    public GenerateObjects(final CloseableIterable<ELEMENT_TYPE> elements, final ElementGenerator<OBJ> elementGenerator) {
+        super(elements);
+        this.elementGenerator = elementGenerator;
+    }
+
+    /**
+     * Constructs a <code>GenerateObjects</code> operation with input {@link gaffer.data.element.Element}s and an
+     * {@link gaffer.data.generator.ElementGenerator} to convert the elements into objects.
+     *
      * @param elements         an {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s to be converted
      * @param elementGenerator an {@link gaffer.data.generator.ElementGenerator} to convert
      *                         {@link gaffer.data.element.Element}s into objects
      */
     public GenerateObjects(final Iterable<ELEMENT_TYPE> elements, final ElementGenerator<OBJ> elementGenerator) {
-        super(elements);
-        this.elementGenerator = elementGenerator;
+        this(new WrappedCloseableIterable<>(elements), elementGenerator);
     }
 
     /**
@@ -76,16 +88,20 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
     }
 
     /**
-     * @return an {@link java.lang.Iterable} of {@link gaffer.data.element.Element}s to be converted
+     * @return an {@link CloseableIterable} of {@link gaffer.data.element.Element}s to be converted
      */
-    public Iterable<ELEMENT_TYPE> getElements() {
+    public CloseableIterable<ELEMENT_TYPE> getElements() {
         return getInput();
     }
 
     @JsonIgnore
     @Override
-    public Iterable<ELEMENT_TYPE> getInput() {
+    public CloseableIterable<ELEMENT_TYPE> getInput() {
         return super.getInput();
+    }
+
+    public void setInput(final Iterable<ELEMENT_TYPE> elements) {
+        super.setInput(new WrappedCloseableIterable<>(elements));
     }
 
     /**
@@ -111,13 +127,26 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
      */
     @JsonProperty(value = "elements")
     void setElementList(final List<ELEMENT_TYPE> elements) {
-        setInput(elements);
+        setInput(new WrappedCloseableIterable<>(elements));
     }
 
-    public static class Builder<ELEMENT_TYPE extends Element, OBJ>
-            extends AbstractOperation.Builder<GenerateObjects<ELEMENT_TYPE, OBJ>, Iterable<ELEMENT_TYPE>, Iterable<OBJ>> {
-        public Builder() {
+    public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, OBJ, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, OBJ, ?>>
+            extends AbstractOperation.BaseBuilder<GenerateObjects<ELEMENT_TYPE, OBJ>,
+            CloseableIterable<ELEMENT_TYPE>,
+            CloseableIterable<OBJ>,
+            CHILD_CLASS> {
+        public BaseBuilder() {
             super(new GenerateObjects<ELEMENT_TYPE, OBJ>());
+        }
+
+        /**
+         * @param elements the {@link CloseableIterable} of {@link gaffer.data.element.Element}s to set as the input to the operation
+         * @return this Builder
+         * @see gaffer.operation.Operation#setInput(Object)
+         */
+        public CHILD_CLASS elements(final CloseableIterable<ELEMENT_TYPE> elements) {
+            op.setInput(elements);
+            return self();
         }
 
         /**
@@ -125,9 +154,9 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
          * @return this Builder
          * @see gaffer.operation.Operation#setInput(Object)
          */
-        public Builder<ELEMENT_TYPE, OBJ> elements(final Iterable<ELEMENT_TYPE> elements) {
-            op.setInput(elements);
-            return this;
+        public CHILD_CLASS elements(final Iterable<ELEMENT_TYPE> elements) {
+            op.setInput(new WrappedCloseableIterable<>(elements));
+            return self();
         }
 
         /**
@@ -135,20 +164,16 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
          * @return this Builder
          * @see gaffer.operation.impl.generate.GenerateObjects#setElementGenerator(gaffer.data.generator.ElementGenerator)
          */
-        public Builder<ELEMENT_TYPE, OBJ> generator(final ElementGenerator<OBJ> generator) {
+        public CHILD_CLASS generator(final ElementGenerator<OBJ> generator) {
             op.setElementGenerator(generator);
-            return this;
+            return self();
         }
+    }
 
+    public static final class Builder<ELEMENT_TYPE extends Element, OBJ>
+            extends BaseBuilder<ELEMENT_TYPE, OBJ, Builder<ELEMENT_TYPE, OBJ>> {
         @Override
-        public Builder<ELEMENT_TYPE, OBJ> view(final View view) {
-            super.view(view);
-            return this;
-        }
-
-        @Override
-        public Builder<ELEMENT_TYPE, OBJ> option(final String name, final String value) {
-            super.option(name, value);
+        protected Builder<ELEMENT_TYPE, OBJ> self() {
             return this;
         }
     }

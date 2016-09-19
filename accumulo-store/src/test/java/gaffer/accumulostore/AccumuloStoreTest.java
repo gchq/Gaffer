@@ -16,11 +16,7 @@
 
 package gaffer.accumulostore;
 
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
-import static gaffer.store.StoreTrait.ORDERED;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -35,9 +31,9 @@ import gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
-import gaffer.accumulostore.operation.hdfs.impl.ImportAccumuloKeyValueFiles;
-import gaffer.accumulostore.operation.hdfs.impl.SampleDataForSplitPoints;
-import gaffer.accumulostore.operation.hdfs.impl.SplitTable;
+import gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
+import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
@@ -48,9 +44,13 @@ import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Validate;
@@ -60,7 +60,7 @@ import gaffer.operation.impl.generate.GenerateObjects;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.impl.get.GetElementsBySeed;
 import gaffer.operation.impl.get.GetRelatedElements;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.StoreException;
 import gaffer.store.StoreTrait;
 import gaffer.store.operation.handler.OperationHandler;
@@ -142,7 +142,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final Iterable<Element> results = store.execute(getBySeed, user);
+        final CloseableIterable<Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
@@ -153,9 +153,27 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final Iterable<Element> relatedResults = store.execute(getRelated, user);
+        CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
+
+        final GetRelatedElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetRelatedElements.Builder<EntitySeed, Element>()
+                .view(new View.Builder()
+                    .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                            .preAggregationFilter(new ElementFilter.Builder()
+                                    .select(TestPropertyNames.PROP_1)
+                                    .execute(new IsMoreThan(0))
+                                    .build())
+                            .postAggregationFilter(new ElementFilter.Builder()
+                                    .select(TestPropertyNames.COUNT)
+                                    .execute(new IsMoreThan(6))
+                                    .build())
+                            .build())
+                .build())
+                .addSeed(entitySeed1)
+                .build();
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
+        assertEquals(0, Iterables.size(relatedResults));
     }
 
     @Test
@@ -217,10 +235,12 @@ public class AccumuloStoreTest {
     public void testStoreTraits(AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 4", traits.size() == 5);
+        assertTrue("Collection size should be 7", traits.size() == 7);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
-        assertTrue("Collection should contain FILTERING trait", traits.contains(FILTERING));
+        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
+        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
         assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
+        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
     }

@@ -16,19 +16,21 @@
 
 package gaffer.data;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
+import gaffer.exception.SerialisationException;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransformIterableTest {
@@ -161,7 +163,30 @@ public class TransformIterableTest {
         }
     }
 
+    @Test
+    public void shouldSerialiseToJsonIterable() throws SerialisationException {
+        // Given
+        final String item1 = "item 1";
+        final String item2 = "item 2";
+        final Iterable<String> items = Arrays.asList(item1, item2);
+        final TransformIterable iterable = new TransformIterableImpl(items);
+
+        // When
+        final String json = new String(new JSONSerialiser().serialise(iterable));
+
+        // Then
+        assertEquals("[\"ITEM 1\",\"ITEM 2\"]", json);
+    }
+
     private class TransformIterableImpl extends TransformIterable<String, String> {
+        public TransformIterableImpl() {
+            super(null);
+        }
+
+        public TransformIterableImpl(final Iterable<String> input) {
+            super(input);
+        }
+
         public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator) {
             super(input, validator);
         }

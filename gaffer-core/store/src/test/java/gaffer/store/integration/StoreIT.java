@@ -17,13 +17,14 @@
 package gaffer.store.integration;
 
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.operation.Operation;
@@ -73,7 +74,7 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, FILTERING, TRANSFORMATION));
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
         public Set<StoreTrait> getTraits() {
@@ -85,17 +86,17 @@ public class StoreIT {
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, Iterable<Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds, Iterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+        protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
             return null;
         }
 

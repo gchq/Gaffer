@@ -36,7 +36,7 @@ public class LimitedCloseableIterableTest {
         final int end = 1;
 
         // When
-        final Iterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
+        final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
         // Then
         assertEquals(values.subList(start, end), Lists.newArrayList(limitedValues));
@@ -50,7 +50,7 @@ public class LimitedCloseableIterableTest {
         final int end = Integer.MAX_VALUE;
 
         // When
-        final Iterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
+        final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
         // Then
         assertEquals(values.subList(start, values.size()), Lists.newArrayList(limitedValues));
@@ -64,7 +64,7 @@ public class LimitedCloseableIterableTest {
         final int end = Integer.MAX_VALUE;
 
         // When
-        final Iterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
+        final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
         // Then
         assertEquals(values, Lists.newArrayList(limitedValues));
@@ -78,7 +78,7 @@ public class LimitedCloseableIterableTest {
         final int end = Integer.MAX_VALUE;
 
         // When
-        final Iterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
+        final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
         // Then
         assertTrue(Lists.newArrayList(limitedValues).isEmpty());

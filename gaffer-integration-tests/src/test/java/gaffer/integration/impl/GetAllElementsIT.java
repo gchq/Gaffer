@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.ElementComponentKey;
@@ -93,7 +94,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
                                         .execute(new IsIn(Arrays.asList((Object) 100, 101)))
                                         .build())
@@ -102,7 +103,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -130,7 +131,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .groupBy()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
                                         .execute(new IsIn(Arrays.asList((Object) 100, 101)))
                                         .build())
@@ -139,7 +140,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -148,7 +149,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
@@ -159,7 +160,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -169,14 +170,14 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
-    @TraitRequirement(StoreTrait.FILTERING)
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .populateProperties(true)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(IdentifierType.VERTEX)
                                         .execute(new IsEqual("A1"))
                                         .build())
@@ -185,7 +186,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -193,14 +194,14 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.FILTERING})
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING  })
     @Test
     public void shouldGetAllTransformedFilteredElements() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
                 .populateProperties(true)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .filter(new ElementFilter.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
                                         .select(IdentifierType.VERTEX)
                                         .execute(new IsEqual("A1"))
                                         .build())
@@ -216,7 +217,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -250,7 +251,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);

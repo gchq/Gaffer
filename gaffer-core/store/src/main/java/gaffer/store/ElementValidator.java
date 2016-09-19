@@ -21,8 +21,8 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaElementDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +37,14 @@ public class ElementValidator implements Validator<Element> {
     private final View view;
     private final boolean includeIsA;
 
+    public enum FilterType { PRE_AGGREGATION_FILTER, POST_AGGREGATION_FILTER, POST_TRANSFORM_FILTER };
+
     /**
      * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
      * validate {@link Element}s.
      *
      * @param schema the {@link Schema} to use to
-     *                   validate {@link Element}s.
+     *               validate {@link Element}s.
      */
     public ElementValidator(final Schema schema) {
         this(schema, true);
@@ -55,7 +57,7 @@ public class ElementValidator implements Validator<Element> {
      * them can be useful when you already know the data is of the correct type
      * and therefore you are able to improve the performance.
      *
-     * @param schema the {@link Schema} to use to
+     * @param schema     the {@link Schema} to use to
      *                   validate {@link gaffer.data.element.Element}s.
      * @param includeIsA if true then the ISA validate functions are used, otherwise they are skipped.
      */
@@ -93,7 +95,30 @@ public class ElementValidator implements Validator<Element> {
             return validateWithSchema(element);
         }
 
-        return validateWithView(element);
+        if (!validateAgainstViewFilter(element, FilterType.PRE_AGGREGATION_FILTER)) {
+            return false;
+        }
+        if (!validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER)) {
+            return false;
+        }
+        return validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
+
+    }
+
+    public boolean validateInput(final Element element) {
+        return validateAgainstViewFilter(element, FilterType.PRE_AGGREGATION_FILTER);
+    }
+
+    public boolean validateAggregation(final Element element) {
+        return validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER);
+    }
+
+    public boolean validateTransform(final Element element) {
+        return validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
+    }
+
+    public boolean validateAggregationTransformation(final Element element) {
+        return validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER) && validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
     }
 
     private boolean validateWithSchema(final Element element) {
@@ -106,14 +131,30 @@ public class ElementValidator implements Validator<Element> {
         return elementDef.getValidator(includeIsA).filter(element);
     }
 
-    private boolean validateWithView(final Element element) {
+    private boolean validateAgainstViewFilter(final Element element, final FilterType filterType) {
+        if (null == element) {
+            return false;
+        }
+        if (null != schema) {
+            return validateWithSchema(element);
+        }
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
         if (null == elementDef) {
-            LOGGER.warn("No element definition found for : " + element.getGroup());
             return false;
         }
 
-        final ElementFilter validator = elementDef.getFilter();
+        final ElementFilter validator = getElementFilter(elementDef, filterType);
         return null == validator || validator.filter(element);
     }
+
+    private ElementFilter getElementFilter(final ViewElementDefinition elementDef, final FilterType filterType) {
+        if (filterType == FilterType.PRE_AGGREGATION_FILTER) {
+            return elementDef.getPreAggregationFilter();
+        } else if (filterType == FilterType.POST_AGGREGATION_FILTER) {
+            return elementDef.getPostAggregationFilter();
+        } else {
+            return elementDef.getPostTransformFilter();
+        }
+    }
+
 }

@@ -28,6 +28,7 @@ import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
@@ -35,9 +36,9 @@ import gaffer.data.generator.OneToOneElementGenerator;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.get.GetAllElements;
-import gaffer.operation.simple.hdfs.AddElementsFromHdfs;
-import gaffer.operation.simple.hdfs.handler.jobfactory.TextJobInitialiser;
-import gaffer.operation.simple.hdfs.handler.mapper.TextMapperGenerator;
+import gaffer.operation.simple.hdfs.handler.job.initialiser.TextJobInitialiser;
+import gaffer.operation.simple.hdfs.mapper.generator.TextMapperGenerator;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import gaffer.user.User;
@@ -158,7 +159,7 @@ public class AddElementsFromHdfsIT {
                 .build(), new User());
 
         // Then
-        final Iterable<Element> elements = graph.execute(new GetAllElements<>(), new User());
+        final CloseableIterable<Element> elements = graph.execute(new GetAllElements<>(), new User());
         final List<Element> elementList = Lists.newArrayList(elements);
         assertEquals(NUM_ENTITIES, elementList.size());
         for (int i = 0; i < NUM_ENTITIES; i++) {

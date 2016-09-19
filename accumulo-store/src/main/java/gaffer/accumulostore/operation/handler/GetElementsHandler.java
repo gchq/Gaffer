@@ -20,6 +20,7 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.IteratorSettingFactory;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
@@ -30,21 +31,22 @@ import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.user.User;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, Iterable<Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
                                          final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public Iterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
                                          final User user,
                                          final AccumuloStore store) throws OperationException {
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloSingleIDRetriever(store, operation, user,
-                    itrFactory.getElementFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
