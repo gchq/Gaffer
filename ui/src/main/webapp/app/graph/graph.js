@@ -81,21 +81,6 @@ angular.module('app').factory('graph', [ '$q', function( $q ){
 
   graph.listeners = {};
 
-  function fire(e, args){
-    var listeners = graph.listeners[e];
-
-    for( var i = 0; listeners && i < listeners.length; i++ ){
-      var fn = listeners[i];
-
-      fn.apply( fn, args );
-    }
-  }
-
-  function listen(e, fn){
-    var listeners = graph.listeners[e] = graph.listeners[e] || [];
-
-    listeners.push(fn);
-  }
   graph.update = function(results) {
     for (var id in results.entities) {
         var existingNodes = graphCy.getElementById(id);
@@ -216,7 +201,23 @@ angular.module('app').factory('graph', [ '$q', function( $q ){
     };
 
    graph.selectAllNodes = function() {
-    graphCy.filter('node').select();
+       graphCy.filter('node').select();
+   }
+
+   function fire(e, args){
+       var listeners = graph.listeners[e];
+
+       for( var i = 0; listeners && i < listeners.length; i++ ){
+         var fn = listeners[i];
+
+         fn.apply( fn, args );
+       }
+   }
+
+   function listen(e, fn){
+       var listeners = graph.listeners[e] = graph.listeners[e] || [];
+
+       listeners.push(fn);
    }
   return graph;
 } ]);

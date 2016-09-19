@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$http', '$location', 'settings', 'graph', 'rawData', function($scope, $mdDialog, $http, $location, settings, graph, rawData){
+angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$http', '$location', 'settings', 'graph', 'raw', 'table', function($scope, $mdDialog, $http, $location, settings, graph, raw, table){
     $scope.settings = settings;
-    $scope.rawData = rawData;
+    $scope.rawData = raw;
     $scope.graph = graph;
+    $scope.table = table;
     $scope.operations = [];
 
     $scope.graphData = {entities: {}, edges: {}};
-    $scope.tableData = {entities: {}, edges: {}};
 
     $scope.selectedElementTabIndex = 0;
     $scope.selectedEntities = {};
@@ -60,11 +60,14 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
         $scope.openGraph();
 
         var updateResultsListener = function() {
-            updateGraphData();
-            updateTableData();
+            updateGraphData(raw.results);
+            table.update(raw.results);
+            if(!$scope.$$phase) {
+               $scope.$apply();
+            }
         }
 
-        rawData.initialise(updateResultsListener);
+        raw.initialise(updateResultsListener);
     };
 
     function addSeedDialogController($scope, $mdDialog) {
@@ -97,17 +100,17 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
       };
 
     var getVertexTypeFromEntityGroup = function(group) {
-        for(var entityGroup in rawData.schema.entities) {
+        for(var entityGroup in raw.schema.entities) {
             if(entityGroup === group) {
-                return rawData.schema.entities[entityGroup].vertex;
+                return raw.schema.entities[entityGroup].vertex;
             }
         }
     }
 
     var getVertexTypesFromEdgeGroup = function(group) {
-        for(var edgeGroup in rawData.schema.edges) {
+        for(var edgeGroup in raw.schema.edges) {
             if(edgeGroup === group) {
-               return [rawData.schema.edges[edgeGroup].source, rawData.schema.edges[edgeGroup].destination];
+               return [raw.schema.edges[edgeGroup].source, raw.schema.edges[edgeGroup].destination];
             }
         }
     }
@@ -116,8 +119,8 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
         $scope.relatedEntities = [];
         for(id in $scope.selectedEntities) {
             var vertexType = $scope.selectedEntities[id][0].vertexType;
-            for(var entityGroup in rawData.schema.entities) {
-                var entity = rawData.schema.entities[entityGroup];
+            for(var entityGroup in raw.schema.entities) {
+                var entity = raw.schema.entities[entityGroup];
                 if(entity.vertex === vertexType
                     && $scope.relatedEntities.indexOf(entityGroup) === -1) {
                     $scope.relatedEntities.push(entityGroup);
@@ -130,8 +133,8 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
         $scope.relatedEdges = [];
         for(id in $scope.selectedEntities) {
             var vertexType = $scope.selectedEntities[id][0].vertexType;
-            for(var edgeGroup in rawData.schema.edges) {
-                var edge = rawData.schema.edges[edgeGroup];
+            for(var edgeGroup in raw.schema.edges) {
+                var edge = raw.schema.edges[edgeGroup];
                 if((edge.source === vertexType || edge.destination === vertexType)
                     && $scope.relatedEdges.indexOf(edgeGroup) === -1) {
                     $scope.relatedEdges.push(edgeGroup);
@@ -183,8 +186,6 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
     var convertFilterFunctions = function(expandElementContent) {
         var filterFunctions = [];
         if(expandElementContent) {
-        //for(var i in expandElementContent) {
-            //var filters = expandElementContent[i];
             var filter = expandElementContent;
             if(filter.property && filter['function']) {
                 var functionJson = {
@@ -202,17 +203,16 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
 
                 filterFunctions.push(functionJson);
             }
-        //}
         }
         return filterFunctions;
     }
 
     $scope.clearResults = function() {
-        rawData.clearResults();
+        raw.clearResults();
         $scope.selectedEntities = {};
         $scope.selectedEdges = {};
         $scope.graphData = {entities: {}, edges: {}};
-        $scope.tableData = {entities: {}, edges: {}};
+        table.clear();
         graph.clear();
     }
 
@@ -220,10 +220,10 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
         graph.update($scope.graphData);
     }
 
-    var updateGraphData = function() {
+    var updateGraphData = function(results) {
         $scope.graphData = {entities: {}, edges: {}};
-        for (var i in rawData.results.entities) {
-            var entity = clone(rawData.results.entities[i]);
+        for (var i in results.entities) {
+            var entity = clone(results.entities[i]);
             var id = entity.vertex;
             entity.vertexType = getVertexTypeFromEntityGroup(entity.group);
             if(id in $scope.graphData.entities) {
@@ -235,8 +235,8 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
             }
         }
 
-        for (var i in rawData.results.edges) {
-            var edge = clone(rawData.results.edges[i]);
+        for (var i in results.edges) {
+            var edge = clone(results.edges[i]);
             var vertexTypes = getVertexTypesFromEdgeGroup(edge.group);
             edge.sourceType = vertexTypes[0];
             edge.destinationType = vertexTypes[1];
@@ -254,29 +254,6 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
 
     var clone = function(obj) {
         return JSON.parse(JSON.stringify(obj));
-    }
-
-    var updateTableData = function() {
-        $scope.tableData = {entities: {}, edges: {}};
-        for (var i in rawData.results.entities) {
-            var entity = rawData.results.entities[i];
-            if(!$scope.tableData.entities[entity.group]) {
-                $scope.tableData.entities[entity.group] = [];
-            }
-            $scope.tableData.entities[entity.group].push(entity);
-        }
-
-        for (var i in rawData.results.edges) {
-            var edge = rawData.results.edges[i];
-            if(!$scope.tableData.edges[edge.group]) {
-                $scope.tableData.edges[edge.group] = [];
-            }
-            $scope.tableData.edges[edge.group].push(edge);
-        }
-
-        if(!$scope.$$phase) {
-            $scope.$apply();
-          }
     }
 
     var createOperation = function() {
@@ -310,7 +287,7 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
         var operation = createExtendQueryOperation();
         $scope.operations.push(operation);
         $scope.resetExtendQuery();
-        rawData.execute(JSON.stringify({operations: [operation]}));
+        raw.execute(JSON.stringify({operations: [operation]}));
     };
 
     var createCountOperation = function() {
@@ -336,14 +313,14 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
             $scope.expandQueryCounts = data;
         }
         $scope.expandQueryCounts = undefined;
-        rawData.execute(JSON.stringify(operations), onSuccess);
+        raw.execute(JSON.stringify(operations), onSuccess);
     };
 
     $scope.executeAll = function() {
         $scope.clearResults();
         $scope.resetExtendQuery();
        for(var i in $scope.operations) {
-           rawData.execute(JSON.stringify({operations: [$scope.operations[i]]}));
+           raw.execute(JSON.stringify({operations: [$scope.operations[i]]}));
        }
     }
 
@@ -412,7 +389,7 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
   }
 
   $scope.onSelectedPropertyChange = function(group, selectedElement) {
-    rawData.functions(group, selectedElement.property, function(data) {
+    raw.functions(group, selectedElement.property, function(data) {
         selectedElement.availableFunctions = data
         $scope.$apply();
     });
@@ -420,7 +397,7 @@ angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$htt
   }
 
   $scope.onSelectedFunctionChange = function(group, selectedElement) {
-    rawData.functionParameters(selectedElement['function'], function(data) {
+    raw.functionParameters(selectedElement['function'], function(data) {
         selectedElement.availableFunctionParameters = data;
         $scope.$apply();
     });

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-angular.module('app').factory('rawData', ['$http', 'settings', function($http, settings){
-    var rawData = {};
-    rawData.results = {entities: [], edges: []};
+angular.module('app').factory('raw', ['$http', 'settings', function($http, settings){
+    var raw = {};
+    raw.results = {entities: [], edges: []};
 
     var updateResultsListener;
-    rawData.initialise = function(newUpdateResultsListener) {
-        rawData.loadSchema();
+    raw.initialise = function(newUpdateResultsListener) {
+        raw.loadSchema();
         updateResultsListener = newUpdateResultsListener;
     };
 
-    rawData.loadSchema = function() {
+    raw.loadSchema = function() {
         var schema;
-        rawData.schema = {};
+        raw.schema = {};
         updateSchemaVertices();
         $http.get(settings.restUrl + "/graph/schema")
              .success(function(data){
-                rawData.schema = data;
+                raw.schema = data;
                 updateSchemaVertices();
              })
              .error(function(arg) {
@@ -38,7 +38,7 @@ angular.module('app').factory('rawData', ['$http', 'settings', function($http, s
              });
     };
 
-    rawData.execute = function(operationChain, onSuccess) {
+    raw.execute = function(operationChain, onSuccess) {
         var queryUrl = settings.restUrl + "/graph/doOperation";
         if(!queryUrl.startsWith("http")) {
             queryUrl = "http://" + queryUrl;
@@ -62,37 +62,37 @@ angular.module('app').factory('rawData', ['$http', 'settings', function($http, s
        });
     }
 
-    rawData.clearResults = function() {
-        rawData.results = {entities: [], edges: []};
+    raw.clearResults = function() {
+        raw.results = {entities: [], edges: []};
     }
 
-    rawData.entityProperties = function(entity) {
-        if(Object.keys(rawData.schema.entities[entity].properties).length) {
-            return rawData.schema.entities[entity].properties;
+    raw.entityProperties = function(entity) {
+        if(Object.keys(raw.schema.entities[entity].properties).length) {
+            return raw.schema.entities[entity].properties;
         }
 
         return undefined;
     }
 
-    rawData.edgeProperties = function(edge) {
-        if(Object.keys(rawData.schema.edges[edge].properties).length) {
-            return rawData.schema.edges[edge].properties;
+    raw.edgeProperties = function(edge) {
+        if(Object.keys(raw.schema.edges[edge].properties).length) {
+            return raw.schema.edges[edge].properties;
         }
 
         return undefined;
     }
 
-    rawData.functions = function(group, property, onSuccess) {
+    raw.functions = function(group, property, onSuccess) {
         var type;
-        if(rawData.schema.entities[group]) {
-            type = rawData.schema.entities[group].properties[property];
-        } else if(rawData.schema.edges[group]) {
-           type = rawData.schema.edges[group].properties[property];
+        if(raw.schema.entities[group]) {
+            type = raw.schema.entities[group].properties[property];
+        } else if(raw.schema.edges[group]) {
+           type = raw.schema.edges[group].properties[property];
        }
 
        var className = "";
        if(type) {
-         className = rawData.schema.types[type].class;
+         className = raw.schema.types[type].class;
        }
 
        var queryUrl = settings.restUrl + "/graph/filterFunctions/" + className;
@@ -113,7 +113,7 @@ angular.module('app').factory('rawData', ['$http', 'settings', function($http, s
        return [];
     }
 
-    rawData.functionParameters = function(functionClassName, onSuccess) {
+    raw.functionParameters = function(functionClassName, onSuccess) {
           var queryUrl = settings.restUrl + "/graph/serialisedFields/" + functionClassName;
           if(!queryUrl.startsWith("http")) {
               queryUrl = "http://" + queryUrl;
@@ -135,10 +135,10 @@ angular.module('app').factory('rawData', ['$http', 'settings', function($http, s
             for (var i in results) {
                 var element = results[i];
                 if(element.vertex !== undefined && element.vertex !== '') {
-                    rawData.results.entities.push(element);
+                    raw.results.entities.push(element);
                 } else if(element.source !== undefined && element.source !== ''
                 && element.destination !== undefined && element.destination !== '') {
-                    rawData.results.edges.push(element);
+                    raw.results.edges.push(element);
                 }
             }
         }
@@ -148,24 +148,24 @@ angular.module('app').factory('rawData', ['$http', 'settings', function($http, s
 
     var updateSchemaVertices = function() {
         var vertices = [];
-        if(rawData.schema) {
-            for(var i in rawData.schema.entities) {
-                if(vertices.indexOf(rawData.schema.entities[i].vertex) == -1) {
-                    vertices.push(rawData.schema.entities[i].vertex);
+        if(raw.schema) {
+            for(var i in raw.schema.entities) {
+                if(vertices.indexOf(raw.schema.entities[i].vertex) == -1) {
+                    vertices.push(raw.schema.entities[i].vertex);
                 }
             }
-            for(var i in rawData.schema.edges) {
-                if(vertices.indexOf(rawData.schema.edges[i].source) == -1) {
-                    vertices.push(rawData.schema.edges[i].source);
+            for(var i in raw.schema.edges) {
+                if(vertices.indexOf(raw.schema.edges[i].source) == -1) {
+                    vertices.push(raw.schema.edges[i].source);
                 }
-                if(vertices.indexOf(rawData.schema.edges[i].destination) == -1) {
-                    vertices.push(rawData.schema.edges[i].destination);
+                if(vertices.indexOf(raw.schema.edges[i].destination) == -1) {
+                    vertices.push(raw.schema.edges[i].destination);
                 }
             }
         }
 
-        rawData.schemaVertices = vertices;
+        raw.schemaVertices = vertices;
     }
 
-    return rawData;
+    return raw;
 } ]);

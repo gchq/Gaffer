@@ -9,7 +9,7 @@
                                placeholder="Search vertices and properties">
 
                         <div ng-repeat="(group, schemaEntity) in rawData.schema.entities">
-                            <div ng-show="tableData.entities[group].length > 0">
+                            <div ng-show="table.data.entities[group].length > 0">
                                 <h4><b>{{group}}</b></h4>
                                 <table class="table table-striped">
                                     <tbody>
@@ -28,7 +28,7 @@
                                             {{name}}
                                         </th>
                                     </tr>
-                                    <tr ng-repeat="entity in tableData.entities[group] | orderBy:sortType:sortReverse | filter:searchResults">
+                                    <tr ng-repeat="entity in table.data.entities[group] | orderBy:sortType:sortReverse | filter:searchResults">
                                         <td>
                                             {{entity.vertex}}
                                         </td>
@@ -50,7 +50,7 @@
                                placeholder="Search vertices and properties">
 
                         <div ng-repeat="(group, schemaEdge) in rawData.schema.edges">
-                            <div ng-show="tableData.edges[group].length > 0">
+                            <div ng-show="table.data.edges[group].length > 0">
                                 <h4><b>{{group}}</b></h4>
                                 <table class="table table-striped">
                                     <tbody>
@@ -89,7 +89,7 @@
                                             {{name}}
                                         </th>
                                     </tr>
-                                    <tr ng-repeat="edge in tableData.edges[group] | orderBy:sortType:sortReverse | filter:searchResults">
+                                    <tr ng-repeat="edge in table.data.edges[group] | orderBy:sortType:sortReverse | filter:searchResults">
                                         <td>
                                             {{edge.source}}
                                         </td>
