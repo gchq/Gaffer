@@ -92,13 +92,13 @@
                                 <port>8080</port>
                             </httpConnector>
                             <webApp>
-                                <contextPath>/rest</contextPath>
+                                <contextPath>/${project.artifactId}</contextPath>
                             </webApp>
                             <war>${project.build.directory}/${project.artifactId}.war</war>
                             <systemProperties>
                                 <systemProperty>
                                     <name>gaffer.rest-api.basePath</name>
-                                    <value>rest/v1</value>
+                                    <value>${project.artifactId}/v1</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>gaffer.schemas</name>
