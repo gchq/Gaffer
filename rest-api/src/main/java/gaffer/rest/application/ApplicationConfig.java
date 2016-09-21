@@ -44,8 +44,6 @@ public class ApplicationConfig extends Application {
 
     protected void setupBeanConfig() {
         BeanConfig beanConfig = new BeanConfig();
-        beanConfig.setSchemes(new String[]{"http"});
-        beanConfig.setHost(System.getProperty(SystemProperty.HOST_AND_PORT, SystemProperty.HOST_AND_PORT_DEFAULT));
         String baseUrl = System.getProperty(SystemProperty.BASE_URL, SystemProperty.BASE_URL_DEFAULT);
         if (!baseUrl.startsWith("/")) {
             baseUrl = "/" + baseUrl;

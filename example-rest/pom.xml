@@ -45,20 +45,35 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>example-rest</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <webResources>
-                        <resource>
-                            <directory>dependencies/swagger</directory>
-                        </resource>
-                    </webResources>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.parent.groupId}</groupId>
+                                    <artifactId>rest-api</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>war</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
         </plugins>
     </build>
     <!-- Use this profile to create an war with embedded jetty-->
@@ -79,7 +94,7 @@
                             <webApp>
                                 <contextPath>/rest</contextPath>
                             </webApp>
-                            <war>${project.basedir}/target/${project.artifactId}.war</war>
+                            <war>${project.build.directory}/${project.artifactId}.war</war>
                             <systemProperties>
                                 <systemProperty>
                                     <name>gaffer.rest-api.basePath</name>
