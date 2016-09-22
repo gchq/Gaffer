@@ -94,7 +94,7 @@
                             <webApp>
                                 <contextPath>/${project.artifactId}</contextPath>
                             </webApp>
-                            <war>${project.build.directory}/${project.artifactId}.war</war>
+                            <war>${project.build.directory}/${project.artifactId}-${project.version}.war</war>
                             <systemProperties>
                                 <systemProperty>
                                     <name>gaffer.rest-api.basePath</name>
