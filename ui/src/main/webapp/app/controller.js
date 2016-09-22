@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-angular.module('app').controller('AppController', [ '$scope', '$mdDialog', '$http', '$location', 'settings', 'graph', 'raw', 'table', function($scope, $mdDialog, $http, $location, settings, graph, raw, table){
+angular.module('app').controller('AppController',
+    [ '$scope', '$mdDialog', '$http', '$location', 'settings', 'graph', 'raw', 'table',
+    function($scope, $mdDialog, $http, $location, settings, graph, raw, table){
+
     $scope.settings = settings;
     $scope.rawData = raw;
     $scope.graph = graph;
