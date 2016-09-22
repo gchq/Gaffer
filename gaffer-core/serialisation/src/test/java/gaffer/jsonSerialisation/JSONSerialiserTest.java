@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.serialisation.test.ParameterisedTestObject;
@@ -73,7 +74,7 @@ public class JSONSerialiserTest {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
         byte[] bytes = serialiser.serialise(test, true);
-        assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
+        JsonUtil.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
     @Test
@@ -100,7 +101,8 @@ public class JSONSerialiserTest {
         test.setX("Test");
         test.setK(2);
         byte[] b = serialiser.serialise(test);
-        ParameterisedTestObject<Integer> o = serialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {});
+        ParameterisedTestObject<Integer> o = serialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {
+        });
         assertEquals("Test", o.getX());
         assertEquals(Integer.valueOf(2), o.getK());
     }
