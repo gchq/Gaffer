@@ -21,9 +21,11 @@ import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -46,6 +48,11 @@ public interface IGraphConfigurationService {
     @Path("/filterFunctions")
     @ApiOperation(value = "Gets available filter functions. See <a href='https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
     List<Class> getFilterFunctions();
+
+    @GET
+    @Path("/filterFunctions/{inputClass}")
+    @ApiOperation(value = "Gets available filter functions for the given input class is provided.  See <a href='https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
+    List<Class> getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
 
     @GET
     @Path("/transformFunctions")
@@ -72,4 +79,9 @@ public interface IGraphConfigurationService {
     @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",
             response = Boolean.class)
     Boolean isOperationSupported(final Class<? extends Operation> operation);
+
+    @GET
+    @Path("/serialisedFields/{className}")
+    @ApiOperation(value = "Gets all serialised fields for a given java class.", response = String.class, responseContainer = "list")
+    List<String> getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
 }

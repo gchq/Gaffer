@@ -1,0 +1,317 @@
+<div>
+    <div class="container bottomPanel"
+         ng-show="selectedEntitiesCount && !showExtendQuery">
+        <div ng-repeat="(vertex, entities) in selectedEntities">
+            <h3>{{vertex}}</h3>
+
+            <p ng-show="!entities.length || !entities[0].group">No entities</p>
+            <table class="table table-striped"
+                   ng-show="entities.length && entities[0].group">
+                <tbody>
+                <tr ng-repeat="entity in entities">
+                    <td>
+                        {{entity.group}}
+                    </td>
+                    <td>
+                        <p ng-repeat="(key, value) in entity.properties">
+                            {{key}}: {{value}}
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container bottomPanel"
+         ng-show="selectedEdgesCount && !showExtendQuery">
+        <div ng-repeat="(id, edges) in selectedEdges">
+            <h3>{{edges[0].source}} to {{edges[0].destination}}</h3>
+            <table class="table table-striped">
+                <tbody>
+                <tr ng-repeat="edge in edges">
+                    <td>
+                        {{edge.group}}
+                    </td>
+                    <td>
+                        <p ng-repeat="(key, value) in edge.properties">
+                            {{key}}: {{value}}
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="extendQuery" class="container bottomPanel"
+         ng-show="showExtendQuery">
+
+        <div class="panelHeading">
+            <h3>Extend query</h3>
+        </div>
+
+        <div>
+            <md-content>
+                <md-tabs md-dynamic-height md-border-bottom
+                         md-selected="extendQueryStep">
+                    <md-tab label="Step1" ng-disabled="extendQueryStep != 0">
+                        <md-content class="md-padding">
+                            <h4>
+                                Select seeds (ctrl click for multiple)
+                                <button ng-click="graph.selectAllNodes()"
+                                        class="btn btn-default">
+                                    Select all
+                                </button>
+                            </h4>
+
+                            <p ng-repeat="(vertex, entities) in selectedEntities">
+                                {{vertex}}
+                            </p>
+
+                            <button ng-click="resetExtendQuery(4)"
+                                    class="btn btn-default">
+                                Cancel
+                            </button>
+                            <button ng-click="goToStep(2)"
+                                    class="btn btn-primary"
+                                    ng-show="selectedEntitiesCount">
+                                Next
+                            </button>
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Step2"
+                            ng-disabled="extendQueryStep != 1">
+                        <md-content class="md-padding">
+                            <h4>Select related entities</h4>
+
+                            <p ng-show="relatedEntities.length === 0">
+                                No related entities
+                            </p>
+
+                            <div ng-repeat="entity in relatedEntities">
+                                <md-checkbox
+                                        ng-checked="exists(entity, expandEntities)"
+                                        ng-click="toggle(entity, expandEntities)">
+                                    {{entity}}
+                                </md-checkbox>
+                            </div>
+
+
+                            <h4>Select related edges</h4>
+
+                            <p ng-show="relatedEdges.length === 0">
+                                No related edges
+                            </p>
+
+                            <div ng-repeat="edge in relatedEdges">
+                                <md-checkbox
+                                        ng-checked="exists(edge, expandEdges)"
+                                        ng-click="toggle(edge, expandEdges)">
+                                    {{edge}}
+                                </md-checkbox>
+                            </div>
+
+                            <button ng-click="resetExtendQuery()"
+                                    class="btn btn-default">
+                                Cancel
+                            </button>
+                            <button ng-click="goToStep(3)"
+                                    class="btn btn-primary"
+                                    ng-show="(expandEntities.length + expandEdges.length)">
+                                Next
+                            </button>
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Step3"
+                            ng-disabled="extendQueryStep != 2">
+                        <md-content class="md-padding">
+                            <h4>Add property filters</h4>
+
+                            <p ng-show="expandQueryCounts.limitHit">
+                                The number of results may exceed
+                                limit of {{settings.resultLimit}}.
+                                Only the first {{settings.resultLimit}} results
+                                will be used.
+                            </p>
+
+                            <div ng-show="expandEntities.length">
+                                <h4>Entities</h4>
+
+                                <div ng-repeat="entity in expandEntities">
+                                    <h5>
+                                        {{entity}}
+                                        <span ng-show="!rawData.entityProperties(entity)"> - no properties</span>
+                                    </h5>
+
+                                    <p ng-show="!expandQueryCounts.limitHit">
+                                        Number of results without filters:
+                                        <span ng-show="expandQueryCounts.entityGroups[entity]">
+                                            {{expandQueryCounts.entityGroups[entity]}}
+                                        </span>
+                                        <span ng-show="!expandQueryCounts.entityGroups[entity]">
+                                            0
+                                        </span>
+                                    </p>
+                                    <table class="table table-striped"
+                                           ng-show="rawData.entityProperties(entity)">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-control"
+                                                        ng-model="expandEntitiesContent[entity].property"
+                                                        ng-options="name as name for (name, type) in rawData.entityProperties(entity)"
+                                                        ng-change="onSelectedPropertyChange(entity, expandEntitiesContent[entity])">
+                                                    <option value="" disabled
+                                                            selected>
+                                                        Select a property
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="form-control"
+                                                        ng-model="expandEntitiesContent[entity].function"
+                                                        ng-options="function as function for function in expandEntitiesContent[entity].availableFunctions"
+                                                        ng-change="onSelectedFunctionChange(entity, expandEntitiesContent[entity])">
+                                                    <option value="" disabled
+                                                            selected>
+                                                        Select a function
+                                                    </option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <div ng-repeat="(idx, param) in expandEntitiesContent[entity].availableFunctionParameters">
+                                                    <p class="inline">
+                                                        {{param}}:</p>
+                                                    <input type="text"
+                                                           class="form-control inline"
+                                                           ng-model="expandEntitiesContent[entity].parameters[idx]">
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div ng-show="expandEdges.length">
+                                <h4>Edges</h4>
+
+                                <div ng-repeat="edge in expandEdges">
+                                    <h5>
+                                        {{edge}}
+                                        <span ng-show="!rawData.edgeProperties(edge)"> - no properties</span>
+                                    </h5>
+
+
+                                    <p ng-show="expandQueryCounts && !expandQueryCounts.limitHit">
+                                        Number of results without filters:
+                                        <span ng-show="expandQueryCounts.edgeGroups[edge]">
+                                            {{expandQueryCounts.edgeGroups[edge]}}
+                                        </span>
+                                        <span ng-show="!expandQueryCounts.edgeGroups[edge]">
+                                            0
+                                        </span>
+                                    </p>
+                                    <table class="table table-striped"
+                                           ng-show="rawData.edgeProperties(edge)">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-control"
+                                                        ng-model="expandEdgesContent[edge].property"
+                                                        ng-options="name as name for (name, type) in rawData.edgeProperties(edge)"
+                                                        ng-change="onSelectedPropertyChange(edge, expandEdgesContent[edge])">
+                                                    <option value="" disabled
+                                                            selected>
+                                                        Select a property
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="form-control"
+                                                        ng-model="expandEdgesContent[edge].function"
+                                                        ng-options="function as function for function in expandEdgesContent[edge].availableFunctions"
+                                                        ng-change="onSelectedFunctionChange(edge, expandEdgesContent[edge])">
+                                                    <option value="" disabled
+                                                            selected>
+                                                        Select a function
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div ng-repeat="(idx, param) in expandEdgesContent[edge].availableFunctionParameters">
+                                                    <p class="inline">
+                                                        {{param}}:</p>
+                                                    <input type="text"
+                                                           class="form-control inline"
+                                                           ng-model="expandEdgesContent[edge].parameters[idx]">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <button ng-click="resetExtendQuery()"
+                                    class="btn btn-default">
+                                Cancel
+                            </button>
+                            <button ng-click="goToStep(4)"
+                                    class="btn btn-primary">
+                                Next
+                            </button>
+
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Step4"
+                            ng-disabled="extendQueryStep != 3"
+                            ng-hide="true">
+                        <md-content class="md-padding">
+                            <h4>Additional query options</h4>
+
+                            <div ng-show="expandQueryCounts">
+                                <p ng-show="expandQueryCounts.limitHit">
+                                    The number of results may exceed
+                                    limit of {{settings.resultLimit}}.
+                                    Only the first {{settings.resultLimit}}
+                                    results will be used.
+                                </p>
+
+                                <p ng-show="!expandQueryCounts.limitHit">
+                                    Number of results:
+                                    {{expandQueryCounts.total}}
+                                </p>
+                            </div>
+
+                            <md-radio-group id="inoutflag" ng-model="inOutFlag">
+                                <label>In/Out edges:</label>
+                                <md-radio-button value="INCOMING">
+                                    Incoming
+                                </md-radio-button>
+                                <md-radio-button value="OUTGOING">
+                                    Outgoing
+                                </md-radio-button>
+                                <md-radio-button value="BOTH">
+                                    Both
+                                </md-radio-button>
+                            </md-radio-group>
+
+                            <button ng-click="resetExtendQuery()"
+                                    class="btn btn-default">
+                                Cancel
+                            </button>
+                            <button ng-click="executeExtendQuery()"
+                                    class="btn btn-primary">
+                                Execute
+                            </button>
+                        </md-content>
+                    </md-tab>
+                </md-tabs>
+            </md-content>
+        </div>
+    </div>
+</div>

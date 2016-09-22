@@ -1,0 +1,60 @@
+<div layout-fill class="container">
+    <div ng-cloak layout-fill>
+        <md-content layout-fill>
+            <md-tabs layout-fill md-max-height md-border-bottom>
+                <md-tab label="Query">
+                    <md-content class="md-padding">
+                        <h3>
+                            Operations
+
+                            <button class="btn btn-primary"
+                                    ng-show="!editingOperations"
+                                    ng-click="editOperations()">
+                                Edit
+                            </button>
+
+                            <button class="btn btn-primary"
+                                    ng-show="editingOperations"
+                                    ng-click="saveOperations()">
+                                Save
+                            </button>
+
+                        </h3>
+
+                        <div ng-repeat="(i, json) in operations track by $index">
+                            <pre ng-show="!editingOperations">
+                                {{operations[i] | json}}
+                            </pre>
+                            <textarea ng-model="operationsForEdit[i]"
+                                      ng-blur="onOperationsChange()"
+                                      ng-show="editingOperations">>
+                            </textarea>
+                        </div>
+
+                        <!--<div>-->
+                        <button class="btn btn-primary"
+                                ng-click="addOperation()">
+                            Add Operation
+                        </button>
+                        <!--</div>-->
+                    </md-content>
+                </md-tab>
+                <md-tab label="Results">
+                    <md-content class="md-padding">
+                        <h3>Results</h3>
+
+                        <h4>Entities</h4>
+                        <pre>
+                            {{rawData.results.entities | json}}
+                        </pre>
+
+                        <h4>Edges</h4>
+                        <pre>
+                            {{rawData.results.edges | json}}
+                        </pre>
+                    </md-content>
+                </md-tab>
+            </md-tabs>
+        </md-content>
+    </div>
+</div>
