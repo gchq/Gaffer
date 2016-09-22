@@ -18,10 +18,10 @@ package gaffer.operation.simple.hdfs.operation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
-import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder().option("testOption","true").validate(true).addInputPath("input").failurePath("fail").mappers(10).reducers(20).outputPath("output").build();
+        AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder().option("testOption", "true").validate(true).addInputPath("input").failurePath("fail").mappers(10).reducers(20).outputPath("output").build();
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isValidate());
         assertEquals("fail", addElements.getFailurePath());
@@ -71,7 +71,7 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
         // When
         String json = new String(serialiser.serialise(addElementsFromHdfs, true));
         // Then
-        assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
+        JsonUtil.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
     }
 
     @Test

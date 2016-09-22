@@ -5,10 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
-import gaffer.types.simple.FreqMap;
 import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.types.simple.FreqMap;
 import org.junit.Test;
 
 public class FreqMapAggregatorTest extends AggregateFunctionTest {
@@ -64,7 +65,7 @@ public class FreqMapAggregatorTest extends AggregateFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
 
         // Then 1
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.aggregate.FreqMapAggregator\"%n" +
                 "}"), json);
 

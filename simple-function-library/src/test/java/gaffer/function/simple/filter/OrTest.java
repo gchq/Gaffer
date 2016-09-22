@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.ArrayTuple;
 import gaffer.function.FilterFunction;
@@ -178,7 +179,7 @@ public class OrTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.Or\",%n" +
                 "  \"functions\" : [ {%n" +
                 "    \"function\" : {%n" +
