@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -116,7 +117,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.IsShorterThan\",%n" +
                 "  \"maxLength\" : 5%n" +
                 "}"), json);

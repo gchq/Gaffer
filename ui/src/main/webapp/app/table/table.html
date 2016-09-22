@@ -1,0 +1,116 @@
+<div layout-fill class="container">
+    <div ng-cloak layout-fill>
+        <md-content layout-fill>
+            <md-tabs layout-fill md-max-height md-border-bottom>
+                <md-tab label="Entities">
+                    <md-content class="md-padding">
+                        <input ng-model="searchResults" type="text"
+                               class="form-control"
+                               placeholder="Search vertices and properties">
+
+                        <div ng-repeat="(group, schemaEntity) in rawData.schema.entities">
+                            <div ng-show="table.data.entities[group].length > 0">
+                                <h4><b>{{group}}</b></h4>
+                                <table class="table table-striped">
+                                    <tbody>
+                                    <tr>
+                                        <th>
+                                            <a href="#"
+                                               ng-click="sortType = 'vertex'; sortReverse = !sortReverse">
+                                                Vertex
+                                                <span ng-show="sortType === 'vertex' && !sortReverse"
+                                                      class="caret"></span>
+                                                <span ng-show="sortType === 'vertex' && sortReverse"
+                                                      class="caret caret-up"></span>
+                                            </a>
+                                        </th>
+                                        <th ng-repeat="(name, type) in schemaEntity.properties">
+                                            {{name}}
+                                        </th>
+                                    </tr>
+                                    <tr ng-repeat="entity in table.data.entities[group] | orderBy:sortType:sortReverse | filter:searchResults">
+                                        <td>
+                                            {{entity.vertex}}
+                                        </td>
+                                        <td ng-repeat="(name, type) in schemaEntity.properties">
+                                            {{entity.properties[name]}}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </md-content>
+                </md-tab>
+
+                <md-tab label="Edges">
+                    <md-content class="md-padding">
+                        <input ng-model="searchResults" type="text"
+                               class="form-control"
+                               placeholder="Search vertices and properties">
+
+                        <div ng-repeat="(group, schemaEdge) in rawData.schema.edges">
+                            <div ng-show="table.data.edges[group].length > 0">
+                                <h4><b>{{group}}</b></h4>
+                                <table class="table table-striped">
+                                    <tbody>
+                                    <tr>
+                                        <th>
+                                            <a href="#"
+                                               ng-click="sortType = 'source'; sortReverse = !sortReverse">
+                                                Source
+                                                <span ng-show="sortType === 'source' && !sortReverse"
+                                                      class="caret"></span>
+                                                <span ng-show="sortType === 'source' && sortReverse"
+                                                      class="caret caret-up"></span>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a href="#"
+                                               ng-click="sortType = 'destination'; sortReverse = !sortReverse">
+                                                Destination
+                                                <span ng-show="sortType === 'destination' && !sortReverse"
+                                                      class="caret"></span>
+                                                <span ng-show="sortType === 'destination' && sortReverse"
+                                                      class="caret caret-up"></span>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a href="#"
+                                               ng-click="sortType = 'directed'; sortReverse = !sortReverse">
+                                                Directed
+                                                <span ng-show="sortType === 'directed' && !sortReverse"
+                                                      class="caret"></span>
+                                                <span ng-show="sortType === 'directed' && sortReverse"
+                                                      class="caret caret-up"></span>
+                                            </a>
+                                        </th>
+                                        <th ng-repeat="(name, type) in schemaEdge.properties">
+                                            {{name}}
+                                        </th>
+                                    </tr>
+                                    <tr ng-repeat="edge in table.data.edges[group] | orderBy:sortType:sortReverse | filter:searchResults">
+                                        <td>
+                                            {{edge.source}}
+                                        </td>
+                                        <td>
+                                            {{edge.destination}}
+                                        </td>
+                                        <td>
+                                            {{edge.directed}}
+                                        </td>
+                                        <td ng-repeat="(name, type) in schemaEdge.properties">
+                                            {{edge.properties[name]}}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </md-content>
+                </md-tab>
+
+            </md-tabs>
+        </md-content>
+    </div>
+</div>

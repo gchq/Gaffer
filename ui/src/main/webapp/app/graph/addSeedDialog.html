@@ -1,0 +1,37 @@
+<md-dialog aria-label="Add Seed">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Add Seed</h2>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <div class="form-group">
+                    <label for="vertexType">Vertex:</label>
+                    <select class="form-control"
+                            ng-model="addSeedVertexType"
+                            ng-options="vertexType as vertexType for vertexType in rawData.schemaVertices"
+                            id="vertexType">
+                    </select>
+
+                    <label for="vertex">Value:</label>
+                    <input type="text" class="form-control"
+                           ng-model="addSeedVertex"
+                           id="vertex">
+                </div>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="addSeedCancel()">
+                Cancel
+            </md-button>
+            <md-button ng-click="addSeedAdd()">
+                Add
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import gaffer.commonutil.JsonUtil;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -125,7 +126,6 @@ public class GraphTest {
         // Then
         final Schema schema = graph.getSchema();
         schema.getEntity(TestGroups.ENTITY);
-
     }
 
     @Test
@@ -151,8 +151,7 @@ public class GraphTest {
         }
 
         // Then
-        final Schema schema = graph.getSchema();
-        assertEquals(expectedSchema.toString(), schema.toString());
+        JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     @Test

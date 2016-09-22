@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
 import gaffer.function.Function;
@@ -132,7 +133,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.aggregate.HyperLogLogPlusAggregator\"%n" +
                 "}"), json);
 

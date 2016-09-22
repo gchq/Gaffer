@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunction;
 import gaffer.function.FilterFunctionTest;
@@ -140,7 +141,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(filter, true));
         // Then 1
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.HyperLogLogPlusIsLessThan\",%n" +
                 "  \"value\" : 15%n" +
                 "}"), json);
