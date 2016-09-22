@@ -15,8 +15,8 @@ limitations under the License.
 
 UI
 ============
-This module contains a Gaffer UI prototype that connects to a Gaffer REST API.
-
+This module contains a Gaffer read only UI prototype that connects to a Gaffer REST API.
+Data cannot be added to the graph via this UI.
 
 There are two options for building and then running it:
 
@@ -28,7 +28,7 @@ If you wish to deploy the war file to a container of your choice, then use this 
 To build the war file along with all its dependencies then run the following command from the parent directory:
 ' mvn clean install -DskipTests'
 
-To deploy it to a server of your choice, take target/ui.war and deploy as per the usual deployment process for your server.
+To deploy it to a server of your choice, take target/ui-[version].war and deploy as per the usual deployment process for your server.
 
 
 Option 2 - Build using the standalone-ui profile

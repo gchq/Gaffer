@@ -30,7 +30,6 @@
     </properties>
     <packaging>war</packaging>
     <build>
-        <finalName>ui</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -52,7 +51,6 @@
             <id>standalone-ui</id>
             <build>
                 <plugins>
-
                     <plugin>
                         <groupId>org.apache.tomcat.maven</groupId>
                         <artifactId>tomcat7-maven-plugin</artifactId>
