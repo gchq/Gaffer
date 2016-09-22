@@ -25,7 +25,7 @@ Option 1 - Deployable war file
 If you wish to deploy the war file to a container of your choice, then use this option.
 
 To build the war file along with all its dependencies then run the following command from the parent directory:
-'mvn clean install -DskipTests'
+'mvn clean install -Pquick'
 
 To deploy it to a server of your choice, take target/example-rest.war and deploy as per the usual deployment process for your server.
 
@@ -50,7 +50,7 @@ The application can be built and then run as a basic executable standalone war f
 
 To build it and its dependencies, use the following command from the parent directory:
 
-'mvn clean install -Pstandalone -DskipTests'
+'mvn clean install -Pquick -Pstandalone'
 This uses the 'standalone' profile to run jetty with the example-rest project after it and its dependencies have been built.
 
 This should launch an embedded jetty container, which can then be accessed via your browser pointing to the following url:

@@ -26,7 +26,7 @@ Option 1 - Deployable war file
 If you wish to deploy the war file to a container of your choice, then use this option.
 
 To build the war file along with all its dependencies then run the following command from the parent directory:
-' mvn clean install -DskipTests'
+' mvn clean install -Pquick'
 
 To deploy it to a server of your choice, take target/ui-[version].war and deploy as per the usual deployment process for your server.
 
@@ -38,7 +38,7 @@ The application can be built and then run as a basic executable standalone war f
 
 To build it and its dependencies, use the following command from the parent directory:
 
-'mvn clean install -Pstandalone-ui -DskipTests'
+'mvn clean install -Pquick -Pstandalone-ui'
 This uses the 'standalone-ui' profile to start a tomcat server with the ui and example-rest wars deployed.
 
 The ui can then be accessed via http://localhost:8080/ui and the rest api is at http://localhost:8080/rest
