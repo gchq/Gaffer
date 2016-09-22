@@ -15,12 +15,12 @@
  */
 package gaffer.function.simple.filter;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -72,7 +72,7 @@ public class ExistsTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.Exists\"%n" +
                 "}"), json);
 

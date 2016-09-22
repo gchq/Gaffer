@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -92,7 +93,7 @@ public class AddElementsTest implements OperationTest {
         String json = new String(serialiser.serialise(addElements, true));
 
         // Then
-        assertEquals(ADD_ELEMENTS_JSON, json);
+        JsonUtil.assertEquals(ADD_ELEMENTS_JSON, json);
     }
 
     @Test
