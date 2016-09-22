@@ -31,6 +31,7 @@
         <servlet-api-version>2.5</servlet-api-version>
         <jersey-version>1.13</jersey-version>
         <resteasy-version>3.0.16.Final</resteasy-version>
+        <maven-war-plugin-version>2.6</maven-war-plugin-version>
     </properties>
 
     <dependencies>
@@ -157,13 +158,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven-war-plugin-version}</version>
                 <configuration>
                     <webResources>
                         <resource>
                             <directory>dependencies/swagger</directory>
                         </resource>
                     </webResources>
+                    <attachClasses>true</attachClasses>
+                    <classesClassifier>classes</classesClassifier>
                 </configuration>
             </plugin>
         </plugins>
