@@ -244,7 +244,7 @@ public interface AccumuloElementConverter {
 
     /**
      * Creates a timestamp based on the provided {@link Properties}
-     * will return a default value if properties do not have a valid timestmap value
+     * will return a default value if properties do not have a valid timestamp value
      *
      * @param properties  the element properties
      * @return the timestamp
