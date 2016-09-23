@@ -37,7 +37,7 @@ import java.util.Set;
 
 /*
  * An <code>OperationChainLimiter</code> is a {@link GraphHook} that checks a
- * user is authorised to execute an operation chain based on that user's maximum chain score and the configured score value for each operaiton in the chain.
+ * user is authorised to execute an operation chain based on that user's maximum chain score and the configured score value for each operation in the chain.
  * This class requires a map of operation scores, these can be added using setOpScores(Map<Class,Integer>) or
  * addOpScore(Class, Integer...). Alternatively a properties file can be provided.
  * When using a properties file the last entry in the file that an operation can be assigned to will be the score that is used for that operation.
