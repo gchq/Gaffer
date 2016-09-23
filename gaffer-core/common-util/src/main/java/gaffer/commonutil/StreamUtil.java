@@ -83,9 +83,13 @@ public abstract class StreamUtil {
         return openStream(clazz, OP_AUTHS);
     }
 
-    public static InputStream opScores(final Class clazz) { return openStream(clazz, OP_SCORES); }
+    public static InputStream opScores(final Class clazz) {
+        return openStream(clazz, OP_SCORES);
+    }
 
-    public static InputStream roleScores(final Class clazz) { return openStream(clazz, ROLE_SCORES); }
+    public static InputStream roleScores(final Class clazz) {
+        return openStream(clazz, ROLE_SCORES);
+    }
 
     public static InputStream view(final Class clazz, final boolean logErrors) {
         return openStream(clazz, VIEW, logErrors);

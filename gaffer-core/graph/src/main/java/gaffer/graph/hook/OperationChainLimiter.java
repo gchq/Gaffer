@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2016 Crown Copyright
  *
@@ -61,10 +60,10 @@ public class OperationChainLimiter implements GraphHook {
     private final Map<String, Integer> authScores = new HashMap<>();
 
     /**
-     * Default constructor. Use setOpScores(Map<Class, Integer>) or
-     * addOpScore(Class, Integer) to add operation scores.
-     * And Use setAuthScores(Map<String, Integer>) or
-     * addAuthScore(String, Integer)
+     * Default constructor.
+     * Use setOpScores or addOpScore to add operation scores.
+     * And Use setAuthScores or
+     * addAuthScore to add Authorisation scores.
      */
     public OperationChainLimiter() {
     }
@@ -136,7 +135,7 @@ public class OperationChainLimiter implements GraphHook {
      * @param opAuths a set of operation authorisations
      * @return maxUserScore the highest score associated with any of the supplied user roles
      */
-    private Integer getMaxUserRoleScore(Set<String> opAuths) {
+    private Integer getMaxUserRoleScore(final Set<String> opAuths) {
         Integer maxUserScore = 0;
         for (String opAuth : opAuths) {
             Integer roleScore = authScores.get(opAuth);
@@ -165,7 +164,7 @@ public class OperationChainLimiter implements GraphHook {
                    }
                 }
             }
-        if(operationScore != null) {
+        if (operationScore != null) {
             return operationScore;
         } else {
             LOGGER.warn("The operation '" + operation.getClass().getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
@@ -216,7 +215,7 @@ public class OperationChainLimiter implements GraphHook {
         }
         setOpScores(opScores);
         Map<String, Integer> authScores = new HashMap<>();
-        for(String authName : operationAuthorisationScoreLimitPropertiesFile.stringPropertyNames()) {
+        for (String authName : operationAuthorisationScoreLimitPropertiesFile.stringPropertyNames()) {
             final Integer score = Integer.parseInt(operationAuthorisationScoreLimitPropertiesFile.getProperty(authName));
             authScores.put(authName, score);
         }
@@ -257,7 +256,7 @@ public class OperationChainLimiter implements GraphHook {
      * @param auth    the authorisation
      * @param score   the score for the operation class
      */
-    public void addAuthScore(String auth, final Integer score) {
+    public void addAuthScore(final String auth, final Integer score) {
         authScores.put(auth, score);
     }
 }
