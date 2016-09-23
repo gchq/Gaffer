@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 
 public class ByteArrayEscapeUtilsTest {
 
-    private byte[] EMPTY_BYTES = new byte[0];
     private byte ESCAPE_CHAR = (byte) 1;
     private byte REPLACEMENT_CHAR = (byte) 2;
 
@@ -115,7 +114,7 @@ public class ByteArrayEscapeUtilsTest {
             for (int j = 0; j < b.length; j++) {
                 b[j] = (byte) RandomUtils.nextInt();
             }
-            final Key key = new Key(b, EMPTY_BYTES, EMPTY_BYTES, EMPTY_BYTES, Long.MAX_VALUE);
+            final Key key = new Key(b, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
             original.add(key);
         }
         // Loop through set, check that ordering is preserved after escaping
@@ -124,8 +123,8 @@ public class ByteArrayEscapeUtilsTest {
         Key second = it.next();
         while (true) {
             assertTrue(first.compareTo(second) < 0);
-            final Key escapedFirst = new Key(ByteArrayEscapeUtils.escape(first.getRowData().getBackingArray()), EMPTY_BYTES, EMPTY_BYTES, EMPTY_BYTES, Long.MAX_VALUE);
-            final Key escapedSecond = new Key(ByteArrayEscapeUtils.escape(second.getRowData().getBackingArray()), EMPTY_BYTES, EMPTY_BYTES, EMPTY_BYTES, Long.MAX_VALUE);
+            final Key escapedFirst = new Key(ByteArrayEscapeUtils.escape(first.getRowData().getBackingArray()), AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
+            final Key escapedSecond = new Key(ByteArrayEscapeUtils.escape(second.getRowData().getBackingArray()), AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
             assertTrue(escapedFirst.compareTo(escapedSecond) < 0);
             first = second;
             if (it.hasNext()) {
