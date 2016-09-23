@@ -16,6 +16,11 @@
 
 package gaffer.rest.service;
 
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.generator.ElementGenerator;
 import gaffer.function.FilterFunction;
 import gaffer.function.TransformFunction;
@@ -24,6 +29,7 @@ import gaffer.rest.GraphFactory;
 import gaffer.rest.SystemProperty;
 import gaffer.store.StoreTrait;
 import gaffer.store.schema.Schema;
+import org.apache.commons.lang.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import java.lang.reflect.Modifier;
@@ -72,6 +78,60 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     @Override
     public List<Class> getFilterFunctions() {
         return FILTER_FUNCTIONS;
+    }
+
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public List<Class> getFilterFunctions(final String inputClass) {
+        if (StringUtils.isEmpty(inputClass)) {
+            return getFilterFunctions();
+        }
+
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(inputClass);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
+        }
+
+        final List<Class> classes = new ArrayList<>();
+        for (final Class functionClass : FILTER_FUNCTIONS) {
+            try {
+                final FilterFunction function = (FilterFunction) functionClass.newInstance();
+                final Class<?>[] inputs = function.getInputClasses();
+                if (inputs.length == 1 && inputs[0].isAssignableFrom(clazz)) {
+                    classes.add(functionClass);
+                }
+            } catch (final Exception e) {
+                // just add the function.
+                classes.add(functionClass);
+            }
+        }
+
+        return classes;
+    }
+
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public List<String> getSerialisedFields(final String className) {
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Class name was not recognised: " + className, e);
+        }
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JavaType type = mapper.getTypeFactory().constructType(clazz);
+        final BeanDescription introspection = mapper.getSerializationConfig().introspect(type);
+        final List<BeanPropertyDefinition> properties = introspection.findProperties();
+
+        final List<String> fields = new ArrayList<>();
+        for (BeanPropertyDefinition property : properties) {
+            fields.add(property.getName());
+        }
+
+        return fields;
     }
 
     @Override

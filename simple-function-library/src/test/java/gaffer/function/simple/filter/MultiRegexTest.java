@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunction;
 import gaffer.function.FilterFunctionTest;
@@ -85,7 +86,7 @@ public class MultiRegexTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.MultiRegex\",%n" +
                 "  \"value\" : [ {%n" +
                 "    \"java.util.regex.Pattern\" : \"test\"%n" +
