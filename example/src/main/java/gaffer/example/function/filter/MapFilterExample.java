@@ -90,7 +90,7 @@ public class MapFilterExample extends FilterFunctionExample {
         map2.put(new Date(), 2L);
 
         runExample(new MapFilter(new Date(0L), new Exists()),
-                "new MapFilter(new Date(0L), new IsMoreThan(2, true))",
+                "new MapFilter(new Date(0L), new Exists())",
                 map1, map2);
     }
 }
