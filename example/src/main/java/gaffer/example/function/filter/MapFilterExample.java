@@ -40,45 +40,45 @@ public class MapFilterExample extends FilterFunctionExample {
 
     public void freqMapIsMoreThan2() {
         final FreqMap map1 = new FreqMap();
-        map1.put("key1", 1);
+        map1.put("key1", 1L);
 
         final FreqMap map2 = new FreqMap();
-        map2.put("key1", 2);
+        map2.put("key1", 2L);
 
         final FreqMap map3 = new FreqMap();
-        map3.put("key1", 3);
+        map3.put("key1", 3L);
 
         final FreqMap map4 = new FreqMap();
-        map4.put("key1", 3);
-        map4.put("key2", 0);
+        map4.put("key1", 3L);
+        map4.put("key2", 0L);
 
         final FreqMap map5 = new FreqMap();
-        map5.put("key2", 3);
+        map5.put("key2", 3L);
 
-        runExample(new MapFilter("key1", new IsMoreThan(2)),
-                "new MapFilter(\"key1\", new IsMoreThan(2))",
+        runExample(new MapFilter("key1", new IsMoreThan(2L)),
+                "new MapFilter(\"key1\", new IsMoreThan(2L))",
                 map1, map2, map3, map4, map5);
     }
 
     public void freqMapIsMoreThanOrEqualTo2() {
         final FreqMap map1 = new FreqMap();
-        map1.put("key1", 1);
+        map1.put("key1", 1L);
 
         final FreqMap map2 = new FreqMap();
-        map2.put("key1", 2);
+        map2.put("key1", 2L);
 
         final FreqMap map3 = new FreqMap();
-        map3.put("key1", 3);
+        map3.put("key1", 3L);
 
         final FreqMap map4 = new FreqMap();
-        map4.put("key1", 3);
-        map4.put("key2", 0);
+        map4.put("key1", 3L);
+        map4.put("key2", 0L);
 
         final FreqMap map5 = new FreqMap();
-        map5.put("key2", 3);
+        map5.put("key2", 3L);
 
-        runExample(new MapFilter("key1", new IsMoreThan(2, true)),
-                "new MapFilter(\"key1\", new IsMoreThan(2, true))",
+        runExample(new MapFilter("key1", new IsMoreThan(2L, true)),
+                "new MapFilter(\"key1\", new IsMoreThan(2L, true))",
                 map1, map2, map3, map4, map5);
     }
 
@@ -90,7 +90,7 @@ public class MapFilterExample extends FilterFunctionExample {
         map2.put(new Date(), 2L);
 
         runExample(new MapFilter(new Date(0L), new Exists()),
-                "new MapFilter(new Date(0L), new IsMoreThan(2, true))",
+                "new MapFilter(new Date(0L), new Exists())",
                 map1, map2);
     }
 }

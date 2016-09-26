@@ -15,74 +15,109 @@
  */
 package gaffer.serialisation.simple;
 
+import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import gaffer.types.simple.FreqMap;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A <code>FreqMapSerialiser</code> serialises and deserialises {@code FreqMap}s.
+ * Any null keys or values are skiped.
+ */
 public class FreqMapSerialiser implements Serialisation {
-
-    private static final long serialVersionUID = 3772387954385745791L;
-    private static final String SEPERATOR = "\\,";
-    private static final String SEPERATOR_REGEX = "\\\\,";
-
-    public boolean canHandle(final Class clazz) {
-        return FreqMap.class.equals(clazz);
-    }
+    private static final long serialVersionUID = 6530929395214726384L;
+    private final CompactRawLongSerialiser longSerialiser = new CompactRawLongSerialiser();
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
         FreqMap map = (FreqMap) object;
-        Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
-        StringBuilder builder = new StringBuilder();
-        int last = entrySet.size() - 1;
-        int start = 0;
-        for (Map.Entry<String, Integer> entry : entrySet) {
-            Integer value = entry.getValue();
-            if (value == null) {
-                continue;
+        Set<Map.Entry<String, Long>> entrySet = map.entrySet();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        boolean isFirst = true;
+        for (Map.Entry<String, Long> entry : entrySet) {
+            if (entry.getKey() != null && entry.getValue() != null) {
+                if (isFirst) {
+                    isFirst = false;
+                } else {
+                    out.write(ByteArrayEscapeUtils.DELIMITER);
+                }
+
+                try {
+                    out.write(ByteArrayEscapeUtils.escape(entry.getKey().getBytes(CommonConstants.UTF_8)));
+                } catch (IOException e) {
+                    throw new SerialisationException("Failed to serialise a key from a FreqMap: " + entry.getKey(), e);
+                }
+                out.write(ByteArrayEscapeUtils.DELIMITER);
+
+                try {
+                    out.write(ByteArrayEscapeUtils.escape(longSerialiser.serialise(entry.getValue())));
+                } catch (IOException e) {
+                    throw new SerialisationException("Failed to serialise a value from a FreqMap: " + entry.getValue(), e);
+                }
             }
-            builder.append(entry.getKey() + SEPERATOR + value);
-            ++start;
-            if (start > last) {
-                break;
-            }
-            builder.append(SEPERATOR);
         }
-        try {
-            return builder.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+
+        return out.toByteArray();
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Object deserialise(final byte[] bytes) throws
+            SerialisationException {
         FreqMap freqMap = new FreqMap();
         if (bytes.length == 0) {
             return freqMap;
         }
-        String stringMap;
-        try {
-            stringMap = new String(bytes, CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
+
+        int lastDelimiter = 0;
+        String key = null;
+        for (int i = 0; i < bytes.length; i++) {
+            if (bytes[i] == ByteArrayEscapeUtils.DELIMITER) {
+                if (null == key) {
+                    // Deserialise key
+                    if (i > lastDelimiter) {
+                        try {
+                            key = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8);
+                        } catch (UnsupportedEncodingException e) {
+                            throw new SerialisationException("Failed to deserialise a key from a FreqMap", e);
+                        }
+                    } else {
+                        key = "";
+                    }
+                } else {
+                    // Deserialise value
+                    if (i > lastDelimiter) {
+                        final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)));
+                        freqMap.put(key, value);
+                        key = null;
+                    }
+                }
+
+                lastDelimiter = i + 1;
+            }
         }
-        if (stringMap.isEmpty()) {
-            //No values so return the empty map
-            return freqMap;
+
+        if (null != key) {
+            // Deserialise value
+            if (bytes.length > lastDelimiter) {
+                final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, bytes.length)));
+                freqMap.put(key, value);
+            }
         }
-        String[] keyValues = stringMap.split(SEPERATOR_REGEX);
-        if (keyValues.length % 2 != 0) {
-            throw new SerialisationException("Uneven number of entries found for serialised frequency map, unable to deserialise.");
-        }
-        for (int i = 0; i < keyValues.length - 1; i += 2) {
-            freqMap.put(keyValues[i], Integer.parseInt(keyValues[i + 1]));
-        }
+
         return freqMap;
+    }
+
+    @Override
+    public boolean canHandle(final Class clazz) {
+        return FreqMap.class.equals(clazz);
     }
 
     @Override
