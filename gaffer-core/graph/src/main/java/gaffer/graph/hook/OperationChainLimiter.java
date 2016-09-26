@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,12 +41,12 @@ import java.util.Set;
  * This class requires a map of operation scores, these can be added using setOpScores(Map<Class,Integer>) or
  * addOpScore(Class, Integer...). Alternatively a properties file can be provided.
  * When using a properties file the last entry in the file that an operation can be assigned to will be the score that is used for that operation.
+ * containing the operations and the score.
  * E.g if you put gaffer.operation.impl.add.AddElements = 8
  * And then gaffer.operation.impl.add = 1
  * The add elements will have a score of 1 not 8.
  * So make sure to write your properties file in class hierarchical order.
  *
- * containing the operations and the score.
  * This class also requires a map of authorisation scores,
  * this is the score value someone with that auth can have, the maximum score value of a users auths is used.
  * These can be added using setAuthScores(Map<String, Integer>) or
@@ -115,11 +116,11 @@ public class OperationChainLimiter implements GraphHook {
     public void preExecute(final OperationChain<?> opChain, final User user) {
         if (null != opChain) {
             Integer chainScore = 0;
-            Integer maxRoleScore = getMaxUserRoleScore(user.getOpAuths());
+            Integer maxAuthScore = getMaxUserAuthScore(user.getOpAuths());
             for (Operation operation : opChain.getOperations()) {
-                chainScore += authorise(operation, user);
-                if (chainScore > maxRoleScore) {
-                    throw new UnauthorisedException("The maximum score limit for this user is " + maxRoleScore + ".\n" +
+                chainScore += authorise(operation);
+                if (chainScore > maxAuthScore) {
+                    throw new UnauthorisedException("The maximum score limit for this user is " + maxAuthScore + ".\n" +
                             "The requested operation chain exceeded this score limit.");
                 }
             }
@@ -128,20 +129,20 @@ public class OperationChainLimiter implements GraphHook {
 
     /**
      * Iterates through each of the users operation authorisations listed in the config file and returns the highest score
-     * associated with those roles.
+     * associated with those auths.
      * <p/>
      * Defaults to 0.
      *
      * @param opAuths a set of operation authorisations
-     * @return maxUserScore the highest score associated with any of the supplied user roles
+     * @return maxUserScore the highest score associated with any of the supplied user auths
      */
-    private Integer getMaxUserRoleScore(final Set<String> opAuths) {
+    private Integer getMaxUserAuthScore(final Set<String> opAuths) {
         Integer maxUserScore = 0;
         for (String opAuth : opAuths) {
-            Integer roleScore = authScores.get(opAuth);
-            if (null != roleScore) {
-                if (roleScore > maxUserScore) {
-                    maxUserScore = roleScore;
+            Integer authScore = authScores.get(opAuth);
+            if (null != authScore) {
+                if (authScore > maxUserScore) {
+                    maxUserScore = authScore;
                 }
             }
         }
@@ -154,22 +155,21 @@ public class OperationChainLimiter implements GraphHook {
         // This method can be overridden to add additional authorisation checks on the results.
     }
 
-    protected Integer authorise(final Operation operation, final User user) {
-        Integer operationScore = null;
+    protected Integer authorise(final Operation operation) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
-            for (Map.Entry<Class<? extends Operation>, Integer> entry : operationScores.entrySet()) {
-                if (entry.getKey().isAssignableFrom(opClass)) {
-                       operationScore = entry.getValue();
-                   }
+            ArrayList<Class<? extends Operation>> keys = new ArrayList<>(operationScores.keySet());
+            for(int i=keys.size()-1; i>=0; i--){
+                Class<? extends Operation> key = keys.get(i);
+                if (key.isAssignableFrom(opClass)) {
+                    return operationScores.get(key);
                 }
             }
-        if (operationScore != null) {
-            return operationScore;
-        } else {
             LOGGER.warn("The operation '" + operation.getClass().getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
-            return DEFAULT_OPERATION_SCORE;
+        } else {
+            LOGGER.warn("A Null operation was passed to the OperationChainLimiter graph hook");
         }
+        return DEFAULT_OPERATION_SCORE;
     }
 
     private static Properties readProperties(final Path propFileLocation) {
@@ -208,6 +208,7 @@ public class OperationChainLimiter implements GraphHook {
             try {
                 opClass = Class.forName(opClassName).asSubclass(Operation.class);
             } catch (ClassNotFoundException e) {
+                LOGGER.error("An operation class could not be found for operation score property " + opClassName);
                 throw new IllegalArgumentException(e);
             }
             final Integer score = Integer.parseInt(operationScorePropertiesFile.getProperty(opClassName));

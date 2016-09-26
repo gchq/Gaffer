@@ -31,10 +31,10 @@ import static org.junit.Assert.fail;
 
 public class OperationChainLimiterTest {
 
-    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = new OperationChainLimiter(StreamUtil.opScores(OperationChainLimiterTest.class), StreamUtil.roleScores(OperationChainLimiterTest.class));
+    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = new OperationChainLimiter(StreamUtil.opScores(OperationChainLimiterTest.class), StreamUtil.authScores(OperationChainLimiterTest.class));
 
     @Test
-     public void shouldAcceptOperationChainWhenUserHasRoleScoreGreaterThanChainScore() {
+     public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
@@ -50,7 +50,7 @@ public class OperationChainLimiterTest {
     }
 
     @Test
-    public void shouldAcceptOperationChainWhenUserHasRoleScoreEqualToChainScore() {
+    public void shouldAcceptOperationChainWhenUserHasAuthScoreEqualToChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
@@ -67,7 +67,7 @@ public class OperationChainLimiterTest {
     }
 
     @Test
-    public void shouldRejectOperationChainWhenUserHasRoleScoreLessThanChainScore() {
+    public void shouldRejectOperationChainWhenUserHasAuthScoreLessThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
@@ -91,7 +91,7 @@ public class OperationChainLimiterTest {
     }
 
     @Test
-    public void shouldAcceptOperationChainWhenUserHasMaxRoleScoreGreaterThanChainScore() {
+    public void shouldAcceptOperationChainWhenUserHasMaxAuthScoreGreaterThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
@@ -110,7 +110,7 @@ public class OperationChainLimiterTest {
     }
 
     @Test
-    public void shouldRejectOperationChainWhenUserHasMaxRoleScoreLessThanChainScore() {
+    public void shouldRejectOperationChainWhenUserHasMaxAuthScoreLessThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAllEdges())
@@ -130,7 +130,7 @@ public class OperationChainLimiterTest {
     }
 
     @Test
-    public void shouldRejectOperationChainWhenUserHasNoRoleWithAConfiguredScore() {
+    public void shouldRejectOperationChainWhenUserHasNoAuthWithAConfiguredScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects())
