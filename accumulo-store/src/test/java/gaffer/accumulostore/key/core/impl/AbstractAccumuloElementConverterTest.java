@@ -354,7 +354,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldTruncatePropertyBytesWithEmptyBytes() throws AccumuloElementConversionException {
         // Given
-        final byte[] bytes = new byte[0];
+        final byte[] bytes = AccumuloStoreConstants.EMPTY_BYTES;
 
         // When
         final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
@@ -383,10 +383,9 @@ public abstract class AbstractAccumuloElementConverterTest {
                 put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
             }
         };
-        final long defaultTime = System.currentTimeMillis();
 
         // When
-        final long timestamp = converter.buildTimestamp(properties, defaultTime);
+        final long timestamp = converter.buildTimestamp(properties);
 
         // Then
         assertEquals(propertyTimestamp, timestamp);
@@ -412,13 +411,12 @@ public abstract class AbstractAccumuloElementConverterTest {
                 put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
             }
         };
-        final long defaultTime = System.currentTimeMillis();
 
         // When
-        final long timestamp = converter.buildTimestamp(properties, defaultTime);
+        final long timestamp = converter.buildTimestamp(properties);
 
         // Then
-        assertEquals(defaultTime, timestamp);
+        assertNotNull(timestamp);
     }
 
     @Test
@@ -430,14 +428,12 @@ public abstract class AbstractAccumuloElementConverterTest {
                 put(AccumuloPropertyNames.PROP_1, 2);
             }
         };
-        final long defaultTime = System.currentTimeMillis();
-
 
         // When
-        final long timestamp = converter.buildTimestamp(properties, defaultTime);
+        final long timestamp = converter.buildTimestamp(properties);
 
         // Then
-        assertEquals(defaultTime, timestamp);
+        assertNotNull(timestamp);
     }
 
     @Test
