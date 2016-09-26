@@ -159,7 +159,7 @@ public class OperationChainLimiter implements GraphHook {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
             ArrayList<Class<? extends Operation>> keys = new ArrayList<>(operationScores.keySet());
-            for(int i=keys.size()-1; i>=0; i--){
+            for (int i = keys.size() - 1; i >= 0; i--) {
                 Class<? extends Operation> key = keys.get(i);
                 if (key.isAssignableFrom(opClass)) {
                     return operationScores.get(key);
