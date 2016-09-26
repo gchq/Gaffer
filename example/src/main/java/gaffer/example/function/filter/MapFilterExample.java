@@ -15,21 +15,27 @@
  */
 package gaffer.example.function.filter;
 
-import gaffer.function.simple.filter.FreqMapIsMoreThan;
+import gaffer.function.MapFilter;
+import gaffer.function.simple.filter.Exists;
+import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.types.simple.FreqMap;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-public class FreqMapIsMoreThanExample extends FilterFunctionExample {
+public class MapFilterExample extends FilterFunctionExample {
     public static void main(final String[] args) {
-        new FreqMapIsMoreThanExample().run();
+        new MapFilterExample().run();
     }
 
-    public FreqMapIsMoreThanExample() {
-        super(FreqMapIsMoreThan.class);
+    public MapFilterExample() {
+        super(MapFilter.class);
     }
 
     public void runExamples() {
         freqMapIsMoreThan2();
         freqMapIsMoreThanOrEqualTo2();
+        mapWithDateKeyHasAValueThatExists();
     }
 
     public void freqMapIsMoreThan2() {
@@ -49,8 +55,8 @@ public class FreqMapIsMoreThanExample extends FilterFunctionExample {
         final FreqMap map5 = new FreqMap();
         map5.put("key2", 3);
 
-        runExample(new FreqMapIsMoreThan("key1", 2),
-                "new FreqMapIsMoreThan(\"key1\", 2)",
+        runExample(new MapFilter("key1", new IsMoreThan(2)),
+                "new MapFilter(\"key1\", new IsMoreThan(2))",
                 map1, map2, map3, map4, map5);
     }
 
@@ -71,8 +77,20 @@ public class FreqMapIsMoreThanExample extends FilterFunctionExample {
         final FreqMap map5 = new FreqMap();
         map5.put("key2", 3);
 
-        runExample(new FreqMapIsMoreThan("key1", 2, true),
-                "new FreqMapIsMoreThan(\"key1\", 2)",
+        runExample(new MapFilter("key1", new IsMoreThan(2, true)),
+                "new MapFilter(\"key1\", new IsMoreThan(2, true))",
                 map1, map2, map3, map4, map5);
+    }
+
+    public void mapWithDateKeyHasAValueThatExists() {
+        final Map<Date, Long> map1 = new HashMap<>();
+        map1.put(new Date(0L), 1L);
+
+        final Map<Date, Long> map2 = new HashMap<>();
+        map2.put(new Date(), 2L);
+
+        runExample(new MapFilter(new Date(0L), new Exists()),
+                "new MapFilter(new Date(0L), new IsMoreThan(2, true))",
+                map1, map2);
     }
 }
