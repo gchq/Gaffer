@@ -243,15 +243,15 @@ public interface AccumuloElementConverter {
             throws AccumuloElementConversionException;
 
     /**
-     * Creates a timestamp based on the provided {@link Properties} or the default
-     * time provided.
+     * Creates a timestamp based on the provided {@link Properties}
+     * will return a default value if properties do not have a valid timestamp value
      *
      * @param properties  the element properties
-     * @param defaultTime the default time to use if the properties do not have a timestamp
      * @return the timestamp
      * @throws AccumuloElementConversionException If the timestamp extraction fails.
      */
-    long buildTimestamp(final Properties properties, final long defaultTime) throws AccumuloElementConversionException;
+    long buildTimestamp(final Properties properties) throws AccumuloElementConversionException;
+
 
     /**
      * Creates a properties object based on the provided timestamp and group.
