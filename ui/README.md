@@ -16,7 +16,12 @@ limitations under the License.
 UI
 ============
 This module contains a Gaffer read only UI prototype that connects to a Gaffer REST API.
-Data cannot be added to the graph via this UI.
+
+Limitations:
+- There are currently no error messages.
+- There is no validation.
+- Read only - no data can be added via the UI.
+
 
 There are two options for building and then running it:
 
@@ -43,3 +48,28 @@ This uses the 'standalone-ui' profile to start a tomcat server with the ui and e
 
 The ui can then be accessed via http://localhost:8080/ui and the rest api is at http://localhost:8080/rest
 
+Adding data using the REST API via Swagger:
+- Navigate to the rest api
+- Expand 'graphdoOperation'
+- Expand 'PUT /graph/doOperation/add/elements'.
+- Click 'Example json' you will get some example json for adding some basic elements to the graph - you can then edit this json to create different example elements.
+- Click 'Try it out!'
+
+Doing a query in the UI:
+- Navigate to the UI
+- Ensure you are on the 'Graph' tab
+- Add a seed
+  - Click 'Add Seed'
+  - Select a vertex type
+  - Enter a vertex value (one that you have previously added e.g vertex1)
+  - Click 'Add'.
+- Build a query
+  - Click 'Build query'
+  - Select your seeds (or click 'Select all')
+  - Click 'Next'
+  - Select entity and edge groups using the checkboxes.
+  - Click 'Next'
+  - Add filters (optional)
+  - Click 'Next'
+  - Select any additional options required
+  - Click 'Execute'
