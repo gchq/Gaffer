@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.function.Function;
 import gaffer.function.TransformFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -121,7 +122,7 @@ public class ConcatTest extends TransformFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(concat, true));
 
         // Then
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.transform.Concat\",%n" +
                 "  \"separator\" : \"-\"%n" +
                 "}"), json);

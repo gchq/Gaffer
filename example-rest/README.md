@@ -25,9 +25,9 @@ Option 1 - Deployable war file
 If you wish to deploy the war file to a container of your choice, then use this option.
 
 To build the war file along with all its dependencies then run the following command from the parent directory:
-'mvn clean install'
+'mvn clean install -Pquick'
 
-To deploy it to a server of your choice, take target/example-rest.war and deploy as per the usual deployment process for your server.
+To deploy it to a server of your choice, take target/example-rest-[version].war and deploy as per the usual deployment process for your server.
 
 In order for the application to function, it needs a number of system properties to be set up on the server:
 e.g.
@@ -50,7 +50,7 @@ The application can be built and then run as a basic executable standalone war f
 
 To build it and its dependencies, use the following command from the parent directory:
 
-'mvn clean install -P standalone'
+'mvn clean install -Pquick -Pstandalone'
 This uses the 'standalone' profile to run jetty with the example-rest project after it and its dependencies have been built.
 
 This should launch an embedded jetty container, which can then be accessed via your browser pointing to the following url:
@@ -63,6 +63,10 @@ files and the data store .properties file. As a default, these point to the same
 
 ```xml
 <systemProperties>
+  <systemProperty>
+      <name>gaffer.rest-api.basePath</name>
+      <value>rest/v1</value>
+  </systemProperty>
   <systemProperty>
       <name>gaffer.schemas</name>
       <!-- this needs to point to your Gaffer schema folder-->

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
 import gaffer.function.Function;
@@ -578,7 +579,7 @@ public class SumTest extends AggregateFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
 
         // Then 1
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.aggregate.Sum\"%n" +
                 "}"), json);
 

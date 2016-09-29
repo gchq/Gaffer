@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Sets;
+import gaffer.commonutil.JsonUtil;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -224,7 +225,7 @@ public class SchemaTest {
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
         schema = createSchema();
-        assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +

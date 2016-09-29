@@ -165,18 +165,19 @@ public class OperationAuthoriser implements GraphHook {
 
     private void loadOpAuthMap(final Properties props) {
         for (String opClassName : props.stringPropertyNames()) {
+            final Class<? extends Operation> opClass;
             try {
-                final Class<? extends Operation> opClass = Class.forName(opClassName).asSubclass(Operation.class);
-                final Set<String> auths = new HashSet<>();
-                for (String auth : props.getProperty(opClassName).split(AUTH_SEPARATOR)) {
-                    if (!StringUtils.isEmpty(auth)) {
-                        auths.add(auth);
-                    }
-                }
-                setOpAuths(opClass, auths);
+                opClass = Class.forName(opClassName).asSubclass(Operation.class);
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
+            final Set<String> auths = new HashSet<>();
+            for (String auth : props.getProperty(opClassName).split(AUTH_SEPARATOR)) {
+                if (!StringUtils.isEmpty(auth)) {
+                    auths.add(auth);
+                }
+            }
+            setOpAuths(opClass, auths);
         }
     }
 
