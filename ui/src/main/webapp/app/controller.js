@@ -30,7 +30,7 @@ angular.module('app').controller('AppController',
     $scope.selectedEntities = {};
     $scope.selectedEdges = {};
 
-    $scope.extendQueryStep = 0;
+    $scope.buildQueryStep = 0;
     $scope.expandEntities = [];
     $scope.expandEdges = [];
     $scope.expandEntitiesContent = {};
@@ -38,16 +38,16 @@ angular.module('app').controller('AppController',
     $scope.inOutFlag = "BOTH";
     $scope.editingOperations = false;
 
-    $scope.extendQuery = function() {
+    $scope.buildQuery = function() {
         $scope.openGraph();
-        $scope.showExtendQuery = true;
-        $scope.extendQueryTab = 0;
+        $scope.showBuildQuery = true;
+        $scope.buildQueryTab = 0;
     }
 
     $scope.goToStep = function(stepId) {
-        $scope.extendQueryStep = stepId - 1;
+        $scope.buildQueryStep = stepId - 1;
         if(stepId > 2) {
-            executeExtendQueryCounts();
+            executeBuildQueryCounts();
         }
     }
 
@@ -161,7 +161,7 @@ angular.module('app').controller('AppController',
         return false;
     }
 
-    createExtendQueryOperation = function() {
+    createBuildQueryOperation = function() {
         var operation = createOperation();
         for(var vertex in $scope.selectedEntities) {
             operation.seeds.push({
@@ -276,20 +276,20 @@ angular.module('app').controller('AppController',
         $scope.operations.push(createOperation());
     };
 
-    $scope.resetExtendQuery = function() {
+    $scope.resetBuildQuery = function() {
         $scope.expandEdges = [];
         $scope.expandEntities = [];
-        $scope.showExtendQuery = false;
-        $scope.extendQueryStep = 0;
+        $scope.showBuildQuery = false;
+        $scope.buildQueryStep = 0;
         $scope.expandQueryCounts = undefined;
         $scope.expandEntitiesContent = {};
         $scope.expandEdgesContent = {};
     };
 
-    $scope.executeExtendQuery = function() {
-        var operation = createExtendQueryOperation();
+    $scope.executeBuildQuery = function() {
+        var operation = createBuildQueryOperation();
         $scope.operations.push(operation);
-        $scope.resetExtendQuery();
+        $scope.resetBuildQuery();
         raw.execute(JSON.stringify({operations: [operation]}));
     };
 
@@ -300,8 +300,8 @@ angular.module('app').controller('AppController',
         };
     }
 
-    var executeExtendQueryCounts = function() {
-        var operations = {operations: [createExtendQueryOperation(), createCountOperation()]};
+    var executeBuildQueryCounts = function() {
+        var operations = {operations: [createBuildQueryOperation(), createCountOperation()]};
         var onSuccess = function(data) {
             if(!data.limitHit) {
                 var total = 0;
@@ -321,7 +321,7 @@ angular.module('app').controller('AppController',
 
     $scope.executeAll = function() {
         $scope.clearResults();
-        $scope.resetExtendQuery();
+        $scope.resetBuildQuery();
        for(var i in $scope.operations) {
            raw.execute(JSON.stringify({operations: [$scope.operations[i]]}));
        }

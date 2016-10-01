@@ -148,8 +148,9 @@ TinkerPop (org.apache.tinkerpop:gremlin-core,gremlin-groovy,gremlin-driver:3.2.0
 - Apache License, Version 2.0
 
 
+------------------------------------------------------------------------------------------------
 
-The Gaffer example-rest module also contains the following javascript dependencies as part of its usage of Swagger:
+The Gaffer rest-api and ui modules contain the following javascript dependencies:
 
 Backbone (backbone-min.js:1.3.3)
 
@@ -241,3 +242,5 @@ Angular Material (angular-aria.min.js)
 Angular Material (angular-material.min.js)
 
 - MIT License
+
+------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 <div>
     <div class="container bottomPanel"
-         ng-show="selectedEntitiesCount && !showExtendQuery">
+         ng-show="selectedEntitiesCount && !showBuildQuery">
         <div ng-repeat="(vertex, entities) in selectedEntities">
             <h3>{{vertex}}</h3>
 
@@ -24,7 +24,7 @@
     </div>
 
     <div class="container bottomPanel"
-         ng-show="selectedEdgesCount && !showExtendQuery">
+         ng-show="selectedEdgesCount && !showBuildQuery">
         <div ng-repeat="(id, edges) in selectedEdges">
             <h3>{{edges[0].source}} to {{edges[0].destination}}</h3>
             <table class="table table-striped">
@@ -44,18 +44,18 @@
         </div>
     </div>
 
-    <div id="extendQuery" class="container bottomPanel"
-         ng-show="showExtendQuery">
+    <div id="buildQuery" class="container bottomPanel"
+         ng-show="showBuildQuery">
 
         <div class="panelHeading">
-            <h3>Extend query</h3>
+            <h3>Build query</h3>
         </div>
 
         <div>
             <md-content>
                 <md-tabs md-dynamic-height md-border-bottom
-                         md-selected="extendQueryStep">
-                    <md-tab label="Step1" ng-disabled="extendQueryStep != 0">
+                         md-selected="buildQueryStep">
+                    <md-tab label="Step1" ng-disabled="buildQueryStep != 0">
                         <md-content class="md-padding">
                             <h4>
                                 Select seeds (ctrl click for multiple)
@@ -69,7 +69,7 @@
                                 {{vertex}}
                             </p>
 
-                            <button ng-click="resetExtendQuery(4)"
+                            <button ng-click="resetBuildQuery(4)"
                                     class="btn btn-default">
                                 Cancel
                             </button>
@@ -81,7 +81,7 @@
                         </md-content>
                     </md-tab>
                     <md-tab label="Step2"
-                            ng-disabled="extendQueryStep != 1">
+                            ng-disabled="buildQueryStep != 1">
                         <md-content class="md-padding">
                             <h4>Select related entities</h4>
 
@@ -112,7 +112,7 @@
                                 </md-checkbox>
                             </div>
 
-                            <button ng-click="resetExtendQuery()"
+                            <button ng-click="resetBuildQuery()"
                                     class="btn btn-default">
                                 Cancel
                             </button>
@@ -124,7 +124,7 @@
                         </md-content>
                     </md-tab>
                     <md-tab label="Step3"
-                            ng-disabled="extendQueryStep != 2">
+                            ng-disabled="buildQueryStep != 2">
                         <md-content class="md-padding">
                             <h4>Add property filters</h4>
 
@@ -256,7 +256,7 @@
                                 </div>
                             </div>
 
-                            <button ng-click="resetExtendQuery()"
+                            <button ng-click="resetBuildQuery()"
                                     class="btn btn-default">
                                 Cancel
                             </button>
@@ -268,7 +268,7 @@
                         </md-content>
                     </md-tab>
                     <md-tab label="Step4"
-                            ng-disabled="extendQueryStep != 3"
+                            ng-disabled="buildQueryStep != 3"
                             ng-hide="true">
                         <md-content class="md-padding">
                             <h4>Additional query options</h4>
@@ -300,11 +300,11 @@
                                 </md-radio-button>
                             </md-radio-group>
 
-                            <button ng-click="resetExtendQuery()"
+                            <button ng-click="resetBuildQuery()"
                                     class="btn btn-default">
                                 Cancel
                             </button>
-                            <button ng-click="executeExtendQuery()"
+                            <button ng-click="executeBuildQuery()"
                                     class="btn btn-primary">
                                 Execute
                             </button>
