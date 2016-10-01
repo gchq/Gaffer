@@ -49,10 +49,6 @@ public abstract class ExamplesRunner {
             functionExample.run();
             log(EXAMPLE_DIVIDER);
         }
-
-        if (!classes.isEmpty()) {
-            LOGGER.warn("Missing examples for: " + classes);
-        }
     }
 
     protected void log(final String msg) {
