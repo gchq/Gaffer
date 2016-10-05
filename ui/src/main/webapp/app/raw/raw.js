@@ -48,6 +48,7 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
             onSuccess = updateResults;
         }
 
+        raw.loading = true;
         $.ajax({
             url: queryUrl,
             type: "POST",
@@ -55,9 +56,13 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
             dataType: "json",
             contentType: "application/json",
             accept: "application/json",
-            success: onSuccess,
+            success: function(results){
+                raw.loading = false;
+                onSuccess(results);
+            },
             error: function(xhr, status, err) {
                 console.log(queryUrl, status, err);
+                raw.loading = false;
             }
        });
     }
@@ -119,12 +124,15 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
               queryUrl = "http://" + queryUrl;
           }
 
+
+          raw.loading = true;
           $.ajax({
               url: queryUrl,
               type: "GET",
               accept: "application/json",
               success: onSuccess,
               error: function(xhr, status, err) {
+                  raw.loading = false;
                   console.log(queryUrl, status, err);
               }
          });
