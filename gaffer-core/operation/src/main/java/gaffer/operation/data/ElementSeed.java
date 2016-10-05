@@ -17,6 +17,7 @@
 package gaffer.operation.data;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -63,6 +64,11 @@ public abstract class ElementSeed {
     @JsonGetter("class")
     String getClassName() {
         return getClass().getName();
+    }
+
+    @JsonSetter("class")
+    void setClassName(final String className) {
+        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 
     public enum Matches {
