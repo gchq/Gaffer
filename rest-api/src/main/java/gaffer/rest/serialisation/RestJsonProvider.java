@@ -16,10 +16,9 @@
 
 package gaffer.rest.serialisation;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import gaffer.jsonserialisation.JSONSerialiser;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
@@ -40,9 +39,6 @@ public class RestJsonProvider extends JacksonJaxbJsonProvider {
     }
 
     protected ObjectMapper createMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        return mapper;
+        return JSONSerialiser.createDefaultMapper();
     }
 }

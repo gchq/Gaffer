@@ -57,7 +57,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     protected AbstractGetOperation(final View view, final Iterable<SEED_TYPE> seeds) {
-        this(view, new WrappedCloseableIterable<SEED_TYPE>(seeds));
+        this(view, new WrappedCloseableIterable<>(seeds));
     }
 
     protected AbstractGetOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
@@ -106,11 +106,11 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         return super.getInput();
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
-    List<SEED_TYPE> getSeedArray() {
+    SEED_TYPE[] getSeedArray() {
         final Iterable<SEED_TYPE> input = getInput();
-        return null != input ? Lists.newArrayList(input) : null;
+        return null != input ? (SEED_TYPE[]) Lists.newArrayList(input).toArray() : null;
     }
 
     @JsonSetter(value = "seeds")
