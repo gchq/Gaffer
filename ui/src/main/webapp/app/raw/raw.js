@@ -125,14 +125,12 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
           }
 
 
-          raw.loading = true;
           $.ajax({
               url: queryUrl,
               type: "GET",
               accept: "application/json",
               success: onSuccess,
               error: function(xhr, status, err) {
-                  raw.loading = false;
                   console.log(queryUrl, status, err);
               }
          });

@@ -222,9 +222,7 @@ angular.module('app').controller('AppController',
 
                     for(var i in filter.availableFunctionParameters) {
                         if(filter.parameters[i]) {
-                            var filterParameter = {};
-                            filterParameter[raw.schema.types[elementDefinition.properties[filter.property]].class] = filter.parameters[i];
-                            functionJson["function"][filter.availableFunctionParameters[i]] = filterParameter;
+                            functionJson["function"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
                         }
                     }
 
@@ -429,6 +427,18 @@ angular.module('app').controller('AppController',
         selectedElement.availableFunctionParameters = data;
         $scope.$apply();
     });
+
+    var elementDef = raw.schema.entities[group];
+    if(!elementDef) {
+         elementDef = raw.schema.edges[group];
+    }
+    var propertyClass = raw.schema.types[elementDef.properties[selectedElement.property]].class;
+    if("java.lang.String" !== propertyClass
+        && "java.lang.Boolean" !== propertyClass
+        && "java.lang.Integer" !== propertyClass) {
+        selectedElement.propertyClass = propertyClass;
+    }
+
     selectedElement.parameters = {};
   }
 
