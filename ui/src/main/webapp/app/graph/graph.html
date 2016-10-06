@@ -189,7 +189,15 @@
                                                            ng-model="filter.parameters[idx]">
                                                 </div>
                                             </td>
-
+                                            <td>
+                                                <div ng-show="filter.availableFunctionParameters.length > 0 && filter.propertyClass">
+                                                    You may need to explicitly
+                                                    tell Gaffer the type of the
+                                                    parameter, e.g:
+                                                    {"{{filter.propertyClass}}":
+                                                    value}
+                                                </div>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -252,6 +260,15 @@
                                                     <input type="text"
                                                            class="form-control inline"
                                                            ng-model="filter.parameters[idx]">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div ng-show="filter.availableFunctionParameters.length > 0 && filter.propertyClass">
+                                                    You may need to explicitly
+                                                    tell Gaffer the type of the
+                                                    parameter, e.g:
+                                                    {"{{filter.propertyClass}}":
+                                                    value}
                                                 </div>
                                             </td>
                                         </tr>
