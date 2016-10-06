@@ -92,7 +92,9 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
 
     @Override
     public void setNumReduceTasks(final Integer numReduceTasks) {
-        throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
+        if (1 != numReduceTasks) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
+        }
     }
 
     @Override

@@ -234,7 +234,8 @@ public class AndTest extends FilterFunctionTest {
                 "  \"class\" : \"gaffer.function.simple.filter.And\",%n" +
                 "  \"functions\" : [ {%n" +
                 "    \"function\" : {%n" +
-                "      \"class\" : \"gaffer.function.simple.filter.And\"%n" +
+                "      \"class\" : \"gaffer.function.simple.filter.And\",%n" +
+                "      \"functions\" : [ ]%n" +
                 "    },%n" +
                 "    \"selection\" : [ 0, 1, 2 ]%n" +
                 "  } ]%n" +

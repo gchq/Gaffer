@@ -135,7 +135,8 @@ public class ViewTest {
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property3\"%n" +
+                "          \"key\" : \"property3\",%n" +
+                "          \"isId\" : false%n" +
                 "        } ]%n" +
                 "      } ],%n" +
                 "      \"transformFunctions\" : [ {%n" +
@@ -143,24 +144,29 @@ public class ViewTest {
                 "          \"class\" : \"gaffer.function.ExampleTransformFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\"%n" +
+                "          \"key\" : \"property1\",%n" +
+                "          \"isId\" : false%n" +
                 "        }, {%n" +
-                "          \"key\" : \"property2\"%n" +
+                "          \"key\" : \"property2\",%n" +
+                "          \"isId\" : false%n" +
                 "        } ],%n" +
                 "        \"projection\" : [ {%n" +
-                "          \"key\" : \"property3\"%n" +
+                "          \"key\" : \"property3\",%n" +
+                "          \"isId\" : false%n" +
                 "        } ]%n" +
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : {%n" +
                 "    \"BasicEntity\" : {%n" +
+                "      \"transientProperties\" : { },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\"%n" +
+                "          \"key\" : \"property1\",%n" +
+                "          \"isId\" : false%n" +
                 "        } ]%n" +
                 "      } ]%n" +
                 "    }%n" +
