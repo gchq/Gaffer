@@ -153,15 +153,15 @@
                                             0
                                         </span>
                                     </p>
-                                    <table class="table table-striped"
+                                    <table class="table table-striped no-bottom-border"
                                            ng-show="rawData.entityProperties(entity)">
                                         <tbody>
-                                        <tr>
+                                        <tr ng-repeat="filter in expandEntitiesContent[entity].filters">
                                             <td>
                                                 <select class="form-control"
-                                                        ng-model="expandEntitiesContent[entity].property"
+                                                        ng-model="filter.property"
                                                         ng-options="name as name for (name, type) in rawData.entityProperties(entity)"
-                                                        ng-change="onSelectedPropertyChange(entity, expandEntitiesContent[entity])">
+                                                        ng-change="onSelectedPropertyChange(entity, filter)">
                                                     <option value="" disabled
                                                             selected>
                                                         Select a property
@@ -170,9 +170,9 @@
                                             </td>
                                             <td>
                                                 <select class="form-control"
-                                                        ng-model="expandEntitiesContent[entity].function"
-                                                        ng-options="function as function for function in expandEntitiesContent[entity].availableFunctions"
-                                                        ng-change="onSelectedFunctionChange(entity, expandEntitiesContent[entity])">
+                                                        ng-model="filter.function"
+                                                        ng-options="function as function for function in filter.availableFunctions"
+                                                        ng-change="onSelectedFunctionChange(entity, filter)">
                                                     <option value="" disabled
                                                             selected>
                                                         Select a function
@@ -181,18 +181,30 @@
                                             </td>
 
                                             <td>
-                                                <div ng-repeat="(idx, param) in expandEntitiesContent[entity].availableFunctionParameters">
+                                                <div ng-repeat="(idx, param) in filter.availableFunctionParameters">
                                                     <p class="inline">
                                                         {{param}}:</p>
                                                     <input type="text"
                                                            class="form-control inline"
-                                                           ng-model="expandEntitiesContent[entity].parameters[idx]">
+                                                           ng-model="filter.parameters[idx]">
                                                 </div>
                                             </td>
-
+                                            <td>
+                                                <div ng-show="filter.availableFunctionParameters.length > 0 && filter.propertyClass">
+                                                    You may need to explicitly
+                                                    tell Gaffer the type of the
+                                                    parameter, e.g:
+                                                    {"{{filter.propertyClass}}":
+                                                    value}
+                                                </div>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
+                                    <button ng-click="addFilterFunction(expandEntitiesContent, entity)"
+                                            class="btn btn-default">
+                                        Add filter
+                                    </button>
                                 </div>
                             </div>
 
@@ -215,15 +227,15 @@
                                             0
                                         </span>
                                     </p>
-                                    <table class="table table-striped"
+                                    <table class="table table-striped no-bottom-border"
                                            ng-show="rawData.edgeProperties(edge)">
                                         <tbody>
-                                        <tr>
+                                        <tr ng-repeat="filter in expandEdgesContent[edge].filters">
                                             <td>
                                                 <select class="form-control"
-                                                        ng-model="expandEdgesContent[edge].property"
+                                                        ng-model="filter.property"
                                                         ng-options="name as name for (name, type) in rawData.edgeProperties(edge)"
-                                                        ng-change="onSelectedPropertyChange(edge, expandEdgesContent[edge])">
+                                                        ng-change="onSelectedPropertyChange(edge, filter)">
                                                     <option value="" disabled
                                                             selected>
                                                         Select a property
@@ -232,9 +244,9 @@
                                             </td>
                                             <td>
                                                 <select class="form-control"
-                                                        ng-model="expandEdgesContent[edge].function"
-                                                        ng-options="function as function for function in expandEdgesContent[edge].availableFunctions"
-                                                        ng-change="onSelectedFunctionChange(edge, expandEdgesContent[edge])">
+                                                        ng-model="filter.function"
+                                                        ng-options="function as function for function in filter.availableFunctions"
+                                                        ng-change="onSelectedFunctionChange(edge, filter)">
                                                     <option value="" disabled
                                                             selected>
                                                         Select a function
@@ -242,17 +254,30 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <div ng-repeat="(idx, param) in expandEdgesContent[edge].availableFunctionParameters">
+                                                <div ng-repeat="(idx, param) in filter.availableFunctionParameters">
                                                     <p class="inline">
                                                         {{param}}:</p>
                                                     <input type="text"
                                                            class="form-control inline"
-                                                           ng-model="expandEdgesContent[edge].parameters[idx]">
+                                                           ng-model="filter.parameters[idx]">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div ng-show="filter.availableFunctionParameters.length > 0 && filter.propertyClass">
+                                                    You may need to explicitly
+                                                    tell Gaffer the type of the
+                                                    parameter, e.g:
+                                                    {"{{filter.propertyClass}}":
+                                                    value}
                                                 </div>
                                             </td>
                                         </tr>
                                         </tbody>
                                     </table>
+                                    <button ng-click="addFilterFunction(expandEdgesContent, edge)"
+                                            class="btn btn-default">
+                                        Add filter
+                                    </button>
                                 </div>
                             </div>
 

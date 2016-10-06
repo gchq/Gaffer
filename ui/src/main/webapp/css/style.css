@@ -120,3 +120,7 @@ textarea {
 .fill {
     height: 100%;
 }
+
+.no-bottom-border {
+    margin-bottom: 0;
+}
