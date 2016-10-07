@@ -62,9 +62,9 @@ import java.util.Map.Entry;
 
 public abstract class WalkthroughStrSubstitutor {
     private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
-    private static final String GITHUB_RAW_URL_PREFIX = "https://raw.githubusercontent.com/GovernmentCommunicationsHeadquarters/Gaffer/master/";
-    private static final String GITHUB_URL_PREFIX = "https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/blob/master/";
-    private static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/";
+    private static final String GITHUB_RAW_URL_PREFIX = "https://raw.githubusercontent.com/gchq/Gaffer/master/";
+    private static final String GITHUB_URL_PREFIX = "https://github.com/gchq/Gaffer/blob/master/";
+    private static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/gchq/Gaffer/wiki/";
     private static final String JAVA_SRC_PATH = "/src/main/java/";
     private static final String RESOURCES_SRC_PATH = "/src/main/resources/";
 
@@ -152,7 +152,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("MEAN_TRANSFORM_LINK", getGitHubCodeLink(MeanTransform.class, "example"));
         params.put("VISIBILITY_AGGREGATOR_LINK", getGitHubCodeLink(VisibilityAggregator.class, "example"));
         params.put("VISIBILITY_SERIALISER_LINK", getGitHubCodeLink(VisibilitySerialiser.class, "example"));
-        params.put("ACCUMULO_USER_GUIDE", "[Accumulo Store User Guide](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Accumulo-Store-User-Guide)");
+        params.put("ACCUMULO_USER_GUIDE", "[Accumulo Store User Guide](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide)");
         params.put("AGGREGATE_FUNCTION", getGitHubCodeLink(AggregateFunction.class, "gaffer-core/function"));
         params.put("ACCUMULO_KEY_PACKAGE", getGitHubCodeLink(AccumuloKeyPackage.class, "accumulo-store"));
 
