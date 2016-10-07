@@ -61,7 +61,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public abstract class WalkthroughStrSubstitutor {
-    private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
+    private static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
     private static final String GITHUB_RAW_URL_PREFIX = "https://raw.githubusercontent.com/gchq/Gaffer/master/";
     private static final String GITHUB_URL_PREFIX = "https://github.com/gchq/Gaffer/blob/master/";
     private static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/gchq/Gaffer/wiki/";

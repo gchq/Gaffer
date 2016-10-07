@@ -89,4 +89,4 @@ Adding files to Accumulo's tablet server classpaths is typically done by putting
 
 There is a getting started guide on our wiki: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).
 
-Our Javadoc can be found [here](http://governmentcommunicationsheadquarters.github.io/Gaffer/).
+Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
