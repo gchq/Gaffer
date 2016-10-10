@@ -18,7 +18,7 @@ But before that you will need to download the code and compile it - sorry we are
 Start by cloning the gaffer GitHub project.
 
 ```bash
-git clone https://github.com/GovernmentCommunicationsHeadquarters/Gaffer.git
+git clone https://github.com/gchq/Gaffer.git
 ```
 
 Then from inside the Gaffer folder run the maven 'quick' build. There are quite a few dependencies to download so it is not actually that quick.
