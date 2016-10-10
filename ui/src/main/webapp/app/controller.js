@@ -161,6 +161,18 @@ angular.module('app').controller('AppController',
         return false;
     }
 
+    $scope.addFilterFunction = function(expandElementContent, element) {
+        if(!expandElementContent[element]) {
+            expandElementContent[element] = {};
+        }
+
+        if(!expandElementContent[element].filters) {
+            expandElementContent[element].filters = [];
+        }
+
+        expandElementContent[element].filters.push({});
+    }
+
     createBuildQueryOperation = function() {
         var operation = createOperation();
         for(var vertex in $scope.selectedEntities) {
@@ -173,38 +185,49 @@ angular.module('app').controller('AppController',
 
         for(var i in $scope.expandEntities) {
             var entity = $scope.expandEntities[i];
-            var filterFunctions = convertFilterFunctions($scope.expandEntitiesContent[entity]);
-            operation.view.entities[entity] = {preAggregationFilterFunctions: filterFunctions};
+            operation.view.entities[entity] = {};
+
+            var filterFunctions = convertFilterFunctions($scope.expandEntitiesContent[entity], raw.schema.entities[entity]);
+            if(filterFunctions.length > 0) {
+                operation.view.entities[entity].preAggregationFilterFunctions = filterFunctions;
+            }
         }
+
         for(var i in $scope.expandEdges) {
             var edge = $scope.expandEdges[i];
-            var filterFunctions = convertFilterFunctions($scope.expandEdgesContent[edge]);
-            operation.view.edges[edge] = {preAggregationFilterFunctions: filterFunctions};
+            operation.view.edges[edge] = {};
+
+            var filterFunctions = convertFilterFunctions($scope.expandEdgesContent[edge], raw.schema.edges[edge]);
+            if(filterFunctions.length > 0) {
+                operation.view.edges[edge].preAggregationFilterFunctions = filterFunctions;
+            }
         }
 
         operation.includeIncomingOutGoing = $scope.inOutFlag;
         return operation;
     }
 
-    var convertFilterFunctions = function(expandElementContent) {
+    var convertFilterFunctions = function(expandElementContent, elementDefinition) {
         var filterFunctions = [];
-        if(expandElementContent) {
-            var filter = expandElementContent;
-            if(filter.property && filter['function']) {
-                var functionJson = {
-                    "function": {
-                        class: filter['function']
-                    },
-                    selection: [{ key: filter.property }]
-                };
+        if(expandElementContent && expandElementContent.filters) {
+            for(var index in expandElementContent.filters) {
+                var filter = expandElementContent.filters[index];
+                if(filter.property && filter['function']) {
+                    var functionJson = {
+                        "function": {
+                            class: filter['function']
+                        },
+                        selection: [{ key: filter.property }]
+                    };
 
-                for(var i in filter.availableFunctionParameters) {
-                    if(filter.parameters[i]) {
-                        functionJson["function"][filter.availableFunctionParameters[i]] = filter.parameters[i];
+                    for(var i in filter.availableFunctionParameters) {
+                        if(filter.parameters[i]) {
+                            functionJson["function"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
+                        }
                     }
-                }
 
-                filterFunctions.push(functionJson);
+                    filterFunctions.push(functionJson);
+                }
             }
         }
         return filterFunctions;
@@ -404,6 +427,18 @@ angular.module('app').controller('AppController',
         selectedElement.availableFunctionParameters = data;
         $scope.$apply();
     });
+
+    var elementDef = raw.schema.entities[group];
+    if(!elementDef) {
+         elementDef = raw.schema.edges[group];
+    }
+    var propertyClass = raw.schema.types[elementDef.properties[selectedElement.property]].class;
+    if("java.lang.String" !== propertyClass
+        && "java.lang.Boolean" !== propertyClass
+        && "java.lang.Integer" !== propertyClass) {
+        selectedElement.propertyClass = propertyClass;
+    }
+
     selectedElement.parameters = {};
   }
 
