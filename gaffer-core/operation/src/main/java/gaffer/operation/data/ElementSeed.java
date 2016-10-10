@@ -34,7 +34,7 @@ import gaffer.data.element.Entity;
  * @see EntitySeed
  * @see EdgeSeed
  */
-@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
+@JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
 public abstract class ElementSeed {
     /**
      * @param that the {@link ElementSeed} to compare

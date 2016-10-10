@@ -42,7 +42,7 @@ import java.util.Map;
  * <p>
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
-@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
+@JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
 public abstract class Element implements Serializable {
     public static final String DEFAULT_GROUP = "UNKNOWN";
 
