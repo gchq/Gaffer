@@ -18,25 +18,28 @@ package gaffer.function.simple.aggregate;
 import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
-import gaffer.types.simple.FreqMap;
+import gaffer.types.simple.IntegerFreqMap;
 import java.util.Map.Entry;
 
 /**
  * An <code>FreqMapAggregator</code> is a {@link SimpleAggregateFunction} that takes in
- * {@link gaffer.types.simple.FreqMap}s and merges the frequencies together.
+ * {@link IntegerFreqMap}s and merges the frequencies together.
+ *
+ * @deprecated use {@link gaffer.types.simple.FreqMap} with {@link FreqMapAggregator}.
  */
-@Inputs(FreqMap.class)
-@Outputs(FreqMap.class)
-public class FreqMapAggregator extends SimpleAggregateFunction<FreqMap> {
-    private FreqMap frequencyMap;
+@Inputs(IntegerFreqMap.class)
+@Outputs(IntegerFreqMap.class)
+@Deprecated
+public class IntegerFreqMapAggregator extends SimpleAggregateFunction<IntegerFreqMap> {
+    private IntegerFreqMap frequencyMap;
 
     @Override
-    protected void _aggregate(final FreqMap input) {
+    protected void _aggregate(final IntegerFreqMap input) {
         if (null != input) {
             if (null == frequencyMap) {
-                frequencyMap = new FreqMap(input);
+                frequencyMap = new IntegerFreqMap(input);
             } else {
-                for (Entry<String, Long> entry : input.entrySet()) {
+                for (Entry<String, Integer> entry : input.entrySet()) {
                     if (frequencyMap.containsKey(entry.getKey())) {
                         frequencyMap.put(entry.getKey(), frequencyMap.get(entry.getKey()) + entry.getValue());
                     } else {
@@ -53,13 +56,13 @@ public class FreqMapAggregator extends SimpleAggregateFunction<FreqMap> {
     }
 
     @Override
-    protected FreqMap _state() {
+    protected IntegerFreqMap _state() {
         return frequencyMap;
     }
 
     @Override
-    public FreqMapAggregator statelessClone() {
-        final FreqMapAggregator aggregator = new FreqMapAggregator();
+    public IntegerFreqMapAggregator statelessClone() {
+        final IntegerFreqMapAggregator aggregator = new IntegerFreqMapAggregator();
         aggregator.init();
         return aggregator;
     }
