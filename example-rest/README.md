@@ -27,7 +27,7 @@ If you wish to deploy the war file to a container of your choice, then use this 
 To build the war file along with all its dependencies then run the following command from the parent directory:
 'mvn clean install -Pquick'
 
-To deploy it to a server of your choice, take target/example-rest.war and deploy as per the usual deployment process for your server.
+To deploy it to a server of your choice, take target/example-rest-[version].war and deploy as per the usual deployment process for your server.
 
 In order for the application to function, it needs a number of system properties to be set up on the server:
 e.g.
@@ -63,6 +63,10 @@ files and the data store .properties file. As a default, these point to the same
 
 ```xml
 <systemProperties>
+  <systemProperty>
+      <name>gaffer.rest-api.basePath</name>
+      <value>rest/v1</value>
+  </systemProperty>
   <systemProperty>
       <name>gaffer.schemas</name>
       <!-- this needs to point to your Gaffer schema folder-->

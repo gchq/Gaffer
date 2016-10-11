@@ -30,7 +30,7 @@ angular.module('app').controller('AppController',
     $scope.selectedEntities = {};
     $scope.selectedEdges = {};
 
-    $scope.extendQueryStep = 0;
+    $scope.buildQueryStep = 0;
     $scope.expandEntities = [];
     $scope.expandEdges = [];
     $scope.expandEntitiesContent = {};
@@ -38,16 +38,16 @@ angular.module('app').controller('AppController',
     $scope.inOutFlag = "BOTH";
     $scope.editingOperations = false;
 
-    $scope.extendQuery = function() {
+    $scope.buildQuery = function() {
         $scope.openGraph();
-        $scope.showExtendQuery = true;
-        $scope.extendQueryTab = 0;
+        $scope.showBuildQuery = true;
+        $scope.buildQueryTab = 0;
     }
 
     $scope.goToStep = function(stepId) {
-        $scope.extendQueryStep = stepId - 1;
+        $scope.buildQueryStep = stepId - 1;
         if(stepId > 2) {
-            executeExtendQueryCounts();
+            executeBuildQueryCounts();
         }
     }
 
@@ -161,7 +161,19 @@ angular.module('app').controller('AppController',
         return false;
     }
 
-    createExtendQueryOperation = function() {
+    $scope.addFilterFunction = function(expandElementContent, element) {
+        if(!expandElementContent[element]) {
+            expandElementContent[element] = {};
+        }
+
+        if(!expandElementContent[element].filters) {
+            expandElementContent[element].filters = [];
+        }
+
+        expandElementContent[element].filters.push({});
+    }
+
+    createBuildQueryOperation = function() {
         var operation = createOperation();
         for(var vertex in $scope.selectedEntities) {
             operation.seeds.push({
@@ -173,38 +185,49 @@ angular.module('app').controller('AppController',
 
         for(var i in $scope.expandEntities) {
             var entity = $scope.expandEntities[i];
-            var filterFunctions = convertFilterFunctions($scope.expandEntitiesContent[entity]);
-            operation.view.entities[entity] = {preAggregationFilterFunctions: filterFunctions};
+            operation.view.entities[entity] = {};
+
+            var filterFunctions = convertFilterFunctions($scope.expandEntitiesContent[entity], raw.schema.entities[entity]);
+            if(filterFunctions.length > 0) {
+                operation.view.entities[entity].preAggregationFilterFunctions = filterFunctions;
+            }
         }
+
         for(var i in $scope.expandEdges) {
             var edge = $scope.expandEdges[i];
-            var filterFunctions = convertFilterFunctions($scope.expandEdgesContent[edge]);
-            operation.view.edges[edge] = {preAggregationFilterFunctions: filterFunctions};
+            operation.view.edges[edge] = {};
+
+            var filterFunctions = convertFilterFunctions($scope.expandEdgesContent[edge], raw.schema.edges[edge]);
+            if(filterFunctions.length > 0) {
+                operation.view.edges[edge].preAggregationFilterFunctions = filterFunctions;
+            }
         }
 
         operation.includeIncomingOutGoing = $scope.inOutFlag;
         return operation;
     }
 
-    var convertFilterFunctions = function(expandElementContent) {
+    var convertFilterFunctions = function(expandElementContent, elementDefinition) {
         var filterFunctions = [];
-        if(expandElementContent) {
-            var filter = expandElementContent;
-            if(filter.property && filter['function']) {
-                var functionJson = {
-                    "function": {
-                        class: filter['function']
-                    },
-                    selection: [{ key: filter.property }]
-                };
+        if(expandElementContent && expandElementContent.filters) {
+            for(var index in expandElementContent.filters) {
+                var filter = expandElementContent.filters[index];
+                if(filter.property && filter['function']) {
+                    var functionJson = {
+                        "function": {
+                            class: filter['function']
+                        },
+                        selection: [{ key: filter.property }]
+                    };
 
-                for(var i in filter.availableFunctionParameters) {
-                    if(filter.parameters[i]) {
-                        functionJson["function"][filter.availableFunctionParameters[i]] = filter.parameters[i];
+                    for(var i in filter.availableFunctionParameters) {
+                        if(filter.parameters[i]) {
+                            functionJson["function"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
+                        }
                     }
-                }
 
-                filterFunctions.push(functionJson);
+                    filterFunctions.push(functionJson);
+                }
             }
         }
         return filterFunctions;
@@ -276,20 +299,20 @@ angular.module('app').controller('AppController',
         $scope.operations.push(createOperation());
     };
 
-    $scope.resetExtendQuery = function() {
+    $scope.resetBuildQuery = function() {
         $scope.expandEdges = [];
         $scope.expandEntities = [];
-        $scope.showExtendQuery = false;
-        $scope.extendQueryStep = 0;
+        $scope.showBuildQuery = false;
+        $scope.buildQueryStep = 0;
         $scope.expandQueryCounts = undefined;
         $scope.expandEntitiesContent = {};
         $scope.expandEdgesContent = {};
     };
 
-    $scope.executeExtendQuery = function() {
-        var operation = createExtendQueryOperation();
+    $scope.executeBuildQuery = function() {
+        var operation = createBuildQueryOperation();
         $scope.operations.push(operation);
-        $scope.resetExtendQuery();
+        $scope.resetBuildQuery();
         raw.execute(JSON.stringify({operations: [operation]}));
     };
 
@@ -300,8 +323,8 @@ angular.module('app').controller('AppController',
         };
     }
 
-    var executeExtendQueryCounts = function() {
-        var operations = {operations: [createExtendQueryOperation(), createCountOperation()]};
+    var executeBuildQueryCounts = function() {
+        var operations = {operations: [createBuildQueryOperation(), createCountOperation()]};
         var onSuccess = function(data) {
             if(!data.limitHit) {
                 var total = 0;
@@ -321,7 +344,7 @@ angular.module('app').controller('AppController',
 
     $scope.executeAll = function() {
         $scope.clearResults();
-        $scope.resetExtendQuery();
+        $scope.resetBuildQuery();
        for(var i in $scope.operations) {
            raw.execute(JSON.stringify({operations: [$scope.operations[i]]}));
        }
@@ -404,6 +427,18 @@ angular.module('app').controller('AppController',
         selectedElement.availableFunctionParameters = data;
         $scope.$apply();
     });
+
+    var elementDef = raw.schema.entities[group];
+    if(!elementDef) {
+         elementDef = raw.schema.edges[group];
+    }
+    var propertyClass = raw.schema.types[elementDef.properties[selectedElement.property]].class;
+    if("java.lang.String" !== propertyClass
+        && "java.lang.Boolean" !== propertyClass
+        && "java.lang.Integer" !== propertyClass) {
+        selectedElement.propertyClass = propertyClass;
+    }
+
     selectedElement.parameters = {};
   }
 

@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * A <code>FreqMapSerialiser</code> serialises and deserialises {@code FreqMap}s.
- * Any null keys or values are skiped.
+ * Any null keys or values are skipped.
  */
 public class FreqMapSerialiser implements Serialisation {
     private static final long serialVersionUID = 6530929395214726384L;

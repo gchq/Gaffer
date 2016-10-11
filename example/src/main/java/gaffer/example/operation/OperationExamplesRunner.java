@@ -34,6 +34,6 @@ public class OperationExamplesRunner extends ExamplesRunner {
     @Override
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
         super.printTableOfContents(exampleParentClass);
-        log("In addition to these core operations, stores can implement their own specific operations. See [Accumulo specific operation examples](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Accumulo-specific-operation-examples).\n");
+        log("In addition to these core operations, stores can implement their own specific operations. See [Accumulo specific operation examples](https://github.com/gchq/Gaffer/wiki/Accumulo-specific-operation-examples).\n");
     }
 }
