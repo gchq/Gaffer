@@ -19,9 +19,11 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
     raw.results = {entities: [], edges: []};
 
     var updateResultsListener;
-    raw.initialise = function(newUpdateResultsListener) {
+    var updateScope;
+    raw.initialise = function(newUpdateResultsListener, newUpdateScope) {
         raw.loadSchema();
         updateResultsListener = newUpdateResultsListener;
+        updateScope = newUpdateScope;
     };
 
     raw.loadSchema = function() {
@@ -59,10 +61,12 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
             success: function(results){
                 raw.loading = false;
                 onSuccess(results);
+                updateScope();
             },
             error: function(xhr, status, err) {
                 console.log(queryUrl, status, err);
                 raw.loading = false;
+                updateScope();
             }
        });
     }

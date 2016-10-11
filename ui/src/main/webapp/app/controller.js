@@ -70,7 +70,13 @@ angular.module('app').controller('AppController',
             }
         }
 
-        raw.initialise(updateResultsListener);
+        var updateScope = function() {
+            if(!$scope.$$phase) {
+               $scope.$apply();
+            }
+        }
+
+        raw.initialise(updateResultsListener, updateScope);
     };
 
     function addSeedDialogController($scope, $mdDialog) {
@@ -185,7 +191,7 @@ angular.module('app').controller('AppController',
 
         for(var i in $scope.expandEntities) {
             var entity = $scope.expandEntities[i];
-            operation.view.entities[entity] = {};
+            operation.view.entities[entity] = {groupBy: []};
 
             var filterFunctions = convertFilterFunctions($scope.expandEntitiesContent[entity], raw.schema.entities[entity]);
             if(filterFunctions.length > 0) {
@@ -195,7 +201,7 @@ angular.module('app').controller('AppController',
 
         for(var i in $scope.expandEdges) {
             var edge = $scope.expandEdges[i];
-            operation.view.edges[edge] = {};
+            operation.view.edges[edge] = {groupBy: []};
 
             var filterFunctions = convertFilterFunctions($scope.expandEdgesContent[edge], raw.schema.edges[edge]);
             if(filterFunctions.length > 0) {
@@ -395,7 +401,7 @@ angular.module('app').controller('AppController',
         updateRelatedEdges();
       } else if(element.id() in $scope.selectedEdges) {
         delete $scope.selectedEdges[element.id()];
-        $scope.selectedEdgesCount = Object.keys($scope.selectedEdges).lengt;
+        $scope.selectedEdgesCount = Object.keys($scope.selectedEdges).length;
       }
 
       $scope.$apply();
