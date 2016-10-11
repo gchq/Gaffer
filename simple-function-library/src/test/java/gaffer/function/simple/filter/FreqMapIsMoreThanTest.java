@@ -41,13 +41,13 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
 
     @Before
     public void setup() {
-        map1.put(KEY1, 1);
+        map1.put(KEY1, 1L);
     }
 
     @Test
     public void shouldAcceptWhenFreqIsGreaterThan0() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(0));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(0L));
 
         // When
         boolean accepted = filter.isValid(new Object[]{map1});
@@ -59,7 +59,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldAcceptWhenFreqIsEqualTo1() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1, true));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, true));
 
         // When
         boolean accepted = filter.isValid(new Object[]{map1});
@@ -71,7 +71,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectWhenEqualToAndFlagNotSet() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1, false));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, false));
 
         // When
         boolean accepted = filter.isValid(new Object[]{map1});
@@ -83,7 +83,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectWhenLessThan10() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(10));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(10L));
 
         // When
         boolean accepted = filter.isValid(new Object[]{map1});
@@ -95,7 +95,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectWhenKeyNotPresent() {
         // Given
-        final MapFilter filter = new MapFilter(KEY2, new IsMoreThan(10));
+        final MapFilter filter = new MapFilter(KEY2, new IsMoreThan(10L));
 
         // When
         boolean accepted = filter.isValid(new Object[]{map1});
@@ -107,7 +107,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectEmptyMaps() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(0));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(0L));
 
         // When
         boolean accepted = filter.isValid(new Object[]{new FreqMap()});
@@ -120,7 +120,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldClone() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1, true));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, true));
 
         // When
         final MapFilter clonedFilter = filter.statelessClone();
@@ -128,14 +128,14 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
         // Then
         assertNotSame(filter, clonedFilter);
         assertEquals(KEY1, clonedFilter.getKey());
-        assertEquals(1, ((IsMoreThan) clonedFilter.getFunction()).getControlValue());
+        assertEquals(1L, ((IsMoreThan) clonedFilter.getFunction()).getControlValue());
         assertTrue(((IsMoreThan) clonedFilter.getFunction()).getOrEqualTo());
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1, true));
+        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, true));
 
         // When
         final String json = new String(new JSONSerialiser().serialise(filter, true));
@@ -146,7 +146,9 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
                 "  \"function\" : {%n" +
                 "    \"class\" : \"gaffer.function.simple.filter.IsMoreThan\",%n" +
                 "    \"orEqualTo\" : true,%n" +
-                "    \"value\" : 1%n" +
+                "    \"value\" : {%n" +
+                "      \"java.lang.Long\" : 1%n" +
+                "    }%n" +
                 "  },%n" +
                 "  \"key\" : \"key1\"%n" +
                 "}"), json);
@@ -166,6 +168,6 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
 
     @Override
     protected MapFilter getInstance() {
-        return new MapFilter(KEY1, new IsMoreThan(0));
+        return new MapFilter(KEY1, new IsMoreThan(0L));
     }
 }

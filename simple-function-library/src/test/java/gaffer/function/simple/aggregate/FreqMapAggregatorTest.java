@@ -20,12 +20,12 @@ public class FreqMapAggregatorTest extends AggregateFunctionTest {
         aggregator.init();
 
         final FreqMap freqMap1 = new FreqMap();
-        freqMap1.put("1", 2);
-        freqMap1.put("2", 3);
+        freqMap1.put("1", 2L);
+        freqMap1.put("2", 3L);
 
         final FreqMap freqMap2 = new FreqMap();
-        freqMap2.put("2", 4);
-        freqMap2.put("3", 5);
+        freqMap2.put("2", 4L);
+        freqMap2.put("3", 5L);
 
         // When
         aggregator._aggregate(freqMap1);
@@ -33,9 +33,9 @@ public class FreqMapAggregatorTest extends AggregateFunctionTest {
 
         // Then
         final FreqMap mergedFreqMap = ((FreqMap) aggregator.state()[0]);
-        assertEquals((Integer) 2, mergedFreqMap.get("1"));
-        assertEquals((Integer) 7, mergedFreqMap.get("2"));
-        assertEquals((Integer) 5, mergedFreqMap.get("3"));
+        assertEquals((Long) 2L, mergedFreqMap.get("1"));
+        assertEquals((Long) 7L, mergedFreqMap.get("2"));
+        assertEquals((Long) 5L, mergedFreqMap.get("3"));
     }
 
     @Test
@@ -43,8 +43,8 @@ public class FreqMapAggregatorTest extends AggregateFunctionTest {
         // Given
         final FreqMapAggregator aggregator = new FreqMapAggregator();
         final FreqMap freqMap1 = new FreqMap();
-        freqMap1.put("1", 2);
-        freqMap1.put("2", 3);
+        freqMap1.put("1", 2L);
+        freqMap1.put("2", 3L);
         aggregator._aggregate(freqMap1);
 
         // When
