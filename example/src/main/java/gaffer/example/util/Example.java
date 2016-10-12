@@ -31,7 +31,7 @@ public abstract class Example {
     public static final String DIVIDER = "-----------------------------------------------";
     public static final String TITLE_DIVIDER = DIVIDER;
     public static final String METHOD_DIVIDER = DIVIDER + "\n";
-    private static final String JAVA_DOC_URL_PREFIX = "http://governmentcommunicationsheadquarters.github.io/Gaffer/";
+    private static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
     private final Class<?> classForExample;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String description;

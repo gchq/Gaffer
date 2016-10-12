@@ -89,7 +89,8 @@ class EntitySeed(ElementSeed):
         self.vertex = vertex
 
     def toJson(self):
-        return {'gaffer.operation.data.EntitySeed': {'vertex': self.vertex}}
+        return {'class': 'gaffer.operation.data.EntitySeed',
+                'vertex': self.vertex}
 
 
 class EdgeSeed(ElementSeed):
@@ -100,11 +101,11 @@ class EdgeSeed(ElementSeed):
         self.directed = directed
 
     def toJson(self):
-        return {'gaffer.operation.data.EdgeSeed': {
+        return {
+            'class': 'gaffer.operation.data.EdgeSeed',
             'source': self.source,
             'destination': self.destination,
             'directed': self.directed}
-        }
 
 
 class Element(ToJson):

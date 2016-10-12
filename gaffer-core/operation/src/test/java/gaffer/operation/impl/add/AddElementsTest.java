@@ -39,13 +39,16 @@ import java.util.List;
 public class AddElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
+            "  \"validate\" : true,%n" +
+            "  \"skipInvalidElements\" : false,%n" +
             "  \"elements\" : [ {%n" +
             "    \"class\" : \"gaffer.data.element.Entity\",%n" +
             "    \"properties\" : {%n" +
             "      \"property 1\" : \"property 1 value\"%n" +
             "    },%n" +
             "    \"group\" : \"entity type 1\",%n" +
-            "    \"vertex\" : \"vertex 1\"%n" +
+            "    \"vertex\" : \"vertex 1\",%n" +
+            "    \"class\" : \"gaffer.data.element.Entity\"%n" +
             "  }, {%n" +
             "    \"class\" : \"gaffer.data.element.Edge\",%n" +
             "    \"properties\" : {%n" +
@@ -54,7 +57,8 @@ public class AddElementsTest implements OperationTest {
             "    \"group\" : \"edge type 2\",%n" +
             "    \"source\" : \"source vertex 1\",%n" +
             "    \"destination\" : \"dest vertex 1\",%n" +
-            "    \"directed\" : true%n" +
+            "    \"directed\" : true,%n" +
+            "    \"class\" : \"gaffer.data.element.Edge\"%n" +
             "  } ]%n" +
             "}");
 
@@ -68,7 +72,10 @@ public class AddElementsTest implements OperationTest {
         String json = new String(serialiser.serialise(addElements, true));
 
         // Then
-        assertEquals("{ }", json);
+        JsonUtil.assertEquals(String.format("{%n" +
+                "  \"validate\" : true,%n" +
+                "  \"skipInvalidElements\" : false%n" +
+                "}"), json);
     }
 
     @Test

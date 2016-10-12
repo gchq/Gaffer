@@ -575,7 +575,8 @@ public class MinTest extends AggregateFunctionTest {
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.Min\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.Min\",%n" +
+                "  \"mode\" : \"AUTO\"%n" +
                 "}"), json);
 
         // When 2

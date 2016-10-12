@@ -56,8 +56,10 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        throw new IllegalArgumentException(
-                getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
+        if (!getIncludeIncomingOutGoing().equals(includeIncomingOutGoing)) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
+        }
     }
 
     public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, ?>>

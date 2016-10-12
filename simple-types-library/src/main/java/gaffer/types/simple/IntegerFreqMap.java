@@ -19,23 +19,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <code>FreqMap</code> extends {@link HashMap} with String keys and Long values, adding an upsert operation.
+ * <code>FreqMap</code> extends {@link HashMap} with String keys and Integer values, adding an upsert operation.
+ *
+ * @deprecated Use {@link FreqMap} instead.
  */
-public class FreqMap extends HashMap<String, Long> {
-    private static final long serialVersionUID = -851105369975081220L;
+@Deprecated
+public class IntegerFreqMap extends HashMap<String, Integer> {
 
-    public FreqMap(final Map<? extends String, ? extends Long> m) {
+    private static final long serialVersionUID = -6178586775831730274L;
+
+    public IntegerFreqMap(final Map<? extends String, ? extends Integer> m) {
         super(m);
     }
 
-    public FreqMap() {
+    public IntegerFreqMap() {
     }
 
-    public FreqMap(final int initialCapacity) {
+    public IntegerFreqMap(final int initialCapacity) {
         super(initialCapacity);
     }
 
-    public FreqMap(final int initialCapacity, final float loadFactor) {
+    public IntegerFreqMap(final int initialCapacity, final float loadFactor) {
         super(initialCapacity, loadFactor);
     }
 
@@ -46,8 +50,8 @@ public class FreqMap extends HashMap<String, Long> {
      * @param key   The key in the map to increment or insert.
      * @param value The value to increment by or initialise to.
      */
-    public void upsert(final String key, final Long value) {
-        final Long currentValue = get(key);
+    public void upsert(final String key, final Integer value) {
+        final Integer currentValue = get(key);
         if (null == currentValue) {
             put(key, value);
         } else {
@@ -62,6 +66,6 @@ public class FreqMap extends HashMap<String, Long> {
      * @param key The key to increment or insert.
      */
     public void upsert(final String key) {
-        upsert(key, 1L);
+        upsert(key, 1);
     }
 }

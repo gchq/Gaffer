@@ -19,9 +19,11 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
     raw.results = {entities: [], edges: []};
 
     var updateResultsListener;
-    raw.initialise = function(newUpdateResultsListener) {
+    var updateScope;
+    raw.initialise = function(newUpdateResultsListener, newUpdateScope) {
         raw.loadSchema();
         updateResultsListener = newUpdateResultsListener;
+        updateScope = newUpdateScope;
     };
 
     raw.loadSchema = function() {
@@ -48,6 +50,7 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
             onSuccess = updateResults;
         }
 
+        raw.loading = true;
         $.ajax({
             url: queryUrl,
             type: "POST",
@@ -55,9 +58,15 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
             dataType: "json",
             contentType: "application/json",
             accept: "application/json",
-            success: onSuccess,
+            success: function(results){
+                raw.loading = false;
+                onSuccess(results);
+                updateScope();
+            },
             error: function(xhr, status, err) {
                 console.log(queryUrl, status, err);
+                raw.loading = false;
+                updateScope();
             }
        });
     }
@@ -118,6 +127,7 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
           if(!queryUrl.startsWith("http")) {
               queryUrl = "http://" + queryUrl;
           }
+
 
           $.ajax({
               url: queryUrl,

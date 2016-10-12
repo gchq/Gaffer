@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
@@ -57,7 +58,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     protected AbstractGetOperation(final View view, final Iterable<SEED_TYPE> seeds) {
-        this(view, new WrappedCloseableIterable<SEED_TYPE>(seeds));
+        this(view, new WrappedCloseableIterable<>(seeds));
     }
 
     protected AbstractGetOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
@@ -106,11 +107,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         return super.getInput();
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
-    List<SEED_TYPE> getSeedArray() {
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
+    SEED_TYPE[] getSeedArray() {
         final Iterable<SEED_TYPE> input = getInput();
-        return null != input ? Lists.newArrayList(input) : null;
+        return null != input ? (SEED_TYPE[]) Lists.newArrayList(input).toArray() : null;
     }
 
     @JsonSetter(value = "seeds")

@@ -87,6 +87,6 @@ The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Aft
 
 Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
 
-There is a getting started guide on our wiki: [Getting Started](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
+There is a getting started guide on our wiki: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).
 
-Our Javadoc can be found [here](http://governmentcommunicationsheadquarters.github.io/Gaffer/).
+Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).

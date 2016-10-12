@@ -49,10 +49,6 @@ public abstract class ExamplesRunner {
             functionExample.run();
             log(EXAMPLE_DIVIDER);
         }
-
-        if (!classes.isEmpty()) {
-            LOGGER.warn("Missing examples for: " + classes);
-        }
     }
 
     protected void log(final String msg) {
@@ -74,7 +70,7 @@ public abstract class ExamplesRunner {
                 + "See the License for the specific language governing permissions and\n"
                 + "limitations under the License.\n"
                 + "\n"
-                + "_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/tree/master/example/src/main/java/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
+                + "_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/gchq/Gaffer/tree/master/example/src/main/java/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
     }
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {

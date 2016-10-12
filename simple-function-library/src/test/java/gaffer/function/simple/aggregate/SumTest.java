@@ -580,7 +580,8 @@ public class SumTest extends AggregateFunctionTest {
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.Sum\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.Sum\",%n" +
+                "  \"mode\" : \"AUTO\"%n" +
                 "}"), json);
 
         // When 2
