@@ -138,6 +138,7 @@ public class IsLessThanTest extends FilterFunctionTest {
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.IsLessThan\",%n" +
+                "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 5%n" +
                 "}"), json);
 

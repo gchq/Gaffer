@@ -53,7 +53,8 @@ public class StringConcatTest extends AggregateFunctionTest {
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.StringConcat\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.StringConcat\",%n" +
+                "  \"separator\" : \",\"%n" +
                 "}"), json);
 
         // When 2

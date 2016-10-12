@@ -582,7 +582,8 @@ public class ProductTest extends AggregateFunctionTest {
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.Product\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.Product\",%n" +
+                "  \"mode\" : \"AUTO\"%n" +
                 "}"), json);
 
         // When 2

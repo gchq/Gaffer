@@ -40,15 +40,13 @@ import java.io.InputStream;
 public class JSONSerialiser {
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     /**
      * Constructs a <code>JSONSerialiser</code> that skips nulls and default values.
      */
     public JSONSerialiser() {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper = createDefaultMapper();
     }
 
     /**
@@ -63,6 +61,14 @@ public class JSONSerialiser {
             module.addSerializer(customTypeSerialiser);
         }
         mapper.registerModule(module);
+    }
+
+    public static ObjectMapper createDefaultMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
+        return mapper;
     }
 
     /**
@@ -141,7 +147,7 @@ public class JSONSerialiser {
 
     /**
      * @param stream the {@link java.io.InputStream} containing the bytes of the object to deserialise
-     * @param clazz   the class of the object to deserialise
+     * @param clazz  the class of the object to deserialise
      * @param <T>    the type of the object
      * @return the deserialised object
      * @throws SerialisationException if the bytes fail to deserialise

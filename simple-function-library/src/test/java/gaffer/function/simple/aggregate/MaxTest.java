@@ -554,7 +554,8 @@ public class MaxTest extends AggregateFunctionTest {
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"gaffer.function.simple.aggregate.Max\"%n" +
+                "  \"class\" : \"gaffer.function.simple.aggregate.Max\",%n" +
+                "  \"mode\" : \"AUTO\"%n" +
                 "}"), json);
 
         // When 2

@@ -119,6 +119,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.IsShorterThan\",%n" +
+                "  \"orEqualTo\" : false,%n" +
                 "  \"maxLength\" : 5%n" +
                 "}"), json);
 

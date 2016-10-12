@@ -183,7 +183,8 @@ public class OrTest extends FilterFunctionTest {
                 "  \"class\" : \"gaffer.function.simple.filter.Or\",%n" +
                 "  \"functions\" : [ {%n" +
                 "    \"function\" : {%n" +
-                "      \"class\" : \"gaffer.function.simple.filter.Or\"%n" +
+                "      \"class\" : \"gaffer.function.simple.filter.Or\",%n" +
+                "      \"functions\" : [ ]%n" +
                 "    },%n" +
                 "    \"selection\" : [ 0, 1, 2 ]%n" +
                 "  } ]%n" +
