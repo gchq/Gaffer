@@ -57,7 +57,7 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-function-library</artifactId>
+            <artifactId>function-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
