@@ -81,8 +81,8 @@ To build Gaffer run `mvn clean package` in the top-level directory. This will bu
 The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. After building the project, the following jars need to be installed on all of Accumulo's tablet servers' classpaths.
 
  - The Accumulo iterators jar, located at `accumulo-store/target/accumulo-store-iterators-X.jar`
- - The jar containing the functions used for managing the graph data in Accumulo, located at `simple-function-library/target/simple-function-library-X.jar`
- - The jar containing the serialisers for the data, located at `simple-serialisation-library/target/simple-serialisation-library-X.jar`
+ - The jar containing the functions used for managing the graph data in Accumulo, located at `function-library/target/function-library-X.jar`
+ - The jar containing the serialisers for the data, located at `serialisation-library/target/serialisation-library-X.jar`
  - Any jars that contain custom functions or serialisers you want to use to serialise or manage the data in Accumulo.
 
 Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
