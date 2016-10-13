@@ -21,7 +21,7 @@
         <artifactId>gaffer2</artifactId>
         <version>0.4.5-SNAPSHOT</version>
     </parent>
-    <artifactId>simple-operation-library</artifactId>
+    <artifactId>operation-library</artifactId>
 
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
