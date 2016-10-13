@@ -183,10 +183,9 @@ angular.module('app').controller('AppController',
         var operation = createOperation();
         for(var vertex in $scope.selectedEntities) {
             operation.seeds.push({
-                   "gaffer.operation.data.EntitySeed": {
+                      "class": "gaffer.operation.data.EntitySeed",
                       "vertex": vertex
-                   }
-              });
+                   });
         }
 
         for(var i in $scope.expandEntities) {

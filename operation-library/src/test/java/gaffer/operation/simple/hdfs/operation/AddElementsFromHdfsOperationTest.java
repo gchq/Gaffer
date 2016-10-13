@@ -33,7 +33,8 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"inputPaths\" : [ \"TestInput\" ],%n" +
-            "  \"outputPath\" : \"TestOutput\"%n" +
+            "  \"outputPath\" : \"TestOutput\",%n" +
+            "  \"validate\" : true%n" +
             "}");
 
     @Test
@@ -46,7 +47,10 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
         String json = new String(serialiser.serialise(addElements, true));
 
         // Then
-        assertEquals("{ }", json);
+        JsonUtil.assertEquals(String.format("{%n" +
+                "  \"inputPaths\" : [ ],%n" +
+                "  \"validate\" : true%n" +
+                "}"), json);
     }
 
     @Test

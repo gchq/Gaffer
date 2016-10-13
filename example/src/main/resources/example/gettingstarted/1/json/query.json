@@ -1,9 +1,8 @@
 {
   "seeds": [
     {
-      "gaffer.operation.data.EntitySeed": {
-        "vertex": "1"
-      }
+      "class": "gaffer.operation.data.EntitySeed",
+      "vertex": "1"
     }
   ]
 }

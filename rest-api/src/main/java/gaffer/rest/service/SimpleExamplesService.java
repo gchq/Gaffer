@@ -49,13 +49,16 @@ import gaffer.rest.example.ExampleDomainObjectGenerator;
 import gaffer.rest.example.ExampleFilterFunction;
 import gaffer.rest.example.ExampleTransformFunction;
 import gaffer.store.schema.Schema;
+import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 
 public class SimpleExamplesService implements IExamplesService {
@@ -284,33 +287,45 @@ public class SimpleExamplesService implements IExamplesService {
     protected View.Builder generateViewBuilder() {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
-            viewBuilder.entity(getAnEntityGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty(TRANSFORMED_PROPERTIES, String.class)
-                    .preAggregationFilter(new ElementFilter.Builder()
-                            .select(getAnEntityPropertyName())
-                            .execute(new ExampleFilterFunction())
-                            .build())
-                    .transformer(new ElementTransformer.Builder()
-                            .select(getAnEntityPropertyName())
-                            .execute(new ExampleTransformFunction())
-                            .project(TRANSFORMED_PROPERTIES)
-                            .build())
-                    .build());
+            final ViewElementDefinition viewElement;
+            if (null == getAnEntityPropertyName()) {
+                viewElement = new ViewElementDefinition();
+            } else {
+                viewElement = new ViewElementDefinition.Builder()
+                        .transientProperty(TRANSFORMED_PROPERTIES, String.class)
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(getAnEntityPropertyName())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .transformer(new ElementTransformer.Builder()
+                                .select(getAnEntityPropertyName())
+                                .execute(new ExampleTransformFunction())
+                                .project(TRANSFORMED_PROPERTIES)
+                                .build())
+                        .build();
+            }
+            viewBuilder.entity(getAnEntityGroup(), viewElement);
         }
 
         if (hasEdges()) {
-            viewBuilder.edge(getAnEdgeGroup(), new ViewElementDefinition.Builder()
-                    .transientProperty(TRANSFORMED_PROPERTIES, String.class)
-                    .preAggregationFilter(new ElementFilter.Builder()
-                            .select(getAnEdgePropertyName())
-                            .execute(new ExampleFilterFunction())
-                            .build())
-                    .transformer(new ElementTransformer.Builder()
-                            .select(getAnEdgePropertyName())
-                            .execute(new ExampleTransformFunction())
-                            .project(TRANSFORMED_PROPERTIES)
-                            .build())
-                    .build());
+            final ViewElementDefinition viewElement;
+            if (null == getAnEdgePropertyName()) {
+                viewElement = new ViewElementDefinition();
+            } else {
+                viewElement = new ViewElementDefinition.Builder()
+                        .transientProperty(TRANSFORMED_PROPERTIES, String.class)
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(getAnEdgePropertyName())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .transformer(new ElementTransformer.Builder()
+                                .select(getAnEdgePropertyName())
+                                .execute(new ExampleTransformFunction())
+                                .project(TRANSFORMED_PROPERTIES)
+                                .build())
+                        .build();
+            }
+            viewBuilder.edge(getAnEdgeGroup(), viewElement);
         }
 
         return viewBuilder;
@@ -363,11 +378,9 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected String getAnEntityPropertyName() {
         final SchemaElementDefinition entityDef = getSchema().getEntity(getAnEntityGroup());
-        final String propertyName;
+        String propertyName = null;
         if (null != entityDef && !entityDef.getProperties().isEmpty()) {
             propertyName = entityDef.getProperties().iterator().next();
-        } else {
-            propertyName = "examplePropertyName";
         }
 
         return propertyName;
@@ -375,6 +388,13 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected String getAnEntityGroup() {
         if (!getSchema().getEntityGroups().isEmpty()) {
+            for (Entry<String, SchemaEntityDefinition> entry : getSchema().getEntities().entrySet()) {
+                // Try and find an entity that has properties
+                if (null != entry.getValue().getProperties() && !entry.getValue().getProperties().isEmpty()) {
+                    return entry.getKey();
+                }
+            }
+            // if no entities have properties just return the first entity.
             return getSchema().getEntityGroups().iterator().next();
         } else {
             return "exampleEntityGroup";
@@ -395,6 +415,13 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected String getAnEdgeGroup() {
         if (!getSchema().getEdgeGroups().isEmpty()) {
+            for (Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges().entrySet()) {
+                // Try and find an edge that has properties
+                if (null != entry.getValue().getProperties() && !entry.getValue().getProperties().isEmpty()) {
+                    return entry.getKey();
+                }
+            }
+            // if no edges have properties just return the first entity.
             return getSchema().getEdgeGroups().iterator().next();
         } else {
             return "exampleEdgeGroup";

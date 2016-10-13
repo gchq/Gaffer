@@ -143,6 +143,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"gaffer.function.simple.filter.HyperLogLogPlusIsLessThan\",%n" +
+                "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +
                 "}"), json);
 

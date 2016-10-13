@@ -239,11 +239,13 @@ public class SchemaTest {
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\"%n" +
+                "          \"key\" : \"property1\",%n" +
+                "          \"isId\" : false%n" +
                 "        } ]%n" +
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +
+                "  \"entities\" : { },%n" +
                 "  \"types\" : {%n" +
                 "    \"prop.integer\" : {%n" +
                 "      \"class\" : \"java.lang.Integer\"%n" +
