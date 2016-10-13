@@ -42,22 +42,15 @@ Getting Started
 
 ### Try it out
 
-We have a simple demo available to try [here](https://github.com/gchq/gaffer-tools/tree/master/road-traffic)  based around a small uk road use dataset.
+We have a simple demo available to try that is based around a small uk road use dataset. Download the precompiled demo files from the last release [here](https://github.com/gchq/gaffer-tools/releases) or build and run it from source code [here](https://github.com/gchq/gaffer-tools/tree/master/road-traffic).
 
 There are more in depth examples of using the Java API on our wiki: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).
 
 ### Building and Deploying
 
-To build Gaffer run `mvn clean package` in the top-level directory. This will build all of Gaffer's core libraries, the Accumulo store and some examples of how to load and query data and write other stores.
+To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries, the Accumulo store and some examples of how to load and query data and write other stores.
 
-The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. After building the project, the following jars need to be installed on all of Accumulo's tablet servers' classpaths.
-
- - The Accumulo iterators jar, located at `accumulo-store/target/accumulo-store-iterators-X.jar`
- - The jar containing the functions used for managing the graph data in Accumulo, located at `simple-function-library/target/simple-function-library-X.jar`
- - The jar containing the serialisers for the data, located at `simple-serialisation-library/target/simple-serialisation-library-X.jar`
- - Any jars that contain custom functions or serialisers you want to use to serialise or manage the data in Accumulo.
-
-Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
+The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Instructions for installing Gaffer on Accumulo can be found on the [wiki](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#accumulo-set-up).
 
 ### Documentation
 
