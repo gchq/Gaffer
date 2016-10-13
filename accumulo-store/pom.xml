@@ -160,10 +160,7 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>gaffer:serialisation</include>
-                                    <include>gaffer:function</include>
-                                    <include>gaffer:data</include>
-                                    <include>gaffer:store</include>
+                                    <include>gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
                                     <include>com.fasterxml.jackson.*:*</include>
                                 </includes>
