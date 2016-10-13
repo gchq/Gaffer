@@ -36,7 +36,6 @@
         <module>gaffer-integration-tests</module>
         <module>example-rest</module>
         <module>ui</module>
-        <module>tinkerpop</module>
     </modules>
 
     <properties>
