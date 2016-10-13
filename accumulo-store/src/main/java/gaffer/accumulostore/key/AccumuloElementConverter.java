@@ -235,7 +235,9 @@ public interface AccumuloElementConverter {
      * in the part of the key that is provided.
      *
      * @param group            the element group
-     * @param columnVisibility the element visibility property serialised into bytes
+     * @param columnVisibility the element visibility property serialised into bytes.
+     *                         If the byte array is empty, the element visibility
+     *                         property is initialised as an empty String
      * @return The Properties stored within the part of the {@link Key} specified e.g Column Qualifier
      * @throws AccumuloElementConversionException If conversion fails
      */

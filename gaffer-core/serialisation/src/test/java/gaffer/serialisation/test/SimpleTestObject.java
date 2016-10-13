@@ -16,6 +16,9 @@
 
 package gaffer.serialisation.test;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.io.Serializable;
 
 public class SimpleTestObject implements Serializable {
@@ -27,8 +30,34 @@ public class SimpleTestObject implements Serializable {
         return x;
     }
 
-    public void setX(String x) {
+    public void setX(final String x) {
         this.x = x;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final SimpleTestObject object = (SimpleTestObject) o;
+
+        return new EqualsBuilder()
+                .append(x, object.x)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(x)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("x", x)
+                .toString();
+    }
 }
