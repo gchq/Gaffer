@@ -32,9 +32,35 @@ Gaffer does
 
 Gaffer is built on Hadoop and Accumulo and is integrated with Spark for fast and flexible data analysis.
 
-To get going with Gaffer, visit our [getting started pages](https://github.com/gchq/Gaffer/wiki/Getting-Started).
+To get going with Gaffer, visit our [getting started pages](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
 
 Gaffer is still under active development and isn't a finished product yet. There are still plenty of new features
 to be added and additional documentation to write. Please contribute.
 
-We also have a few tools for gaffer in the [gaffer-tools](https://github.com/gchq/gaffer-tools) repository and a dockerised Gaffer in the [gaffer-docker](https://github.com/gchq/gaffer-docker) repository.
+Getting Started
+---------------
+
+### Try it out
+
+We have a simple demo available to try [here](https://github.com/gchq/gaffer-tools/tree/master/road-traffic)  based around a small uk road use dataset.
+
+There are more in depth examples of using the Java API on our wiki: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).
+
+### Building and Deploying
+
+To build Gaffer run `mvn clean package` in the top-level directory. This will build all of Gaffer's core libraries, the Accumulo store and some examples of how to load and query data and write other stores.
+
+The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. After building the project, the following jars need to be installed on all of Accumulo's tablet servers' classpaths.
+
+ - The Accumulo iterators jar, located at `accumulo-store/target/accumulo-store-iterators-X.jar`
+ - The jar containing the functions used for managing the graph data in Accumulo, located at `simple-function-library/target/simple-function-library-X.jar`
+ - The jar containing the serialisers for the data, located at `simple-serialisation-library/target/simple-serialisation-library-X.jar`
+ - Any jars that contain custom functions or serialisers you want to use to serialise or manage the data in Accumulo.
+
+Adding files to Accumulo's tablet server classpaths is typically done by putting the jar in the lib directory within Accumulo's directory.
+
+### Documentation
+
+Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
+
+We have some user guides on our [wiki](https://github.com/gchq/Gaffer/wiki). 
