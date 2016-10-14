@@ -61,9 +61,6 @@ gaffer.function.processor
 gaffer.function.simple.aggregate
 gaffer.function.simple.filter
 gaffer.function.simple.transform
-gaffer.gafferpop
-gaffer.gafferpop.generator
-gaffer.gafferpop.groovyplugin
 gaffer.graph
 gaffer.graph.export
 gaffer.graph.hook
