@@ -21,22 +21,21 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.5-SNAPSHOT</version>
+    <version>0.4.6-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
         <module>array-list-store</module>
-        <module>simple-types-library</module>
-        <module>simple-function-library</module>
-        <module>simple-operation-library</module>
-        <module>simple-serialisation-library</module>
+        <module>types-library</module>
+        <module>function-library</module>
+        <module>operation-library</module>
+        <module>serialisation-library</module>
         <module>rest-api</module>
         <module>gaffer-core</module>
         <module>example</module>
         <module>gaffer-integration-tests</module>
         <module>example-rest</module>
         <module>ui</module>
-        <module>tinkerpop</module>
     </modules>
 
     <properties>

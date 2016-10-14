@@ -20,10 +20,10 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.5-SNAPSHOT</version>
+        <version>0.4.6-SNAPSHOT</version>
     </parent>
-    <artifactId>simple-serialisation-library</artifactId>
-    <name>simple-serialisation-library</name>
+    <artifactId>serialisation-library</artifactId>
+    <name>serialisation-library</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-types-library</artifactId>
+            <artifactId>types-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -82,7 +82,7 @@
                         </goals>
                         <configuration>
                             <finalName>
-                                simple-serialisation-library-${project.parent.version}-serialisers
+                                serialisation-library-${project.parent.version}-serialisers
                             </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
@@ -90,7 +90,7 @@
                                 <includes>
                                     <include>com.clearspring.analytics:stream
                                     </include>
-                                    <include>gaffer:simple-types-library
+                                    <include>gaffer:types-library
                                     </include>
                                 </includes>
                             </artifactSet>

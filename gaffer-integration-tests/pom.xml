@@ -20,7 +20,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.5-SNAPSHOT</version>
+        <version>0.4.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>gaffer-integration-tests</artifactId>
@@ -39,18 +39,18 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-function-library</artifactId>
+            <artifactId>function-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-operation-library</artifactId>
+            <artifactId>operation-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-serialisation-library</artifactId>
+            <artifactId>serialisation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
