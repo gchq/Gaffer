@@ -21,7 +21,7 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.5-SNAPSHOT</version>
+    <version>0.4.6-SNAPSHOT</version>
 
     <modules>
         <module>accumulo-store</module>
