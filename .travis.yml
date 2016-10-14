@@ -4,7 +4,5 @@ cache:
   - $HOME/.m2
 jdk:
   - oraclejdk8
-
-install: travis_retry mvn -q install javadoc:javadoc -PreducedMemory -Dfindbugs.skip=true
-script:
-  - travis_retry mvn findbugs:findbugs
+install: true
+script: mvn -q install -PreducedMemory
