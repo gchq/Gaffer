@@ -5,4 +5,5 @@ cache:
 jdk:
   - oraclejdk8
 
-install: travis_wait mvn -q install -PreducedMemory -Dfindbugs.skip=true && mvn findbugs:findbugs && mvn javadoc:javadoc
+install: travis_wait mvn -q install -PreducedMemory -Dfindbugs.skip=true
+script: travis_wait mvn findbugs:findbugs -o && mvn javadoc:javadoc -o
