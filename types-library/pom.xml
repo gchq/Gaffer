@@ -7,8 +7,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>simple-types-library</artifactId>
-    <name>simple-types-library</name>
+    <artifactId>types-library</artifactId>
+    <name>types-library</name>
 
 
 </project>
