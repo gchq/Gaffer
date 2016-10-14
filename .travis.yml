@@ -4,4 +4,5 @@ cache:
   - $HOME/.m2
 jdk:
   - oraclejdk8
-script: travis_wait mvn -q install -PreducedMemory -Dfindbugs.skip=true && mvn findbugs:findbugs && mvn javadoc:javadoc
+
+install: travis_wait mvn -q install -PreducedMemory -Dfindbugs.skip=true && mvn findbugs:findbugs && mvn javadoc:javadoc
