@@ -21,7 +21,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.4-SNAPSHOT</version>
+        <version>0.4.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -61,17 +61,17 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-function-library</artifactId>
+            <artifactId>function-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-operation-library</artifactId>
+            <artifactId>operation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-serialisation-library</artifactId>
+            <artifactId>serialisation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -160,10 +160,7 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>gaffer:serialisation</include>
-                                    <include>gaffer:function</include>
-                                    <include>gaffer:data</include>
-                                    <include>gaffer:store</include>
+                                    <include>gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
                                     <include>com.fasterxml.jackson.*:*</include>
                                 </includes>

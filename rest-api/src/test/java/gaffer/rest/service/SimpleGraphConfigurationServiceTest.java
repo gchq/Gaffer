@@ -45,7 +45,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -74,7 +73,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetFilterFunctions() throws IOException {
         // When
-        final List<Class> classes = service.getFilterFunctions(null);
+        final Set<Class> classes = service.getFilterFunctions(null);
 
         // Then
         assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
@@ -83,7 +82,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetFilterFunctionsWithInputClass() throws IOException {
         // When
-        final List<Class> classes = service.getFilterFunctions(String.class.getName());
+        final Set<Class> classes = service.getFilterFunctions(String.class.getName());
 
         // Then
         assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
@@ -103,11 +102,11 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetSerialisedFields() throws IOException {
         // When
-        final List<String> fields = service.getSerialisedFields(IsA.class.getName());
+        final Set<String> fields = service.getSerialisedFields(IsA.class.getName());
 
         // Then
         assertEquals(1, fields.size());
-        assertEquals("type", fields.get(0));
+        assertTrue(fields.contains("type"));
     }
 
     @Test
@@ -139,7 +138,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetTransformFunctions() throws IOException {
         // When
-        final List<Class> classes = service.getTransformFunctions();
+        final Set<Class> classes = service.getTransformFunctions();
 
         // Then
         assertTrue(classes.size() > 0);
@@ -148,7 +147,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetGenerators() throws IOException {
         // When
-        final List<Class> classes = service.getGenerators();
+        final Set<Class> classes = service.getGenerators();
 
         // Then
         assertTrue(classes.size() > 0);

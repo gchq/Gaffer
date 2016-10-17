@@ -34,10 +34,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -52,9 +49,9 @@ import java.util.Set;
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
 public class SimpleGraphConfigurationService implements IGraphConfigurationService {
-    private static final List<Class> FILTER_FUNCTIONS = getSubClasses(FilterFunction.class);
-    private static final List<Class> TRANSFORM_FUNCTIONS = getSubClasses(TransformFunction.class);
-    private static final List<Class> GENERATORS = getSubClasses(ElementGenerator.class);
+    private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(FilterFunction.class);
+    private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(TransformFunction.class);
+    private static final Set<Class> GENERATORS = getSubClasses(ElementGenerator.class);
 
     private final GraphFactory graphFactory;
 
@@ -76,13 +73,13 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public List<Class> getFilterFunctions() {
+    public Set<Class> getFilterFunctions() {
         return FILTER_FUNCTIONS;
     }
 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
     @Override
-    public List<Class> getFilterFunctions(final String inputClass) {
+    public Set<Class> getFilterFunctions(final String inputClass) {
         if (StringUtils.isEmpty(inputClass)) {
             return getFilterFunctions();
         }
@@ -94,7 +91,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
             throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
         }
 
-        final List<Class> classes = new ArrayList<>();
+        final Set<Class> classes = new HashSet<>();
         for (final Class functionClass : FILTER_FUNCTIONS) {
             try {
                 final FilterFunction function = (FilterFunction) functionClass.newInstance();
@@ -113,7 +110,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
     @Override
-    public List<String> getSerialisedFields(final String className) {
+    public Set<String> getSerialisedFields(final String className) {
         final Class<?> clazz;
         try {
             clazz = Class.forName(className);
@@ -126,7 +123,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
         final BeanDescription introspection = mapper.getSerializationConfig().introspect(type);
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
-        final List<String> fields = new ArrayList<>();
+        final Set<String> fields = new HashSet<>();
         for (BeanPropertyDefinition property : properties) {
             fields.add(property.getName());
         }
@@ -135,7 +132,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public List<Class> getTransformFunctions() {
+    public Set<Class> getTransformFunctions() {
         return TRANSFORM_FUNCTIONS;
     }
 
@@ -145,7 +142,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public List<Class> getGenerators() {
+    public Set<Class> getGenerators() {
         return GENERATORS;
     }
 
@@ -159,23 +156,16 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
         return graphFactory.getGraph().isSupported(operation);
     }
 
-    private static List<Class> getSubClasses(final Class<?> clazz) {
+    private static Set<Class> getSubClasses(final Class<?> clazz) {
         final Set<URL> urls = new HashSet<>();
         for (String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT).split(",")) {
             urls.addAll(ClasspathHelper.forPackage(packagePrefix));
         }
 
-        final List<Class> classes = new ArrayList<Class>(new Reflections(urls).getSubTypesOf(clazz));
+        Set<Class> classes = new HashSet<>();
+        classes.addAll(new Reflections(urls).getSubTypesOf(clazz));
         keepPublicConcreteClasses(classes);
-        Collections.sort(classes, new Comparator<Class>() {
-            @Override
-            public int compare(final Class class1, final Class class2) {
-                return class1.getName().compareTo(class2.getName());
-            }
-        });
-
         return classes;
-
     }
 
     private static void keepPublicConcreteClasses(final Collection<Class> classes) {

@@ -9,9 +9,8 @@
       },
       "seeds": [
         {
-          "gaffer.operation.data.EntitySeed": {
-            "vertex": "user02"
-          }
+          "class": "gaffer.operation.data.EntitySeed",
+          "vertex": "user02"
         }
       ]
     },
