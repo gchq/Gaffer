@@ -152,7 +152,7 @@
                         </goals>
                         <configuration>
                             <finalName>
-                                accumulo-store-iterators-${project.parent.version}
+                                accumulo-store-${project.parent.version}-iterators
                             </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
