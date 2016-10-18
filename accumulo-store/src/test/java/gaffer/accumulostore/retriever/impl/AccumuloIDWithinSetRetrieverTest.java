@@ -16,13 +16,17 @@
 
 package gaffer.accumulostore.retriever.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
-import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
@@ -53,22 +57,73 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-
 public class AccumuloIDWithinSetRetrieverTest {
 
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDWithinSetRetrieverTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDWithinSetRetrieverTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
+    private final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDWithinSetRetrieverTest.class));
+    private final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .storeProps(AccumuloIDWithinSetRetrieverTest.class));
+    private final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+        defaultView = new View.Builder().edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .build();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+    }
+
+    private static void setupGraph(final AccumuloStore store) {
+        try {
+            // Create table
+            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+            // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+            TableUtils.createTable(store);
+
+            final Set<Element> data = new HashSet<>();
+            // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
+            final Entity entity = new Entity(TestGroups.ENTITY);
+            entity.setVertex("A0");
+            entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
+            data.add(entity);
+            for (int i = 1; i < 100; i++) {
+                final Edge edge = new Edge(TestGroups.EDGE);
+                edge.setSource("A0");
+                edge.setDestination("A" + i);
+                edge.setDirected(true);
+                edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                edge.putProperty(AccumuloPropertyNames.COUNT, i);
+                data.add(edge);
+
+                final Entity edgeEntity = new Entity(TestGroups.ENTITY);
+                edgeEntity.setVertex("A" + i);
+                edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
+                data.add(edgeEntity);
+            }
+            data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
+            data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
+            addElements(data, store, new User());
+        } catch (TableExistsException | StoreException e) {
+            fail("Failed to set up graph in Accumulo with exception: " + e);
+        }
+    }
+
+    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
+        try {
+            store.execute(new AddElements(data), user);
+        } catch (OperationException e) {
+            fail("Failed to set up graph in Accumulo with exception: " + e);
+        }
     }
 
     @Before
@@ -78,13 +133,6 @@ public class AccumuloIDWithinSetRetrieverTest {
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
-
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-    }
-
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElements operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
@@ -297,25 +345,32 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Need to repeat the logic used in the getGraphElementsWithStatisticsWithinSet() method.
         // Calculate sensible size of filter, aiming for false positive rate of 1 in 10000, with a maximum size of
         // maxBloomFilterToPassToAnIterator bytes.
-        int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / (Math.pow(Math.log(2.0), 2.0)));
-        size = Math.min(size, store.getProperties().getMaxBloomFilterToPassToAnIterator());
+        int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / (Math.pow(Math
+                .log(2.0), 2.0)));
+        size = Math.min(size, store.getProperties()
+                .getMaxBloomFilterToPassToAnIterator());
 
         // Work out optimal number of hashes to use in Bloom filter based on size of set - optimal number of hashes is
         // (m/n)ln 2 where m is the size of the filter in bits and n is the number of items that will be added to the set.
-        final int numHashes = Math.max(1, (int) ((size / numItemsToBeAdded) * Math.log(2)));
+        final int numHashes = Math.max(1, (int) ((size / numItemsToBeAdded) * Math
+                .log(2)));
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
         for (final EntitySeed seed : seeds) {
-            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
+            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage()
+                    .getKeyConverter()
+                    .serialiseVertex(seed.getVertex())));
         }
 
         // Test random items against it - should only have to shouldRetieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
         // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
         int count = 0;
-        int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
+        int maxNumberOfTries = 50 * store.getProperties()
+                .getMaxBloomFilterToPassToAnIterator();
         while (count < maxNumberOfTries) {
             count++;
-            if (filter.membershipTest(new org.apache.hadoop.util.bloom.Key(("" + count).getBytes()))) {
+            if (filter.membershipTest(new org.apache.hadoop.util.bloom.Key(("" + count)
+                    .getBytes()))) {
                 break;
             }
         }
@@ -433,49 +488,6 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<Element> a1A23Results = returnElementsFromOperation(store, a1A23Operation, new User(), loadIntoMemory);
         assertEquals(2, a1A23Results.size());
         assertThat(a1A23Results, IsCollectionContaining.hasItems(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY));
-    }
-
-    private static void setupGraph(final AccumuloStore store) {
-        try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-            // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-            TableUtils.createTable(store);
-
-            final Set<Element> data = new HashSet<>();
-            // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("A0");
-            entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-            data.add(entity);
-            for (int i = 1; i < 100; i++) {
-                final Edge edge = new Edge(TestGroups.EDGE);
-                edge.setSource("A0");
-                edge.setDestination("A" + i);
-                edge.setDirected(true);
-                edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                edge.putProperty(AccumuloPropertyNames.COUNT, i);
-                data.add(edge);
-
-                final Entity edgeEntity = new Entity(TestGroups.ENTITY);
-                edgeEntity.setVertex("A" + i);
-                edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-                data.add(edgeEntity);
-            }
-            data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
-            data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-            addElements(data, store, new User());
-        } catch (TableExistsException | StoreException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
-        }
-    }
-
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
-        try {
-            store.execute(new AddElements(data), user);
-        } catch (OperationException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
-        }
     }
 
 }
