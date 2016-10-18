@@ -20,7 +20,6 @@ import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.simple.spark.GetJavaRDDOfAllElements;
-import gaffer.operation.simple.spark.GetJavaRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
@@ -38,11 +37,10 @@ public class GetJavaRDDOfAllElementsOperationHandler
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                         final Context context,
                                         final Store store) throws OperationException {
-        return doOperation(operation, context, (AccumuloStore) store);
+        return doOperation(operation, (AccumuloStore) store);
     }
 
-    private JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
-                                         final Context context,
+    private JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                          final AccumuloStore accumuloStore) throws OperationException {
         final JavaSparkContext sparkContext = operation.getJavaSparkContext();
         final Configuration conf = getConfiguration(operation);
