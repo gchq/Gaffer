@@ -19,12 +19,10 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.ElementSeed;
+import gaffer.operation.simple.spark.GetJavaRDDOfAllElements;
 import gaffer.operation.simple.spark.GetJavaRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
-import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -33,11 +31,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import scala.Tuple2;
 
-public class GetJavaRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
-        extends AbstractGetRDDOperationHandler<JavaRDD<Element>, GetJavaRDDOfElements<SEED_TYPE>> {
+public class GetJavaRDDOfAllElementsOperationHandler
+        extends AbstractGetRDDOperationHandler<JavaRDD<Element>, GetJavaRDDOfAllElements> {
 
     @Override
-    public JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
+    public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                         final Context context,
                                         final Store store) throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
@@ -48,16 +46,12 @@ public class GetJavaRDDOfElementsOperationHandler<SEED_TYPE extends ElementSeed>
                                          final AccumuloStore accumuloStore) throws OperationException {
         final JavaSparkContext sparkContext = operation.getJavaSparkContext();
         final Configuration conf = getConfiguration(operation);
-        // Use batch scan option when performing seeded operation
-        InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
         addIterators(accumuloStore, conf, operation);
-        addRanges(accumuloStore, conf, operation);
         final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,
                 NullWritable.class);
-        final JavaRDD<Element> rdd = pairRDD.map(new FirstElement());
-        return rdd;
+        return pairRDD.map(new FirstElement());
     }
 
     static class FirstElement implements Function<Tuple2<Element, NullWritable>, Element> {
