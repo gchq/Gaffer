@@ -19,12 +19,23 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.function.simple.filter.HyperLogLogPlusIsLessThan;
 
 public class HyperLogLogPlusIsLessThanExample extends FilterFunctionExample {
+    private final HyperLogLogPlus hllp1 = new HyperLogLogPlus(15);
+    private final HyperLogLogPlus hllp2 = new HyperLogLogPlus(15);
+    private final HyperLogLogPlus hllp3 = new HyperLogLogPlus(15);
+
     public static void main(final String[] args) {
         new HyperLogLogPlusIsLessThanExample().run();
     }
 
     public HyperLogLogPlusIsLessThanExample() {
         super(HyperLogLogPlusIsLessThan.class);
+        hllp1.offer(1);
+        hllp2.offer(1);
+
+        hllp2.offer(2);
+        hllp3.offer(1);
+        hllp3.offer(2);
+        hllp3.offer(3);
     }
 
     public void runExamples() {
@@ -33,38 +44,18 @@ public class HyperLogLogPlusIsLessThanExample extends FilterFunctionExample {
     }
 
     public void hyperLogLogPlusIsLessThan2() {
-        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(15);
-        hllp1.offer(1);
+        // ---------------------------------------------------------
+        final HyperLogLogPlusIsLessThan function = new HyperLogLogPlusIsLessThan(2);
+        // ---------------------------------------------------------
 
-        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(15);
-        hllp2.offer(1);
-        hllp2.offer(2);
-
-        final HyperLogLogPlus hllp3 = new HyperLogLogPlus(15);
-        hllp3.offer(1);
-        hllp3.offer(2);
-        hllp3.offer(3);
-
-        runExample(new HyperLogLogPlusIsLessThan(2),
-                "new HyperLogLogPlusIsLessThan(2)",
-                hllp1, hllp2, hllp3);
+        runExample(function, hllp1, hllp2, hllp3);
     }
 
     public void hyperLogLogPlusIsLessThanOrEqualTo2() {
-        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(15);
-        hllp1.offer(1);
+        // ---------------------------------------------------------
+        final HyperLogLogPlusIsLessThan function = new HyperLogLogPlusIsLessThan(2, true);
+        // ---------------------------------------------------------
 
-        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(15);
-        hllp2.offer(1);
-        hllp2.offer(2);
-
-        final HyperLogLogPlus hllp3 = new HyperLogLogPlus(15);
-        hllp3.offer(1);
-        hllp3.offer(2);
-        hllp3.offer(3);
-
-        runExample(new HyperLogLogPlusIsLessThan(2, true),
-                "new HyperLogLogPlusIsLessThan(2, true)",
-                hllp1, hllp2, hllp3);
+        runExample(function, hllp1, hllp2, hllp3);
     }
 }

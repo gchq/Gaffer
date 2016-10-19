@@ -42,39 +42,29 @@ public class GetRelatedEdgesExample extends OperationExample {
     }
 
     public CloseableIterable<Edge> getAllEdgesThatAreConnectedToVertex2() {
-        final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .build()";
-        return runExample(new GetRelatedEdges.Builder<EntitySeed>()
+        // ---------------------------------------------------------
+        final GetRelatedEdges<EntitySeed> operation = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2() {
-        final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
-                + "                .build();";
-        return runExample(new GetRelatedEdges.Builder<EntitySeed>()
+        // ---------------------------------------------------------
+        final GetRelatedEdges<EntitySeed> operation = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1() {
-        final String opJava = "new GetRelatedEdges.Builder<EntitySeed>()\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .inOutType(IncludeIncomingOutgoingType.OUTGOING)\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetRelatedEdges.Builder<EntitySeed>()
+        // ---------------------------------------------------------
+        final GetRelatedEdges<EntitySeed> operation = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
@@ -85,7 +75,10 @@ public class GetRelatedEdgesExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
 }

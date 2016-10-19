@@ -34,26 +34,34 @@ public class IsLessThanExample extends FilterFunctionExample {
     }
 
     public void isLessThan5() {
-        runExample(new IsLessThan(5),
-                "new IsLessThan(5)",
-                1, 1L, 5, 5L, 10, 10L, "1");
+        // ---------------------------------------------------------
+        final IsLessThan function = new IsLessThan(5);
+        // ---------------------------------------------------------
+
+        runExample(function, 1, 1L, 5, 5L, 10, 10L, "1");
     }
 
     public void isLessThanOrEqualTo5() {
-        runExample(new IsLessThan(5, true),
-                "new IsLessThan(5, true)",
-                1, 1L, 5, 5L, 10, 10L, "1");
+        // ---------------------------------------------------------
+        final IsLessThan function = new IsLessThan(5, true);
+        // ---------------------------------------------------------
+
+        runExample(function, 1, 1L, 5, 5L, 10, 10L, "1");
     }
 
     public void isLessThanALong5() {
-        runExample(new IsLessThan(5L),
-                "new IsLessThan(5L)",
-                1, 1L, 5, 5L, 10, 10L, "1");
+        // ---------------------------------------------------------
+        final IsLessThan function = new IsLessThan(5L);
+        // ---------------------------------------------------------
+
+        runExample(function, 1, 1L, 5, 5L, 10, 10L, "1");
     }
 
     public void isLessThanAString() {
-        runExample(new IsLessThan("B"),
-                "new IsLessThan(B)",
-                1, "A", "B", "C");
+        // ---------------------------------------------------------
+        final IsLessThan function = new IsLessThan("B");
+        // ---------------------------------------------------------
+
+        runExample(function, 1, "A", "B", "C");
     }
 }
