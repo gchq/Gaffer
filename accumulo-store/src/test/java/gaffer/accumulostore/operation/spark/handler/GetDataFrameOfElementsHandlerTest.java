@@ -76,6 +76,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            fields1.appendElem(EDGE_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem("B");
             fields1.appendElem(1);
@@ -86,6 +87,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(100L);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            fields2.appendElem(EDGE_GROUP);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
             fields2.appendElem(6);
@@ -113,6 +115,7 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
             fields1.clear();
+            fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
             fields1.appendElem(2);
@@ -160,10 +163,11 @@ public class GetDataFrameOfElementsHandlerTest {
         if (dataFrame == null) {
             fail("No DataFrame returned");
         }
-        Set<Row> results = new HashSet<>(dataFrame.collectAsList());
+        final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            fields1.appendElem(EDGE_GROUP);
             fields1.appendElem(null);
             fields1.appendElem(1);
             fields1.appendElem(2);
@@ -175,6 +179,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem("B");
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            fields2.appendElem(EDGE_GROUP);
             fields2.appendElem(null);
             fields2.appendElem(6);
             fields2.appendElem(7);
@@ -186,6 +191,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem("C");
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
             final scala.collection.mutable.MutableList<Object> fields3 = new scala.collection.mutable.MutableList<>();
+            fields3.appendElem(ENTITY_GROUP);
             fields3.appendElem("" + i);
             fields3.appendElem(1);
             fields3.appendElem(2);
@@ -214,6 +220,7 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
             fields1.clear();
+            fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
             fields1.appendElem(2);
@@ -330,6 +337,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
+            fields.appendElem(EDGE_GROUP);
             fields.appendElem("" + i);
             fields.appendElem("C");
             fields.appendElem(6);
@@ -387,9 +395,10 @@ public class GetDataFrameOfElementsHandlerTest {
         // NB Catch the exception rather than using expected annotation on test to ensure SparkContext
         // is shut down.
         try {
-            final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+            graph1.execute(dfOperation, user);
             fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException e) {
+            // Expected
         }
         sparkContext.stop();
     }

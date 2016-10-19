@@ -115,6 +115,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         ENTITY, EDGE
     }
 
+    public static final String GROUP = "group";
     public static final String VERTEX_COL_NAME = "vertex";
     public static final String SRC_COL_NAME = "src";
     public static final String DST_COL_NAME = "dst";
@@ -389,6 +390,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         }
         // Merge schemas for groups together - fields should appear in the order the groups were provided
         final LinkedHashSet<StructField> fields = new LinkedHashSet<>();
+        fields.add(new StructField(GROUP, DataTypes.StringType, false, Metadata.empty()));
+        usedProperties.add(GROUP);
         for (final String group : groups) {
             final StructType groupSchema = structTypeByGroup.get(group);
             for (final String field : groupSchema.fieldNames()) {
@@ -428,6 +431,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
+                case GROUP:
+                    fields.appendElem(entity.getGroup());
+                    break;
                 case VERTEX_COL_NAME:
                     fields.appendElem(entity.getVertex());
                     break;
@@ -450,6 +456,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
+                case GROUP:
+                    fields.appendElem(edge.getGroup());
+                    break;
                 case SRC_COL_NAME:
                     fields.appendElem(edge.getSource());
                     break;
