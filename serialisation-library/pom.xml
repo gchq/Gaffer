@@ -75,17 +75,15 @@
                 <version>2.4.1</version>
                 <executions>
                     <execution>
-                        <id>iterators</id>
+                        <id>serialisers</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>
-                                serialisation-library-${project.parent.version}-serialisers
-                            </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
+                            <shadedClassifierName>serialisers</shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream
