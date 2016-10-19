@@ -151,9 +151,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>
-                                accumulo-store-iterators-${project.parent.version}
-                            </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
                             <shadedClassifierName>iterators
