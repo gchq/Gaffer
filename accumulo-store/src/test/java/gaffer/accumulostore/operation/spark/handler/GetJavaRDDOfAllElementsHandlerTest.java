@@ -19,37 +19,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import gaffer.commonutil.CommonConstants;
+import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
-import gaffer.operation.GetOperation;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.simple.spark.GetJavaRDDOfAllElements;
-import gaffer.operation.simple.spark.GetJavaRDDOfElements;
 import gaffer.user.User;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.Ignore;
 import org.junit.Test;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class GetJavaRDDOfAllElementsHandlerTest {
-
-    private final static String ENTITY_GROUP = "BasicEntity";
-    private final static String EDGE_GROUP = "BasicEdge";
 
     @Test
     public void checkGetAllElementsInJavaRDD() throws OperationException, IOException {
@@ -63,20 +56,20 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         final List<Element> elements = new ArrayList<>();
         final Set<Element> expectedElements = new HashSet<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(ENTITY_GROUP);
+            final Entity entity = new Entity(TestGroups.ENTITY);
             entity.setVertex("" + i);
 
-            final Edge edge1 = new Edge(EDGE_GROUP);
+            final Edge edge1 = new Edge(TestGroups.EDGE);
             edge1.setSource("" + i);
             edge1.setDestination("B");
             edge1.setDirected(false);
-            edge1.putProperty("count", 2);
+            edge1.putProperty(TestPropertyNames.COUNT, 2);
 
-            final Edge edge2 = new Edge(EDGE_GROUP);
+            final Edge edge2 = new Edge(TestGroups.EDGE);
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(false);
-            edge2.putProperty("count", 4);
+            edge2.putProperty(TestPropertyNames.COUNT, 4);
 
             elements.add(edge1);
             elements.add(edge2);
