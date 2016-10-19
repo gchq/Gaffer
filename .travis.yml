@@ -10,4 +10,6 @@ addons:
     packages:
       - oracle-java8-installer
 install: true
+env:
+  - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 script: mvn -q install -PreducedMemory
