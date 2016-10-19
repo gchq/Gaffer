@@ -38,6 +38,7 @@ public class AndExample extends FilterFunctionExample {
     }
 
     public void isLessThan3AndIsMoreThan0() {
+        // ---------------------------------------------------------
         final And function = new And(Arrays.asList(
                 new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
                         .select(0) // select first property
@@ -47,6 +48,8 @@ public class AndExample extends FilterFunctionExample {
                         .select(0) // select first property
                         .execute(new IsMoreThan(0))
                         .build()));
+        // ---------------------------------------------------------
+
         runExample(function,
                 new Object[]{0},
                 new Object[]{1},
