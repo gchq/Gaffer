@@ -40,7 +40,6 @@ import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.user.User;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
@@ -182,7 +181,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     @Override
     public RDD<Row> buildScan(final String[] requiredColumns) {
         try {
-            LOGGER.info("Building scan with required columns: {}", ArrayUtils.toString(requiredColumns));
+            LOGGER.info("Building scan with required columns: {}", StringUtils.join(requiredColumns, ','));
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(getView());
@@ -210,8 +209,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      */
     @Override
     public RDD<Row> buildScan(final String[] requiredColumns, final Filter[] filters) {
-        LOGGER.info("Building scan with required columns {} and {} filters ({})", ArrayUtils.toString(requiredColumns),
-                filters.length, ArrayUtils.toString(filters));
+        LOGGER.info("Building scan with required columns {} and {} filters ({})", StringUtils.join(requiredColumns, ','),
+                filters.length, StringUtils.join(filters, ','));
         // If any of the filters can be translated into Accumulo queries (i.e. specifying ranges rather than a full
         // table scan) then do this.
         AbstractGetRDD<?> operation = null;
@@ -318,7 +317,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> right = getFunctionsFromFilter(and.right());
             functions.addAll(left);
             functions.addAll(right);
-            LOGGER.debug("Converted {} to 2 filters ({}, {})", filter, ArrayUtils.toString(left), ArrayUtils.toString(right));
+            LOGGER.debug("Converted {} to 2 filters ({} and {})", filter, StringUtils.join(left, ','), StringUtils.join(right, ','));
         }
         return functions;
     }
