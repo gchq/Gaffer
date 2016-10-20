@@ -27,10 +27,10 @@ import java.util.Arrays;
  * structure that the function accepts.
  */
 public abstract class ConsumerFunction implements Function {
+    private Class<?>[] inputs;
+
     @Override
     public abstract ConsumerFunction statelessClone();
-
-    private Class<?>[] inputs;
 
     /**
      * @return Input record structure accepted by this <code>ConsumerFunction</code>.
@@ -49,8 +49,9 @@ public abstract class ConsumerFunction implements Function {
      */
     private void processInputAnnotation() {
         final Inputs annotation = getClass().getAnnotation(Inputs.class);
-        if (null == annotation || null == annotation.value()) {
-            throw new AnnotationFormatError("All consumer function classes must have inputs defined using the 'Inputs' annotation on the class.");
+        if (null == annotation) {
+            throw new AnnotationFormatError("All consumer function classes must have inputs defined using the 'Inputs' annotation on the class."
+                    + " Class: " + getClass());
         }
 
         inputs = annotation.value();
