@@ -32,6 +32,10 @@ public class ExistsExample extends FilterFunctionExample {
     }
 
     public void exists() {
-        runExample(new Exists(), "new Exists()", 1, null, "", "abc");
+        // ---------------------------------------------------------
+        final Exists function = new Exists();
+        // ---------------------------------------------------------
+
+        runExample(function, 1, null, "", "abc");
     }
 }

@@ -32,8 +32,11 @@ public class AreEqualExample extends FilterFunctionExample {
     }
 
     public void areEqual() {
-        runExample(new AreEqual(),
-                "new AreEqual()",
+        // ---------------------------------------------------------
+        final AreEqual function = new AreEqual();
+        // ---------------------------------------------------------
+
+        runExample(function,
                 new Object[]{1, 1.0},
                 new Object[]{2.5, 2.5},
                 new Object[]{"", null},

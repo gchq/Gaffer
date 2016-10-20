@@ -40,21 +40,8 @@ public class GenerateObjectsExample extends OperationExample {
     }
 
     public CloseableIterable<String> generateStringsFromElements() {
-        final String opJava = "new GenerateObjects.Builder<Element, String>()\n"
-                + "                .elements(Arrays.asList(\n"
-                + "                        new Entity.Builder()\n"
-                + "                                .group(\"entity\")\n"
-                + "                                .vertex(6)\n"
-                + "                                .property(\"count\", 1)\n"
-                + "                                .build(),\n"
-                + "                        new Edge.Builder()\n"
-                + "                                .group(\"edge\")\n"
-                + "                                .source(5).dest(6).directed(true)\n"
-                + "                                .property(\"count\", 1)\n"
-                + "                                .build()))\n"
-                + "                .generator(new DataGenerator())\n"
-                + "                .build();";
-        return runExample(new GenerateObjects.Builder<Element, String>()
+        // ---------------------------------------------------------
+        final GenerateObjects<Element, String> operation = new GenerateObjects.Builder<Element, String>()
                 .elements(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
@@ -67,25 +54,15 @@ public class GenerateObjectsExample extends OperationExample {
                                 .property("count", 1)
                                 .build()))
                 .generator(new DataGenerator())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Object> generateDomainObjectsFromElements() {
-        final String opJava = "new GenerateObjects.Builder<>()\n"
-                + "                .elements(Arrays.asList(\n"
-                + "                        new Entity.Builder()\n"
-                + "                                .group(\"entity\")\n"
-                + "                                .vertex(6)\n"
-                + "                                .property(\"count\", 1)\n"
-                + "                                .build(),\n"
-                + "                        new Edge.Builder()\n"
-                + "                                .group(\"edge\")\n"
-                + "                                .source(5).dest(6).directed(true)\n"
-                + "                                .property(\"count\", 1)\n"
-                + "                                .build()))\n"
-                + "                .generator(new DomainObjectGenerator())\n"
-                + "                .build();";
-        return runExample(new GenerateObjects.Builder<>()
+        // ---------------------------------------------------------
+        final GenerateObjects<Element, Object> operation = new GenerateObjects.Builder<>()
                 .elements(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
@@ -98,7 +75,10 @@ public class GenerateObjectsExample extends OperationExample {
                                 .property("count", 1)
                                 .build()))
                 .generator(new DomainObjectGenerator())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public static class DomainObject1 {

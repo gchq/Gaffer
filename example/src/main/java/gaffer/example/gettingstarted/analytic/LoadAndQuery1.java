@@ -39,38 +39,53 @@ public class LoadAndQuery1 extends LoadAndQuery {
     }
 
     public CloseableIterable<Edge> run() throws OperationException {
+        // [user] Create a user
+        // ---------------------------------------------------------
         final User user = new User("user01");
+        // ---------------------------------------------------------
 
-        //create some edges from the data file using our data generator class
+
+        // [generate] Create some edges from the data file using our data generator class
+        // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator1 dataGenerator = new DataGenerator1();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
+        // ---------------------------------------------------------
         log("Elements generated from the data file.");
         for (final Element element : elements) {
             log("GENERATED_EDGES", element.toString());
         }
         log("");
 
-        //create a graph using our schema and store properties
+
+        // [graph] Create a graph using our schema and store properties
+        // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
+        // ---------------------------------------------------------
 
-        //add the edges to the graph
+
+        // [add] Add the edges to the graph
+        // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
         graph.execute(addElements, user);
+        // ---------------------------------------------------------
         log("The elements have been added.\n");
 
-        //get all the edges that contain the vertex "1"
+
+        // [get] Get all the edges that contain the vertex "1"
+        // ---------------------------------------------------------
         final GetRelatedEdges<EntitySeed> query = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(query, user);
+        // ---------------------------------------------------------
         log("All edges containing the vertex 1. The counts have been aggregated.");
         for (Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());

@@ -42,23 +42,27 @@ public class LoadAndQuery6 extends LoadAndQuery {
     }
 
     public CloseableIterable<String> run() throws OperationException {
+        // [user] Create a user
+        // ---------------------------------------------------------
         final User user = new User("user01");
+        // ---------------------------------------------------------
 
-        //create a graph using our schema and store properties
+        // [graph] create a graph using our schema and store properties
+        // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
+        // ---------------------------------------------------------
 
-        // Create data generator
+
+        // [generate] Create a data generator and add the edges to the graph using an operation chain consisting of:
+        // generateElements - generating edges from the data (note these are directed edges)
+        // addElements - add the edges to the graph
+        // ---------------------------------------------------------
         final DataGenerator6 dataGenerator = new DataGenerator6();
-
-        // Load data into memory
         final List<String> data = DataUtils.loadData(getData());
 
-        //add the edges to the graph using an operation chain consisting of:
-        //generateElements - generating edges from the data (note these are directed edges)
-        //addElements - add the edges to the graph
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(dataGenerator)
@@ -67,13 +71,15 @@ public class LoadAndQuery6 extends LoadAndQuery {
                 .then(new AddElements())
                 .build();
 
-        // Execute the add operation chain
         graph.execute(addOpChain, user);
+        // ---------------------------------------------------------
 
-        //create an operation chain consisting of 3 operations:
+
+        // [get] Create and execute an operation chain consisting of 3 operations:
         //GetAdjacentEntitySeeds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
         //GetRelatedEdges - get outbound edges
         //GenerateObjects - convert the edges back into comma separated strings
+        // ---------------------------------------------------------
         final OperationChain<CloseableIterable<String>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAdjacentEntitySeeds.Builder()
@@ -88,8 +94,9 @@ public class LoadAndQuery6 extends LoadAndQuery {
                                 .build())
                         .build();
 
-        // Execute the operation chain query
         final CloseableIterable<String> results = graph.execute(opChain, user);
+        // ---------------------------------------------------------
+
         log("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");
         for (String result : results) {
             log("RESULT", result);

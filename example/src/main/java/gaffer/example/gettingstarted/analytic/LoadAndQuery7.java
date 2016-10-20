@@ -51,17 +51,25 @@ public class LoadAndQuery7 extends LoadAndQuery {
     }
 
     public Iterable<Edge> run() throws OperationException {
+        // [user] Create a user
+        // ---------------------------------------------------------
         final User user = new User("user01");
+        // ---------------------------------------------------------
 
-        //create a graph using our schema and store properties
+
+        // [graph] create a graph using our schema and store properties
+        // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
+        // ---------------------------------------------------------
 
-        //add the edges to the graph using an operation chain consisting of:
-        //generateElements - generating edges from the data (note these are directed edges)
-        //addElements - add the edges to the graph
+
+        // [add] add the edges to the graph using an operation chain consisting of:
+        // generateElements - generating edges from the data (note these are directed edges)
+        // addElements - add the edges to the graph
+        // ---------------------------------------------------------
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator7())
@@ -70,8 +78,8 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 .then(new AddElements())
                 .build();
 
-        // Execute the add operation chain
         graph.execute(addOpChain, user);
+        // ---------------------------------------------------------
 
         // Create some starting seeds for the sub graph.
         final Iterable<EntitySeed> seeds = Lists.newArrayList(new EntitySeed("1"));
@@ -89,21 +97,25 @@ public class LoadAndQuery7 extends LoadAndQuery {
                         .build())
                 .build();
 
-        // Create a sub graph using an operation chain
+        // [extractor] Create a generator that will extract entity seeds
         // This generator will extract just the destination vertices from edges
         // and skip any entities.
+        // ---------------------------------------------------------
         final EntitySeedExtractor destVerticesExtractor = new EntitySeedExtractor(
                 new IsEdgeValidator(),
                 new AlwaysValid<EntitySeed>(),
                 true,
                 IdentifierType.DESTINATION);
+        // ---------------------------------------------------------
 
+        // [get] Create a sub graph
         // Start the operation chain by initialising the export to use a set.
         // Then do a get related edges with the given seeds.
         // Then update the export with the results
         // Between each hop we need to extract the destination vertices of the
         // previous edges.
         // Finally finish off by returning all the edges in the export.
+        // ---------------------------------------------------------
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new InitialiseSetExport())
                 .then(new GetRelatedEdges.Builder<EntitySeed>()
@@ -121,8 +133,9 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 .then(new FetchExport())
                 .build();
 
-        // Execute the sub graph operation chain
         final Iterable<Edge> subGraph = (Iterable<Edge>) graph.execute(opChain, user);
+        // ---------------------------------------------------------
+
         log("\nSub graph:");
         for (final Edge edge : subGraph) {
             log("SUB_GRAPH", edge.toString());

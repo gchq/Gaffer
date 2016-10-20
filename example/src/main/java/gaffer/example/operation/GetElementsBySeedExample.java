@@ -22,6 +22,7 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.operation.data.EdgeSeed;
+import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.get.GetElementsBySeed;
 
@@ -40,36 +41,19 @@ public class GetElementsBySeedExample extends OperationExample {
     }
 
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
-        final String opJava = "new GetElementsBySeed.Builder<>()\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-                + "                .build();";
-        return runExample(new GetElementsBySeed.Builder<>()
+        // ---------------------------------------------------------
+        final GetElementsBySeed<ElementSeed, Element> operation = new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
-        final String opJava = "new GetElementsBySeed.Builder<>()\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetElementsBySeed.Builder<>()
+        // ---------------------------------------------------------
+        final GetElementsBySeed<ElementSeed, Element> operation = new GetElementsBySeed.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
@@ -86,6 +70,9 @@ public class GetElementsBySeedExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

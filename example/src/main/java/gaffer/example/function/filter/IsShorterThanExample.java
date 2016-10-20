@@ -21,12 +21,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IsShorterThanExample extends FilterFunctionExample {
+    private final Map<String, String> map = new HashMap<>();
+    final Map<String, String> bigMap = new HashMap<>(map);
+
     public static void main(final String[] args) {
         new IsShorterThanExample().run();
     }
 
     public IsShorterThanExample() {
         super(IsShorterThan.class);
+        map.put("1", "a");
+        map.put("2", "b");
+        map.put("3", "c");
+        bigMap.put("4", "d");
     }
 
     public void runExamples() {
@@ -34,16 +41,11 @@ public class IsShorterThanExample extends FilterFunctionExample {
     }
 
     public void isShorterThan4() {
-        final Map<String, String> map = new HashMap<>();
-        map.put("1", "a");
-        map.put("2", "b");
-        map.put("3", "c");
+        // ---------------------------------------------------------
+        final IsShorterThan function = new IsShorterThan(4);
+        // ---------------------------------------------------------
 
-        final Map<String, String> bigMap = new HashMap<>(map);
-        bigMap.put("4", "d");
-
-        runExample(new IsShorterThan(4),
-                "new IsShorterThan(4)",
+        runExample(function,
                 "123", "1234",
                 new Integer[]{1, 2, 3}, new Integer[]{1, 2, 3, 4},
                 Lists.newArrayList(1, 2, 3), Lists.newArrayList(1, 2, 3, 4),

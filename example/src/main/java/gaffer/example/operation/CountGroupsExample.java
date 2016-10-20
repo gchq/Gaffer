@@ -37,24 +37,24 @@ public class CountGroupsExample extends OperationExample {
     }
 
     public GroupCounts countAllElementGroups() {
-        final String opJava = "new OperationChain.Builder()\n"
-                + "                .first(new GetAllElements<>())\n"
-                + "                .then(new CountGroups())\n"
-                + "                .build()";
-        return runExample(new OperationChain.Builder()
+        // ---------------------------------------------------------
+        final OperationChain<GroupCounts> opChain = new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new CountGroups())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain);
     }
 
     public GroupCounts countAllElementGroupsWithLimit() {
-        final String opJava = "new OperationChain.Builder()\n"
-                + "                .first(new GetAllElements<>())\n"
-                + "                .then(new CountGroups(5))\n"
-                + "                .build()";
-        return runExample(new OperationChain.Builder()
+        // ---------------------------------------------------------
+        final OperationChain<GroupCounts> opChain = new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new CountGroups(5))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain);
     }
 }
