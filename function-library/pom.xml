@@ -86,17 +86,16 @@
                 <version>2.4.1</version>
                 <executions>
                     <execution>
-                        <id>iterators</id>
+                        <id>functions</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>
-                                function-library-${project.parent.version}-functions
-                            </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
+                            <shadedClassifierName>functions
+                            </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream
