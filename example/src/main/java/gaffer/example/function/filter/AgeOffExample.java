@@ -18,6 +18,8 @@ package gaffer.example.function.filter;
 import gaffer.function.simple.filter.AgeOff;
 
 public class AgeOffExample extends FilterFunctionExample {
+    private long now = System.currentTimeMillis();
+
     public static void main(final String[] args) {
         new AgeOffExample().run();
     }
@@ -31,9 +33,10 @@ public class AgeOffExample extends FilterFunctionExample {
     }
 
     public void ageOffInMilliseconds() {
-        final long now = System.currentTimeMillis();
-        runExample(new AgeOff(100000L),
-                "new AgeOff(100000L)",
-                now, now - 100000L, now + 100000L, String.valueOf(now));
+        // ---------------------------------------------------------
+        final AgeOff function = new AgeOff(100000L);
+        // ---------------------------------------------------------
+
+        runExample(function, "", now, now - 100000L, now + 100000L, String.valueOf(now));
     }
 }

@@ -32,8 +32,10 @@ public class MultiRegexExample extends FilterFunctionExample {
     }
 
     public void multiRegexWithPattern() {
-        runExample(new MultiRegex(new Pattern[]{Pattern.compile("[a-d]"), Pattern.compile("[0-4]")}),
-                "new MultiRegex(new Pattern[]{Pattern.compile(\"[a-d]\"), Pattern.compile(\"[0-4]\")}",
-                "a", "z", "az", 'a', "2", 2, 2L);
+        // ---------------------------------------------------------
+        final MultiRegex function = new MultiRegex(new Pattern[]{Pattern.compile("[a-d]"), Pattern.compile("[0-4]")});
+        // ---------------------------------------------------------
+
+        runExample(function, "a", "z", "az", 'a', "2", 2, 2L);
     }
 }

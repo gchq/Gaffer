@@ -33,14 +33,18 @@ public class IsAExample extends FilterFunctionExample {
     }
 
     public void isAString() {
-        runExample(new IsA(String.class),
-                "new IsA(String.class)",
-                1, 2.5, "abc");
+        // ---------------------------------------------------------
+        final IsA function = new IsA(String.class);
+        // ---------------------------------------------------------
+
+        runExample(function, 1, 2.5, "abc");
     }
 
     public void isANumber() {
-        runExample(new IsA(Number.class),
-                "new IsA(Number.class)",
-                1, 2.5, "abc");
+        // ---------------------------------------------------------
+        final IsA function = new IsA(Number.class);
+        // ---------------------------------------------------------
+
+        runExample(function, 1, 2.5, "abc");
     }
 }

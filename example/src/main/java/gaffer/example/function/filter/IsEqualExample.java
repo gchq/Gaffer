@@ -33,20 +33,26 @@ public class IsEqualExample extends FilterFunctionExample {
     }
 
     public void isEqualTo5() {
-        runExample(new IsEqual(5),
-                "new IsEqual(5)",
-                5, 5L, "5", '5');
+        // ---------------------------------------------------------
+        final IsEqual function = new IsEqual(5);
+        // ---------------------------------------------------------
+
+        runExample(function, 5, 5L, "5", '5');
     }
 
     public void isEqualToString5() {
-        runExample(new IsEqual("5"),
-                "new IsEqual(\"5\")",
-                5, 5L, "5", '5');
+        // ---------------------------------------------------------
+        final IsEqual function = new IsEqual("5");
+        // ---------------------------------------------------------
+
+        runExample(function, 5, 5L, "5", '5');
     }
 
     public void isEqualLong5() {
-        runExample(new IsEqual(5L),
-                "new IsEqual(5L)",
-                5, 5L, "5", '5');
+        // ---------------------------------------------------------
+        final IsEqual function = new IsEqual(5L);
+        // ---------------------------------------------------------
+
+        runExample(function, 5, 5L, "5", '5');
     }
 }

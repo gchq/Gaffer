@@ -33,20 +33,7 @@ We create a Graph and load the data using the ${ADD_ELEMENTS_JAVADOC} Operation 
 
 This time we'll run 2 queries using ${GET_RELATED_EDGES_JAVADOC}.
 
-The first one is exactly the same as last time. We ask for all of the Edges containing the Vertex "1"
-
-```java
-GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
-         .addSeed(new EntitySeed("1"))
-         .build();
-
- for (Element e : graph.execute(getRelatedEdges)) {
-     System.out.println(e.toString());
- }
-```
-
-and get
-
+The first one is exactly the same as last time. We ask for all of the Edges containing the Vertex "1". The result is:
 ```
 ${GET_RELATED_EDGES_RESULT}
 ```
@@ -55,16 +42,7 @@ The `”count”` properties are still aggregated but only within each Group.
 
 Our second query is to return all "red" Edges. We still use the ${GET_RELATED_EDGES_JAVADOC} Operation like before but this time we add a ${VIEW_JAVADOC} to it:
 
-```java
-View view = new View.Builder()
-        .edge("red")
-        .build();
-getRelatedEdges.setView(view);
-
-for (Element e : graph.execute(getRelatedEdges)) {
-    System.out.println(e.toString());
-}
-```
+${GET_SNIPPET}
 
 and only get the "red" Edges containing Vertex "1" with their counts aggregated:
 

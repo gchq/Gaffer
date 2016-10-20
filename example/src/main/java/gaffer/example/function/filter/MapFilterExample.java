@@ -39,6 +39,10 @@ public class MapFilterExample extends FilterFunctionExample {
     }
 
     public void freqMapIsMoreThan2() {
+        // ---------------------------------------------------------
+        final MapFilter function = new MapFilter("key1", new IsMoreThan(2L));
+        // ---------------------------------------------------------
+
         final FreqMap map1 = new FreqMap();
         map1.put("key1", 1L);
 
@@ -55,12 +59,14 @@ public class MapFilterExample extends FilterFunctionExample {
         final FreqMap map5 = new FreqMap();
         map5.put("key2", 3L);
 
-        runExample(new MapFilter("key1", new IsMoreThan(2L)),
-                "new MapFilter(\"key1\", new IsMoreThan(2L))",
-                map1, map2, map3, map4, map5);
+        runExample(function, map1, map2, map3, map4, map5);
     }
 
     public void freqMapIsMoreThanOrEqualTo2() {
+        // ---------------------------------------------------------
+        final MapFilter function = new MapFilter("key1", new IsMoreThan(2L, true));
+        // ---------------------------------------------------------
+
         final FreqMap map1 = new FreqMap();
         map1.put("key1", 1L);
 
@@ -77,20 +83,20 @@ public class MapFilterExample extends FilterFunctionExample {
         final FreqMap map5 = new FreqMap();
         map5.put("key2", 3L);
 
-        runExample(new MapFilter("key1", new IsMoreThan(2L, true)),
-                "new MapFilter(\"key1\", new IsMoreThan(2L, true))",
-                map1, map2, map3, map4, map5);
+        runExample(function, map1, map2, map3, map4, map5);
     }
 
     public void mapWithDateKeyHasAValueThatExists() {
+        // ---------------------------------------------------------
+        final MapFilter function = new MapFilter(new Date(0L), new Exists());
+        // ---------------------------------------------------------
+
         final Map<Date, Long> map1 = new HashMap<>();
         map1.put(new Date(0L), 1L);
 
         final Map<Date, Long> map2 = new HashMap<>();
         map2.put(new Date(), 2L);
 
-        runExample(new MapFilter(new Date(0L), new Exists()),
-                "new MapFilter(new Date(0L), new Exists())",
-                map1, map2);
+        runExample(function, map1, map2);
     }
 }

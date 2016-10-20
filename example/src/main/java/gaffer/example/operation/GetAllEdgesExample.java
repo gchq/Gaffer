@@ -40,22 +40,16 @@ public class GetAllEdgesExample extends OperationExample {
     }
 
     public CloseableIterable<Edge> getAllEdges() {
-        final String opJava = "new GetAllEdges();";
-        return runExample(new GetAllEdges(), opJava);
+        // ---------------------------------------------------------
+        final GetAllEdges operation = new GetAllEdges();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Edge> getAllEdgesWithCountGreaterThan2() {
-        final String opJava = "new GetAllEdges.Builder()\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(2))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetAllEdges.Builder()
+        // ---------------------------------------------------------
+        final GetAllEdges operation = new GetAllEdges.Builder()
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -64,6 +58,9 @@ public class GetAllEdgesExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }
