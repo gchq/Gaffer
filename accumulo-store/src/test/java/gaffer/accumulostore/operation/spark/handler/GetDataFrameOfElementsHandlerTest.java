@@ -33,10 +33,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
 import org.junit.Test;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 public class GetDataFrameOfElementsHandlerTest {
 
@@ -78,6 +76,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            fields1.appendElem(EDGE_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem("B");
             fields1.appendElem(1);
@@ -88,6 +87,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(100L);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            fields2.appendElem(EDGE_GROUP);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
             fields2.appendElem(6);
@@ -115,6 +115,112 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
             fields1.clear();
+            fields1.appendElem(ENTITY_GROUP);
+            fields1.appendElem("" + i);
+            fields1.appendElem(1);
+            fields1.appendElem(2);
+            fields1.appendElem(3.0F);
+            fields1.appendElem(4.0D);
+            fields1.appendElem(5L);
+            fields1.appendElem(6);
+            expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+        }
+        assertEquals(expectedRows, results);
+
+        sparkContext.stop();
+    }
+
+    @Test
+    public void checkGetCorrectElementsInDataFrameMultipleGroups() throws OperationException {
+        final Graph graph1 = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+
+        final User user = new User();
+        graph1.execute(new AddElements(getElements()), user);
+
+        final SparkConf sparkConf = new SparkConf()
+                .setMaster("local")
+                .setAppName("checkGetCorrectElementsInDataFrameMultipleGroups")
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
+                .set("spark.driver.allowMultipleContexts", "true");
+        final SparkContext sparkContext = new SparkContext(sparkConf);
+        final SQLContext sqlContext = new SQLContext(sparkContext);
+
+        // Use entity and edges group - check get correct data
+        final LinkedHashSet<String> groups = new LinkedHashSet<>();
+        groups.add(ENTITY_GROUP);
+        groups.add(EDGE_GROUP);
+        GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .groups(groups)
+                .build();
+        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
+        final Set<Row> expectedRows = new HashSet<>();
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            fields1.appendElem(EDGE_GROUP);
+            fields1.appendElem(null);
+            fields1.appendElem(1);
+            fields1.appendElem(2);
+            fields1.appendElem(3.0F);
+            fields1.appendElem(4.0D);
+            fields1.appendElem(5L);
+            fields1.appendElem(100L);
+            fields1.appendElem("" + i);
+            fields1.appendElem("B");
+            expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+            final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            fields2.appendElem(EDGE_GROUP);
+            fields2.appendElem(null);
+            fields2.appendElem(6);
+            fields2.appendElem(7);
+            fields2.appendElem(8.0F);
+            fields2.appendElem(9.0D);
+            fields2.appendElem(10L);
+            fields2.appendElem(200L);
+            fields2.appendElem("" + i);
+            fields2.appendElem("C");
+            expectedRows.add(Row$.MODULE$.fromSeq(fields2));
+            final scala.collection.mutable.MutableList<Object> fields3 = new scala.collection.mutable.MutableList<>();
+            fields3.appendElem(ENTITY_GROUP);
+            fields3.appendElem("" + i);
+            fields3.appendElem(1);
+            fields3.appendElem(2);
+            fields3.appendElem(3.0F);
+            fields3.appendElem(4.0D);
+            fields3.appendElem(5L);
+            fields3.appendElem(6);
+            fields3.appendElem(null);
+            fields3.appendElem(null);
+            expectedRows.add(Row$.MODULE$.fromSeq(fields3));
+        }
+        assertEquals(expectedRows, results);
+
+        // Entities group - check get correct entities
+        dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .group(ENTITY_GROUP)
+                .build();
+        dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        results.clear();
+        results.addAll(dataFrame.collectAsList());
+        expectedRows.clear();
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            fields1.clear();
+            fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
             fields1.appendElem(2);
@@ -231,6 +337,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
+            fields.appendElem(EDGE_GROUP);
             fields.appendElem("" + i);
             fields.appendElem("C");
             fields.appendElem(6);
@@ -254,6 +361,45 @@ public class GetDataFrameOfElementsHandlerTest {
         }
         assertEquals(expectedRows, results);
 
+        sparkContext.stop();
+    }
+
+    @Test
+    public void checkGetExceptionIfIncompatibleSchemas() throws OperationException {
+        final Graph graph1 = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchemaIncompatible.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+
+        final User user = new User();
+
+        final SparkConf sparkConf = new SparkConf()
+                .setMaster("local")
+                .setAppName("checkGetExceptionIfIncompatibleSchemas")
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
+                .set("spark.driver.allowMultipleContexts", "true");
+        final SparkContext sparkContext = new SparkContext(sparkConf);
+        final SQLContext sqlContext = new SQLContext(sparkContext);
+
+        // Use entity and edges group - check get correct data
+        final LinkedHashSet<String> groups = new LinkedHashSet<>();
+        groups.add(ENTITY_GROUP);
+        groups.add(EDGE_GROUP);
+        final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .groups(groups)
+                .build();
+        // NB Catch the exception rather than using expected annotation on test to ensure SparkContext
+        // is shut down.
+        try {
+            graph1.execute(dfOperation, user);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (final IllegalArgumentException e) {
+            // Expected
+        }
         sparkContext.stop();
     }
 
