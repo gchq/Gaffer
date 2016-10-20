@@ -16,53 +16,29 @@
 
 package gaffer.accumulostore.utils;
 
-import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
-import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
-import gaffer.commonutil.ByteArrayEscapeUtils;
-import gaffer.commonutil.CommonConstants;
 import gaffer.store.StoreException;
-import gaffer.store.schema.Schema;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.conf.Property;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Range;
-import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.security.ColumnVisibility;
-import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -150,7 +126,6 @@ public final class TableUtils {
             throw new StoreException(e.getMessage(), e);
         }
         setLocalityGroups(store);
-        addUpdateUtilsTable(store);
     }
 
     public static void setLocalityGroups(final AccumuloStore store) throws StoreException {
@@ -186,35 +161,6 @@ public final class TableUtils {
      */
     public static BatchWriter createBatchWriter(final AccumuloStore store) throws StoreException {
         return createBatchWriter(store, store.getProperties().getTable());
-    }
-
-    /**
-     * Returns the map containing all the information needed to create a new
-     * instance of the accumulo gaffer.accumulostore
-     * <p>
-     *
-     * @param properties the accumulo properties
-     * @return A MapWritable containing all the required information to
-     * construct an accumulo gaffer.accumulostore instance
-     * @throws StoreException if a table could not be found or other table issues
-     */
-    public static MapWritable getStoreConstructorInfo(final AccumuloProperties properties) throws StoreException {
-        final Connector connection = getConnector(properties.getInstanceName(), properties.getZookeepers(),
-                properties.getUserName(), properties.getPassword());
-        BatchScanner scanner;
-        try {
-            scanner = connection.createBatchScanner(AccumuloStoreConstants.GAFFER_UTILS_TABLE, getCurrentAuthorizations(connection),
-                    properties.getThreadsForBatchScanner());
-        } catch (final TableNotFoundException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-        scanner.setRanges(Collections.singleton(getTableSetupRange(properties.getTable())));
-        final Iterator<Entry<Key, Value>> iter = scanner.iterator();
-        if (iter.hasNext()) {
-            return getSchemasFromValue(iter.next().getValue());
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -254,43 +200,6 @@ public final class TableUtils {
         }
     }
 
-    private static void ensureUtilsTableExists(final AccumuloStore store) throws StoreException {
-        final Connector conn = store.getConnection();
-
-        if (!conn.tableOperations().exists(AccumuloStoreConstants.GAFFER_UTILS_TABLE)) {
-            try {
-                LOGGER.info("Creating utils table {} as user {}", AccumuloStoreConstants.GAFFER_UTILS_TABLE, conn.whoami());
-                conn.tableOperations().create(AccumuloStoreConstants.GAFFER_UTILS_TABLE);
-            } catch (final TableExistsException e) {
-                // Someone else got there first, never mind...
-            } catch (AccumuloException | AccumuloSecurityException e) {
-                throw new StoreException("Failed to create : " + AccumuloStoreConstants.GAFFER_UTILS_TABLE + " table", e);
-            }
-        }
-    }
-
-    public static void addUpdateUtilsTable(final AccumuloStore store) throws StoreException {
-        ensureUtilsTableExists(store);
-        final BatchWriter writer = createBatchWriter(store, AccumuloStoreConstants.GAFFER_UTILS_TABLE);
-        final Key key;
-        try {
-            key = new Key(store.getProperties().getTable().getBytes(CommonConstants.UTF_8), AccumuloStoreConstants.EMPTY_BYTES,
-                    AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
-        } catch (final UnsupportedEncodingException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-        final Mutation m = new Mutation(key.getRow());
-        m.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()),
-                key.getTimestamp(),
-                getValueFromSchemas(store.getSchema(), store.getKeyPackage()));
-        try {
-            writer.addMutation(m);
-            LOGGER.info("Added mutation with rowkey {} to table {}", key.getRow(), AccumuloStoreConstants.GAFFER_UTILS_TABLE);
-        } catch (final MutationsRejectedException e) {
-            LOGGER.error("Failed to create an accumulo key mutation");
-        }
-    }
-
     /**
      * Creates a {@link org.apache.accumulo.core.client.BatchWriter} for the
      * specified table
@@ -316,49 +225,5 @@ public final class TableUtils {
             throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
                     + store.getProperties().getTable(), e);
         }
-    }
-
-    private static Range getTableSetupRange(final String table) {
-        try {
-            return new Range(getTableSetupKey(table.getBytes(CommonConstants.UTF_8), false),
-                    getTableSetupKey(table.getBytes(CommonConstants.UTF_8), true));
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private static Key getTableSetupKey(final byte[] serialisedVertex, final boolean endKey) {
-        final byte[] key;
-        if (endKey) {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 1);
-            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        } else {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length);
-        }
-        return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
-    }
-
-    private static Value getValueFromSchemas(final Schema schema,
-                                             final AccumuloKeyPackage keyPackage) throws StoreException {
-        final MapWritable map = new MapWritable();
-        map.put(AccumuloStoreConstants.SCHEMA_KEY, new BytesWritable(schema.toJson(false)));
-        try {
-            map.put(AccumuloStoreConstants.KEY_PACKAGE_KEY,
-                    new BytesWritable(keyPackage.getClass().getName().getBytes(CommonConstants.UTF_8)));
-        } catch (final UnsupportedEncodingException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-        return new Value(WritableUtils.toByteArray(map));
-    }
-
-    private static MapWritable getSchemasFromValue(final Value value) throws StoreException {
-        final MapWritable map = new MapWritable();
-        try (final InputStream inStream = new ByteArrayInputStream(value.get());
-             final DataInputStream dataStream = new DataInputStream(inStream)) {
-            map.readFields(dataStream);
-        } catch (final IOException e) {
-            throw new StoreException("Failed to read map writable from value", e);
-        }
-        return map;
     }
 }

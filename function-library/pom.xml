@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2016 Crown Copyright
   ~
@@ -17,32 +17,54 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.5-SNAPSHOT</version>
+        <version>0.4.6-SNAPSHOT</version>
     </parent>
-    <artifactId>simple-serialisation-library</artifactId>
-    <name>simple-serialisation-library</name>
-    <url>http://maven.apache.org</url>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
+    <artifactId>function-library</artifactId>
+
     <dependencies>
+        <!-- Internal Gaffer2 framework dependencies -->
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>graph</artifactId>
+            <artifactId>function</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>types-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-types-library</artifactId>
+            <artifactId>function</artifactId>
             <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <!-- External libraries -->
@@ -52,20 +74,9 @@
             <version>2.8.0</version>
         </dependency>
         <dependency>
-            <groupId>gaffer</groupId>
-            <artifactId>common-util</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <!-- This dependency on Spark ensure the version of Kryo used is the same as the version Spark uses.-->
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.version}</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
         </dependency>
     </dependencies>
     <build>
@@ -75,22 +86,23 @@
                 <version>2.4.1</version>
                 <executions>
                     <execution>
-                        <id>iterators</id>
+                        <id>functions</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>
-                                simple-serialisation-library-${project.parent.version}-serialisers
-                            </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
+                            <shadedClassifierName>functions
+                            </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream
                                     </include>
-                                    <include>gaffer:simple-types-library
+                                    <include>org.apache.commons:commons-lang
+                                    </include>
+                                    <include>gaffer:types-library
                                     </include>
                                 </includes>
                             </artifactSet>

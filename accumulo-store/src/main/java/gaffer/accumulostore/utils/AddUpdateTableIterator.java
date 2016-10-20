@@ -81,8 +81,6 @@ public final class AddUpdateTableIterator {
         try {
             updateIterator(store, iteratorName,
                     store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-            // Update GafferUtilsTable with likely new schemas
-            TableUtils.addUpdateUtilsTable(store);
         } catch (IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }

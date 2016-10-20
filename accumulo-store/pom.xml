@@ -21,7 +21,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.5-SNAPSHOT</version>
+        <version>0.4.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -61,17 +61,17 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-function-library</artifactId>
+            <artifactId>function-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-operation-library</artifactId>
+            <artifactId>operation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
-            <artifactId>simple-serialisation-library</artifactId>
+            <artifactId>serialisation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -151,9 +151,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>
-                                accumulo-store-iterators-${project.parent.version}
-                            </finalName>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
                             <shadedClassifierName>iterators
