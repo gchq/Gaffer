@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
@@ -53,32 +52,31 @@ public class ViewIT {
         final ElementTransformer transformer = edge.getTransformer();
         assertNotNull(transformer);
 
-        final List<ConsumerProducerFunctionContext<ElementComponentKey, TransformFunction>> contexts = transformer.getFunctions();
+        final List<ConsumerProducerFunctionContext<String, TransformFunction>> contexts = transformer.getFunctions();
         assertEquals(1, contexts.size());
 
-        final List<ElementComponentKey> selection = contexts.get(0).getSelection();
+        final List<String> selection = contexts.get(0).getSelection();
         assertEquals(2, selection.size());
-        assertEquals(TestPropertyNames.PROP_1, selection.get(0).getPropertyName());
-        assertEquals(IdentifierType.SOURCE, selection.get(1).getIdentifierType());
+        assertEquals(TestPropertyNames.PROP_1, selection.get(0));
+        assertEquals(IdentifierType.SOURCE.name(), selection.get(1));
 
-        final List<ElementComponentKey> projection = contexts.get(0).getProjection();
+        final List<String> projection = contexts.get(0).getProjection();
         assertEquals(1, projection.size());
-        assertEquals(TestPropertyNames.TRANSIENT_1, projection.get(0).getPropertyName());
+        assertEquals(TestPropertyNames.TRANSIENT_1, projection.get(0));
 
         assertTrue(contexts.get(0).getFunction() instanceof ExampleTransformFunction);
 
         final ElementFilter postFilter = edge.getPostTransformFilter();
         assertNotNull(postFilter);
 
-        final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> filterContexts = postFilter.getFunctions();
+        final List<ConsumerFunctionContext<String, FilterFunction>> filterContexts = postFilter.getFunctions();
         assertEquals(1, contexts.size());
 
-        final List<ElementComponentKey> postFilterSelection = filterContexts.get(0).getSelection();
+        final List<String> postFilterSelection = filterContexts.get(0).getSelection();
         assertEquals(1, postFilterSelection.size());
-        assertEquals(TestPropertyNames.TRANSIENT_1, postFilterSelection.get(0).getPropertyName());
+        assertEquals(TestPropertyNames.TRANSIENT_1, postFilterSelection.get(0));
 
         assertTrue(filterContexts.get(0).getFunction() instanceof ExampleFilterFunction);
-
 
 
     }

@@ -26,7 +26,6 @@ import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
@@ -178,7 +177,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.VERTEX)
+                                        .select(IdentifierType.VERTEX.name())
                                         .execute(new IsEqual("A1"))
                                         .build())
                                 .build())
@@ -194,7 +193,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING  })
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING})
     @Test
     public void shouldGetAllTransformedFilteredElements() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
@@ -202,13 +201,13 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.VERTEX)
+                                        .select(IdentifierType.VERTEX.name())
                                         .execute(new IsEqual("A1"))
                                         .build())
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(new ElementComponentKey(IdentifierType.VERTEX),
-                                                new ElementComponentKey(TestPropertyNames.STRING))
+                                        .select(IdentifierType.VERTEX.name(),
+                                                TestPropertyNames.STRING)
                                         .project(TestPropertyNames.TRANSIENT_1)
                                         .execute(new Concat())
                                         .build())

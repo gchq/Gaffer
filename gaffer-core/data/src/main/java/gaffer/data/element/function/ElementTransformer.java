@@ -18,9 +18,7 @@ package gaffer.data.element.function;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.ElementTuple;
-import gaffer.data.element.IdentifierType;
 import gaffer.function.TransformFunction;
 import gaffer.function.processor.Transformer;
 
@@ -32,7 +30,7 @@ import gaffer.function.processor.Transformer;
  * @see gaffer.data.element.function.ElementTransformer.Builder
  * @see gaffer.function.processor.Transformer
  */
-public class ElementTransformer extends Transformer<ElementComponentKey> {
+public class ElementTransformer extends Transformer<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
     public void transform(final Element element) {
@@ -53,7 +51,7 @@ public class ElementTransformer extends Transformer<ElementComponentKey> {
     /**
      * Builder for {@link ElementTransformer}.
      */
-    public static class Builder extends Transformer.Builder<ElementComponentKey> {
+    public static class Builder extends Transformer.Builder<String> {
         public Builder() {
             this(new ElementTransformer());
         }
@@ -62,28 +60,12 @@ public class ElementTransformer extends Transformer<ElementComponentKey> {
             super(transformer);
         }
 
-        public Builder select(final ElementComponentKey... selection) {
+        public Builder select(final String... selection) {
             return (Builder) super.select(selection);
         }
 
-        public Builder select(final String... selection) {
-            return (Builder) super.select(ElementComponentKey.createKeys(selection));
-        }
-
-        public Builder select(final IdentifierType... selection) {
-            return (Builder) super.select(ElementComponentKey.createKeys(selection));
-        }
-
-        public Builder project(final ElementComponentKey... projection) {
-            return (Builder) super.project(projection);
-        }
-
         public Builder project(final String... projection) {
-            return (Builder) super.project(ElementComponentKey.createKeys(projection));
-        }
-
-        public Builder project(final IdentifierType... projection) {
-            return (Builder) super.project(ElementComponentKey.createKeys(projection));
+            return (Builder) super.project(projection);
         }
 
         public Builder execute(final TransformFunction function) {

@@ -16,7 +16,6 @@
 
 package gaffer.store.schema;
 
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
@@ -98,10 +97,10 @@ public class SchemaElementDefinitionValidator {
      * @return boolean - true if function argument types are valid. Otherwise false and the reason is logged.
      */
     protected boolean validateFunctionArgumentTypes(
-            final Processor<ElementComponentKey, ? extends ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction>> processor,
+            final Processor<String, ? extends ConsumerFunctionContext<String, ? extends ConsumerFunction>> processor,
             final SchemaElementDefinition elementDef) {
         if (null != processor && null != processor.getFunctions()) {
-            for (ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> context : processor.getFunctions()) {
+            for (ConsumerFunctionContext<String, ? extends ConsumerFunction> context : processor.getFunctions()) {
                 if (null == context.getFunction()) {
                     LOGGER.error(processor.getClass().getSimpleName() + " contains a function context with a null function.");
                     return false;
@@ -112,7 +111,7 @@ public class SchemaElementDefinitionValidator {
                 }
 
                 if (context instanceof ConsumerProducerFunctionContext
-                        && !validateFunctionProjectionTypes(elementDef, (ConsumerProducerFunctionContext<ElementComponentKey, ? extends ConsumerFunction>) context)) {
+                        && !validateFunctionProjectionTypes(elementDef, (ConsumerProducerFunctionContext<String, ? extends ConsumerFunction>) context)) {
                     return false;
                 }
             }
@@ -122,7 +121,7 @@ public class SchemaElementDefinitionValidator {
     }
 
     private boolean validateFunctionSelectionTypes(final SchemaElementDefinition elementDef,
-                                                   final ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> context) {
+                                                   final ConsumerFunctionContext<String, ? extends ConsumerFunction> context) {
         final ConsumerFunction function = context.getFunction();
         final Class<?>[] inputTypes = function.getInputClasses();
         if (null == inputTypes || 0 == inputTypes.length) {
@@ -138,22 +137,23 @@ public class SchemaElementDefinitionValidator {
         }
 
         int i = 0;
-        for (ElementComponentKey key : context.getSelection()) {
+        for (String key : context.getSelection()) {
             final Class<?> clazz = elementDef.getClass(key);
             if (null == clazz) {
                 final String typeName;
-                if (key.isId()) {
-                    typeName = elementDef.getIdentifierTypeName(key.getIdentifierType());
+                final IdentifierType idType = IdentifierType.fromName(key);
+                if (null == idType) {
+                    typeName = elementDef.getPropertyTypeName(key);
                 } else {
-                    typeName = elementDef.getPropertyTypeName(key.getPropertyName());
+                    typeName = elementDef.getIdentifierTypeName(idType);
                 }
 
                 if (null != typeName) {
                     LOGGER.error("No class type found for type definition " + typeName
-                            + " used by " + key.getKey()
+                            + " used by " + key
                             + ". Please ensure it is defined in the schema.");
                 } else {
-                    LOGGER.error("No type definition defined for " + key.getKey()
+                    LOGGER.error("No type definition defined for " + key
                             + ". Please ensure it is defined in the schema.");
                 }
 
@@ -172,7 +172,7 @@ public class SchemaElementDefinitionValidator {
     }
 
     private boolean validateFunctionProjectionTypes(final SchemaElementDefinition elementDef,
-                                                    final ConsumerProducerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> consumerProducerContext) {
+                                                    final ConsumerProducerFunctionContext<String, ? extends ConsumerFunction> consumerProducerContext) {
         final ConsumerProducerFunction function = consumerProducerContext.getFunction();
         final Class<?>[] outputTypes = function.getOutputClasses();
         if (null == outputTypes || 0 == outputTypes.length) {
@@ -188,7 +188,7 @@ public class SchemaElementDefinitionValidator {
         }
 
         int i = 0;
-        for (ElementComponentKey key : consumerProducerContext.getProjection()) {
+        for (String key : consumerProducerContext.getProjection()) {
             final Class<?> clazz = elementDef.getClass(key);
             if (null == clazz || !outputTypes[i].isAssignableFrom(clazz)) {
                 LOGGER.error("Function " + function.getClass().getName()
@@ -212,12 +212,13 @@ public class SchemaElementDefinitionValidator {
         // if aggregate functions are defined then check all properties are aggregated
         final Set<String> aggregatedProperties = new HashSet<>();
         if (aggregator.getFunctions() != null) {
-            for (PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context : aggregator.getFunctions()) {
-                List<ElementComponentKey> selection = context.getSelection();
+            for (PassThroughFunctionContext<String, AggregateFunction> context : aggregator.getFunctions()) {
+                List<String> selection = context.getSelection();
                 if (selection != null) {
-                    for (ElementComponentKey key : selection) {
-                        if (!key.isId()) {
-                            aggregatedProperties.add(key.getPropertyName());
+                    for (String key : selection) {
+                        final IdentifierType idType = IdentifierType.fromName(key);
+                        if (null == idType) {
+                            aggregatedProperties.add(key);
                         }
                     }
                 }

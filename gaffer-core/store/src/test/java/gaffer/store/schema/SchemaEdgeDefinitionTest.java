@@ -27,13 +27,14 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Sets;
 import gaffer.commonutil.TestPropertyNames;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
+import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.ExampleAggregateFunction;
 import gaffer.function.ExampleFilterFunction;
 import gaffer.function.IsA;
+import gaffer.store.schema.SchemaEdgeDefinition.Builder;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
@@ -67,9 +68,9 @@ public class SchemaEdgeDefinitionTest {
         assertEquals(2, validator.getFunctions().size());
         assertEquals(Integer.class.getName(), ((IsA) validator.getFunctions().get(0).getFunction()).getType());
         assertEquals(String.class.getName(), ((IsA) validator.getFunctions().get(1).getFunction()).getType());
-        assertEquals(Collections.singletonList(new ElementComponentKey(IdentifierType.SOURCE)),
+        assertEquals(Collections.singletonList(IdentifierType.SOURCE.name()),
                 validator.getFunctions().get(0).getSelection());
-        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+        assertEquals(Collections.singletonList("property"),
                 validator.getFunctions().get(1).getSelection());
     }
 
@@ -106,13 +107,22 @@ public class SchemaEdgeDefinitionTest {
     @Test
     public void shouldReturnFullAggregator() {
         // Given
-        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
+        final SchemaEdgeDefinition elementDef = new Builder()
                 .source("id.integer", Integer.class)
                 .property("property", "property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build())
                 .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        assertEquals(1, aggregator.getFunctions().size());
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
+        assertEquals(Collections.singletonList("property"),
+                aggregator.getFunctions().get(0).getSelection());
     }
 
     @Test
