@@ -18,6 +18,7 @@ package koryphe.tuple.function;
 
 import koryphe.function.stateful.aggregator.AggregatorContext;
 import koryphe.tuple.Tuple;
+import koryphe.tuple.adapter.TupleAdapter;
 
 /**
  * A <code>TupleAggregator</code> aggregates {@link Tuple}s by applying an
@@ -25,7 +26,7 @@ import koryphe.tuple.Tuple;
  * output {@link Tuple}, which will be the first tuple supplied as input.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleAggregator<R, FI, FO> extends AggregatorContext<Tuple<R>, FI, FO, Tuple<R>> {
+public class TupleAggregator<R, I, O> extends AggregatorContext<Tuple<R>, I, TupleAdapter<R, I>, O, TupleAdapter<R, O>> {
     /**
      * Default constructor - for serialisation.
      */
@@ -38,9 +39,6 @@ public class TupleAggregator<R, FI, FO> extends AggregatorContext<Tuple<R>, FI, 
      */
     @Override
     public Tuple<R> execute(final Tuple<R> input, final Tuple<R> state) {
-        if (state == null) {
-            setOutputContext(input);
-        }
         return super.execute(input, state);
     }
 
@@ -55,12 +53,5 @@ public class TupleAggregator<R, FI, FO> extends AggregatorContext<Tuple<R>, FI, 
             state = execute(input, state);
         }
         return state;
-    }
-
-    /**
-     * @return New <code>TupleAggregator</code> with a new {@link koryphe.function.stateful.aggregator.Aggregator}.
-     */
-    public TupleAggregator<R, FI, FO> copy() {
-        return copyInto(new TupleAggregator<R, FI, FO>());
     }
 }

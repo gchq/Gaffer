@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package koryphe.function.global;
+package koryphe.function.stateless.validator;
 
-import koryphe.function.stateless.validator.IsA;
 import org.junit.Test;
 import util.JsonSerialiser;
 
@@ -73,19 +72,6 @@ public class IsATest {
 
         // Then
         assertTrue(valid);
-    }
-
-    @Test
-    public void shouldCopy() {
-        // Given
-        final IsA validator = new IsA(String.class);
-
-        // When
-        final IsA validatorCopy = validator.copy();
-
-        // Then
-        assertNotSame(validator, validatorCopy);
-        assertEquals(String.class.getName(), validatorCopy.getType());
     }
 
     @Test

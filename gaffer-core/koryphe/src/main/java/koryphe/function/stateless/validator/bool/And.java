@@ -41,13 +41,4 @@ public final class And<I> extends BooleanOperator<I> {
         }
         return true;
     }
-
-    @Override
-    public And<I> copy() {
-        And<I> validator = new And();
-        for (Validator<I> v : validators) {
-            validator.addValidator((Validator) v.copy());
-        }
-        return validator;
-    }
 }

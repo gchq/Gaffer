@@ -17,29 +17,20 @@
 package koryphe.function.stateless.transformer;
 
 import koryphe.function.MultiFunction;
-import koryphe.function.stateless.StatelessFunction;
 
 /**
- * A {@link Transformer} that applies a list of transforms.
+ * A {@link Transformer} that applies a list of transformers. The output of the first transformer becomes the input of
+ * the next and so on until an output value is returned from the final transformer.
  * @param <I> Input type
  * @param <O> Output type
  */
-public final class MultiTransform<I, O> extends MultiFunction<StatelessFunction> implements Transformer<I, O> {
+public final class MultiTransformer<I, O> extends MultiFunction<Transformer> implements Transformer<I, O> {
     @Override
     public O execute(final I input) {
         Object result = input;
-        for (StatelessFunction transformer : functions) {
+        for (Transformer transformer : functions) {
             result = transformer.execute(result);
         }
         return (O) result;
-    }
-
-    @Override
-    public MultiTransform copy() {
-        MultiTransform transformer = new MultiTransform();
-        for (StatelessFunction t : functions) {
-            transformer.addFunction(t.copy());
-        }
-        return transformer;
     }
 }

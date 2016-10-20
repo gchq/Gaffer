@@ -18,22 +18,16 @@ package koryphe.tuple.function;
 
 import koryphe.function.stateless.validator.ValidatorContext;
 import koryphe.tuple.Tuple;
+import koryphe.tuple.adapter.TupleAdapter;
 
 /**
  * A <code>TupleValidator</code> validates input {@link Tuple}s by applying a
  * {@link koryphe.function.stateless.validator.Validator} to the tuple values.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleValidator<R, FI> extends ValidatorContext<Tuple<R>, FI> {
+public class TupleValidator<R, I> extends ValidatorContext<Tuple<R>, I, TupleAdapter<R, I>> {
     /**
      * Default constructor - for serialisation.
      */
     public TupleValidator() { }
-
-    /**
-     * @return New <code>TupleValidator</code> with a new {@link koryphe.function.stateless.validator.Validator}.
-     */
-    public TupleValidator<R, FI> copy() {
-        return copyInto(new TupleValidator<R, FI>());
-    }
 }

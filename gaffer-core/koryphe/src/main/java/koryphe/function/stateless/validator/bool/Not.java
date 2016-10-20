@@ -43,9 +43,4 @@ public final class Not<I> implements Validator<I> {
     public Boolean execute(final I input) {
         return !validator.execute(input);
     }
-
-    @Override
-    public Not<I> copy() {
-        return new Not<>((Validator) validator.copy());
-    }
 }

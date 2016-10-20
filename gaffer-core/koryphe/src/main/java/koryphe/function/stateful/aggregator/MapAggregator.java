@@ -56,11 +56,4 @@ public class MapAggregator<K, I, O> implements Aggregator<Map<K, I>, Map<K, O>> 
             }
         }
     }
-
-    @Override
-    public MapAggregator<K, I, O> copy() {
-        MapAggregator<K, I, O> copy = new MapAggregator<>();
-        copy.setAggregator(aggregator.copy());
-        return copy;
-    }
 }

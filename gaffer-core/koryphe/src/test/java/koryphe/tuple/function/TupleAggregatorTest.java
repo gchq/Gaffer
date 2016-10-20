@@ -66,7 +66,6 @@ public class TupleAggregatorTest {
         }
 
         // check the expected calls
-        verify(outputAdapter, times(1)).from(null);
         verify(outputAdapter, times(2)).from(tuples[0]);
         for (int i = 0; i < tuples.length; i++) {
             String in1 = inputs[i];
@@ -78,29 +77,6 @@ public class TupleAggregatorTest {
             verify(function1, times(1)).execute(in1, in2);
             verify(outputAdapter, times(1)).to(outputs[i]);
         }
-    }
-
-    @Test
-    public void shouldCopy() {
-        TupleAggregator<String, Integer, Integer> aggregator = new TupleAggregator();
-        MockAggregator function = new MockAggregator();
-        TupleAdapter<String, Integer> inputAdapter = new TupleAdapter<String, Integer>("a");
-        TupleAdapter<String, Integer> outputAdapter = new TupleAdapter<String, Integer>("b");
-        aggregator.setInputAdapter(inputAdapter);
-        aggregator.setOutputAdapter(outputAdapter);
-        aggregator.setFunction(function);
-
-        TupleAggregator<String, Integer, Integer> aggregatorCopy = aggregator.copy();
-        assertNotSame(aggregator, aggregatorCopy);
-
-        Aggregator<Integer, Integer> functionCopy = aggregatorCopy.getFunction();
-        assertNotSame(function, functionCopy);
-        assertTrue(functionCopy instanceof MockAggregator);
-
-        Adapter<Tuple<String>, Integer> inputAdapterCopy = aggregatorCopy.getInputAdapter();
-        Adapter<Tuple<String>, Integer> outputAdapterCopy = aggregatorCopy.getOutputAdapter();
-        assertTrue(inputAdapterCopy instanceof TupleAdapter);
-        assertTrue(outputAdapterCopy instanceof TupleAdapter);
     }
 
     @Test

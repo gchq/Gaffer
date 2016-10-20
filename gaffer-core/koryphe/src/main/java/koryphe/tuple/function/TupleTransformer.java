@@ -18,13 +18,14 @@ package koryphe.tuple.function;
 
 import koryphe.function.stateless.transformer.TransformerContext;
 import koryphe.tuple.Tuple;
+import koryphe.tuple.adapter.TupleAdapter;
 
 /**
  * A <code>TupleTransformer</code> transforms input {@link Tuple}s by applying a
  * {@link koryphe.function.stateless.transformer.Transformer} to the tuple values.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleTransformer<R, FI, FO> extends TransformerContext<Tuple<R>, FI, FO, Tuple<R>> {
+public class TupleTransformer<R, I, O> extends TransformerContext<Tuple<R>, I, TupleAdapter<R, I>, O, TupleAdapter<R, O>> {
     /**
      * Default constructor - for serialisation.
      */
@@ -37,14 +38,6 @@ public class TupleTransformer<R, FI, FO> extends TransformerContext<Tuple<R>, FI
      */
     @Override
     public Tuple<R> execute(final Tuple<R> input) {
-        setOutputContext(input);
         return super.execute(input);
-    }
-
-    /**
-     * @return New <code>TupleTransformer</code> with a new {@link koryphe.function.stateless.transformer.Transformer}.
-     */
-    public TupleTransformer<R, FI, FO> copy() {
-        return copyInto(new TupleTransformer<R, FI, FO>());
     }
 }

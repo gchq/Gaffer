@@ -29,11 +29,12 @@ import java.util.Iterator;
  * @param <R> The type of reference used by tuples.
  * @param <T> The adapted type.
  */
-public class TupleAdapter<R, T> extends Adapter<Tuple<R>, T> implements Tuple<Integer> {
+public class TupleAdapter<R, T> implements Adapter<Tuple<R>, T>, Tuple<Integer> {
     @JsonIgnore
     private Type referenceType;
     private R field;
     private TupleAdapter<R, ?>[] tuple;
+    private Tuple<R> context;
 
     /**
      * Create a new <code>TupleAdapter</code>.
@@ -230,11 +231,6 @@ public class TupleAdapter<R, T> extends Adapter<Tuple<R>, T> implements Tuple<In
             setContext(tuple);
             return (T) this;
         }
-    }
-
-    @Override
-    public TupleAdapter<R, T> copy() {
-        return referenceType == Type.FIELD ? new TupleAdapter<R, T>(field) : new TupleAdapter<R, T>(tuple);
     }
 
     @Override

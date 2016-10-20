@@ -16,21 +16,18 @@
 
 package koryphe.function.stateless.validator;
 
+import koryphe.function.Adapter;
 import koryphe.function.FunctionContext;
 
-public class ValidatorContext<I, FI> extends FunctionContext<I, FI, Boolean, Boolean, Validator<FI>> implements Validator<I> {
+public class ValidatorContext<C, I, IA extends Adapter<C, I>> extends FunctionContext<C, I, IA, Boolean, Adapter<C, Boolean>, Validator<I>> implements Validator<C> {
     /**
      * Default constructor - for serialisation.
      */
     public ValidatorContext() { }
 
     @Override
-    public Boolean execute(final I input) {
-        return function.execute(adaptFromInput(input));
-    }
-
-    @Override
-    public ValidatorContext<I, FI> copy() {
-        return copyInto(new ValidatorContext<I, FI>());
+    public Boolean execute(final C input) {
+        setInputContext(input);
+        return function.execute(getInput(input));
     }
 }

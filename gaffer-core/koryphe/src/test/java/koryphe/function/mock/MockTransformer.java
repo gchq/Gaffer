@@ -23,9 +23,4 @@ public class MockTransformer implements Transformer<Object, Object> {
     public Object execute(Object input) {
         return input;
     }
-
-    @Override
-    public MockTransformer copy() {
-        return new MockTransformer();
-    }
 }

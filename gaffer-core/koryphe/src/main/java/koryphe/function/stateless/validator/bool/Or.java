@@ -41,13 +41,4 @@ public final class Or<I> extends BooleanOperator<I> {
         }
         return false;
     }
-
-    @Override
-    public Or<I> copy() {
-        Or<I> validator = new Or();
-        for (Validator v : validators) {
-            validator.addValidator((Validator) v.copy());
-        }
-        return validator;
-    }
 }

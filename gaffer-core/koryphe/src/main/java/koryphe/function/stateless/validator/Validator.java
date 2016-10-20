@@ -23,6 +23,4 @@ import koryphe.function.stateless.StatelessFunction;
  * and outputs a <code>boolean</code> result.
  * @param <I> Function input type
  */
-public interface Validator<I> extends StatelessFunction<I, Boolean> {
-    Validator<I> copy();
-}
+public interface Validator<I> extends StatelessFunction<I, Boolean> { }

@@ -16,15 +16,17 @@
 
 package koryphe.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
- * A <code>ValidatorContext</code> wraps a {@link Function}. The <code>ValidatorContext</code> applies an {@link Adapter}
+ * A <code>FunctionContext</code> wraps a {@link Function}. The <code>FunctionContext</code> applies an {@link Adapter}
  * to input and output values so that the function can be applied in the context of different domain data models.
  * @see Adapter
  */
-public abstract class FunctionContext<I, FI, FO, O, F extends Function<FI, FO>> {
+public abstract class FunctionContext<C, I, IA extends Adapter<C, I>, O, OA extends Adapter<C, O>, F extends Function<I, O>> {
     protected F function;
-    private Adapter<I, FI> inputAdapter;
-    private Adapter<O, FO> outputAdapter;
+    private IA inputAdapter;
+    private OA outputAdapter;
 
     /**
      * Default constructor - for serialisation.
@@ -33,14 +35,14 @@ public abstract class FunctionContext<I, FI, FO, O, F extends Function<FI, FO>> 
 
     /**
      * Create a <code>ValidatorContext</code> with the given function and input/output criteria.
-     * @param selection Function input selection criteria.
+     * @param inputAdapter Function input selection criteria.
      * @param function Function to execute.
-     * @param projection Function output projection criteria.
+     * @param outputAdapter Function output projection criteria.
      */
-    public FunctionContext(final Adapter<I, FI> selection, final F function, final Adapter<O, FO> projection) {
+    public FunctionContext(final IA inputAdapter, final F function, final OA outputAdapter) {
         setFunction(function);
-        setInputAdapter(selection);
-        setOutputAdapter(projection);
+        setInputAdapter(inputAdapter);
+        setOutputAdapter(outputAdapter);
     }
 
     /**
@@ -60,94 +62,77 @@ public abstract class FunctionContext<I, FI, FO, O, F extends Function<FI, FO>> 
     /**
      * @param inputAdapter Function input selection criteria.
      */
-    public void setInputAdapter(final Adapter<I, FI> inputAdapter) {
+    public void setInputAdapter(final IA inputAdapter) {
         this.inputAdapter = inputAdapter;
     }
 
     /**
      * @return Function input selection criteria.
      */
-    public Adapter<I, FI> getInputAdapter() {
+    public IA getInputAdapter() {
         return inputAdapter;
     }
 
-    protected FI adaptFromInput(final I input) {
-        if (inputAdapter == null) {
-            return (FI) input;
-        } else {
-            return inputAdapter.from(input);
-        }
-    }
-
-    protected I adaptToInput(final FI functionInput) {
-        if (inputAdapter == null) {
-            return (I) functionInput;
-        } else {
-            return inputAdapter.to(functionInput);
-        }
-    }
-
-    public void setInputContext(final I inputContext) {
+    @JsonIgnore
+    public void setInputContext(final C inputContext) {
         if (inputAdapter != null) {
             inputAdapter.setContext(inputContext);
+        }
+    }
+
+    @JsonIgnore
+    public I getInput(final C inputContext) {
+        if (inputContext == null) {
+            return null;
+        } else {
+            if (inputAdapter != null) {
+                return inputAdapter.from(inputContext);
+            } else {
+                return (I) inputContext; // assume no adapter required
+            }
         }
     }
 
     /**
      * @param outputAdapter Function output projection criteria.
      */
-    public void setOutputAdapter(final Adapter<O, FO> outputAdapter) {
+    public void setOutputAdapter(final OA outputAdapter) {
         this.outputAdapter = outputAdapter;
     }
 
     /**
      * @return Function output projection criteria.
      */
-    public Adapter<O, FO> getOutputAdapter() {
+    public OA getOutputAdapter() {
         return outputAdapter;
     }
 
-    protected O adaptToOutput(final FO functionOutput) {
-        if (outputAdapter == null) {
-            return (O) functionOutput;
-        } else {
-            return outputAdapter.to(functionOutput);
-        }
-    }
-
-    protected FO adaptFromOutput(final O output) {
-        if (outputAdapter == null) {
-            return (FO) output;
-        } else {
-            return outputAdapter.from(output);
-        }
-    }
-
-    public void setOutputContext(final O outputContext) {
+    @JsonIgnore
+    public void setOutputContext(final C outputContext) {
         if (outputAdapter != null) {
             outputAdapter.setContext(outputContext);
         }
     }
 
-    protected <FC extends FunctionContext<I, FI, FO, O, F>> FC copyInto(final FC copy) {
-        if (function != null) {
-            copy.setFunction((F) function.copy());
+    @JsonIgnore
+    public O getOutput(final C outputContext) {
+        if (outputContext == null) {
+            return null;
         } else {
-            copy.setFunction(null);
+            if (outputAdapter != null) {
+                return outputAdapter.from(outputContext);
+            } else {
+                return (O) outputContext; // assume no adapter required
+            }
         }
+    }
 
-        if (inputAdapter != null) {
-            copy.setInputAdapter(inputAdapter.copy());
-        } else {
-            copy.setInputAdapter(null);
-        }
-
+    @JsonIgnore
+    public C setOutput(final O output) {
         if (outputAdapter != null) {
-            copy.setOutputAdapter(outputAdapter.copy());
+            return outputAdapter.to(output);
         } else {
-            copy.setOutputAdapter(null);
+            return (C) output; // assume no adapter required
         }
-
-        return copy;
     }
 }

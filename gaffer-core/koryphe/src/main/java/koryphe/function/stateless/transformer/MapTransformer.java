@@ -43,11 +43,4 @@ public class MapTransformer<K, I, O> implements Transformer<Map<K, I>, Map<K, O>
         }
         return (Map<K, O>) input;
     }
-
-    @Override
-    public MapTransformer<K, I, O> copy() {
-        MapTransformer<K, I, O> copy = new MapTransformer<>();
-        copy.setTransformer(transformer.copy());
-        return copy;
-    }
 }

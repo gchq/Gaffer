@@ -24,9 +24,4 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @param <O> Function output type
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public interface Function<I, O> {
-    /**
-     * @return New <code>Function</code> of the same type.
-     */
-    Function<I, O> copy();
-}
+public interface Function<I, O> { }

@@ -109,26 +109,6 @@ public class TupleValidatorTest {
     }
 
     @Test
-    public void shouldCopy() {
-        // set up a tuple validator
-        TupleValidator<String, Object> validator = new TupleValidator<>();
-        MockValidator function = new MockValidator();
-        validator.setFunction(function);
-        TupleAdapter<String, Object> inputAdapter = new TupleAdapter("a");
-        validator.setInputAdapter(inputAdapter);
-
-        TupleValidator<String, Object> validatorCopy = validator.copy();
-        assertNotSame(validator, validatorCopy);
-
-        Validator functionCopy = validatorCopy.getFunction();
-        assertNotSame(function, functionCopy);
-
-        Adapter<Tuple<String>, Object> inputAdapterCopy = validatorCopy.getInputAdapter();
-        assertNotSame(inputAdapter, inputAdapterCopy);
-        assertTrue(inputAdapterCopy instanceof TupleAdapter);
-    }
-
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // set up a tuple validator
         TupleValidator<String, Object> validator = new TupleValidator<>();

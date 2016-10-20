@@ -33,6 +33,4 @@ public interface StatefulFunction<I, O> extends Function<I, O> {
      * @return Combined input and state.
      */
     O execute(I input, O state);
-
-    StatefulFunction<I, O> copy();
 }

@@ -19,16 +19,10 @@ package koryphe.function;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public abstract class Adapter<F, T> {
+public interface Adapter<F, T> {
+    T from(F from);
+    F to(T to);
+
     @JsonIgnore
-    protected F context;
-
-    public abstract T from(F from);
-    public abstract F to(T to);
-    public abstract Adapter<F, T> copy();
-
-    public void setContext(final F context) {
-        this.context = context;
-    }
+    void setContext(F context);
 }

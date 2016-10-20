@@ -108,31 +108,6 @@ public class TupleTransformerTest {
     }
 
     @Test
-    public void shouldCopy() {
-        TupleTransformer<String, Object, Object> transformer = new TupleTransformer<>();
-        MockTransformer function = new MockTransformer();
-        transformer.setFunction(function);
-        TupleAdapter<String, Object> inputAdapter = new TupleAdapter<>("a");
-        TupleAdapter<String, Object> outputAdapter = new TupleAdapter<>("b");
-        transformer.setInputAdapter(inputAdapter);
-        transformer.setOutputAdapter(outputAdapter);
-
-        TupleTransformer<String, Object, Object> transformerCopy = transformer.copy();
-        assertNotSame(transformer, transformerCopy);
-
-        Transformer<Object, Object> functionCopy = transformerCopy.getFunction();
-        assertNotSame(function, functionCopy);
-        assertTrue(functionCopy instanceof MockTransformer);
-
-        Adapter<Tuple<String>, Object> inputAdapterCopy = transformerCopy.getInputAdapter();
-        Adapter<Tuple<String>, Object> outputAdapterCopy = transformerCopy.getOutputAdapter();
-        assertNotSame(inputAdapter, inputAdapterCopy);
-        assertTrue(inputAdapterCopy instanceof TupleAdapter);
-        assertNotSame(outputAdapter, outputAdapterCopy);
-        assertTrue(outputAdapterCopy instanceof TupleAdapter);
-    }
-
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         TupleTransformer<String, Object, Object> transformer = new TupleTransformer<>();
         MockTransformer function = new MockTransformer();

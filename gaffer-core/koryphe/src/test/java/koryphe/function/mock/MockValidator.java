@@ -8,9 +8,4 @@ public class MockValidator implements Validator<Object> {
     public Boolean execute(Object input) {
         return true;
     }
-
-    @Override
-    public MockValidator copy() {
-        return new MockValidator();
-    }
 }

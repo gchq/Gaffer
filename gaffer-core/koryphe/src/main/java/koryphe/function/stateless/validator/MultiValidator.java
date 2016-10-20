@@ -19,7 +19,8 @@ package koryphe.function.stateless.validator;
 import koryphe.function.MultiFunction;
 
 /**
- * A {@link Validator} that applies a list of validators.
+ * A {@link Validator} that applies a list of validators - each validator is executed against the input value, and the
+ * <code>MultiValidator</code> will pass if all validators pass, and will fail if any of the validators fail.
  * @param <I> Input type
  */
 public final class MultiValidator<I> extends MultiFunction<Validator<I>> implements Validator<I> {
@@ -31,14 +32,5 @@ public final class MultiValidator<I> extends MultiFunction<Validator<I>> impleme
             }
         }
         return true;
-    }
-
-    @Override
-    public MultiValidator copy() {
-        MultiValidator mv = new MultiValidator();
-        for (Validator<I> v : functions) {
-            mv.addFunction(v.copy());
-        }
-        return mv;
     }
 }

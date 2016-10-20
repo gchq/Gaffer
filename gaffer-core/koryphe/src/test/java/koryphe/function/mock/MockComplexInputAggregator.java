@@ -28,9 +28,4 @@ public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Inte
             Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
         return input;
     }
-
-    @Override
-    public MockComplexInputAggregator copy() {
-        return new MockComplexInputAggregator();
-    }
 }

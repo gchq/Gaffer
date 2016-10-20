@@ -24,9 +24,4 @@ public class MockMultiInputAggregator implements Aggregator<Tuple2<Integer, Inte
     public Tuple2<Integer, Integer> execute(Tuple2<Integer, Integer> input, Tuple2<Integer, Integer> state) {
         return input;
     }
-
-    @Override
-    public MockMultiInputAggregator copy() {
-        return new MockMultiInputAggregator();
-    }
 }

@@ -31,6 +31,4 @@ public interface StatelessFunction<I, O> extends Function<I, O> {
      * @return Output value
      */
     O execute(I input);
-
-    StatelessFunction<I, O> copy();
 }

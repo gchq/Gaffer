@@ -23,6 +23,4 @@ import koryphe.function.stateful.StatefulFunction;
  * @param <I> Input type
  * @param <O> Output type
  */
-public interface Aggregator<I, O> extends StatefulFunction<I, O> {
-    Aggregator<I, O> copy();
-}
+public interface Aggregator<I, O> extends StatefulFunction<I, O> { }

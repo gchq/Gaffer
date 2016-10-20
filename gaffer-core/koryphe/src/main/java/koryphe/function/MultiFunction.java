@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MultiFunction<F extends Function> {
-    protected List<F> functions;
+    protected List<F> functions = new ArrayList<F>();
 
     public List<F> getFunctions() {
         return functions;
@@ -35,5 +35,11 @@ public abstract class MultiFunction<F extends Function> {
             functions = new ArrayList<F>();
         }
         functions.add(function);
+    }
+
+    public void clear() {
+        if (functions != null) {
+            functions.clear();
+        }
     }
 }

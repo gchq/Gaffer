@@ -16,21 +16,19 @@
 
 package koryphe.function.stateless.transformer;
 
+import koryphe.function.Adapter;
 import koryphe.function.FunctionContext;
 
-public class TransformerContext<I, FI, FO, O> extends FunctionContext<I, FI, FO, O, Transformer<FI, FO>> implements Transformer<I, O> {
+public class TransformerContext<C, I, IA extends Adapter<C, I>, O, OA extends Adapter<C, O>> extends FunctionContext<C, I, IA, O, OA, Transformer<I, O>> implements Transformer<C, C> {
     /**
      * Default constructor - for serialisation.
      */
     public TransformerContext() { }
 
     @Override
-    public O execute(final I input) {
-        return adaptToOutput(function.execute(adaptFromInput(input)));
-    }
-
-    @Override
-    public TransformerContext<I, FI, FO, O> copy() {
-        return copyInto(new TransformerContext<I, FI, FO, O>());
+    public C execute(final C input) {
+        setInputContext(input);
+        setOutputContext(input);
+        return setOutput(function.execute(getInput(input)));
     }
 }

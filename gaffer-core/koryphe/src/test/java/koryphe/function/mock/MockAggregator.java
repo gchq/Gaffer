@@ -23,9 +23,4 @@ public class MockAggregator implements Aggregator<Integer, Integer> {
     public Integer execute(Integer input, Integer state) {
         return input;
     }
-
-    @Override
-    public MockAggregator copy() {
-        return new MockAggregator();
-    }
 }

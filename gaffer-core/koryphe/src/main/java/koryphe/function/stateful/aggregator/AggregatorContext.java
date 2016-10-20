@@ -16,25 +16,31 @@
 
 package koryphe.function.stateful.aggregator;
 
+import koryphe.function.Adapter;
 import koryphe.function.FunctionContext;
 
-public class AggregatorContext<I, FI, FO, O> extends FunctionContext<I, FI, FO, O, Aggregator<FI, FO>> implements Aggregator<I, O> {
+
+public class AggregatorContext<C, I, IA extends Adapter<C, I>, O, OA extends Adapter<C, O>> extends FunctionContext<C, I, IA, O, OA, Aggregator<I, O>> implements Aggregator<C, C> {
     /**
      * Default constructor - for serialisation.
      */
     public AggregatorContext() { }
 
     @Override
-    public O execute(final I input, final O state) {
+    public C execute(final C input, final C state) {
         if (input == null) {
             return state;
         } else {
-            return adaptToOutput(function.execute(adaptFromInput(input), adaptFromOutput(state)));
+            setInputContext(input);
+            O currentState;
+            if (state == null) {
+                currentState = null;
+                setOutputContext(input);
+            } else {
+                currentState = getOutput(state);
+                setOutputContext(state);
+            }
+            return setOutput(function.execute(getInput(input), currentState));
         }
-    }
-
-    @Override
-    public AggregatorContext<I, FI, FO, O> copy() {
-        return copyInto(new AggregatorContext<I, FI, FO, O>());
     }
 }

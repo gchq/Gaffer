@@ -23,6 +23,4 @@ import koryphe.function.stateless.StatelessFunction;
  * @param <I> Function input type.
  * @param <O> Function output type.
  */
-public interface Transformer<I, O> extends StatelessFunction<I, O> {
-    Transformer<I, O> copy();
-}
+public interface Transformer<I, O> extends StatelessFunction<I, O> { }

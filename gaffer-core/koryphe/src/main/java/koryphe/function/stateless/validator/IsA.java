@@ -66,15 +66,6 @@ public class IsA implements Validator<Object> {
     }
 
     /**
-     * Create a new <code>IsA</code> validator with the same control class as this one.
-     *
-     * @return New <code>IsA</code> validator.
-     */
-    public IsA copy() {
-        return new IsA(type);
-    }
-
-    /**
      * Tests whether the argument supplied is an instance of the control class.
      *
      * @param input {@link java.lang.Object} to test.

@@ -19,7 +19,8 @@ package koryphe.function.stateful.aggregator;
 import koryphe.function.MultiFunction;
 
 /**
- * An {@link Aggregator} that applies a list of Aggregators.
+ * An {@link Aggregator} that applies a list of Aggregators. The input value is given to each aggregator in turn - the
+ * state is updated by the aggregator and delivered to the next aggregator in the list alongside the input value.
  * @param <I> Input type
  * @param <O> Output type
  */
@@ -31,14 +32,5 @@ public final class MultiAggregator<I, O> extends MultiFunction<Aggregator> imple
             result = aggregator.execute(input, result);
         }
         return (O) result;
-    }
-
-    @Override
-    public MultiAggregator<I, O> copy() {
-        MultiAggregator ma = new MultiAggregator();
-        for (Aggregator a : functions) {
-            ma.addFunction(a.copy());
-        }
-        return ma;
     }
 }
