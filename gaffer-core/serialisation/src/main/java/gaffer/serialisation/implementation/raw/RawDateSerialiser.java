@@ -16,7 +16,7 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.util.Date;
 
 /**
@@ -25,7 +25,7 @@ import java.util.Date;
  * then serialise(date1) is less than serialise(date2)
  * where the byte arrays are compared one byte at a time starting with the first.
  */
-public class RawDateSerialiser implements Serialisation {
+public class RawDateSerialiser extends AbstractSerialisation<Date> {
     private static final long serialVersionUID = -1470994471883677977L;
 
     @Override
@@ -34,9 +34,9 @@ public class RawDateSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
+    public byte[] serialise(final Date date) throws SerialisationException {
         final byte[] out = new byte[8];
-        final long value = ((Date) object).getTime();
+        final long value = date.getTime();
         // NB Serialise high-order bits first
         out[0] = (byte) ((int) (value >> 56) & 255);
         out[1] = (byte) ((int) (value >> 48) & 255);
@@ -50,7 +50,7 @@ public class RawDateSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
         final long value = ((long) bytes[0] & 255L) << 56
                 | ((long) bytes[1] & 255L) << 48
                 | ((long) bytes[2] & 255L) << 40

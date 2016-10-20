@@ -17,12 +17,12 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * RawIntegerSerialiser serialises Integers into a little-endian byte array.
  */
-public class RawIntegerSerialiser implements Serialisation {
+public class RawIntegerSerialiser extends AbstractSerialisation<Integer> {
     private static final long serialVersionUID = -8344193425875811395L;
 
     @Override
@@ -31,9 +31,8 @@ public class RawIntegerSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object o) throws SerialisationException {
+    public byte[] serialise(final Integer value) throws SerialisationException {
         final byte[] out = new byte[4];
-        final int value = (Integer) o;
         out[0] = (byte) ((int) (value & 255));
         out[1] = (byte) ((value >> 8) & 255);
         out[2] = (byte) ((value >> 16) & 255);

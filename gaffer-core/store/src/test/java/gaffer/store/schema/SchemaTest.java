@@ -16,16 +16,6 @@
 
 package gaffer.store.schema;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Sets;
 import gaffer.commonutil.JsonUtil;
 import gaffer.commonutil.StreamUtil;
@@ -45,6 +35,7 @@ import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
+import gaffer.serialisation.AbstractSerialisation;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.JavaSerialiser;
 import org.junit.Before;
@@ -56,6 +47,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class SchemaTest {
     private Schema schema;
@@ -506,7 +507,7 @@ public class SchemaTest {
         }
     }
 
-    private class SerialisationImpl implements Serialisation {
+    private class SerialisationImpl extends AbstractSerialisation<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
 
         @Override

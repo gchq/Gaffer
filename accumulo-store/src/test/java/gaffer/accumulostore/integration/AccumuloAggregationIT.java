@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
+import gaffer.accumulostore.integration.AccumuloVisibilityIT.VisibilitySerialiser;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
@@ -177,7 +178,7 @@ public class AccumuloAggregationIT {
 
     @Test
     public void shouldHandleAggregatationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraph();
+        final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -223,7 +224,7 @@ public class AccumuloAggregationIT {
 
     @Test
     public void shouldHandleAggregatationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraph();
+        final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -267,7 +268,7 @@ public class AccumuloAggregationIT {
 
     @Test
     public void shouldHandleAggregatationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraph();
+        final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -311,7 +312,7 @@ public class AccumuloAggregationIT {
 
     @Test
     public void shouldHandleAggregatationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraph();
+        final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -449,7 +450,7 @@ public class AccumuloAggregationIT {
                         .type("visibility", new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .aggregateFunction(new StringConcat())
-                                .serialiser(new StringSerialiser())
+                                .serialiser(new VisibilitySerialiser())
                                 .build())
                         .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                                 .vertex(TestTypes.ID_STRING)
@@ -467,4 +468,32 @@ public class AccumuloAggregationIT {
                         .build())
                 .build();
     }
+
+    protected Graph createGraphNoVisibility() {
+        return new Builder()
+                .storeProperties(STORE_PROPERTIES)
+                .addSchema(new Schema.Builder()
+                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                                .clazz(String.class)
+                                .build())
+                        .type("colQual", new TypeDefinition.Builder()
+                                .clazz(String.class)
+                                .aggregateFunction(new StringConcat())
+                                .serialiser(new StringSerialiser())
+                                .build())
+                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                                .vertex(TestTypes.ID_STRING)
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
+                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_3,
+                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4)
+                                .build())
+                        .build())
+                .build();
+    }
+
 }

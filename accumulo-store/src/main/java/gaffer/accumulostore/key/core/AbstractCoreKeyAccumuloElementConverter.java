@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
 
@@ -248,6 +249,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException(e.getMessage(), e);
                     }
+                } else {
+                    return propertyDef.getSerialiser().serialiseNull();
                 }
             }
         }
@@ -259,9 +262,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
             throws AccumuloElementConversionException {
         final Properties properties = new Properties();
-        if (columnVisibility == null || columnVisibility.length == 0) {
-            return properties;
-        }
+
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
             throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
@@ -272,8 +273,15 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             if (null != propertyDef) {
                 final Serialisation serialiser = propertyDef.getSerialiser();
                 try {
-                    properties.put(schema.getVisibilityProperty(),
-                            serialiser.deserialise(columnVisibility));
+                    if (columnVisibility == null || columnVisibility.length == 0) {
+                        if (serialiser.deserialiseEmptyBytes() != null) {
+                            properties.put(schema.getVisibilityProperty(),
+                                    serialiser.deserialiseEmptyBytes());
+                        }
+                    } else {
+                        properties.put(schema.getVisibilityProperty(),
+                                serialiser.deserialise(columnVisibility));
+                    }
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException(e.getMessage(), e);
                 }

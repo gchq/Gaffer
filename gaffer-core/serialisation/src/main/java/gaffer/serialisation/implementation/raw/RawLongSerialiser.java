@@ -17,12 +17,12 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * RawLongSerialiser serialises Longs into a little-endian byte array.
  */
-public class RawLongSerialiser implements Serialisation {
+public class RawLongSerialiser extends AbstractSerialisation<Long> {
     private static final long serialVersionUID = 369129707952407270L;
 
     @Override
@@ -31,9 +31,8 @@ public class RawLongSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object o) throws SerialisationException {
+    public byte[] serialise(final Long value) throws SerialisationException {
         final byte[] out = new byte[8];
-        final long value = (Long) o;
         out[0] = (byte) ((int) (value & 255));
         out[1] = (byte) ((int) (value >> 8) & 255);
         out[2] = (byte) ((int) (value >> 16) & 255);

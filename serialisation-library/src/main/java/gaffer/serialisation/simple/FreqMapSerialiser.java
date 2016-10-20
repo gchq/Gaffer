@@ -18,7 +18,7 @@ package gaffer.serialisation.simple;
 import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import gaffer.types.simple.FreqMap;
 import java.io.ByteArrayOutputStream;
@@ -32,13 +32,12 @@ import java.util.Set;
  * A <code>FreqMapSerialiser</code> serialises and deserialises {@code FreqMap}s.
  * Any null keys or values are skipped.
  */
-public class FreqMapSerialiser implements Serialisation {
+public class FreqMapSerialiser extends AbstractSerialisation<FreqMap> {
     private static final long serialVersionUID = 6530929395214726384L;
     private final CompactRawLongSerialiser longSerialiser = new CompactRawLongSerialiser();
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        FreqMap map = (FreqMap) object;
+    public byte[] serialise(final FreqMap map) throws SerialisationException {
         Set<Map.Entry<String, Long>> entrySet = map.entrySet();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         boolean isFirst = true;
@@ -69,7 +68,7 @@ public class FreqMapSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws
+    public FreqMap deserialise(final byte[] bytes) throws
             SerialisationException {
         FreqMap freqMap = new FreqMap();
         if (bytes.length == 0) {
