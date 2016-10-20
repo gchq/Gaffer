@@ -18,13 +18,7 @@ The `getElement` method takes a line from the data file as a String and returns 
 
 We can do the following to take our integer pairs from csv and create Edges from them.
 
-```java
-List<Element> elements = new ArrayList<>();
-DataGenerator1 data1Generator = new DataGenerator1();
-for (String s : DataUtils.getDataFromFile(DATA_1_PATH)) {
-        elements.add(data1Generator.getElement(s));
-}
-```
+${GENERATE_SNIPPET}
 
 First we take a line from the file as a String and split on `","` to get two Strings, one for each of the integers.
 Then we create a new Edge object with a label `"data"`. This label is the Edge's `Group` (more on what the `Group` is a bit later in this section).
@@ -45,12 +39,7 @@ ${GENERATED_EDGES}
 
 The next thing we do is create a Gaffer ${GRAPH_JAVADOC}.
 
-```java
-Graph graph = new Graph.Builder()
-      .addSchemas(schemas)
-      .storeProperties(storeProperties)
-      .build();
-```
+${GRAPH_SNIPPET}
 
 To do this we reference 4 files:
 
@@ -113,27 +102,19 @@ Finally we have the StoreProperties. As we said previously, this contains inform
 
 Now we've generated some Graph Edges and created a Graph, let's put the Edges in the Graph.
 
-```java
-AddElements addElements = new AddElements.Builder()
-        .elements(elements)
-        .build();
+Start by creating a user:
 
-graph.execute(addElements);
-```
+${USER_SNIPPET}
+
+Then using that user we can add the elements:
+
+${ADD_SNIPPET}
 
 To do anything with the Elements in a Gaffer Graph we use an ${OPERATION_JAVADOC}. In this case our Operation is ${ADD_ELEMENTS_JAVADOC}.
 
 Finally, we run a query to return all Edges in our Graph that contain the vertex "1". To do this we use a ${GET_RELATED_EDGES_JAVADOC} Operation.
 
-```java
-GetRelatedEdges query = new GetRelatedEdges.Builder()
-        .addSeed(new EntitySeed("1"))
-        .build();
-
-for (Element e : graph.execute(query)) {
-    System.out.println(e.toString());
-}
-```
+${GET_SNIPPET}
 
 #### Summary
 

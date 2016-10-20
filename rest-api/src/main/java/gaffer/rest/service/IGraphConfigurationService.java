@@ -28,7 +28,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,22 +46,22 @@ public interface IGraphConfigurationService {
     @GET
     @Path("/filterFunctions")
     @ApiOperation(value = "Gets available filter functions. See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
-    List<Class> getFilterFunctions();
+    Set<Class> getFilterFunctions();
 
     @GET
     @Path("/filterFunctions/{inputClass}")
     @ApiOperation(value = "Gets available filter functions for the given input class is provided.  See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
-    List<Class> getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
+    Set<Class> getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
 
     @GET
     @Path("/transformFunctions")
     @ApiOperation(value = "Gets available transform functions", response = Class.class, responseContainer = "list")
-    List<Class> getTransformFunctions();
+    Set<Class> getTransformFunctions();
 
     @GET
     @Path("/generators")
     @ApiOperation(value = "Gets available generators", response = Class.class, responseContainer = "list")
-    List<Class> getGenerators();
+    Set<Class> getGenerators();
 
     @GET
     @Path("/operations")
@@ -83,5 +82,5 @@ public interface IGraphConfigurationService {
     @GET
     @Path("/serialisedFields/{className}")
     @ApiOperation(value = "Gets all serialised fields for a given java class.", response = String.class, responseContainer = "list")
-    List<String> getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
+    Set<String> getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
 }

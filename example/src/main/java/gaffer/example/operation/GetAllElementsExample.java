@@ -38,28 +38,16 @@ public class GetAllElementsExample extends OperationExample {
     }
 
     public CloseableIterable<Element> getAllElements() {
-        final String opJava = "new GetAllElements<>();";
-        return runExample(new GetAllElements<>(), opJava);
+        // ---------------------------------------------------------
+        final GetAllElements<Element> operation = new GetAllElements<>();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Element> getAllElementsWithCountGreaterThan2() {
-        final String opJava = "new GetAllElements.Builder<>()\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(2))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(2))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetAllElements.Builder<>()
+        // ---------------------------------------------------------
+        final GetAllElements<Element> operation = new GetAllElements.Builder<>()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -74,6 +62,9 @@ public class GetAllElementsExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

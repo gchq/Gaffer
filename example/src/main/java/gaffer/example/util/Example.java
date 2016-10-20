@@ -60,8 +60,12 @@ public abstract class Example {
 
     protected abstract void runExamples();
 
+    protected String getMethodName(final int parentMethod) {
+        return Thread.currentThread().getStackTrace()[parentMethod + 2].getMethodName();
+    }
+
     protected String getMethodNameAsSentence(final int parentMethod) {
-        final String[] words = Thread.currentThread().getStackTrace()[parentMethod + 2].getMethodName().split(CAPITALS_AND_NUMBERS_REGEX);
+        final String[] words = getMethodName(parentMethod + 1).split(CAPITALS_AND_NUMBERS_REGEX);
         final StringBuilder sentence = new StringBuilder();
         for (String word : words) {
             sentence.append(word.toLowerCase(Locale.getDefault()))

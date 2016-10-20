@@ -20,12 +20,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapContainsExample extends FilterFunctionExample {
+    private final Map<String, String> map = new HashMap<>();
+    final Map<String, String> mapNoA = new HashMap<>();
+    final Map<String, String> mapNullA = new HashMap<>();
+
     public static void main(final String[] args) {
         new MapContainsExample().run();
     }
 
     public MapContainsExample() {
         super(MapContains.class);
+
+        map.put("a", "1");
+        map.put("b", "2");
+        map.put("c", "3");
+
+        mapNoA.put("b", "2");
+        mapNoA.put("c", "3");
+
+        mapNullA.put("a", null);
+        mapNullA.put("b", "2");
+        mapNullA.put("c", "3");
     }
 
     public void runExamples() {
@@ -33,22 +48,10 @@ public class MapContainsExample extends FilterFunctionExample {
     }
 
     public void mapContains() {
-        final Map<String, String> map = new HashMap<>();
-        map.put("a", "1");
-        map.put("b", "2");
-        map.put("c", "3");
+        // ---------------------------------------------------------
+        final MapContains function = new MapContains("a");
+        // ---------------------------------------------------------
 
-        final Map<String, String> mapNoA = new HashMap<>();
-        mapNoA.put("b", "2");
-        mapNoA.put("c", "3");
-
-        final Map<String, String> mapNullA = new HashMap<>();
-        mapNullA.put("a", null);
-        mapNullA.put("b", "2");
-        mapNullA.put("c", "3");
-
-        runExample(new MapContains("a"),
-                "new MapContains(\"a\")",
-                map, mapNoA, mapNullA);
+        runExample(function, map, mapNoA, mapNullA);
     }
 }

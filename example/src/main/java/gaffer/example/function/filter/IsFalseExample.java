@@ -32,6 +32,10 @@ public class IsFalseExample extends FilterFunctionExample {
     }
 
     public void isFalse() {
-        runExample(new IsFalse(), "new IsFalse()", true, false, null, "true");
+        // ---------------------------------------------------------
+        final IsFalse function = new IsFalse();
+        // ---------------------------------------------------------
+
+        runExample(function, true, false, null, "true");
     }
 }

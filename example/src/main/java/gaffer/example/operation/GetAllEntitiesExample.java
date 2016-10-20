@@ -38,22 +38,16 @@ public class GetAllEntitiesExample extends OperationExample {
     }
 
     public CloseableIterable<Entity> getAllEntities() {
-        final String opJava = "new GetAllEntities();";
-        return runExample(new GetAllEntities(), opJava);
+        // ---------------------------------------------------------
+        final GetAllEntities operation = new GetAllEntities();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Entity> getAllEntitiesWithCountGreaterThan2() {
-        final String opJava = "new GetAllEntities.Builder()\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(2))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetAllEntities.Builder()
+        // ---------------------------------------------------------
+        final GetAllEntities operation = new GetAllEntities.Builder()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -62,6 +56,9 @@ public class GetAllEntitiesExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

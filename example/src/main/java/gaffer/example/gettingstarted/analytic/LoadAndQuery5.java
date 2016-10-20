@@ -39,57 +39,82 @@ public class LoadAndQuery5 extends LoadAndQuery {
     }
 
     public CloseableIterable<Edge> run() throws OperationException {
+        // [user] Create a user
+        // ---------------------------------------------------------
         final User basicUser = new User("basicUser");
+        // ---------------------------------------------------------
 
-        //create some edges from the data file using our data generator class
+
+        // [generate] create some edges from the data file using our data generator class
+        // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator5 dataGenerator = new DataGenerator5();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
+        // ---------------------------------------------------------
         log("Elements generated from the data file.");
         for (final Element element : elements) {
             log("GENERATED_EDGES", element.toString());
         }
         log("");
 
-        //create a graph using our schema and store properties
+
+        // [graph] create a graph using our schema and store properties
+        // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
+        // ---------------------------------------------------------
 
-        //add the edges to the graph
+
+        // [add] add the edges to the graph
+        // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
         graph.execute(addElements, basicUser);
+        // ---------------------------------------------------------
         log("The elements have been added.\n");
 
+
         log("\nNow run a simple query to get edges\n");
+        // [get simple] get all the edges that contain the vertex "1"
+        // ---------------------------------------------------------
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> resultsWithBasicUser = graph.execute(getRelatedEdges, basicUser);
+        // ---------------------------------------------------------
         for (Element e : resultsWithBasicUser) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
         log("We get nothing back");
 
+
         log("\nGet edges with the public visibility. We shouldn't see any of the private ones.\n");
+        // [get] get all the edges that contain the vertex "1"
+        // ---------------------------------------------------------
         final User publicUser = new User.Builder()
                 .userId("publicUser")
                 .dataAuth("public")
                 .build();
+
         final GetRelatedEdges<EntitySeed> getPublicRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
+
         final CloseableIterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
+        // ---------------------------------------------------------
         for (Element e : publicResults) {
             log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
         }
 
+
         log("\nGet edges with the private visibility. We should get the public edges too.\n");
+        // [get private] get all the edges that contain the vertex "1"
+        // ---------------------------------------------------------
         final User privateUser = new User.Builder()
                 .userId("privateUser")
                 .dataAuth("private")
@@ -98,7 +123,9 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final GetRelatedEdges<EntitySeed> getPrivateRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
+
         final CloseableIterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
+        // ---------------------------------------------------------
         for (Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
         }

@@ -44,44 +44,61 @@ public class LoadAndQuery3 extends LoadAndQuery {
     }
 
     public CloseableIterable<Edge> run() throws OperationException {
+        // [user] Create a user
+        // ---------------------------------------------------------
         final User user = new User("user01");
+        // ---------------------------------------------------------
 
-        //create some edges from the data file using our data generator class
+
+        // [generate] create some edges from the data file using our data generator class
+        // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator3 dataGenerator = new DataGenerator3();
         for (String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
+        // ---------------------------------------------------------
         log("Elements generated from the data file.");
         for (final Element element : elements) {
             log("GENERATED_EDGES", element.toString());
         }
         log("");
 
-        //create a graph using our schema and store properties
+
+        // [graph] create a graph using our schema and store properties
+        // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
+        // ---------------------------------------------------------
 
-        //add the edges to the graph
+
+        // [add] add the edges to the graph
+        // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
         graph.execute(addElements, user);
+        // ---------------------------------------------------------
         log("The elements have been added.\n");
 
-        //get all the edges that contain the vertex "1"
+
         log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        // [get simple] get all the edges that contain the vertex "1"
+        // ---------------------------------------------------------
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
+        // ---------------------------------------------------------
         for (Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
-        //rerun previous query with a filter to return only edges with a count more than 3
+
+        // [get] rerun previous query with a filter to return only edges with a count more than 3
+        // ---------------------------------------------------------
         final View view = new View.Builder()
                 .edge("data", new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -95,6 +112,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
                 .view(view)
                 .build();
         final CloseableIterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
+        // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1 with an aggregated count more than than 3\n");
         for (Element e : filteredResults) {
             log("GET_RELATED_ELEMENTS_WITH_COUNT_MORE_THAN_3_RESULT", e.toString());

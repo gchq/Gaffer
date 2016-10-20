@@ -39,30 +39,19 @@ public class GetEdgesBySeedExample extends OperationExample {
     }
 
     public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3() {
-        final String opJava = "new GetEdgesBySeed.Builder()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-                + "                .build();";
-        return runExample(new GetEdgesBySeed.Builder()
+        // ---------------------------------------------------------
+        final GetEdgesBySeed operation = new GetEdgesBySeed.Builder()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2() {
-        final String opJava = "new GetEdgesBySeed.Builder()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(2))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetEdgesBySeed.Builder()
+        // ---------------------------------------------------------
+        final GetEdgesBySeed operation = new GetEdgesBySeed.Builder()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
@@ -73,6 +62,9 @@ public class GetEdgesBySeedExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }
