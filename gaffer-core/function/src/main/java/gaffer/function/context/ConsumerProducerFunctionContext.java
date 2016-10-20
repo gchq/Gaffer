@@ -74,7 +74,7 @@ public class ConsumerProducerFunctionContext<R, F extends ConsumerProducerFuncti
      */
     public void project(final Tuple<R> tuple, final Object[] values) {
         int i = 0;
-        for (R reference : projection) {
+        for (final R reference : projection) {
             Object value = i < values.length ? values[i] : null;
             tuple.put(reference, value);
             i++;

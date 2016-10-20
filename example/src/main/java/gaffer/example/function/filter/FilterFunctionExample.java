@@ -46,7 +46,7 @@ public abstract class FilterFunctionExample extends Example {
         log("Input type:");
         log("\n```");
         final StringBuilder inputClasses = new StringBuilder();
-        for (Class<?> item : filterFunction.getInputClasses()) {
+        for (final Class<?> item : filterFunction.getInputClasses()) {
             inputClasses.append(item.getName());
             inputClasses.append(", ");
         }
@@ -56,7 +56,7 @@ public abstract class FilterFunctionExample extends Example {
         log("Example inputs:");
         log("<table>");
         log("<tr><th>Type</th><th>Input</th><th>Result</th></tr>");
-        for (Object[] input : inputs) {
+        for (final Object[] input : inputs) {
             final String inputType;
             final String inputString;
             if (1 == input.length) {
@@ -70,7 +70,7 @@ public abstract class FilterFunctionExample extends Example {
             } else {
                 final StringBuilder inputTypeBuilder = new StringBuilder("[");
                 final StringBuilder inputStringBuilder = new StringBuilder("[");
-                for (Object item : input) {
+                for (final Object item : input) {
                     if (null == item) {
                         inputTypeBuilder.append(" ,");
                         inputStringBuilder.append("null, ");

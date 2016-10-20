@@ -119,7 +119,7 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
             return true;
         }
 
-        for (ConsumerFunctionContext<R, FilterFunction> functionContext : functions) {
+        for (final ConsumerFunctionContext<R, FilterFunction> functionContext : functions) {
             FilterFunction function = functionContext.getFunction();
             Object[] selection = functionContext.select(tuple);
             boolean result = function.isValid(selection);

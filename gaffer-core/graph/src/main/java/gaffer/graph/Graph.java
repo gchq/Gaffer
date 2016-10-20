@@ -228,7 +228,7 @@ public final class Graph {
 
         public Builder addSchemas(final Schema... schemaModules) {
             if (null != schemaModules) {
-                for (Schema schemaModule : schemaModules) {
+                for (final Schema schemaModule : schemaModules) {
                     addSchema(schemaModule);
                 }
             }
@@ -239,11 +239,11 @@ public final class Graph {
         public Builder addSchemas(final InputStream... schemaStreams) {
             if (null != schemaStreams) {
                 try {
-                    for (InputStream schemaStream : schemaStreams) {
+                    for (final InputStream schemaStream : schemaStreams) {
                         addSchema(schemaStream);
                     }
                 } finally {
-                    for (InputStream schemaModule : schemaStreams) {
+                    for (final InputStream schemaModule : schemaStreams) {
                         IOUtils.closeQuietly(schemaModule);
                     }
                 }
@@ -254,7 +254,7 @@ public final class Graph {
 
         public Builder addSchemas(final Path... schemaPaths) {
             if (null != schemaPaths) {
-                for (Path schemaPath : schemaPaths) {
+                for (final Path schemaPath : schemaPaths) {
                     addSchema(schemaPath);
                 }
             }
@@ -264,7 +264,7 @@ public final class Graph {
 
         public Builder addSchemas(final byte[]... schemaBytesArray) {
             if (null != schemaBytesArray) {
-                for (byte[] schemaBytes : schemaBytesArray) {
+                for (final byte[] schemaBytes : schemaBytesArray) {
                     addSchema(schemaBytes);
                 }
             }
@@ -295,7 +295,7 @@ public final class Graph {
         public Builder addSchema(final Path schemaPath) {
             try {
                 if (Files.isDirectory(schemaPath)) {
-                    for (Path path : Files.newDirectoryStream(schemaPath)) {
+                    for (final Path path : Files.newDirectoryStream(schemaPath)) {
                         addSchema(path);
                     }
                 } else {

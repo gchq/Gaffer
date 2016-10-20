@@ -90,7 +90,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
         // Given
         final User user = new User();
         final List<EntitySeed> seeds = new ArrayList<>();
-        for (String seed : SEEDS) {
+        for (final String seed : SEEDS) {
             seeds.add(new EntitySeed(seed));
         }
 
@@ -106,7 +106,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
 
         // Then
         List<String> resultSeeds = new ArrayList<>();
-        for (EntitySeed result : results) {
+        for (final EntitySeed result : results) {
             resultSeeds.add((String) result.getVertex());
         }
         Collections.sort(resultSeeds);

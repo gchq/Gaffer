@@ -67,7 +67,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     }
 
     protected void map(final KEY_IN keyIn, final VALUE_IN valueIn, final Context context) throws IOException, InterruptedException {
-        for (Element element : mapperGenerator.getElements(keyIn, valueIn, context)) {
+        for (final Element element : mapperGenerator.getElements(keyIn, valueIn, context)) {
             if (!doValidation || isValid(element)) {
                 map(element, context);
             } else {

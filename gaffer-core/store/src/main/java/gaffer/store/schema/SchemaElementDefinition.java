@@ -108,7 +108,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     public void merge(final SchemaElementDefinition elementDef) {
-        for (Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+        for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
             final String newProp = entry.getKey();
             final String newPropTypeName = entry.getValue();
             if (!properties.containsKey(newProp)) {
@@ -122,7 +122,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             }
         }
 
-        for (Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+        for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
             final IdentifierType newId = entry.getKey();
             final String newIdTypeName = entry.getValue();
             if (!identifiers.containsKey(newId)) {
@@ -238,7 +238,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementAggregator getAggregator() {
         final ElementAggregator aggregator = new ElementAggregator();
-        for (Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
+        for (final Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
             addTypeAggregateFunctions(aggregator, new ElementComponentKey(entry.getKey()), entry.getValue());
         }
 
@@ -260,14 +260,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
-        for (Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
+        for (final Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
             if (includeIsA) {
                 addIsAFunction(fullValidator, key, entry.getValue());
             }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
-        for (Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
+        for (final Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
             final ElementComponentKey key = new ElementComponentKey(entry.getKey());
             if (includeIsA) {
                 addIsAFunction(fullValidator, key, entry.getValue());
@@ -367,7 +367,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
         final TypeDefinition type = getTypeDef(classOrTypeName);
         if (null != type.getValidator()) {
-            for (ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getValidator().clone().getFunctions()) {
+            for (final ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getValidator().clone().getFunctions()) {
                 final List<ElementComponentKey> selection = function.getSelection();
                 if (null == selection || selection.isEmpty()) {
                     function.setSelection(Collections.singletonList(key));

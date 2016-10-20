@@ -42,7 +42,7 @@ public class TextJobInitialiser implements JobInitialiser {
     private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
         List<String> paths = operation.getInputPaths();
-        for (String path : paths) {
+        for (final String path : paths) {
             TextInputFormat.addInputPath(job, new Path(path));
         }
     }

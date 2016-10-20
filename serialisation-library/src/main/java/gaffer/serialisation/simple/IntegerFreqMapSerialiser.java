@@ -44,7 +44,7 @@ public class IntegerFreqMapSerialiser implements Serialisation {
         StringBuilder builder = new StringBuilder();
         int last = entrySet.size() - 1;
         int start = 0;
-        for (Map.Entry<String, Integer> entry : entrySet) {
+        for (final Map.Entry<String, Integer> entry : entrySet) {
             Integer value = entry.getValue();
             if (value == null) {
                 continue;

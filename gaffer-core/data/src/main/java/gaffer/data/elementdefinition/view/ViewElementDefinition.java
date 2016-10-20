@@ -90,7 +90,7 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     public void merge(final ViewElementDefinition elementDef) {
-        for (Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
+        for (final Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
             final String newProp = entry.getKey();
             final Class<?> newPropClass = entry.getValue();
             if (!transientProperties.containsKey(newProp)) {
@@ -133,7 +133,7 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonGetter("transientProperties")
     public Map<String, String> getTransientPropertyMapWithClassNames() {
         Map<String, String> propertyMap = new HashMap<>();
-        for (Entry<String, Class<?>> entry : transientProperties.entrySet()) {
+        for (final Entry<String, Class<?>> entry : transientProperties.entrySet()) {
             propertyMap.put(entry.getKey(), entry.getValue().getName());
         }
 
@@ -149,7 +149,7 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonSetter("transientProperties")
     public void setTransientPropertyMapWithClassNames(final LinkedHashMap<String, String> newTransientProperties) throws ClassNotFoundException {
         transientProperties = new LinkedHashMap<>();
-        for (Entry<String, String> entry : newTransientProperties.entrySet()) {
+        for (final Entry<String, String> entry : newTransientProperties.entrySet()) {
             transientProperties.put(entry.getKey(), Class.forName(entry.getValue()));
         }
     }

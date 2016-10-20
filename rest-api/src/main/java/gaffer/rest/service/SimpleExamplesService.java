@@ -388,7 +388,7 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected String getAnEntityGroup() {
         if (!getSchema().getEntityGroups().isEmpty()) {
-            for (Entry<String, SchemaEntityDefinition> entry : getSchema().getEntities().entrySet()) {
+            for (final Entry<String, SchemaEntityDefinition> entry : getSchema().getEntities().entrySet()) {
                 // Try and find an entity that has properties
                 if (null != entry.getValue().getProperties() && !entry.getValue().getProperties().isEmpty()) {
                     return entry.getKey();
@@ -415,7 +415,7 @@ public class SimpleExamplesService implements IExamplesService {
 
     protected String getAnEdgeGroup() {
         if (!getSchema().getEdgeGroups().isEmpty()) {
-            for (Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges().entrySet()) {
+            for (final Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges().entrySet()) {
                 // Try and find an edge that has properties
                 if (null != entry.getValue().getProperties() && !entry.getValue().getProperties().isEmpty()) {
                     return entry.getKey();
@@ -437,7 +437,7 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     protected void populateProperties(final Element element, final SchemaElementDefinition elementDef, final int uniqueId) {
-        for (String property : elementDef.getProperties()) {
+        for (final String property : elementDef.getProperties()) {
             element.putProperty(property, getExampleValue(elementDef.getPropertyClass(property), uniqueId));
         }
     }
