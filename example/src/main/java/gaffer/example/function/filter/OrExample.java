@@ -38,24 +38,19 @@ public class OrExample extends FilterFunctionExample {
     }
 
     public void isLessThan2OrIsMoreThan2() {
-        runExample(new Or(Arrays.asList(
-                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                                .select(0) // select first property
-                                .execute(new IsLessThan(2))
-                                .build(),
-                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                                .select(0) // select first property
-                                .execute(new IsMoreThan(2))
-                                .build())),
-                "new Or(Arrays.asList(\n" +
-                        "                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()\n" +
-                        "                                .select(0) // select first property\n" +
-                        "                                .execute(new IsLessThan(2))\n" +
-                        "                                .build(),\n" +
-                        "                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()\n" +
-                        "                                .select(0) // select first property\n" +
-                        "                                .execute(new IsMoreThan(2))\n" +
-                        "                                .build()))",
+        // ---------------------------------------------------------
+        final Or function = new Or(Arrays.asList(
+                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
+                        .select(0) // select first property
+                        .execute(new IsLessThan(2))
+                        .build(),
+                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
+                        .select(0) // select first property
+                        .execute(new IsMoreThan(2))
+                        .build()));
+        // ---------------------------------------------------------
+
+        runExample(function,
                 new Object[]{1},
                 new Object[]{2},
                 new Object[]{3},
@@ -65,24 +60,19 @@ public class OrExample extends FilterFunctionExample {
     }
 
     public void property1IsLessThan2OrProperty2IsMoreThan2() {
-        runExample(new Or(Arrays.asList(
-                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                                .select(0) // select first property
-                                .execute(new IsLessThan(2))
-                                .build(),
-                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                                .select(1) // select second property
-                                .execute(new IsMoreThan(2))
-                                .build())),
-                "new Or(Arrays.asList(\n" +
-                        "                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()\n" +
-                        "                                .select(0) // select first property\n" +
-                        "                                .execute(new IsLessThan(2))\n" +
-                        "                                .build(),\n" +
-                        "                        new ConsumerFunctionContext.Builder<Integer, FilterFunction>()\n" +
-                        "                                .select(1) // select second property\n" +
-                        "                                .execute(new IsMoreThan(2))\n" +
-                        "                                .build()))",
+        // ---------------------------------------------------------
+        final Or function = new Or(Arrays.asList(
+                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
+                        .select(0) // select first property
+                        .execute(new IsLessThan(2))
+                        .build(),
+                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
+                        .select(1) // select second property
+                        .execute(new IsMoreThan(2))
+                        .build()));
+        // ---------------------------------------------------------
+
+        runExample(function,
                 new Object[]{1, 3},
                 new Object[]{1, 1},
                 new Object[]{3, 3},

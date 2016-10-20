@@ -41,29 +41,27 @@ public class GenerateElementsExample extends OperationExample {
     }
 
     public CloseableIterable<Element> generateElementsFromStrings() {
-        final String opJava = "new GenerateElements.Builder<String>()\n"
-                + "                .objects(Arrays.asList(\"1,1\", \"1,2,1\"))\n"
-                + "                .generator(new DataGenerator())\n"
-                + "                .build();";
-        return runExample(new GenerateElements.Builder<String>()
+        // ---------------------------------------------------------
+        final GenerateElements<String> operation = new GenerateElements.Builder<String>()
                 .objects(Arrays.asList("1,1", "1,2,1"))
                 .generator(new DataGenerator())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Element> generateElementsFromDomainObjects() {
-        final String opJava = "new GenerateElements.Builder<>()\n"
-                + "                .objects(Arrays.asList(\n"
-                + "                        new DomainObject1(1, 1),\n"
-                + "                        new DomainObject2(1, 2, 1)))\n"
-                + "                .generator(new DomainObjectGenerator())\n"
-                + "                .build();";
-        return runExample(new GenerateElements.Builder<>()
+        // ---------------------------------------------------------
+        final GenerateElements<Object> operation = new GenerateElements.Builder<>()
                 .objects(Arrays.asList(
                         new DomainObject1(1, 1),
                         new DomainObject2(1, 2, 1)))
                 .generator(new DomainObjectGenerator())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public static class DomainObject1 {

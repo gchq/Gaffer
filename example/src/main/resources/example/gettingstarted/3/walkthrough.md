@@ -20,21 +20,7 @@ Now let’s look at how to filter which Edges are returned based on the aggregat
 
 We do this using a ${VIEW_JAVADOC} and ${VIEW_ELEMENT_DEF_JAVADOC} like this:
 
-```java
-    ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
-                .filter(new ElementFilter.Builder()
-                        .select("count")
-                        .execute(new IsMoreThan(3))
-                        .build())
-                .build();
-
-
-        View view = new View.Builder()
-                .edge("data", viewElementDefinition)
-                .build();
-
-        getRelatedEdges.setView(view);
-```
+${GET_SNIPPET}
 
 In the dataTypes file we specify validation conditions. You’ll see that we’ve specified there that the `”count”` property’s value must be >= 0:
 

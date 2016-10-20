@@ -41,42 +41,28 @@ public class GetRelatedElementsExample extends OperationExample {
     }
 
     public CloseableIterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
-        final String opJava = "new GetRelatedElements.Builder<EntitySeed, Element>()\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .build();";
-        return runExample(new GetRelatedElements.Builder<EntitySeed, Element>()
+        // ---------------------------------------------------------
+        final GetRelatedElements<EntitySeed, Element> operation = new GetRelatedElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed(2))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2() {
-        final String opJava = "new GetRelatedElements.Builder<EdgeSeed, Element>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .build();";
-        return runExample(new GetRelatedElements.Builder<EdgeSeed, Element>()
+        // ---------------------------------------------------------
+        final GetRelatedElements<EdgeSeed, Element> operation = new GetRelatedElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed(1, 2, true))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1() {
-        final String opJava = "new GetRelatedElements.Builder<EdgeSeed, Element>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetRelatedElements.Builder<EdgeSeed, Element>()
+        // ---------------------------------------------------------
+        final GetRelatedElements<EdgeSeed, Element> operation = new GetRelatedElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
@@ -92,6 +78,9 @@ public class GetRelatedElementsExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }
