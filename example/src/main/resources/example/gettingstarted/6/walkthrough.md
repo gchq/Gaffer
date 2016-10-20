@@ -12,42 +12,18 @@ ${DATA}
 Operation chains are simply a list of operations in which the operations are executed sequentially, using the output from the first operation as the input to the next operation.
 This allows us to simplifying the addition of elements from the data file. It can now be done as follows:
 
-```java
-final OperationChain addOpChain = new OperationChain.Builder()
-    .first(new GenerateElements.Builder<String>()
-            .generator(dataGenerator)
-            .objects(data)
-            .build())
-    .then(new AddElements())
-    .build();
-```
+${ADD_SNIPPET}
 
 This chain consists of 2 operations.
 The first, GenerateElements, which takes the data and a data generator and generates the Gaffer edges.
 The second, AddElements, simply takes the generated elements and adds them to the graph.
+This operation chain can then be executed on the graph as before.
 
-This is executed on the graph as before using:
-
-```java
-graph.execute(addOpChain, user);
-```
 
 Another example of using an operation chain is when we are traversing the graph.
-```java
-final OperationChain<Iterable<String>> opChain =
-    new OperationChain.Builder()
-            .first(new GetAdjacentEntitySeeds.Builder()
-                    .addSeed(new EntitySeed("1"))
-                    .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                    .build())
-            .then(new GetRelatedEdges.Builder<EntitySeed>()
-                    .inOutType(IncludeIncomingOutgoingType.OUTGOING)
-                    .build())
-            .then(new GenerateObjects.Builder<Edge, String>()
-                    .generator(dataGenerator)
-                    .build())
-            .build();
-```
+
+${GET_SNIPPET}
+
 This operation chain takes starts with a seed (vertex) traverses down all outgoing edges using the ${GET_ADJACENT_ENTITY_SEEDS_JAVADOC} operation and then returns all the following connected edges using the ${GET_RELATED_EDGES_JAVADOC} operation. Before returning the results the edges are converted back into the original csv data format using the ${GENERATE_OBJECTS_JAVADOC} operation.
 In order to convert the edges back into the initial csv format we have implemented the getObjects method in ${ELEMENT_GENERATOR_JAVADOC}. The generator adds the count property as a third variable in the csv output.
 

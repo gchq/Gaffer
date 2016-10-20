@@ -39,7 +39,7 @@ import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
 import gaffer.user.User;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
@@ -71,23 +71,28 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a <code>DataFrame</code>. Spark's Java API
  * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link
  * org.apache.spark.sql.Dataset} of {@link Row}s. As a <code>DataFrame</code> is required to have a known schema, an
- * <code>AccumuloStoreRelation</code> requires a group to be specified. The schema for that group is used to create
- * the schema for the <code>DataFrame</code>.
+ * <code>AccumuloStoreRelation</code> requires one or more groups to be specified. The schema for those groups is used
+ * to create the schema for the <code>DataFrame</code>.
+ * <p>
+ * If two of the specified groups have properties with the same name, then the types of those properties must be
+ * the same.
  * <p>
  * <code>AccumuloStoreRelation</code> implements the {@link TableScan} interface which allows all {@link Element}s to
- * of the specified group to be returned to the <code>DataFrame</code>.
+ * of the specified groups to be returned to the <code>DataFrame</code>.
  * <p>
  * <code>AccumuloStoreRelation</code> implements the {@link PrunedScan} interface which allows all {@link Element}s
- * of the specified group to be returned to the <code>DataFrame</code> but with only the specified columns returned.
+ * of the specified groups to be returned to the <code>DataFrame</code> but with only the specified columns returned.
  * Currently, {@link AccumuloStore} does not allow projection of properties in the tablet server, so this projection
  * is performed within the Spark executors, rather than in Accumulo's tablet servers. Once {@link AccumuloStore}
  * supports this projection in the tablet servers, then this will become more efficient.
@@ -108,24 +113,26 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         ENTITY, EDGE
     }
 
+    public static final String GROUP = "group";
     public static final String VERTEX_COL_NAME = "vertex";
     public static final String SRC_COL_NAME = "src";
     public static final String DST_COL_NAME = "dst";
 
-    private SQLContext sqlContext;
-    private String group;
-    private AccumuloStore store;
-    private User user;
+    private final SQLContext sqlContext;
+    private final LinkedHashSet<String> groups;
+    private final AccumuloStore store;
+    private final User user;
+    private final Map<String, EntityOrEdge> entityOrEdgeByGroup = new HashMap<>();
+    private final LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
+    private final Map<String, StructType> structTypeByGroup = new HashMap<>();
     private StructType structType;
-    private EntityOrEdge entityOrEdge;
-    private LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
 
     public AccumuloStoreRelation(final SQLContext sqlContext,
-                                 final String group,
+                                 final LinkedHashSet<String> groups,
                                  final AccumuloStore store,
                                  final User user) {
         this.sqlContext = sqlContext;
-        this.group = group;
+        this.groups = groups;
         this.store = store;
         this.user = user;
         buildSchema();
@@ -149,15 +156,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     @Override
     public RDD<Row> buildScan() {
         try {
-            LOGGER.info("Building GetRDDOfAllElements with view set to group {}", group);
+            LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
-            View view;
-            if (entityOrEdge.equals(EntityOrEdge.ENTITY)) {
-                view = new View.Builder().entity(group).build();
-            } else {
-                view = new View.Builder().edge(group).build();
-            }
-            operation.setView(view);
+            operation.setView(getView());
             final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(usedProperties), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
@@ -179,16 +180,10 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     @Override
     public RDD<Row> buildScan(final String[] requiredColumns) {
         try {
-            LOGGER.info("Building scan with required columns: {}", ArrayUtils.toString(requiredColumns));
-            LOGGER.info("Building GetRDDOfAllElements with view set to group {}", group);
+            LOGGER.info("Building scan with required columns: {}", StringUtils.join(requiredColumns, ','));
+            LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
-            View view;
-            if (entityOrEdge.equals(EntityOrEdge.ENTITY)) {
-                view = new View.Builder().entity(group).build();
-            } else {
-                view = new View.Builder().edge(group).build();
-            }
-            operation.setView(view);
+            operation.setView(getView());
             final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns))), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
@@ -213,8 +208,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      */
     @Override
     public RDD<Row> buildScan(final String[] requiredColumns, final Filter[] filters) {
-        LOGGER.info("Building scan with required columns {} and {} filters ({})", ArrayUtils.toString(requiredColumns),
-                filters.length, ArrayUtils.toString(filters));
+        LOGGER.info("Building scan with required columns {} and {} filters ({})", StringUtils.join(requiredColumns, ','),
+                filters.length, StringUtils.join(filters, ','));
         // If any of the filters can be translated into Accumulo queries (i.e. specifying ranges rather than a full
         // table scan) then do this.
         AbstractGetRDD<?> operation = null;
@@ -240,13 +235,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         }
         final ViewElementDefinition ved = new ViewElementDefinition();
         ved.addPreAggregationElementFilterFunctions(filterList);
-        View view;
-        if (entityOrEdge.equals(EntityOrEdge.ENTITY)) {
-            view = new View.Builder().entity(group, ved).build();
-        } else {
-            view = new View.Builder().edge(group, ved).build();
-        }
-        operation.setView(view);
+        operation.setView(getView());
         // Create RDD
         try {
             final RDD<Element> rdd = store.execute(operation, user);
@@ -327,57 +316,105 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final List<ConsumerFunctionContext<String, FilterFunction>> right = getFunctionsFromFilter(and.right());
             functions.addAll(left);
             functions.addAll(right);
-            LOGGER.debug("Converted {} to 2 filters ({}, {})", filter, ArrayUtils.toString(left), ArrayUtils.toString(right));
+            LOGGER.debug("Converted {} to 2 filters ({} and {})", filter, StringUtils.join(left, ','), StringUtils.join(right, ','));
         }
         return functions;
     }
 
     private void buildSchema() {
-        LOGGER.info("Building Spark SQL schema for group {}", group);
-        final SchemaElementDefinition elementDefn = store.getSchema().getElement(group);
-        final List<StructField> structFieldList = new ArrayList<>();
-        if (elementDefn instanceof SchemaEntityDefinition) {
-            entityOrEdge = EntityOrEdge.ENTITY;
-            final SchemaEntityDefinition entityDefinition = (SchemaEntityDefinition) elementDefn;
-            final String vertexClass = store.getSchema().getType(entityDefinition.getVertex()).getClassString();
-            final DataType vertexType = getType(vertexClass);
-            if (vertexType == null) {
-                throw new RuntimeException("Vertex must be a recognised type: found " + vertexClass);
-            }
-            LOGGER.info("Group {} is an entity group - {} is of type {}", group, VERTEX_COL_NAME, vertexType);
-            structFieldList.add(new StructField(VERTEX_COL_NAME, vertexType, false, Metadata.empty()));
-            usedProperties.add(VERTEX_COL_NAME);
-        } else {
-            entityOrEdge = EntityOrEdge.EDGE;
-            final SchemaEdgeDefinition edgeDefinition = (SchemaEdgeDefinition) elementDefn;
-            final String srcClass = store.getSchema().getType(edgeDefinition.getSource()).getClassString();
-            final String dstClass = store.getSchema().getType(edgeDefinition.getDestination()).getClassString();
-            final DataType srcType = getType(srcClass);
-            final DataType dstType = getType(dstClass);
-            if (srcType == null || dstType == null) {
-                throw new RuntimeException("Both source and destination must be recognised types: source was "
-                        + srcClass + " destination was " + dstClass);
-            }
-            LOGGER.info("Group {} is an edge group - {} is of type {}, {} is of type {}", group, SRC_COL_NAME, srcType,
-                    DST_COL_NAME, dstType);
-            structFieldList.add(new StructField(SRC_COL_NAME, srcType, false, Metadata.empty()));
-            structFieldList.add(new StructField(DST_COL_NAME, dstType, false, Metadata.empty()));
-            usedProperties.add(SRC_COL_NAME);
-            usedProperties.add(DST_COL_NAME);
-        }
-        final Set<String> properties = elementDefn.getProperties();
-        for (final String property : properties) {
-            final String propertyClass = elementDefn.getPropertyClass(property).getCanonicalName();
-            final DataType propertyType = getType(propertyClass);
-            if (propertyType == null) {
-                LOGGER.warn("Ignoring property {} as not a recognised type", property);
+        LOGGER.info("Building Spark SQL schema for groups {}", StringUtils.join(groups, ','));
+        for (final String group : groups) {
+            final SchemaElementDefinition elementDefn = store.getSchema().getElement(group);
+            final List<StructField> structFieldList = new ArrayList<>();
+            if (elementDefn instanceof SchemaEntityDefinition) {
+                entityOrEdgeByGroup.put(group, EntityOrEdge.ENTITY);
+                final SchemaEntityDefinition entityDefinition = (SchemaEntityDefinition) elementDefn;
+                final String vertexClass = store.getSchema().getType(entityDefinition.getVertex()).getClassString();
+                final DataType vertexType = getType(vertexClass);
+                if (vertexType == null) {
+                    throw new RuntimeException("Vertex must be a recognised type: found " + vertexClass);
+                }
+                LOGGER.info("Group {} is an entity group - {} is of type {}", group, VERTEX_COL_NAME, vertexType);
+                structFieldList.add(new StructField(VERTEX_COL_NAME, vertexType, true, Metadata.empty()));
             } else {
-                LOGGER.info("Property {} is of type {}", property, propertyType);
-                structFieldList.add(new StructField(property, propertyType, false, Metadata.empty()));
-                usedProperties.add(property);
+                entityOrEdgeByGroup.put(group, EntityOrEdge.EDGE);
+                final SchemaEdgeDefinition edgeDefinition = (SchemaEdgeDefinition) elementDefn;
+                final String srcClass = store.getSchema().getType(edgeDefinition.getSource()).getClassString();
+                final String dstClass = store.getSchema().getType(edgeDefinition.getDestination()).getClassString();
+                final DataType srcType = getType(srcClass);
+                final DataType dstType = getType(dstClass);
+                if (srcType == null || dstType == null) {
+                    throw new RuntimeException("Both source and destination must be recognised types: source was "
+                            + srcClass + " destination was " + dstClass);
+                }
+                LOGGER.info("Group {} is an edge group - {} is of type {}, {} is of type {}", group, SRC_COL_NAME, srcType,
+                        DST_COL_NAME, dstType);
+                structFieldList.add(new StructField(SRC_COL_NAME, srcType, true, Metadata.empty()));
+                structFieldList.add(new StructField(DST_COL_NAME, dstType, true, Metadata.empty()));
+            }
+            final Set<String> properties = elementDefn.getProperties();
+            for (final String property : properties) {
+                final String propertyClass = elementDefn.getPropertyClass(property).getCanonicalName();
+                final DataType propertyType = getType(propertyClass);
+                if (propertyType == null) {
+                    LOGGER.warn("Ignoring property {} as it is not a recognised type", property);
+                } else {
+                    LOGGER.info("Property {} is of type {}", property, propertyType);
+                    structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
+                }
+            }
+            structTypeByGroup.put(group, new StructType(structFieldList.toArray(new StructField[structFieldList.size()])));
+        }
+        // Create reverse map of field name to StructField
+        final Map<String, Set<StructField>> fieldToStructs = new HashMap<>();
+        for (final String group : groups) {
+            final StructType groupSchema = structTypeByGroup.get(group);
+            for (final String field : groupSchema.fieldNames()) {
+                if (fieldToStructs.get(field) == null) {
+                    fieldToStructs.put(field, new HashSet<StructField>());
+                }
+                fieldToStructs.get(field).add(groupSchema.apply(field));
             }
         }
-        structType = new StructType(structFieldList.toArray(new StructField[structFieldList.size()]));
+        // Check consistency, i.e. if the same field appears in multiple groups then the types are consistent
+        for (final Map.Entry<String, Set<StructField>> entry : fieldToStructs.entrySet()) {
+            final Set<StructField> schemas = entry.getValue();
+            if (schemas.size() > 1) {
+                throw new IllegalArgumentException("Inconsistent fields: the field "
+                        + entry.getKey()
+                        + " has more than one definition: "
+                        + StringUtils.join(schemas, ','));
+            }
+        }
+        // Merge schemas for groups together - fields should appear in the order the groups were provided
+        final LinkedHashSet<StructField> fields = new LinkedHashSet<>();
+        fields.add(new StructField(GROUP, DataTypes.StringType, false, Metadata.empty()));
+        usedProperties.add(GROUP);
+        for (final String group : groups) {
+            final StructType groupSchema = structTypeByGroup.get(group);
+            for (final String field : groupSchema.fieldNames()) {
+                final StructField struct = groupSchema.apply(field);
+                // Add struct to fields unless it has already been added
+                if (!fields.contains(struct)) {
+                    fields.add(struct);
+                    usedProperties.add(field);
+                }
+            }
+        }
+        structType = new StructType(fields.toArray(new StructField[fields.size()]));
+        LOGGER.info("Schema is {}", structType);
+    }
+
+    private View getView() {
+        View.Builder viewBuilder = new View.Builder();
+        for (final String group : groups) {
+            if (entityOrEdgeByGroup.get(group).equals(EntityOrEdge.ENTITY)) {
+                viewBuilder = viewBuilder.entity(group);
+            } else {
+                viewBuilder = viewBuilder.edge(group);
+            }
+        }
+        return viewBuilder.build();
     }
 
     /**
@@ -392,6 +429,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
+                case GROUP:
+                    fields.appendElem(entity.getGroup());
+                    break;
                 case VERTEX_COL_NAME:
                     fields.appendElem(entity.getVertex());
                     break;
@@ -414,6 +454,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
+                case GROUP:
+                    fields.appendElem(edge.getGroup());
+                    break;
                 case SRC_COL_NAME:
                     fields.appendElem(edge.getSource());
                     break;

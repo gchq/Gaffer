@@ -39,30 +39,19 @@ public class GetEntitiesBySeedExample extends OperationExample {
     }
 
     public CloseableIterable<Entity> getEntitiesByEntitySeed1And2() {
-        final String opJava = "new GetEntitiesBySeed.Builder()\n"
-                + "                .addSeed(new EntitySeed(1))\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .build();";
-        return runExample(new GetEntitiesBySeed.Builder()
+        // ---------------------------------------------------------
+        final GetEntitiesBySeed operation = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1() {
-        final String opJava = "new GetEntitiesBySeed.Builder()\n"
-                + "                .addSeed(new EntitySeed(1))\n"
-                + "                .addSeed(new EntitySeed(2))\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetEntitiesBySeed.Builder()
+        // ---------------------------------------------------------
+        final GetEntitiesBySeed operation = new GetEntitiesBySeed.Builder()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .view(new View.Builder()
@@ -73,6 +62,9 @@ public class GetEntitiesBySeedExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

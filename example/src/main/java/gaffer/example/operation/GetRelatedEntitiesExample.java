@@ -39,27 +39,18 @@ public class GetRelatedEntitiesExample extends OperationExample {
     }
 
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2() {
-        final String opJava = "new GetRelatedEntities.Builder<EdgeSeed>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .build()";
-        return runExample(new GetRelatedEntities.Builder<EdgeSeed>()
+        // ---------------------------------------------------------
+        final GetRelatedEntities<EdgeSeed> operation = new GetRelatedEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1() {
-        final String opJava = "new GetRelatedEntities.Builder<EdgeSeed>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .view(new View.Builder()\n"
-                + "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n"
-                + "                                .filter(new ElementFilter.Builder()\n"
-                + "                                        .select(\"count\")\n"
-                + "                                        .execute(new IsMoreThan(1))\n"
-                + "                                        .build())\n"
-                + "                                .build())\n"
-                + "                        .build())\n"
-                + "                .build();";
-        return runExample(new GetRelatedEntities.Builder<EdgeSeed>()
+        // ---------------------------------------------------------
+        final GetRelatedEntities<EdgeSeed> operation = new GetRelatedEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
@@ -69,6 +60,9 @@ public class GetRelatedEntitiesExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }
