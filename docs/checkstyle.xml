@@ -97,7 +97,11 @@
         <module name="InterfaceIsType"/>
 
         <module name="ArrayTypeStyle"/>
-        <module name="FinalParameters"/>
+        <module name="FinalParameters">
+            <property name="tokens" value="FOR_EACH_CLAUSE"/>
+            <property name="tokens" value="CTOR_DEF"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
         <module name="UpperEll"/>
 
     </module>
