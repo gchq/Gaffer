@@ -40,7 +40,7 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
         if (functions == null) {
             return;
         }
-        for (ConsumerProducerFunctionContext<R, TransformFunction> functionContext : functions) {
+        for (final ConsumerProducerFunctionContext<R, TransformFunction> functionContext : functions) {
             TransformFunction function = functionContext.getFunction();
             Object[] selection = functionContext.select(tuple);
             Object[] result = function.transform(selection);
@@ -74,7 +74,7 @@ public class Transformer<R> extends Processor<R, ConsumerProducerFunctionContext
     protected List<ConsumerProducerFunctionContext<R, TransformFunction>> cloneFunctions() {
         final List<ConsumerProducerFunctionContext<R, TransformFunction>> functionClones = new ArrayList<>();
 
-        for (ConsumerProducerFunctionContext<R, TransformFunction> function : functions) {
+        for (final ConsumerProducerFunctionContext<R, TransformFunction> function : functions) {
             ConsumerProducerFunctionContext<R, TransformFunction> cloneContext = new ConsumerProducerFunctionContext<>();
             cloneContext.setSelection(function.getSelection());
             cloneContext.setProjection(function.getProjection());

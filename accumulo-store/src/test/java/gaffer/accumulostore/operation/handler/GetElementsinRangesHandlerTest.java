@@ -218,7 +218,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
         count = 0;
-        for (Element elm : elements) {
+        for (final Element elm : elements) {
             //Make sure every element has been summarised
             assertEquals(9, elm.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             count++;

@@ -54,7 +54,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
         if (null == input || input.getClass() != String.class) {
             return false;
         }
-        for (Pattern pattern : patterns) {
+        for (final Pattern pattern : patterns) {
             if (pattern.matcher(input).matches()) {
                 return true;
             }

@@ -90,7 +90,7 @@ public class TableUtilsTest {
 
 
         final Map<String, String> tableProps = new HashMap<>();
-        for (Entry<String, String> entry : store.getConnection().tableOperations().getProperties(TABLE_NAME)) {
+        for (final Entry<String, String> entry : store.getConnection().tableOperations().getProperties(TABLE_NAME)) {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 

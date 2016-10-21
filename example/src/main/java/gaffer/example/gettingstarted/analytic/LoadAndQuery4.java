@@ -54,7 +54,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator4 dataGenerator = new DataGenerator4();
-        for (String s : DataUtils.loadData(getData())) {
+        for (final String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
         // ---------------------------------------------------------
@@ -91,7 +91,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
-        for (Element e : results) {
+        for (final Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
@@ -124,7 +124,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         final CloseableIterable<Edge> transientResults = graph.execute(getRelatedEdgesWithMean, user);
         // ---------------------------------------------------------
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
-        for (Element e : transientResults) {
+        for (final Element e : transientResults) {
             log("GET_RELATED_ELEMENTS_WITH_MEAN_RESULT", e.toString());
         }
 

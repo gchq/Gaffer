@@ -102,13 +102,13 @@ public class GetElementsIT extends AbstractStoreIT {
 
     @Test
     public void shouldGetElements() throws Exception {
-        for (boolean includeEntities : Arrays.asList(true, false)) {
-            for (IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
+        for (final boolean includeEntities : Arrays.asList(true, false)) {
+            for (final IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
                 if (!includeEntities && IncludeEdgeType.NONE == includeEdgeType) {
                     // Cannot query for nothing!
                     continue;
                 }
-                for (IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
+                for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
                     try {
                         shouldGetElementsBySeed(includeEntities, includeEdgeType, inOutType);
                     } catch (AssertionError e) {
@@ -248,7 +248,7 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
-        for (Element result : results) {
+        for (final Element result : results) {
             final ElementSeed seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;
@@ -280,7 +280,7 @@ public class GetElementsIT extends AbstractStoreIT {
 
     private static List<Element> getElements(final List<ElementSeed> seeds) {
         final List<Element> elements = new ArrayList<>(seeds.size());
-        for (ElementSeed seed : seeds) {
+        for (final ElementSeed seed : seeds) {
             if (seed instanceof EntitySeed) {
                 final Entity entity = new Entity(TestGroups.ENTITY, ((EntitySeed) seed).getVertex());
                 entity.putProperty("stringProperty", "3");
@@ -320,16 +320,16 @@ public class GetElementsIT extends AbstractStoreIT {
 
     private static List<Object> getAllSeededVertices() {
         List<Object> allSeededVertices = new ArrayList<>();
-        for (ElementSeed elementSeed : ENTITY_SEEDS_EXIST) {
+        for (final ElementSeed elementSeed : ENTITY_SEEDS_EXIST) {
             allSeededVertices.add(((EntitySeed) elementSeed).getVertex());
         }
 
-        for (ElementSeed elementSeed : EDGE_SEEDS_EXIST) {
+        for (final ElementSeed elementSeed : EDGE_SEEDS_EXIST) {
             allSeededVertices.add(((EdgeSeed) elementSeed).getSource());
             allSeededVertices.add(((EdgeSeed) elementSeed).getDestination());
         }
 
-        for (ElementSeed elementSeed : EDGE_DIR_SEEDS_EXIST) {
+        for (final ElementSeed elementSeed : EDGE_DIR_SEEDS_EXIST) {
             allSeededVertices.add(((EdgeSeed) elementSeed).getSource());
             allSeededVertices.add(((EdgeSeed) elementSeed).getDestination());
         }

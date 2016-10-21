@@ -36,7 +36,7 @@ public class FreqMapAggregator extends SimpleAggregateFunction<FreqMap> {
             if (null == frequencyMap) {
                 frequencyMap = new FreqMap(input);
             } else {
-                for (Entry<String, Long> entry : input.entrySet()) {
+                for (final Entry<String, Long> entry : input.entrySet()) {
                     if (frequencyMap.containsKey(entry.getKey())) {
                         frequencyMap.put(entry.getKey(), frequencyMap.get(entry.getKey()) + entry.getValue());
                     } else {

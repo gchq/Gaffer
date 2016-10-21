@@ -57,7 +57,7 @@ public class JSONSerialiser {
     public JSONSerialiser(final JsonSerializer... customTypeSerialisers) {
         this();
         final SimpleModule module = new SimpleModule("custom", new Version(1, 0, 0, null, null, null));
-        for (JsonSerializer customTypeSerialiser : customTypeSerialisers) {
+        for (final JsonSerializer customTypeSerialiser : customTypeSerialisers) {
             module.addSerializer(customTypeSerialiser);
         }
         mapper.registerModule(module);

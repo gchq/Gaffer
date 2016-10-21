@@ -31,7 +31,7 @@ public abstract class AggregateFunctionTest extends ConsumerProducerFunctionTest
         final Object[] state = function.state();
 
         // Then
-        for (Object item : state) {
+        for (final Object item : state) {
             assertNull(item);
         }
     }
@@ -50,7 +50,7 @@ public abstract class AggregateFunctionTest extends ConsumerProducerFunctionTest
         final Object[] state = function.state();
 
         // Then
-        for (Object item : state) {
+        for (final Object item : state) {
             assertNull(item);
         }
     }

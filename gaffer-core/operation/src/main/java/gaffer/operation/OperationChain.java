@@ -83,7 +83,7 @@ public class OperationChain<OUT> {
 
         if (null != operations) {
             boolean first = true;
-            for (Operation op : operations) {
+            for (final Operation op : operations) {
                 if (first) {
                     first = false;
                 } else {

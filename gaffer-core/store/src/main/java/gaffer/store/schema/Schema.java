@@ -99,7 +99,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * @throws SchemaException if validation fails then a SchemaException is thrown.
      */
     public boolean validate() throws SchemaException {
-        for (String edgeGroup : getEdgeGroups()) {
+        for (final String edgeGroup : getEdgeGroups()) {
             if (null != getEntity(edgeGroup)) {
                 LOGGER.warn("Groups must not be shared between Entity definitions and Edge definitions."
                         + "Found edgeGroup '" + edgeGroup + "' in the collection of entities");
@@ -107,7 +107,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        for (Map.Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
+        for (final Map.Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
@@ -118,7 +118,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        for (Map.Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
+        for (final Map.Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
@@ -200,7 +200,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     @Override
     public void setEdges(final Map<String, SchemaEdgeDefinition> edges) {
         super.setEdges(edges);
-        for (SchemaElementDefinition def : edges.values()) {
+        for (final SchemaElementDefinition def : edges.values()) {
             def.setTypesLookup(types);
         }
     }
@@ -208,7 +208,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     @Override
     public void setEntities(final Map<String, SchemaEntityDefinition> entities) {
         super.setEntities(entities);
-        for (SchemaElementDefinition def : entities.values()) {
+        for (final SchemaElementDefinition def : entities.values()) {
             def.setTypesLookup(types);
         }
     }

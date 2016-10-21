@@ -24,7 +24,7 @@ public class IdentifierTypeTest {
 
     @Test
     public void shouldGetPropertyNameAndShouldBeLowerCaseOfName() {
-        for (IdentifierType idType : IdentifierType.values()) {
+        for (final IdentifierType idType : IdentifierType.values()) {
             assertEquals(idType.name().toLowerCase(), idType.getPropertyName());
         }
     }

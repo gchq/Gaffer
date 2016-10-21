@@ -121,7 +121,7 @@ public abstract class WalkthroughStrSubstitutor {
             throw new RuntimeException(e);
         }
 
-        for (Entry<String, StringBuilder> log : example.getLogCache().entrySet()) {
+        for (final Entry<String, StringBuilder> log : example.getLogCache().entrySet()) {
             params.put(log.getKey(), log.getValue().toString() + "\n");
         }
 

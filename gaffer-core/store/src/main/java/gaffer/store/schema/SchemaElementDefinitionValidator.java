@@ -63,7 +63,7 @@ public class SchemaElementDefinitionValidator {
     }
 
     protected boolean validateComponentTypes(final SchemaElementDefinition elementDef) {
-        for (IdentifierType idType : elementDef.getIdentifiers()) {
+        for (final IdentifierType idType : elementDef.getIdentifiers()) {
             try {
                 if (null == elementDef.getIdentifierClass(idType)) {
                     LOGGER.error("Class for " + idType + " could not be found.");
@@ -75,7 +75,7 @@ public class SchemaElementDefinitionValidator {
             }
         }
 
-        for (String propertyName : elementDef.getProperties()) {
+        for (final String propertyName : elementDef.getProperties()) {
             try {
                 if (null == elementDef.getPropertyClass(propertyName)) {
                     LOGGER.error("Class for " + propertyName + " could not be found.");
@@ -101,7 +101,7 @@ public class SchemaElementDefinitionValidator {
             final Processor<ElementComponentKey, ? extends ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction>> processor,
             final SchemaElementDefinition elementDef) {
         if (null != processor && null != processor.getFunctions()) {
-            for (ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> context : processor.getFunctions()) {
+            for (final ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> context : processor.getFunctions()) {
                 if (null == context.getFunction()) {
                     LOGGER.error(processor.getClass().getSimpleName() + " contains a function context with a null function.");
                     return false;
@@ -138,7 +138,7 @@ public class SchemaElementDefinitionValidator {
         }
 
         int i = 0;
-        for (ElementComponentKey key : context.getSelection()) {
+        for (final ElementComponentKey key : context.getSelection()) {
             final Class<?> clazz = elementDef.getClass(key);
             if (null == clazz) {
                 final String typeName;
@@ -188,7 +188,7 @@ public class SchemaElementDefinitionValidator {
         }
 
         int i = 0;
-        for (ElementComponentKey key : consumerProducerContext.getProjection()) {
+        for (final ElementComponentKey key : consumerProducerContext.getProjection()) {
             final Class<?> clazz = elementDef.getClass(key);
             if (null == clazz || !outputTypes[i].isAssignableFrom(clazz)) {
                 LOGGER.error("Function " + function.getClass().getName()
@@ -212,10 +212,10 @@ public class SchemaElementDefinitionValidator {
         // if aggregate functions are defined then check all properties are aggregated
         final Set<String> aggregatedProperties = new HashSet<>();
         if (aggregator.getFunctions() != null) {
-            for (PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context : aggregator.getFunctions()) {
+            for (final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context : aggregator.getFunctions()) {
                 List<ElementComponentKey> selection = context.getSelection();
                 if (selection != null) {
-                    for (ElementComponentKey key : selection) {
+                    for (final ElementComponentKey key : selection) {
                         if (!key.isId()) {
                             aggregatedProperties.add(key.getPropertyName());
                         }

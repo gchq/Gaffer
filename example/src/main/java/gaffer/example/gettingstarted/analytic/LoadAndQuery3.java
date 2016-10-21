@@ -54,7 +54,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator3 dataGenerator = new DataGenerator3();
-        for (String s : DataUtils.loadData(getData())) {
+        for (final String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
         // ---------------------------------------------------------
@@ -92,7 +92,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
                 .build();
         final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
-        for (Element e : results) {
+        for (final Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
@@ -114,7 +114,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final CloseableIterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1 with an aggregated count more than than 3\n");
-        for (Element e : filteredResults) {
+        for (final Element e : filteredResults) {
             log("GET_RELATED_ELEMENTS_WITH_COUNT_MORE_THAN_3_RESULT", e.toString());
         }
 

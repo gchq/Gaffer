@@ -247,8 +247,8 @@ public abstract class Store {
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
         schemaElements.putAll(getSchema().getEdges());
         schemaElements.putAll(getSchema().getEntities());
-        for (Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-            for (String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
+        for (final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+            for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                 Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
                 if (null == serialisation) {
@@ -271,7 +271,7 @@ public abstract class Store {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
 
-        for (Operation<?, ?> op : operationChain.getOperations()) {
+        for (final Operation<?, ?> op : operationChain.getOperations()) {
             if (!viewValidator.validate(op.getView(), schema, hasTrait(StoreTrait.ORDERED))) {
                 throw new SchemaException("View for operation "
                         + op.getClass().getName()

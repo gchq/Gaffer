@@ -78,7 +78,7 @@ public class GraphFactory {
 
         final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storePropertiesPath);
-        for (Path path : getSchemaPaths()) {
+        for (final Path path : getSchemaPaths()) {
             builder.addSchema(path);
         }
 

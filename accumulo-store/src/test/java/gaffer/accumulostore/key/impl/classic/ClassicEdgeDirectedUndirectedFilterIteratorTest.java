@@ -72,7 +72,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertTrue("Failed for edge: " + edge.toString(), filter.accept(keys.getFirst(), value));
@@ -96,7 +96,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), edge.isDirected(), filter.accept(keys.getFirst(), value));
@@ -120,7 +120,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), !edge.isDirected(), filter.accept(keys.getFirst(), value));
@@ -143,7 +143,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final boolean expectedResult = edge.isDirected();
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
@@ -166,7 +166,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final boolean expectedResult = !edge.isDirected();
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
@@ -190,7 +190,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), false, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -214,7 +214,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Value value = null; // value should not be used
 
         // When / Then
-        for (Edge edge : EDGES) {
+        for (final Edge edge : EDGES) {
             final Pair<Key> keys = converter.getKeysFromEdge(edge);
             final boolean expectedResult = edge.isDirected();
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));

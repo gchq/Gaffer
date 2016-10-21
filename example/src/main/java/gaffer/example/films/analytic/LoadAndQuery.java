@@ -66,7 +66,7 @@ public class LoadAndQuery {
     public static void main(final String[] args) throws OperationException {
         final CloseableIterable<Entity> results = new LoadAndQuery().run();
         final StringBuilder builder = new StringBuilder("Results from query:\n");
-        for (Entity result : results) {
+        for (final Entity result : results) {
             builder.append(result).append("\n");
         }
         results.close();

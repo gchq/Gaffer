@@ -124,7 +124,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
         final Set<String> fields = new HashSet<>();
-        for (BeanPropertyDefinition property : properties) {
+        for (final BeanPropertyDefinition property : properties) {
             fields.add(property.getName());
         }
 
@@ -158,7 +158,7 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
 
     private static Set<Class> getSubClasses(final Class<?> clazz) {
         final Set<URL> urls = new HashSet<>();
-        for (String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT).split(",")) {
+        for (final String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT).split(",")) {
             urls.addAll(ClasspathHelper.forPackage(packagePrefix));
         }
 

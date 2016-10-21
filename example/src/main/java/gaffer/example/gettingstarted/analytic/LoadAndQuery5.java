@@ -49,7 +49,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator5 dataGenerator = new DataGenerator5();
-        for (String s : DataUtils.loadData(getData())) {
+        for (final String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
         // ---------------------------------------------------------
@@ -87,7 +87,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .build();
         final CloseableIterable<Edge> resultsWithBasicUser = graph.execute(getRelatedEdges, basicUser);
         // ---------------------------------------------------------
-        for (Element e : resultsWithBasicUser) {
+        for (final Element e : resultsWithBasicUser) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
         log("We get nothing back");
@@ -107,7 +107,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
 
         final CloseableIterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
         // ---------------------------------------------------------
-        for (Element e : publicResults) {
+        for (final Element e : publicResults) {
             log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
         }
 
@@ -126,7 +126,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
 
         final CloseableIterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         // ---------------------------------------------------------
-        for (Element e : privateResults) {
+        for (final Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
         }
 
