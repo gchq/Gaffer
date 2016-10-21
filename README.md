@@ -32,7 +32,7 @@ Gaffer does
 
 Gaffer is built on Hadoop and Accumulo and is integrated with Spark for fast and flexible data analysis.
 
-To get going with Gaffer, visit our [getting started pages](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
+To get going with Gaffer, visit our [getting started pages](https://github.com/gchq/Gaffer/wiki/Getting-Started).
 
 Gaffer is still under active development and isn't a finished product yet. There are still plenty of new features
 to be added and additional documentation to write. Please contribute.

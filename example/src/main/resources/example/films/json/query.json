@@ -1,7 +1,7 @@
 {
   "operations": [
     {
-      "class": "gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds",
       "view": {
         "edges": {
           "viewing": {}
@@ -9,13 +9,13 @@
       },
       "seeds": [
         {
-          "class": "gaffer.operation.data.EntitySeed",
+          "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
           "vertex": "user02"
         }
       ]
     },
     {
-      "class": "gaffer.operation.impl.get.GetEntitiesBySeed",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed",
       "view": {
         "entities": {
           "review": {
@@ -26,9 +26,9 @@
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "gaffer.function.simple.filter.Not",
+                  "class": "uk.gov.gchq.gaffer.function.simple.filter.Not",
                   "function": {
-                    "class": "gaffer.function.simple.filter.IsEqual",
+                    "class": "uk.gov.gchq.gaffer.function.simple.filter.IsEqual",
                     "value": "user02"
                   }
                 },
@@ -42,7 +42,7 @@
             "transformFunctions": [
               {
                 "function": {
-                  "class": "gaffer.example.films.function.transform.StarRatingTransform"
+                  "class": "uk.gov.gchq.gaffer.example.films.function.transform.StarRatingTransform"
                 },
                 "selection": [
                   {

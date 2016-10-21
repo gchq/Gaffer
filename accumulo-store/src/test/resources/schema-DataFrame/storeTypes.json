@@ -1,39 +1,39 @@
 {
   "types": {
     "colQualProperty": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
+        "class": "uk.gov.gchq.gaffer.accumulostore.test.function.ExampleSum"
       }
     },
     "simpleProperty": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
+        "class": "uk.gov.gchq.gaffer.accumulostore.test.function.ExampleSum"
       }
     },
     "int": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     },
     "float": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     },
     "long": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     },
     "double": {
-      "serialiserClass": "gaffer.serialisation.implementation.JavaSerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     }
   }

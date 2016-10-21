@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.types.simple;
+package uk.gov.gchq.gaffer.types.simple;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

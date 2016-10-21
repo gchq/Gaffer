@@ -26,7 +26,7 @@
             }
           ],
           "function": {
-            "class": "gaffer.function.ExampleTransformFunction"
+            "class": "uk.gov.gchq.gaffer.function.ExampleTransformFunction"
           }
         }
       ],
@@ -39,7 +39,7 @@
             }
           ],
           "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
+            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
           }
         }
       ]

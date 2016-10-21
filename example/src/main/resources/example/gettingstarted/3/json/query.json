@@ -5,7 +5,7 @@
         "preAggregationFilterFunctions": [
           {
             "function": {
-              "class": "gaffer.function.simple.filter.IsMoreThan",
+              "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
               "value": 3
             },
             "selection": [
@@ -20,7 +20,7 @@
   },
   "seeds": [
     {
-      "class": "gaffer.operation.data.EntitySeed",
+      "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
       "vertex": "1"
     }
   ]

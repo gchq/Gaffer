@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>gaffer</groupId>
+        <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
         <version>0.4.6-SNAPSHOT</version>
     </parent>
@@ -36,17 +36,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>gaffer</groupId>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>gaffer</groupId>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>gaffer</groupId>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>

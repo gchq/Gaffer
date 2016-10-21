@@ -1,15 +1,15 @@
 {
   "operations" : [
     {
-      "operation" : "gaffer.operation.impl.generate.GenerateElements",
+      "operation" : "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
       "handler" : {
-        "class": "gaffer.store.operation.handler.generate.GenerateElementsHandler"
+        "class": "uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler"
       }
     },
     {
-      "operation" : "gaffer.operation.impl.generate.GenerateObjects",
+      "operation" : "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
       "handler" : {
-        "class" : "gaffer.store.operation.handler.generate.GenerateObjectsHandler"
+        "class" : "uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler"
       }
     }
   ]

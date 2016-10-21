@@ -8,7 +8,7 @@
         "transformFunctions": [
           {
             "function": {
-              "class": "gaffer.example.gettingstarted.function.transform.MeanTransform"
+              "class": "uk.gov.gchq.gaffer.example.gettingstarted.function.transform.MeanTransform"
             },
             "selection": [
               {
@@ -30,7 +30,7 @@
   },
   "seeds": [
     {
-      "class": "gaffer.operation.data.EntitySeed",
+      "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
       "vertex": "1"
     }
   ]

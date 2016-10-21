@@ -1,18 +1,18 @@
 {
   "operations": [
     {
-      "class": "gaffer.operation.impl.export.initialise.InitialiseSetExport",
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport",
       "timestamp": 1471521078817
     },
     {
-      "class": "gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
       "view": {
         "edges": {
           "data": {
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "gaffer.function.simple.filter.IsMoreThan",
+                  "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
                   "value": 1
                 },
                 "selection": [
@@ -28,33 +28,33 @@
       "includeIncomingOutGoing": "OUTGOING",
       "seeds": [
         {
-          "class": "gaffer.operation.data.EntitySeed",
+          "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
           "vertex": "1"
         }
       ]
     },
     {
-      "class": "gaffer.operation.impl.export.UpdateExport"
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.UpdateExport"
     },
     {
-      "class": "gaffer.operation.impl.generate.GenerateObjects",
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
       "elementGenerator": {
-        "class": "gaffer.operation.data.generator.EntitySeedExtractor",
+        "class": "uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor",
         "elementValidator": {
-          "class": "gaffer.data.IsEdgeValidator"
+          "class": "uk.gov.gchq.gaffer.data.IsEdgeValidator"
         },
         "skipInvalid": true
       }
     },
     {
-      "class": "gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
       "view": {
         "edges": {
           "data": {
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "gaffer.function.simple.filter.IsMoreThan",
+                  "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
                   "value": 1
                 },
                 "selection": [
@@ -70,10 +70,10 @@
       "includeIncomingOutGoing": "OUTGOING"
     },
     {
-      "class": "gaffer.operation.impl.export.UpdateExport"
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.UpdateExport"
     },
     {
-      "class": "gaffer.operation.impl.export.FetchExport"
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.FetchExport"
     }
   ]
 }

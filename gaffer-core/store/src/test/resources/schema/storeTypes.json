@@ -2,17 +2,17 @@
   "types": {
     "prop.string": {
       "aggregateFunction": {
-        "class": "gaffer.function.ExampleAggregateFunction"
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
       }
     },
     "prop.date": {
       "aggregateFunction": {
-        "class": "gaffer.function.ExampleAggregateFunction"
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
       }
     },
     "timestamp": {
       "aggregateFunction": {
-        "class": "gaffer.function.ExampleAggregateFunction"
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
       }
     }
   }

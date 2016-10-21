@@ -5,7 +5,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
           }
         }
       ]
@@ -15,7 +15,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsMoreThan",
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
             "orEqualTo": true,
             "value": 0
           }
@@ -27,7 +27,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsFalse"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsFalse"
           }
         }
       ]
