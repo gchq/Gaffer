@@ -139,5 +139,17 @@ public class JSONSerialiserTest {
         serialiser.deserialise(b, Integer.class);
     }
 
+    @Test
+    public void testSerialiseEmptyString() throws SerialisationException {
+        final SimpleTestObject test = new SimpleTestObject();
+        test.setX("");
+        final byte[] bytes = serialiser.serialise(test);
+        final SimpleTestObject object = serialiser.deserialise(bytes, SimpleTestObject.class);
+
+        System.out.println(object);
+        System.out.println(test);
+
+        assertEquals(test, object);
+    }
 
 }

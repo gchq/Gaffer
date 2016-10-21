@@ -259,9 +259,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
             throws AccumuloElementConversionException {
         final Properties properties = new Properties();
-        if (columnVisibility == null || columnVisibility.length == 0) {
-            return properties;
-        }
+
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
             throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
@@ -272,8 +270,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             if (null != propertyDef) {
                 final Serialisation serialiser = propertyDef.getSerialiser();
                 try {
-                    properties.put(schema.getVisibilityProperty(),
-                            serialiser.deserialise(columnVisibility));
+                    final Object columnVisibilityProperty;
+                    if (columnVisibility == null || columnVisibility.length == 0) {
+                        columnVisibilityProperty = "";
+                    } else {
+                        columnVisibilityProperty = serialiser.deserialise(columnVisibility);
+                    }
+                    properties.put(schema.getVisibilityProperty(), columnVisibilityProperty);
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException(e.getMessage(), e);
                 }
