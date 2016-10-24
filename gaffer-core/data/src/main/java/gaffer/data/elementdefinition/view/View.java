@@ -99,7 +99,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         public Builder edges(final Collection<String> groups) {
-            for (String group : groups) {
+            for (final String group : groups) {
                 edge(group);
             }
 
@@ -116,7 +116,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         public Builder entities(final Collection<String> groups) {
-            for (String group : groups) {
+            for (final String group : groups) {
                 entity(group);
             }
 

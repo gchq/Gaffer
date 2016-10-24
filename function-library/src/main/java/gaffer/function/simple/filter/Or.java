@@ -51,7 +51,7 @@ public class Or extends MultiFilterFunction {
             return true;
         }
 
-        for (Boolean result : executeFilters(input)) {
+        for (final Boolean result : executeFilters(input)) {
             if (result) {
                 return true;
             }

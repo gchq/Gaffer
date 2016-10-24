@@ -51,7 +51,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         protected Element transform(final Element element) {
             final Element cleanElement = element.emptyClone();
             final SchemaElementDefinition elementDefinition = store.getSchema().getElement(element.getGroup());
-            for (String property : elementDefinition.getProperties()) {
+            for (final String property : elementDefinition.getProperties()) {
                 cleanElement.putProperty(property, element.getProperty(property));
             }
 

@@ -132,12 +132,12 @@ public final class TableUtils {
         final String tableName = store.getProperties().getTable();
         Map<String, Set<Text>> localityGroups =
                 new HashMap<>();
-        for (String entityGroup : store.getSchema().getEntityGroups()) {
+        for (final String entityGroup : store.getSchema().getEntityGroups()) {
             HashSet<Text> localityGroup = new HashSet<>();
             localityGroup.add(new Text(entityGroup));
             localityGroups.put(entityGroup, localityGroup);
         }
-        for (String edgeGroup : store.getSchema().getEdgeGroups()) {
+        for (final String edgeGroup : store.getSchema().getEdgeGroups()) {
             HashSet<Text> localityGroup = new HashSet<>();
             localityGroup.add(new Text(edgeGroup));
             localityGroups.put(edgeGroup, localityGroup);

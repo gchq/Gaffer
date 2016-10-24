@@ -50,7 +50,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator2 dataGenerator = new DataGenerator2();
-        for (String s : DataUtils.loadData(getData())) {
+        for (final String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
         // ---------------------------------------------------------
@@ -89,7 +89,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         // ---------------------------------------------------------
         log("\nAll edges containing vertex 1");
         log("\nNotice that the edges are aggregated within their groups");
-        for (Element e : allColoursResults) {
+        for (final Element e : allColoursResults) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
@@ -106,7 +106,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final CloseableIterable<Edge> redResults = graph.execute(getRelatedRedEdges, user);
         // ---------------------------------------------------------
         log("\nAll red edges containing vertex 1\n");
-        for (Element e : redResults) {
+        for (final Element e : redResults) {
             log("GET_RELATED_RED_EDGES_RESULT", e.toString());
         }
 

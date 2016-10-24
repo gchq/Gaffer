@@ -311,12 +311,12 @@ public class GraphTest {
         assertArrayEquals(entityGroups.toArray(), resultView.getEntityGroups().toArray());
         assertArrayEquals(edgeGroups.toArray(), resultView.getEdgeGroups().toArray());
 
-        for (ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
+        for (final ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);
             assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
-        for (ViewElementDefinition resultElementDef : resultView.getEdges().values()) {
+        for (final ViewElementDefinition resultElementDef : resultView.getEdges().values()) {
             assertNotNull(resultElementDef);
             assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());

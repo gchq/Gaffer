@@ -43,7 +43,7 @@ public abstract class ExamplesRunner {
         printTableOfContents(exampleParentClass);
 
         final Set<? extends Class<?>> classes = Sets.newHashSet(getSubClasses(classForExample));
-        for (Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
+        for (final Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
             final Example functionExample = aClass.newInstance();
             classes.remove(functionExample.getClassForExample());
             functionExample.run();
@@ -75,7 +75,7 @@ public abstract class ExamplesRunner {
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
         int index = 1;
-        for (Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
+        for (final Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
             final String opClass = aClass.newInstance().getClassForExample().getSimpleName();
             log(index + ". [" + opClass + "](#" + opClass.toLowerCase(Locale.getDefault()) + "-example)");
             index++;

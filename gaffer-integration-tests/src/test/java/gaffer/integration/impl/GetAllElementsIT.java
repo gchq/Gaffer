@@ -60,8 +60,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
     @Test
     public void shouldGetAllElements() throws Exception {
-        for (boolean includeEntities : Arrays.asList(true, false)) {
-            for (IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
+        for (final boolean includeEntities : Arrays.asList(true, false)) {
+            for (final IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
                 if (!includeEntities && IncludeEdgeType.NONE == includeEdgeType) {
                     // Cannot query for nothing!
                     continue;
@@ -164,7 +164,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(getEntities().size(), resultList.size());
-        for (Element element : resultList) {
+        for (final Element element : resultList) {
             assertEquals(TestGroups.ENTITY, element.getGroup());
         }
     }
@@ -231,7 +231,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
             expectedElements.addAll(getEntities().values());
         }
 
-        for (Edge edge : getEdges().values()) {
+        for (final Edge edge : getEdges().values()) {
             if (IncludeEdgeType.ALL == includeEdgeType
                     || (edge.isDirected() && IncludeEdgeType.DIRECTED == includeEdgeType)
                     || (!edge.isDirected() && IncludeEdgeType.UNDIRECTED == includeEdgeType)) {
@@ -254,7 +254,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
-        for (Element result : results) {
+        for (final Element result : results) {
             final ElementSeed seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;

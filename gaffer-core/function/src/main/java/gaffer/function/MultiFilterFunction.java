@@ -51,7 +51,7 @@ public abstract class MultiFilterFunction extends FilterFunction {
     @Override
     public Class<?>[] getInputClasses() {
         final TreeMap<Integer, Class<?>> inputClassMap = new TreeMap<>();
-        for (ConsumerFunctionContext<Integer, FilterFunction> context : getFunctions()) {
+        for (final ConsumerFunctionContext<Integer, FilterFunction> context : getFunctions()) {
             final Class<?>[] inputClasses = context.getFunction().getInputClasses();
             for (int i = 0; i < inputClasses.length; i++) {
                 final Integer index = context.getSelection().get(i);

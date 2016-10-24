@@ -56,7 +56,7 @@ public class ViewValidator {
 
         if (null != view) {
             if (null != view.getEntities()) {
-                for (Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
+                for (final Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
                     final String group = entry.getKey();
                     final SchemaEntityDefinition schemaElDef = schema.getEntity(group);
                     final ViewElementDefinition viewElDef = entry.getValue();
@@ -65,7 +65,7 @@ public class ViewValidator {
                         LOGGER.error("Entity group " + group + " does not exist in the schema");
                         isValid = false;
                     } else {
-                        for (String transProp : viewElDef.getTransientProperties()) {
+                        for (final String transProp : viewElDef.getTransientProperties()) {
                             if (schemaElDef.containsProperty(transProp)) {
                                 LOGGER.error("Transient property " + transProp + " for entity group " + group + " is not transient as it has been found in the schema");
                                 isValid = false;
@@ -96,7 +96,7 @@ public class ViewValidator {
             }
 
             if (null != view.getEdges()) {
-                for (Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
+                for (final Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
                     final String group = entry.getKey();
                     final SchemaEdgeDefinition schemaElDef = schema.getEdge(group);
                     final ViewElementDefinition viewElDef = entry.getValue();
@@ -105,7 +105,7 @@ public class ViewValidator {
                         LOGGER.error("Edge group " + group + " does not exist in the schema");
                         isValid = false;
                     } else {
-                        for (String transProp : viewElDef.getTransientProperties()) {
+                        for (final String transProp : viewElDef.getTransientProperties()) {
                             if (schemaElDef.containsProperty(transProp)) {
                                 LOGGER.error("Transient property " + transProp + " for edge group " + group + " is not transient as it has been found in the schema");
                                 isValid = false;
@@ -177,7 +177,7 @@ public class ViewValidator {
             final Processor<String, ? extends ConsumerFunctionContext<String, ? extends ConsumerFunction>> processor,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         if (null != processor && null != processor.getFunctions()) {
-            for (ConsumerFunctionContext<String, ? extends ConsumerFunction> context : processor.getFunctions()) {
+            for (final ConsumerFunctionContext<String, ? extends ConsumerFunction> context : processor.getFunctions()) {
                 if (null == context.getFunction()) {
                     LOGGER.error(processor.getClass().getSimpleName() + " contains a function context with a null function.");
                     return false;
@@ -215,7 +215,7 @@ public class ViewValidator {
         }
 
         int i = 0;
-        for (String key : context.getSelection()) {
+        for (final String key : context.getSelection()) {
             final IdentifierType idType = IdentifierType.fromName(key);
             final Class<?> clazz;
             if (null != idType) {
@@ -286,7 +286,7 @@ public class ViewValidator {
         }
 
         int i = 0;
-        for (String key : consumerProducerContext.getProjection()) {
+        for (final String key : consumerProducerContext.getProjection()) {
             final Class<?> clazz;
             final IdentifierType idType = IdentifierType.fromName(key);
             if (null != idType) {

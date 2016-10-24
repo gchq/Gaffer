@@ -230,7 +230,7 @@ public class BloomFilterIT {
     private double calculateCausalLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         int count = 0;
         final long start = System.currentTimeMillis();
-        for (Entity simpleEntity : dataSet) {
+        for (final Entity simpleEntity : dataSet) {
             seek(reader, ElementSeed.createSeed(simpleEntity), rangeFactory);
             assertTrue(reader.hasTop());
             count++;
@@ -252,7 +252,7 @@ public class BloomFilterIT {
 
         final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
         final List<Range> range = rangeFactory.getRange(seed, operation);
-        for (Range ran : range) {
+        for (final Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);
         }
     }

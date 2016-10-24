@@ -39,7 +39,7 @@ public class IntegerFreqMapAggregator extends SimpleAggregateFunction<IntegerFre
             if (null == frequencyMap) {
                 frequencyMap = new IntegerFreqMap(input);
             } else {
-                for (Entry<String, Integer> entry : input.entrySet()) {
+                for (final Entry<String, Integer> entry : input.entrySet()) {
                     if (frequencyMap.containsKey(entry.getKey())) {
                         frequencyMap.put(entry.getKey(), frequencyMap.get(entry.getKey()) + entry.getValue());
                     } else {

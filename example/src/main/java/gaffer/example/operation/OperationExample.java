@@ -66,7 +66,7 @@ public abstract class OperationExample extends Example {
 
         log("Results:");
         log("\n```");
-        for (Object result : results) {
+        for (final Object result : results) {
             log(result.toString());
         }
         log("```");
@@ -92,7 +92,7 @@ public abstract class OperationExample extends Example {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
-            for (Object item : ((Iterable) result)) {
+            for (final Object item : ((Iterable) result)) {
                 log(item.toString());
             }
         } else {

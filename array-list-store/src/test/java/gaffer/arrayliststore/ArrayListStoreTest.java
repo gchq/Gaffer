@@ -89,7 +89,7 @@ public class ArrayListStoreTest {
         if (!results.iterator().hasNext()) {
             fail("No results returned");
         } else {
-            for (SimpleEdgeDataObject obj : results) {
+            for (final SimpleEdgeDataObject obj : results) {
                 LOGGER.info(obj.toString());
             }
 
@@ -147,7 +147,7 @@ public class ArrayListStoreTest {
         if (!results.iterator().hasNext()) {
             fail("No results returned");
         } else {
-            for (SimpleEntityDataObject obj : results) {
+            for (final SimpleEntityDataObject obj : results) {
                 LOGGER.info(obj.toString());
             }
 
@@ -196,7 +196,7 @@ public class ArrayListStoreTest {
         if (!results.iterator().hasNext()) {
             fail("No results returned");
         } else {
-            for (SimpleEntityDataObject obj : results) {
+            for (final SimpleEntityDataObject obj : results) {
                 LOGGER.info(obj.toString());
             }
 
@@ -240,7 +240,7 @@ public class ArrayListStoreTest {
         if (!results.iterator().hasNext()) {
             fail("No results returned");
         } else {
-            for (SimpleEdgeDataObject obj : results) {
+            for (final SimpleEdgeDataObject obj : results) {
                 LOGGER.info(obj.toString());
             }
 
@@ -291,7 +291,7 @@ public class ArrayListStoreTest {
         if (!results.iterator().hasNext()) {
             fail("No results returned");
         } else {
-            for (SimpleEntityDataObject obj : results) {
+            for (final SimpleEntityDataObject obj : results) {
                 LOGGER.info(obj.toString());
             }
 

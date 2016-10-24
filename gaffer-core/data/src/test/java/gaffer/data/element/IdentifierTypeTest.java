@@ -24,7 +24,7 @@ public class IdentifierTypeTest {
 
     @Test
     public void shouldGetIdentifierTypeFromName() {
-        for (IdentifierType idType : IdentifierType.values()) {
+        for (final IdentifierType idType : IdentifierType.values()) {
             assertEquals(idType, IdentifierType.fromName(idType.name()));
         }
     }

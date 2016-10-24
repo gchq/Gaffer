@@ -57,7 +57,7 @@ public class AvroJobInitialiser implements JobInitialiser {
         AvroJob.setInputKeySchema(job, schema);
         job.setInputFormatClass(AvroKeyInputFormat.class);
         List<String> paths = operation.getInputPaths();
-        for (String path : paths) {
+        for (final String path : paths) {
             AvroKeyInputFormat.addInputPath(job, new Path(path));
         }
     }

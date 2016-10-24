@@ -139,7 +139,7 @@ public class ByteArrayEscapeUtilsTest {
         byte[] escaped = ByteArrayEscapeUtils.escape(bytes);
         byte[] unescaped = ByteArrayEscapeUtils.unEscape(escaped);
         assertArrayEquals(bytes, unescaped);
-        for (byte anEscaped : escaped) {
+        for (final byte anEscaped : escaped) {
             assertNotEquals(ByteArrayEscapeUtils.DELIMITER, anEscaped);
         }
     }

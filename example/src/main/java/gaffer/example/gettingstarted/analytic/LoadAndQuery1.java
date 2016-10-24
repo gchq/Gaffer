@@ -49,7 +49,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator1 dataGenerator = new DataGenerator1();
-        for (String s : DataUtils.loadData(getData())) {
+        for (final String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
         // ---------------------------------------------------------
@@ -87,7 +87,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         final CloseableIterable<Edge> results = graph.execute(query, user);
         // ---------------------------------------------------------
         log("All edges containing the vertex 1. The counts have been aggregated.");
-        for (Element e : results) {
+        for (final Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 

@@ -67,7 +67,7 @@ public abstract class Example {
     protected String getMethodNameAsSentence(final int parentMethod) {
         final String[] words = getMethodName(parentMethod + 1).split(CAPITALS_AND_NUMBERS_REGEX);
         final StringBuilder sentence = new StringBuilder();
-        for (String word : words) {
+        for (final String word : words) {
             sentence.append(word.toLowerCase(Locale.getDefault()))
                     .append(" ");
         }

@@ -58,7 +58,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
             safeInitFunctions();
             initialised = true;
         }
-        for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
+        for (final PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             Object[] selection = functionContext.select(tuple);
             if (selection != null && hasNonNullValues(selection)) {
                 functionContext.getFunction().aggregate(selection);
@@ -75,7 +75,7 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         if (functions == null) {
             return;
         }
-        for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
+        for (final PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             functionContext.project(tuple, functionContext.getFunction().state());
         }
     }
@@ -121,14 +121,14 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
     }
 
     private void safeInitFunctions() {
-        for (PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
+        for (final PassThroughFunctionContext<R, AggregateFunction> functionContext : functions) {
             functionContext.getFunction().init();
         }
     }
 
     private boolean hasNonNullValues(final Object[] array) {
         boolean hasNonNull = false;
-        for (Object item : array) {
+        for (final Object item : array) {
             if (null != item) {
                 hasNonNull = true;
                 break;

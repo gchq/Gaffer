@@ -65,7 +65,7 @@ public class SerialisationFactory {
             throw new IllegalArgumentException("Object class for serialising is required");
         }
 
-        for (Serialisation serialiser : SERIALISERS) {
+        for (final Serialisation serialiser : SERIALISERS) {
             if (serialiser.canHandle(objClass) && (!preserveOrder || (serialiser.isByteOrderPreserved()))) {
                 return serialiser;
             }

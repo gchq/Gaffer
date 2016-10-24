@@ -147,14 +147,14 @@ public abstract class AbstractStoreIT {
         final Method testMethod = this.getClass().getMethod(originalMethodName);
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
 
-        for (Annotation annotation : testMethod.getDeclaredAnnotations()) {
+        for (final Annotation annotation : testMethod.getDeclaredAnnotations()) {
             if (annotation.annotationType().equals(gaffer.integration.TraitRequirement.class)) {
                 final gaffer.integration.TraitRequirement traitRequirement = (gaffer.integration.TraitRequirement) annotation;
                 requiredTraits.addAll(Arrays.asList(traitRequirement.value()));
             }
         }
 
-        for (StoreTrait requiredTrait : requiredTraits) {
+        for (final StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
 

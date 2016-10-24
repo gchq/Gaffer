@@ -157,7 +157,7 @@ public abstract class StreamUtil {
 
         int index = 0;
         final InputStream[] schemas = new InputStream[schemaFiles.size()];
-        for (String schemaFile : schemaFiles) {
+        for (final String schemaFile : schemaFiles) {
             schemas[index] = openStream(clazz, schemaFile, logErrors);
             index++;
         }

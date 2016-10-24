@@ -200,7 +200,7 @@ public class AccumuloSingleIDRetrieverTest {
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
-        for (Element element : retriever) {
+        for (final Element element : retriever) {
             Edge edge = (Edge) element;
             assertEquals("B", edge.getDestination());
         }
@@ -234,7 +234,7 @@ public class AccumuloSingleIDRetrieverTest {
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
-        for (Element element : retriever) {
+        for (final Element element : retriever) {
             Edge edge = (Edge) element;
             assertEquals("C", edge.getDestination());
         }
@@ -269,7 +269,7 @@ public class AccumuloSingleIDRetrieverTest {
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
-        for (Element element : retriever) {
+        for (final Element element : retriever) {
             Edge edge = (Edge) element;
             assertEquals("B", edge.getDestination());
         }
@@ -304,7 +304,7 @@ public class AccumuloSingleIDRetrieverTest {
             e.printStackTrace();
         }
         int count = 0;
-        for (Element element : retriever) {
+        for (final Element element : retriever) {
             count++;
             assertEquals(TestGroups.EDGE, element.getGroup());
         }

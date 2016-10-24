@@ -72,7 +72,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return fromJson(clazz, (Object[]) inputStreams);
         } finally {
             if (null != inputStreams) {
-                for (InputStream inputStream : inputStreams) {
+                for (final InputStream inputStream : inputStreams) {
                     IOUtils.closeQuietly(inputStream);
                 }
             }
@@ -85,7 +85,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     private static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final Object[] jsonItems) throws SchemaException {
         T elementDefs = null;
-        for (Object jsonItem : jsonItems) {
+        for (final Object jsonItem : jsonItems) {
             final T elDefsTmp;
             try {
                 if (jsonItem instanceof InputStream) {
@@ -183,7 +183,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     public void merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
-        for (Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
+        for (final Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
             if (!edges.containsKey(entry.getKey())) {
                 addEntity(entry.getKey(), entry.getValue());
             } else {
@@ -191,7 +191,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             }
         }
 
-        for (Entry<String, EDGE_DEF> entry : elementDefs.getEdges().entrySet()) {
+        for (final Entry<String, EDGE_DEF> entry : elementDefs.getEdges().entrySet()) {
             if (!edges.containsKey(entry.getKey())) {
                 addEdge(entry.getKey(), entry.getValue());
             } else {

@@ -98,7 +98,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         // ---------------------------------------------------------
 
         log("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");
-        for (String result : results) {
+        for (final String result : results) {
             log("RESULT", result);
         }
 
