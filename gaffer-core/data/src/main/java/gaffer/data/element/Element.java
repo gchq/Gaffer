@@ -59,9 +59,7 @@ public abstract class Element implements Serializable {
     }
 
     public void putProperty(final String name, final Object value) {
-        if (null != name && null != value) {
             properties.put(name, value);
-        }
     }
 
     public void copyProperties(final Properties properties) {

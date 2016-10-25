@@ -274,9 +274,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 final Serialisation serialiser = propertyDef.getSerialiser();
                 try {
                     if (columnVisibility == null || columnVisibility.length == 0) {
-                        if (serialiser.deserialiseEmptyBytes() != null) {
-                            properties.put(schema.getVisibilityProperty(),
-                                    serialiser.deserialiseEmptyBytes());
+                        final Object value = serialiser.deserialiseEmptyBytes();
+                        if (value != null) {
+                            properties.put(schema.getVisibilityProperty(), value);
                         }
                     } else {
                         properties.put(schema.getVisibilityProperty(),
