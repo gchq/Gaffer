@@ -262,9 +262,18 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         for (final Filter filter : filters) {
             filterList.addAll(getFunctionsFromFilter(filter));
         }
-        final ViewElementDefinition ved = new ViewElementDefinition();
-        ved.addPreAggregationElementFilterFunctions(filterList);
-        operation.setView(view);
+        View.Builder builder = new View.Builder();
+        for (final String group : view.getEntityGroups()) {
+            final ViewElementDefinition ved = view.getEntity(group);
+            ved.addPostAggregationElementFilterFunctions(filterList);
+            builder = builder.entity(group, ved);
+        }
+        for (final String group : view.getEdgeGroups()) {
+            final ViewElementDefinition ved = view.getEdge(group);
+            ved.addPostAggregationElementFilterFunctions(filterList);
+            builder = builder.edge(group, ved);
+        }
+        operation.setView(builder.build());
         // Create RDD
         try {
             final RDD<Element> rdd = store.execute(operation, user);
