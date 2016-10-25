@@ -37,8 +37,8 @@ public class GetDataFrameOfElementsOperationHandler implements OperationHandler<
                                     final AccumuloStore store) throws OperationException {
         final SQLContext sqlContext = operation.getSqlContext();
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext,
-                operation.getGroups(),
                 operation.getConverters(),
+                operation.getView(),
                 store,
                 context.getUser());
         return sqlContext.baseRelationToDataFrame(relation);

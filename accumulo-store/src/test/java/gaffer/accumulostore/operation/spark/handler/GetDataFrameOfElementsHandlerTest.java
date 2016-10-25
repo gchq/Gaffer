@@ -22,6 +22,7 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
@@ -73,7 +74,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(EDGE_GROUP)
+                .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -110,7 +111,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(ENTITY_GROUP)
+                .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
         dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -159,12 +160,9 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Use entity and edges group - check get correct data
-        final LinkedHashSet<String> groups = new LinkedHashSet<>();
-        groups.add(ENTITY_GROUP);
-        groups.add(EDGE_GROUP);
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .groups(groups)
+                .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -215,7 +213,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(ENTITY_GROUP)
+                .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
         dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -266,7 +264,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Get all edges
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(EDGE_GROUP)
+                .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -330,7 +328,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Get DataFrame
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(EDGE_GROUP)
+                .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -390,14 +388,11 @@ public class GetDataFrameOfElementsHandlerTest {
         final SQLContext sqlContext = new SQLContext(sparkContext);
 
         // Use entity and edges group - check get correct data
-        final LinkedHashSet<String> groups = new LinkedHashSet<>();
-        groups.add(ENTITY_GROUP);
-        groups.add(EDGE_GROUP);
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .groups(groups)
+                .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
-        // NB Catch the exception rather than using expected annotation on test to ensure SparkContext
+        // NB Catch the exception rather than using expected annotation on test to ensure that the SparkContext
         // is shut down.
         try {
             graph1.execute(dfOperation, user);
@@ -432,7 +427,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(EDGE_GROUP)
+                .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -458,7 +453,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(ENTITY_GROUP)
+                .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
         dataFrame = graph1.execute(dfOperation, user);
         if (dataFrame == null) {
@@ -509,7 +504,7 @@ public class GetDataFrameOfElementsHandlerTest {
         converters.add(new MyPropertyConverter());
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(EDGE_GROUP)
+                .view(new View.Builder().edge(EDGE_GROUP).build())
                 .converters(converters)
                 .build();
         Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
@@ -537,7 +532,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .group(ENTITY_GROUP)
+                .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .converters(converters)
                 .build();
         dataFrame = graph1.execute(dfOperation, user);

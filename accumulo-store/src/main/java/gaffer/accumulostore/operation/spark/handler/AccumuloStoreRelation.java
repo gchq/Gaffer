@@ -84,9 +84,8 @@ import java.util.Set;
 /**
  * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a <code>DataFrame</code>. Spark's Java API
  * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link
- * org.apache.spark.sql.Dataset} of {@link Row}s. As a <code>DataFrame</code> is required to have a known schema, an
- * <code>AccumuloStoreRelation</code> requires one or more groups to be specified. The schema for those groups is used
- * to create the schema for the <code>DataFrame</code>.
+ * org.apache.spark.sql.Dataset} of {@link Row}s. The schema of the <code>DataFrame</code> is formed from the schemas
+ * of the groups specified in the view.
  * <p>
  * If two of the specified groups have properties with the same name, then the types of those properties must be
  * the same.
@@ -129,6 +128,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private final SQLContext sqlContext;
     private final LinkedHashSet<String> groups;
     private final List<Converter> converters;
+    private final View view;
     private final AccumuloStore store;
     private final User user;
     private final Map<String, EntityOrEdge> entityOrEdgeByGroup = new HashMap<>();
@@ -139,16 +139,23 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private StructType structType;
 
     public AccumuloStoreRelation(final SQLContext sqlContext,
-                                 final LinkedHashSet<String> groups,
                                  final List<Converter> converters,
+                                 final View view,
                                  final AccumuloStore store,
                                  final User user) {
         this.sqlContext = sqlContext;
-        this.groups = groups;
         this.converters = new ArrayList<>();
         this.converters.addAll(DEFAULT_CONVERTERS);
         if (converters != null) {
             this.converters.addAll(converters);
+        }
+        this.view = view;
+        this.groups = new LinkedHashSet<>();
+        for (final String group : view.getEntityGroups()) {
+            groups.add(group);
+        }
+        for (final String group : view.getEdgeGroups()) {
+            groups.add(group);
         }
         this.store = store;
         this.user = user;
@@ -175,7 +182,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         try {
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
-            operation.setView(getView());
+            operation.setView(view);
             final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(usedProperties, propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
@@ -201,7 +208,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             LOGGER.info("Building scan with required columns: {}", StringUtils.join(requiredColumns, ','));
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
-            operation.setView(getView());
+            operation.setView(view);
             final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
@@ -228,8 +235,10 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      */
     @Override
     public RDD<Row> buildScan(final String[] requiredColumns, final Filter[] filters) {
-        LOGGER.info("Building scan with required columns {} and {} filters ({})", StringUtils.join(requiredColumns, ','),
-                filters.length, StringUtils.join(filters, ','));
+        LOGGER.info("Building scan with required columns {} and {} filters ({})",
+                StringUtils.join(requiredColumns, ','),
+                filters.length,
+                StringUtils.join(filters, ','));
         // If any of the filters can be translated into Accumulo queries (i.e. specifying ranges rather than a full
         // table scan) then do this.
         AbstractGetRDD<?> operation = null;
@@ -255,7 +264,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         }
         final ViewElementDefinition ved = new ViewElementDefinition();
         ved.addPreAggregationElementFilterFunctions(filterList);
-        operation.setView(getView());
+        operation.setView(view);
         // Create RDD
         try {
             final RDD<Element> rdd = store.execute(operation, user);
@@ -448,18 +457,6 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         structType = new StructType(fields.toArray(new StructField[fields.size()]));
         LOGGER.info("Schema is {}", structType);
         LOGGER.debug("properties -> conversion: {}", StringUtils.join(propertyNeedsConversion.entrySet(), ','));
-    }
-
-    private View getView() {
-        View.Builder viewBuilder = new View.Builder();
-        for (final String group : groups) {
-            if (entityOrEdgeByGroup.get(group).equals(EntityOrEdge.ENTITY)) {
-                viewBuilder = viewBuilder.entity(group);
-            } else {
-                viewBuilder = viewBuilder.edge(group);
-            }
-        }
-        return viewBuilder.build();
     }
 
     /**

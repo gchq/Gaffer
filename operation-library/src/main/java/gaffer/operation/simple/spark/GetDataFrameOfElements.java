@@ -26,8 +26,9 @@ import java.util.List;
 
 /**
  * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
- * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. It allows a set of groups to
- * be specified in order. Elements of these groups will be present in the <code>DataFrame</code>.
+ * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. The fields in the {@link Row}
+ * are ordered according to the ordering of the groups in the schema, with <code>Entity</code>s first,
+ * followed by <code>Edge</code>s.
  * <p>
  * Implementations of this operation should automatically convert all properties that have natural equivalents
  * as a Spark <code>DataType</code> to that <code>DataType</code>. An implementation may allow the user to
@@ -67,14 +68,6 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
         return sqlContext;
     }
 
-    public void setGroups(final LinkedHashSet<String> groups) {
-        this.groups = groups;
-    }
-
-    public LinkedHashSet<String> getGroups() {
-        return groups;
-    }
-
     public void setConverters(final List<Converter> converters) {
         this.converters = converters;
     }
@@ -96,16 +89,6 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
         public CHILD_CLASS sqlContext(final SQLContext sqlContext) {
             op.setSqlContext(sqlContext);
-            return self();
-        }
-
-        public CHILD_CLASS group(final String group) {
-            op.setGroups(new LinkedHashSet<>(Collections.singleton(group)));
-            return self();
-        }
-
-        public CHILD_CLASS groups(final LinkedHashSet<String> groups) {
-            op.setGroups(groups);
             return self();
         }
 
