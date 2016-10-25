@@ -15,6 +15,7 @@
  */
 package gaffer.accumulostore.operation.spark.handler;
 
+import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.element.Edge;
@@ -39,6 +40,7 @@ import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.types.simple.FreqMap;
 import gaffer.user.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.rdd.RDD;
@@ -67,6 +69,7 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.collection.JavaConverters;
 import scala.runtime.AbstractFunction1;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -126,6 +129,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private final Map<String, EntityOrEdge> entityOrEdgeByGroup = new HashMap<>();
     private final LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
     private final Map<String, StructType> structTypeByGroup = new HashMap<>();
+    private final Map<String, Boolean> propertyNeedsConversion = new HashMap<>();
     private StructType structType;
 
     public AccumuloStoreRelation(final SQLContext sqlContext,
@@ -161,7 +165,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(getView());
             final RDD<Element> rdd = store.execute(operation, user);
-            return rdd.map(new ElementToRow(usedProperties), ClassTagConstants.ROW_CLASS_TAG);
+            return rdd.map(new ElementToRow(usedProperties, propertyNeedsConversion), ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation: {}", e);
             return null;
@@ -186,7 +190,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(getView());
             final RDD<Element> rdd = store.execute(operation, user);
-            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns))), ClassTagConstants.ROW_CLASS_TAG);
+            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)), propertyNeedsConversion),
+                    ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation {}", e);
             return null;
@@ -240,7 +245,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         // Create RDD
         try {
             final RDD<Element> rdd = store.execute(operation, user);
-            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns))), ClassTagConstants.ROW_CLASS_TAG);
+            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)), propertyNeedsConversion),
+                    ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation {}", e);
             return null;
@@ -357,6 +363,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             for (final String property : properties) {
                 final String propertyClass = elementDefn.getPropertyClass(property).getCanonicalName();
                 final DataType propertyType = getType(propertyClass);
+                propertyNeedsConversion.put(property, needsConversion(propertyClass));
                 if (propertyType == null) {
                     LOGGER.warn("Ignoring property {} as it is not a recognised type", property);
                 } else {
@@ -404,6 +411,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         }
         structType = new StructType(fields.toArray(new StructField[fields.size()]));
         LOGGER.info("Schema is {}", structType);
+        LOGGER.info("properties -> conversion: {}", StringUtils.join(propertyNeedsConversion.entrySet(), ','));
     }
 
     private View getView() {
@@ -424,9 +432,13 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      *
      * @param entity     The {@link Entity} to convert.
      * @param properties The properties to be included in the conversion.
+     * @param propertyNeedsConversion A Map indicating whether a property needs to be converted before it can be inserted
+     *                                into the Dataframe.
      * @return a {@link Row} containing the vertex and the required properties.
      */
-    private static Row getRowFromEntity(final Entity entity, final LinkedHashSet<String> properties) {
+    private static Row getRowFromEntity(final Entity entity,
+                                        final LinkedHashSet<String> properties,
+                                        final Map<String, Boolean> propertyNeedsConversion) {
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
@@ -437,7 +449,16 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                     fields.appendElem(entity.getVertex());
                     break;
                 default:
-                    fields.appendElem(entity.getProperties().get(property));
+                    final Object value = entity.getProperties().get(property);
+                    if (value == null) {
+                        fields.appendElem(null);
+                    } else {
+                        if (!propertyNeedsConversion.get(property)) {
+                            fields.appendElem(entity.getProperties().get(property));
+                        } else {
+                            fields.appendElem(convertProperty(entity.getProperties().get(property)));
+                        }
+                    }
             }
         }
         return Row$.MODULE$.fromSeq(fields);
@@ -449,9 +470,13 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      *
      * @param edge       The {@link Edge} to convert.
      * @param properties The properties to be included in the conversion.
+     * @param propertyNeedsConversion A Map indicating whether a property needs to be converted before it can be inserted
+     *                                into the Dataframe.
      * @return A {@link Row} containing the source, destination, and the required properties.
      */
-    private static Row getRowFromEdge(final Edge edge, final LinkedHashSet<String> properties) {
+    private static Row getRowFromEdge(final Edge edge,
+                                      final LinkedHashSet<String> properties,
+                                      final Map<String, Boolean> propertyNeedsConversion) {
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
@@ -465,7 +490,16 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                     fields.appendElem(edge.getDestination());
                     break;
                 default:
-                    fields.appendElem(edge.getProperties().get(property));
+                    final Object value = edge.getProperties().get(property);
+                    if (value == null) {
+                        fields.appendElem(null);
+                    } else {
+                        if (!propertyNeedsConversion.get(property)) {
+                            fields.appendElem(edge.getProperties().get(property));
+                        } else {
+                            fields.appendElem(convertProperty(edge.getProperties().get(property)));
+                        }
+                    }
             }
         }
         return Row$.MODULE$.fromSeq(fields);
@@ -489,27 +523,74 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 return DataTypes.ByteType;
             case "java.lang.Short":
                 return DataTypes.ShortType;
+            case "gaffer.types.simple.FreqMap":
+                return DataTypes.createMapType(DataTypes.StringType, DataTypes.LongType, true);
+            case "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus":
+                return DataTypes.LongType;
             default:
                 return null;
         }
     }
 
+    private static boolean needsConversion(final String className) {
+        switch (className) {
+            case "java.lang.String":
+                return false;
+            case "java.lang.Integer":
+                return false;
+            case "java.lang.Long":
+                return false;
+            case "java.lang.Boolean":
+                return false;
+            case "java.lang.Double":
+                return false;
+            case "java.lang.Float":
+                return false;
+            case "java.lang.Byte":
+                return false;
+            case "java.lang.Short":
+                return false;
+            case "gaffer.types.simple.FreqMap":
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Automatically converts known properties to values that can be included in a Dataframe.
+     *
+     * @param property The property to be converted.
+     * @return The property converted to a valid {@link DataType}.
+     */
+    private static Object convertProperty(final Object property) {
+        if (property instanceof HyperLogLogPlus) {
+            return ((HyperLogLogPlus) property).cardinality();
+        }
+        if (property instanceof FreqMap) {
+            return JavaConverters.mapAsScalaMapConverter((FreqMap) property).asScala();
+        }
+        return null;
+    }
+
     static class ElementToRow extends AbstractFunction1<Element, Row> implements Serializable {
 
         private static final long serialVersionUID = 3090917576150868059L;
-        private LinkedHashSet<String> properties;
+        private final LinkedHashSet<String> properties;
+        private final Map<String, Boolean> propertyNeedsConversion;
 
-        ElementToRow(final LinkedHashSet<String> properties) {
+        ElementToRow(final LinkedHashSet<String> properties, final Map<String, Boolean> propertyNeedsConversion) {
             this.properties = properties;
+            this.propertyNeedsConversion = propertyNeedsConversion;
         }
 
         @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If not an Entity then must be an Edge")
         @Override
         public Row apply(final Element element) {
             if (element instanceof Entity) {
-                return getRowFromEntity((Entity) element, properties);
+                return getRowFromEntity((Entity) element, properties, propertyNeedsConversion);
             }
-            return getRowFromEdge((Edge) element, properties);
+            return getRowFromEdge((Edge) element, properties, propertyNeedsConversion);
         }
     }
 

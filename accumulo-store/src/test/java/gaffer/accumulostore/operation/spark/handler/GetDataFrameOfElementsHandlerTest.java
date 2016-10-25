@@ -18,6 +18,7 @@ package gaffer.accumulostore.operation.spark.handler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -25,6 +26,7 @@ import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.types.simple.FreqMap;
 import gaffer.user.User;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
@@ -288,11 +290,9 @@ public class GetDataFrameOfElementsHandlerTest {
         expectedRows.clear();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
-            fields1 = new scala.collection.mutable.MutableList<>();
             fields1.appendElem(3.0F);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
-            fields2 = new scala.collection.mutable.MutableList<>();
             fields2.appendElem(8.0F);
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
         }
@@ -403,6 +403,81 @@ public class GetDataFrameOfElementsHandlerTest {
         sparkContext.stop();
     }
 
+    @Test
+    public void checkCanDealWithNonStandardProperties() throws OperationException {
+        final Graph graph1 = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchemaNonstandardTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+
+        final User user = new User();
+        graph1.execute(new AddElements(getElementsWithNonStandardProperties()), user);
+
+        final SparkConf sparkConf = new SparkConf()
+                .setMaster("local")
+                .setAppName("checkGetCorrectElementsInDataFrame")
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
+                .set("spark.driver.allowMultipleContexts", "true");
+        final SparkContext sparkContext = new SparkContext(sparkConf);
+        final SQLContext sqlContext = new SQLContext(sparkContext);
+
+        // Edges group - check get correct edges
+        GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .group(EDGE_GROUP)
+                .build();
+        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        Set<Row> results = new HashSet<>(dataFrame.collectAsList());
+        final Set<Row> expectedRows = new HashSet<>();
+        final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+        scala.collection.mutable.Map<String, Long> freqMap = scala.collection.mutable.Map$.MODULE$.empty();
+        freqMap.put("Y", 1000L);
+        freqMap.put("Z", 10000L);
+        fields1.appendElem(EDGE_GROUP);
+        fields1.appendElem("B");
+        fields1.appendElem("C");
+        fields1.appendElem(freqMap);
+        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
+        hllpp.offer("AAA");
+        hllpp.offer("BBB");
+        fields1.appendElem(hllpp.cardinality());
+        expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+        assertEquals(expectedRows, results);
+
+        // Entities group - check get correct entities
+        dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .group(ENTITY_GROUP)
+                .build();
+        dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        results.clear();
+        results.addAll(dataFrame.collectAsList());
+        expectedRows.clear();
+        fields1.clear();
+        freqMap.clear();
+        freqMap.put("W", 10L);
+        freqMap.put("X", 100L);
+        fields1.appendElem(ENTITY_GROUP);
+        fields1.appendElem("A");
+        fields1.appendElem(freqMap);
+        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
+        hllpp2.offer("AAA");
+        fields1.appendElem(hllpp2.cardinality());
+        expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+        assertEquals(expectedRows, results);
+
+        sparkContext.stop();
+    }
+
     private static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -441,6 +516,34 @@ public class GetDataFrameOfElementsHandlerTest {
             elements.add(edge2);
             elements.add(entity);
         }
+        return elements;
+    }
+
+    private static List<Element> getElementsWithNonStandardProperties() {
+        final List<Element> elements = new ArrayList<>();
+        final Entity entity = new Entity(ENTITY_GROUP);
+        entity.setVertex("A");
+        final FreqMap freqMap = new FreqMap();
+        freqMap.put("W", 10L);
+        freqMap.put("X", 100L);
+        entity.putProperty("freqMap", freqMap);
+        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
+        hllpp.offer("AAA");
+        entity.putProperty("hllpp", hllpp);
+        elements.add(entity);
+        final Edge edge = new Edge(EDGE_GROUP);
+        edge.setSource("B");
+        edge.setDestination("C");
+        edge.setDirected(true);
+        final FreqMap freqMap2 = new FreqMap();
+        freqMap2.put("Y", 1000L);
+        freqMap2.put("Z", 10000L);
+        edge.putProperty("freqMap", freqMap2);
+        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
+        hllpp2.offer("AAA");
+        hllpp2.offer("BBB");
+        edge.putProperty("hllpp", hllpp2);
+        elements.add(edge);
         return elements;
     }
 

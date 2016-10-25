@@ -23,6 +23,12 @@
     },
     "colQualProperty": {
       "class": "java.lang.Integer"
+    },
+    "freqMapProperty": {
+      "class": "gaffer.types.simple.FreqMap"
+    },
+    "hyperLogLogPlus": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
     }
   }
 }
