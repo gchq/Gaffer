@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SchemaElementDefinitionValidatorTest {
     @Test
@@ -54,6 +55,27 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateComponentTypesAndErrorWhenPropertyNameIsAReservedWord() {
+        for (final IdentifierType identifierType : IdentifierType.values()) {
+            // Given
+            final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+            final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+            final Set<String> properties = new HashSet<>();
+            properties.add(TestPropertyNames.COUNT);
+            properties.add(identifierType.name());
+
+            given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
+            given(elementDef.getProperties()).willReturn(properties);
+
+            // When
+            final boolean isValid = validator.validateComponentTypes(elementDef);
+
+            // Then
+            assertFalse(isValid);
+        }
     }
 
     @Test

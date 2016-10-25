@@ -75,6 +75,11 @@ public class SchemaElementDefinitionValidator {
         }
 
         for (final String propertyName : elementDef.getProperties()) {
+            if (null != IdentifierType.fromName(propertyName)) {
+                LOGGER.error("Property name " + propertyName + " is a reserved word. Please use a different property name.");
+                return false;
+            }
+
             try {
                 if (null == elementDef.getPropertyClass(propertyName)) {
                     LOGGER.error("Class for " + propertyName + " could not be found.");
