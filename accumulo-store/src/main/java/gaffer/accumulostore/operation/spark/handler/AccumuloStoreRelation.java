@@ -15,7 +15,6 @@
  */
 package gaffer.accumulostore.operation.spark.handler;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.element.Edge;
@@ -42,7 +41,6 @@ import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;
 import gaffer.store.schema.SchemaEntityDefinition;
-import gaffer.types.simple.FreqMap;
 import gaffer.user.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.rdd.RDD;
@@ -71,7 +69,6 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
 import scala.runtime.AbstractFunction1;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -114,6 +111,11 @@ import java.util.Set;
 public class AccumuloStoreRelation extends BaseRelation implements TableScan, PrunedScan, PrunedFilteredScan {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
+    private static final List<Converter> DEFAULT_CONVERTERS = new ArrayList<>();
+    static {
+        DEFAULT_CONVERTERS.add(new FreqMapConverter());
+        DEFAULT_CONVERTERS.add(new HyperLogLogPlusConverter());
+    }
 
     private enum EntityOrEdge {
         ENTITY, EDGE
@@ -143,7 +145,11 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                                  final User user) {
         this.sqlContext = sqlContext;
         this.groups = groups;
-        this.converters = converters;
+        this.converters = new ArrayList<>();
+        this.converters.addAll(DEFAULT_CONVERTERS);
+        if (converters != null) {
+            this.converters.addAll(converters);
+        }
         this.store = store;
         this.user = user;
         buildSchema();
@@ -557,10 +563,6 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 return DataTypes.ByteType;
             case "java.lang.Short":
                 return DataTypes.ShortType;
-            case "gaffer.types.simple.FreqMap":
-                return DataTypes.createMapType(DataTypes.StringType, DataTypes.LongType, true);
-            case "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus":
-                return DataTypes.LongType;
             default:
                 return null;
         }
@@ -584,8 +586,6 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 return false;
             case "java.lang.Short":
                 return false;
-            case "gaffer.types.simple.FreqMap":
-                return true;
             default:
                 return true;
         }
@@ -602,12 +602,6 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private static Object convertProperty(final String name,
                                           final Object property,
                                           final Map<String, Converter> convertersByProperty) {
-        if (property instanceof HyperLogLogPlus) {
-            return ((HyperLogLogPlus) property).cardinality();
-        }
-        if (property instanceof FreqMap) {
-            return JavaConverters.mapAsScalaMapConverter((FreqMap) property).asScala();
-        }
         final Converter converter = convertersByProperty.get(name);
         if (converter != null) {
             try {
