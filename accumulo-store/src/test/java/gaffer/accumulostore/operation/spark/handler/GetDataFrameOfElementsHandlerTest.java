@@ -22,7 +22,10 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
+import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
@@ -48,7 +51,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     private final static String ENTITY_GROUP = "BasicEntity";
     private final static String EDGE_GROUP = "BasicEdge";
-    private final static int NUM_ELEMENTS = 1;
+    private final static int NUM_ELEMENTS = 10;
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
@@ -103,7 +106,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem(8.0F);
             fields2.appendElem(9.0D);
             fields2.appendElem(10L);
-            fields2.appendElem(200L);
+            fields2.appendElem(i * 200L);
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
         }
         assertEquals(expectedRows, results);
@@ -126,7 +129,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
-            fields1.appendElem(2);
+            fields1.appendElem(i);
             fields1.appendElem(3.0F);
             fields1.appendElem(4.0D);
             fields1.appendElem(5L);
@@ -191,7 +194,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem(8.0F);
             fields2.appendElem(9.0D);
             fields2.appendElem(10L);
-            fields2.appendElem(200L);
+            fields2.appendElem(i * 200L);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
@@ -199,7 +202,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields3.appendElem(ENTITY_GROUP);
             fields3.appendElem("" + i);
             fields3.appendElem(1);
-            fields3.appendElem(2);
+            fields3.appendElem(i);
             fields3.appendElem(3.0F);
             fields3.appendElem(4.0D);
             fields3.appendElem(5L);
@@ -228,7 +231,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
-            fields1.appendElem(2);
+            fields1.appendElem(i);
             fields1.appendElem(3.0F);
             fields1.appendElem(4.0D);
             fields1.appendElem(5L);
@@ -348,7 +351,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields.appendElem(8.0F);
             fields.appendElem(9.0D);
             fields.appendElem(10L);
-            fields.appendElem(200L);
+            fields.appendElem(i * 200L);
             expectedRows.add(Row$.MODULE$.fromSeq(fields));
         }
         assertEquals(expectedRows, results);
@@ -559,13 +562,106 @@ public class GetDataFrameOfElementsHandlerTest {
         sparkContext.stop();
     }
 
+    @Test
+    public void checkViewIsRespected() throws OperationException {
+        final Graph graph1 = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+
+        final User user = new User();
+        graph1.execute(new AddElements(getElements()), user);
+
+        final SparkConf sparkConf = new SparkConf()
+                .setMaster("local")
+                .setAppName("checkViewIsRespected")
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
+                .set("spark.driver.allowMultipleContexts", "true");
+        final SparkContext sparkContext = new SparkContext(sparkConf);
+        final SQLContext sqlContext = new SQLContext(sparkContext);
+
+        // Edges group - check get correct edges
+        GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .view(new View.Builder()
+                        .edge(EDGE_GROUP, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("count")
+                                        .execute(new IsMoreThan(800L))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        Set<Row> results = new HashSet<>(dataFrame.collectAsList());
+        final Set<Row> expectedRows = new HashSet<>();
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            if (i * 200L > 800L) {
+                final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+                fields2.appendElem(EDGE_GROUP);
+                fields2.appendElem("" + i);
+                fields2.appendElem("C");
+                fields2.appendElem(6);
+                fields2.appendElem(7);
+                fields2.appendElem(8.0F);
+                fields2.appendElem(9.0D);
+                fields2.appendElem(10L);
+                fields2.appendElem(i * 200L);
+                expectedRows.add(Row$.MODULE$.fromSeq(fields2));
+            }
+        }
+        assertEquals(expectedRows, results);
+
+        // Entities group - check get correct entities
+        dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .view(new View.Builder()
+                        .entity(ENTITY_GROUP, new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                    .select("property1")
+                                    .execute(new IsMoreThan(1))
+                                    .build())
+                            .build())
+                        .build())
+                .build();
+        dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        results.clear();
+        results.addAll(dataFrame.collectAsList());
+        expectedRows.clear();
+        for (int i = 2; i < NUM_ELEMENTS; i++) {
+            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            fields1.clear();
+            fields1.appendElem(ENTITY_GROUP);
+            fields1.appendElem("" + i);
+            fields1.appendElem(1);
+            fields1.appendElem(i);
+            fields1.appendElem(3.0F);
+            fields1.appendElem(4.0D);
+            fields1.appendElem(5L);
+            fields1.appendElem(6);
+            expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+        }
+        assertEquals(expectedRows, results);
+
+        sparkContext.stop();
+    }
+
     private static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final Entity entity = new Entity(ENTITY_GROUP);
             entity.setVertex("" + i);
             entity.putProperty("columnQualifier", 1);
-            entity.putProperty("property1", 2);
+            entity.putProperty("property1", i);
             entity.putProperty("property2", 3.0F);
             entity.putProperty("property3", 4.0D);
             entity.putProperty("property4", 5L);
@@ -591,7 +687,7 @@ public class GetDataFrameOfElementsHandlerTest {
             edge2.putProperty("property2", 8.0F);
             edge2.putProperty("property3", 9.0D);
             edge2.putProperty("property4", 10L);
-            edge2.putProperty("count", 200L);
+            edge2.putProperty("count", i * 200L);
 
             elements.add(edge1);
             elements.add(edge2);

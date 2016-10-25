@@ -20,14 +20,12 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
  * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
  * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. The fields in the {@link Row}
- * are ordered according to the ordering of the groups in the schema, with <code>Entity</code>s first,
+ * are ordered according to the ordering of the groups in the view, with <code>Entity</code>s first,
  * followed by <code>Edge</code>s.
  * <p>
  * Implementations of this operation should automatically convert all properties that have natural equivalents
@@ -41,23 +39,14 @@ import java.util.List;
 public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<Row>> {
 
     private SQLContext sqlContext;
-    private LinkedHashSet<String> groups;
     private List<Converter> converters;
 
     public GetDataFrameOfElements() { }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
-                                  final LinkedHashSet<String> groups,
                                   final List<Converter> converters) {
         this.sqlContext = sqlContext;
-        this.groups = new LinkedHashSet<>(groups);
         this.converters = converters;
-    }
-
-    public GetDataFrameOfElements(final SQLContext sqlContext,
-                                  final String group,
-                                  final List<Converter> converters) {
-        this(sqlContext, new LinkedHashSet<>(Collections.singleton(group)), converters);
     }
 
     public void setSqlContext(final SQLContext sqlContext) {
