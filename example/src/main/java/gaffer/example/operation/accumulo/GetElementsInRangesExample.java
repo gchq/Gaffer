@@ -40,20 +40,22 @@ public class GetElementsInRangesExample extends OperationExample {
     }
 
     public Iterable<Element> getAllElementsInTheRangeFromEntity1toEntity4() {
-        final String opJava = "new GetElementsInRanges.Builder<Pair<EntitySeed>, Element>()\n"
-                + "                .addSeed(new Pair<>(new EntitySeed(1), new EntitySeed(4)))\n"
-                + "                .build()";
-        return runExample(new GetElementsInRanges.Builder<Pair<EntitySeed>, Element>()
+        // ---------------------------------------------------------
+        final GetElementsInRanges<Pair<EntitySeed>, Element> operation = new GetElementsInRanges.Builder<Pair<EntitySeed>, Element>()
                 .addSeed(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public Iterable<Element> getAllElementsInTheRangeFromEntity4ToEdge4_5() {
-        final String opJava = "new GetElementsInRanges.Builder<Pair<ElementSeed>, Element>()\n"
-                + "                .addSeed(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))\n"
-                + "                .build()";
-        return runExample(new GetElementsInRanges.Builder<Pair<ElementSeed>, Element>()
+        // ---------------------------------------------------------
+        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementSeed>, Element>()
                 .addSeed(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

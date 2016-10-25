@@ -77,7 +77,7 @@ public class ConsumerFunctionContext<R, F extends ConsumerFunction> extends Func
      */
     public Object[] select(final Tuple<R> tuple) {
         int i = 0;
-        for (R reference : selection) {
+        for (final R reference : selection) {
             selected[i++] = tuple.get(reference);
         }
 

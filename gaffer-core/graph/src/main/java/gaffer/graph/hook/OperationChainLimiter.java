@@ -117,7 +117,7 @@ public class OperationChainLimiter implements GraphHook {
         if (null != opChain) {
             Integer chainScore = 0;
             Integer maxAuthScore = getMaxUserAuthScore(user.getOpAuths());
-            for (Operation operation : opChain.getOperations()) {
+            for (final Operation operation : opChain.getOperations()) {
                 chainScore += authorise(operation);
                 if (chainScore > maxAuthScore) {
                     throw new UnauthorisedException("The maximum score limit for this user is " + maxAuthScore + ".\n" +
@@ -138,7 +138,7 @@ public class OperationChainLimiter implements GraphHook {
      */
     private Integer getMaxUserAuthScore(final Set<String> opAuths) {
         Integer maxUserScore = 0;
-        for (String opAuth : opAuths) {
+        for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
             if (null != authScore) {
                 if (authScore > maxUserScore) {
@@ -203,7 +203,7 @@ public class OperationChainLimiter implements GraphHook {
 
     private void loadMapsFromProperties(final Properties operationScorePropertiesFile, final Properties operationAuthorisationScoreLimitPropertiesFile) {
         Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
-        for (String opClassName : operationScorePropertiesFile.stringPropertyNames()) {
+        for (final String opClassName : operationScorePropertiesFile.stringPropertyNames()) {
             final Class<? extends Operation> opClass;
             try {
                 opClass = Class.forName(opClassName).asSubclass(Operation.class);
@@ -216,7 +216,7 @@ public class OperationChainLimiter implements GraphHook {
         }
         setOpScores(opScores);
         Map<String, Integer> authScores = new HashMap<>();
-        for (String authName : operationAuthorisationScoreLimitPropertiesFile.stringPropertyNames()) {
+        for (final String authName : operationAuthorisationScoreLimitPropertiesFile.stringPropertyNames()) {
             final Integer score = Integer.parseInt(operationAuthorisationScoreLimitPropertiesFile.getProperty(authName));
             authScores.put(authName, score);
         }

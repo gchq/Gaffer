@@ -39,39 +39,20 @@ public class GetEdgesBetweenSetsExample extends OperationExample {
     }
 
     public Iterable<Edge> getElementsWithinSetOfVertices1And2And4() {
-        final String opJava = "new GetEdgesBetweenSets.Builder()\n" +
-                "                .addSeed(new EntitySeed(1))\n" +
-                "                .addSeedB(new EntitySeed(2))\n" +
-                "                .addSeedB(new EntitySeed(4))\n" +
-                "                .build()";
-        return runExample(new GetEdgesBetweenSets.Builder()
+        // ---------------------------------------------------------
+        final GetEdgesBetweenSets operation = new GetEdgesBetweenSets.Builder()
                 .addSeed(new EntitySeed(1))
                 .addSeedB(new EntitySeed(2))
                 .addSeedB(new EntitySeed(4))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public Iterable<Edge> getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2() {
-        final String opJava = "new GetEdgesBetweenSets.Builder()\n" +
-                "                .addSeed(new EntitySeed(1))\n" +
-                "                .addSeedB(new EntitySeed(2))\n" +
-                "                .addSeedB(new EntitySeed(4))\n" +
-                "                .view(new View.Builder()\n" +
-                "                        .entity(\"entity\", new ViewElementDefinition.Builder()\n" +
-                "                                .filter(new ElementFilter.Builder()\n" +
-                "                                        .select(\"count\")\n" +
-                "                                        .execute(new IsMoreThan(2))\n" +
-                "                                        .build())\n" +
-                "                                .build())\n" +
-                "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n" +
-                "                                .filter(new ElementFilter.Builder()\n" +
-                "                                        .select(\"count\")\n" +
-                "                                        .execute(new IsMoreThan(2))\n" +
-                "                                        .build())\n" +
-                "                                .build())\n" +
-                "                        .build())\n" +
-                "                .build()";
-        return runExample(new GetEdgesBetweenSets.Builder()
+        // ---------------------------------------------------------
+        final GetEdgesBetweenSets operation = new GetEdgesBetweenSets.Builder()
                 .addSeed(new EntitySeed(1))
                 .addSeedB(new EntitySeed(2))
                 .addSeedB(new EntitySeed(4))
@@ -83,6 +64,9 @@ public class GetEdgesBetweenSetsExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

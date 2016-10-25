@@ -32,6 +32,7 @@ import gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator;
 import gaffer.example.gettingstarted.function.transform.MeanTransform;
 import gaffer.example.gettingstarted.generator.DataGenerator1;
 import gaffer.example.gettingstarted.serialiser.VisibilitySerialiser;
+import gaffer.example.util.JavaSourceUtil;
 import gaffer.function.AggregateFunction;
 import gaffer.function.FilterFunction;
 import gaffer.function.Function;
@@ -54,7 +55,6 @@ import org.apache.commons.lang3.text.StrSubstitutor;
 import sun.misc.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -62,11 +62,12 @@ import java.util.Map.Entry;
 
 public abstract class WalkthroughStrSubstitutor {
     private static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
-    private static final String GITHUB_RAW_URL_PREFIX = "https://raw.githubusercontent.com/gchq/Gaffer/master/";
     private static final String GITHUB_URL_PREFIX = "https://github.com/gchq/Gaffer/blob/master/";
     private static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/gchq/Gaffer/wiki/";
     private static final String JAVA_SRC_PATH = "/src/main/java/";
     private static final String RESOURCES_SRC_PATH = "/src/main/resources/";
+    public static final String START_CODE_SNIPPET_MARKER = String.format("----%n");
+    public static final String END_CODE_SNIPPET_MARKER = "// ----";
 
     public static String substitute(final String description, final LoadAndQuery example, final int exampleId, final String header) {
         return substitute(description, createParameterMap(example, exampleId, header));
@@ -95,7 +96,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("HEADER", "### " + header);
         params.put("CODE_LINK", "The code for this example is " + getGitHubCodeLink(example.getClass(), "example"));
         params.put("DATA", "```csv\n" + getResource("/example/gettingstarted/" + exampleId + "/data.txt", exampleClass) + "\n```");
-        params.put("DATA_GENERATOR_JAVA", getJavaFromGitHub(DataGenerator1.class.getName().replace("1", String.valueOf(exampleId)), "example"));
+        params.put("DATA_GENERATOR_JAVA", JavaSourceUtil.getJava(DataGenerator1.class.getName().replace("1", String.valueOf(exampleId)), "example"));
         params.put("STORE_PROPERTIES", "```properties\n" + getResource("/example/gettingstarted/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```");
         params.put("DATA_SCHEMA_LINK", getGitHubResourcesLink("example/gettingstarted/" + exampleId + "/schema/dataSchema.json", "example"));
         params.put("DATA_TYPES_LINK", getGitHubResourcesLink("example/gettingstarted/" + exampleId + "/schema/dataTypes.json", "example"));
@@ -104,6 +105,15 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("DATA_SCHEMA_JSON", "```json\n" + getResource("/example/gettingstarted/" + exampleId + "/schema/dataSchema.json", exampleClass) + "\n```");
         params.put("DATA_TYPES_JSON", "```json\n" + getResource("/example/gettingstarted/" + exampleId + "/schema/dataTypes.json", exampleClass) + "\n```");
         params.put("STORE_TYPES_JSON", "```json\n" + getResource("/example/gettingstarted/" + exampleId + "/schema/storeTypes.json", exampleClass) + "\n```");
+        params.put("USER_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "user"));
+        params.put("GENERATE_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "generate"));
+        params.put("GRAPH_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "graph"));
+        params.put("ADD_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "add"));
+        params.put("TRANSFORM_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "transform"));
+        params.put("GET_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get"));
+        params.put("GET_PUBLIC_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get public"));
+        params.put("GET_PRIVATE_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get private"));
+        params.put("EXTRACTOR_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "extractor"));
 
         try {
             example.run();
@@ -111,7 +121,7 @@ public abstract class WalkthroughStrSubstitutor {
             throw new RuntimeException(e);
         }
 
-        for (Entry<String, StringBuilder> log : example.getLogCache().entrySet()) {
+        for (final Entry<String, StringBuilder> log : example.getLogCache().entrySet()) {
             params.put(log.getKey(), log.getValue().toString() + "\n");
         }
 
@@ -195,14 +205,5 @@ public abstract class WalkthroughStrSubstitutor {
     private static String getGitHubCodeLink(final String className, final String modulePath) {
         final String simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
         return "[" + simpleClassName + "](" + GITHUB_URL_PREFIX + modulePath + JAVA_SRC_PATH + className.replaceAll("\\.", "/") + ".java)";
-    }
-
-    private static String getJavaFromGitHub(final String className, final String modulePath) {
-        try {
-            final String javaCode = org.apache.commons.io.IOUtils.toString(new URL(GITHUB_RAW_URL_PREFIX + modulePath + JAVA_SRC_PATH + className.replace(".", "/") + ".java"));
-            return "\n```java\n" + javaCode.substring(javaCode.indexOf("public class ")) + "```";
-        } catch (final IOException e) {
-            throw new RuntimeException("Unable to get java source code form github", e);
-        }
     }
 }

@@ -109,7 +109,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
         Schema schema = store.getSchema();
         String visibilityProp = schema.getVisibilityProperty();
-        for (String edgeGroup : view.getEdgeGroups()) {
+        for (final String edgeGroup : view.getEdgeGroups()) {
             SchemaEdgeDefinition edgeDefinition = schema.getEdge(edgeGroup);
             if (edgeDefinition.containsProperty(visibilityProp)) {
                 return true;
@@ -121,7 +121,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 }
             }
         }
-        for (String entityGroup : view.getEntityGroups()) {
+        for (final String entityGroup : view.getEntityGroups()) {
             SchemaEntityDefinition entityDefinition = schema.getEntity(entityGroup);
             if (entityDefinition.containsProperty(visibilityProp)) {
                 return true;

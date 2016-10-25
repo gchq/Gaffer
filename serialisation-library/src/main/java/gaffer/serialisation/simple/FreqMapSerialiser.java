@@ -41,7 +41,7 @@ public class FreqMapSerialiser extends AbstractSerialisation<FreqMap> {
         Set<Map.Entry<String, Long>> entrySet = map.entrySet();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         boolean isFirst = true;
-        for (Map.Entry<String, Long> entry : entrySet) {
+        for (final Map.Entry<String, Long> entry : entrySet) {
             if (entry.getKey() != null && entry.getValue() != null) {
                 if (isFirst) {
                     isFirst = false;

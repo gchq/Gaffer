@@ -97,7 +97,7 @@ public class OperationAuthoriser implements GraphHook {
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
         if (null != opChain) {
-            for (Operation operation : opChain.getOperations()) {
+            for (final Operation operation : opChain.getOperations()) {
                 authorise(operation, user);
             }
         }
@@ -146,7 +146,7 @@ public class OperationAuthoriser implements GraphHook {
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;
-            for (Entry<Class<? extends Operation>, Set<String>> entry : opAuthsMap.entrySet()) {
+            for (final Entry<Class<? extends Operation>, Set<String>> entry : opAuthsMap.entrySet()) {
                 if (entry.getKey().isAssignableFrom(opClass)) {
                     if (!userOpAuths.containsAll(entry.getValue())) {
                         authorised = false;
@@ -164,7 +164,7 @@ public class OperationAuthoriser implements GraphHook {
 
 
     private void loadOpAuthMap(final Properties props) {
-        for (String opClassName : props.stringPropertyNames()) {
+        for (final String opClassName : props.stringPropertyNames()) {
             final Class<? extends Operation> opClass;
             try {
                 opClass = Class.forName(opClassName).asSubclass(Operation.class);
@@ -172,7 +172,7 @@ public class OperationAuthoriser implements GraphHook {
                 throw new IllegalArgumentException(e);
             }
             final Set<String> auths = new HashSet<>();
-            for (String auth : props.getProperty(opClassName).split(AUTH_SEPARATOR)) {
+            for (final String auth : props.getProperty(opClassName).split(AUTH_SEPARATOR)) {
                 if (!StringUtils.isEmpty(auth)) {
                     auths.add(auth);
                 }

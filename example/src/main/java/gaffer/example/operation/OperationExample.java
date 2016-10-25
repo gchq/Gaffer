@@ -19,6 +19,7 @@ import gaffer.commonutil.StreamUtil;
 import gaffer.example.gettingstarted.util.DataUtils;
 import gaffer.example.operation.generator.DataGenerator;
 import gaffer.example.util.Example;
+import gaffer.example.util.JavaSourceUtil;
 import gaffer.graph.Graph;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -48,10 +49,10 @@ public abstract class OperationExample extends Example {
         return graph;
     }
 
-    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation, final String operationJava) {
+    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
-        printJava(operationJava);
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
         printOperationClass(operation);
 
@@ -65,7 +66,7 @@ public abstract class OperationExample extends Example {
 
         log("Results:");
         log("\n```");
-        for (Object result : results) {
+        for (final Object result : results) {
             log(result.toString());
         }
         log("```");
@@ -74,10 +75,10 @@ public abstract class OperationExample extends Example {
         return results;
     }
 
-    protected <RESULT_TYPE> RESULT_TYPE runExample(final OperationChain<RESULT_TYPE> operationChain, final String operationJava) {
+    protected <RESULT_TYPE> RESULT_TYPE runExample(final OperationChain<RESULT_TYPE> operationChain) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
-        printJava(operationJava);
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operationChain);
 
         final RESULT_TYPE result;
@@ -91,7 +92,7 @@ public abstract class OperationExample extends Example {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
-            for (Object item : ((Iterable) result)) {
+            for (final Object item : ((Iterable) result)) {
                 log(item.toString());
             }
         } else {

@@ -31,8 +31,11 @@ public class IsXMoreThanYExample extends FilterFunctionExample {
     }
 
     public void isXMoreThanY() {
-        runExample(new IsXMoreThanY(),
-                "new IsXMoreThanY()",
+        // ---------------------------------------------------------
+        final IsXMoreThanY function = new IsXMoreThanY();
+        // ---------------------------------------------------------
+
+        runExample(function,
                 new Comparable[]{1, 5},
                 new Comparable[]{5, 5},
                 new Comparable[]{10, 5},

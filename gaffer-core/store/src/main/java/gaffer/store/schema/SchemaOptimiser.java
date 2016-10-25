@@ -49,7 +49,7 @@ public class SchemaOptimiser {
                 new ChainedIterable<>(schema.getEntities().values(), schema.getEdges().values());
 
         final Set<String> usedTypeNames = new HashSet<>();
-        for (SchemaElementDefinition elDef : schemaElements) {
+        for (final SchemaElementDefinition elDef : schemaElements) {
             usedTypeNames.addAll(elDef.getIdentifierTypeNames());
             usedTypeNames.addAll(elDef.getPropertyTypeNames());
         }
@@ -76,7 +76,7 @@ public class SchemaOptimiser {
         // Separate type definitions into 2 sets: types that are used in 'group by' properties; other types.
         final Set<TypeDefinition> groupByTypeDefs = new HashSet<>();
         final Set<TypeDefinition> otherTypeDefs = new HashSet<>();
-        for (SchemaElementDefinition elDef : schemaElements) {
+        for (final SchemaElementDefinition elDef : schemaElements) {
             for (final String property : elDef.getProperties()) {
                 final TypeDefinition typeDef = elDef.getPropertyTypeDef(property);
                 if (elDef.getGroupBy().contains(property)) {
@@ -112,10 +112,10 @@ public class SchemaOptimiser {
     private void addDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
         if (null == schema.getVertexSerialiser()) {
             final Set<Class<?>> vertexClasses = new HashSet<>();
-            for (SchemaEntityDefinition definition : schema.getEntities().values()) {
+            for (final SchemaEntityDefinition definition : schema.getEntities().values()) {
                 vertexClasses.add(definition.getIdentifierClass(IdentifierType.VERTEX));
             }
-            for (SchemaEdgeDefinition definition : schema.getEdges().values()) {
+            for (final SchemaEdgeDefinition definition : schema.getEdges().values()) {
                 vertexClasses.add(definition.getIdentifierClass(IdentifierType.SOURCE));
                 vertexClasses.add(definition.getIdentifierClass(IdentifierType.DESTINATION));
             }
@@ -127,10 +127,10 @@ public class SchemaOptimiser {
                 if (vertexClasses.size() == 1) {
                     serialiser = serialisationFactory.getSerialiser(vertexClasses.iterator().next(), isStoreOrdered);
                 } else {
-                    for (Class<?> clazz : vertexClasses) {
+                    for (final Class<?> clazz : vertexClasses) {
                         serialiser = serialisationFactory.getSerialiser(clazz, isStoreOrdered);
                         boolean canHandlerAll = true;
-                        for (Class<?> clazz2 : vertexClasses) {
+                        for (final Class<?> clazz2 : vertexClasses) {
                             if (!serialiser.canHandle(clazz2)) {
                                 canHandlerAll = false;
                                 serialiser = null;

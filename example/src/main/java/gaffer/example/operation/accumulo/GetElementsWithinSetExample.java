@@ -39,39 +39,20 @@ public class GetElementsWithinSetExample extends OperationExample {
     }
 
     public Iterable<Element> getElementsWithinSetOfVertices1And2And3() {
-        final String opJava = "new GetElementsWithinSet.Builder<>()\n" +
-                "                .addSeed(new EntitySeed(1))\n" +
-                "                .addSeed(new EntitySeed(2))\n" +
-                "                .addSeed(new EntitySeed(3))\n" +
-                "                .build()";
-        return runExample(new GetElementsWithinSet.Builder<>()
+        // ---------------------------------------------------------
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EntitySeed(3))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public Iterable<Element> getElementsWithinSetOfVertices1And2And3WithCountGreaterThan2() {
-        final String opJava = "new GetElementsWithinSet.Builder<>()\n" +
-                "                .addSeed(new EntitySeed(1))\n" +
-                "                .addSeed(new EntitySeed(2))\n" +
-                "                .addSeed(new EntitySeed(3))\n" +
-                "                .view(new View.Builder()\n" +
-                "                        .edge(\"entity\", new ViewElementDefinition.Builder()\n" +
-                "                                .filter(new ElementFilter.Builder()\n" +
-                "                                        .select(\"count\")\n" +
-                "                                        .execute(new IsMoreThan(2))\n" +
-                "                                        .build())\n" +
-                "                                .build())\n" +
-                "                        .edge(\"edge\", new ViewElementDefinition.Builder()\n" +
-                "                                .filter(new ElementFilter.Builder()\n" +
-                "                                        .select(\"count\")\n" +
-                "                                        .execute(new IsMoreThan(2))\n" +
-                "                                        .build())\n" +
-                "                                .build())\n" +
-                "                        .build())\n" +
-                "                .build()";
-        return runExample(new GetElementsWithinSet.Builder<>()
+        // ---------------------------------------------------------
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EntitySeed(3))
@@ -89,6 +70,9 @@ public class GetElementsWithinSetExample extends OperationExample {
                                         .build())
                                 .build())
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 }

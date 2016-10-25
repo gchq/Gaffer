@@ -31,8 +31,11 @@ public class RegexExample extends FilterFunctionExample {
     }
 
     public void regexWithPattern() {
-        runExample(new Regex("[a-d0-4]"),
-                "new Regex(\"[a-d0-4]\")",
+        // ---------------------------------------------------------
+        final Regex function = new Regex("[a-d0-4]");
+        // ---------------------------------------------------------
+
+        runExample(function,
                 "a", "z", "az", 'a', "2", 2, 2L);
     }
 }

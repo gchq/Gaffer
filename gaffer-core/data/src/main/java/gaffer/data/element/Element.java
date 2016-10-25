@@ -65,7 +65,7 @@ public abstract class Element implements Serializable {
     }
 
     public void copyProperties(final Properties properties) {
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+        for (final Map.Entry<String, Object> entry : properties.entrySet()) {
             putProperty(entry.getKey(), entry.getValue());
         }
     }
