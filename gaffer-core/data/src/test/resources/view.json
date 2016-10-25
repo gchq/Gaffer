@@ -10,20 +10,11 @@
       "transformFunctions": [
         {
           "selection": [
-            {
-              "key": "property1",
-              "isId": false
-            },
-            {
-              "key": "SOURCE",
-              "isId": true
-            }
+            "property1",
+            "SOURCE"
           ],
           "projection": [
-            {
-              "key": "transientProperty1",
-              "isId": false
-            }
+            "transientProperty1"
           ],
           "function": {
             "class": "gaffer.function.ExampleTransformFunction"
@@ -33,10 +24,7 @@
       "postTransformFilterFunctions": [
         {
           "selection": [
-            {
-              "key": "transientProperty1",
-              "isId": false
-            }
+            "transientProperty1"
           ],
           "function": {
             "class": "gaffer.function.ExampleFilterFunction"
