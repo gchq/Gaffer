@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Sets;
 import gaffer.commonutil.TestPropertyNames;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
@@ -69,9 +68,9 @@ public class SchemaEntityDefinitionTest {
         assertEquals(2, validator.getFunctions().size());
         assertEquals(Integer.class.getName(), ((IsA) validator.getFunctions().get(0).getFunction()).getType());
         assertEquals(String.class.getName(), ((IsA) validator.getFunctions().get(1).getFunction()).getType());
-        assertEquals(Collections.singletonList(new ElementComponentKey(IdentifierType.VERTEX)),
+        assertEquals(Collections.singletonList(IdentifierType.VERTEX.name()),
                 validator.getFunctions().get(0).getSelection());
-        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+        assertEquals(Collections.singletonList("property"),
                 validator.getFunctions().get(1).getSelection());
     }
 
@@ -117,7 +116,7 @@ public class SchemaEntityDefinitionTest {
         // Then
         assertEquals(1, aggregator.getFunctions().size());
         assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
-        assertEquals(Collections.singletonList(new ElementComponentKey("property")),
+        assertEquals(Collections.singletonList("property"),
                 aggregator.getFunctions().get(0).getSelection());
     }
 

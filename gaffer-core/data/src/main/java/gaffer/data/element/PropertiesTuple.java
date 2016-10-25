@@ -23,7 +23,7 @@ import gaffer.function.Tuple;
  * {@link Properties} and providing a getter and setter for the element's property values.
  * This class allows Properties to be used with the function module whilst minimising dependencies.
  */
-public class PropertiesTuple implements Tuple<ElementComponentKey> {
+public class PropertiesTuple implements Tuple<String> {
 
     private Properties properties;
 
@@ -35,13 +35,13 @@ public class PropertiesTuple implements Tuple<ElementComponentKey> {
     }
 
     @Override
-    public Object get(final ElementComponentKey key) {
-        return properties.get(key.getPropertyName());
+    public Object get(final String propertyName) {
+        return properties.get(propertyName);
     }
 
     @Override
-    public void put(final ElementComponentKey key, final Object value) {
-        properties.put(key.getPropertyName(), value);
+    public void put(final String propertyName, final Object value) {
+        properties.put(propertyName, value);
     }
 
     public Properties getProperties() {

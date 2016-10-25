@@ -16,24 +16,23 @@
 
 package gaffer.data.element.function;
 
-import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
-import gaffer.data.element.ElementTuple;
-import gaffer.data.element.IdentifierType;
-import gaffer.function.FilterFunction;
-import gaffer.function.context.ConsumerFunctionContext;
-import java.util.Collections;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import gaffer.data.element.Element;
+import gaffer.data.element.ElementTuple;
+import gaffer.data.element.IdentifierType;
+import gaffer.function.FilterFunction;
+import gaffer.function.context.ConsumerFunctionContext;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.runners.MockitoJUnitRunner;
+import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElementFilterTest {
@@ -44,7 +43,7 @@ public class ElementFilterTest {
         final String reference = "reference1";
         final String value = "value";
         final ElementFilter filter = new ElementFilter();
-        final ConsumerFunctionContext<ElementComponentKey, FilterFunction> functionContext1 = mock(ConsumerFunctionContext.class);
+        final ConsumerFunctionContext<String, FilterFunction> functionContext1 = mock(ConsumerFunctionContext.class);
         final FilterFunction function = mock(FilterFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
 
@@ -73,11 +72,11 @@ public class ElementFilterTest {
         // Given
         final String reference1 = "reference1";
         final ElementFilter filter = new ElementFilter();
-        final ConsumerFunctionContext<ElementComponentKey, FilterFunction> functionContext1 = mock(ConsumerFunctionContext.class);
+        final ConsumerFunctionContext<String, FilterFunction> functionContext1 = mock(ConsumerFunctionContext.class);
         final FilterFunction function = mock(FilterFunction.class);
         final FilterFunction clonedFunction = mock(FilterFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
-        given(functionContext1.getSelection()).willReturn(Collections.singletonList(new ElementComponentKey(reference1)));
+        given(functionContext1.getSelection()).willReturn(Collections.singletonList(reference1));
         given(function.statelessClone()).willReturn(clonedFunction);
 
         filter.addFunction(functionContext1);
@@ -88,9 +87,9 @@ public class ElementFilterTest {
         // Then
         assertNotSame(filter, clone);
         assertEquals(1, clone.getFunctions().size());
-        final ConsumerFunctionContext<ElementComponentKey, FilterFunction> resultClonedFunction = clone.getFunctions().get(0);
+        final ConsumerFunctionContext<String, FilterFunction> resultClonedFunction = clone.getFunctions().get(0);
         assertEquals(1, resultClonedFunction.getSelection().size());
-        assertEquals(reference1, resultClonedFunction.getSelection().get(0).getKeyObject());
+        assertEquals(reference1, resultClonedFunction.getSelection().get(0));
         assertNotSame(functionContext1, resultClonedFunction);
         assertNotSame(function, resultClonedFunction.getFunction());
         assertSame(clonedFunction, resultClonedFunction.getFunction());
@@ -120,24 +119,24 @@ public class ElementFilterTest {
                 .execute(func3)
                 .execute(func4)
                 .execute(func5)
-                .select(identifierType5)
+                .select(identifierType5.name())
                 .build();
 
         // Then
         int i = 0;
-        ConsumerFunctionContext<ElementComponentKey, FilterFunction> context = filter.getFunctions().get(i++);
+        ConsumerFunctionContext<String, FilterFunction> context = filter.getFunctions().get(i++);
         assertEquals(1, context.getSelection().size());
-        assertEquals(property1, context.getSelection().get(0).getPropertyName());
+        assertEquals(property1, context.getSelection().get(0));
         assertSame(func1, context.getFunction());
 
         context = filter.getFunctions().get(i++);
         assertEquals(1, context.getSelection().size());
-        assertEquals(property2, context.getSelection().get(0).getPropertyName());
+        assertEquals(property2, context.getSelection().get(0));
 
         context = filter.getFunctions().get(i++);
         assertEquals(2, context.getSelection().size());
-        assertEquals(property3a, context.getSelection().get(0).getPropertyName());
-        assertEquals(property3b, context.getSelection().get(1).getPropertyName());
+        assertEquals(property3a, context.getSelection().get(0));
+        assertEquals(property3b, context.getSelection().get(1));
         assertSame(func3, context.getFunction());
 
         context = filter.getFunctions().get(i++);
@@ -146,7 +145,7 @@ public class ElementFilterTest {
         context = filter.getFunctions().get(i++);
         assertSame(func5, context.getFunction());
         assertEquals(1, context.getSelection().size());
-        assertEquals(identifierType5, context.getSelection().get(0).getIdentifierType());
+        assertEquals(identifierType5.name(), context.getSelection().get(0));
 
         assertEquals(i, filter.getFunctions().size());
     }
