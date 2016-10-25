@@ -25,6 +25,8 @@ import gaffer.data.element.Entity;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
+import gaffer.operation.simple.spark.ConversionException;
+import gaffer.operation.simple.spark.Converter;
 import gaffer.operation.simple.spark.GetDataFrameOfElements;
 import gaffer.types.simple.FreqMap;
 import gaffer.user.User;
@@ -34,8 +36,11 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class GetDataFrameOfElementsHandlerTest {
@@ -417,7 +422,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("checkGetCorrectElementsInDataFrame")
+                .setAppName("checkCanDealWithNonStandardProperties")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
@@ -472,6 +477,87 @@ public class GetDataFrameOfElementsHandlerTest {
         final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
         hllpp2.offer("AAA");
         fields1.appendElem(hllpp2.cardinality());
+        expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+        assertEquals(expectedRows, results);
+
+        sparkContext.stop();
+    }
+
+    @Test
+    public void checkCanDealWithUserDefinedConversion() throws OperationException {
+        final Graph graph1 = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchemaUserDefinedConversion.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+
+        final User user = new User();
+        graph1.execute(new AddElements(getElementsForUserDefinedConversion()), user);
+
+        final SparkConf sparkConf = new SparkConf()
+                .setMaster("local")
+                .setAppName("checkCanDealWithUserDefinedConversion")
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
+                .set("spark.driver.allowMultipleContexts", "true");
+        final SparkContext sparkContext = new SparkContext(sparkConf);
+        final SQLContext sqlContext = new SQLContext(sparkContext);
+
+        // Edges group - check get correct edges
+        final List<Converter> converters = new ArrayList<>();
+        converters.add(new MyPropertyConverter());
+        GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .group(EDGE_GROUP)
+                .converters(converters)
+                .build();
+        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        Set<Row> results = new HashSet<>(dataFrame.collectAsList());
+        final Set<Row> expectedRows = new HashSet<>();
+        final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+        scala.collection.mutable.Map<String, Long> freqMap = scala.collection.mutable.Map$.MODULE$.empty();
+        freqMap.put("Y", 1000L);
+        freqMap.put("Z", 10000L);
+        fields1.appendElem(EDGE_GROUP);
+        fields1.appendElem("B");
+        fields1.appendElem("C");
+        fields1.appendElem(freqMap);
+        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
+        hllpp.offer("AAA");
+        hllpp.offer("BBB");
+        fields1.appendElem(hllpp.cardinality());
+        fields1.appendElem(50);
+        expectedRows.add(Row$.MODULE$.fromSeq(fields1));
+        assertEquals(expectedRows, results);
+
+        // Entities group - check get correct entities
+        dfOperation = new GetDataFrameOfElements.Builder()
+                .sqlContext(sqlContext)
+                .group(ENTITY_GROUP)
+                .converters(converters)
+                .build();
+        dataFrame = graph1.execute(dfOperation, user);
+        if (dataFrame == null) {
+            fail("No DataFrame returned");
+        }
+        results.clear();
+        results.addAll(dataFrame.collectAsList());
+        expectedRows.clear();
+        fields1.clear();
+        freqMap.clear();
+        freqMap.put("W", 10L);
+        freqMap.put("X", 100L);
+        fields1.appendElem(ENTITY_GROUP);
+        fields1.appendElem("A");
+        fields1.appendElem(freqMap);
+        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
+        hllpp2.offer("AAA");
+        fields1.appendElem(hllpp2.cardinality());
+        fields1.appendElem(10);
         expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         assertEquals(expectedRows, results);
 
@@ -545,6 +631,55 @@ public class GetDataFrameOfElementsHandlerTest {
         edge.putProperty("hllpp", hllpp2);
         elements.add(edge);
         return elements;
+    }
+
+    private static List<Element> getElementsForUserDefinedConversion() {
+        final List<Element> elements = new ArrayList<>();
+        final Entity entity = new Entity(ENTITY_GROUP);
+        entity.setVertex("A");
+        final FreqMap freqMap = new FreqMap();
+        freqMap.put("W", 10L);
+        freqMap.put("X", 100L);
+        entity.putProperty("freqMap", freqMap);
+        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
+        hllpp.offer("AAA");
+        entity.putProperty("hllpp", hllpp);
+        entity.putProperty("myProperty", new MyProperty(10));
+        elements.add(entity);
+        final Edge edge = new Edge(EDGE_GROUP);
+        edge.setSource("B");
+        edge.setDestination("C");
+        edge.setDirected(true);
+        final FreqMap freqMap2 = new FreqMap();
+        freqMap2.put("Y", 1000L);
+        freqMap2.put("Z", 10000L);
+        edge.putProperty("freqMap", freqMap2);
+        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
+        hllpp2.offer("AAA");
+        hllpp2.offer("BBB");
+        edge.putProperty("hllpp", hllpp2);
+        edge.putProperty("myProperty", new MyProperty(50));
+        elements.add(edge);
+        return elements;
+    }
+
+    private static class MyPropertyConverter implements Converter, Serializable {
+        private static final long serialVersionUID = 7777521632508320165L;
+
+        @Override
+        public boolean canHandle(Class clazz) {
+            return MyProperty.class.equals(clazz);
+        }
+
+        @Override
+        public DataType convertedType() {
+            return DataTypes.IntegerType;
+        }
+
+        @Override
+        public Object convert(Object object) throws ConversionException {
+            return ((MyProperty) object).getA();
+        }
     }
 
 }

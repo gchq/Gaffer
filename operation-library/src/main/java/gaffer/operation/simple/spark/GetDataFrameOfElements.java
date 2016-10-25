@@ -22,6 +22,7 @@ import org.apache.spark.sql.SQLContext;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
@@ -40,19 +41,22 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     private SQLContext sqlContext;
     private LinkedHashSet<String> groups;
+    private List<Converter> converters;
 
     public GetDataFrameOfElements() { }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
-                                  final String group) {
+                                  final LinkedHashSet<String> groups,
+                                  final List<Converter> converters) {
         this.sqlContext = sqlContext;
-        this.groups = new LinkedHashSet<>(Collections.singleton(group));
+        this.groups = new LinkedHashSet<>(groups);
+        this.converters = converters;
     }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
-                                  final LinkedHashSet<String> groups) {
-        this.sqlContext = sqlContext;
-        this.groups = new LinkedHashSet<>(groups);
+                                  final String group,
+                                  final List<Converter> converters) {
+        this(sqlContext, new LinkedHashSet<>(Collections.singleton(group)), converters);
     }
 
     public void setSqlContext(final SQLContext sqlContext) {
@@ -69,6 +73,14 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     public LinkedHashSet<String> getGroups() {
         return groups;
+    }
+
+    public void setConverters(final List<Converter> converters) {
+        this.converters = converters;
+    }
+
+    public List<Converter> getConverters() {
+        return converters;
     }
 
     public abstract static class BaseBuilder <CHILD_CLASS extends BaseBuilder<?>>
@@ -94,6 +106,11 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
         public CHILD_CLASS groups(final LinkedHashSet<String> groups) {
             op.setGroups(groups);
+            return self();
+        }
+
+        public CHILD_CLASS converters(final List<Converter> converters) {
+            op.setConverters(converters);
             return self();
         }
     }

@@ -35,6 +35,8 @@ import gaffer.function.simple.filter.Not;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.simple.spark.AbstractGetRDD;
+import gaffer.operation.simple.spark.ConversionException;
+import gaffer.operation.simple.spark.Converter;
 import gaffer.operation.simple.spark.GetRDDOfAllElements;
 import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.store.schema.SchemaEdgeDefinition;
@@ -124,20 +126,24 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     private final SQLContext sqlContext;
     private final LinkedHashSet<String> groups;
+    private final List<Converter> converters;
     private final AccumuloStore store;
     private final User user;
     private final Map<String, EntityOrEdge> entityOrEdgeByGroup = new HashMap<>();
     private final LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
     private final Map<String, StructType> structTypeByGroup = new HashMap<>();
     private final Map<String, Boolean> propertyNeedsConversion = new HashMap<>();
+    private final Map<String, Converter> converterByProperty = new HashMap<>();
     private StructType structType;
 
     public AccumuloStoreRelation(final SQLContext sqlContext,
                                  final LinkedHashSet<String> groups,
+                                 final List<Converter> converters,
                                  final AccumuloStore store,
                                  final User user) {
         this.sqlContext = sqlContext;
         this.groups = groups;
+        this.converters = converters;
         this.store = store;
         this.user = user;
         buildSchema();
@@ -154,9 +160,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from <code>group</code>.
+     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups.
      *
-     * @return An {@link RDD} of {@link Row}s containing {@link Element}s whose group is <code>group</code>.
+     * @return An {@link RDD} of {@link Row}s containing {@link Element}s whose group is in <code>groups</code>.
      */
     @Override
     public RDD<Row> buildScan() {
@@ -165,7 +171,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(getView());
             final RDD<Element> rdd = store.execute(operation, user);
-            return rdd.map(new ElementToRow(usedProperties, propertyNeedsConversion), ClassTagConstants.ROW_CLASS_TAG);
+            return rdd.map(new ElementToRow(usedProperties, propertyNeedsConversion, converterByProperty),
+                    ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation: {}", e);
             return null;
@@ -173,7 +180,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from <code>group</code> with columns that are not
+     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups with columns that are not
      * required filtered out.
      * <p>
      * Currently this does not push the projection down to the store (i.e. it should be implemented in an iterator,
@@ -190,7 +197,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(getView());
             final RDD<Element> rdd = store.execute(operation, user);
-            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)), propertyNeedsConversion),
+            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                            propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation {}", e);
@@ -199,7 +207,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from <code>group</code> with columns that are not
+     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups with columns that are not
      * required filtered out and with (some of) the supplied {@link Filter}s applied.
      * <p>
      * Note that Spark also applies the provided {@link Filter}s - applying them here is an optimisation to reduce
@@ -209,7 +217,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * not in the transform). Issue 320 refers to this.
      *
      * @param requiredColumns The columns to return.
-     * @param filters         The pre Aggregation {@link Filter}s to apply.
+     * @param filters         The {@link Filter}s to apply (these are applied before aggregation).
      * @return An {@link RDD} of {@link Row}s containing the requested columns.
      */
     @Override
@@ -245,7 +253,8 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         // Create RDD
         try {
             final RDD<Element> rdd = store.execute(operation, user);
-            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)), propertyNeedsConversion),
+            return rdd.map(new ElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                            propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
             LOGGER.error("OperationException while executing operation {}", e);
@@ -361,14 +370,35 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             }
             final Set<String> properties = elementDefn.getProperties();
             for (final String property : properties) {
+                // Check if property is of a known type that can be handled by default
                 final String propertyClass = elementDefn.getPropertyClass(property).getCanonicalName();
-                final DataType propertyType = getType(propertyClass);
-                propertyNeedsConversion.put(property, needsConversion(propertyClass));
-                if (propertyType == null) {
-                    LOGGER.warn("Ignoring property {} as it is not a recognised type", property);
-                } else {
-                    LOGGER.info("Property {} is of type {}", property, propertyType);
+                DataType propertyType = getType(propertyClass);
+                if (propertyType != null) {
+                    propertyNeedsConversion.put(property, needsConversion(propertyClass));
                     structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
+                    LOGGER.info("Property {} is of type {}", property, propertyType);
+                } else {
+                    // Check if any of the provided converters can handle it
+                    if (converters != null) {
+                        for (final Converter converter : converters) {
+                            if (converter.canHandle(elementDefn.getPropertyClass(property))) {
+                                propertyNeedsConversion.put(property, true);
+                                propertyType = converter.convertedType();
+                                converterByProperty.put(property, converter);
+                                structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
+                                LOGGER.info("Property {} of type {} will be converted by {} to {}",
+                                        property,
+                                        propertyClass,
+                                        converter.getClass().getName(),
+                                        propertyType);
+                                break;
+                            }
+                        }
+                        if (propertyType == null) {
+                            LOGGER.warn("Ignoring property {} as it is not a recognised type and none of the provided "
+                                    + "converters can handle it", property);
+                        }
+                    }
                 }
             }
             structTypeByGroup.put(group, new StructType(structFieldList.toArray(new StructField[structFieldList.size()])));
@@ -411,7 +441,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         }
         structType = new StructType(fields.toArray(new StructField[fields.size()]));
         LOGGER.info("Schema is {}", structType);
-        LOGGER.info("properties -> conversion: {}", StringUtils.join(propertyNeedsConversion.entrySet(), ','));
+        LOGGER.debug("properties -> conversion: {}", StringUtils.join(propertyNeedsConversion.entrySet(), ','));
     }
 
     private View getView() {
@@ -434,11 +464,13 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * @param properties The properties to be included in the conversion.
      * @param propertyNeedsConversion A Map indicating whether a property needs to be converted before it can be inserted
      *                                into the Dataframe.
+     * @param convertersByProperty A Map giving the Converter for a property.
      * @return a {@link Row} containing the vertex and the required properties.
      */
     private static Row getRowFromEntity(final Entity entity,
                                         final LinkedHashSet<String> properties,
-                                        final Map<String, Boolean> propertyNeedsConversion) {
+                                        final Map<String, Boolean> propertyNeedsConversion,
+                                        final Map<String, Converter> convertersByProperty) {
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
@@ -456,7 +488,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(entity.getProperties().get(property));
                         } else {
-                            fields.appendElem(convertProperty(entity.getProperties().get(property)));
+                            fields.appendElem(convertProperty(property, entity.getProperties().get(property), convertersByProperty));
                         }
                     }
             }
@@ -472,11 +504,13 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * @param properties The properties to be included in the conversion.
      * @param propertyNeedsConversion A Map indicating whether a property needs to be converted before it can be inserted
      *                                into the Dataframe.
+     * @param convertersByProperty A Map giving the Converter for a property.
      * @return A {@link Row} containing the source, destination, and the required properties.
      */
     private static Row getRowFromEdge(final Edge edge,
                                       final LinkedHashSet<String> properties,
-                                      final Map<String, Boolean> propertyNeedsConversion) {
+                                      final Map<String, Boolean> propertyNeedsConversion,
+                                      final Map<String, Converter> convertersByProperty) {
         final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
         for (final String property : properties) {
             switch (property) {
@@ -497,7 +531,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(edge.getProperties().get(property));
                         } else {
-                            fields.appendElem(convertProperty(edge.getProperties().get(property)));
+                            fields.appendElem(convertProperty(property, edge.getProperties().get(property), convertersByProperty));
                         }
                     }
             }
@@ -558,17 +592,29 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Automatically converts known properties to values that can be included in a Dataframe.
+     * Converts properties to values that can be included in a Dataframe.
      *
-     * @param property The property to be converted.
+     * @param name     The name of the property to be converted.
+     * @param property The value of the property to be converted.
+     * @param convertersByProperty A Map giving the Converter for a property.
      * @return The property converted to a valid {@link DataType}.
      */
-    private static Object convertProperty(final Object property) {
+    private static Object convertProperty(final String name,
+                                          final Object property,
+                                          final Map<String, Converter> convertersByProperty) {
         if (property instanceof HyperLogLogPlus) {
             return ((HyperLogLogPlus) property).cardinality();
         }
         if (property instanceof FreqMap) {
             return JavaConverters.mapAsScalaMapConverter((FreqMap) property).asScala();
+        }
+        final Converter converter = convertersByProperty.get(name);
+        if (converter != null) {
+            try {
+                return converter.convert(property);
+            } catch (final ConversionException e) {
+                return null;
+            }
         }
         return null;
     }
@@ -578,19 +624,23 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         private static final long serialVersionUID = 3090917576150868059L;
         private final LinkedHashSet<String> properties;
         private final Map<String, Boolean> propertyNeedsConversion;
+        private final Map<String, Converter> convertersByProperty;
 
-        ElementToRow(final LinkedHashSet<String> properties, final Map<String, Boolean> propertyNeedsConversion) {
+        ElementToRow(final LinkedHashSet<String> properties,
+                     final Map<String, Boolean> propertyNeedsConversion,
+                     final Map<String, Converter> convertersByProperty) {
             this.properties = properties;
             this.propertyNeedsConversion = propertyNeedsConversion;
+            this.convertersByProperty = convertersByProperty;
         }
 
         @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If not an Entity then must be an Edge")
         @Override
         public Row apply(final Element element) {
             if (element instanceof Entity) {
-                return getRowFromEntity((Entity) element, properties, propertyNeedsConversion);
+                return getRowFromEntity((Entity) element, properties, propertyNeedsConversion, convertersByProperty);
             }
-            return getRowFromEdge((Edge) element, properties, propertyNeedsConversion);
+            return getRowFromEdge((Edge) element, properties, propertyNeedsConversion, convertersByProperty);
         }
     }
 

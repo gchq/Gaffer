@@ -29,6 +29,9 @@
     },
     "hyperLogLogPlus": {
       "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    },
+    "myProperty": {
+      "class": "gaffer.accumulostore.operation.spark.handler.MyProperty"
     }
   }
 }
