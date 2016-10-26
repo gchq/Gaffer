@@ -18,7 +18,7 @@ package gaffer.store.schema;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import gaffer.data.element.ElementComponentKey;
+import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.function.ConsumerFunction;
@@ -174,10 +174,10 @@ public class ViewValidator {
      */
 
     private boolean validateFunctionArgumentTypes(
-            final Processor<ElementComponentKey, ? extends ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction>> processor,
+            final Processor<String, ? extends ConsumerFunctionContext<String, ? extends ConsumerFunction>> processor,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         if (null != processor && null != processor.getFunctions()) {
-            for (final ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> context : processor.getFunctions()) {
+            for (final ConsumerFunctionContext<String, ? extends ConsumerFunction> context : processor.getFunctions()) {
                 if (null == context.getFunction()) {
                     LOGGER.error(processor.getClass().getSimpleName() + " contains a function context with a null function.");
                     return false;
@@ -188,7 +188,7 @@ public class ViewValidator {
                 }
 
                 if (context instanceof ConsumerProducerFunctionContext
-                        && !validateFunctionProjectionTypes(viewElDef, schemaElDef, (ConsumerProducerFunctionContext<ElementComponentKey, ? extends ConsumerFunction>) context)) {
+                        && !validateFunctionProjectionTypes(viewElDef, schemaElDef, (ConsumerProducerFunctionContext<String, ? extends ConsumerFunction>) context)) {
                     return false;
                 }
             }
@@ -199,7 +199,7 @@ public class ViewValidator {
 
     private boolean validateFunctionSelectionTypes(final ViewElementDefinition viewElDef,
                                                    final SchemaElementDefinition schemaElDef,
-                                                   final ConsumerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> context) {
+                                                   final ConsumerFunctionContext<String, ? extends ConsumerFunction> context) {
         final ConsumerFunction function = context.getFunction();
         final Class<?>[] inputTypes = function.getInputClasses();
         if (null == inputTypes || 0 == inputTypes.length) {
@@ -215,38 +215,39 @@ public class ViewValidator {
         }
 
         int i = 0;
-        for (final ElementComponentKey key : context.getSelection()) {
+        for (final String key : context.getSelection()) {
+            final IdentifierType idType = IdentifierType.fromName(key);
             final Class<?> clazz;
-            if (key.isId()) {
-                clazz = schemaElDef.getIdentifierClass(key.getIdentifierType());
+            if (null != idType) {
+                clazz = schemaElDef.getIdentifierClass(idType);
             } else {
-                final Class<?> schemaClazz = schemaElDef.getPropertyClass(key.getPropertyName());
+                final Class<?> schemaClazz = schemaElDef.getPropertyClass(key);
                 if (null != schemaClazz) {
                     clazz = schemaClazz;
                 } else {
-                    clazz = viewElDef.getTransientPropertyClass(key.getPropertyName());
+                    clazz = viewElDef.getTransientPropertyClass(key);
                 }
             }
 
             if (null == clazz) {
-                if (key.isId()) {
-                    final String typeName = schemaElDef.getIdentifierTypeName(key.getIdentifierType());
+                if (null != idType) {
+                    final String typeName = schemaElDef.getIdentifierTypeName(idType);
                     if (null != typeName) {
                         LOGGER.error("No class type found for type definition " + typeName
-                                + " used by identifier " + key.getIdentifierType()
+                                + " used by identifier " + idType
                                 + ". Please ensure it is defined in the schema.");
                     } else {
-                        LOGGER.error("No type definition defined for identifier " + key.getIdentifierType()
+                        LOGGER.error("No type definition defined for identifier " + idType
                                 + ". Please ensure it is defined in the schema.");
                     }
                 } else {
-                    final String typeName = schemaElDef.getPropertyTypeName(key.getPropertyName());
+                    final String typeName = schemaElDef.getPropertyTypeName(key);
                     if (null != typeName) {
                         LOGGER.error("No class type found for type definition " + typeName
-                                + " used by property " + key.getPropertyName()
+                                + " used by property " + key
                                 + ". Please ensure it is defined in the schema.");
                     } else {
-                        LOGGER.error("No class type found for transient property " + key.getPropertyName()
+                        LOGGER.error("No class type found for transient property " + key
                                 + ". Please ensure it is defined in the view.");
                     }
                 }
@@ -269,7 +270,7 @@ public class ViewValidator {
 
     private boolean validateFunctionProjectionTypes(final ViewElementDefinition viewElDef,
                                                     final SchemaElementDefinition schemaElDef,
-                                                    final ConsumerProducerFunctionContext<ElementComponentKey, ? extends ConsumerFunction> consumerProducerContext) {
+                                                    final ConsumerProducerFunctionContext<String, ? extends ConsumerFunction> consumerProducerContext) {
         final ConsumerProducerFunction function = consumerProducerContext.getFunction();
         final Class<?>[] outputTypes = function.getOutputClasses();
         if (null == outputTypes || 0 == outputTypes.length) {
@@ -285,16 +286,17 @@ public class ViewValidator {
         }
 
         int i = 0;
-        for (final ElementComponentKey key : consumerProducerContext.getProjection()) {
+        for (final String key : consumerProducerContext.getProjection()) {
             final Class<?> clazz;
-            if (key.isId()) {
-                clazz = schemaElDef.getIdentifierClass(key.getIdentifierType());
+            final IdentifierType idType = IdentifierType.fromName(key);
+            if (null != idType) {
+                clazz = schemaElDef.getIdentifierClass(idType);
             } else {
-                final Class<?> schemaClazz = schemaElDef.getPropertyClass(key.getPropertyName());
+                final Class<?> schemaClazz = schemaElDef.getPropertyClass(key);
                 if (null != schemaClazz) {
                     clazz = schemaClazz;
                 } else {
-                    clazz = viewElDef.getTransientPropertyClass(key.getPropertyName());
+                    clazz = viewElDef.getTransientPropertyClass(key);
                 }
             }
             if (null == clazz || !outputTypes[i].isAssignableFrom(clazz)) {

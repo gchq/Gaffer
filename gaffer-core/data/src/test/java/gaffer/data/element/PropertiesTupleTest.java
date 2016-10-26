@@ -16,12 +16,12 @@
 
 package gaffer.data.element;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PropertiesTupleTest {
@@ -43,15 +43,16 @@ public class PropertiesTupleTest {
     @Test
     public void shouldGetPropertyFromPropertiesWithinTuple() {
         // Given
-        final ElementComponentKey elmKey = new ElementComponentKey("property name");
-        final Properties properties = new Properties("property name", "property value");
+        final String propertName = "property name";
+        final String propertyValue = "property value";
+        final Properties properties = new Properties(propertName, propertyValue);
         final PropertiesTuple tuple = new PropertiesTuple(properties);
 
         // When
-        final Object property = tuple.get(elmKey);
+        final Object property = tuple.get(propertName);
 
         // Then
-        assertSame("property value", property);
+        assertSame(propertyValue, property);
     }
 
     @Test
@@ -59,12 +60,13 @@ public class PropertiesTupleTest {
         // Given
         final Properties properties = new Properties();
         final PropertiesTuple tuple = new PropertiesTuple(properties);
-        final ElementComponentKey elmKey = new ElementComponentKey("property name");
+        final String propertyName = "property name";
+        final String propertyValue = "property value";
 
         // When
-        tuple.put(elmKey, "property value");
+        tuple.put(propertyName, propertyValue);
 
         // Then
-        assertEquals("property value", properties.get("property name"));
+        assertEquals(propertyValue, properties.get(propertyName));
     }
 }

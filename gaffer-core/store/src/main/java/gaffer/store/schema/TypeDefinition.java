@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.function.AggregateFunction;
@@ -78,9 +77,9 @@ public class TypeDefinition {
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
     @JsonGetter("validateFunctions")
-    public ConsumerFunctionContext<ElementComponentKey, FilterFunction>[] getOriginalValidateFunctions() {
+    public ConsumerFunctionContext<String, FilterFunction>[] getOriginalValidateFunctions() {
         if (null != validator) {
-            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions = validator.getFunctions();
+            final List<ConsumerFunctionContext<String, FilterFunction>> functions = validator.getFunctions();
             return functions.toArray(new ConsumerFunctionContext[functions.size()]);
         }
 
@@ -88,7 +87,7 @@ public class TypeDefinition {
     }
 
     @JsonSetter("validateFunctions")
-    public void addValidateFunctions(final ConsumerFunctionContext<ElementComponentKey, FilterFunction>... functions) {
+    public void addValidateFunctions(final ConsumerFunctionContext<String, FilterFunction>... functions) {
         if (null == validator) {
             validator = new ElementFilter();
         }

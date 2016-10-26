@@ -17,9 +17,12 @@
 package gaffer.jsonSerialisation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -36,6 +39,18 @@ public class JSONSerialiserTest {
     @Before
     public void setupTest() throws SerialisationException {
         serialiser = new JSONSerialiser();
+    }
+
+    @Test
+    public void shouldConstructWithCustomObjectMapper() throws IOException {
+        // Given
+        final ObjectMapper objectMapper = mock(ObjectMapper.class);
+
+        // When
+        final JSONSerialiser jsonSerialiser = new JSONSerialiser(objectMapper);
+
+        // Then
+        assertSame(objectMapper, jsonSerialiser.getMapper());
     }
 
     @Test
