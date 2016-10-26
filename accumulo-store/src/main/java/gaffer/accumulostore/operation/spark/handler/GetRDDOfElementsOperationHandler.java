@@ -17,6 +17,7 @@ package gaffer.accumulostore.operation.spark.handler;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
+import gaffer.accumulostore.operation.spark.handler.dataframe.ClassTagConstants;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;

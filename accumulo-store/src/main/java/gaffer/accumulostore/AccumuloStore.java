@@ -44,7 +44,7 @@ import gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
-import gaffer.accumulostore.operation.spark.handler.GetDataFrameOfElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.dataframe.GetDataFrameOfElementsOperationHandler;
 import gaffer.accumulostore.operation.spark.handler.GetJavaRDDOfAllElementsOperationHandler;
 import gaffer.accumulostore.operation.spark.handler.GetJavaRDDOfElementsOperationHandler;
 import gaffer.accumulostore.operation.spark.handler.GetRDDOfAllElementsOperationHandler;
