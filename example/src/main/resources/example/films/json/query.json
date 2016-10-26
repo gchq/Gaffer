@@ -33,9 +33,7 @@
                   }
                 },
                 "selection": [
-                  {
-                    "key": "userId"
-                  }
+                  "userId"
                 ]
               }
             ],
@@ -45,17 +43,11 @@
                   "class": "gaffer.example.films.function.transform.StarRatingTransform"
                 },
                 "selection": [
-                  {
-                    "key": "rating"
-                  },
-                  {
-                    "key": "count"
-                  }
+                  "rating",
+                  "count"
                 ],
                 "projection": [
-                  {
-                    "key": "starRating"
-                  }
+                  "starRating"
                 ]
               }
             ]

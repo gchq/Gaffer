@@ -21,13 +21,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import gaffer.exception.SerialisationException;
 import sun.misc.IOUtils;
 import java.io.IOException;
@@ -46,21 +43,19 @@ public class JSONSerialiser {
      * Constructs a <code>JSONSerialiser</code> that skips nulls and default values.
      */
     public JSONSerialiser() {
-        mapper = createDefaultMapper();
+        this(createDefaultMapper());
     }
 
     /**
-     * Constructs a <code>JSONSerialiser</code> that skips nulls and default values and adds the custom serialisers.
+     * Constructs a <code>JSONSerialiser</code> with a custom {@link ObjectMapper}.
+     * To create the custom ObjectMapper it is advised that you start with the
+     * default mapper provided from JSONSerialiser.createDefaultMapper() then
+     * add your custom configuration.
      *
-     * @param customTypeSerialisers custom type {@link com.fasterxml.jackson.databind.JsonSerializer}
+     * @param mapper a custom object mapper
      */
-    public JSONSerialiser(final JsonSerializer... customTypeSerialisers) {
-        this();
-        final SimpleModule module = new SimpleModule("custom", new Version(1, 0, 0, null, null, null));
-        for (final JsonSerializer customTypeSerialiser : customTypeSerialisers) {
-            module.addSerializer(customTypeSerialiser);
-        }
-        mapper.registerModule(module);
+    public JSONSerialiser(final ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 
     public static ObjectMapper createDefaultMapper() {
@@ -70,6 +65,7 @@ public class JSONSerialiser {
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         return mapper;
     }
+
 
     /**
      * @param clazz the clazz of the object to be serialised/deserialised
@@ -190,5 +186,9 @@ public class JSONSerialiser {
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
+    }
+
+    public ObjectMapper getMapper() {
+        return mapper;
     }
 }

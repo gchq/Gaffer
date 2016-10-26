@@ -24,7 +24,7 @@ import gaffer.function.Tuple;
  * {@link gaffer.data.element.Element} and providing a getter and setter for the element's identifiers and properties.
  * This class allows Elements to be used with the function module whilst minimising dependencies.
  */
-public class ElementTuple implements Tuple<ElementComponentKey> {
+public class ElementTuple implements Tuple<String> {
     private Element element;
 
     public ElementTuple() {
@@ -43,20 +43,23 @@ public class ElementTuple implements Tuple<ElementComponentKey> {
     }
 
     @Override
-    public Object get(final ElementComponentKey reference) {
-        if (reference.isId()) {
-            return element.getIdentifier(reference.getIdentifierType());
-        } else {
-            return element.getProperty(reference.getPropertyName());
+    public Object get(final String reference) {
+        final IdentifierType idType = IdentifierType.fromName(reference);
+        if (null == idType) {
+            return element.getProperty(reference);
         }
+
+        return element.getIdentifier(idType);
     }
 
     @Override
-    public void put(final ElementComponentKey reference, final Object value) {
-        if (reference.isId()) {
-            element.putIdentifier(reference.getIdentifierType(), value);
+    public void put(final String reference, final Object value) {
+        final IdentifierType idType = IdentifierType.fromName(reference);
+
+        if (null == idType) {
+            element.putProperty(reference, value);
         } else {
-            element.putProperty(reference.getPropertyName(), value);
+            element.putIdentifier(idType, value);
         }
     }
 

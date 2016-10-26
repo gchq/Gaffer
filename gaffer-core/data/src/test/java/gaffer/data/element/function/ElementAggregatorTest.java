@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import gaffer.data.element.Edge;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Properties;
 import gaffer.data.element.PropertiesTuple;
 import gaffer.function.AggregateFunction;
@@ -48,10 +47,10 @@ public class ElementAggregatorTest {
         final String reference = "reference1";
         final String value = "value";
         final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
-        final List<ElementComponentKey> references = Collections.singletonList(new ElementComponentKey(reference));
+        final List<String> references = Collections.singletonList(reference);
         given(functionContext1.getSelection()).willReturn(references);
 
         aggregator.addFunction(functionContext1);
@@ -80,10 +79,10 @@ public class ElementAggregatorTest {
         final String reference = "reference1";
         final String value = "value";
         final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
-        final List<ElementComponentKey> references = Collections.singletonList(new ElementComponentKey(reference));
+        final List<String> references = Collections.singletonList(reference);
         given(functionContext1.getSelection()).willReturn(references);
 
         aggregator.addFunction(functionContext1);
@@ -127,7 +126,7 @@ public class ElementAggregatorTest {
         // Given
         final Object[] state = {"state1", "state2"};
         final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
         given(function.state()).willReturn(state);
@@ -150,7 +149,7 @@ public class ElementAggregatorTest {
         // Given
         final Object[] state = {"state1", "state2"};
         final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
         given(function.state()).willReturn(state);
@@ -173,11 +172,11 @@ public class ElementAggregatorTest {
         // Given
         final String reference1 = "reference1";
         final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
+        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
         final AggregateFunction function = mock(AggregateFunction.class);
         final AggregateFunction clonedFunction = mock(AggregateFunction.class);
         given(functionContext1.getFunction()).willReturn(function);
-        given(functionContext1.getSelection()).willReturn(Collections.singletonList(new ElementComponentKey(reference1)));
+        given(functionContext1.getSelection()).willReturn(Collections.singletonList(reference1));
         given(function.statelessClone()).willReturn(clonedFunction);
 
         aggregator.addFunction(functionContext1);
@@ -188,9 +187,9 @@ public class ElementAggregatorTest {
         // Then
         assertNotSame(aggregator, clone);
         assertEquals(1, clone.getFunctions().size());
-        final PassThroughFunctionContext<ElementComponentKey, AggregateFunction> resultClonedFunction = clone.getFunctions().get(0);
+        final PassThroughFunctionContext<String, AggregateFunction> resultClonedFunction = clone.getFunctions().get(0);
         assertEquals(1, resultClonedFunction.getSelection().size());
-        assertEquals(reference1, resultClonedFunction.getSelection().get(0).getKeyObject());
+        assertEquals(reference1, resultClonedFunction.getSelection().get(0));
         assertNotSame(functionContext1, resultClonedFunction);
         assertNotSame(function, resultClonedFunction.getFunction());
         assertSame(clonedFunction, resultClonedFunction.getFunction());
@@ -225,19 +224,19 @@ public class ElementAggregatorTest {
 
         // Then
         int i = 0;
-        PassThroughFunctionContext<ElementComponentKey, AggregateFunction> context = aggregator.getFunctions().get(i++);
+        PassThroughFunctionContext<String, AggregateFunction> context = aggregator.getFunctions().get(i++);
         assertEquals(1, context.getSelection().size());
-        assertEquals(property1, context.getSelection().get(0).getPropertyName());
+        assertEquals(property1, context.getSelection().get(0));
         assertSame(func1, context.getFunction());
 
         context = aggregator.getFunctions().get(i++);
         assertEquals(1, context.getSelection().size());
-        assertEquals(property2, context.getSelection().get(0).getPropertyName());
+        assertEquals(property2, context.getSelection().get(0));
 
         context = aggregator.getFunctions().get(i++);
         assertEquals(2, context.getSelection().size());
-        assertEquals(property3a, context.getSelection().get(0).getPropertyName());
-        assertEquals(property3b, context.getSelection().get(1).getPropertyName());
+        assertEquals(property3a, context.getSelection().get(0));
+        assertEquals(property3b, context.getSelection().get(1));
         assertSame(func3, context.getFunction());
 
         context = aggregator.getFunctions().get(i++);
@@ -246,7 +245,7 @@ public class ElementAggregatorTest {
         context = aggregator.getFunctions().get(i++);
         assertSame(func5, context.getFunction());
         assertEquals(1, context.getSelection().size());
-        assertEquals(property5, context.getSelection().get(0).getPropertyName());
+        assertEquals(property5, context.getSelection().get(0));
 
         assertEquals(i, aggregator.getFunctions().size());
     }

@@ -16,16 +16,16 @@
 
 package gaffer.data.element;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElementTupleTest {
@@ -50,12 +50,11 @@ public class ElementTupleTest {
         final Element element = mock(Element.class);
         final ElementTuple tuple = new ElementTuple(element);
         final IdentifierType idType = IdentifierType.SOURCE;
-        final ElementComponentKey idKey = new ElementComponentKey(idType.toString(), true);
         final String expectedId = "source";
         given(element.getIdentifier(idType)).willReturn(expectedId);
 
         // When
-        final Object identifier = tuple.get(idKey);
+        final Object identifier = tuple.get(idType.name());
 
         // Then
         assertSame(expectedId, identifier);
@@ -68,12 +67,11 @@ public class ElementTupleTest {
         final Element element = mock(Element.class);
         final ElementTuple tuple = new ElementTuple(element);
         final String propertyName = "property name";
-        final ElementComponentKey propertyKey = new ElementComponentKey(propertyName, false);
         final String expectedProperty = "property value";
         given(element.getProperty(propertyName)).willReturn(expectedProperty);
 
         // When
-        final Object property = tuple.get(propertyKey);
+        final Object property = tuple.get(propertyName);
 
         // Then
         assertSame(expectedProperty, property);
@@ -86,11 +84,10 @@ public class ElementTupleTest {
         final Element element = mock(Element.class);
         final ElementTuple tuple = new ElementTuple(element);
         final IdentifierType idType = IdentifierType.SOURCE;
-        final ElementComponentKey idKey = new ElementComponentKey(idType.toString(), true);
         final String identifier = "source";
 
         // When
-        tuple.put(idKey, identifier);
+        tuple.put(idType.name(), identifier);
 
         // Then
         verify(element).putIdentifier(idType, identifier);
@@ -103,11 +100,10 @@ public class ElementTupleTest {
         final Element element = mock(Element.class);
         final ElementTuple tuple = new ElementTuple(element);
         final String propertyName = "property name";
-        final ElementComponentKey propertyKey = new ElementComponentKey(propertyName, false);
         final String property = "property value";
 
         // When
-        tuple.put(propertyKey, property);
+        tuple.put(propertyName, property);
 
         // Then
         verify(element).putProperty(propertyName, property);

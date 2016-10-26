@@ -18,7 +18,6 @@ package gaffer.data.element.function;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Properties;
 import gaffer.data.element.PropertiesTuple;
 import gaffer.function.AggregateFunction;
@@ -43,7 +42,7 @@ import gaffer.function.processor.Aggregator;
  * @see gaffer.data.element.function.ElementAggregator.Builder
  * @see gaffer.function.processor.Aggregator
  */
-public class ElementAggregator extends Aggregator<ElementComponentKey> {
+public class ElementAggregator extends Aggregator<String> {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
 
     /**
@@ -89,7 +88,7 @@ public class ElementAggregator extends Aggregator<ElementComponentKey> {
     /**
      * Builder for {@link ElementAggregator}.
      */
-    public static class Builder extends Aggregator.Builder<ElementComponentKey> {
+    public static class Builder extends Aggregator.Builder<String> {
         public Builder() {
             this(new ElementAggregator());
         }
@@ -98,12 +97,8 @@ public class ElementAggregator extends Aggregator<ElementComponentKey> {
             super(aggregator);
         }
 
-        public Builder select(final ElementComponentKey... selection) {
-            return (Builder) super.select(selection);
-        }
-
         public Builder select(final String... selection) {
-            return (Builder) super.select(ElementComponentKey.createKeys(selection));
+            return (Builder) super.select(selection);
         }
 
         public Builder execute(final AggregateFunction function) {

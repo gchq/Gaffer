@@ -112,7 +112,7 @@ public class FilteringIT extends AbstractStoreIT {
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.DESTINATION)
+                                        .select(IdentifierType.DESTINATION.name())
                                         .execute(new IsEqual("B3"))
                                         .build())
                                 .build())
@@ -162,7 +162,7 @@ public class FilteringIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.VERTEX)
+                                        .select(IdentifierType.VERTEX.name())
                                         .execute(new IsEqual("A5"))
                                         .build())
                                 .build())
@@ -224,7 +224,7 @@ public class FilteringIT extends AbstractStoreIT {
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.DESTINATION)
+                                        .select(IdentifierType.DESTINATION.name())
                                         .execute(new IsEqual("B3"))
                                         .build())
                                 .build())
@@ -274,7 +274,7 @@ public class FilteringIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.VERTEX)
+                                        .select(IdentifierType.VERTEX.name())
                                         .execute(new IsEqual("A5"))
                                         .build())
                                 .build())
@@ -318,8 +318,6 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A5")
         ));
     }
-
-
 
 
 }
