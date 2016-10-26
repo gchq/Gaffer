@@ -16,16 +16,16 @@
 
 package gaffer.data.element;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class IdentifierTypeTest {
 
     @Test
-    public void shouldGetPropertyNameAndShouldBeLowerCaseOfName() {
+    public void shouldGetIdentifierTypeFromName() {
         for (final IdentifierType idType : IdentifierType.values()) {
-            assertEquals(idType.name().toLowerCase(), idType.getPropertyName());
+            assertEquals(idType, IdentifierType.fromName(idType.name()));
         }
     }
 }
