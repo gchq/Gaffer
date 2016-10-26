@@ -15,7 +15,13 @@
  */
 package gaffer.operation.simple.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gaffer.data.element.Edge;
+import gaffer.data.element.Element;
+import gaffer.data.element.Entity;
 import gaffer.operation.VoidInput;
 import gaffer.operation.VoidOutput;
 import gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator;
@@ -36,6 +42,7 @@ import gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator;
 public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
     private String failurePath;
     private boolean validate = true;
+    private long failed;
 
     /**
      * Used to generate elements from the Hdfs files.
@@ -64,13 +71,31 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
         return mapperGeneratorClassName;
     }
 
+    public void setMapperGeneratorClassName(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+        this.mapperGeneratorClassName = mapperGeneratorClass.getName();
+    }
+
     @JsonSetter(value = "mapperGeneratorClassName")
     public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
         this.mapperGeneratorClassName = mapperGeneratorClassName;
     }
 
-    public void setMapperGeneratorClassName(final Class<? extends MapperGenerator> mapperGeneratorClass) {
-        this.mapperGeneratorClassName = mapperGeneratorClass.getName();
+    @JsonInclude(Include.NON_DEFAULT)
+    public long getFailed() {
+        return failed;
+    }
+
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
+    @Override
+    public boolean validate(final Element element) {
+        final boolean valid = null != element
+                && element instanceof Edge ? validate(((Edge) element)) : validate(((Entity) element));
+
+        if (!valid) {
+            failed++;
+        }
+
+        return valid;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
