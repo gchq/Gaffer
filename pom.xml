@@ -26,12 +26,11 @@
     <modules>
         <module>rest-api</module>
         <module>core</module>
-        <module>example</module>
         <module>integration-tests</module>
-        <module>example-rest</module>
         <module>ui</module>
         <module>store-implementation</module>
         <module>library</module>
+        <module>example</module>
     </modules>
 
     <properties>
