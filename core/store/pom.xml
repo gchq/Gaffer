@@ -18,12 +18,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>gaffer</groupId>
-        <artifactId>gaffer-core</artifactId>
+        <artifactId>core</artifactId>
         <version>0.4.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>operation</artifactId>
+    <artifactId>store</artifactId>
 
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
@@ -34,7 +34,17 @@
         </dependency>
         <dependency>
             <groupId>gaffer</groupId>
+            <artifactId>operation</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
             <artifactId>serialisation</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>function</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -49,6 +59,19 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>gaffer</groupId>
+            <artifactId>data</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Utilities -->
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
 
         <!-- External libraries -->
         <dependency>
@@ -57,5 +80,4 @@
             <version>${jackson.version}</version>
         </dependency>
     </dependencies>
-
 </project>

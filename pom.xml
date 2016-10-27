@@ -31,7 +31,7 @@
         <module>operation-library</module>
         <module>serialisation-library</module>
         <module>rest-api</module>
-        <module>gaffer-core</module>
+        <module>core</module>
         <module>example</module>
         <module>integration-tests</module>
         <module>example-rest</module>
