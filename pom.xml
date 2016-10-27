@@ -24,10 +24,6 @@
     <version>0.4.7-SNAPSHOT</version>
 
     <modules>
-        <module>types-library</module>
-        <module>function-library</module>
-        <module>operation-library</module>
-        <module>serialisation-library</module>
         <module>rest-api</module>
         <module>core</module>
         <module>example</module>
@@ -35,6 +31,7 @@
         <module>example-rest</module>
         <module>ui</module>
         <module>store-implementation</module>
+        <module>library</module>
     </modules>
 
     <properties>
