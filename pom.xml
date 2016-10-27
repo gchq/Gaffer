@@ -24,8 +24,6 @@
     <version>0.4.7-SNAPSHOT</version>
 
     <modules>
-        <module>accumulo-store</module>
-        <module>array-list-store</module>
         <module>types-library</module>
         <module>function-library</module>
         <module>operation-library</module>
@@ -36,6 +34,7 @@
         <module>integration-tests</module>
         <module>example-rest</module>
         <module>ui</module>
+        <module>store-implementation</module>
     </modules>
 
     <properties>
