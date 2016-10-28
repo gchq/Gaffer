@@ -16,6 +16,7 @@
 
 package gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -30,7 +31,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Contains the full list of {@link gaffer.data.element.Element} types to be stored in the graph.
@@ -90,17 +93,52 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         if (childDefinition.getGroupBy().isEmpty()) {
             childDefinition.setGroupBy(parentDefinition.getGroupBy());
         }
+        LinkedHashMap<String, String> childProps = new LinkedHashMap<>(childDefinition.getPropertyMap());
+        Set<String> childPropertyNames = childProps.keySet();
+        Map<String, String> parentProperties = parentDefinition.getPropertyMap();
+        for (final Map.Entry<String, String> entry : parentProperties.entrySet()) {
+            String parentPropName = entry.getKey();
+            if (!childPropertyNames.contains(parentPropName)) {
+                childProps.put(parentPropName, entry.getValue());
+            }
+        }
+        childDefinition.setPropertyMap(childProps);
+        Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
+        for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
+            if (!childDefinition.containsIdentifier(identifierType)) {
+                identifiers.put(identifierType, parentDefinition.getIdentifierTypeName(identifierType));
+            }
+        }
+        return childDefinition;
+    }
+
+    public static <T extends SchemaElementDefinition> T collapseChild(final T childDefinition, final T parentDefinition) {
+        if (childDefinition.getGroupBy().equals(parentDefinition.getGroupBy())) {
+            childDefinition.setGroupBy(new LinkedHashSet<String>());
+        }
+
         LinkedHashMap<String, String> props = new LinkedHashMap<>(childDefinition.getPropertyMap());
         for (final String prop : parentDefinition.getProperties()) {
             if (!props.keySet().contains(prop)) {
                 props.put(prop, parentDefinition.getPropertyMap().get(prop));
             }
         }
-        childDefinition.setPropertyMap(props);
+
+        LinkedHashMap<String, String> childProps = new LinkedHashMap<>(childDefinition.getPropertyMap());
+        Set<String> childPropertyNames = childProps.keySet();
+        Map<String, String> parentProperties = parentDefinition.getPropertyMap();
+        for (final Map.Entry<String, String> entry : parentProperties.entrySet()) {
+            String propName = entry.getKey();
+            if (childPropertyNames.contains(propName) && entry.getValue().equals(childProps.get(propName))) {
+                childProps.remove(propName);
+            }
+        }
+        childDefinition.setPropertyMap(childProps);
+
         Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
         for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
-            if (!childDefinition.containsIdentifier(identifierType)) {
-                identifiers.put(identifierType, parentDefinition.getIdentifierTypeName(identifierType));
+            if (childDefinition.containsIdentifier(identifierType) && childDefinition.getIdentifierTypeName(identifierType).equals(parentDefinition.getIdentifierTypeName(identifierType))) {
+                identifiers.remove(identifierType);
             }
         }
         return childDefinition;
@@ -239,6 +277,28 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
             elementDef.setTypesLookup(types);
         }
+    }
+
+    @JsonGetter("edges")
+    protected Map<String, SchemaEdgeDefinition> getEdgesCollapsed() {
+        Map<String, SchemaEdgeDefinition> edges = super.getEdges();
+        for (final SchemaElementDefinition elementDef : edges.values()) {
+            if (null != elementDef.getParentGroup()) {
+                collapseChild(elementDef, getEdge(elementDef.getParentGroup()));
+            }
+        }
+        return edges;
+    }
+
+    @JsonGetter("entities")
+    protected Map<String, SchemaEntityDefinition> getEntitiesCollapsed() {
+        Map<String, SchemaEntityDefinition> entities = super.getEntities();
+        for (final SchemaEntityDefinition elementDef : entities.values()) {
+            if (null != elementDef.getParentGroup()) {
+                collapseChild(elementDef, getEntity(elementDef.getParentGroup()));
+            }
+        }
+        return entities;
     }
 
     @Override

@@ -533,16 +533,17 @@ public class SchemaTest {
                 "      \"properties\" : {%n" +
                 "        \"property3\" : \"prop.string\"%n" +
                 "      },%n" +
+                "      \"groupBy\" : [ ],%n" +
                 "      \"parentGroup\" : \"BasicEdge\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : { },%n" +
                 "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
-                "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    },%n" +
                 "    \"timestamp\" : {%n" +
                 "      \"class\" : \"java.lang.Integer\"%n" +
@@ -568,6 +569,9 @@ public class SchemaTest {
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_3));
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.TIMESTAMP));
+
+        String reSerialised = new String(schema.toJson(true));
+        assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -593,17 +597,18 @@ public class SchemaTest {
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : { },%n" +
                 "      \"groupBy\" : [ \"property2\" ],%n" +
                 "      \"parentGroup\" : \"BasicEdge\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : { },%n" +
                 "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
-                "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    },%n" +
                 "    \"timestamp\" : {%n" +
                 "      \"class\" : \"java.lang.Integer\"%n" +
@@ -630,6 +635,9 @@ public class SchemaTest {
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.TIMESTAMP));
+
+        String reSerialised = new String(schema.toJson(true));
+        assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -658,16 +666,17 @@ public class SchemaTest {
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.integer\"%n" +
                 "      },%n" +
+                "      \"groupBy\" : [ ],%n" +
                 "      \"parentGroup\" : \"BasicEdge\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : { },%n" +
                 "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
-                "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    },%n" +
                 "    \"timestamp\" : {%n" +
                 "      \"class\" : \"java.lang.Integer\"%n" +
@@ -693,6 +702,9 @@ public class SchemaTest {
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
         assertEquals(Integer.class, childEdge.getPropertyTypeDef(TestPropertyNames.PROP_1).getClazz());
+
+        String reSerialised = new String(schema.toJson(true));
+        assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -701,15 +713,15 @@ public class SchemaTest {
         String stringSchema = String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
-                "      \"source\" : \"prop.string\",%n" +
-                "      \"destination\" : \"prop.string\",%n" +
-                "      \"directed\" : \"prop.boolean\",%n" +
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.string\",%n" +
                 "        \"property2\" : \"prop.integer\",%n" +
                 "        \"timestamp\" : \"timestamp\"%n" +
                 "      },%n" +
                 "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"source\" : \"prop.string\",%n" +
+                "      \"destination\" : \"prop.string\",%n" +
+                "      \"directed\" : \"prop.boolean\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
@@ -721,23 +733,29 @@ public class SchemaTest {
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
                 "      \"parentGroup\" : \"BasicEdge\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : {%n" +
                 "    \"BasicEntity\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
                 "      \"vertex\" : \"prop.integer\"%n" +
                 "    },%n" +
                 "    \"BasicEntity2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
                 "      \"parentGroup\" : \"BasicEntity\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
-                "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    },%n" +
                 "    \"prop.boolean\" : {%n" +
                 "      \"class\" : \"java.lang.Boolean\"%n" +
@@ -776,6 +794,8 @@ public class SchemaTest {
         SchemaEntityDefinition childEntity = schema.getEntity(TestGroups.ENTITY_2);
         assertEquals(Integer.class, childEntity.getIdentifierClass(IdentifierType.VERTEX));
 
+        String reSerialised = new String(schema.toJson(true));
+        assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -784,15 +804,15 @@ public class SchemaTest {
         String stringSchema = String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
-                "      \"source\" : \"prop.string\",%n" +
-                "      \"destination\" : \"prop.string\",%n" +
-                "      \"directed\" : \"prop.boolean\",%n" +
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.string\",%n" +
                 "        \"property2\" : \"prop.integer\",%n" +
                 "        \"timestamp\" : \"timestamp\"%n" +
                 "      },%n" +
                 "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"source\" : \"prop.string\",%n" +
+                "      \"destination\" : \"prop.string\",%n" +
+                "      \"directed\" : \"prop.boolean\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
@@ -804,25 +824,31 @@ public class SchemaTest {
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
-                "      \"source\" : \"prop.integer\",%n" +
-                "      \"parentGroup\" : \"BasicEdge\"%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEdge\",%n" +
+                "      \"source\" : \"prop.integer\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : {%n" +
                 "    \"BasicEntity\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
                 "      \"vertex\" : \"prop.integer\"%n" +
                 "    },%n" +
                 "    \"BasicEntity2\" : {%n" +
-                "      \"vertex\" : \"prop.string\",%n" +
-                "      \"parentGroup\" : \"BasicEntity\"%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEntity\",%n" +
+                "      \"vertex\" : \"prop.string\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
-                "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
                 "    },%n" +
                 "    \"prop.boolean\" : {%n" +
                 "      \"class\" : \"java.lang.Boolean\"%n" +
@@ -861,6 +887,8 @@ public class SchemaTest {
         SchemaEntityDefinition childEntity = schema.getEntity(TestGroups.ENTITY_2);
         assertEquals(String.class, childEntity.getIdentifierClass(IdentifierType.VERTEX));
 
+        String reSerialised = new String(schema.toJson(true));
+        assertEquals(stringSchema, reSerialised);
     }
 
     private class SerialisationImpl implements Serialisation {
