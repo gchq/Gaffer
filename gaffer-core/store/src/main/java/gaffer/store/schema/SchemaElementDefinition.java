@@ -82,6 +82,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      */
     private LinkedHashSet<String> groupBy;
 
+    private String parentGroup;
+
     public SchemaElementDefinition() {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
         properties = new LinkedHashMap<>();
@@ -355,6 +357,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
     }
 
+    public void setParentGroup(final String parentGroup) {
+        this.parentGroup = parentGroup;
+    }
+
+    public String getParentGroup() {
+        return parentGroup;
+    }
+
     @JsonIgnore
     protected TypeDefinitions getTypesLookup() {
         if (null == typesLookup) {
@@ -445,6 +455,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
         protected Builder groupBy(final String... propertyName) {
             elDef.getGroupBy().addAll(Arrays.asList(propertyName));
+            return this;
+        }
+
+        protected Builder setParent(final String parentGroup) {
+            elDef.setParentGroup(parentGroup);
             return this;
         }
 

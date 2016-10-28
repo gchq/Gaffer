@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.CommonConstants;
+import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -82,6 +84,26 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return fromJson(Schema.class, jsonBytes);
+    }
+
+    public static <T extends SchemaElementDefinition> T expandChild(final T childDefinition, final T parentDefinition) {
+        if (childDefinition.getGroupBy().isEmpty()) {
+            childDefinition.setGroupBy(parentDefinition.getGroupBy());
+        }
+        LinkedHashMap<String, String> props = new LinkedHashMap<>(childDefinition.getPropertyMap());
+        for (final String prop : parentDefinition.getProperties()) {
+            if (!props.keySet().contains(prop)) {
+                props.put(prop, parentDefinition.getPropertyMap().get(prop));
+            }
+        }
+        childDefinition.setPropertyMap(props);
+        Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
+        for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
+            if (!childDefinition.containsIdentifier(identifierType)) {
+                identifiers.put(identifierType, parentDefinition.getIdentifierTypeName(identifierType));
+            }
+        }
+        return childDefinition;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -200,16 +222,22 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     @Override
     public void setEdges(final Map<String, SchemaEdgeDefinition> edges) {
         super.setEdges(edges);
-        for (final SchemaElementDefinition def : edges.values()) {
-            def.setTypesLookup(types);
+        for (final SchemaElementDefinition elementDef : edges.values()) {
+            if (null != elementDef.getParentGroup()) {
+                expandChild(elementDef, getEdge(elementDef.getParentGroup()));
+            }
+            elementDef.setTypesLookup(types);
         }
     }
 
     @Override
     public void setEntities(final Map<String, SchemaEntityDefinition> entities) {
         super.setEntities(entities);
-        for (final SchemaElementDefinition def : entities.values()) {
-            def.setTypesLookup(types);
+        for (final SchemaEntityDefinition elementDef : entities.values()) {
+            if (null != elementDef.getParentGroup()) {
+                expandChild(elementDef, getEntity(elementDef.getParentGroup()));
+            }
+            elementDef.setTypesLookup(types);
         }
     }
 
@@ -274,12 +302,18 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     @Override
     protected void addEdge(final String group, final SchemaEdgeDefinition elementDef) {
+        if (null != elementDef.getParentGroup()) {
+             expandChild(elementDef, getEdge(elementDef.getParentGroup()));
+        }
         elementDef.setTypesLookup(types);
         super.addEdge(group, elementDef);
     }
 
     @Override
     protected void addEntity(final String group, final SchemaEntityDefinition elementDef) {
+        if (null != elementDef.getParentGroup()) {
+             expandChild(elementDef, getEntity(elementDef.getParentGroup()));
+        }
         elementDef.setTypesLookup(types);
         super.addEntity(group, elementDef);
     }
