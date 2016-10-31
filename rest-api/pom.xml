@@ -27,9 +27,9 @@
     <packaging>war</packaging>
     <properties>
         <swagger-version>1.5.9</swagger-version>
-        <json4s.version>3.2.4</json4s.version>
+        <json4s.version>3.2.11</json4s.version>
         <servlet-api-version>2.5</servlet-api-version>
-        <jersey-version>1.13</jersey-version>
+        <jersey-version>1.9</jersey-version>
         <resteasy-version>3.0.16.Final</resteasy-version>
         <maven-war-plugin-version>2.6</maven-war-plugin-version>
     </properties>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-json-org</artifactId>
-            <version>2.3.3</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -116,7 +116,6 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${scala.minor.version}</version>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>
@@ -125,7 +124,6 @@
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.18.0-GA</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
