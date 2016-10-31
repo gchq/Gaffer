@@ -519,10 +519,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\",%n" +
-                "          \"isId\" : false%n" +
-                "        } ]%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
@@ -586,10 +583,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\",%n" +
-                "          \"isId\" : false%n" +
-                "        } ]%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
@@ -652,10 +646,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\",%n" +
-                "          \"isId\" : false%n" +
-                "        } ]%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
@@ -722,10 +713,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\",%n" +
-                "          \"isId\" : false%n" +
-                "        } ]%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
@@ -813,10 +801,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\",%n" +
-                "          \"isId\" : false%n" +
-                "        } ]%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    },%n" +
                 "    \"BasicEdge2\" : {%n" +
