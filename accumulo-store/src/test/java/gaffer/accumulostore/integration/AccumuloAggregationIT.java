@@ -20,8 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.Lists;
-import gaffer.accumulostore.integration.AccumuloVisibilityIT.VisibilitySerialiser;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestTypes;
@@ -29,6 +29,7 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
+import gaffer.exception.SerialisationException;
 import gaffer.function.simple.aggregate.StringConcat;
 import gaffer.graph.Graph;
 import gaffer.graph.Graph.Builder;
@@ -36,6 +37,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.operation.impl.get.GetEntitiesBySeed;
+import gaffer.serialisation.AbstractSerialisation;
 import gaffer.serialisation.implementation.StringSerialiser;
 import gaffer.store.StoreProperties;
 import gaffer.store.schema.Schema;
@@ -494,6 +496,47 @@ public class AccumuloAggregationIT {
                                 .build())
                         .build())
                 .build();
+    }
+
+    public static final class VisibilitySerialiser extends AbstractSerialisation<String> {
+
+        @Override
+        public boolean canHandle(final Class clazz) {
+            return String.class.equals(clazz);
+        }
+
+        @Override
+        public byte[] serialise(final String value) throws SerialisationException {
+            try {
+                return value.getBytes(CommonConstants.UTF_8);
+            } catch (UnsupportedEncodingException e) {
+                throw new SerialisationException(e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public String deserialise(final byte[] bytes) throws SerialisationException {
+            try {
+                return new String(bytes, CommonConstants.UTF_8);
+            } catch (UnsupportedEncodingException e) {
+                throw new SerialisationException(e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public byte[] serialiseNull() {
+            return new byte[]{};
+        }
+
+        @Override
+        public String deserialiseEmptyBytes() {
+            return "";
+        }
+
+        @Override
+        public boolean isByteOrderPreserved() {
+            return true;
+        }
     }
 
 }
