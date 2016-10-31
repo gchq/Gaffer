@@ -32,7 +32,6 @@ import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.TestTypes;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
@@ -122,48 +121,48 @@ public class SchemaTest {
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
-        final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> valContexts = validator.getFunctions();
+        final List<ConsumerFunctionContext<String, FilterFunction>> valContexts = validator.getFunctions();
         int index = 0;
 
-        ConsumerFunctionContext<ElementComponentKey, FilterFunction> valContext = valContexts.get(index++);
+        ConsumerFunctionContext<String, FilterFunction> valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.SOURCE, valContext.getSelection().get(0).getIdentifierType());
+        assertEquals(IdentifierType.SOURCE.name(), valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.DESTINATION, valContext.getSelection().get(0).getIdentifierType());
+        assertEquals(IdentifierType.DESTINATION.name(), valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.DIRECTED, valContext.getSelection().get(0).getIdentifierType());
+        assertEquals(IdentifierType.DIRECTED.name(), valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.DIRECTED, valContext.getSelection().get(0).getIdentifierType());
+        assertEquals(IdentifierType.DIRECTED.name(), valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.DATE, valContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.DATE, valContext.getSelection().get(0));
 
         valContext = valContexts.get(index++);
         assertTrue(valContext.getFunction() instanceof IsA);
         assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.TIMESTAMP, valContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.TIMESTAMP, valContext.getSelection().get(0));
 
         assertEquals(index, valContexts.size());
 
@@ -184,18 +183,18 @@ public class SchemaTest {
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         ElementAggregator aggregator = edgeDefinition.getAggregator();
-        List<PassThroughFunctionContext<ElementComponentKey, AggregateFunction>> aggContexts = aggregator.getFunctions();
+        List<PassThroughFunctionContext<String, AggregateFunction>> aggContexts = aggregator.getFunctions();
         assertEquals(3, aggContexts.size());
 
-        PassThroughFunctionContext<ElementComponentKey, AggregateFunction> aggContext = aggContexts.get(0);
+        PassThroughFunctionContext<String, AggregateFunction> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
-        assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0));
 
         aggContext = aggContexts.get(1);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
-        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0).getPropertyName());
+        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0));
     }
 
     @Test
@@ -238,10 +237,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : [ {%n" +
-                "          \"key\" : \"property1\",%n" +
-                "          \"isId\" : false%n" +
-                "        } ]%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +

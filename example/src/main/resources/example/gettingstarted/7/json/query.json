@@ -16,9 +16,7 @@
                   "value": 1
                 },
                 "selection": [
-                  {
-                    "key": "count"
-                  }
+                  "count"
                 ]
               }
             ]
@@ -58,9 +56,7 @@
                   "value": 1
                 },
                 "selection": [
-                  {
-                    "key": "count"
-                  }
+                  "count"
                 ]
               }
             ]

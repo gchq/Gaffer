@@ -19,7 +19,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -230,7 +229,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             operation = new GetRDDOfAllElements(sqlContext.sparkContext());
         }
         // Create view based on filters and add to operation
-        final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> filterList = new ArrayList<>();
+        final List<ConsumerFunctionContext<String, FilterFunction>> filterList = new ArrayList<>();
         for (final Filter filter : filters) {
             filterList.addAll(getFunctionsFromFilter(filter));
         }
@@ -258,63 +257,63 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
      * @param filter The {@link Filter} to transform.
      * @return Gaffer function(s) implementing the provided {@link Filter}.
      */
-    private List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getFunctionsFromFilter(final Filter filter) {
-        final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions = new ArrayList<>();
+    private List<ConsumerFunctionContext<String, FilterFunction>> getFunctionsFromFilter(final Filter filter) {
+        final List<ConsumerFunctionContext<String, FilterFunction>> functions = new ArrayList<>();
         if (filter instanceof EqualTo) {
             // Not dealt with as requires a FilterFunction that returns null if either the controlValue or the
             // test value is null - the API of FilterFunction doesn't permit this.
         } else if (filter instanceof EqualNullSafe) {
             final EqualNullSafe equalNullSafe = (EqualNullSafe) filter;
             final FilterFunction isEqual = new IsEqual(equalNullSafe.value());
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(equalNullSafe.attribute()));
+            final List<String> ecks = Collections.singletonList(equalNullSafe.attribute());
             functions.add(new ConsumerFunctionContext<>(isEqual, ecks));
             LOGGER.debug("Converted {} to IsEqual ({})", filter, ecks.get(0));
         } else if (filter instanceof GreaterThan) {
             final GreaterThan greaterThan = (GreaterThan) filter;
             final FilterFunction isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), false);
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(greaterThan.attribute()));
+            final List<String> ecks = Collections.singletonList(greaterThan.attribute());
             functions.add(new ConsumerFunctionContext<>(isMoreThan, ecks));
             LOGGER.debug("Converted {} to isMoreThan ({})", filter, ecks.get(0));
         } else if (filter instanceof GreaterThanOrEqual) {
             final GreaterThanOrEqual greaterThan = (GreaterThanOrEqual) filter;
             final FilterFunction isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), true);
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(greaterThan.attribute()));
+            final List<String> ecks = Collections.singletonList(greaterThan.attribute());
             functions.add(new ConsumerFunctionContext<>(isMoreThan, ecks));
             LOGGER.debug("Converted {} to IsMoreThan ({})", filter, ecks.get(0));
         } else if (filter instanceof LessThan) {
             final LessThan lessThan = (LessThan) filter;
             final FilterFunction isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), false);
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(lessThan.attribute()));
+            final List<String> ecks = Collections.singletonList(lessThan.attribute());
             functions.add(new ConsumerFunctionContext<>(isLessThan, ecks));
             LOGGER.debug("Converted {} to IsLessThan ({})", filter, ecks.get(0));
         } else if (filter instanceof LessThanOrEqual) {
             final LessThanOrEqual lessThan = (LessThanOrEqual) filter;
             final FilterFunction isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), true);
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(lessThan.attribute()));
+            final List<String> ecks = Collections.singletonList(lessThan.attribute());
             functions.add(new ConsumerFunctionContext<>(isLessThan, ecks));
             LOGGER.debug("Converted {} to LessThanOrEqual ({})", filter, ecks.get(0));
         } else if (filter instanceof In) {
             final In in = (In) filter;
             final FilterFunction isIn = new IsIn(new HashSet<>(Arrays.asList(in.values())));
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(in.attribute()));
+            final List<String> ecks = Collections.singletonList(in.attribute());
             functions.add(new ConsumerFunctionContext<>(isIn, ecks));
             LOGGER.debug("Converted {} to IsIn ({})", filter, ecks.get(0));
         } else if (filter instanceof IsNull) {
             final IsNull isNull = (IsNull) filter;
             final FilterFunction doesntExist = new Not(new Exists());
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(isNull.attribute()));
+            final List<String> ecks = Collections.singletonList(isNull.attribute());
             functions.add(new ConsumerFunctionContext<>(doesntExist, ecks));
             LOGGER.debug("Converted {} to Not(Exists) ({})", filter, ecks.get(0));
         } else if (filter instanceof IsNotNull) {
             final IsNotNull isNotNull = (IsNotNull) filter;
             final FilterFunction exists = new Exists();
-            final List<ElementComponentKey> ecks = Collections.singletonList(new ElementComponentKey(isNotNull.attribute()));
+            final List<String> ecks = Collections.singletonList(isNotNull.attribute());
             functions.add(new ConsumerFunctionContext<>(exists, ecks));
             LOGGER.debug("Converted {} to Exists ({})", filter, ecks.get(0));
         } else if (filter instanceof And) {
             final And and = (And) filter;
-            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> left = getFunctionsFromFilter(and.left());
-            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> right = getFunctionsFromFilter(and.right());
+            final List<ConsumerFunctionContext<String, FilterFunction>> left = getFunctionsFromFilter(and.left());
+            final List<ConsumerFunctionContext<String, FilterFunction>> right = getFunctionsFromFilter(and.right());
             functions.addAll(left);
             functions.addAll(right);
             LOGGER.debug("Converted {} to 2 filters ({} and {})", filter, StringUtils.join(left, ','), StringUtils.join(right, ','));

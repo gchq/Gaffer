@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.TransformIterable;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
 import gaffer.data.element.function.ElementFilter;
@@ -34,7 +33,6 @@ import gaffer.function.context.PassThroughFunctionContext;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,8 +48,6 @@ import java.util.Set;
  * @see SchemaElementDefinition.Builder
  */
 public abstract class SchemaElementDefinition implements ElementDefinition {
-    private static final Map<String, Class<?>> CLASSES = new HashMap<>();
-
     /**
      * A validator to validate the element definition
      */
@@ -202,27 +198,17 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return identifiers.values();
     }
 
-    public Class<?> getClass(final ElementComponentKey key) {
-        if (key.isId()) {
-            return getIdentifierClass(key.getIdentifierType());
-        }
-
-        return getPropertyClass(key.getPropertyName());
-    }
-
-    public Class<?> getClass(final String className) {
-        if (null == className) {
-            return null;
-        }
-
-        Class<?> clazz = CLASSES.get(className);
-        if (null == clazz) {
-            try {
-                clazz = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Class could not be found: " + className, e);
+    public Class<?> getClass(final String key) {
+        final Class<?> clazz;
+        if (null == key) {
+            clazz = null;
+        } else {
+            final IdentifierType idType = IdentifierType.fromName(key);
+            if (null == idType) {
+                clazz = getPropertyClass(key);
+            } else {
+                clazz = getIdentifierClass(idType);
             }
-            CLASSES.put(className, clazz);
         }
 
         return clazz;
@@ -239,7 +225,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     public ElementAggregator getAggregator() {
         final ElementAggregator aggregator = new ElementAggregator();
         for (final Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
-            addTypeAggregateFunctions(aggregator, new ElementComponentKey(entry.getKey()), entry.getValue());
+            addTypeAggregateFunctions(aggregator, entry.getKey(), entry.getValue());
         }
 
         return aggregator;
@@ -261,14 +247,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
         for (final Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
-            final ElementComponentKey key = new ElementComponentKey(entry.getKey());
+            final String key = entry.getKey().name();
             if (includeIsA) {
                 addIsAFunction(fullValidator, key, entry.getValue());
             }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
         for (final Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
-            final ElementComponentKey key = new ElementComponentKey(entry.getKey());
+            final String key = entry.getKey();
             if (includeIsA) {
                 addIsAFunction(fullValidator, key, entry.getValue());
             }
@@ -285,9 +271,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
     @JsonGetter("validateFunctions")
-    public ConsumerFunctionContext<ElementComponentKey, FilterFunction>[] getOriginalValidateFunctions() {
+    public ConsumerFunctionContext<String, FilterFunction>[] getOriginalValidateFunctions() {
         if (null != validator) {
-            final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions = validator.getFunctions();
+            final List<ConsumerFunctionContext<String, FilterFunction>> functions = validator.getFunctions();
             return functions.toArray(new ConsumerFunctionContext[functions.size()]);
         }
 
@@ -295,7 +281,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @JsonSetter("validateFunctions")
-    public void addValidateFunctions(final ConsumerFunctionContext<ElementComponentKey, FilterFunction>... functions) {
+    public void addValidateFunctions(final ConsumerFunctionContext<String, FilterFunction>... functions) {
         if (null == validator) {
             validator = new ElementFilter();
         }
@@ -364,11 +350,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return typesLookup;
     }
 
-    private void addTypeValidatorFunctions(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
+    private void addTypeValidatorFunctions(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
         final TypeDefinition type = getTypeDef(classOrTypeName);
         if (null != type.getValidator()) {
-            for (final ConsumerFunctionContext<ElementComponentKey, FilterFunction> function : type.getValidator().clone().getFunctions()) {
-                final List<ElementComponentKey> selection = function.getSelection();
+            for (final ConsumerFunctionContext<String, FilterFunction> function : type.getValidator().clone().getFunctions()) {
+                final List<String> selection = function.getSelection();
                 if (null == selection || selection.isEmpty()) {
                     function.setSelection(Collections.singletonList(key));
                 } else if (!selection.contains(key)) {
@@ -379,16 +365,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
     }
 
-    private void addTypeAggregateFunctions(final ElementAggregator aggregator, final ElementComponentKey key, final String typeName) {
+    private void addTypeAggregateFunctions(final ElementAggregator aggregator, final String key, final String typeName) {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
             aggregator.addFunction(new PassThroughFunctionContext<>(type.getAggregateFunction().statelessClone(), Collections.singletonList(key)));
         }
     }
 
-    private void addIsAFunction(final ElementFilter fullValidator, final ElementComponentKey key, final String classOrTypeName) {
+    private void addIsAFunction(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
         fullValidator.addFunction(
-                new ConsumerFunctionContext<ElementComponentKey, FilterFunction>(
+                new ConsumerFunctionContext<String, FilterFunction>(
                         new IsA(getTypeDef(classOrTypeName).getClazz()), Collections.singletonList(key)));
     }
 
