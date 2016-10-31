@@ -18,9 +18,7 @@ package gaffer.data.element.function;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.ElementTuple;
-import gaffer.data.element.IdentifierType;
 import gaffer.function.FilterFunction;
 import gaffer.function.processor.Filter;
 
@@ -32,7 +30,7 @@ import gaffer.function.processor.Filter;
  * @see gaffer.data.element.function.ElementFilter.Builder
  * @see gaffer.function.processor.Filter
  */
-public class ElementFilter extends Filter<ElementComponentKey> {
+public class ElementFilter extends Filter<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
     public boolean filter(final Element element) {
@@ -53,7 +51,7 @@ public class ElementFilter extends Filter<ElementComponentKey> {
     /**
      * Builder for {@link ElementFilter}.
      */
-    public static class Builder extends Filter.Builder<ElementComponentKey> {
+    public static class Builder extends Filter.Builder<String> {
         public Builder() {
             this(new ElementFilter());
         }
@@ -62,16 +60,8 @@ public class ElementFilter extends Filter<ElementComponentKey> {
             super(filter);
         }
 
-        public Builder select(final ElementComponentKey... selection) {
-            return (Builder) super.select(selection);
-        }
-
         public Builder select(final String... selection) {
-            return (Builder) super.select(ElementComponentKey.createKeys(selection));
-        }
-
-        public Builder select(final IdentifierType... selection) {
-            return (Builder) super.select(ElementComponentKey.createKeys(selection));
+            return (Builder) super.select(selection);
         }
 
         public Builder execute(final FilterFunction function) {

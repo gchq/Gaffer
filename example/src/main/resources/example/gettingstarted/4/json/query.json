@@ -11,17 +11,11 @@
               "class": "gaffer.example.gettingstarted.function.transform.MeanTransform"
             },
             "selection": [
-              {
-                "key": "thing"
-              },
-              {
-                "key": "count"
-              }
+              "thing",
+              "count"
             ],
             "projection": [
-              {
-                "key": "mean"
-              }
+              "mean"
             ]
           }
         ]
