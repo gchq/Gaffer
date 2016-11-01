@@ -23,7 +23,7 @@ package gaffer.serialisation;
  */
 public abstract class AbstractSerialisation<T> implements Serialisation<T> {
 
-    private static final byte[] EMPTY_BYTES = new byte[]{};
+    private static final byte[] EMPTY_BYTES = new byte[0];
 
     @Override
     public byte[] serialiseNull() {
