@@ -16,7 +16,6 @@
 
 package gaffer.store.schema;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -76,7 +75,7 @@ public class SchemaTest {
         // Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        assertArrayEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonUtil.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
@@ -89,7 +88,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(false);
 
         // Then
-        assertEquals(new String(json1), new String(json2));
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -102,7 +101,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        assertEquals(new String(json1), new String(json2));
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -564,7 +563,7 @@ public class SchemaTest {
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.TIMESTAMP));
 
         String reSerialised = new String(schema.toJson(true));
-        assertEquals(stringSchema, reSerialised);
+        JsonUtil.assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -627,7 +626,7 @@ public class SchemaTest {
         assertTrue(childEdge.getProperties().contains(TestPropertyNames.TIMESTAMP));
 
         String reSerialised = new String(schema.toJson(true));
-        assertEquals(stringSchema, reSerialised);
+        JsonUtil.assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -691,7 +690,7 @@ public class SchemaTest {
         assertEquals(Integer.class, childEdge.getPropertyTypeDef(TestPropertyNames.PROP_1).getClazz());
 
         String reSerialised = new String(schema.toJson(true));
-        assertEquals(stringSchema, reSerialised);
+        JsonUtil.assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -779,7 +778,7 @@ public class SchemaTest {
         assertEquals(Integer.class, childEntity.getIdentifierClass(IdentifierType.VERTEX));
 
         String reSerialised = new String(schema.toJson(true));
-        assertEquals(stringSchema, reSerialised);
+        JsonUtil.assertEquals(stringSchema, reSerialised);
     }
 
     @Test
@@ -869,7 +868,7 @@ public class SchemaTest {
         assertEquals(String.class, childEntity.getIdentifierClass(IdentifierType.VERTEX));
 
         String reSerialised = new String(schema.toJson(true));
-        assertEquals(stringSchema, reSerialised);
+        JsonUtil.assertEquals(stringSchema, reSerialised);
     }
 
     private class SerialisationImpl implements Serialisation {
