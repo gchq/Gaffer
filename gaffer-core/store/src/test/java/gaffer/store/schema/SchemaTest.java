@@ -16,7 +16,6 @@
 
 package gaffer.store.schema;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -53,6 +52,7 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +75,7 @@ public class SchemaTest {
         // Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        assertArrayEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonUtil.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(false);
 
         // Then
-        assertEquals(new String(json1), new String(json2));
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        assertEquals(new String(json1), new String(json2));
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -500,6 +500,375 @@ public class SchemaTest {
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("visibility property"));
         }
+    }
+
+    @Test
+    public void testSchemaInheritanceOfProperties() {
+        // Given
+        String stringSchema = String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property3\" : \"prop.string\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEdge\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"entities\" : { },%n" +
+                "  \"types\" : {%n" +
+                "    \"prop.string\" : {%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
+                "}");
+
+        // When
+        Schema schema = Schema.fromJson(stringSchema.getBytes());
+
+        // Then
+        assertEquals(2, schema.getEdges().size());
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+
+        SchemaEdgeDefinition childEdge = schema.getEdge(TestGroups.EDGE_2);
+        assertEquals(TestGroups.EDGE, childEdge.getParentGroup());
+        assertEquals(schema.getEdge(TestGroups.EDGE).getGroupBy(), childEdge.getGroupBy());
+        assertEquals(4, childEdge.getProperties().size());
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_3));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.TIMESTAMP));
+
+        String reSerialised = new String(schema.toJson(true));
+        JsonUtil.assertEquals(stringSchema, reSerialised);
+    }
+
+    @Test
+    public void testSchemaInheritanceOfGroupBy() {
+        // Given
+        String stringSchema = String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ \"property2\" ],%n" +
+                "      \"parentGroup\" : \"BasicEdge\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"entities\" : { },%n" +
+                "  \"types\" : {%n" +
+                "    \"prop.string\" : {%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
+                "}");
+
+        // When
+        Schema schema = Schema.fromJson(stringSchema.getBytes());
+
+        // Then
+        assertEquals(2, schema.getEdges().size());
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+
+        SchemaEdgeDefinition childEdge = schema.getEdge(TestGroups.EDGE_2);
+        assertEquals(TestGroups.EDGE, childEdge.getParentGroup());
+        LinkedHashSet groupBy = new LinkedHashSet();
+        groupBy.add(TestPropertyNames.PROP_2);
+        assertEquals(groupBy, childEdge.getGroupBy());
+        assertEquals(3, childEdge.getProperties().size());
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.TIMESTAMP));
+
+        String reSerialised = new String(schema.toJson(true));
+        JsonUtil.assertEquals(stringSchema, reSerialised);
+    }
+
+    @Test
+    public void testSchemaInheritanceOverRidesPropertyType() {
+        // Given
+        String stringSchema = String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.integer\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEdge\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"entities\" : { },%n" +
+                "  \"types\" : {%n" +
+                "    \"prop.string\" : {%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
+                "}");
+
+        // When
+        // When
+        Schema schema = Schema.fromJson(stringSchema.getBytes());
+
+        // Then
+        assertEquals(2, schema.getEdges().size());
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+
+        SchemaEdgeDefinition childEdge = schema.getEdge(TestGroups.EDGE_2);
+        assertEquals(TestGroups.EDGE, childEdge.getParentGroup());
+        assertEquals(schema.getEdge(TestGroups.EDGE).getGroupBy(), childEdge.getGroupBy());
+        assertEquals(3, childEdge.getProperties().size());
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
+        assertEquals(Integer.class, childEdge.getPropertyTypeDef(TestPropertyNames.PROP_1).getClazz());
+
+        String reSerialised = new String(schema.toJson(true));
+        JsonUtil.assertEquals(stringSchema, reSerialised);
+    }
+
+    @Test
+    public void testSchemaInheritanceOfIdentifierTypes() {
+        // Given
+        String stringSchema = String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"source\" : \"prop.string\",%n" +
+                "      \"destination\" : \"prop.string\",%n" +
+                "      \"directed\" : \"prop.boolean\",%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEdge\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"entities\" : {%n" +
+                "    \"BasicEntity\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"vertex\" : \"prop.integer\"%n" +
+                "    },%n" +
+                "    \"BasicEntity2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEntity\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"types\" : {%n" +
+                "    \"prop.string\" : {%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"prop.boolean\" : {%n" +
+                "      \"class\" : \"java.lang.Boolean\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
+                "}");
+
+        // When
+        // When
+        Schema schema = Schema.fromJson(stringSchema.getBytes());
+
+        // Then
+        assertEquals(2, schema.getEdges().size());
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+
+        assertEquals(2, schema.getEntities().size());
+        assertNotNull(schema.getEntity(TestGroups.ENTITY));
+        assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
+
+        SchemaEdgeDefinition childEdge = schema.getEdge(TestGroups.EDGE_2);
+        assertEquals(TestGroups.EDGE, childEdge.getParentGroup());
+        assertEquals(schema.getEdge(TestGroups.EDGE).getGroupBy(), childEdge.getGroupBy());
+        assertEquals(3, childEdge.getProperties().size());
+        assertEquals(String.class, childEdge.getIdentifierClass(IdentifierType.SOURCE));
+        assertEquals(String.class, childEdge.getIdentifierClass(IdentifierType.DESTINATION));
+        assertEquals(Boolean.class, childEdge.getIdentifierClass(IdentifierType.DIRECTED));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
+
+        SchemaEntityDefinition childEntity = schema.getEntity(TestGroups.ENTITY_2);
+        assertEquals(Integer.class, childEntity.getIdentifierClass(IdentifierType.VERTEX));
+
+        String reSerialised = new String(schema.toJson(true));
+        JsonUtil.assertEquals(stringSchema, reSerialised);
+    }
+
+    @Test
+    public void testSchemaInheritanceOverridesIdentifierTypes() {
+        // Given
+        String stringSchema = String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"source\" : \"prop.string\",%n" +
+                "      \"destination\" : \"prop.string\",%n" +
+                "      \"directed\" : \"prop.boolean\",%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEdge\",%n" +
+                "      \"source\" : \"prop.integer\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"entities\" : {%n" +
+                "    \"BasicEntity\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"vertex\" : \"prop.integer\"%n" +
+                "    },%n" +
+                "    \"BasicEntity2\" : {%n" +
+                "      \"properties\" : { },%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"parentGroup\" : \"BasicEntity\",%n" +
+                "      \"vertex\" : \"prop.string\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"types\" : {%n" +
+                "    \"prop.string\" : {%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"prop.boolean\" : {%n" +
+                "      \"class\" : \"java.lang.Boolean\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"visibilityProperty\" : \"visibility\",%n" +
+                "  \"timestampProperty\" : \"timestamp\"%n" +
+                "}");
+
+        // When
+        // When
+        Schema schema = Schema.fromJson(stringSchema.getBytes());
+
+        // Then
+        assertEquals(2, schema.getEdges().size());
+        assertNotNull(schema.getEdge(TestGroups.EDGE));
+        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+
+        assertEquals(2, schema.getEntities().size());
+        assertNotNull(schema.getEntity(TestGroups.ENTITY));
+        assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
+
+        SchemaEdgeDefinition childEdge = schema.getEdge(TestGroups.EDGE_2);
+        assertEquals(TestGroups.EDGE, childEdge.getParentGroup());
+        assertEquals(schema.getEdge(TestGroups.EDGE).getGroupBy(), childEdge.getGroupBy());
+        assertEquals(3, childEdge.getProperties().size());
+        assertEquals(Integer.class, childEdge.getIdentifierClass(IdentifierType.SOURCE));
+        assertEquals(String.class, childEdge.getIdentifierClass(IdentifierType.DESTINATION));
+        assertEquals(Boolean.class, childEdge.getIdentifierClass(IdentifierType.DIRECTED));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_1));
+        assertTrue(childEdge.getProperties().contains(TestPropertyNames.PROP_2));
+
+        SchemaEntityDefinition childEntity = schema.getEntity(TestGroups.ENTITY_2);
+        assertEquals(String.class, childEntity.getIdentifierClass(IdentifierType.VERTEX));
+
+        String reSerialised = new String(schema.toJson(true));
+        JsonUtil.assertEquals(stringSchema, reSerialised);
     }
 
     private class SerialisationImpl implements Serialisation {

@@ -16,10 +16,12 @@
 
 package gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.CommonConstants;
+import gaffer.data.element.IdentifierType;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.serialisation.Serialisation;
@@ -28,7 +30,10 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Contains the full list of {@link gaffer.data.element.Element} types to be stored in the graph.
@@ -82,6 +87,61 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return fromJson(Schema.class, jsonBytes);
+    }
+
+    public <T extends SchemaElementDefinition> T expandChild(final T childDefinition, final T parentDefinition) {
+        if (childDefinition.getGroupBy().isEmpty()) {
+            childDefinition.setGroupBy(parentDefinition.getGroupBy());
+        }
+        LinkedHashMap<String, String> childProps = new LinkedHashMap<>(childDefinition.getPropertyMap());
+        Set<String> childPropertyNames = childProps.keySet();
+        Map<String, String> parentProperties = parentDefinition.getPropertyMap();
+        for (final Map.Entry<String, String> entry : parentProperties.entrySet()) {
+            String parentPropName = entry.getKey();
+            if (!childPropertyNames.contains(parentPropName)) {
+                childProps.put(parentPropName, entry.getValue());
+            }
+        }
+        childDefinition.setPropertyMap(childProps);
+        Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
+        for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
+            if (!childDefinition.containsIdentifier(identifierType)) {
+                identifiers.put(identifierType, parentDefinition.getIdentifierTypeName(identifierType));
+            }
+        }
+        return childDefinition;
+    }
+
+    public <T extends SchemaElementDefinition> T collapseChild(final T childDefinition, final T parentDefinition) {
+        if (childDefinition.getGroupBy().equals(parentDefinition.getGroupBy())) {
+            childDefinition.setGroupBy(new LinkedHashSet<String>());
+        }
+
+        LinkedHashMap<String, String> props = new LinkedHashMap<>(childDefinition.getPropertyMap());
+        for (final String prop : parentDefinition.getProperties()) {
+            if (!props.keySet().contains(prop)) {
+                props.put(prop, parentDefinition.getPropertyMap().get(prop));
+            }
+        }
+
+        LinkedHashMap<String, String> childProps = new LinkedHashMap<>(childDefinition.getPropertyMap());
+        Set<String> childPropertyNames = childProps.keySet();
+        Map<String, String> parentProperties = parentDefinition.getPropertyMap();
+        for (final Map.Entry<String, String> entry : parentProperties.entrySet()) {
+            String propName = entry.getKey();
+            if (childPropertyNames.contains(propName) && entry.getValue().equals(childProps.get(propName))) {
+                childProps.remove(propName);
+            }
+        }
+        childDefinition.setPropertyMap(childProps);
+
+        Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
+        for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
+            if (childDefinition.containsIdentifier(identifierType) && childDefinition.getIdentifierTypeName(identifierType).equals(parentDefinition.getIdentifierTypeName(identifierType))) {
+                identifiers.remove(identifierType);
+            }
+        }
+        return childDefinition;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -198,19 +258,64 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     @Override
-    public void setEdges(final Map<String, SchemaEdgeDefinition> edges) {
+    public void setEdges(final Map<String, SchemaEdgeDefinition> edges) throws SchemaException {
         super.setEdges(edges);
-        for (final SchemaElementDefinition def : edges.values()) {
-            def.setTypesLookup(types);
+        for (final SchemaEdgeDefinition elementDef : edges.values()) {
+            if (null != elementDef.getParentGroup()) {
+                SchemaElementDefinition parentDefinition = getEdge(elementDef.getParentGroup());
+                if (null == parentDefinition) {
+                    throw new SchemaException("Attempted to add an Invalid edge, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
+                }
+                expandChild(elementDef, parentDefinition);
+            }
+            elementDef.setTypesLookup(types);
         }
     }
 
     @Override
-    public void setEntities(final Map<String, SchemaEntityDefinition> entities) {
+    public void setEntities(final Map<String, SchemaEntityDefinition> entities) throws SchemaException {
         super.setEntities(entities);
-        for (final SchemaElementDefinition def : entities.values()) {
-            def.setTypesLookup(types);
+        for (final SchemaEntityDefinition elementDef : entities.values()) {
+            if (null != elementDef.getParentGroup()) {
+                SchemaElementDefinition parentDefinition = getEntity(elementDef.getParentGroup());
+                if (null == parentDefinition) {
+                    throw new SchemaException("Attempted to add an Invalid entity, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
+                }
+                expandChild(elementDef, parentDefinition);
+            }
+            elementDef.setTypesLookup(types);
         }
+    }
+
+    @JsonGetter("edges")
+    protected Map<String, SchemaEdgeDefinition> getEdgesCollapsed() throws SchemaException {
+        Map<String, SchemaEdgeDefinition> edges = super.getEdges();
+        for (final SchemaElementDefinition elementDef : edges.values()) {
+
+            if (null != elementDef.getParentGroup()) {
+                SchemaElementDefinition parentDefinition = getEdge(elementDef.getParentGroup());
+                if (null == parentDefinition) {
+                    throw new SchemaException("Attempted to get an Invalid edge, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
+                }
+                collapseChild(elementDef, parentDefinition);
+            }
+        }
+        return edges;
+    }
+
+    @JsonGetter("entities")
+    protected Map<String, SchemaEntityDefinition> getEntitiesCollapsed() throws SchemaException {
+        Map<String, SchemaEntityDefinition> entities = super.getEntities();
+        for (final SchemaEntityDefinition elementDef : entities.values()) {
+            if (null != elementDef.getParentGroup()) {
+                SchemaElementDefinition parentDefinition = getEntity(elementDef.getParentGroup());
+                if (null == parentDefinition) {
+                    throw new SchemaException("Attempted to get an Invalid entity, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
+                }
+                collapseChild(elementDef, parentDefinition);
+            }
+        }
+        return entities;
     }
 
     @Override
@@ -274,12 +379,26 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     @Override
     protected void addEdge(final String group, final SchemaEdgeDefinition elementDef) {
+        if (null != elementDef.getParentGroup()) {
+            SchemaElementDefinition parentDefinition = getEdge(elementDef.getParentGroup());
+            if (null == parentDefinition) {
+                throw new SchemaException("Attempted to add an Invalid edge, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
+            }
+            expandChild(elementDef, parentDefinition);
+        }
         elementDef.setTypesLookup(types);
         super.addEdge(group, elementDef);
     }
 
     @Override
     protected void addEntity(final String group, final SchemaEntityDefinition elementDef) {
+        if (null != elementDef.getParentGroup()) {
+            SchemaElementDefinition parentDefinition = getEntity(elementDef.getParentGroup());
+            if (null == parentDefinition) {
+                throw new SchemaException("Attempted to add an Invalid entity, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
+            }
+            expandChild(elementDef, parentDefinition);
+        }
         elementDef.setTypesLookup(types);
         super.addEntity(group, elementDef);
     }
