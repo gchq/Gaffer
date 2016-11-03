@@ -47,7 +47,8 @@ public class AddElementsTest implements OperationTest {
             "      \"property 1\" : \"property 1 value\"%n" +
             "    },%n" +
             "    \"group\" : \"entity type 1\",%n" +
-            "    \"vertex\" : \"vertex 1\"%n" +
+            "    \"vertex\" : \"vertex 1\",%n" +
+            "    \"class\" : \"gaffer.data.element.Entity\"%n" +
             "  }, {%n" +
             "    \"class\" : \"gaffer.data.element.Edge\",%n" +
             "    \"properties\" : {%n" +
@@ -56,7 +57,8 @@ public class AddElementsTest implements OperationTest {
             "    \"group\" : \"edge type 2\",%n" +
             "    \"source\" : \"source vertex 1\",%n" +
             "    \"destination\" : \"dest vertex 1\",%n" +
-            "    \"directed\" : true%n" +
+            "    \"directed\" : true,%n" +
+            "    \"class\" : \"gaffer.data.element.Edge\"%n" +
             "  } ]%n" +
             "}");
 
