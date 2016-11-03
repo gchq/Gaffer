@@ -17,12 +17,12 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * RawDoubleSerialiser serialises Doubles into an IEEE floating point little-endian byte array.
  */
-public class RawDoubleSerialiser implements Serialisation {
+public class RawDoubleSerialiser extends AbstractSerialisation<Double> {
     private static final long serialVersionUID = 1568251281744704278L;
 
     @Override
@@ -31,9 +31,9 @@ public class RawDoubleSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object o) throws SerialisationException {
+    public byte[] serialise(final Double d) throws SerialisationException {
         final byte[] out = new byte[8];
-        final long value = Double.doubleToRawLongBits((Double) o);
+        final long value = Double.doubleToRawLongBits(d);
         out[0] = (byte) ((int) (value & 255));
         out[1] = (byte) ((int) (value >> 8) & 255);
         out[2] = (byte) ((int) (value >> 16) & 255);

@@ -17,7 +17,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -26,7 +26,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class DoubleSerialiser implements Serialisation {
+public class DoubleSerialiser extends AbstractSerialisation<Double> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -35,8 +35,7 @@ public class DoubleSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        Double value = (Double) object;
+    public byte[] serialise(final Double value) throws SerialisationException {
         try {
             return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
@@ -45,7 +44,7 @@ public class DoubleSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Double deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return Double.parseDouble(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {

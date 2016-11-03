@@ -18,7 +18,7 @@ package gaffer.serialisation.implementation;
 import com.google.common.base.Splitter;
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * A <code>TreeSetStringSerialiser</code> is a serialiser for {@link TreeSet}s with
  * {@link String} values.
  */
-public class TreeSetStringSerialiser implements Serialisation {
+public class TreeSetStringSerialiser extends AbstractSerialisation<TreeSet> {
     private static final long serialVersionUID = -8241328807929077861L;
     private static final String COMMA = "\\,";
     private static final String OPEN = "{";
@@ -39,9 +39,9 @@ public class TreeSetStringSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
+    public byte[] serialise(final TreeSet treeSet) throws SerialisationException {
         final StringBuilder builder = new StringBuilder(OPEN);
-        final Iterator values = ((TreeSet) object).iterator();
+        final Iterator values = treeSet.iterator();
         if (values.hasNext()) {
             builder.append(values.next());
         }

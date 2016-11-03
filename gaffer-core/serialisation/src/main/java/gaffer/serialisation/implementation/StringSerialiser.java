@@ -17,10 +17,10 @@ package gaffer.serialisation.implementation;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 
-public class StringSerialiser implements Serialisation {
+public class StringSerialiser extends AbstractSerialisation<String> {
 
     private static final long serialVersionUID = 5647756843689779437L;
 
@@ -30,8 +30,7 @@ public class StringSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        String value = (String) object;
+    public byte[] serialise(final String value) throws SerialisationException {
         try {
             return value.getBytes(CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
@@ -49,7 +48,13 @@ public class StringSerialiser implements Serialisation {
     }
 
     @Override
+    public String deserialiseEmptyBytes() {
+        return "";
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }
+
 }

@@ -17,10 +17,10 @@ package gaffer.serialisation.simple;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.IOException;
 
-public class HyperLogLogPlusSerialiser implements Serialisation {
+public class HyperLogLogPlusSerialiser extends AbstractSerialisation<HyperLogLogPlus> {
     private static final long serialVersionUID = 2782098698280905174L;
 
     @Override
@@ -29,11 +29,11 @@ public class HyperLogLogPlusSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
+    public byte[] serialise(final HyperLogLogPlus value) throws SerialisationException {
         try {
-            return ((HyperLogLogPlus) object).getBytes();
-        } catch (IOException exception) {
-            throw new RuntimeException("Failed to get bytes from HyperLogLogPlus sketch", exception);
+            return value.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to get bytes from HyperLogLogPlus sketch", e);
         }
     }
 
@@ -41,8 +41,8 @@ public class HyperLogLogPlusSerialiser implements Serialisation {
     public HyperLogLogPlus deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return HyperLogLogPlus.Builder.build(bytes);
-        } catch (IOException exception) {
-            throw new RuntimeException("Failed to create HyperLogLogPlus sketch from given bytes", exception);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create HyperLogLogPlus sketch from given bytes", e);
         }
     }
 

@@ -24,7 +24,7 @@ import java.io.Serializable;
  * <p>
  * As a minimum, any Serialisation mechanism must be able to serialise and deserialise any given Property.
  */
-public interface Serialisation extends Serializable {
+public interface Serialisation<T> extends Serializable {
 
     /**
      * Enables checking whether the serialiser can serialise a particular class.
@@ -41,16 +41,30 @@ public interface Serialisation extends Serializable {
      * @return byte[] the serialised bytes
      * @throws SerialisationException if the object fails to serialise
      */
-    byte[] serialise(final Object object) throws SerialisationException;
+    byte[] serialise(final T object) throws SerialisationException;
 
     /**
      * From a byte array representing the Serialised form of a Property we should reconstruct the Object.
      *
      * @param bytes the serialised bytes to deserialise
-     * @return Object the deserialised object
+     * @return T the deserialised object
      * @throws SerialisationException if the object fails to deserialise
      */
-    Object deserialise(final byte[] bytes) throws SerialisationException;
+    T deserialise(final byte[] bytes) throws SerialisationException;
+
+    /**
+     * Handle an incoming null value and generate an appropriate byte array representation.
+     *
+     * @return byte[] the serialised bytes
+     */
+    byte[] serialiseNull();
+
+    /**
+     * Handle an empty byte array and reconstruct an appropriate representation in Object form.
+     *
+     * @return T the deserialised object
+     */
+    T deserialiseEmptyBytes();
 
     /**
      * @return true if the serialisation will preserve the order of bytes, otherwise false.
