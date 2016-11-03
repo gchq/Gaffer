@@ -18,48 +18,24 @@ package gaffer.accumulostore.operation.spark.handler.dataframe;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.function.FilterFunction;
-import gaffer.function.context.ConsumerFunctionContext;
-import gaffer.function.simple.filter.Exists;
-import gaffer.function.simple.filter.IsEqual;
-import gaffer.function.simple.filter.IsIn;
-import gaffer.function.simple.filter.IsLessThan;
-import gaffer.function.simple.filter.IsMoreThan;
-import gaffer.function.simple.filter.Not;
 import gaffer.operation.OperationException;
-import gaffer.operation.data.EntitySeed;
 import gaffer.operation.simple.spark.AbstractGetRDD;
 import gaffer.operation.simple.spark.Converter;
 import gaffer.operation.simple.spark.GetRDDOfAllElements;
-import gaffer.operation.simple.spark.GetRDDOfElements;
 import gaffer.user.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.BaseRelation;
-import org.apache.spark.sql.sources.EqualNullSafe;
-import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
-import org.apache.spark.sql.sources.GreaterThan;
-import org.apache.spark.sql.sources.GreaterThanOrEqual;
-import org.apache.spark.sql.sources.In;
-import org.apache.spark.sql.sources.IsNotNull;
-import org.apache.spark.sql.sources.IsNull;
-import org.apache.spark.sql.sources.LessThan;
-import org.apache.spark.sql.sources.LessThanOrEqual;
 import org.apache.spark.sql.sources.PrunedFilteredScan;
 import org.apache.spark.sql.sources.PrunedScan;
 import org.apache.spark.sql.sources.TableScan;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -208,42 +184,13 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 StringUtils.join(requiredColumns, ','),
                 filters.length,
                 StringUtils.join(filters, ','));
-        // If any of the filters can be translated into Accumulo queries (i.e. specifying ranges rather than a full
-        // table scan) then do this.
-        AbstractGetRDD<?> operation = null;
-        for (final Filter filter : filters) {
-            if (filter instanceof EqualTo) {
-                final EqualTo equalTo = (EqualTo) filter;
-                final String attribute = equalTo.attribute();
-                if (attribute.equals(SRC_COL_NAME) || attribute.equals(DST_COL_NAME) || attribute.equals(VERTEX_COL_NAME)) {
-                    LOGGER.debug("Found EqualTo filter with attribute {}, creating GetRDDOfElements", attribute);
-                    operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
-                }
-                break;
-            }
-        }
+        AbstractGetRDD<?> operation = new FiltersToOperationConverter(sqlContext, view, store.getSchema(), filters)
+                .getOperation();
         if (operation == null) {
-            LOGGER.debug("Creating GetRDDOfAllElements");
-            operation = new GetRDDOfAllElements(sqlContext.sparkContext());
+            // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X
+            // and there is no group X in the schema).
+            return sqlContext.emptyDataFrame().rdd();
         }
-        // Create view based on filters and add to operation
-        final List<ConsumerFunctionContext<String, FilterFunction>> filterList = new ArrayList<>();
-        for (final Filter filter : filters) {
-            filterList.addAll(getFunctionsFromFilter(filter));
-        }
-        View.Builder builder = new View.Builder();
-        for (final String group : view.getEntityGroups()) {
-            final ViewElementDefinition ved = view.getEntity(group);
-            ved.addPostAggregationElementFilterFunctions(filterList);
-            builder = builder.entity(group, ved);
-        }
-        for (final String group : view.getEdgeGroups()) {
-            final ViewElementDefinition ved = view.getEdge(group);
-            ved.addPostAggregationElementFilterFunctions(filterList);
-            builder = builder.edge(group, ved);
-        }
-        operation.setView(builder.build());
-        // Create RDD
         try {
             final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
@@ -253,81 +200,6 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             LOGGER.error("OperationException while executing operation {}", e);
             return null;
         }
-    }
-
-    /**
-     * Converts a Spark {@link Filter} to a Gaffer {@link ConsumerFunctionContext}.
-     * <p>
-     * Note that Spark also applies all the filters provided to the {@link #buildScan(String[], Filter[])} method so
-     * not implementing some of the provided {@link Filter}s in Gaffer will not cause errors. However, as many as
-     * possible should be implemented so that as much filtering as possible happens in iterators running in Accumulo's
-     * tablet servers (this avoids unnecessary data transfer from Accumulo to Spark).
-     *
-     * @param filter The {@link Filter} to transform.
-     * @return Gaffer function(s) implementing the provided {@link Filter}.
-     */
-    private List<ConsumerFunctionContext<String, FilterFunction>> getFunctionsFromFilter(final Filter filter) {
-        final List<ConsumerFunctionContext<String, FilterFunction>> functions = new ArrayList<>();
-        if (filter instanceof EqualTo) {
-            // Not dealt with as requires a FilterFunction that returns null if either the controlValue or the
-            // test value is null - the API of FilterFunction doesn't permit this.
-        } else if (filter instanceof EqualNullSafe) {
-            final EqualNullSafe equalNullSafe = (EqualNullSafe) filter;
-            final FilterFunction isEqual = new IsEqual(equalNullSafe.value());
-            final List<String> ecks = Collections.singletonList(equalNullSafe.attribute());
-            functions.add(new ConsumerFunctionContext<>(isEqual, ecks));
-            LOGGER.debug("Converted {} to IsEqual ({})", filter, ecks.get(0));
-        } else if (filter instanceof GreaterThan) {
-            final GreaterThan greaterThan = (GreaterThan) filter;
-            final FilterFunction isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), false);
-            final List<String> ecks = Collections.singletonList(greaterThan.attribute());
-            functions.add(new ConsumerFunctionContext<>(isMoreThan, ecks));
-            LOGGER.debug("Converted {} to isMoreThan ({})", filter, ecks.get(0));
-        } else if (filter instanceof GreaterThanOrEqual) {
-            final GreaterThanOrEqual greaterThan = (GreaterThanOrEqual) filter;
-            final FilterFunction isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), true);
-            final List<String> ecks = Collections.singletonList(greaterThan.attribute());
-            functions.add(new ConsumerFunctionContext<>(isMoreThan, ecks));
-            LOGGER.debug("Converted {} to IsMoreThan ({})", filter, ecks.get(0));
-        } else if (filter instanceof LessThan) {
-            final LessThan lessThan = (LessThan) filter;
-            final FilterFunction isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), false);
-            final List<String> ecks = Collections.singletonList(lessThan.attribute());
-            functions.add(new ConsumerFunctionContext<>(isLessThan, ecks));
-            LOGGER.debug("Converted {} to IsLessThan ({})", filter, ecks.get(0));
-        } else if (filter instanceof LessThanOrEqual) {
-            final LessThanOrEqual lessThan = (LessThanOrEqual) filter;
-            final FilterFunction isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), true);
-            final List<String> ecks = Collections.singletonList(lessThan.attribute());
-            functions.add(new ConsumerFunctionContext<>(isLessThan, ecks));
-            LOGGER.debug("Converted {} to LessThanOrEqual ({})", filter, ecks.get(0));
-        } else if (filter instanceof In) {
-            final In in = (In) filter;
-            final FilterFunction isIn = new IsIn(new HashSet<>(Arrays.asList(in.values())));
-            final List<String> ecks = Collections.singletonList(in.attribute());
-            functions.add(new ConsumerFunctionContext<>(isIn, ecks));
-            LOGGER.debug("Converted {} to IsIn ({})", filter, ecks.get(0));
-        } else if (filter instanceof IsNull) {
-            final IsNull isNull = (IsNull) filter;
-            final FilterFunction doesntExist = new Not(new Exists());
-            final List<String> ecks = Collections.singletonList(isNull.attribute());
-            functions.add(new ConsumerFunctionContext<>(doesntExist, ecks));
-            LOGGER.debug("Converted {} to Not(Exists) ({})", filter, ecks.get(0));
-        } else if (filter instanceof IsNotNull) {
-            final IsNotNull isNotNull = (IsNotNull) filter;
-            final FilterFunction exists = new Exists();
-            final List<String> ecks = Collections.singletonList(isNotNull.attribute());
-            functions.add(new ConsumerFunctionContext<>(exists, ecks));
-            LOGGER.debug("Converted {} to Exists ({})", filter, ecks.get(0));
-        } else if (filter instanceof And) {
-            final And and = (And) filter;
-            final List<ConsumerFunctionContext<String, FilterFunction>> left = getFunctionsFromFilter(and.left());
-            final List<ConsumerFunctionContext<String, FilterFunction>> right = getFunctionsFromFilter(and.right());
-            functions.addAll(left);
-            functions.addAll(right);
-            LOGGER.debug("Converted {} to 2 filters ({} and {})", filter, StringUtils.join(left, ','), StringUtils.join(right, ','));
-        }
-        return functions;
     }
 
 }

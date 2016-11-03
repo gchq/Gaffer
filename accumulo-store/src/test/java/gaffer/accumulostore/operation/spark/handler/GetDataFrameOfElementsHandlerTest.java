@@ -29,6 +29,7 @@ import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
+import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.simple.spark.ConversionException;
 import gaffer.operation.simple.spark.Converter;
 import gaffer.operation.simple.spark.GetDataFrameOfElements;
@@ -49,40 +50,22 @@ import java.util.*;
 
 public class GetDataFrameOfElementsHandlerTest {
 
-    private final static String ENTITY_GROUP = "BasicEntity";
-    private final static String EDGE_GROUP = "BasicEdge";
+    final static String ENTITY_GROUP = "BasicEntity";
+    final static String EDGE_GROUP = "BasicEdge";
+    final static String EDGE_GROUP2 = "BasicEdge2";
     private final static int NUM_ELEMENTS = 10;
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElements()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkGetCorrectElementsInDataFrame")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrame");
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -116,10 +99,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
-        dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        dataFrame = graph.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -138,39 +118,20 @@ public class GetDataFrameOfElementsHandlerTest {
         }
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetCorrectElementsInDataFrameMultipleGroups() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElements()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkGetCorrectElementsInDataFrameMultipleGroups")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameMultipleGroups");
 
         // Use entity and edges group - check get correct data
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
-        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -218,10 +179,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
-        dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        dataFrame = graph.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -240,39 +198,20 @@ public class GetDataFrameOfElementsHandlerTest {
         }
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjection() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElements()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkGetCorrectElementsInDataFrameWithProjection")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameWithProjection");
 
         // Get all edges
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
 
         // Check get correct rows when ask for src, dst and property2 columns
         Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2").collectAsList());
@@ -304,39 +243,20 @@ public class GetDataFrameOfElementsHandlerTest {
         }
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjectionAndFiltering() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElements()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkGetCorrectElementsInDataFrameWithProjectionAndFiltering")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameWithProjectionAndFiltering");
 
         // Get DataFrame
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        final Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
 
         // Check get correct rows when ask for all columns but only rows where property2 > 4.0
         Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0").collectAsList());
@@ -367,28 +287,13 @@ public class GetDataFrameOfElementsHandlerTest {
         }
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetExceptionIfIncompatibleSchemas() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchemaIncompatible.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkGetExceptionIfIncompatibleSchemas")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchemaIncompatible.json", Collections.<Element>emptyList());
+        final SQLContext sqlContext = getSqlContext("checkGetExceptionIfIncompatibleSchemas");
 
         // Use entity and edges group - check get correct data
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
@@ -398,44 +303,25 @@ public class GetDataFrameOfElementsHandlerTest {
         // NB Catch the exception rather than using expected annotation on test to ensure that the SparkContext
         // is shut down.
         try {
-            graph1.execute(dfOperation, user);
+            graph.execute(dfOperation, new User());
             fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException e) {
             // Expected
         }
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkCanDealWithNonStandardProperties() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchemaNonstandardTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElementsWithNonStandardProperties()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkCanDealWithNonStandardProperties")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchemaNonstandardTypes.json", getElementsWithNonStandardProperties());
+        final SQLContext sqlContext = getSqlContext("checkCanDealWithNonStandardProperties");
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
@@ -458,10 +344,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .sqlContext(sqlContext)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
-        dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        dataFrame = graph.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -478,29 +361,13 @@ public class GetDataFrameOfElementsHandlerTest {
         expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkCanDealWithUserDefinedConversion() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchemaUserDefinedConversion.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElementsForUserDefinedConversion()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkCanDealWithUserDefinedConversion")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchemaUserDefinedConversion.json", getElementsForUserDefinedConversion());
+        final SQLContext sqlContext = getSqlContext("checkCanDealWithUserDefinedConversion");
 
         // Edges group - check get correct edges
         final List<Converter> converters = new ArrayList<>();
@@ -510,10 +377,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .converters(converters)
                 .build();
-        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
@@ -538,10 +402,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .converters(converters)
                 .build();
-        dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        dataFrame = graph.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -559,29 +420,13 @@ public class GetDataFrameOfElementsHandlerTest {
         expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkViewIsRespected() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-
-        final User user = new User();
-        graph1.execute(new AddElements(getElements()), user);
-
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("checkViewIsRespected")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
-        final SQLContext sqlContext = new SQLContext(sparkContext);
+        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final SQLContext sqlContext = getSqlContext("checkViewIsRespected");
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
@@ -595,10 +440,7 @@ public class GetDataFrameOfElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        Dataset<Row> dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -630,10 +472,7 @@ public class GetDataFrameOfElementsHandlerTest {
                             .build())
                         .build())
                 .build();
-        dataFrame = graph1.execute(dfOperation, user);
-        if (dataFrame == null) {
-            fail("No DataFrame returned");
-        }
+        dataFrame = graph.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -652,10 +491,31 @@ public class GetDataFrameOfElementsHandlerTest {
         }
         assertEquals(expectedRows, results);
 
-        sparkContext.stop();
+        sqlContext.sparkContext().stop();
     }
 
-    private static List<Element> getElements() {
+    private Graph getGraph(final String dataSchema, final List<Element> elements) throws OperationException {
+        final Graph graph = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream(dataSchema))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        graph.execute(new AddElements(elements), new User());
+        return graph;
+    }
+
+    private SQLContext getSqlContext(final String appName) {
+        final SparkConf sparkConf = new SparkConf()
+                .setMaster("local")
+                .setAppName(appName)
+                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
+                .set("spark.driver.allowMultipleContexts", "true");
+        return new SQLContext(new SparkContext(sparkConf));
+    }
+
+    static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final Entity entity = new Entity(ENTITY_GROUP);

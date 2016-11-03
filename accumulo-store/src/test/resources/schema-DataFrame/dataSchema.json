@@ -37,16 +37,8 @@
       "destination": "string",
       "directed": "directed.either",
       "properties": {
-        "columnQualifier": "colQualProperty",
-        "property1": "int",
-        "property2": "float",
-        "property3": "double",
-        "property4": "long",
-        "count": "long"
-      },
-      "groupBy": [
-        "columnQualifier"
-      ]
+        "property1": "int"
+      }
     }
   }
 }
