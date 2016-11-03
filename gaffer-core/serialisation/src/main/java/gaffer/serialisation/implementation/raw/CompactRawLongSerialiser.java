@@ -17,7 +17,7 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * Serialises longs using a variable-length scheme that means smaller longs get serialised into a smaller
@@ -25,7 +25,7 @@ import gaffer.serialisation.Serialisation;
  * large longs may be serialised into 9 bytes. This is particularly well suited to serialising count properties in
  * power-law graphs where the majority of counts will be very small.
  */
-public class CompactRawLongSerialiser implements Serialisation {
+public class CompactRawLongSerialiser extends AbstractSerialisation<Long> {
 
     private static final long serialVersionUID = 6104372357426908732L;
 
@@ -35,8 +35,8 @@ public class CompactRawLongSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object o) throws SerialisationException {
-        return gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils.writeLong((long) o);
+    public byte[] serialise(final Long l) throws SerialisationException {
+        return gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils.writeLong(l);
     }
 
     @Override

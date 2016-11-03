@@ -41,6 +41,15 @@ public class Properties extends HashMap<String, Object> {
     }
 
     @Override
+    public Object put(final String name, final Object value) {
+        if (null != name && null != value) {
+            return super.put(name, value);
+        }
+
+        return null;
+    }
+
+    @Override
     public Properties clone() {
         return new Properties((Map<String, Object>) super.clone());
     }

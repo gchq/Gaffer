@@ -17,12 +17,12 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * RawFloatSerialiser serialises Floats into an IEEE floating point little-endian byte array.
  */
-public class RawFloatSerialiser implements Serialisation {
+public class RawFloatSerialiser extends AbstractSerialisation<Float> {
     private static final long serialVersionUID = -8573401558869574875L;
 
     @Override
@@ -31,9 +31,9 @@ public class RawFloatSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object o) throws SerialisationException {
+    public byte[] serialise(final Float f) throws SerialisationException {
         final byte[] out = new byte[4];
-        final int value = Float.floatToRawIntBits((Float) o);
+        final int value = Float.floatToRawIntBits(f);
         out[0] = (byte) ((int) (value & 255));
         out[1] = (byte) ((value >> 8) & 255);
         out[2] = (byte) ((value >> 16) & 255);

@@ -17,7 +17,7 @@
 package gaffer.serialisation.implementation;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
@@ -32,7 +32,7 @@ import java.io.Serializable;
 /**
  * This class is used to serialise and deserialise objects in java.
  */
-public class JavaSerialiser implements Serialisation {
+public class JavaSerialiser extends AbstractSerialisation<Object> {
     private static final long serialVersionUID = 2073581763875104361L;
     private static final Class<Serializable> SERIALISABLE = Serializable.class;
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSerialiser.class);

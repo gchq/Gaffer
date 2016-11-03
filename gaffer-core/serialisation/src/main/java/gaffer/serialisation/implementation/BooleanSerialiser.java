@@ -16,19 +16,19 @@
 package gaffer.serialisation.implementation;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * This class is used to serialise and deserialise a boolean value
  */
-public class BooleanSerialiser implements Serialisation {
+public class BooleanSerialiser extends AbstractSerialisation<Boolean> {
 
     private static final long serialVersionUID = -3964992157560886710L;
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 1;
 
-    public byte[] serialise(final Object object) throws SerialisationException {
-        return new byte[]{Boolean.TRUE.equals(object) ? TRUE : FALSE};
+    public byte[] serialise(final Boolean value) throws SerialisationException {
+        return new byte[]{Boolean.TRUE.equals(value) ? TRUE : FALSE};
     }
 
     public Boolean deserialise(final byte[] bytes) throws SerialisationException {
@@ -39,6 +39,7 @@ public class BooleanSerialiser implements Serialisation {
         return clazz.cast(bytes.length == 1 && TRUE == bytes[0]);
     }
 
+    @Override
     public boolean canHandle(final Class clazz) {
         return Boolean.class.isAssignableFrom(clazz);
     }

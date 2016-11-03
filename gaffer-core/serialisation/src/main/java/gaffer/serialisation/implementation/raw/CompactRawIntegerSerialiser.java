@@ -17,7 +17,7 @@
 package gaffer.serialisation.implementation.raw;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 
 /**
  * Serialises integers using a variable-length scheme that means smaller integers get serialised into a smaller
@@ -29,7 +29,7 @@ import gaffer.serialisation.Serialisation;
  * equal to <code>Integer.MIN_VALUE</code>. This means that, in terms of serialised size, there is no benefit to
  * using an integer instead of a long.
  */
-public class CompactRawIntegerSerialiser implements Serialisation {
+public class CompactRawIntegerSerialiser extends AbstractSerialisation<Integer> {
 
     private static final long serialVersionUID = -2874472098583724627L;
 
@@ -39,8 +39,8 @@ public class CompactRawIntegerSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object o) throws SerialisationException {
-        return CompactRawSerialisationUtils.writeLong((int) o);
+    public byte[] serialise(final Integer i) throws SerialisationException {
+        return CompactRawSerialisationUtils.writeLong(i);
     }
 
     @Override

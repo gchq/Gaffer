@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package gaffer.commonutil;
+package gaffer.serialisation;
 
-public class TestTypes {
-    public static final String TIMESTAMP = "timestamp";
-    public static final String VISIBILITY = "visibility";
-    public static final String ID_STRING = "id.string";
-    public static final String DIRECTED_EITHER = "directed.either";
-    public static final String DIRECTED_TRUE = "directed.true";
-    public static final String PROP_STRING = "prop.string";
-    public static final String PROP_INTEGER = "prop.integer";
-    public static final String PROP_COUNT = "prop.count";
+/**
+ * Abstract implementation of the {@link Serialisation} interface, providing default
+ * implementations of the {@link Serialisation#deserialiseEmptyBytes()} and
+ * {@link Serialisation#serialiseNull()} methods.
+ */
+public abstract class AbstractSerialisation<T> implements Serialisation<T> {
+
+    private static final byte[] EMPTY_BYTES = new byte[0];
+
+    @Override
+    public byte[] serialiseNull() {
+        return EMPTY_BYTES;
+    }
+
+    @Override
+    public T deserialiseEmptyBytes() {
+        return null;
+    }
 }
