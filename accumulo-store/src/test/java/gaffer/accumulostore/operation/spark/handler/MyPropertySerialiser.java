@@ -41,6 +41,16 @@ public class MyPropertySerialiser implements Serialisation {
     }
 
     @Override
+    public byte[] serialiseNull() {
+        return new byte[0];
+    }
+
+    @Override
+    public Object deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return false;
     }
