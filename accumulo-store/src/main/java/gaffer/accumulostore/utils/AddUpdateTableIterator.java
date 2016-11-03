@@ -81,8 +81,6 @@ public final class AddUpdateTableIterator {
         try {
             updateIterator(store, iteratorName,
                     store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-            // Update GafferUtilsTable with likely new schemas
-            TableUtils.addUpdateUtilsTable(store);
         } catch (IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }
@@ -173,17 +171,17 @@ public final class AddUpdateTableIterator {
         final String modifyKey = getModifyKey(args);
         switch (modifyKey) {
             case UPDATE_KEY:
-                for (String iterator : ITERATORS) {
+                for (final String iterator : ITERATORS) {
                     updateIterator(store, iterator);
                 }
                 break;
             case ADD_KEY:
-                for (String iterator : ITERATORS) {
+                for (final String iterator : ITERATORS) {
                     addIterator(store, iterator);
                 }
                 break;
             case REMOVE_KEY:
-                for (String iterator : ITERATORS) {
+                for (final String iterator : ITERATORS) {
                     removeIterator(store, iterator);
                 }
                 break;

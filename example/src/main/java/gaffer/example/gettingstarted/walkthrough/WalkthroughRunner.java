@@ -94,7 +94,7 @@ public class WalkthroughRunner {
         LOGGER.info(index + ". [Examples](#examples)");
 
         index = 1;
-        for (Class<? extends LoadAndQuery> aClass : EXAMPLES) {
+        for (final Class<? extends LoadAndQuery> aClass : EXAMPLES) {
             final String header = aClass.newInstance().getHeader();
             LOGGER.info("  " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
             index++;

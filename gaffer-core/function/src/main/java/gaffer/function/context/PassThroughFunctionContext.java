@@ -58,7 +58,7 @@ public class PassThroughFunctionContext<R, F extends ConsumerProducerFunction> e
      */
     public void project(final Tuple<R> tuple, final Object[] values) {
         int i = 0;
-        for (R reference : getSelection()) {
+        for (final R reference : getSelection()) {
             Object value = i < values.length ? values[i] : null;
             tuple.put(reference, value);
             i++;

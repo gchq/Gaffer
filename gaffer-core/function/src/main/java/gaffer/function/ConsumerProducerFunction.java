@@ -51,8 +51,9 @@ public abstract class ConsumerProducerFunction extends ConsumerFunction {
      */
     private void processOutputAnnotation() {
         final Outputs annotation = getClass().getAnnotation(Outputs.class);
-        if (null == annotation || null == annotation.value()) {
-            throw new AnnotationFormatError("All consumer producer function classes must have outputs defined using the 'Outputs' annotation on the class.");
+        if (null == annotation) {
+            throw new AnnotationFormatError("All consumer producer function classes must have outputs defined using the 'Outputs' annotation on the class."
+                    + " Class: " + getClass());
         }
 
         outputs = annotation.value();

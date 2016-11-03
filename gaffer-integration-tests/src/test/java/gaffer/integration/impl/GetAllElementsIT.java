@@ -26,7 +26,6 @@ import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementFilter;
@@ -61,8 +60,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
     @Test
     public void shouldGetAllElements() throws Exception {
-        for (boolean includeEntities : Arrays.asList(true, false)) {
-            for (IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
+        for (final boolean includeEntities : Arrays.asList(true, false)) {
+            for (final IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
                 if (!includeEntities && IncludeEdgeType.NONE == includeEdgeType) {
                     // Cannot query for nothing!
                     continue;
@@ -165,7 +164,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(getEntities().size(), resultList.size());
-        for (Element element : resultList) {
+        for (final Element element : resultList) {
             assertEquals(TestGroups.ENTITY, element.getGroup());
         }
     }
@@ -178,7 +177,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.VERTEX)
+                                        .select(IdentifierType.VERTEX.name())
                                         .execute(new IsEqual("A1"))
                                         .build())
                                 .build())
@@ -194,7 +193,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING  })
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING})
     @Test
     public void shouldGetAllTransformedFilteredElements() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
@@ -202,13 +201,13 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(IdentifierType.VERTEX)
+                                        .select(IdentifierType.VERTEX.name())
                                         .execute(new IsEqual("A1"))
                                         .build())
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(new ElementComponentKey(IdentifierType.VERTEX),
-                                                new ElementComponentKey(TestPropertyNames.STRING))
+                                        .select(IdentifierType.VERTEX.name(),
+                                                TestPropertyNames.STRING)
                                         .project(TestPropertyNames.TRANSIENT_1)
                                         .execute(new Concat())
                                         .build())
@@ -232,7 +231,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
             expectedElements.addAll(getEntities().values());
         }
 
-        for (Edge edge : getEdges().values()) {
+        for (final Edge edge : getEdges().values()) {
             if (IncludeEdgeType.ALL == includeEdgeType
                     || (edge.isDirected() && IncludeEdgeType.DIRECTED == includeEdgeType)
                     || (!edge.isDirected() && IncludeEdgeType.UNDIRECTED == includeEdgeType)) {
@@ -255,7 +254,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
-        for (Element result : results) {
+        for (final Element result : results) {
             final ElementSeed seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;

@@ -24,7 +24,6 @@ import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.Entity;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementTransformer;
@@ -86,7 +85,7 @@ public class TransformationIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (Entity result : results) {
+        for (final Entity result : results) {
             assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
@@ -109,7 +108,7 @@ public class TransformationIT extends AbstractStoreIT {
         // Then
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (Edge result : results) {
+        for (final Edge result : results) {
             assertEquals(1L, result.getProperty(TestPropertyNames.COUNT));
             assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
@@ -125,7 +124,7 @@ public class TransformationIT extends AbstractStoreIT {
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(new ElementComponentKey(IdentifierType.VERTEX), new ElementComponentKey(TestPropertyNames.STRING))
+                                        .select(IdentifierType.VERTEX.name(), TestPropertyNames.STRING)
                                         .execute(new Concat())
                                         .project(TestPropertyNames.TRANSIENT_1)
                                         .build())
@@ -139,7 +138,7 @@ public class TransformationIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (Entity result : results) {
+        for (final Entity result : results) {
             assertEquals("A1,3", result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
@@ -154,7 +153,7 @@ public class TransformationIT extends AbstractStoreIT {
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(new ElementComponentKey(IdentifierType.SOURCE), new ElementComponentKey(TestPropertyNames.INT))
+                                        .select(IdentifierType.SOURCE.name(), TestPropertyNames.INT)
                                         .execute(new Concat())
                                         .project(TestPropertyNames.TRANSIENT_1)
                                         .build())
@@ -167,7 +166,7 @@ public class TransformationIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (Edge result : results) {
+        for (final Edge result : results) {
             assertEquals(SOURCE_1 + "," + 1, result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
@@ -181,7 +180,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(new ElementComponentKey(IdentifierType.VERTEX), new ElementComponentKey(TestPropertyNames.STRING))
+                                        .select(IdentifierType.VERTEX.name(), TestPropertyNames.STRING)
                                         .execute(new Concat())
                                         .project(TestPropertyNames.STRING)
                                         .build())
@@ -195,7 +194,7 @@ public class TransformationIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (Entity result : results) {
+        for (final Entity result : results) {
             assertEquals("A1,3", result.getProperty(TestPropertyNames.STRING));
         }
     }

@@ -16,6 +16,7 @@
 package gaffer.example.function.filter;
 
 import gaffer.example.util.Example;
+import gaffer.example.util.JavaSourceUtil;
 import gaffer.function.FilterFunction;
 import gaffer.function.SimpleFilterFunction;
 
@@ -24,28 +25,28 @@ public abstract class FilterFunctionExample extends Example {
         super(classForExample);
     }
 
-    protected void runExample(final FilterFunction filterFunction, final String filterFunctionJava, final Object[]... inputs) {
-        _runExample(filterFunction, filterFunctionJava, inputs);
+    protected void runExample(final FilterFunction filterFunction, final Object[]... inputs) {
+        _runExample(filterFunction, inputs);
     }
 
-    protected void runExample(final SimpleFilterFunction filterFunction, final String filterFunctionJava, final Object... inputs) {
+    protected void runExample(final SimpleFilterFunction filterFunction, final Object... inputs) {
         final Object[][] wrappedInputs = new Object[inputs.length][];
         for (int i = 0; i < inputs.length; i++) {
             wrappedInputs[i] = new Object[]{inputs[i]};
         }
 
-        _runExample(filterFunction, filterFunctionJava, wrappedInputs);
+        _runExample(filterFunction, wrappedInputs);
     }
 
-    private void _runExample(final FilterFunction filterFunction, final String filterFunctionJava, final Object[][] inputs) {
+    private void _runExample(final FilterFunction filterFunction, final Object[][] inputs) {
         log("#### " + getMethodNameAsSentence(2) + "\n");
-        printJava(filterFunctionJava);
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
         printAsJson(filterFunction);
 
         log("Input type:");
         log("\n```");
         final StringBuilder inputClasses = new StringBuilder();
-        for (Class<?> item : filterFunction.getInputClasses()) {
+        for (final Class<?> item : filterFunction.getInputClasses()) {
             inputClasses.append(item.getName());
             inputClasses.append(", ");
         }
@@ -55,7 +56,7 @@ public abstract class FilterFunctionExample extends Example {
         log("Example inputs:");
         log("<table>");
         log("<tr><th>Type</th><th>Input</th><th>Result</th></tr>");
-        for (Object[] input : inputs) {
+        for (final Object[] input : inputs) {
             final String inputType;
             final String inputString;
             if (1 == input.length) {
@@ -69,7 +70,7 @@ public abstract class FilterFunctionExample extends Example {
             } else {
                 final StringBuilder inputTypeBuilder = new StringBuilder("[");
                 final StringBuilder inputStringBuilder = new StringBuilder("[");
-                for (Object item : input) {
+                for (final Object item : input) {
                     if (null == item) {
                         inputTypeBuilder.append(" ,");
                         inputStringBuilder.append("null, ");

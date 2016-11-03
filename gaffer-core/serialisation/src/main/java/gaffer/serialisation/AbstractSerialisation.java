@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package gaffer.example.operation;
+package gaffer.serialisation;
 
-import org.junit.Test;
+/**
+ * Abstract implementation of the {@link Serialisation} interface, providing default
+ * implementations of the {@link Serialisation#deserialiseEmptyBytes()} and
+ * {@link Serialisation#serialiseNull()} methods.
+ */
+public abstract class AbstractSerialisation<T> implements Serialisation<T> {
 
-public class OperationExamplesRunnerTest {
-    @Test
-    public void shouldRunAllOperationExamplesWithoutErrors() throws Exception {
-        // Given
-        final OperationExamplesRunner runner = new OperationExamplesRunner();
+    private static final byte[] EMPTY_BYTES = new byte[0];
 
-        // When
-        runner.run();
+    @Override
+    public byte[] serialiseNull() {
+        return EMPTY_BYTES;
+    }
 
-        // Then - no exceptions
+    @Override
+    public T deserialiseEmptyBytes() {
+        return null;
     }
 }

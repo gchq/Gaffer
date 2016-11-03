@@ -15,6 +15,7 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
@@ -33,20 +34,29 @@ public class LimitExample extends OperationExample {
     @Override
     public void runExamples() {
         limitElementsTo3();
+        limitElementsTo3InChain();
     }
 
     public Iterable<Element> limitElementsTo3() {
-        final String opJava = "new OperationChain.Builder()\n" +
-                "                .first(new GetAllElements<>())\n" +
-                "                .then(new Limit.Builder<Element>()\n" +
-                "                        .limitResults(3)\n" +
-                "                        .build())\n" +
-                "                .build()";
-        return runExample(new OperationChain.Builder()
+        // ---------------------------------------------------------
+        final GetAllElements<Element> operation = new GetAllElements.Builder<>()
+                .limitResults(3)
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
+    }
+
+    public Iterable<Element> limitElementsTo3InChain() {
+        // ---------------------------------------------------------
+        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new Limit.Builder<Element>()
                         .limitResults(3)
                         .build())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain);
     }
 }

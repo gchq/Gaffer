@@ -36,7 +36,7 @@ public class TypeDefinitions extends HashMap<String, TypeDefinition> {
     }
 
     public void merge(final TypeDefinitions types) {
-        for (Map.Entry<String, TypeDefinition> entry : types.entrySet()) {
+        for (final Map.Entry<String, TypeDefinition> entry : types.entrySet()) {
             if (!containsKey(entry.getKey())) {
                 put(entry.getKey(), entry.getValue());
             } else {

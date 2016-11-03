@@ -17,7 +17,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import gaffer.types.simple.IntegerFreqMap;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.Set;
  * @deprecated use {@link IntegerFreqMap} with {@link FreqMapSerialiser} instead.
  */
 @Deprecated
-public class IntegerFreqMapSerialiser implements Serialisation {
+public class IntegerFreqMapSerialiser extends AbstractSerialisation<IntegerFreqMap> {
 
     private static final long serialVersionUID = 3772387954385745791L;
     private static final String SEPERATOR = "\\,";
@@ -38,13 +38,12 @@ public class IntegerFreqMapSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        IntegerFreqMap map = (IntegerFreqMap) object;
+    public byte[] serialise(final IntegerFreqMap map) throws SerialisationException {
         Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
         StringBuilder builder = new StringBuilder();
         int last = entrySet.size() - 1;
         int start = 0;
-        for (Map.Entry<String, Integer> entry : entrySet) {
+        for (final Map.Entry<String, Integer> entry : entrySet) {
             Integer value = entry.getValue();
             if (value == null) {
                 continue;
@@ -57,14 +56,15 @@ public class IntegerFreqMapSerialiser implements Serialisation {
             builder.append(SEPERATOR);
         }
         try {
-            return builder.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
+            return builder.toString()
+                          .getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public IntegerFreqMap deserialise(final byte[] bytes) throws SerialisationException {
         IntegerFreqMap freqMap = new IntegerFreqMap();
         if (bytes.length == 0) {
             return freqMap;

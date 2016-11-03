@@ -47,7 +47,7 @@ public class And extends MultiFilterFunction {
      */
     @Override
     public boolean isValid(final Object[] input) {
-        for (Boolean result : executeFilters(input)) {
+        for (final Boolean result : executeFilters(input)) {
             if (!result) {
                 return false;
             }

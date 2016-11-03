@@ -45,6 +45,7 @@ import gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import gaffer.accumulostore.operation.spark.handler.GetDataFrameOfElementsOperationHandler;
+import gaffer.accumulostore.operation.spark.handler.GetJavaRDDOfAllElementsOperationHandler;
 import gaffer.accumulostore.operation.spark.handler.GetJavaRDDOfElementsOperationHandler;
 import gaffer.accumulostore.operation.spark.handler.GetRDDOfAllElementsOperationHandler;
 import gaffer.accumulostore.operation.spark.handler.GetRDDOfElementsOperationHandler;
@@ -63,6 +64,7 @@ import gaffer.operation.impl.get.GetAllElements;
 import gaffer.operation.impl.get.GetElements;
 import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.operation.simple.spark.GetJavaRDDOfAllElements;
 import gaffer.operation.simple.spark.GetJavaRDDOfElements;
 import gaffer.operation.simple.spark.GetRDDOfAllElements;
 import gaffer.operation.simple.spark.GetRDDOfElements;
@@ -101,6 +103,7 @@ import static gaffer.store.StoreTrait.STORE_VALIDATION;
 import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.VISIBILITY;
 
 
 /**
@@ -114,7 +117,7 @@ import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  */
 public class AccumuloStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED));
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -235,6 +238,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(GetJavaRDDOfElements.class, new GetJavaRDDOfElementsOperationHandler());
         addOperationHandler(GetRDDOfElements.class, new GetRDDOfElementsOperationHandler());
         addOperationHandler(GetRDDOfAllElements.class, new GetRDDOfAllElementsOperationHandler());
+        addOperationHandler(GetJavaRDDOfAllElements.class, new GetJavaRDDOfAllElementsOperationHandler());
         addOperationHandler(GetDataFrameOfElements.class, new GetDataFrameOfElementsOperationHandler());
     }
 

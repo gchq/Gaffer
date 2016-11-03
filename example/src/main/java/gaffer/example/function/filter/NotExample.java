@@ -35,8 +35,11 @@ public class NotExample extends FilterFunctionExample {
     }
 
     public void doesNotExist() {
-        runExample(new Not(new Exists()),
-                "new Not(new Exists())",
+        // ---------------------------------------------------------
+        final Not function = new Not(new Exists());
+        // ---------------------------------------------------------
+
+        runExample(function,
                 new Object[]{1},
                 new Object[]{null},
                 new Object[]{""},
@@ -44,8 +47,11 @@ public class NotExample extends FilterFunctionExample {
     }
 
     public void areNotEqual() {
-        runExample(new Not(new AreEqual()),
-                "new Not(new AreEqual())",
+        // ---------------------------------------------------------
+        final Not function = new Not(new AreEqual());
+        // ---------------------------------------------------------
+
+        runExample(function,
                 new Object[]{1, 1.0},
                 new Object[]{1, 2},
                 new Object[]{2.5, 2.5},

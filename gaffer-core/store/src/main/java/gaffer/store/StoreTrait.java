@@ -68,5 +68,11 @@ public enum StoreTrait {
      * Stores that are ordered have special characteristics such as requiring
      * serialisers that preserve ordering of the keyed properties.
      */
-    ORDERED
+    ORDERED,
+
+    /**
+     * Stores with this trait support user-defined visibility settings to prevent authorised access to records
+     * which a user does not have permissions to see.
+     */
+    VISIBILITY
 }

@@ -44,52 +44,72 @@ public class LoadAndQuery4 extends LoadAndQuery {
     }
 
     public CloseableIterable<Edge> run() throws OperationException {
+        // [user] Create a user
+        // ---------------------------------------------------------
         final User user = new User("user01");
+        // ---------------------------------------------------------
 
-        //create some edges from the data file using our data generator class
+
+        // [generate] Create some edges from the data file using our data generator class
+        // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final DataGenerator4 dataGenerator = new DataGenerator4();
-        for (String s : DataUtils.loadData(getData())) {
+        for (final String s : DataUtils.loadData(getData())) {
             elements.add(dataGenerator.getElement(s));
         }
+        // ---------------------------------------------------------
         log("Elements generated from the data file.");
         for (final Element element : elements) {
             log("GENERATED_EDGES", element.toString());
         }
         log("");
 
-        //create a graph using our schema and store properties
+
+        // [graph] create a graph using our schema and store properties
+        // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(getSchemas())
                 .storeProperties(getStoreProperties())
                 .build();
+        // ---------------------------------------------------------
 
-        //add the edges to the graph
+
+        // [add] add the edges to the graph
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
         graph.execute(addElements, user);
+        // ---------------------------------------------------------
         log("The elements have been added.\n");
 
-        //get all the edges that contain the vertex "1"
+
+        // [get simple] get all the edges that contain the vertex "1"
+        // ---------------------------------------------------------
         final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
+        // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
-        for (Element e : results) {
+        for (final Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
         }
 
-        //rerun previous query but calculate a mean
-        // Create a mean transient property using an element transformer
+
+        // rerun previous query but calculate a mean
+
+        // [transform] Create a mean transient property using an element transformer
+        // ---------------------------------------------------------
         final ElementTransformer mean = new ElementTransformer.Builder()
                 .select("thing", "count")
                 .project("mean")
                 .execute(new MeanTransform())
                 .build();
+        // ---------------------------------------------------------
 
-        // Add the element transformer to the view
+
+        // [get] Add the element transformer to the view and run the query
+        // ---------------------------------------------------------
         final View view = new View.Builder()
                 .edge("data", new ViewElementDefinition.Builder()
                         .transientProperty("mean", Float.class)
@@ -102,8 +122,9 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .view(view)
                 .build();
         final CloseableIterable<Edge> transientResults = graph.execute(getRelatedEdgesWithMean, user);
+        // ---------------------------------------------------------
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
-        for (Element e : transientResults) {
+        for (final Element e : transientResults) {
             log("GET_RELATED_ELEMENTS_WITH_MEAN_RESULT", e.toString());
         }
 

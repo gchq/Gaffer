@@ -28,30 +28,14 @@ We've also updated the StoreTypes and specified that the visibility property is 
 ${STORE_TYPES_JSON}
 
 
-After creating a Graph and adding our Edges to it we run a simple query to get back all edges containing vertex `"1"`
+After creating a Graph and adding our Edges to it we run a simple query to get back all edges containing vertex `"1"`... and we get nothing back.
+This is because the user we ran the query with was not allowed to see "public" or "private", no edges were returned.
 
-```java
-GetRelatedEdges getRelatedEdges = new GetRelatedEdges.Builder()
-        .addSeed(new EntitySeed("1"))
-        .build();
+We can create a user that can see `public` Edges (and therefore not `private` edges) and update the query to use this user.
 
-for (Element e : graph5.execute(getRelatedEdges)) {
-    System.out.println(e.toString());
-}
-```
+${GET_PUBLIC_SNIPPET}
 
-and we get nothing back. This is because the user we ran the query with was not allowed to see "public" or "private", no edges were returned.
-
-We can create a user that can see `public` Edges (and therefore not `private` edges):
-
-```java
-final User publicUser = new User.Builder()
-    .userId("publicUser")
-    .dataAuth("public")
-    .build();
-```
-
-If we rerun the query with the public user, we just get back the `public` Edges:
+If we rerun the query with a public user, we just get back the `public` Edges:
 
 ```
 ${GET_PUBLIC_RELATED_EDGES_RESULT}
@@ -59,12 +43,7 @@ ${GET_PUBLIC_RELATED_EDGES_RESULT}
 
 We can also create a user that can see `private` Edges (and therefore `public` ones as well):
 
-```java
-final User privateUser = new User.Builder()
-    .userId("privateUser")
-    .dataAuth("private")
-    .build();
-```
+${GET_PRIVATE_SNIPPET}
 
 If we rerun the query with the private user, we get back all of the Edges:
 

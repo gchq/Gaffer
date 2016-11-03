@@ -31,8 +31,10 @@ public class IsInExample extends FilterFunctionExample {
     }
 
     public void isInSet() {
-        runExample(new IsIn(5, 5L, "5", '5'),
-                "new IsIn(5, 5L, \"5\", '5')",
-                5, 5L, "5", '5', 1, 1L, "1", '1');
+        // ---------------------------------------------------------
+        final IsIn function = new IsIn(5, 5L, "5", '5');
+        // ---------------------------------------------------------
+
+        runExample(function, 5, 5L, "5", '5', 1, 1L, "1", '1');
     }
 }

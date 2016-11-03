@@ -19,10 +19,10 @@ package gaffer.example.films.serialiser;
 import gaffer.commonutil.CommonConstants;
 import gaffer.example.films.data.Certificate;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 
-public class CertificateVisibilitySerialiser implements Serialisation {
+public class CertificateVisibilitySerialiser extends AbstractSerialisation<Certificate> {
     private static final long serialVersionUID = -1726585921080420988L;
 
     @Override
@@ -31,8 +31,8 @@ public class CertificateVisibilitySerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        String result = "(" + ((Certificate) object).name() + ")";
+    public byte[] serialise(final Certificate value) throws SerialisationException {
+        final String result = "(" + value.name() + ")";
         try {
             return result.getBytes(CommonConstants.UTF_8);
         } catch (UnsupportedEncodingException e) {
@@ -41,7 +41,7 @@ public class CertificateVisibilitySerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Certificate deserialise(final byte[] bytes) throws SerialisationException {
         final String nameInBrackets;
         try {
             nameInBrackets = new String(bytes, CommonConstants.UTF_8);

@@ -17,7 +17,7 @@
 package gaffer.serialisation.simple;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.file.DataFileWriter;
@@ -37,7 +37,7 @@ import java.io.InputStream;
 /**
  * This class is used to serialise and deserialise avro files
  */
-public class AvroSerialiser implements Serialisation {
+public class AvroSerialiser extends AbstractSerialisation<Object> {
 
     private static final long serialVersionUID = -6264923181170362212L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroSerialiser.class);

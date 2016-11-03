@@ -235,7 +235,7 @@ public class AccumuloStoreTest {
     public void testStoreTraits(AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 7", traits.size() == 7);
+        assertTrue("Collection size should be 8", traits.size() == 8);
         assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
         assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
         assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
@@ -243,6 +243,7 @@ public class AccumuloStoreTest {
         assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
+        assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
     }
 
 }

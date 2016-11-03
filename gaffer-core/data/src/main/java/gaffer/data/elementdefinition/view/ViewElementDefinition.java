@@ -19,7 +19,6 @@ package gaffer.data.elementdefinition.view;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import gaffer.data.element.ElementComponentKey;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.ElementDefinition;
@@ -90,7 +89,7 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     public void merge(final ViewElementDefinition elementDef) {
-        for (Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
+        for (final Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
             final String newProp = entry.getKey();
             final Class<?> newPropClass = entry.getValue();
             if (!transientProperties.containsKey(newProp)) {
@@ -133,7 +132,7 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonGetter("transientProperties")
     public Map<String, String> getTransientPropertyMapWithClassNames() {
         Map<String, String> propertyMap = new HashMap<>();
-        for (Entry<String, Class<?>> entry : transientProperties.entrySet()) {
+        for (final Entry<String, Class<?>> entry : transientProperties.entrySet()) {
             propertyMap.put(entry.getKey(), entry.getValue().getName());
         }
 
@@ -149,7 +148,7 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonSetter("transientProperties")
     public void setTransientPropertyMapWithClassNames(final LinkedHashMap<String, String> newTransientProperties) throws ClassNotFoundException {
         transientProperties = new LinkedHashMap<>();
-        for (Entry<String, String> entry : newTransientProperties.entrySet()) {
+        for (final Entry<String, String> entry : newTransientProperties.entrySet()) {
             transientProperties.put(entry.getKey(), Class.forName(entry.getValue()));
         }
     }
@@ -164,12 +163,12 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     @JsonGetter("preAggregationFilterFunctions")
-    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPreAggregationFilterFunctions() {
+    public List<ConsumerFunctionContext<String, FilterFunction>> getPreAggregationFilterFunctions() {
         return null != preAggregationFilter ? preAggregationFilter.getFunctions() : null;
     }
 
     @JsonSetter("preAggregationFilterFunctions")
-    public void addPreAggregationElementFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+    public void addPreAggregationElementFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> functions) {
         if (null == preAggregationFilter) {
             preAggregationFilter = new ElementFilter();
         }
@@ -187,12 +186,12 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     @JsonGetter("postAggregationFilterFunctions")
-    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPostAggregationFilterFunctions() {
+    public List<ConsumerFunctionContext<String, FilterFunction>> getPostAggregationFilterFunctions() {
         return null != postAggregationFilter ? postAggregationFilter.getFunctions() : null;
     }
 
     @JsonSetter("postAggregationFilterFunctions")
-    public void addPostAggregationElementFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+    public void addPostAggregationElementFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> functions) {
         if (null == postAggregationFilter) {
             postAggregationFilter = new ElementFilter();
         }
@@ -210,12 +209,12 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     @JsonGetter("postTransformFilterFunctions")
-    public List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> getPostTransformFilterFunctions() {
+    public List<ConsumerFunctionContext<String, FilterFunction>> getPostTransformFilterFunctions() {
         return null != postTransformFilter ? postTransformFilter.getFunctions() : null;
     }
 
     @JsonSetter("postTransformFilterFunctions")
-    public void addPostTransformFilterFunctions(final List<ConsumerFunctionContext<ElementComponentKey, FilterFunction>> functions) {
+    public void addPostTransformFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> functions) {
         if (null == postTransformFilter) {
             postTransformFilter = new ElementFilter();
         }
@@ -233,12 +232,12 @@ public class ViewElementDefinition implements ElementDefinition {
     }
 
     @JsonGetter("transformFunctions")
-    public List<ConsumerProducerFunctionContext<ElementComponentKey, TransformFunction>> getTransformFunctions() {
+    public List<ConsumerProducerFunctionContext<String, TransformFunction>> getTransformFunctions() {
         return null != transformer ? transformer.getFunctions() : null;
     }
 
     @JsonSetter("transformFunctions")
-    public void addTransformFunctions(final List<ConsumerProducerFunctionContext<ElementComponentKey, TransformFunction>> functions) {
+    public void addTransformFunctions(final List<ConsumerProducerFunctionContext<String, TransformFunction>> functions) {
         transformer = new ElementTransformer();
         transformer.addFunctions(functions);
     }

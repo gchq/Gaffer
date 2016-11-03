@@ -26,33 +26,14 @@ Now we’ll add a new property to these results at query time. This is an exampl
 
 To do this we create an ${ELEMENT_TRANSFORMER_JAVADOC}:
 
-```java
-ElementTransformer mean = new ElementTransformer.Builder()
-    .select("thing", "count")
-    .project("mean")
-    .execute(new MeanTransform())
-    .build();
-```
+${TRANSFORM_SNIPPET}
+
 This `select`s the `”count”` and `”thing”` properties and maps, or `projects`, them into the `”mean”` property. The ${FUNCTION_JAVADOC} that does the mapping is a ${TRANSFORM_FUNCTION_JAVADOC}; in this case a ${MEAN_TRANSFORM_LINK}.
 
-We add the new `”mean”` property to the result Edge set using a `ViewElementDefinition`:
+We add the new `”mean”` property to the result Edge set using a `View` and then execute the operation.
 
-```java
-ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder()
-    .transientProperty("mean", Float.class)
-    .transformer(mean)
-    .build();
-```
+${GET_SNIPPET}
 
-and then creating a `View` as we’ve done before:
-
-```java
-View view = new View.Builder()
-        .edge("data", viewElementDefinition)
-        .build();
-
-getRelatedEdges.setView(view);
-```
 If you run the query you’ll get:
 
 ```

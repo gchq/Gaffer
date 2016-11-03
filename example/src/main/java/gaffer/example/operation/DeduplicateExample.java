@@ -15,9 +15,11 @@
  */
 package gaffer.example.operation;
 
+import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.operation.OperationChain;
 import gaffer.operation.OperationException;
+import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.Deduplicate;
 import gaffer.operation.impl.get.GetRelatedEdges;
@@ -39,43 +41,39 @@ public class DeduplicateExample extends OperationExample {
     }
 
     public Iterable<Edge> withoutDeduplicatingEdges() {
-        final String opJava = "new GetRelatedEdges.Builder<>()\n" +
-                "                .addSeed(new EntitySeed(1))\n" +
-                "                .addSeed(new EntitySeed(2))\n" +
-                "                .build()";
-        return runExample(new GetRelatedEdges.Builder<>()
+        // ---------------------------------------------------------
+        final GetRelatedEdges<ElementSeed> operation = new GetRelatedEdges.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
     }
 
     public Iterable<Edge> withDeduplicateEdgesFlag() {
-        final String opJava = "new GetRelatedEdges.Builder<>()\n" +
-                "                .addSeed(new EntitySeed(1))\n" +
-                "                .addSeed(new EntitySeed(2))\n" +
-                "                .deduplicate(true)\n" +
-                "                .build()";
-        return runExample(new GetRelatedEdges.Builder<>()
+        // ---------------------------------------------------------
+        final GetRelatedEdges<ElementSeed> build = new GetRelatedEdges.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .deduplicate(true)
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(build);
     }
 
     public Iterable<Edge> withDeduplicateEdgesChain() {
-        final String opJava = "new OperationChain.Builder()\n" +
-                "                .first(new GetRelatedEdges.Builder<>()\n" +
-                "                        .addSeed(new EntitySeed(1))\n" +
-                "                        .addSeed(new EntitySeed(2))\n" +
-                "                        .build())\n" +
-                "                .then(new Deduplicate<Edge>())\n" +
-                "                .build()";
-        return runExample(new OperationChain.Builder()
+        // ---------------------------------------------------------
+        final OperationChain<CloseableIterable<Edge>> opChain = new OperationChain.Builder()
                 .first(new GetRelatedEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .build())
                 .then(new Deduplicate<Edge>())
-                .build(), opJava);
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain);
     }
 }

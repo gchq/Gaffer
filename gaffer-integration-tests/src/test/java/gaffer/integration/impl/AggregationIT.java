@@ -98,7 +98,7 @@ public class AggregationIT extends AbstractStoreIT {
                 expectedEntity
         ));
 
-        for (Element result : results) {
+        for (final Element result : results) {
             if (result instanceof Entity) {
                 assertEquals(AGGREGATED_ID, result.getProperty(TestPropertyNames.STRING));
             } else {

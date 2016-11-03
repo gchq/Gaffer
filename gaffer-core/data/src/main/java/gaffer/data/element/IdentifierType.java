@@ -16,37 +16,42 @@
 
 package gaffer.data.element;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The <code>IdentifierType</code> enum contains the identifier types used for {@link gaffer.data.element.Entity}s and
  * {@link gaffer.data.element.Edge}s.
  */
 public enum IdentifierType {
     // Entity identifier type
-    VERTEX("vertex"),
+    VERTEX,
 
     // Edge identifier types
     /**
      * An Edge's source vertex
      */
-    SOURCE("source"),
+    SOURCE,
 
     /**
      * An Edge's destination vertex
      */
-    DESTINATION("destination"),
+    DESTINATION,
 
     /**
      * An Edge's directed flag
      */
-    DIRECTED("directed");
+    DIRECTED;
 
-    private final String propertyName;
+    private static final Map<String, IdentifierType> VALUES = new HashMap<>(values().length);
 
-    IdentifierType(final String propertyName) {
-        this.propertyName = propertyName;
+    static {
+        for (final IdentifierType identifierType : IdentifierType.values()) {
+            VALUES.put(identifierType.name(), identifierType);
+        }
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public static IdentifierType fromName(final String name) {
+        return VALUES.get(name);
     }
 }

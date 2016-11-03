@@ -32,7 +32,7 @@ public class CountGroupsHandler implements OperationHandler<CountGroups, GroupCo
         int count = 0;
         final GroupCounts groupCounts = new GroupCounts();
         if (null != operation.getElements()) {
-            for (Element element : operation.getElements()) {
+            for (final Element element : operation.getElements()) {
                 if (null != operation.getLimit()) {
                     count++;
                     if (count > operation.getLimit()) {
