@@ -114,6 +114,8 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("GET_PUBLIC_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get public"));
         params.put("GET_PRIVATE_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get private"));
         params.put("EXTRACTOR_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "extractor"));
+        params.put("GET_ALL_EDGES_SUMMARISED_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get all edges summarised"));
+        params.put("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), "example", "get all edges summarised in time window"));
 
         try {
             example.run();
