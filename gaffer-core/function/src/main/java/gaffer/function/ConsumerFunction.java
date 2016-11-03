@@ -18,6 +18,7 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.lang.annotation.AnnotationFormatError;
 import java.util.Arrays;
 
@@ -55,5 +56,12 @@ public abstract class ConsumerFunction implements Function {
         }
 
         inputs = annotation.value();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .toString();
     }
 }

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>IsEqual</code> is a {@link SimpleFilterFunction} that checks that the input object is
@@ -58,5 +59,12 @@ public class IsEqual extends SimpleFilterFunction<Object> {
         }
 
         return controlValue.equals(input);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("controlValue", controlValue)
+                .toString();
     }
 }

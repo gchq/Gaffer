@@ -17,6 +17,7 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Map;
 
 /**
@@ -80,5 +81,13 @@ public class MapFilter extends SimpleFilterFunction<Map> {
 
     public void setKey(final Object key) {
         this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("function", function)
+                .append("key", key)
+                .toString();
     }
 }

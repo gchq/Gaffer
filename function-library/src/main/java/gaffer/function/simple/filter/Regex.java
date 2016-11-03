@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.regex.Pattern;
 
@@ -57,5 +58,12 @@ public class Regex extends SimpleFilterFunction<String> {
     @Override
     public Regex statelessClone() {
         return new Regex(controlValue);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("controlValue", controlValue)
+                .toString();
     }
 }

@@ -19,6 +19,7 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks that the input
@@ -80,5 +81,13 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("controlValue", controlValue)
+                .append("orEqualTo", orEqualTo)
+                .toString();
     }
 }
