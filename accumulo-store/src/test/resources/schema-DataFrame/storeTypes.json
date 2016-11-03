@@ -37,7 +37,7 @@
       }
     },
     "myProperty": {
-      "serialiserClass": "gaffer.accumulostore.operation.spark.handler.MyPropertySerialiser"
+      "serialiserClass": "gaffer.accumulostore.operation.spark.handler.dataframe.MyPropertySerialiser"
     }
   }
 }

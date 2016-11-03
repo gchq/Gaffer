@@ -16,8 +16,8 @@
 package gaffer.accumulostore.operation.spark.handler.dataframe;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import gaffer.operation.simple.spark.ConversionException;
-import gaffer.operation.simple.spark.Converter;
+import gaffer.operation.simple.spark.dataframe.ConversionException;
+import gaffer.operation.simple.spark.dataframe.Converter;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 

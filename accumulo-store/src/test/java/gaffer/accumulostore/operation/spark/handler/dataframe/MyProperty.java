@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.dataframe;
 
 /**
  * A simple object used to test that custom properties can be converted into a type suitable for inclusion in a

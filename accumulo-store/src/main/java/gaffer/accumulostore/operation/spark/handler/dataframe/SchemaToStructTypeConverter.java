@@ -16,7 +16,7 @@
 package gaffer.accumulostore.operation.spark.handler.dataframe;
 
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.simple.spark.Converter;
+import gaffer.operation.simple.spark.dataframe.Converter;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
 import gaffer.store.schema.SchemaElementDefinition;

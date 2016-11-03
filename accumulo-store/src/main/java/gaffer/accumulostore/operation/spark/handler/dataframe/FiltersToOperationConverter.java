@@ -25,9 +25,9 @@ import gaffer.function.simple.filter.IsIn;
 import gaffer.function.simple.filter.IsLessThan;
 import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.simple.spark.AbstractGetRDD;
-import gaffer.operation.simple.spark.GetRDDOfAllElements;
-import gaffer.operation.simple.spark.GetRDDOfElements;
+import gaffer.operation.simple.spark.scalardd.AbstractGetRDD;
+import gaffer.operation.simple.spark.scalardd.GetRDDOfAllElements;
+import gaffer.operation.simple.spark.scalardd.GetRDDOfElements;
 import gaffer.store.schema.Schema;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.sql.SQLContext;
@@ -57,7 +57,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- *
+ * Converts a give {@link View} and array of Spark {@link Filter}s to an operation that returns data with as many
+ * of the filters as possible converted to Gaffer filters and added to the view. This ensures that as much data
+ * as possible is filtered out by the store.
  */
 public class FiltersToOperationConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FiltersToOperationConverter.class);

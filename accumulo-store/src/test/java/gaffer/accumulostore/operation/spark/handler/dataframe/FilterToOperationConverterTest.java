@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.dataframe;
 
-import gaffer.accumulostore.operation.spark.handler.dataframe.AccumuloStoreRelation;
-import gaffer.accumulostore.operation.spark.handler.dataframe.FiltersToOperationConverter;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -24,7 +22,7 @@ import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.simple.spark.AbstractGetRDD;
+import gaffer.operation.simple.spark.scalardd.AbstractGetRDD;
 import gaffer.user.User;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;

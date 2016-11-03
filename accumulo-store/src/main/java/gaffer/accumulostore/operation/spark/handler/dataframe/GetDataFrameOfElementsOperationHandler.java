@@ -17,7 +17,7 @@ package gaffer.accumulostore.operation.spark.handler.dataframe;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.operation.simple.spark.dataframe.GetDataFrameOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;

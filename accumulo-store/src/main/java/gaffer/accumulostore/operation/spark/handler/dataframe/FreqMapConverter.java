@@ -15,8 +15,8 @@
  */
 package gaffer.accumulostore.operation.spark.handler.dataframe;
 
-import gaffer.operation.simple.spark.ConversionException;
-import gaffer.operation.simple.spark.Converter;
+import gaffer.operation.simple.spark.dataframe.ConversionException;
+import gaffer.operation.simple.spark.dataframe.Converter;
 import gaffer.types.simple.FreqMap;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;

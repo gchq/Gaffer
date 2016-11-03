@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.dataframe;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -29,10 +29,9 @@ import gaffer.function.simple.filter.IsMoreThan;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.impl.get.GetAllElements;
-import gaffer.operation.simple.spark.ConversionException;
-import gaffer.operation.simple.spark.Converter;
-import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.operation.simple.spark.dataframe.ConversionException;
+import gaffer.operation.simple.spark.dataframe.Converter;
+import gaffer.operation.simple.spark.dataframe.GetDataFrameOfElements;
 import gaffer.types.simple.FreqMap;
 import gaffer.user.User;
 import org.apache.spark.SparkConf;
