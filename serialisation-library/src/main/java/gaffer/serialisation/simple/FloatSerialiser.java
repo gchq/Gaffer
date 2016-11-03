@@ -17,7 +17,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -26,7 +26,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class FloatSerialiser implements Serialisation {
+public class FloatSerialiser extends AbstractSerialisation<Float> {
     private static final long serialVersionUID = -4732565151514793209L;
 
     @Override
@@ -35,8 +35,7 @@ public class FloatSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        Float value = (Float) object;
+    public byte[] serialise(final Float value) throws SerialisationException {
         try {
             return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
@@ -45,7 +44,7 @@ public class FloatSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Float deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return Float.parseFloat(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
         } catch (NumberFormatException | UnsupportedEncodingException e) {

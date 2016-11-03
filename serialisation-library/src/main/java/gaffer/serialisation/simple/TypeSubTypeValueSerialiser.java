@@ -18,15 +18,14 @@ package gaffer.serialisation.simple;
 import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import gaffer.types.simple.TypeSubTypeValue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-public class TypeSubTypeValueSerialiser implements Serialisation {
+public class TypeSubTypeValueSerialiser extends AbstractSerialisation<TypeSubTypeValue> {
 
     private static final long serialVersionUID = 4687862916179832187L;
 
@@ -36,8 +35,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        TypeSubTypeValue typeSubTypeValue = (TypeSubTypeValue) object;
+    public byte[] serialise(final TypeSubTypeValue typeSubTypeValue) throws SerialisationException {
         String type = typeSubTypeValue.getType();
         String subType = typeSubTypeValue.getSubType();
         String value = typeSubTypeValue.getValue();
@@ -72,7 +70,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public TypeSubTypeValue deserialise(final byte[] bytes) throws SerialisationException {
         int lastDelimiter = 0;
         TypeSubTypeValue typeSubTypeValue = new TypeSubTypeValue();
         for (int i = 0; i < bytes.length; i++) {

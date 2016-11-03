@@ -17,7 +17,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
@@ -27,7 +27,7 @@ import java.util.Date;
  * instead.
  */
 @Deprecated
-public class DateSerialiser implements Serialisation {
+public class DateSerialiser extends AbstractSerialisation<Date> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -36,8 +36,7 @@ public class DateSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        Date value = (Date) object;
+    public byte[] serialise(final Date value) throws SerialisationException {
         try {
             return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (UnsupportedEncodingException e) {
@@ -46,7 +45,7 @@ public class DateSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
         Long longR;
         try {
             longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));

@@ -56,7 +56,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         // ---------------------------------------------------------
 
 
-        // [generate] Create a data generator and add the edges to the graph using an operation chain consisting of:
+        // [add] Create a data generator and add the edges to the graph using an operation chain consisting of:
         // generateElements - generating edges from the data (note these are directed edges)
         // addElements - add the edges to the graph
         // ---------------------------------------------------------

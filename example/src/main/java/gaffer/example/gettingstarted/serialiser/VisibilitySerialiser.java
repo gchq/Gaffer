@@ -18,18 +18,18 @@ package gaffer.example.gettingstarted.serialiser;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.AbstractSerialisation;
 import java.io.UnsupportedEncodingException;
 
-public class VisibilitySerialiser implements Serialisation {
+public class VisibilitySerialiser extends AbstractSerialisation<String> {
     private static final long serialVersionUID = -8830741085664334048L;
 
     public boolean canHandle(final Class clazz) {
         return String.class.equals(clazz);
     }
 
-    public byte[] serialise(final Object object) throws SerialisationException {
-        String value = (String) object;
+    public byte[] serialise(final String str) throws SerialisationException {
+        String value = str;
         try {
             if (value.equals("public")) {
                 value = "(private|public)";
@@ -40,7 +40,7 @@ public class VisibilitySerialiser implements Serialisation {
         }
     }
 
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public String deserialise(final byte[] bytes) throws SerialisationException {
         try {
             String value = new String(bytes, CommonConstants.UTF_8);
             if (value.equals("(private|public)")) {
