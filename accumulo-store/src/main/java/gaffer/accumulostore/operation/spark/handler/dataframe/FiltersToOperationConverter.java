@@ -82,31 +82,44 @@ public class FiltersToOperationConverter {
     /**
      * Creates an operation to return an RDD in which as much filtering as possible has been carried out by Gaffer
      * in Accumulo's tablet servers before the data is sent to a Spark executor.
-     *
+     * <p>
      * Note that when this is used within an operation to return a Dataframe, Spark will also carry out the
      * filtering itself, and therefore it is not essential for all filters to be applied. As many as possible
      * should be applied to reduce the amount of data sent from the data store to Spark's executors.
-     *
+     * <p>
      * The following logic is used to create an operation and a view which removes as much data as possible as early
      * as possible:
      * - If the filters specify a particular group or groups is/are required then the view should only contain those
      * groups.
      * - If the filters specify a particular value for the vertex, source or destination then an operation to return
      * those directly is created (i.e. a GetRDDOfElements operation rather than a GetRDDOfAllElements operation). In
-     * this case the view is created to ensure that only entities are edges are returned as appropriate.
+     * this case the view is created to ensure that only entities or only edges are returned as appropriate.
      * - Other filters are converted to Gaffer filters which are applied to the view.
      *
      * @return an operation to return the required data.
      */
     public AbstractGetRDD<?> getOperation() {
-        AbstractGetRDD<?> operation = null;
-        // Check whether the filters collectively specify a group or groups.
-        View derivedView;
+        // Check whether the filters specify any groups
+        View derivedView = applyGroupFilters(view);
+        if (derivedView == null) {
+            return null;
+        }
+        // Check whether the filters specify a value for the vertex, source or destination.
+        AbstractGetRDD<?> operation = applyVertexSourceDestinationFilters(derivedView);
+        // Check whether the filters specify a property - if so can ignore groups that don't contain that property
+        derivedView = operation.getView();
+        operation = applyPropertyFilters(derivedView, operation);
+        return operation;
+    }
+
+    private View applyGroupFilters(final View view) {
+        View derivedView = View.fromJson(view.toJson(false));
         final Set<String> groups = checkForGroups();
         if (groups == null) {
-            // None of the filters specify a group or groups - clone the provided view.
-            derivedView = View.fromJson(view.toJson(false));
+            // None of the filters specify a group or groups.
+            return derivedView;
         } else if (groups.isEmpty()) {
+            // Return null to indicate that groups are specified but no data can be returned
             return null;
         } else {
             View.Builder derivedViewBuilder = new View.Builder();
@@ -133,7 +146,12 @@ public class FiltersToOperationConverter {
                 derivedView = derivedViewBuilder.build();
             }
         }
-        // Check whether the filters specify a value for the vertex, source or destination.
+        return derivedView;
+    }
+
+    private AbstractGetRDD<?> applyVertexSourceDestinationFilters(final View view) {
+        View clonedView = View.fromJson(view.toJson(false));
+        AbstractGetRDD<?> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
                 final EqualTo equalTo = (EqualTo) filter;
@@ -143,12 +161,13 @@ public class FiltersToOperationConverter {
                     LOGGER.info("Found EqualTo filter with attribute {}, setting views to only contain entity groups",
                             attribute);
                     View.Builder viewBuilder = new View.Builder();
-                    for (final String entityGroup : derivedView.getEntityGroups()) {
+                    for (final String entityGroup : view.getEntityGroups()) {
                         viewBuilder = viewBuilder.entity(entityGroup);
                     }
-                    derivedView = viewBuilder.build();
+                    clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
                     operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
+                    operation.setView(clonedView);
                     break;
                 } else if (attribute.equals(AccumuloStoreRelation.SRC_COL_NAME)
                         || attribute.equals(AccumuloStoreRelation.DST_COL_NAME)) {
@@ -156,12 +175,13 @@ public class FiltersToOperationConverter {
                     LOGGER.info("Found EqualTo filter with attribute {}, setting views to only contain edge groups",
                             attribute);
                     View.Builder viewBuilder = new View.Builder();
-                    for (final String edgeGroup : derivedView.getEdgeGroups()) {
+                    for (final String edgeGroup : view.getEdgeGroups()) {
                         viewBuilder = viewBuilder.edge(edgeGroup);
                     }
-                    derivedView = viewBuilder.build();
+                    clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
                     operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
+                    operation.setView(clonedView);
                     break;
                 }
             }
@@ -169,9 +189,12 @@ public class FiltersToOperationConverter {
         if (operation == null) {
             LOGGER.debug("Setting operation to GetRDDOfAllElements");
             operation = new GetRDDOfAllElements(sqlContext.sparkContext());
+            operation.setView(clonedView);
         }
+        return operation;
+    }
 
-        // Check whether the filters specify a property - if so can ignore groups that don't contain that property
+    private AbstractGetRDD<?> applyPropertyFilters(final View derivedView, final AbstractGetRDD<?> operation) {
         final List<Set<String>> groupsRelatedToFilters = new ArrayList<>();
         for (final Filter filter : filters) {
             final Set<String> groupsRelatedToFilter = getGroupsFromFilter(filter);
@@ -192,12 +215,12 @@ public class FiltersToOperationConverter {
         final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> groupToFunctions = new HashMap<>();
         for (final Filter filter : filters) {
             final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> map = getFunctionsFromFilter(filter);
-                for (final Map.Entry<String, List<ConsumerFunctionContext<String, FilterFunction>>> entry : map.entrySet()) {
-                    if (!groupToFunctions.containsKey(entry.getKey())) {
-                        groupToFunctions.put(entry.getKey(), new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
-                    }
-                    groupToFunctions.get(entry.getKey()).addAll(entry.getValue());
+            for (final Map.Entry<String, List<ConsumerFunctionContext<String, FilterFunction>>> entry : map.entrySet()) {
+                if (!groupToFunctions.containsKey(entry.getKey())) {
+                    groupToFunctions.put(entry.getKey(), new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
                 }
+                groupToFunctions.get(entry.getKey()).addAll(entry.getValue());
+            }
         }
         LOGGER.info("The following functions will be applied for the given group:");
         for (final Entry<String, List<ConsumerFunctionContext<String, FilterFunction>>> entry : groupToFunctions.entrySet()) {
@@ -459,7 +482,7 @@ public class FiltersToOperationConverter {
      * Iterates through all the filters looking for ones that specify a group or groups. The intersection of all of
      * these sets of groups is formed as all the filters are 'AND'ed together before data is provided to a Dataframe.
      * Only a group in the set of groups returned by this method can be returned from this query.
-     *
+     * <p>
      * This method needs to distinguish between the following cases:
      * - None of the filters specify a group (in which case null is returned);
      * - One or more of the filters specify a group (in which case the intersection of the sets of groups specified
