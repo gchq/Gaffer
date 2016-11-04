@@ -13,38 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gaffer.operation.simple.spark.scalardd;
 
-package gaffer.operation.simple.spark;
+import org.apache.spark.SparkContext;
 
-import org.apache.spark.api.java.JavaSparkContext;
+public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
 
-public class GetJavaRDDOfAllElements extends AbstractGetJavaRDD<Void> {
-
-    public GetJavaRDDOfAllElements() {
+    public GetRDDOfAllElements() {
     }
 
-    public GetJavaRDDOfAllElements(final JavaSparkContext sparkContext) {
-        setJavaSparkContext(sparkContext);
+    public GetRDDOfAllElements(final SparkContext sparkContext) {
+        setSparkContext(sparkContext);
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfAllElements, Void, CHILD_CLASS> {
+            extends AbstractGetRDD.BaseBuilder<GetRDDOfAllElements, Void, CHILD_CLASS> {
 
         public BaseBuilder() {
-            this(new GetJavaRDDOfAllElements());
+            this(new GetRDDOfAllElements());
         }
 
-        public BaseBuilder(final GetJavaRDDOfAllElements op) {
+        public BaseBuilder(final GetRDDOfAllElements op) {
             super(op);
         }
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
-
         public Builder() {
         }
 
-        public Builder(final GetJavaRDDOfAllElements op) {
+        public Builder(final GetRDDOfAllElements op) {
             super(op);
         }
 

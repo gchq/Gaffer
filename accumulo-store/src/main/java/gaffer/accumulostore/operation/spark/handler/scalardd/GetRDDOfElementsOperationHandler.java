@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.scalardd;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
+import gaffer.accumulostore.operation.spark.handler.dataframe.ClassTagConstants;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
-import gaffer.operation.simple.spark.GetRDDOfElements;
+import gaffer.operation.simple.spark.scalardd.GetRDDOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
