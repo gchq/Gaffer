@@ -16,6 +16,7 @@
 
 package gaffer.data.elementdefinition.view;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.elementdefinition.ElementDefinitions;
 import gaffer.data.elementdefinition.exception.SchemaException;
@@ -40,7 +41,7 @@ import java.util.LinkedHashSet;
  * @see gaffer.data.element.function.ElementFilter
  * @see gaffer.data.element.function.ElementTransformer
  */
-public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> {
+public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
     public View() {
         super();
     }
@@ -80,13 +81,20 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return viewElementDef.getGroupBy();
     }
 
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
+    @Override
+    public View clone() {
+        return View.fromJson(toJson(false));
+    }
+
     public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
         public Builder() {
             this(new View());
         }
 
         public Builder(final View view) {
-            super(view);
+            super(view.clone());
         }
 
         @Override
