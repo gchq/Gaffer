@@ -94,7 +94,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
 
 
         log("\nGet edges with the public visibility. We shouldn't see any of the private ones.\n");
-        // [get] get all the edges that contain the vertex "1"
+        // [get public] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
         final User publicUser = new User.Builder()
                 .userId("publicUser")
