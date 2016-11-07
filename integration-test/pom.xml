@@ -23,7 +23,7 @@
         <version>0.4.7-SNAPSHOT</version>
     </parent>
 
-    <artifactId>integration-tests</artifactId>
+    <artifactId>integration-test</artifactId>
 
     <dependencies>
         <!-- Gaffer2 internals -->
