@@ -16,6 +16,7 @@ limitations under the License.
 
 Gaffer
 ======
+[![Build Status](https://travis-ci.org/gchq/Gaffer.svg?branch=master)](https://travis-ci.org/gchq/Gaffer)
 
 Gaffer is built for very large graphs.
 
