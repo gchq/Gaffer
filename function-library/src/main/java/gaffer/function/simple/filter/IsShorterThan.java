@@ -17,6 +17,7 @@ package gaffer.function.simple.filter;
 
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.Collection;
 import java.util.Map;
@@ -93,5 +94,13 @@ public class IsShorterThan extends SimpleFilterFunction<Object> {
         }
 
         return length;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("maxLength", maxLength)
+                .append("orEqualTo", orEqualTo)
+                .toString();
     }
 }

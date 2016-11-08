@@ -16,6 +16,7 @@
 package gaffer.function.simple.filter;
 
 import gaffer.function.FilterFunction;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>Not</code> is a {@link FilterFunction} that wraps a {@link FilterFunction},
@@ -59,5 +60,12 @@ public class Not extends FilterFunction {
 
     public void setFunction(final FilterFunction function) {
         this.function = function;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("function", function)
+                .toString();
     }
 }

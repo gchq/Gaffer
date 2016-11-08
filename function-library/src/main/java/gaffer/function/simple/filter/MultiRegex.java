@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -65,5 +66,12 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     @Override
     public MultiRegex statelessClone() {
         return new MultiRegex(patterns);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("patterns", patterns)
+                .toString();
     }
 }

@@ -18,6 +18,7 @@ package gaffer.function;
 
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.processor.Filter;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Iterator;
@@ -109,5 +110,12 @@ public abstract class MultiFilterFunction extends FilterFunction {
                 };
             }
         };
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("filter", filter)
+                .toString();
     }
 }

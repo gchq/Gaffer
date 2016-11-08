@@ -17,6 +17,7 @@ package gaffer.function.simple.filter;
 
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Map;
 
 /**
@@ -50,5 +51,12 @@ public class MapContains extends SimpleFilterFunction<Map> {
     @Override
     public boolean isValid(final Map input) {
         return input.containsKey(key);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("key", key)
+                .toString();
     }
 }

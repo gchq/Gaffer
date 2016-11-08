@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>IsMoreThan</code> is a {@link SimpleFilterFunction} that checks that the input
@@ -81,5 +82,13 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
         }
 
         return compareVal < 0;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("controlValue", controlValue)
+                .append("orEqualTo", orEqualTo)
+                .toString();
     }
 }
