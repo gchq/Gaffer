@@ -15,10 +15,10 @@
 #
 
 # Description:
-#   This is a sample gaffer accumulo store properties file for when a MockAccumuloStore is being used with a MockInstance of Accumulo.
+#   This is a sample gaffer accumulo store properties file where SingleUseMockAccumuloStore is being used.
 #   The file is intended as an example of a minimal configuration file.
 
-gaffer.store.class=gaffer.accumulostore.MockAccumuloStore
+gaffer.store.class=gaffer.accumulostore.SingleUseMockAccumuloStore
 gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 
 accumulo.instance=accumuloInstanceName

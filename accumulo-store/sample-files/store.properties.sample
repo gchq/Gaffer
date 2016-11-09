@@ -55,9 +55,6 @@ gaffer.store.class=gaffer.accumulostore.MockAccumuloStore
 # notes
 #   - property is required
 #   - no default value provided
-# Examples:
-# gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
-#   - specifies that gaffer will load Accumulo specific store properties using a class that is specific to use of Accumulo as a store.
 
 gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 
@@ -66,12 +63,10 @@ gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 ################################################################################
 # generic store property - gaffer.store.schema.class
 # description - name of internal gaffer class used to serialise and deserialise a gaffer schema definition to file.
+#
 # notes
 #   - property is not required
 #   - default value of gaffer.store.schema.Schema
-# Examples:
-# gaffer.store.schema.class=gaffer.store.schema.Schema
-#   - specifies that gaffer will serialise and deserialise the gaffer schema definition using the gaffer.store.schema.Schema class.
 
 # gaffer.store.schema.class=gaffer.store.schema.Schema
 
@@ -83,8 +78,6 @@ gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 # notes
 #   - property is not required
 #   - no default value is provided
-# Examples:
-# gaffer.store.operation.declarations=operationDeclarations.json
 
 # gaffer.store.operation.declarations=operationDeclarations.json
 
@@ -96,11 +89,9 @@ gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 # notes
 #   - property is required
 #   - no default value is provided
-# Examples:
-# accumulo.instance=byteEntityInstance
-#   - specifies that the "byteEntityInstance" instance of accumulo will be connected to
-#   - where accumulo is run as a mini or full accumulo cluster, the instance name is used by zookeeper to determine the instance of accumulo to connect to.
-#   - where accumulo is run as a MockInstance, the instance name is used to set the name of the in memory accumulo instance that is instantiated and connected to.
+#   - Note that :
+#       - where accumulo is run as a mini or full accumulo cluster, the instance name is used by zookeeper to determine the instance of accumulo to connect to.
+#       - where accumulo is run as a MockInstance, the instance name is used to set the name of the in memory accumulo instance that is instantiated and connected to.
 
 accumulo.instance=byteEntityInstance
 
@@ -109,14 +100,15 @@ accumulo.instance=byteEntityInstance
 ################################################################################
 # accumulo store property - accumulo.zookeepers
 # description - a list of zookeeper host and ip pairs that accumulo will be connected to through.
-#   -list is of the form host1:port1,host2:port2 where there are:
-#       -no spaces
-#       -port refers to the port that zookeeper is running on (which can be omitted if the port is the default port of 2182)
-#       -host refers to the resolvable hostname or ip of the machine running that instance of zookeeper
 # notes
 #   - property is required to connect to a mini or full accumulo cluster
 #   - property is will be ignored when connecting to a MockInstance
 #   - no default value is provided
+#   - Note that:
+#       -list is of the form host1:port1,host2:port2 where there are:
+#           -no spaces
+#           -port refers to the port that zookeeper is running on (which can be omitted if the port is the default port of 2182)
+#           -host refers to the resolvable hostname or ip of the machine running that instance of zookeeper
 # Examples:
 # accumulo.zookeepers=aZookeeper
 # accumulo.zookeepers=192.168.1.101:2182,192.168.1.102:2182
@@ -131,12 +123,9 @@ accumulo.zookeepers=aZookeeper
 ################################################################################
 # accumulo store property - accumulo.table
 # description - the accumulo store table to read/write gaffer data from/to
-# notesto connect to a mini or full accumulo cluster
+# notes
 #   - property is required
 #   - no default value is provided
-# Examples:
-# accumulo.table=table1
-# accumulo.table=mygaffertable
 
 accumulo.table=table1
 
@@ -148,10 +137,8 @@ accumulo.table=table1
 # notes
 #   - property is required
 #   - no default value is provided
-# Examples:
-# accumulo.user=mygafferapplication
 
-accumulo.user=bob
+accumulo.user=user
 
 ################################################################################
 
@@ -161,8 +148,6 @@ accumulo.user=bob
 # notes
 #   - property is required
 #   - no default value is provided
-# Examples:
-# accumulo.password=mygafferapplicationpassword
 
 accumulo.password=password
 
@@ -185,8 +170,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of 50000
-# Examples:
-# accumulo.entriesForBatchScanner=1000
 
 # accumulo.entriesForBatchScanner=1000
 
@@ -198,8 +181,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of 10
-# Examples:
-# accumulo.numThreadsForBatchWriter=10
 
 # accumulo.numThreadsForBatchWriter=10
 
@@ -224,8 +205,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of 10
-# Examples:
-# accumulo.maxTimeOutForBatchWriterInMilliseconds=10
 
 # accumulo.maxTimeOutForBatchWriterInMilliseconds=10
 
@@ -237,8 +216,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of 838860800
-# Examples:
-# accumulo.clientSideBloomFilterSize=838860800
 
 # accumulo.clientSideBloomFilterSize=838860800
 
@@ -250,8 +227,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of 0.0002
-# Examples:
-# accumulo.falsePositiveRate=0.0001
 
 # accumulo.falsePositiveRate=0.0001
 
@@ -263,8 +238,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of 8388608
-# Examples:
-# accumulo.maxBloomFilterToPassToAnIterator=8388608
 
 # accumulo.maxBloomFilterToPassToAnIterator=8388608
 
@@ -276,8 +249,6 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided of "/data/splits.txt"
-# Examples:
-# accumulo.splits.file.path=target/data/splits.txt
 
 # accumulo.splits.file.path=target/data/splits.txt
 
@@ -289,8 +260,6 @@ accumulo.password=password
 # notes
 #   - property is not required - accumulo default value used if a value is not provided in this properties file
 #   - default value is not provided
-# Examples:
-# accumulo.file.replication=0
 
 # accumulo.file.replication=0
 
@@ -302,10 +271,8 @@ accumulo.password=password
 # notes
 #   - property is not required
 #   - default value is provided is "true"
-# Examples:
-# gaffer.store.accumulo.enable.validator.iterator=false
 
-# gaffer.store.accumulo.enable.validator.iterator=true
+# gaffer.store.accumulo.enable.validator.iterator=false
 
 ################################################################################
 
