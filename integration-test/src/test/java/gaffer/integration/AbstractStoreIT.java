@@ -45,6 +45,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -60,6 +61,9 @@ import java.util.Map;
  */
 public abstract class AbstractStoreIT {
     protected static final String USER_01 = "user01";
+
+    // Temporary folder location
+    protected static final File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
 
     // Identifier prefixes
     protected static final String SOURCE = "source";
