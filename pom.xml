@@ -21,21 +21,16 @@
     <groupId>gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.6-SNAPSHOT</version>
+    <version>0.4.7-SNAPSHOT</version>
 
     <modules>
-        <module>accumulo-store</module>
-        <module>array-list-store</module>
-        <module>types-library</module>
-        <module>function-library</module>
-        <module>operation-library</module>
-        <module>serialisation-library</module>
         <module>rest-api</module>
-        <module>gaffer-core</module>
-        <module>example</module>
-        <module>gaffer-integration-tests</module>
-        <module>example-rest</module>
+        <module>core</module>
+        <module>integration-test</module>
         <module>ui</module>
+        <module>store-implementation</module>
+        <module>library</module>
+        <module>example</module>
     </modules>
 
     <properties>
