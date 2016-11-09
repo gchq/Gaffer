@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2016 Crown Copyright
   ~
@@ -15,21 +16,23 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
         <version>0.4.7-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>example</artifactId>
+    <artifactId>core</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>example-graph</module>
-        <module>example-rest</module>
+        <module>common-util</module>
+        <module>serialisation</module>
+        <module>graph</module>
+        <module>data</module>
+        <module>function</module>
+        <module>store</module>
+        <module>operation</module>
     </modules>
-
-
 </project>

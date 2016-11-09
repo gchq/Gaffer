@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2016 Crown Copyright
   ~
@@ -14,21 +15,22 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
+        <groupId>gaffer</groupId>
         <version>0.4.7-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>example</artifactId>
+    <artifactId>store-implementation</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>example-graph</module>
-        <module>example-rest</module>
+        <module>accumulo-store</module>
+        <module>array-list-store</module>
     </modules>
 
 
