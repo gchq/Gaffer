@@ -72,6 +72,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
                 map(element, context);
             } else {
                 LOGGER.warn("Element " + element + " did not validate.");
+                context.getCounter("Bulk import", "Invalid element count").increment(1L);
             }
         }
     }
