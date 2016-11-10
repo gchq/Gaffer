@@ -35,11 +35,10 @@ public class CommonTimeUtilTest {
         final long time = parse("2000-01-01T12:34:56.789").getMillis();
         final DateTime dateTime = new DateTime(time, DateTimeZone.UTC);
 
-        assertEquals(timeToBucket(time, HOUR), parse("2000-01-01T12:00:00.000").getMillis());
-        assertEquals(timeToBucket(time, DAY), parse("2000-01-01T00:00:00.000").getMillis());
-        assertEquals(timeToBucket(time, WEEK), parse("1999-12-27T00:00:00.000").getMillis());
-        assertEquals(timeToBucket(time, MONTH), parse("2000-01-01T00:00:00.000")
-                .getMillis());
+        assertEquals(parse("2000-01-01T12:00:00.000").getMillis(), timeToBucket(time, HOUR));
+        assertEquals(parse("2000-01-01T00:00:00.000").getMillis(),timeToBucket(time, DAY));
+        assertEquals(parse("1999-12-27T00:00:00.000").getMillis(),timeToBucket(time, WEEK));
+        assertEquals(parse("2000-01-01T00:00:00.000").getMillis(),timeToBucket(time, MONTH));
     }
 
 }
