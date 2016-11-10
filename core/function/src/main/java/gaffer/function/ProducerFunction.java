@@ -18,6 +18,9 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Outputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.lang.annotation.AnnotationFormatError;
 import java.util.Arrays;
 
@@ -54,5 +57,36 @@ public abstract class ProducerFunction implements Function {
         }
 
         outputs = annotation.value();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ProducerFunction that = (ProducerFunction) o;
+
+        return new EqualsBuilder()
+                .append(outputs, that.outputs)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(outputs)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("outputs", outputs)
+                .toString();
     }
 }

@@ -17,6 +17,9 @@ package gaffer.function.simple.aggregate;
 
 import gaffer.function.AggregateFunction;
 import gaffer.function.SimpleAggregateFunction;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>NumericAggregateFunction</code> is a {@link SimpleAggregateFunction} that takes in
@@ -116,4 +119,44 @@ public abstract class NumericAggregateFunction extends SimpleAggregateFunction<N
     }
 
     public abstract AggregateFunction statelessClone();
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final NumericAggregateFunction that = (NumericAggregateFunction) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(outputs, that.outputs)
+                .append(mode, that.mode)
+                .append(aggregate, that.aggregate)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(outputs)
+                .append(mode)
+                .append(aggregate)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("outputs", outputs)
+                .append("mode", mode)
+                .append("aggregate", aggregate)
+                .toString();
+    }
 }
