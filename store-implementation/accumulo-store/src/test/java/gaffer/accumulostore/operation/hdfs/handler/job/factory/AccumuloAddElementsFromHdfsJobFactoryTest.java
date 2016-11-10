@@ -14,7 +14,7 @@ import gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
-import gaffer.accumulostore.utils.AccumuloTestConstants;
+import gaffer.commonutil.CommonTestConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -46,7 +46,7 @@ import java.io.OutputStreamWriter;
 
 public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(AccumuloTestConstants.tmpDirectory);
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public String outputDir;
     public String splitsDir;

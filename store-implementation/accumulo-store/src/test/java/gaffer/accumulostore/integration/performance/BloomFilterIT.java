@@ -29,7 +29,7 @@ import gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.accumulostore.utils.AccumuloTestConstants;
+import gaffer.commonutil.CommonTestConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestTypes;
@@ -104,7 +104,7 @@ public class BloomFilterIT {
     }
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(AccumuloTestConstants.tmpDirectory);
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
     public void test() throws AccumuloElementConversionException, RangeFactoryException, IOException {
