@@ -67,10 +67,6 @@ public final class CommonTimeUtil {
         return property.roundFloorCopy().getMillis();
     }
 
-    private static long roundUp(final Property property) {
-        return property.roundCeilingCopy().getMillis();
-    }
-
     /**
      * Type representing a "bucket" of time.
      */
