@@ -67,7 +67,7 @@ public class Concat extends TransformFunction {
 
         return new EqualsBuilder()
                 .append(inputs, concat.inputs)
-                .append(outputs,concat.outputs)
+                .append(outputs, concat.outputs)
                 .append(separator, concat.separator)
                 .isEquals();
     }
