@@ -24,7 +24,7 @@ import static org.joda.time.DateTimeZone.UTC;
 /**
  * Utility methods for dates and times.
  */
-public class CommonTimeUtil {
+public final class CommonTimeUtil {
 
     private CommonTimeUtil() {
         // this class should not be instantiated - it contains only util methods and constants.
