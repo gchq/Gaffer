@@ -26,6 +26,7 @@ import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.commonutil.CommonTestConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.iterable.CloseableIterable;
@@ -60,7 +61,7 @@ public class AddElementsFromHdfsIT {
     public static final int NUM_ENTITIES = 10;
 
     @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder();
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private String inputDir;
     public String outputDir;
