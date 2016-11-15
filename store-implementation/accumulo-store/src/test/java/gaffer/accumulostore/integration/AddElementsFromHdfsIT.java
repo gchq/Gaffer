@@ -26,6 +26,7 @@ import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.key.AccumuloKeyPackage;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.iterable.CloseableIterable;
@@ -50,8 +51,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,12 +69,16 @@ public class AddElementsFromHdfsIT {
     private String inputDir;
     public String outputDir;
     public String failureDir;
+    public String splitsDir;
+    public String splitsFile;
 
     @Before
     public void setup() {
         inputDir = testFolder.getRoot().getAbsolutePath() + "/inputDir";
         outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
         failureDir = testFolder.getRoot().getAbsolutePath() + "/failureDir";
+        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
+        splitsFile = splitsDir + "/splits";
     }
 
     @Test
@@ -156,6 +164,8 @@ public class AddElementsFromHdfsIT {
                 .failurePath(failureDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
+                .option(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE, "false")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build(), new User());
 
         // Then
@@ -181,7 +191,7 @@ public class AddElementsFromHdfsIT {
         }
     }
 
-    private JobConf createLocalConf() throws StoreException {
+    private JobConf createLocalConf() {
         // Set up local conf
         final JobConf conf = new JobConf();
         conf.set("fs.defaultFS", "file:///");

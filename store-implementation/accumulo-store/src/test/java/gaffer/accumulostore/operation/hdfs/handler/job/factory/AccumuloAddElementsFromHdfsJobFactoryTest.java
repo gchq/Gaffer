@@ -74,7 +74,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
-                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE, splitsFile)
+                .option(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE, "true")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
 
@@ -149,6 +150,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "10")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -161,6 +163,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "100")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -173,6 +176,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "1000")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -210,6 +214,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "10")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -222,6 +227,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "100")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -234,6 +240,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "1000")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -272,6 +279,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "10")
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "20")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -286,6 +294,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "100")
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "200")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -300,6 +309,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS, "1000")
                 .option(AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS, "2000")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
                 .build();
         factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
@@ -323,10 +333,12 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE, splitsFile)
                 .option(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER, partitionerFlag)
+                .option(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE, "true")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
+        final AccumuloProperties properties = mock(AccumuloProperties.class);
 
         given(job.getConfiguration()).willReturn(localConf);
 

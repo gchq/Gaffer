@@ -74,7 +74,8 @@ public final class AccumuloStoreConstants {
 
     // Operations options
     public static final String OPERATION_HDFS_USE_ACCUMULO_PARTITIONER = "accumulostore.operation.hdfs.use_accumulo_partitioner";
-    public static final String OPERATION_HDFS_SPLITS_FILE = "accumulostore.operation.hdfs.user_provided_splits_file";
+    public static final String OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE = "accumulostore.operation.hdfs.user_provided_splits_file";
+    public static final String OPERATION_HDFS_SPLITS_FILE_PATH = "accumulostore.operation.hdfs.splits.file_path";
     public static final String OPERATION_BULK_IMPORT_MAX_REDUCERS = "accumulostore.operation.bulk_import.max_reducers";
     public static final String OPERATION_BULK_IMPORT_MIN_REDUCERS = "accumulostore.operation.bulk_import.min_reducers";
     public static final String ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT = "accumulostore.operation.hdfs.skip_import";
