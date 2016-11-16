@@ -36,7 +36,7 @@ import java.util.LinkedHashSet;
  * from other properties and identifiers.
  * It also contains any transient properties that are created in transform functions.
  *
- * @see gaffer.data.elementdefinition.view.View.Builder
+ * @see Builder
  * @see gaffer.data.elementdefinition.view.ViewElementDefinition
  * @see gaffer.data.element.function.ElementFilter
  * @see gaffer.data.element.function.ElementTransformer
@@ -85,7 +85,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
     public View clone() {
-        return View.fromJson(toJson(false));
+        return fromJson(toJson(false));
     }
 
     public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
