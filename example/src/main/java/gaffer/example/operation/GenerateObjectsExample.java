@@ -55,7 +55,7 @@ public class GenerateObjectsExample extends OperationExample {
                 + "                .generator(new DataGenerator())\n"
                 + "                .build();";
         return runExample(new GenerateObjects.Builder<Element, String>()
-                .elements(Arrays.asList(
+                .elements(Arrays.asList(new Element[]{
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
@@ -65,7 +65,7 @@ public class GenerateObjectsExample extends OperationExample {
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
                                 .property("count", 1)
-                                .build()))
+                                .build()}))
                 .generator(new DataGenerator())
                 .build(), opJava);
     }
@@ -86,7 +86,7 @@ public class GenerateObjectsExample extends OperationExample {
                 + "                .generator(new DomainObjectGenerator())\n"
                 + "                .build();";
         return runExample(new GenerateObjects.Builder<>()
-                .elements(Arrays.asList(
+                .elements(Arrays.asList(new Element[]{
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
@@ -96,7 +96,7 @@ public class GenerateObjectsExample extends OperationExample {
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
                                 .property("count", 1)
-                                .build()))
+                                .build()}))
                 .generator(new DomainObjectGenerator())
                 .build(), opJava);
     }

@@ -120,7 +120,7 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity, expectedEdge));
+        assertThat(results, IsCollectionContaining.hasItems(new Element[]{
+                expectedEntity, expectedEdge}));
     }
 }

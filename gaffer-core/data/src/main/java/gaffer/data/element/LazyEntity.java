@@ -93,6 +93,17 @@ public class LazyEntity extends Entity {
     }
 
     @Override
+    public Object getIdentifier(final IdentifierType name) {
+        return lazyLoadIdentifier(entity.getIdentifier(name), name);
+    }
+
+    @Override
+    public void putIdentifier(final IdentifierType name, final Object value) {
+        entity.putIdentifier(name, value);
+        loadedIdentifiers.add(name);
+    }
+
+    @Override
     public int hashCode() {
         return entity.hashCode();
     }

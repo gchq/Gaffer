@@ -93,9 +93,9 @@ public class AggregationIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
-        assertThat(results, IsCollectionContaining.hasItems(
+        assertThat(results, IsCollectionContaining.hasItems(new Element[]{
                 expectedEdge,
-                expectedEntity
+                expectedEntity}
         ));
 
         for (Element result : results) {

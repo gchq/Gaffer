@@ -16,12 +16,8 @@
 
 package gaffer.data.element;
 
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An <code>Entity</code> in an {@link gaffer.data.element.Element} containing a single vertex.
@@ -33,61 +29,33 @@ import org.slf4j.LoggerFactory;
  *
  * @see gaffer.data.element.Entity.Builder
  */
-public class Entity extends Element {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);
-    private static final long serialVersionUID = 2863628004463113755L;
-    private Object vertex;
+public class Entity extends Element<EntityId> {
+    private static final long serialVersionUID = 3564192309337144721L;
 
     Entity() {
-        super();
+        super(new EntityId());
     }
 
     public Entity(final String group) {
-        super(group);
+        super(group, new EntityId());
     }
 
     public Entity(final String group, final Object vertex) {
-        super(group);
-        this.vertex = vertex;
+        super(group, new EntityId(vertex));
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getVertex() {
-        return vertex;
+        return id().getVertex();
     }
 
     public void setVertex(final Object vertex) {
-        this.vertex = vertex;
+        id().setVertex(vertex);
     }
 
     @Override
-    public Object getIdentifier(final IdentifierType identifierType) {
-        switch (identifierType) {
-            case VERTEX:
-                return getVertex();
-            default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
-                return null;
-        }
-    }
-
-    @Override
-    public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
-        switch (identifierType) {
-            case VERTEX:
-                setVertex(propertyToBeSet);
-                break;
-            default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
-                break;
-        }
-    }
-
     public int hashCode() {
-        return new HashCodeBuilder(23, 5)
-                .appendSuper(super.hashCode())
-                .append(vertex)
-                .toHashCode();
+        return super.hashCode();
     }
 
     @Override
@@ -101,7 +69,6 @@ public class Entity extends Element {
         return null != entity
                 && new EqualsBuilder()
                 .appendSuper(super.equals(entity))
-                .append(vertex, entity.getVertex())
                 .isEquals();
     }
 
@@ -112,7 +79,10 @@ public class Entity extends Element {
 
     @Override
     public String toString() {
-        return "Entity{vertex=" + vertex + super.toString() + "} ";
+        return "Entity{"
+                + id()
+                + super.toString()
+                + "} ";
     }
 
     public static class Builder {

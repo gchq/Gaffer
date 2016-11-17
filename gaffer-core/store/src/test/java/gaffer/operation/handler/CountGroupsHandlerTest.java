@@ -160,7 +160,7 @@ public class CountGroupsHandlerTest {
         given(edge3.getGroup()).willReturn(GROUP2);
         given(edge4.getGroup()).willReturn(GROUP2);
 
-        return new WrappedCloseableIterable<>(Arrays.asList(
+        return new WrappedCloseableIterable(Arrays.asList(
                 entity1, entity2, entity3, entity4,
                 edge1, edge2, edge3, edge4));
     }

@@ -79,12 +79,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(5, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
                 getEdge("A3", "D3", false),
-                getEntity("A3")
+                getEntity("A3")}
         ));
 
         // Then - with filtering
@@ -128,20 +128,20 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(5, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
                 getEdge("A3", "D3", false),
-                getEntity("A3")
+                getEntity("A3")}
         ));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(2, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "B3", false),
-                getEntity("A3")
+                getEntity("A3")}
         ));
     }
 
@@ -184,26 +184,26 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(8, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
                 getEdge("A3", "D3", false),
                 getEdge("A5", "B5", false),
                 getEntity("A5"),
-                getEntity("B5")
+                getEntity("B5")}
         ));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(6, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A5", "B5", false),
                 getEdge("A3", "D3", false),
                 getEdge("A3", "C3", false),
-                getEntity("A5")
+                getEntity("A5")}
         ));
     }
 
@@ -240,20 +240,20 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(5, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
                 getEdge("A3", "D3", false),
-                getEntity("A3")
+                getEntity("A3")}
         ));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(2, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "B3", false),
-                getEntity("A3")
+                getEntity("A3")}
         ));
     }
 
@@ -296,26 +296,26 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(8, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
                 getEdge("A3", "D3", false),
                 getEdge("A5", "B5", false),
                 getEntity("A5"),
-                getEntity("B5")
+                getEntity("B5")}
         ));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(6, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A5", "B5", false),
                 getEdge("A3", "D3", false),
                 getEdge("A3", "C3", false),
-                getEntity("A5")
+                getEntity("A5")}
         ));
     }
 
