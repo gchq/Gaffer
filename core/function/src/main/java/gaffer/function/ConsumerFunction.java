@@ -18,6 +18,9 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.lang.annotation.AnnotationFormatError;
 import java.util.Arrays;
 
@@ -27,7 +30,7 @@ import java.util.Arrays;
  * structure that the function accepts.
  */
 public abstract class ConsumerFunction implements Function {
-    private Class<?>[] inputs;
+    protected Class<?>[] inputs;
 
     @Override
     public abstract ConsumerFunction statelessClone();
@@ -55,5 +58,36 @@ public abstract class ConsumerFunction implements Function {
         }
 
         inputs = annotation.value();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ConsumerFunction that = (ConsumerFunction) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .toString();
     }
 }

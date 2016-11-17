@@ -17,6 +17,9 @@ package gaffer.function.simple.filter;
 
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.Collection;
 import java.util.Map;
@@ -93,5 +96,42 @@ public class IsShorterThan extends SimpleFilterFunction<Object> {
         }
 
         return length;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final IsShorterThan that = (IsShorterThan) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(maxLength, that.maxLength)
+                .append(orEqualTo, that.orEqualTo)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(maxLength)
+                .append(orEqualTo)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("maxLength", maxLength)
+                .append("orEqualTo", orEqualTo)
+                .toString();
     }
 }

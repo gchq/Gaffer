@@ -17,6 +17,9 @@
 package gaffer.function;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>ArrayTuple</code> is a simple implementation of the {@link gaffer.function.Tuple} interface, backed by an
@@ -44,5 +47,36 @@ public class ArrayTuple implements Tuple<Integer> {
     @Override
     public void put(final Integer reference, final Object value) {
         throw new UnsupportedOperationException("'puts are not supported with this Tuple");
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ArrayTuple that = (ArrayTuple) o;
+
+        return new EqualsBuilder()
+                .append(tuple, that.tuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(tuple)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("tuple", tuple)
+                .toString();
     }
 }
