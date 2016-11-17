@@ -22,7 +22,6 @@ import gaffer.function.annotation.Inputs;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import java.util.regex.Pattern;
 
 @Inputs(String.class)
@@ -76,7 +75,7 @@ public class Regex extends SimpleFilterFunction<String> {
 
         return new EqualsBuilder()
                 .append(inputs, regex.inputs)
-                .append(controlValue, regex.controlValue)
+                .append(controlValue.toString(), regex.controlValue.toString())
                 .isEquals();
     }
 

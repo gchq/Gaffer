@@ -22,8 +22,9 @@ import gaffer.function.annotation.Inputs;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Inputs(String.class)
@@ -84,7 +85,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
 
         return new EqualsBuilder()
                 .append(inputs, that.inputs)
-                .append(patterns, that.patterns)
+                .append(patternsToStrings(this.patterns), patternsToStrings(that.patterns))
                 .isEquals();
     }
 
@@ -102,5 +103,15 @@ public class MultiRegex extends SimpleFilterFunction<String> {
                 .append("inputs", inputs)
                 .append("patterns", patterns)
                 .toString();
+    }
+
+    private String[] patternsToStrings(final Pattern[] patterns) {
+        final List<String> strings = new ArrayList<>(patterns.length);
+
+        for (final Pattern pattern : patterns) {
+            strings.add(pattern.toString());
+        }
+
+        return strings.toArray(new String[]{});
     }
 }
