@@ -19,11 +19,12 @@ package gaffer.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import gaffer.function.processor.FilterTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 
-public abstract class ConsumerFunctionTest {
+public abstract class ConsumerFunctionTest extends FunctionTest {
     private static final ObjectMapper MAPPER = createObjectMapper();
 
     private static ObjectMapper createObjectMapper() {
@@ -45,12 +46,11 @@ public abstract class ConsumerFunctionTest {
         assertNotNull(inputs);
     }
 
+    @Override
     protected abstract ConsumerFunction getInstance();
 
     @Test
     public abstract void shouldJsonSerialiseAndDeserialise() throws IOException;
-
-    protected abstract Class<? extends Function> getFunctionClass();
 
     protected String serialise(Object object) throws IOException {
         return MAPPER.writeValueAsString(object);
