@@ -17,6 +17,8 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Map;
 
@@ -84,8 +86,37 @@ public class MapFilter extends SimpleFilterFunction<Map> {
     }
 
     @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final MapFilter mapFilter = (MapFilter) o;
+
+        return new EqualsBuilder()
+                .append(inputs, mapFilter.inputs)
+                .append(function, mapFilter.function)
+                .append(key, mapFilter.key)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(function)
+                .append(key)
+                .toHashCode();
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("inputs", inputs)
                 .append("function", function)
                 .append("key", key)
                 .toString();

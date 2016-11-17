@@ -21,6 +21,9 @@ import gaffer.data.element.Element;
 import gaffer.data.element.ElementTuple;
 import gaffer.function.TransformFunction;
 import gaffer.function.processor.Transformer;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Element Transformer - for transforming {@link gaffer.data.element.Element}s.
@@ -46,6 +49,42 @@ public class ElementTransformer extends Transformer<String> {
         clone.addFunctions(super.cloneFunctions());
 
         return clone;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ElementTransformer that = (ElementTransformer) o;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(functions, that.functions)
+                .append(elementTuple, that.elementTuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(functions)
+                .append(elementTuple)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("functions", functions)
+                .append("elementTuple", elementTuple)
+                .toString();
     }
 
     /**

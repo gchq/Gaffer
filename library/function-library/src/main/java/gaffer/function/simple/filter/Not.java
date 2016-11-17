@@ -16,6 +16,8 @@
 package gaffer.function.simple.filter;
 
 import gaffer.function.FilterFunction;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -63,8 +65,35 @@ public class Not extends FilterFunction {
     }
 
     @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Not not = (Not) o;
+
+        return new EqualsBuilder()
+                .append(inputs, not.inputs)
+                .append(function, not.function)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(function)
+                .toHashCode();
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("inputs", inputs)
                 .append("function", function)
                 .toString();
     }

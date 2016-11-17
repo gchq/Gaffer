@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -85,8 +87,37 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
     }
 
     @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final IsMoreThan that = (IsMoreThan) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(orEqualTo, that.orEqualTo)
+                .append(controlValue, that.controlValue)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(controlValue)
+                .append(orEqualTo)
+                .toHashCode();
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("inputs", inputs)
                 .append("controlValue", controlValue)
                 .append("orEqualTo", orEqualTo)
                 .toString();
