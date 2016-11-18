@@ -16,6 +16,7 @@
 
 package gaffer.data.elementdefinition.view;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -212,5 +213,44 @@ public class ViewTest {
         assertTrue(edgeDef.getPostTransformFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().size());
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().get(0));
+    }
+
+    @Test
+    public void shouldCreateAnIdenticalObjectWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+        final ViewElementDefinition edgeDef2 = new ViewElementDefinition();
+        final ViewElementDefinition entityDef1 = new ViewElementDefinition();
+        final ViewElementDefinition entityDef2 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .entity(TestGroups.ENTITY, entityDef1)
+                .entity(TestGroups.ENTITY_2, entityDef2)
+                .edge(TestGroups.EDGE_2, edgeDef2)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view, clone);
+
+        final byte[] viewJson = view.toJson(false);
+        final byte[] cloneJson = clone.toJson(false);
+
+        // Check that JSON representations of the objects are equal
+        assertArrayEquals(viewJson, cloneJson);
+
+        final View viewFromJson = View.fromJson(viewJson);
+        final View cloneFromJson = View.fromJson(cloneJson);
+
+        // Check that objects created from JSON representations are equal
+        assertEquals(viewFromJson, cloneFromJson);
+
+        // Check that objects created from JSON representations are equal
+        assertEquals(viewFromJson, view);
+        assertEquals(cloneFromJson, clone);
     }
 }
