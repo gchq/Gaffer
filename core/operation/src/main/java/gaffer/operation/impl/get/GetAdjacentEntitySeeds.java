@@ -18,8 +18,8 @@ package gaffer.operation.impl.get;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation;
+import gaffer.operation.AbstractGetIterableElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.EntitySeed;
 
 /**
@@ -31,7 +31,8 @@ import gaffer.operation.data.EntitySeed;
  * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
  * @see gaffer.operation.GetOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, CloseableIterable<EntitySeed>> {
+@Deprecated
+public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
     public GetAdjacentEntitySeeds() {
     }
 
@@ -55,7 +56,7 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Clo
         super(view, seeds);
     }
 
-    public GetAdjacentEntitySeeds(final GetOperation<EntitySeed, ?> operation) {
+    public GetAdjacentEntitySeeds(final GetIterableElementsOperation<EntitySeed, ?> operation) {
         super(operation);
     }
 
@@ -64,7 +65,7 @@ public class GetAdjacentEntitySeeds extends AbstractGetOperation<EntitySeed, Clo
         return SeedMatchingType.RELATED;
     }
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>, CHILD_CLASS> {
+            extends AbstractGetIterableElementsOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }

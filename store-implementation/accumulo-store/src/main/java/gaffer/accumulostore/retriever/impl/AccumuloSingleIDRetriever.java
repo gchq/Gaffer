@@ -20,7 +20,8 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;
@@ -33,9 +34,9 @@ import java.util.Set;
  * {@link gaffer.operation.data.ElementSeed}s.
  */
 public class AccumuloSingleIDRetriever
-        extends AccumuloItemRetriever<GetOperation<? extends ElementSeed, ?>, ElementSeed> {
+        extends AccumuloItemRetriever<GetElementsOperation<? extends ElementSeed, ?>, ElementSeed> {
 
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetIterableElementsOperation<? extends ElementSeed, ?> operation,
                                      final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
@@ -58,7 +59,7 @@ public class AccumuloSingleIDRetriever
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetOperation<? extends ElementSeed, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetElementsOperation<? extends ElementSeed, ?> operation,
                                      final User user,
                                      final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);

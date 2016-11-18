@@ -20,8 +20,12 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetElementsOperation;
+import gaffer.operation.AbstractGetIterableElementsOperation;
+import gaffer.operation.AbstractGetIterableOperation;
 import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -29,7 +33,7 @@ import gaffer.operation.data.ElementSeed;
  * {@link gaffer.operation.data.ElementSeed}s.
  */
 public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
+        extends AbstractGetIterableElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
 
     public GetElementsInRanges() {
     }
@@ -46,14 +50,14 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
         super(view, seeds);
     }
 
-    public GetElementsInRanges(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetElementsInRanges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>,
             ELEMENT_TYPE extends Element,
             CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>, CHILD_CLASS> {
+            extends AbstractGetIterableElementsOperation.BaseBuilder<GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetElementsInRanges());
         }

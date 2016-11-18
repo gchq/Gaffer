@@ -20,7 +20,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;
@@ -35,7 +36,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
+    public <T extends GetElementsOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
             throws RangeFactoryException {
         if (elementSeed instanceof EntitySeed) {
             if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && !operation.isIncludeEntities()) {
@@ -69,7 +70,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     @Override
-    public <T extends GetOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
+    public <T extends GetElementsOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
             throws RangeFactoryException {
         final ArrayList<Range> ran = new ArrayList<>();
         ran.addAll(getRange(pairRange.getFirst(), operation));
@@ -90,9 +91,9 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
         return new Range(min.getStartKey(), max.getEndKey());
     }
 
-    protected abstract <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
+    protected abstract <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
             final boolean endKey) throws RangeFactoryException;
 
-    protected abstract <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
+    protected abstract <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
             final IncludeEdgeType includeEdgesParam) throws RangeFactoryException;
 }

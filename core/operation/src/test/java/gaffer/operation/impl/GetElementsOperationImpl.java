@@ -18,27 +18,27 @@ package gaffer.operation.impl;
 
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation;
+import gaffer.operation.AbstractGetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
-public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
-    public GetOperationImpl() {
+public class GetElementsOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
+    public GetElementsOperationImpl() {
     }
 
-    public GetOperationImpl(final Iterable<SEED_TYPE> seeds) {
+    public GetElementsOperationImpl(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
     }
 
-    public GetOperationImpl(final View view) {
+    public GetElementsOperationImpl(final View view) {
         super(view);
     }
 
-    public GetOperationImpl(final View view, final Iterable<SEED_TYPE> seeds) {
+    public GetElementsOperationImpl(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
     }
 
-    public GetOperationImpl(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetElementsOperationImpl(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 }

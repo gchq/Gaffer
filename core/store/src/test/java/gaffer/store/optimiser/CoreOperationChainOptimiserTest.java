@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
+import gaffer.operation.GetIterableOperation;
 import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
@@ -165,7 +166,7 @@ public class CoreOperationChainOptimiserTest {
         // Given
         final Store store = mock(Store.class);
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
-        final GetOperation getOperation = mock(GetOperation.class);
+        final GetIterableOperation getOperation = mock(GetIterableOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
         given(getOperation.getResultLimit()).willReturn(null);
         given(getOperation.isDeduplicate()).willReturn(true);
@@ -184,7 +185,7 @@ public class CoreOperationChainOptimiserTest {
         // Given
         final Store store = mock(Store.class);
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
-        final GetOperation getOperation = mock(GetOperation.class);
+        final GetIterableOperation getOperation = mock(GetIterableOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
         given(getOperation.getResultLimit()).willReturn(null);
         given(getOperation.isDeduplicate()).willReturn(false);
@@ -202,7 +203,7 @@ public class CoreOperationChainOptimiserTest {
         // Given
         final Store store = mock(Store.class);
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
-        final GetOperation getOperation = mock(GetOperation.class);
+        final GetIterableOperation getOperation = mock(GetIterableOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
         final int resultLimit = 5;
         given(getOperation.getResultLimit()).willReturn(resultLimit);
@@ -222,7 +223,7 @@ public class CoreOperationChainOptimiserTest {
         // Given
         final Store store = mock(Store.class);
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
-        final GetOperation getOperation = mock(GetOperation.class);
+        final GetIterableOperation getOperation = mock(GetIterableOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
         final Integer resultLimit = null;
         given(getOperation.getResultLimit()).willReturn(resultLimit);
@@ -241,7 +242,7 @@ public class CoreOperationChainOptimiserTest {
         // Given
         final Store store = mock(Store.class);
         final CoreOperationChainOptimiser optimiser = new CoreOperationChainOptimiser(store);
-        final GetOperation getOperation = mock(GetOperation.class);
+        final GetIterableOperation getOperation = mock(GetIterableOperation.class);
         final OperationChain<Integer> opChain = new OperationChain<>(getOperation);
         final int resultLimit = 5;
         given(getOperation.getResultLimit()).willReturn(resultLimit);

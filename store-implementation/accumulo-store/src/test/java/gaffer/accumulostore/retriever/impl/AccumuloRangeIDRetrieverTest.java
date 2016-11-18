@@ -33,6 +33,7 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.GetElementsOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
@@ -95,7 +96,7 @@ public class AccumuloRangeIDRetrieverTest {
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
-        final AbstractGetOperation<Pair<ElementSeed>, CloseableIterable<Element>> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        final GetElementsOperation<Pair<ElementSeed>, CloseableIterable<Element>> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
         try {
             final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, new User());
             assertEquals(numEntries, Iterables.size(retriever));

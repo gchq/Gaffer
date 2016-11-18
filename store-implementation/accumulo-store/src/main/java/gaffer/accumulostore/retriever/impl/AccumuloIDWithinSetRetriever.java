@@ -24,7 +24,8 @@ import gaffer.accumulostore.utils.BloomFilterUtils;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;
@@ -74,13 +75,13 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterator<EntitySeed> seedsIter;
 
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
                                         final User user,
                                         final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
                                         final User user,
                                         final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, readEntriesIntoMemory, iteratorSettings);

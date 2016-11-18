@@ -18,7 +18,8 @@ package gaffer.accumulostore.key;
 
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 import org.apache.accumulo.core.data.Range;
 import java.util.List;
@@ -44,7 +45,7 @@ public interface RangeFactory {
      * match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    <T extends GetOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
+    <T extends GetElementsOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
             throws RangeFactoryException;
 
     /**
@@ -66,6 +67,6 @@ public interface RangeFactory {
      * match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    <T extends GetOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
+    <T extends GetElementsOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
             throws RangeFactoryException;
 }

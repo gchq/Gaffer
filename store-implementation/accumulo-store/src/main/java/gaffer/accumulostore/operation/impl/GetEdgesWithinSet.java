@@ -19,8 +19,10 @@ package gaffer.accumulostore.operation.impl;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
+import gaffer.operation.AbstractGetElementsOperation;
+import gaffer.operation.AbstractGetIterableElementsOperation;
 import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.EntitySeed;
 
 /**
@@ -43,7 +45,7 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
         super(view, seeds);
     }
 
-    public GetEdgesWithinSet(final GetOperation<EntitySeed, ?> operation) {
+    public GetEdgesWithinSet(final GetIterableElementsOperation<EntitySeed, ?> operation) {
         super(operation);
     }
 
@@ -69,7 +71,7 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<GetEdgesWithinSet, EntitySeed, CloseableIterable<Edge>, CHILD_CLASS> {
+            extends AbstractGetIterableElementsOperation.BaseBuilder<GetEdgesWithinSet, EntitySeed, Edge, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetEdgesWithinSet());
         }

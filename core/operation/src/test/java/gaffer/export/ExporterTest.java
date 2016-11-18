@@ -16,15 +16,15 @@
 
 package gaffer.export;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.user.User;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 
 public class ExporterTest {

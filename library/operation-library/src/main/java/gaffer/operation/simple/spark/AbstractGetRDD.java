@@ -16,13 +16,17 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.data.element.Element;
+import gaffer.operation.AbstractGetElementsOperation;
 import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 
-public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetOperation<SEED_TYPE, RDD<Element>> {
+public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, RDD<Element>> {
 
     private SparkContext sparkContext;
+
+    protected boolean includeEntities = true;
+    protected IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
 
     public SparkContext getSparkContext() {
         return sparkContext;
@@ -35,7 +39,7 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetOperation<SEE
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>,
                 SEED_TYPE,
                 CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, RDD<Element>, CHILD_CLASS> {
+            extends AbstractGetElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, RDD<Element>, CHILD_CLASS> {
 
         public BaseBuilder(final OP_TYPE op) {
             super(op);

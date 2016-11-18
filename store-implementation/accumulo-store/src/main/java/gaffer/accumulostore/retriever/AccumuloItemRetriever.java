@@ -23,7 +23,8 @@ import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.commonutil.iterable.EmptyCloseableIterator;
 import gaffer.data.element.Element;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.store.StoreException;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
@@ -40,7 +41,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends GetOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
+public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
         extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 

@@ -22,7 +22,8 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.exception.SerialisationException;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;
@@ -44,7 +45,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
+    protected <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
                                                                     final boolean endKey) throws RangeFactoryException {
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
@@ -84,7 +85,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
+    protected <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
                                                                   final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
         final IncludeEdgeType includeEdges;

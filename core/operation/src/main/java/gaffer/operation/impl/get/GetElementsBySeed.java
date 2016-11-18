@@ -19,7 +19,7 @@ package gaffer.operation.impl.get;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -39,6 +39,7 @@ import gaffer.operation.data.ElementSeed;
  * @see GetElementsBySeed.Builder
  * @see gaffer.operation.impl.get.GetElements
  */
+@Deprecated
 public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
     public GetElementsBySeed() {
@@ -65,7 +66,7 @@ public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exten
         super(view, seeds);
     }
 
-    public GetElementsBySeed(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetElementsBySeed(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 

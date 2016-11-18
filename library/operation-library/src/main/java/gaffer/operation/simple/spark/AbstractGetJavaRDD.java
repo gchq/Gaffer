@@ -16,11 +16,12 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.data.element.Element;
+import gaffer.operation.AbstractGetElementsOperation;
 import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetOperation<SEED_TYPE, JavaRDD<Element>> {
+public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, JavaRDD<Element>> {
 
     private JavaSparkContext javaSparkContext;
 
@@ -35,7 +36,7 @@ public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetOperation
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>,
             SEED_TYPE,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, JavaRDD<Element>, CHILD_CLASS> {
+            extends AbstractGetElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, JavaRDD<Element>, CHILD_CLASS> {
 
         public BaseBuilder(final OP_TYPE op) {
             super(op);

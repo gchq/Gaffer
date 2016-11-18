@@ -15,6 +15,7 @@
  */
 package gaffer.store.optimiser;
 
+import gaffer.operation.GetIterableOperation;
 import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.Validatable;
@@ -73,10 +74,10 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
     protected List<Operation> addPostOperations(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
         final List<Operation> postOps = new ArrayList<>();
         if (doesOperationResultsNeedLimiting(currentOp, nextOp)) {
-            postOps.add((Operation) createLimitOperation((GetOperation<?, ?>) currentOp));
+            postOps.add((Operation) createLimitOperation((GetIterableOperation<?, ?>) currentOp));
         }
         if (doesOperationNeedDeduplicating(currentOp, nextOp)) {
-            postOps.add((Operation) createDeduplicateOperation((GetOperation<?, ?>) currentOp));
+            postOps.add((Operation) createDeduplicateOperation((GetIterableOperation<?, ?>) currentOp));
         }
 
         return postOps;
@@ -120,27 +121,27 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
         return validate;
     }
 
-    private Limit<?> createLimitOperation(final GetOperation<?, ?> currentOp) {
+    private Limit<?> createLimitOperation(final GetIterableOperation<?, ?> currentOp) {
         final Limit<?> limit = new Limit();
         limit.setResultLimit(currentOp.getResultLimit());
         limit.setOptions(currentOp.getOptions());
         return limit;
     }
 
-    private Deduplicate<?> createDeduplicateOperation(final GetOperation<?, ?> currentOp) {
+    private Deduplicate<?> createDeduplicateOperation(final GetIterableOperation<?, ?> currentOp) {
         final Deduplicate<?> duplicate = new Deduplicate();
         duplicate.setOptions(currentOp.getOptions());
         return duplicate;
     }
 
     private boolean doesOperationResultsNeedLimiting(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
-        return currentOp instanceof GetOperation
-                && null != ((GetOperation) currentOp).getResultLimit();
+        return currentOp instanceof GetIterableOperation
+                && null != ((GetIterableOperation) currentOp).getResultLimit();
     }
 
     private boolean doesOperationNeedDeduplicating(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
-        return currentOp instanceof GetOperation
-                && ((GetOperation) currentOp).isDeduplicate()
+        return currentOp instanceof GetIterableOperation
+                && ((GetIterableOperation) currentOp).isDeduplicate()
                 && (null == nextOp || !(nextOp instanceof Deduplicate));
     }
 }

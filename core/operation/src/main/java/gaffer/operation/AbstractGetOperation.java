@@ -24,8 +24,6 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
-import gaffer.data.element.Edge;
-import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -33,13 +31,6 @@ import java.util.List;
 
 public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractOperation<CloseableIterable<SEED_TYPE>, RESULT_TYPE> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
-    private boolean includeEntities = true;
-    private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
-    private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
-    private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
-    private boolean populateProperties = true;
-    private boolean deduplicate = false;
-    private Integer resultLimit;
 
     protected AbstractGetOperation() {
         super();
@@ -67,24 +58,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
 
     protected AbstractGetOperation(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
-        setPopulateProperties(operation.isPopulateProperties());
-        setIncludeEdges(operation.getIncludeEdges());
-        setIncludeEntities(operation.isIncludeEntities());
-        setSeedMatching(operation.getSeedMatching());
-    }
-
-    /**
-     * @param seedMatching a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
-     * @see gaffer.operation.GetOperation.SeedMatchingType
-     */
-    protected void setSeedMatching(final SeedMatchingType seedMatching) {
-        this.seedMatching = seedMatching;
-    }
-
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return seedMatching;
     }
 
     @Override
@@ -118,86 +91,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     @JsonSetter(value = "seeds")
     void setSeedArray(final SEED_TYPE[] seeds) {
         setInput(new WrappedCloseableIterable<>(Arrays.asList(seeds)));
-    }
-
-    @Override
-    public boolean validate(final Edge edge) {
-        return validateFlags(edge) && super.validate(edge);
-    }
-
-    @Override
-    public boolean validate(final Entity entity) {
-        return validateFlags(entity) && super.validate(entity);
-    }
-
-    @Override
-    public boolean validateFlags(final Entity entity) {
-        return isIncludeEntities();
-    }
-
-    @Override
-    public boolean validateFlags(final Edge edge) {
-        return null != getIncludeEdges() && getIncludeEdges().accept(edge.isDirected());
-    }
-
-    @Override
-    public boolean isIncludeEntities() {
-        return includeEntities;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        this.includeEntities = includeEntities;
-    }
-
-    @Override
-    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return includeIncomingOutGoing;
-    }
-
-    @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        this.includeIncomingOutGoing = includeIncomingOutGoing;
-    }
-
-    @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        this.includeEdges = includeEdges;
-    }
-
-    @Override
-    public IncludeEdgeType getIncludeEdges() {
-        return includeEdges;
-    }
-
-    @Override
-    public boolean isPopulateProperties() {
-        return populateProperties;
-    }
-
-    @Override
-    public void setPopulateProperties(final boolean populateProperties) {
-        this.populateProperties = populateProperties;
-    }
-
-    @Override
-    public boolean isDeduplicate() {
-        return deduplicate;
-    }
-
-    @Override
-    public void setDeduplicate(final boolean deduplicate) {
-        this.deduplicate = deduplicate;
-    }
-
-    @Override
-    public Integer getResultLimit() {
-        return resultLimit;
-    }
-
-    @Override
-    public void setResultLimit(final Integer resultLimit) {
-        this.resultLimit = resultLimit;
     }
 
     public abstract static class BaseBuilder<
@@ -273,61 +166,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
                 seeds = new LinkedList<>();
             }
             seeds.add(seed);
-            return self();
-        }
-
-        /**
-         * @param includeEntities sets the includeEntities flag on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setIncludeEntities(boolean)
-         */
-        public CHILD_CLASS includeEntities(final boolean includeEntities) {
-            op.setIncludeEntities(includeEntities);
-            return self();
-        }
-
-        /**
-         * @param includeEdgeType sets the includeEdges option on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setIncludeEdges(IncludeEdgeType)
-         */
-        public CHILD_CLASS includeEdges(final IncludeEdgeType includeEdgeType) {
-            op.setIncludeEdges(includeEdgeType);
-            return self();
-        }
-
-        /**
-         * @param inOutType sets the includeIncomingOutGoing option on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
-         */
-        public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
-            op.setIncludeIncomingOutGoing(inOutType);
-            return self();
-        }
-
-        /**
-         * @param deduplicate sets the deduplicate flag on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setDeduplicate(boolean)
-         */
-        public CHILD_CLASS deduplicate(final boolean deduplicate) {
-            op.setDeduplicate(deduplicate);
-            return self();
-        }
-
-        public CHILD_CLASS limitResults(final Integer resultLimit) {
-            op.setResultLimit(resultLimit);
-            return self();
-        }
-
-        /**
-         * @param populateProperties set the populateProperties flag on the operation.
-         * @return this Builder
-         * @see gaffer.operation.GetOperation#setPopulateProperties(boolean)
-         */
-        public CHILD_CLASS populateProperties(final boolean populateProperties) {
-            op.setPopulateProperties(populateProperties);
             return self();
         }
     }

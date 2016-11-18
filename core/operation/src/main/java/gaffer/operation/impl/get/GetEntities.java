@@ -18,9 +18,9 @@ package gaffer.operation.impl.get;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Entity;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
+import gaffer.operation.data.ElementSeed;
 
 /**
  * Restricts {@link gaffer.operation.impl.get.GetElements} to only return {@link gaffer.data.element.Entity}s.
@@ -54,7 +54,7 @@ public abstract class GetEntities<SEED_TYPE extends ElementSeed> extends GetElem
         super(view, seeds);
     }
 
-    public GetEntities(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetEntities(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 

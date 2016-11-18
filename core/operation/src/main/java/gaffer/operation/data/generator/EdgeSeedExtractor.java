@@ -19,8 +19,8 @@ package gaffer.operation.data.generator;
 import gaffer.data.Validator;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
-import gaffer.operation.data.EdgeSeed;
 import gaffer.data.generator.OneToOneElementGenerator;
+import gaffer.operation.data.EdgeSeed;
 
 /**
  * Generates {@link gaffer.operation.data.EdgeSeed}s from and {@link gaffer.data.element.Edge}s.

@@ -18,7 +18,8 @@ package gaffer.accumulostore.key.core.impl.classic;
 import gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.IteratorSettingBuilder;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.impl.get.GetAllElements;
@@ -31,7 +32,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetOperation<?, ?> operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetElementsOperation<?, ?> operation) {
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
@@ -55,7 +56,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final GetOperation<?, ?> operation) {
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GetElementsOperation<?, ?> operation) {
         final boolean includeEntities = operation.isIncludeEntities();
         final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
         if (includeEdgeType != IncludeEdgeType.NONE && includeEntities) {

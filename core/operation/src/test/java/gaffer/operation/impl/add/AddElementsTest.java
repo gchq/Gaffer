@@ -16,11 +16,6 @@
 
 package gaffer.operation.impl.add;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.commonutil.JsonUtil;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -35,6 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AddElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();

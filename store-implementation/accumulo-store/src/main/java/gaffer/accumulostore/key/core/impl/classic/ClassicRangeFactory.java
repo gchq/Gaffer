@@ -20,7 +20,8 @@ import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.exception.SerialisationException;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;
@@ -42,7 +43,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
+    protected <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
                                                                   final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
         final IncludeEdgeType includeEdges;
         final boolean includeEntities;
@@ -75,7 +76,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
+    protected <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
                                                                     final boolean endKey) throws RangeFactoryException {
         final byte directionFlag1 = seed.isDirected()
                 ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING
