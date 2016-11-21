@@ -15,12 +15,6 @@
  */
 package gaffer.function.simple.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.FilterFunctionTest;
@@ -29,6 +23,12 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.types.simple.FreqMap;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the MapFilter class can be used to filter {@code FreqMap} frequencies.

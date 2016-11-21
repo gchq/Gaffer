@@ -16,12 +16,6 @@
 
 package gaffer.store.integration;
 
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.iterable.CloseableIterable;
@@ -46,6 +40,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StoreIT {
     @Test

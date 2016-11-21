@@ -21,8 +21,8 @@ import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
-import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.TableUtils;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
@@ -53,7 +53,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class AccumuloIDWithinSetRetrieverTest {
 

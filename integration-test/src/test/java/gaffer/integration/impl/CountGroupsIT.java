@@ -1,8 +1,5 @@
 package gaffer.integration.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.GroupCounts;
@@ -15,6 +12,9 @@ import gaffer.operation.impl.get.GetAllElements;
 import gaffer.user.User;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class CountGroupsIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";

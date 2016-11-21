@@ -16,10 +16,6 @@
 
 package gaffer.store.operation.handler.generate;
 
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.data.element.Element;
@@ -29,6 +25,10 @@ import gaffer.operation.impl.generate.GenerateElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import org.junit.Test;
+
+import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class GenerateElementsHandlerTest {
 

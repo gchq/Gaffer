@@ -18,9 +18,9 @@ package gaffer.function.context;
 
 import gaffer.function.ConsumerFunction;
 import gaffer.function.Tuple;
+import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

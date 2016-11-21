@@ -15,6 +15,14 @@
  */
 package gaffer.function.simple.filter;
 
+import gaffer.commonutil.JsonUtil;
+import gaffer.exception.SerialisationException;
+import gaffer.function.FilterFunction;
+import gaffer.function.FilterFunctionTest;
+import gaffer.function.IsA;
+import gaffer.jsonserialisation.JSONSerialiser;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -24,14 +32,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import gaffer.commonutil.JsonUtil;
-import gaffer.exception.SerialisationException;
-import gaffer.function.FilterFunction;
-import gaffer.function.FilterFunctionTest;
-import gaffer.function.IsA;
-import gaffer.jsonserialisation.JSONSerialiser;
-import org.junit.Test;
 
 public class NotTest extends FilterFunctionTest {
     @Test

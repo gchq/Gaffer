@@ -27,6 +27,9 @@ import gaffer.function.FilterFunction;
 import gaffer.function.TransformFunction;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.ConsumerProducerFunctionContext;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +49,6 @@ public class ViewElementDefinition implements ElementDefinition {
     private ElementFilter preAggregationFilter;
     private ElementFilter postAggregationFilter;
     private ElementFilter postTransformFilter;
-
 
     /**
      * This field overrides the group by properties in the schema.
@@ -240,6 +242,52 @@ public class ViewElementDefinition implements ElementDefinition {
     public void addTransformFunctions(final List<ConsumerProducerFunctionContext<String, TransformFunction>> functions) {
         transformer = new ElementTransformer();
         transformer.addFunctions(functions);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ViewElementDefinition that = (ViewElementDefinition) o;
+
+        return new EqualsBuilder()
+                .append(transformer, that.transformer)
+                .append(preAggregationFilter, that.preAggregationFilter)
+                .append(postAggregationFilter, that.postAggregationFilter)
+                .append(postTransformFilter, that.postTransformFilter)
+                .append(groupBy, that.groupBy)
+                .append(transientProperties, that.transientProperties)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(transformer)
+                .append(preAggregationFilter)
+                .append(postAggregationFilter)
+                .append(postTransformFilter)
+                .append(groupBy)
+                .append(transientProperties)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("transformer", transformer)
+                .append("preAggregationFilter", preAggregationFilter)
+                .append("postAggregationFilter", postAggregationFilter)
+                .append("postTransformFilter", postTransformFilter)
+                .append("groupBy", groupBy)
+                .append("transientProperties", transientProperties)
+                .toString();
     }
 
     public static class Builder {

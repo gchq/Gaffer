@@ -1,10 +1,6 @@
 package gaffer.accumulostore.operation.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
 import gaffer.accumulostore.utils.AccumuloTestData;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.elementdefinition.view.View;
@@ -17,6 +13,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class GetEntitiesInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();

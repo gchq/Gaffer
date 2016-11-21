@@ -15,19 +15,19 @@
  */
 package gaffer.function.simple.aggregate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
 import gaffer.function.AggregateFunctionTest;
 import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MinTest extends AggregateFunctionTest {
     @Test

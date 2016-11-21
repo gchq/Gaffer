@@ -16,10 +16,6 @@
 
 package gaffer.operation.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.LimitedCloseableIterable;
@@ -29,6 +25,10 @@ import gaffer.store.operation.handler.LimitHandler;
 import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class LimitHandlerTest {
     @Test

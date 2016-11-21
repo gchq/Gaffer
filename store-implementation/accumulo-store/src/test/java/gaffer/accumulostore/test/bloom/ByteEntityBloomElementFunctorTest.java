@@ -16,12 +16,6 @@
 
 package gaffer.accumulostore.test.bloom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -37,6 +31,12 @@ import org.apache.accumulo.core.data.Range;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ByteEntityBloomElementFunctorTest {
 

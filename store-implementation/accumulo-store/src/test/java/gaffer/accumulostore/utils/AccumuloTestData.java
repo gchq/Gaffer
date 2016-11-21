@@ -6,7 +6,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.operation.data.EntitySeed;
-
 import java.util.Collections;
 import java.util.Set;
 

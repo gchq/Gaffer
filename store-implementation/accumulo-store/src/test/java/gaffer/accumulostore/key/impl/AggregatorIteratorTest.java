@@ -16,8 +16,6 @@
 
 package gaffer.accumulostore.key.impl;
 
-import static org.junit.Assert.assertEquals;
-
 import com.google.common.collect.Lists;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
@@ -44,8 +42,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class AggregatorIteratorTest {
 

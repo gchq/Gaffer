@@ -17,7 +17,9 @@
 package gaffer.function.processor;
 
 import gaffer.function.context.FunctionContext;
-
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,5 +92,36 @@ public abstract class Processor<R, C extends FunctionContext<?>> implements Clon
      */
     void setFunctions(final List<C> functions) {
         this.functions = functions;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Processor<?, ?> processor = (Processor<?, ?>) o;
+
+        return new EqualsBuilder()
+                .append(functions, processor.functions)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(functions)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("functions", functions)
+                .toString();
     }
 }

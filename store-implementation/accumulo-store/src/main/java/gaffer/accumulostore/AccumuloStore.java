@@ -96,13 +96,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.ORDERED;
 import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
 import static gaffer.store.StoreTrait.VISIBILITY;
 
 

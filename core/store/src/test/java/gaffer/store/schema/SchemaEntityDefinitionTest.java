@@ -16,15 +16,6 @@
 
 package gaffer.store.schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Sets;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.IdentifierType;
@@ -36,6 +27,15 @@ import gaffer.function.ExampleFilterFunction;
 import gaffer.function.IsA;
 import org.junit.Test;
 import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class SchemaEntityDefinitionTest {
     @Test

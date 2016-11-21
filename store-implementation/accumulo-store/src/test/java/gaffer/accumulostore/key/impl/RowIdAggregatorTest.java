@@ -15,11 +15,6 @@
  */
 package gaffer.accumulostore.key.impl;
 
-import static gaffer.accumulostore.utils.TableUtils.createTable;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -65,6 +60,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static gaffer.accumulostore.utils.TableUtils.createTable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class RowIdAggregatorTest {

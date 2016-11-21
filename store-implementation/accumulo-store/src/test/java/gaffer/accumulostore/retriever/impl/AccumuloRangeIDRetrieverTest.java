@@ -16,9 +16,6 @@
 
 package gaffer.accumulostore.retriever.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
@@ -41,9 +38,7 @@ import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import gaffer.user.User;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
@@ -51,6 +46,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class AccumuloRangeIDRetrieverTest {
 

@@ -16,13 +16,6 @@
 
 package gaffer.accumulostore;
 
-import static gaffer.store.StoreTrait.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -78,6 +71,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.ORDERED;
+import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static gaffer.store.StoreTrait.VISIBILITY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class AccumuloStoreTest {
 

@@ -22,6 +22,9 @@ import gaffer.data.element.Properties;
 import gaffer.data.element.PropertiesTuple;
 import gaffer.function.AggregateFunction;
 import gaffer.function.processor.Aggregator;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Element Aggregator - for aggregating {@link gaffer.data.element.Element}s.
@@ -83,6 +86,45 @@ public class ElementAggregator extends Aggregator<String> {
         clone.addFunctions(super.cloneFunctions());
 
         return clone;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ElementAggregator that = (ElementAggregator) o;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(functions, that.functions)
+                .append(initialised, that.initialised)
+                .append(propertiesTuple, that.propertiesTuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(functions)
+                .append(initialised)
+                .append(propertiesTuple)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("functions", functions)
+                .append("initialised", initialised)
+                .append("propertiesTuple", propertiesTuple)
+                .toString();
     }
 
     /**

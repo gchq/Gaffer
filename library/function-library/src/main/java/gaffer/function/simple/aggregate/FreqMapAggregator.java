@@ -19,6 +19,9 @@ import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 import gaffer.types.simple.FreqMap;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Map.Entry;
 
 /**
@@ -62,5 +65,42 @@ public class FreqMapAggregator extends SimpleAggregateFunction<FreqMap> {
         final FreqMapAggregator aggregator = new FreqMapAggregator();
         aggregator.init();
         return aggregator;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final FreqMapAggregator that = (FreqMapAggregator) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(outputs, that.outputs)
+                .append(frequencyMap, that.frequencyMap)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(outputs)
+                .append(frequencyMap)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("outputs", outputs)
+                .append("frequencyMap", frequencyMap)
+                .toString();
     }
 }

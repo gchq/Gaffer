@@ -15,13 +15,13 @@
  */
 package gaffer.serialisation.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.exception.SerialisationException;
 import gaffer.types.simple.FreqMap;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class FreqMapSerialiserTest {
 
