@@ -16,11 +16,6 @@
 
 package gaffer.jsonSerialisation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gaffer.commonutil.JsonUtil;
@@ -31,6 +26,11 @@ import gaffer.serialisation.test.SimpleTestObject;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class JSONSerialiserTest {
 

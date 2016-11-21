@@ -21,7 +21,6 @@ import gaffer.data.generator.OneToOneElementGenerator;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.MapContext;
-
 import java.util.ArrayList;
 import java.util.List;
 

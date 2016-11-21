@@ -15,9 +15,6 @@
  */
 package gaffer.accumulostore.operation.spark.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
@@ -33,8 +30,14 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.SQLContext;
 import org.junit.Test;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-import java.util.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class GetDataFrameOfElementsHandlerTest {
 

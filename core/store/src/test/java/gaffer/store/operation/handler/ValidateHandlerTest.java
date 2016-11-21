@@ -16,12 +16,6 @@
 
 package gaffer.store.operation.handler;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
@@ -30,12 +24,17 @@ import gaffer.operation.OperationException;
 import gaffer.operation.impl.Validate;
 import gaffer.store.Context;
 import gaffer.store.Store;
-import gaffer.store.operation.handler.ValidateHandler;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaElementDefinition;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class ValidateHandlerTest {
 

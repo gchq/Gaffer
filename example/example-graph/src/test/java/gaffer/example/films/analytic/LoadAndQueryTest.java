@@ -16,9 +16,6 @@
 
 package gaffer.example.films.analytic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.iterable.CloseableIterable;
@@ -36,6 +33,9 @@ import gaffer.user.User;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LoadAndQueryTest {
     @Test

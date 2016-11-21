@@ -16,8 +16,6 @@
 
 package gaffer.integration.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.integration.AbstractStoreIT;
 import gaffer.operation.GetOperation;
@@ -32,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     private static final List<String> SEEDS = Arrays.asList(

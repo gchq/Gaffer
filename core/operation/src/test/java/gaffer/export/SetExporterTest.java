@@ -16,11 +16,6 @@
 
 package gaffer.export;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import gaffer.commonutil.iterable.ChainedIterable;
@@ -31,6 +26,11 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 
 public class SetExporterTest {

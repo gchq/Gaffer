@@ -18,9 +18,8 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import gaffer.function.processor.FilterTest;
 import org.junit.Test;
+import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 

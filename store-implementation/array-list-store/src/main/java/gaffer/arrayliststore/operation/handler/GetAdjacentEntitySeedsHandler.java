@@ -16,9 +16,6 @@
 
 package gaffer.arrayliststore.operation.handler;
 
-import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING;
-import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
-
 import gaffer.arrayliststore.ArrayListStore;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -31,6 +28,9 @@ import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
+
+import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING;
+import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
 
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
     @Override

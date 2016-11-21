@@ -16,9 +16,6 @@
 
 package gaffer.arrayliststore.operation.handler;
 
-import static gaffer.operation.GetOperation.IncludeEdgeType;
-import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-
 import gaffer.arrayliststore.ArrayListStore;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -38,6 +35,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static gaffer.operation.GetOperation.IncludeEdgeType;
+import static gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override

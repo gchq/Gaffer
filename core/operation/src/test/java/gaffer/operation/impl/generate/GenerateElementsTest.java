@@ -17,14 +17,13 @@
 package gaffer.operation.impl.generate;
 
 import gaffer.data.elementdefinition.view.View;
-import gaffer.data.generator.ElementGenerator;
 import gaffer.data.generator.ElementGeneratorImpl;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
+import org.junit.Test;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.junit.Test;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;

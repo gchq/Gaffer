@@ -16,10 +16,6 @@
 
 package gaffer.store.operation.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -28,6 +24,10 @@ import gaffer.operation.impl.Deduplicate;
 import gaffer.store.Context;
 import org.junit.Test;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class DeduplicateHandlerTest {
 

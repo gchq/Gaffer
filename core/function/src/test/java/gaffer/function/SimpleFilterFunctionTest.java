@@ -16,15 +16,14 @@
 
 package gaffer.function;
 
+import gaffer.function.annotation.Inputs;
+import org.junit.Test;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
-
-import gaffer.function.annotation.Inputs;
-import org.junit.Test;
-import java.io.IOException;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 public class SimpleFilterFunctionTest extends FilterFunctionTest {
     @Test

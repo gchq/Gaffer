@@ -7,7 +7,6 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
 
-
 import static org.junit.Assert.assertEquals;
 
 public class ImportAccumuloKeyValueFilesTest implements OperationTest {

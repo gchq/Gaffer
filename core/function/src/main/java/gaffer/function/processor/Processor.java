@@ -20,7 +20,6 @@ import gaffer.function.context.FunctionContext;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
