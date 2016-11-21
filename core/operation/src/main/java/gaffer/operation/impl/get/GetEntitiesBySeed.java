@@ -30,7 +30,6 @@ import gaffer.operation.data.EntitySeed;
  * @see GetEntitiesBySeed.Builder
  * @see gaffer.operation.impl.get.GetEntities
  */
-@Deprecated
 public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
     public GetEntitiesBySeed() {
         super();

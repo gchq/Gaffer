@@ -22,7 +22,6 @@ import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.elementdefinition.view.View;
-import java.util.List;
 
 public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE> implements GetElementsOperation<SEED_TYPE,  RESULT_TYPE> {
@@ -151,8 +150,6 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, ?>
             >
             extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, CHILD_CLASS> {
-
-        private List<SEED_TYPE> seeds;
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);

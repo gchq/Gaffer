@@ -101,7 +101,7 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
             >
             extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE, CHILD_CLASS> {
 
-        private List<SEED_TYPE> seeds;
+        protected List<SEED_TYPE> seeds;
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);

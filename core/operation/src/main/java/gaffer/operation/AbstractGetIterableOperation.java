@@ -19,7 +19,6 @@ package gaffer.operation;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.elementdefinition.view.View;
-import java.util.List;
 
 public abstract class AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractGetOperation<SEED_TYPE, CloseableIterable<RESULT_TYPE>> implements GetIterableOperation<SEED_TYPE,  RESULT_TYPE> {
@@ -81,8 +80,6 @@ public abstract class AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, ?>
             >
             extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, CloseableIterable<RESULT_TYPE>, CHILD_CLASS> {
-
-        private List<SEED_TYPE> seeds;
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);

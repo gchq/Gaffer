@@ -24,6 +24,7 @@ import gaffer.operation.OperationTest;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
+import org.junit.Ignore;
 import org.junit.Test;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -31,7 +32,6 @@ import java.util.Iterator;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 
 public class GetRelatedElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();

@@ -39,7 +39,6 @@ import gaffer.operation.data.ElementSeed;
  * @see GetElementsBySeed.Builder
  * @see gaffer.operation.impl.get.GetElements
  */
-@Deprecated
 public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
     public GetElementsBySeed() {

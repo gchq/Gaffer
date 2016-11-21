@@ -31,7 +31,6 @@ import gaffer.operation.data.EntitySeed;
  * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
  * @see gaffer.operation.GetOperation
  */
-@Deprecated
 public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
     public GetAdjacentEntitySeeds() {
     }

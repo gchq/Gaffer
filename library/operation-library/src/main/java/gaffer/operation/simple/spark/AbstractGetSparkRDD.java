@@ -20,27 +20,5 @@ import gaffer.operation.AbstractGetElementsOperation;
 
 public abstract class AbstractGetSparkRDD <SEED_TYPE, RDD>
         extends AbstractGetElementsOperation<SEED_TYPE, RDD> implements GetSparkRDDOperation<SEED_TYPE, RDD> {
-
-    protected boolean includeEntities = true;
-    protected IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
-
-//    @Override
-//    public boolean isIncludeEntities() {
-//        return includeEntities;
-//    }
-//
-//    @Override
-//    public void setIncludeEntities(final boolean includeEntities) {
-//        this.includeEntities = includeEntities;
-//    }
-//
-//    @Override
-//    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-//        this.includeEdges = includeEdges;
-//    }
-//
-//    @Override
-//    public IncludeEdgeType getIncludeEdges() {
-//        return includeEdges;
-//    }
+    // Empty marker class
 }

@@ -31,7 +31,6 @@ import gaffer.operation.data.EdgeSeed;
  * @see GetEdgesBySeed.Builder
  * @see gaffer.operation.impl.get.GetEdges
  */
-@Deprecated
 public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
     public GetEdgesBySeed() {
         super();

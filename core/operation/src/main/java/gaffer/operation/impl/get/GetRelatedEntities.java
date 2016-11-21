@@ -54,7 +54,6 @@ import gaffer.operation.data.ElementSeed;
  * @see gaffer.operation.impl.get.GetRelatedEntities.Builder
  * @see gaffer.operation.impl.get.GetEntities
  */
-@Deprecated
 public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEntities<ELEMENT_SEED> {
     public GetRelatedEntities() {
         super();

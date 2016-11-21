@@ -24,9 +24,6 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
 
     private SparkContext sparkContext;
 
-    protected boolean includeEntities = true;
-    protected IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
-
     public SparkContext getSparkContext() {
         return sparkContext;
     }
@@ -46,16 +43,6 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
 
         public CHILD_CLASS sparkContext(final SparkContext sparkContext) {
             op.setSparkContext(sparkContext);
-            return self();
-        }
-
-        public CHILD_CLASS setIncludeEdges(final IncludeEdgeType value) {
-            op.setIncludeEdges(value);
-            return self();
-        }
-
-        public CHILD_CLASS setIncludeEntities(final boolean b) {
-            op.setIncludeEntities(b);
             return self();
         }
     }

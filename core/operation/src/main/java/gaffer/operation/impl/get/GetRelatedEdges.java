@@ -37,7 +37,6 @@ import gaffer.operation.data.ElementSeed;
  * @see gaffer.operation.impl.get.GetRelatedEdges.Builder
  * @see gaffer.operation.impl.get.GetEdges
  */
-@Deprecated
 public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<ELEMENT_SEED> {
     public GetRelatedEdges() {
         super();
