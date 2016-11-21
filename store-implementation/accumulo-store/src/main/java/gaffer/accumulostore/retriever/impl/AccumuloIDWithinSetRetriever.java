@@ -25,7 +25,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;

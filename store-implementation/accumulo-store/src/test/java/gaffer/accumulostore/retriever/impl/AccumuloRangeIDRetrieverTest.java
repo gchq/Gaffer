@@ -29,7 +29,6 @@ import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetElementsOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;

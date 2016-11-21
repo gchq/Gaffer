@@ -1,5 +1,3 @@
-package gaffer.operation.simple.spark;
-
 /*
  * Copyright 2016 Crown Copyright
  *
@@ -16,8 +14,9 @@ package gaffer.operation.simple.spark;
  * limitations under the License.
  */
 
+package gaffer.operation.simple.spark;
+
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetOperation;
 
 public interface GetSparkRDDOperation<SEED_TYPE, RDD> extends GetElementsOperation<SEED_TYPE, RDD> {
     // Marker interface

@@ -21,7 +21,6 @@ import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.SeedMatchingType;
 import gaffer.operation.data.EdgeSeed;

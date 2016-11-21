@@ -17,8 +17,6 @@
 package gaffer.operation.simple.spark;
 
 import gaffer.operation.AbstractGetElementsOperation;
-import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation.IncludeEdgeType;
 
 public abstract class AbstractGetSparkRDD <SEED_TYPE, RDD>
         extends AbstractGetElementsOperation<SEED_TYPE, RDD> implements GetSparkRDDOperation<SEED_TYPE, RDD> {

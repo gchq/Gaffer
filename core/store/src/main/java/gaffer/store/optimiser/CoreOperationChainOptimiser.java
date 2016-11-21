@@ -16,7 +16,6 @@
 package gaffer.store.optimiser;
 
 import gaffer.operation.GetIterableOperation;
-import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.Validatable;
 import gaffer.operation.impl.Deduplicate;

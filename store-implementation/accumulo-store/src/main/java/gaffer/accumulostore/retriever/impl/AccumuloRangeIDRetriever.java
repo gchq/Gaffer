@@ -22,8 +22,6 @@ import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
-import gaffer.operation.GetOperation;
 import gaffer.operation.data.ElementSeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;

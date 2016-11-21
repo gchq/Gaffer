@@ -27,7 +27,6 @@ import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.store.StoreException;
 import gaffer.user.User;

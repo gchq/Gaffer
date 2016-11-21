@@ -19,7 +19,6 @@ package gaffer.store.optimiser;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.operation.GetIterableOperation;
-import gaffer.operation.GetOperation;
 import gaffer.operation.Operation;
 import gaffer.operation.OperationChain;
 import gaffer.operation.Validatable;

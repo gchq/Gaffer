@@ -18,9 +18,7 @@ package gaffer.accumulostore.operation.impl;
 
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetElementsOperation;
 import gaffer.operation.AbstractGetIterableElementsOperation;
-import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.EntitySeed;
 

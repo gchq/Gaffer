@@ -19,7 +19,6 @@ package gaffer.accumulostore.key;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 import org.apache.accumulo.core.data.Range;
 import java.util.List;

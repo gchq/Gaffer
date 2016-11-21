@@ -17,7 +17,6 @@ package gaffer.operation.simple.spark;
 
 import gaffer.data.element.Element;
 import gaffer.operation.AbstractGetElementsOperation;
-import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 

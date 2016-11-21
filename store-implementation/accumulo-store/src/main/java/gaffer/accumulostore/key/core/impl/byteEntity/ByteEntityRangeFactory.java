@@ -23,7 +23,6 @@ import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.exception.SerialisationException;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import gaffer.operation.GetOperation.SeedMatchingType;

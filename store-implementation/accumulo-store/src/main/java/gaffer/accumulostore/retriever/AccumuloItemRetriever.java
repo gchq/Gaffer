@@ -24,7 +24,6 @@ import gaffer.commonutil.iterable.CloseableIterator;
 import gaffer.commonutil.iterable.EmptyCloseableIterator;
 import gaffer.data.element.Element;
 import gaffer.operation.GetElementsOperation;
-import gaffer.operation.GetIterableElementsOperation;
 import gaffer.store.StoreException;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.BatchScanner;
