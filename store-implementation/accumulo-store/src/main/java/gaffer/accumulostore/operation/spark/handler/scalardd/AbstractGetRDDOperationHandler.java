@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.scalardd;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -47,7 +47,7 @@ public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends Get
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 
-    void addIterators(final AccumuloStore accumuloStore,
+    public void addIterators(final AccumuloStore accumuloStore,
                       final Configuration conf,
                       final GetElementsOperation<?, ?> operation) throws OperationException {
         try {
@@ -71,7 +71,7 @@ public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends Get
         }
     }
 
-    <ELEMENT_SEED extends ElementSeed> void addRanges(final AccumuloStore accumuloStore,
+    public <ELEMENT_SEED extends ElementSeed> void addRanges(final AccumuloStore accumuloStore,
                                                       final Configuration conf,
                                                       final GetSparkRDDOperation<ELEMENT_SEED, ?> operation)
             throws OperationException {

@@ -22,7 +22,6 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationTest;
 import gaffer.operation.data.EdgeSeed;
-import org.junit.Ignore;
 import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;

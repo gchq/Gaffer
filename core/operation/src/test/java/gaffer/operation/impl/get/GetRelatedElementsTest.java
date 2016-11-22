@@ -24,7 +24,6 @@ import gaffer.operation.OperationTest;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
-import org.junit.Ignore;
 import org.junit.Test;
 import java.util.Arrays;
 import java.util.Iterator;

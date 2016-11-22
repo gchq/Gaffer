@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.dataframe;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.spark.GetDataFrameOfElements;
+import gaffer.operation.simple.spark.dataframe.GetDataFrameOfElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
@@ -36,7 +36,10 @@ public class GetDataFrameOfElementsOperationHandler implements OperationHandler<
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final AccumuloStore store) throws OperationException {
         final SQLContext sqlContext = operation.getSqlContext();
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, operation.getGroups(), store,
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext,
+                operation.getConverters(),
+                operation.getView(),
+                store,
                 context.getUser());
         return sqlContext.baseRelationToDataFrame(relation);
     }

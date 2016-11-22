@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.simple.spark;
+package gaffer.operation.simple.spark.scalardd;
 
 import gaffer.data.element.Element;
 import gaffer.operation.AbstractGetElementsOperation;
+import gaffer.operation.simple.spark.AbstractGetSparkRDD;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 

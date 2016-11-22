@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.scalardd;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Edge;
@@ -26,13 +26,13 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.simple.spark.GetJavaRDDOfElements;
+import gaffer.operation.simple.spark.scalardd.GetRDDOfElements;
 import gaffer.user.User;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.SparkContext;
+import org.apache.spark.rdd.RDD;
 import org.junit.Test;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,13 +45,13 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class GetJavaRDDOfElementsHandlerTest {
+public class GetRDDOfElementsHandlerTest {
 
     private final static String ENTITY_GROUP = "BasicEntity";
     private final static String EDGE_GROUP = "BasicEdge";
 
     @Test
-    public void checkGetCorrectElementsInJavaRDDForEntitySeed() throws OperationException, IOException {
+    public void checkGetCorrectElementsInRDDForEntitySeed() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
@@ -85,11 +85,11 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntitySeed")
+                .setAppName("testCheckGetCorrectElementsInRDDForEntitySeed")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
+        final SparkContext sparkContext = new SparkContext(sparkConf);
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -98,16 +98,22 @@ public class GetJavaRDDOfElementsHandlerTest {
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
 
         // Check get correct edges for "1"
-        GetJavaRDDOfElements<EntitySeed> rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
-                .javaSparkContext(sparkContext)
+        GetRDDOfElements<EntitySeed> rddQuery = new GetRDDOfElements.Builder<EntitySeed>()
+                .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
+        RDD<Element> rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
-        final Set<Element> results = new HashSet<>(rdd.collect());
+        Set<Element> results = new HashSet<>();
+        // NB: IDE suggests the cast in the following line is unnecessary but compilation fails without it
+        Element[] returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
+
         final Set<Element> expectedElements = new HashSet<>();
         final Entity entity1 = new Entity(ENTITY_GROUP);
         entity1.setVertex("1");
@@ -127,8 +133,8 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify entities only
-        rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
-                .javaSparkContext(sparkContext)
+        rddQuery = new GetRDDOfElements.Builder<EntitySeed>()
+                .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
@@ -139,15 +145,19 @@ public class GetJavaRDDOfElementsHandlerTest {
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         results.clear();
-        results.addAll(rdd.collect());
+        returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
         expectedElements.clear();
         expectedElements.add(entity1);
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify edges only
-        rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
-                .javaSparkContext(sparkContext)
+        rddQuery = new GetRDDOfElements.Builder<EntitySeed>()
+                .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
@@ -158,8 +168,12 @@ public class GetJavaRDDOfElementsHandlerTest {
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         results.clear();
-        results.addAll(rdd.collect());
+        returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
         expectedElements.clear();
         expectedElements.add(edge1B);
         expectedElements.add(edge1C);
@@ -169,8 +183,8 @@ public class GetJavaRDDOfElementsHandlerTest {
         Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("1"));
         seeds.add(new EntitySeed("5"));
-        rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
-                .javaSparkContext(sparkContext)
+        rddQuery = new GetRDDOfElements.Builder<EntitySeed>()
+                .sparkContext(sparkContext)
                 .seeds(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
@@ -178,8 +192,12 @@ public class GetJavaRDDOfElementsHandlerTest {
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         results.clear();
-        results.addAll(rdd.collect());
+        returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
         final Entity entity5 = new Entity(ENTITY_GROUP);
         entity5.setVertex("5");
         final Edge edge5B = new Edge(EDGE_GROUP);
@@ -239,11 +257,11 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEdgeSeed")
+                .setAppName("testCheckGetCorrectElementsInRDDForEdgeSeed")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "gaffer.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
+        final SparkContext sparkContext = new SparkContext(sparkConf);
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -252,19 +270,24 @@ public class GetJavaRDDOfElementsHandlerTest {
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
 
         // Check get correct edges for EdgeSeed 1 -> B
-        GetJavaRDDOfElements<EdgeSeed> rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
-                .javaSparkContext(sparkContext)
+        GetRDDOfElements<EdgeSeed> rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
+                .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
-                .setIncludeEdges(GetOperation.IncludeEdgeType.ALL)
-                .setIncludeEntities(false)
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .includeEntities(false)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
+        RDD<Element> rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
-        final Set<Element> results = new HashSet<>();
-        results.addAll(rdd.collect());
+        Set<Element> results = new HashSet<>();
+        // NB: IDE suggests the cast in the following line is unnecessary but compilation fails without it
+        Element[] returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
+
         final Set<Element> expectedElements = new HashSet<>();
         final Edge edge1B = new Edge(EDGE_GROUP);
         edge1B.setSource("1");
@@ -275,19 +298,23 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get entity for 1 when query for 1 -> B and specify entities only
-        rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
-                .javaSparkContext(sparkContext)
+        rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
+                .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
-                .setIncludeEntities(true)
-                .setIncludeEdges(GetOperation.IncludeEdgeType.NONE)
+                .includeEntities(true)
+                .includeEdges(GetOperation.IncludeEdgeType.NONE)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         results.clear();
-        results.addAll(rdd.collect());
+        returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
         expectedElements.clear();
         final Entity entity1 = new Entity(ENTITY_GROUP);
         entity1.setVertex("1");
@@ -295,22 +322,26 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for 1 -> B when specify edges only
-        rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
-                .javaSparkContext(sparkContext)
+        rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
+                .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .setIncludeEntities(false)
-                .setIncludeEdges(GetOperation.IncludeEdgeType.ALL)
+                .includeEntities(false)
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         results.clear();
-        results.addAll(rdd.collect());
+        returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
         expectedElements.clear();
         expectedElements.add(edge1B);
         assertEquals(expectedElements, results);
@@ -319,9 +350,9 @@ public class GetJavaRDDOfElementsHandlerTest {
         Set<EdgeSeed> seeds = new HashSet<>();
         seeds.add(new EdgeSeed("1", "B", false));
         seeds.add(new EdgeSeed("5", "C", false));
-        rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
-                .javaSparkContext(sparkContext)
-                .setIncludeEntities(false)
+        rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
+                .sparkContext(sparkContext)
+                .includeEntities(false)
                 .seeds(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
@@ -329,8 +360,12 @@ public class GetJavaRDDOfElementsHandlerTest {
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         results.clear();
-        results.addAll(rdd.collect());
+        returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
+        }
         final Edge edge5C = new Edge(EDGE_GROUP);
         edge5C.setSource("5");
         edge5C.setDestination("C");
@@ -343,4 +378,5 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         sparkContext.stop();
     }
+
 }

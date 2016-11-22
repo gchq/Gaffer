@@ -19,9 +19,10 @@ package gaffer.operation;
 import gaffer.commonutil.iterable.CloseableIterable;
 
 /**
- * A <code>GetOperation</code> defines a seeded get operation to be processed on a graph.
+ * A <code>GetIterableOperation</code> defines a seeded get operation to be processed on a graph.
  * <p>
- * Get operations have several flags to determine how to filter {@link gaffer.data.element.Element}s.
+ * GetIterable operations have several flags to determine how to compose the resulting
+ * {@link Iterable} object.
  *
  * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
  * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
