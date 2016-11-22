@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.simple.spark;
+package gaffer.operation.simple.spark.dataframe;
 
 import gaffer.operation.AbstractGetOperation;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
- * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. It allows a set of groups to
- * be specified in order. Elements of these groups will be present in the <code>DataFrame</code>.
+ * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. The fields in the {@link Row}
+ * are ordered according to the ordering of the groups in the view, with <code>Entity</code>s first,
+ * followed by <code>Edge</code>s.
  * <p>
  * Implementations of this operation should automatically convert all properties that have natural equivalents
  * as a Spark <code>DataType</code> to that <code>DataType</code>. An implementation may allow the user to
@@ -39,20 +39,14 @@ import java.util.LinkedHashSet;
 public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<Row>> {
 
     private SQLContext sqlContext;
-    private LinkedHashSet<String> groups;
+    private List<Converter> converters;
 
     public GetDataFrameOfElements() { }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
-                                  final String group) {
+                                  final List<Converter> converters) {
         this.sqlContext = sqlContext;
-        this.groups = new LinkedHashSet<>(Collections.singleton(group));
-    }
-
-    public GetDataFrameOfElements(final SQLContext sqlContext,
-                                  final LinkedHashSet<String> groups) {
-        this.sqlContext = sqlContext;
-        this.groups = new LinkedHashSet<>(groups);
+        this.converters = converters;
     }
 
     public void setSqlContext(final SQLContext sqlContext) {
@@ -63,12 +57,12 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
         return sqlContext;
     }
 
-    public void setGroups(final LinkedHashSet<String> groups) {
-        this.groups = groups;
+    public void setConverters(final List<Converter> converters) {
+        this.converters = converters;
     }
 
-    public LinkedHashSet<String> getGroups() {
-        return groups;
+    public List<Converter> getConverters() {
+        return converters;
     }
 
     public abstract static class BaseBuilder <CHILD_CLASS extends BaseBuilder<?>>
@@ -87,13 +81,8 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
             return self();
         }
 
-        public CHILD_CLASS group(final String group) {
-            op.setGroups(new LinkedHashSet<>(Collections.singleton(group)));
-            return self();
-        }
-
-        public CHILD_CLASS groups(final LinkedHashSet<String> groups) {
-            op.setGroups(groups);
+        public CHILD_CLASS converters(final List<Converter> converters) {
+            op.setConverters(converters);
             return self();
         }
     }
