@@ -86,9 +86,9 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        final boolean userProvidedSplitsFile = Boolean.parseBoolean(operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE));
+        final boolean userProvidedSplitsFile = Boolean.parseBoolean(operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE));
         if (userProvidedSplitsFile
-                && null != operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE)) {
+                && null != operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE)) {
             // Use provided splits file
             setUpPartitionerFromUserProvidedSplitsFile(job, operation);
         } else {

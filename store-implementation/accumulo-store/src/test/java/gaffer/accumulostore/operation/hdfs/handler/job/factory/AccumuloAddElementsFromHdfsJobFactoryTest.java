@@ -75,7 +75,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
-                .option(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE, "true")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE, "true")
                 .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
@@ -335,7 +335,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
                 .option(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER, partitionerFlag)
-                .option(AccumuloStoreConstants.OPERATION_HDFS_USER_PROVIDED_SPLITS_FILE, "true")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE, "true")
                 .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
