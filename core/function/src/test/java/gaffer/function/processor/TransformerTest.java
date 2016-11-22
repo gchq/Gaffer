@@ -19,10 +19,10 @@ package gaffer.function.processor;
 import gaffer.function.TransformFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.ConsumerProducerFunctionContext;
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;

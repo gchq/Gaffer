@@ -16,7 +16,6 @@
 package gaffer.example.operation.accumulo;
 
 import gaffer.accumulostore.operation.impl.GetEdgesInRanges;
-import gaffer.accumulostore.operation.impl.GetEdgesInRanges.Builder;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.data.element.Edge;
 import gaffer.example.operation.OperationExample;

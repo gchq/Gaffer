@@ -23,7 +23,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {

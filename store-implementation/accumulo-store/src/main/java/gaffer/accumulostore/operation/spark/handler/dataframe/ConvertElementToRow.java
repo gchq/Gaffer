@@ -23,7 +23,6 @@ import gaffer.operation.simple.spark.dataframe.Converter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import scala.runtime.AbstractFunction1;
-
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Map;

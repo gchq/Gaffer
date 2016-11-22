@@ -16,7 +16,6 @@
 package gaffer.operation.simple.spark.dataframe;
 
 import org.apache.spark.sql.types.DataType;
-
 import java.io.Serializable;
 
 /**

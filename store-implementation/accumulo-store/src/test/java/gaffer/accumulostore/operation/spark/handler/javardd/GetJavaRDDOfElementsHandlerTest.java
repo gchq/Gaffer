@@ -15,9 +15,6 @@
  */
 package gaffer.accumulostore.operation.spark.handler.javardd;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import gaffer.accumulostore.operation.spark.handler.scalardd.AbstractGetRDDOperationHandler;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Edge;
@@ -45,6 +42,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class GetJavaRDDOfElementsHandlerTest {
 

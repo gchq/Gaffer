@@ -16,8 +16,6 @@
 
 package gaffer.arrayliststore;
 
-import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-
 import gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
@@ -44,6 +42,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 
 /**

@@ -30,7 +30,6 @@ import gaffer.store.StoreException;
 import gaffer.user.User;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
-
 import java.util.Iterator;
 import java.util.Set;
 

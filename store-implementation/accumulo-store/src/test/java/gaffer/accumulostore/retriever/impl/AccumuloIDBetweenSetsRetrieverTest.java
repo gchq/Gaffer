@@ -16,33 +16,16 @@
 
 package gaffer.accumulostore.retriever.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import gaffer.accumulostore.AccumuloProperties;
-import gaffer.accumulostore.SingleUseMockAccumuloStore;
-import gaffer.accumulostore.utils.AccumuloTestData;
-import gaffer.commonutil.StreamUtil;
-import gaffer.store.schema.Schema;;
-import org.apache.hadoop.util.bloom.BloomFilter;
-import org.apache.hadoop.util.hash.Hash;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import gaffer.accumulostore.AccumuloStore;
+import gaffer.accumulostore.SingleUseMockAccumuloStore;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import gaffer.accumulostore.retriever.AccumuloRetriever;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
+import gaffer.accumulostore.utils.AccumuloTestData;
+import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -54,7 +37,24 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
 import gaffer.store.StoreException;
+import gaffer.store.schema.Schema;
 import gaffer.user.User;
+import org.apache.hadoop.util.bloom.BloomFilter;
+import org.apache.hadoop.util.hash.Hash;
+import org.hamcrest.core.IsCollectionContaining;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 

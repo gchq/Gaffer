@@ -16,10 +16,6 @@
 
 package gaffer.operation.impl.get;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import gaffer.commonutil.TestGroups;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
@@ -32,6 +28,10 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 
 public class GetRelatedEntitiesTest implements OperationTest {

@@ -17,6 +17,7 @@
 package gaffer.accumulostore;
 
 import gaffer.operation.Operation;
+import gaffer.store.StoreException;
 import gaffer.store.StoreProperties;
 import gaffer.store.operation.handler.OperationHandler;
 import gaffer.store.schema.Schema;
@@ -27,8 +28,6 @@ import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
-
-import gaffer.store.StoreException;
 import org.apache.hadoop.conf.Configuration;
 
 /**

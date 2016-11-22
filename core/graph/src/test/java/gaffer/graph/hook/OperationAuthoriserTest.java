@@ -16,10 +16,6 @@
 
 package gaffer.graph.hook;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.exception.UnauthorisedException;
 import gaffer.operation.OperationChain;
@@ -31,6 +27,10 @@ import gaffer.user.User;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 
 public class OperationAuthoriserTest {

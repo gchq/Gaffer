@@ -16,15 +16,6 @@
 
 package gaffer.function.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import gaffer.function.AggregateFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.PassThroughFunctionContext;
@@ -34,6 +25,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AggregatorTest {
     private AggregateFunction function1;

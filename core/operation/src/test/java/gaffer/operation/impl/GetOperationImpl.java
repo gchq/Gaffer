@@ -17,10 +17,10 @@
 package gaffer.operation.impl;
 
 import gaffer.data.element.Element;
-import gaffer.operation.data.ElementSeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.operation.AbstractGetOperation;
 import gaffer.operation.GetOperation;
+import gaffer.operation.data.ElementSeed;
 
 public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetOperationImpl() {

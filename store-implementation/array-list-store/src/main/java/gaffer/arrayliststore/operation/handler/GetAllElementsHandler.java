@@ -16,8 +16,6 @@
 
 package gaffer.arrayliststore.operation.handler;
 
-import static gaffer.operation.GetOperation.IncludeEdgeType;
-
 import gaffer.arrayliststore.ArrayListStore;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -30,6 +28,8 @@ import gaffer.store.Store;
 import gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
+
+import static gaffer.operation.GetOperation.IncludeEdgeType;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
     @Override

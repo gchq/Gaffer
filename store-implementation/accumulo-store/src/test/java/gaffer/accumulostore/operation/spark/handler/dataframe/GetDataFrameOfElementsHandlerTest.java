@@ -15,9 +15,6 @@
  */
 package gaffer.accumulostore.operation.spark.handler.dataframe;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
@@ -43,9 +40,15 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.junit.Test;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class GetDataFrameOfElementsHandlerTest {
 

@@ -17,8 +17,8 @@ package gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.operation.hdfs.mapper.SampleDataForSplitPointsMapper;
-import gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.CommonConstants;
 import gaffer.store.Store;
@@ -31,7 +31,6 @@ import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-
 import java.io.IOException;
 
 public class SampleDataForSplitPointsJobFactory {

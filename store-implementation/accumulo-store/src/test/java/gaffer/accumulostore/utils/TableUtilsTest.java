@@ -16,9 +16,6 @@
 
 package gaffer.accumulostore.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -40,6 +37,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TableUtilsTest {
     public static final String TABLE_NAME = "table1";

@@ -18,14 +18,13 @@ package gaffer.operation;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
-import gaffer.operation.data.ElementSeed;
-import gaffer.operation.data.EntitySeed;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
+import gaffer.operation.data.ElementSeed;
+import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.GetOperationImpl;
 import org.junit.Test;
-
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;

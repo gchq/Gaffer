@@ -18,7 +18,6 @@ package gaffer.operation.simple.hdfs.handler.job.initialiser;
 import gaffer.operation.simple.hdfs.operation.MapReduceOperation;
 import gaffer.store.Store;
 import org.apache.hadoop.mapreduce.Job;
-
 import java.io.IOException;
 
 /**

@@ -20,7 +20,6 @@ import gaffer.data.generator.ElementGenerator;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.MapContext;
-
 import java.util.ArrayList;
 import java.util.List;
 

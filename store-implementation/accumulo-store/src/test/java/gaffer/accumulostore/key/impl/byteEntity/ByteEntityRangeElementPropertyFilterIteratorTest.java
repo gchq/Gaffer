@@ -16,8 +16,6 @@
 
 package gaffer.accumulostore.key.impl.byteEntity;
 
-import static org.junit.Assert.assertEquals;
-
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityRangeElementPropertyFilterIterator;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -39,6 +37,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class ByteEntityRangeElementPropertyFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()

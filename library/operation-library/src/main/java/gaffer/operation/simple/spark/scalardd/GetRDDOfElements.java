@@ -19,7 +19,6 @@ import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.data.ElementSeed;
 import org.apache.spark.SparkContext;
-
 import java.util.Collections;
 
 public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {

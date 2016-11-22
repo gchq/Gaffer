@@ -20,7 +20,6 @@ import gaffer.commonutil.ByteArrayEscapeUtils;
 import org.apache.accumulo.core.data.Key;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
-
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
