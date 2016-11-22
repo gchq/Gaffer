@@ -13,40 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.operation.simple.spark;
+package gaffer.operation.simple.spark.javardd;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.operation.data.ElementSeed;
-import org.apache.spark.SparkContext;
-import java.util.Collections;
+import org.apache.spark.api.java.JavaSparkContext;
 
-public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
+public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetJavaRDD<SEED_TYPE> {
 
-    public GetRDDOfElements() {
+    public GetJavaRDDOfElements() {
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
         this(sparkContext, new WrappedCloseableIterable<>(seeds));
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
-        setSparkContext(sparkContext);
-        setInput(new WrappedCloseableIterable<>(seeds));
-    }
-
-    public GetRDDOfElements(final SparkContext sparkContext, final SEED_TYPE seed) {
-        this(sparkContext, Collections.singleton(seed));
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
+        setJavaSparkContext(sparkContext);
+        setInput(seeds);
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractGetRDD.BaseBuilder<GetRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
+            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
 
         public BaseBuilder() {
-            this(new GetRDDOfElements<SEED_TYPE>());
+            this(new GetJavaRDDOfElements<SEED_TYPE>());
         }
 
-        public BaseBuilder(final GetRDDOfElements<SEED_TYPE> op) {
+        public BaseBuilder(final GetJavaRDDOfElements<SEED_TYPE> op) {
             super(op);
         }
     }
@@ -57,12 +52,12 @@ public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGet
         public Builder() {
         }
 
-        public Builder(final GetRDDOfElements<SEED_TYPE> op) {
+        public Builder(final GetJavaRDDOfElements<SEED_TYPE> op) {
             super(op);
         }
 
         @Override
-        protected Builder<SEED_TYPE> self() {
+        protected Builder self() {
             return this;
         }
     }

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.scalardd;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
+import gaffer.accumulostore.operation.spark.handler.dataframe.ClassTagConstants;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.spark.GetRDDOfAllElements;
+import gaffer.operation.simple.spark.scalardd.GetRDDOfAllElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;
@@ -36,11 +37,10 @@ public class GetRDDOfAllElementsOperationHandler
                                     final Context context,
                                     final Store store)
             throws OperationException {
-        return doOperation(operation, context, (AccumuloStore) store);
+        return doOperation(operation, (AccumuloStore) store);
     }
 
     private RDD<Element> doOperation(final GetRDDOfAllElements operation,
-                                     final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
         final SparkContext sparkContext = operation.getSparkContext();

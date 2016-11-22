@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.javardd;
 
+import gaffer.accumulostore.operation.spark.handler.scalardd.AbstractGetRDDOperationHandler;
 import gaffer.commonutil.CommonConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -24,7 +25,7 @@ import gaffer.data.element.Entity;
 import gaffer.graph.Graph;
 import gaffer.operation.OperationException;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.simple.spark.GetJavaRDDOfAllElements;
+import gaffer.operation.simple.spark.javardd.GetJavaRDDOfAllElements;
 import gaffer.user.User;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.scalardd;
 
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Edge;
@@ -26,7 +26,7 @@ import gaffer.operation.OperationException;
 import gaffer.operation.data.EdgeSeed;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.impl.add.AddElements;
-import gaffer.operation.simple.spark.GetRDDOfElements;
+import gaffer.operation.simple.spark.scalardd.GetRDDOfElements;
 import gaffer.user.User;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;

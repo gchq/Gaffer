@@ -35,6 +35,9 @@
       "aggregateFunction": {
         "class": "gaffer.function.simple.aggregate.Sum"
       }
+    },
+    "myProperty": {
+      "serialiserClass": "gaffer.accumulostore.operation.spark.handler.dataframe.MyPropertySerialiser"
     }
   }
 }
