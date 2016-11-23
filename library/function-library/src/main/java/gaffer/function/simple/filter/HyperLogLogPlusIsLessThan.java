@@ -19,6 +19,9 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks that the input
@@ -80,5 +83,42 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final HyperLogLogPlusIsLessThan that = (HyperLogLogPlusIsLessThan) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(controlValue, that.controlValue)
+                .append(orEqualTo, that.orEqualTo)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(controlValue)
+                .append(orEqualTo)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("controlValue", controlValue)
+                .append("orEqualTo", orEqualTo)
+                .toString();
     }
 }

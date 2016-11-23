@@ -16,12 +16,6 @@
 
 package gaffer.operation.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.GroupCounts;
@@ -35,6 +29,12 @@ import gaffer.store.Store;
 import gaffer.store.operation.handler.CountGroupsHandler;
 import org.junit.Test;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class CountGroupsHandlerTest {
     private static final String GROUP1 = "GROUP1";

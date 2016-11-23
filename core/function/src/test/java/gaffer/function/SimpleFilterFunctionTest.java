@@ -16,14 +16,14 @@
 
 package gaffer.function;
 
+import gaffer.function.annotation.Inputs;
+import org.junit.Test;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
-
-import gaffer.function.annotation.Inputs;
-import org.junit.Test;
-import java.io.IOException;
 
 public class SimpleFilterFunctionTest extends FilterFunctionTest {
     @Test
@@ -109,7 +109,7 @@ public class SimpleFilterFunctionTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<? extends ConsumerFunction> getFunctionClass() {
         return ExampleSimpleFilterFunction.class;
     }
 

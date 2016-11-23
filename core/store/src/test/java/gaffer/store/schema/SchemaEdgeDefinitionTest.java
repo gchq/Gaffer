@@ -16,15 +16,6 @@
 
 package gaffer.store.schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Sets;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.IdentifierType;
@@ -38,6 +29,15 @@ import gaffer.store.schema.SchemaEdgeDefinition.Builder;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class SchemaEdgeDefinitionTest {
     @Test

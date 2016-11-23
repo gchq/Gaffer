@@ -15,10 +15,6 @@
  */
 package gaffer.integration.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -40,6 +36,10 @@ import org.junit.Test;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 public class AggregationIT extends AbstractStoreIT {
     private final String AGGREGATED_ID = "3,3";

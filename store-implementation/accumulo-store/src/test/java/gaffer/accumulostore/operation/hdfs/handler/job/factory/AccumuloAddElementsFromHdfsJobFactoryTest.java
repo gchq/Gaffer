@@ -1,18 +1,12 @@
 package gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.MockAccumuloStore;
 import gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
-import gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import gaffer.accumulostore.operation.hdfs.operation.SplitTable;
+import gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.commonutil.CommonTestConstants;
 import gaffer.commonutil.StreamUtil;
@@ -20,8 +14,8 @@ import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
 import gaffer.data.generator.OneToOneElementGenerator;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.operation.simple.hdfs.mapper.generator.TextMapperGenerator;
+import gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import gaffer.store.StoreException;
 import gaffer.store.schema.Schema;
 import gaffer.user.User;
@@ -43,6 +37,14 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Rule

@@ -18,6 +18,9 @@ package gaffer.function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gaffer.function.annotation.Outputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.lang.annotation.AnnotationFormatError;
 import java.util.Arrays;
 
@@ -29,7 +32,7 @@ import java.util.Arrays;
  * produces.
  */
 public abstract class ConsumerProducerFunction extends ConsumerFunction {
-    private Class<?>[] outputs;
+    protected Class<?>[] outputs;
 
     @Override
     public abstract ConsumerProducerFunction statelessClone();
@@ -57,5 +60,41 @@ public abstract class ConsumerProducerFunction extends ConsumerFunction {
         }
 
         outputs = annotation.value();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ConsumerProducerFunction that = (ConsumerProducerFunction) o;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(inputs, that.inputs)
+                .append(outputs, that.outputs)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(inputs)
+                .append(outputs)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("outputs", outputs)
+                .toString();
     }
 }

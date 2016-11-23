@@ -23,6 +23,9 @@ import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -198,6 +201,40 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                 edges.get(entry.getKey()).merge(entry.getValue());
             }
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) o;
+
+        return new EqualsBuilder()
+                .append(edges, that.edges)
+                .append(entities, that.entities)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(edges)
+                .append(entities)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("edges", edges)
+                .append("entities", entities)
+                .toString();
     }
 
     /**

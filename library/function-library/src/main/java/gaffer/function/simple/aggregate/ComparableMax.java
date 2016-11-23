@@ -18,6 +18,9 @@ package gaffer.function.simple.aggregate;
 import gaffer.function.SimpleAggregateFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>ComparableMax</code> is a {@link SimpleAggregateFunction} that takes in
@@ -51,5 +54,42 @@ public class ComparableMax extends SimpleAggregateFunction<Comparable> {
         final ComparableMax max = new ComparableMax();
         max.init();
         return max;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ComparableMax that = (ComparableMax) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(outputs, that.outputs)
+                .append(aggregate, that.aggregate)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(outputs)
+                .append(aggregate)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("outputs", outputs)
+                .append("aggregate", aggregate)
+                .toString();
     }
 }

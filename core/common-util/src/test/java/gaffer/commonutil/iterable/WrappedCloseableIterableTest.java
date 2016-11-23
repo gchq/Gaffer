@@ -16,13 +16,13 @@
 
 package gaffer.commonutil.iterable;
 
+import org.junit.Test;
+import java.util.Iterator;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import org.junit.Test;
-import java.util.Iterator;
 
 public class WrappedCloseableIterableTest {
 

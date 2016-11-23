@@ -17,6 +17,9 @@ package gaffer.function.simple.filter;
 
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>AgeOff</code> is a {@link SimpleFilterFunction} that ages off old data based on a provided age of time in milliseconds.
@@ -67,5 +70,39 @@ public class AgeOff extends SimpleFilterFunction<Long> {
 
     public void setAgeOffHours(final long ageOfHours) {
         setAgeOffTime(HOURS_TO_MILLISECONDS * ageOfHours);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AgeOff ageOff = (AgeOff) o;
+
+        return new EqualsBuilder()
+                .append(inputs, ageOff.inputs)
+                .append(ageOffTime, ageOff.ageOffTime)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(ageOffTime)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("ageOffTime", ageOffTime)
+                .toString();
     }
 }

@@ -19,6 +19,9 @@ import gaffer.function.TransformFunction;
 import gaffer.function.annotation.Inputs;
 import gaffer.function.annotation.Outputs;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * An <code>Concat</code> is a {@link gaffer.function.TransformFunction} that takes in
@@ -48,5 +51,42 @@ public class Concat extends TransformFunction {
         Concat concat = new Concat();
         concat.setSeparator(getSeparator());
         return concat;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Concat concat = (Concat) o;
+
+        return new EqualsBuilder()
+                .append(inputs, concat.inputs)
+                .append(outputs, concat.outputs)
+                .append(separator, concat.separator)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(outputs)
+                .append(separator)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("outputs", outputs)
+                .append("separator", separator)
+                .toString();
     }
 }

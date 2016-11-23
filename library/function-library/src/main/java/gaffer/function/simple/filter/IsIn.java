@@ -21,6 +21,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Sets;
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -77,5 +80,39 @@ public class IsIn extends SimpleFilterFunction<Object> {
     @Override
     public boolean isValid(final Object input) {
         return allowedValues.contains(input);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final IsIn isIn = (IsIn) o;
+
+        return new EqualsBuilder()
+                .append(inputs, isIn.inputs)
+                .append(allowedValues, isIn.allowedValues)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(allowedValues)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("allowedValues", allowedValues)
+                .toString();
     }
 }

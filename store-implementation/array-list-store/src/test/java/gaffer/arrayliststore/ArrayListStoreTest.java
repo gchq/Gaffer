@@ -16,9 +16,6 @@
 
 package gaffer.arrayliststore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Lists;
 import gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import gaffer.arrayliststore.data.SimpleEntityDataObject;
@@ -55,6 +52,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ArrayListStoreTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArrayListStoreTest.class);

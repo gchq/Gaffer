@@ -16,12 +16,6 @@
 
 package gaffer.data.generator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-
 import gaffer.commonutil.TestGroups;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
@@ -29,6 +23,12 @@ import gaffer.data.element.IdentifierType;
 import gaffer.operation.data.EntitySeed;
 import gaffer.operation.data.generator.EntitySeedExtractor;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class EntitySeedExtractorTest {
     @Test

@@ -16,10 +16,6 @@
 
 package gaffer.accumulostore.key.impl.classic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import gaffer.accumulostore.key.core.impl.classic.ClassicEdgeDirectedUndirectedFilterIterator;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -38,6 +34,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()

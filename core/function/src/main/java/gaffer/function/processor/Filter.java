@@ -134,6 +134,8 @@ public class Filter<R> extends Processor<R, ConsumerFunctionContext<R, FilterFun
         return true;
     }
 
+
+
     /**
      * Implementation of the Builder pattern for {@link gaffer.function.processor.Filter}.
      *

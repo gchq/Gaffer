@@ -16,9 +16,6 @@
 
 package gaffer.example.gettingstarted.analytic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
 import com.google.common.collect.Lists;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.iterable.CloseableIterable;
@@ -33,6 +30,9 @@ import gaffer.user.User;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class LoadAndQuery4Test {
     private static final String RESOURCE_PREFIX = "/example/gettingstarted/";

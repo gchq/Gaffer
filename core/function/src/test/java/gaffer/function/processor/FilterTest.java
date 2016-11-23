@@ -23,7 +23,6 @@ import gaffer.function.context.PassThroughFunctionContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
 import java.util.Collections;
 import java.util.List;
 

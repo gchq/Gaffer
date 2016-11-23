@@ -15,16 +15,16 @@
  */
 package gaffer.serialisation.implementation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SerialisationFactoryTest {
     @Test

@@ -22,7 +22,6 @@ import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 

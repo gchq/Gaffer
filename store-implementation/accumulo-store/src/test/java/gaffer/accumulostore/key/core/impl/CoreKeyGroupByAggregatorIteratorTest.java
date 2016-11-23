@@ -15,10 +15,6 @@
  */
 package gaffer.accumulostore.key.core.impl;
 
-import static gaffer.accumulostore.utils.TableUtils.createTable;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -59,6 +55,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+
+import static gaffer.accumulostore.utils.TableUtils.createTable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;

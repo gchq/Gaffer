@@ -7,7 +7,7 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SplitTableTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();

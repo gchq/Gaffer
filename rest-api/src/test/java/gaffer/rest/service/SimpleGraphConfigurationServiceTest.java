@@ -16,20 +16,6 @@
 
 package gaffer.rest.service;
 
-import static gaffer.store.StoreTrait.AGGREGATION;
-import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
-import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
-import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static gaffer.store.StoreTrait.STORE_VALIDATION;
-import static gaffer.store.StoreTrait.TRANSFORMATION;
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import gaffer.function.IsA;
 import gaffer.graph.Graph;
 import gaffer.jsonserialisation.JSONSerialiser;
@@ -46,6 +32,20 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static gaffer.store.StoreTrait.AGGREGATION;
+import static gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static gaffer.store.StoreTrait.STORE_VALIDATION;
+import static gaffer.store.StoreTrait.TRANSFORMATION;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 
 public class SimpleGraphConfigurationServiceTest {

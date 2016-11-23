@@ -17,7 +17,6 @@
 package gaffer.accumulostore.utils;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.io.Serializable;
 
 /**
