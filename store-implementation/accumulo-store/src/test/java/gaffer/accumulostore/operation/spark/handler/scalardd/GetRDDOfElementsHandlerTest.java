@@ -273,8 +273,8 @@ public class GetRDDOfElementsHandlerTest {
         GetRDDOfElements<EdgeSeed> rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
                 .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
-                .setIncludeEdges(GetOperation.IncludeEdgeType.ALL)
-                .setIncludeEntities(false)
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .includeEntities(false)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         RDD<Element> rdd = graph1.execute(rddQuery, user);
@@ -301,8 +301,8 @@ public class GetRDDOfElementsHandlerTest {
         rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
                 .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
-                .setIncludeEntities(true)
-                .setIncludeEdges(GetOperation.IncludeEdgeType.NONE)
+                .includeEntities(true)
+                .includeEdges(GetOperation.IncludeEdgeType.NONE)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
@@ -328,8 +328,8 @@ public class GetRDDOfElementsHandlerTest {
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .setIncludeEntities(false)
-                .setIncludeEdges(GetOperation.IncludeEdgeType.ALL)
+                .includeEntities(false)
+                .includeEdges(GetOperation.IncludeEdgeType.ALL)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
@@ -352,7 +352,7 @@ public class GetRDDOfElementsHandlerTest {
         seeds.add(new EdgeSeed("5", "C", false));
         rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
                 .sparkContext(sparkContext)
-                .setIncludeEntities(false)
+                .includeEntities(false)
                 .seeds(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDOperationHandler.HADOOP_CONFIGURATION_KEY, configurationString);

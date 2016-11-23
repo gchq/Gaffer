@@ -16,9 +16,8 @@
 
 package gaffer.operation.impl;
 
-import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
-import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.AbstractGetIterableOperation;
 
 /**
  * A <code>Truncate</code> operation takes in an {@link Iterable} of items
@@ -28,9 +27,9 @@ import gaffer.operation.AbstractGetOperation;
  *
  * @see Limit.Builder
  */
-public class Limit<T> extends AbstractGetOperation<T, CloseableIterable<T>> {
+public class Limit<T> extends AbstractGetIterableOperation<T, T> {
 
-    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractGetOperation.BaseBuilder<Limit<T>, T, CloseableIterable<T>, CHILD_CLASS> {
+    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractGetIterableOperation.BaseBuilder<Limit<T>, T, T, CHILD_CLASS> {
 
         public BaseBuilder() {
             super(new Limit<T>());

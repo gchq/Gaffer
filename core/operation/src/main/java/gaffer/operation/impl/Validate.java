@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
 import gaffer.data.element.Element;
+import gaffer.operation.AbstractGetIterableOperation;
 import gaffer.operation.AbstractOperation;
 import java.util.List;
 
@@ -34,7 +35,7 @@ import java.util.List;
  *
  * @see gaffer.operation.impl.Validate.Builder
  */
-public class Validate extends AbstractOperation<CloseableIterable<Element>, CloseableIterable<Element>> {
+public class Validate extends AbstractGetIterableOperation<Element, Element> {
     private boolean skipInvalidElements;
 
     /**

@@ -26,7 +26,7 @@ import gaffer.data.element.Element;
 import gaffer.data.element.function.ElementFilter;
 import gaffer.data.element.function.ElementTransformer;
 import gaffer.data.elementdefinition.view.ViewElementDefinition;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
 import gaffer.operation.GetOperation.IncludeEdgeType;
 import gaffer.store.StoreException;
 import gaffer.user.User;
@@ -38,7 +38,7 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP_TYPE extends GetOperation<?, ?>> implements CloseableIterable<Element> {
+public abstract class AccumuloRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implements CloseableIterable<Element> {
     protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;

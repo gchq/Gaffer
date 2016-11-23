@@ -19,7 +19,7 @@ package gaffer.operation.impl.get;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -60,7 +60,7 @@ public abstract class GetEdges<SEED_TYPE extends ElementSeed> extends GetElement
         setIncludeEdges(IncludeEdgeType.ALL);
     }
 
-    public GetEdges(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetEdges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 

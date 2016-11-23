@@ -19,8 +19,8 @@ package gaffer.operation.impl.get;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation;
+import gaffer.operation.AbstractGetIterableElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -33,7 +33,7 @@ import gaffer.operation.data.ElementSeed;
  * @see gaffer.operation.GetOperation
  */
 public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
+        extends AbstractGetIterableElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetElements() {
         super();
     }
@@ -58,7 +58,7 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
         super(view, seeds);
     }
 
-    public GetElements(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetElements(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 
@@ -70,7 +70,7 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
             SEED_TYPE extends ElementSeed,
             ELEMENT_TYPE extends Element,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, CloseableIterable<ELEMENT_TYPE>, CHILD_CLASS> {
+            extends AbstractGetIterableElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }

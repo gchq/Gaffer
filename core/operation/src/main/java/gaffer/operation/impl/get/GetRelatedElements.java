@@ -19,7 +19,7 @@ package gaffer.operation.impl.get;
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -65,7 +65,7 @@ public class GetRelatedElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE exte
         super(view, seeds);
     }
 
-    public GetRelatedElements(final GetOperation<SEED_TYPE, ?> operation) {
+    public GetRelatedElements(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
     }
 

@@ -18,6 +18,7 @@ package gaffer.operation.impl;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.commonutil.iterable.WrappedCloseableIterable;
+import gaffer.operation.AbstractGetIterableOperation;
 import gaffer.operation.AbstractOperation;
 
 /**
@@ -26,7 +27,7 @@ import gaffer.operation.AbstractOperation;
  *
  * @see Deduplicate.Builder
  */
-public class Deduplicate<T> extends AbstractOperation<CloseableIterable<T>, CloseableIterable<T>> {
+public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
 
     public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>
             extends AbstractOperation.BaseBuilder<Deduplicate<T>, CloseableIterable<T>, CloseableIterable<T>, CHILD_CLASS> {

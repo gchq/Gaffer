@@ -20,9 +20,11 @@ import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.commonutil.CommonConstants;
 import gaffer.data.element.Element;
+import gaffer.operation.GetElementsOperation;
 import gaffer.operation.GetOperation;
 import gaffer.operation.OperationException;
 import gaffer.operation.data.ElementSeed;
+import gaffer.operation.simple.spark.GetSparkRDDOperation;
 import gaffer.store.StoreException;
 import gaffer.store.operation.handler.OperationHandler;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -40,14 +42,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends GetOperation<?, OUTPUT>>
+public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends GetSparkRDDOperation<?, OUTPUT>>
         implements OperationHandler<OP_TYPE, OUTPUT> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 
     public void addIterators(final AccumuloStore accumuloStore,
                       final Configuration conf,
-                      final GetOperation<?, ?> operation) throws OperationException {
+                      final GetElementsOperation<?, ?> operation) throws OperationException {
         try {
             // Update configuration with instance name, table name, zookeepers, and with view
             accumuloStore.updateConfiguration(conf, operation.getView());
@@ -71,7 +73,7 @@ public abstract class AbstractGetRDDOperationHandler<OUTPUT, OP_TYPE extends Get
 
     public <ELEMENT_SEED extends ElementSeed> void addRanges(final AccumuloStore accumuloStore,
                                                       final Configuration conf,
-                                                      final GetOperation<ELEMENT_SEED, ?> operation)
+                                                      final GetSparkRDDOperation<ELEMENT_SEED, ?> operation)
             throws OperationException {
         final List<Range> ranges = new ArrayList<>();
         for (final ELEMENT_SEED entitySeed : operation.getSeeds()) {
