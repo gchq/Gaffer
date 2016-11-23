@@ -17,8 +17,6 @@
 package gaffer.operation;
 
 import gaffer.commonutil.iterable.CloseableIterable;
-import gaffer.data.element.Edge;
-import gaffer.data.element.Entity;
 
 /**
  * A <code>GetOperation</code> defines a seeded get operation to be processed on a graph.
@@ -59,23 +57,6 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
     }
 
     /**
-     * @return true if properties should definitely populated. false if properties do not have to be populated.
-     */
-    boolean isPopulateProperties();
-
-    /**
-     * @param populateProperties true if properties should definitely populated. false if properties do not have to be populated.
-     */
-    void setPopulateProperties(final boolean populateProperties);
-
-    /**
-     * @return a {@link gaffer.operation.GetOperation.SeedMatchingType} describing how the seeds should be
-     * matched to the identifiers in the graph.
-     * @see gaffer.operation.GetOperation.SeedMatchingType
-     */
-    SeedMatchingType getSeedMatching();
-
-    /**
      * @return the {@link CloseableIterable} of input seeds (SEED_TYPE) for the operation.
      */
     CloseableIterable<SEED_TYPE> getSeeds();
@@ -84,66 +65,4 @@ public interface GetOperation<SEED_TYPE, RETURN_TYPE>
      * @param seeds the {@link CloseableIterable} of input seeds (SEED_TYPE) for the operation.
      */
     void setSeeds(final CloseableIterable<SEED_TYPE> seeds);
-
-    /**
-     * @param entity the entity to validate.
-     * @return true if the entity is passes validation for the operation flags - e.g isIncludeEntities
-     */
-    boolean validateFlags(final Entity entity);
-
-    /**
-     * @param edge the edge to validate.
-     * @return true if the edge is passes validation for the operation flags - e.g getIncludeEdges
-     */
-    boolean validateFlags(final Edge edge);
-
-    /**
-     * @return true if {@link gaffer.data.element.Entity}s should be included, otherwise false.
-     */
-    boolean isIncludeEntities();
-
-    /**
-     * The result set should include {@link gaffer.data.element.Entity}s.
-     *
-     * @param includeEntities set to TRUE to return {@link gaffer.data.element.Entity}s
-     */
-    void setIncludeEntities(final boolean includeEntities);
-
-    /**
-     * @return includeIncomingOutGoing a {@link gaffer.operation.GetOperation.IncludeIncomingOutgoingType}
-     * that controls the direction of {@link gaffer.data.element.Edge}s that are
-     * filtered out in the operation.
-     * @see gaffer.operation.GetOperation.IncludeIncomingOutgoingType
-     */
-    IncludeIncomingOutgoingType getIncludeIncomingOutGoing();
-
-    /**
-     * @param includeIncomingOutGoing a {@link gaffer.operation.GetOperation.IncludeIncomingOutgoingType}
-     *                                that controls the direction of {@link gaffer.data.element.Edge}s that are
-     *                                filtered out in the operation.
-     * @see gaffer.operation.GetOperation.IncludeIncomingOutgoingType
-     */
-    void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing);
-
-    /**
-     * @param includeEdges a {@link gaffer.operation.GetOperation.IncludeEdgeType} controls which
-     *                     {@link gaffer.data.element.Edge}s are filtered out in the operation.
-     * @see gaffer.operation.GetOperation.IncludeEdgeType
-     */
-    void setIncludeEdges(final IncludeEdgeType includeEdges);
-
-    /**
-     * @return includeEdges an {@link IncludeEdgeType} that controls which {@link gaffer.data.element.Edge}s
-     * are filtered out in the operation.
-     * @see gaffer.operation.GetOperation.IncludeEdgeType
-     */
-    IncludeEdgeType getIncludeEdges();
-
-    boolean isDeduplicate();
-
-    void setDeduplicate(final boolean deduplicate);
-
-    Integer getResultLimit();
-
-    void setResultLimit(final Integer resultLimit);
 }

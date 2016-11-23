@@ -70,8 +70,8 @@ public class GetEntitiesBySeedTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetEntitiesBySeed getEntitiesBySeed = new GetEntitiesBySeed.Builder().addSeed(new EntitySeed("A"))
-
+        GetEntitiesBySeed getEntitiesBySeed = new GetEntitiesBySeed.Builder()
+                .addSeed(new EntitySeed("A"))
                 .populateProperties(true)
                 .view(new View.Builder()
                         .edge("testEdgeGroup")

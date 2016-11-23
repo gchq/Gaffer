@@ -16,11 +16,12 @@
 package gaffer.operation.simple.spark.scalardd;
 
 import gaffer.data.element.Element;
-import gaffer.operation.AbstractGetOperation;
+import gaffer.operation.AbstractGetElementsOperation;
+import gaffer.operation.simple.spark.AbstractGetSparkRDD;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 
-public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetOperation<SEED_TYPE, RDD<Element>> {
+public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, RDD<Element>> {
 
     private SparkContext sparkContext;
 
@@ -35,7 +36,7 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetOperation<SEE
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>,
                 SEED_TYPE,
                 CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<OP_TYPE, SEED_TYPE, RDD<Element>, CHILD_CLASS> {
+            extends AbstractGetElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, RDD<Element>, CHILD_CLASS> {
 
         public BaseBuilder(final OP_TYPE op) {
             super(op);
@@ -43,16 +44,6 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetOperation<SEE
 
         public CHILD_CLASS sparkContext(final SparkContext sparkContext) {
             op.setSparkContext(sparkContext);
-            return self();
-        }
-
-        public CHILD_CLASS setIncludeEdges(final IncludeEdgeType value) {
-            op.setIncludeEdges(value);
-            return self();
-        }
-
-        public CHILD_CLASS setIncludeEntities(final boolean b) {
-            op.setIncludeEntities(b);
             return self();
         }
     }

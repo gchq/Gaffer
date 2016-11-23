@@ -17,11 +17,10 @@
 package gaffer.accumulostore.operation.impl;
 
 import gaffer.accumulostore.utils.Pair;
-import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Edge;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.AbstractGetOperation;
-import gaffer.operation.GetOperation;
+import gaffer.operation.AbstractGetIterableElementsOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -45,7 +44,7 @@ public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> ext
         super(view, seeds);
     }
 
-    public GetEdgesInRanges(final GetOperation<SEED_TYPE, Edge> operation) {
+    public GetEdgesInRanges(final GetIterableElementsOperation<SEED_TYPE, Edge> operation) {
         super(operation);
     }
 
@@ -71,7 +70,7 @@ public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> ext
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractGetOperation.BaseBuilder<GetEdgesInRanges<SEED_TYPE>, SEED_TYPE, CloseableIterable<Edge>, CHILD_CLASS> {
+            extends AbstractGetIterableElementsOperation.BaseBuilder<GetEdgesInRanges<SEED_TYPE>, SEED_TYPE, Edge, CHILD_CLASS> {
 
         public BaseBuilder() {
             super(new GetEdgesInRanges());

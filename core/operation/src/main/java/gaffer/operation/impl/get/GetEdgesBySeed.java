@@ -18,7 +18,7 @@ package gaffer.operation.impl.get;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.EdgeSeed;
 
 /**
@@ -56,7 +56,7 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
         super(view, seeds);
     }
 
-    public GetEdgesBySeed(final GetOperation<EdgeSeed, ?> operation) {
+    public GetEdgesBySeed(final GetIterableElementsOperation<EdgeSeed, ?> operation) {
         super(operation);
     }
 

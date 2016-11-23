@@ -23,7 +23,7 @@ import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.GetOperationImpl;
+import gaffer.operation.impl.GetIterableOperationImpl;
 import org.junit.Test;
 import java.util.Collections;
 
@@ -34,13 +34,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 
-public class AbstractGetOperationTest implements OperationTest {
+public class AbstractGetIterableOperationTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     public void shouldCopyFieldsFromGivenOperationWhenConstructing() {
         // Given
-        final GetOperation<ElementSeed, ?> operationToCopy = mock(GetOperation.class);
+        final GetIterableOperation<ElementSeed, ?> operationToCopy = mock(GetIterableOperation.class);
         final View view = mock(View.class);
         final GetOperation.IncludeEdgeType includeEdges = GetOperation.IncludeEdgeType.ALL;
         final boolean includeEntities = true;
@@ -51,7 +51,7 @@ public class AbstractGetOperationTest implements OperationTest {
         given(operationToCopy.getInput()).willReturn(input);
 
         // When
-        final GetOperation<ElementSeed, Element> operation = new GetOperationImpl<>(operationToCopy);
+        final GetIterableOperationImpl<ElementSeed, Element> operation = new GetIterableOperationImpl<>(operationToCopy);
 
         // Then
         assertSame(view, operation.getView());
@@ -64,11 +64,11 @@ public class AbstractGetOperationTest implements OperationTest {
         // Given
         final String identifier = "identifier";
         final ElementSeed input = new EntitySeed(identifier);
-        final GetOperationImpl<ElementSeed, Element> op = new GetOperationImpl<>(Collections.singletonList(input));
+        final GetIterableOperationImpl<ElementSeed, Element> op = new GetIterableOperationImpl<>(Collections.singletonList(input));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetOperationImpl.class);
+        final GetIterableOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetIterableOperationImpl.class);
 
         // Then
         assertNotNull(deserialisedOp);
