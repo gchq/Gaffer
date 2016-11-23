@@ -17,7 +17,9 @@ gaffer.accumulostore.operation.hdfs.mapper
 gaffer.accumulostore.operation.hdfs.operation
 gaffer.accumulostore.operation.hdfs.reducer
 gaffer.accumulostore.operation.impl
-gaffer.accumulostore.operation.spark.handler
+gaffer.accumulostore.operation.spark.handler.dataframe
+gaffer.accumulostore.operation.spark.handler.javardd
+gaffer.accumulostore.operation.spark.handler.scalardd
 gaffer.accumulostore.retriever
 gaffer.accumulostore.retriever.impl
 gaffer.accumulostore.utils
@@ -80,6 +82,9 @@ gaffer.operation.simple.hdfs.mapper
 gaffer.operation.simple.hdfs.mapper.generator
 gaffer.operation.simple.hdfs.operation
 gaffer.operation.simple.spark
+gaffer.operation.simple.spark.dataframe
+gaffer.operation.simple.spark.javardd
+gaffer.operation.simple.spark.scalardd
 gaffer.rest
 gaffer.rest.application
 gaffer.rest.example
