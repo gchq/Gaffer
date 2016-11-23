@@ -172,7 +172,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param includeEntities sets the includeEntities flag on the operation.
          * @return this Builder
-         * @see GetOperation#setIncludeEntities(boolean)
+         * @see GetIterableOperation#setIncludeEntities(boolean)
          */
         public CHILD_CLASS includeEntities(final boolean includeEntities) {
             op.setIncludeEntities(includeEntities);
@@ -182,7 +182,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param includeEdgeType sets the includeEdges option on the operation.
          * @return this Builder
-         * @see GetOperation#setIncludeEdges(IncludeEdgeType)
+         * @see GetIterableOperation#setIncludeEdges(IncludeEdgeType)
          */
         public CHILD_CLASS includeEdges(final IncludeEdgeType includeEdgeType) {
             op.setIncludeEdges(includeEdgeType);
@@ -192,7 +192,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param inOutType sets the includeIncomingOutGoing option on the operation.
          * @return this Builder
-         * @see GetOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
+         * @see GetIterableOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
          */
         public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
             op.setIncludeIncomingOutGoing(inOutType);
@@ -202,7 +202,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param populateProperties set the populateProperties flag on the operation.
          * @return this Builder
-         * @see GetOperation#setPopulateProperties(boolean)
+         * @see GetIterableOperation#setPopulateProperties(boolean)
          */
         public CHILD_CLASS populateProperties(final boolean populateProperties) {
             op.setPopulateProperties(populateProperties);

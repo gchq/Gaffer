@@ -102,7 +102,7 @@ public abstract class AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>
         /**
          * @param deduplicate sets the deduplicate flag on the operation.
          * @return this Builder
-         * @see GetOperation#setDeduplicate(boolean)
+         * @see GetIterableOperation#setDeduplicate(boolean)
          */
         public CHILD_CLASS deduplicate(final boolean deduplicate) {
             op.setDeduplicate(deduplicate);

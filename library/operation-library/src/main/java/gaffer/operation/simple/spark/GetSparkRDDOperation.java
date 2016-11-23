@@ -18,6 +18,12 @@ package gaffer.operation.simple.spark;
 
 import gaffer.operation.GetElementsOperation;
 
+/**
+ * Marker interface denoting operations which generate Spark RDDs from Accumulo.
+ *
+ * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
+ * @param <RDD> the type of RDD to return
+ */
 public interface GetSparkRDDOperation<SEED_TYPE, RDD> extends GetElementsOperation<SEED_TYPE, RDD> {
     // Marker interface
 }

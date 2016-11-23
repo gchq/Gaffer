@@ -63,7 +63,7 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
     }
 
     /**
-     * Adds deduplicate operations for any {@link GetOperation}s that have the
+     * Adds deduplicate operations for any {@link GetIterableOperation}s that have the
      * deduplicate flag set.
      *
      * @param currentOp the current operation

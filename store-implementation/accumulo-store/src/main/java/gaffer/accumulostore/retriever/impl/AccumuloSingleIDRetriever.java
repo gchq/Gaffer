@@ -36,7 +36,7 @@ import java.util.Set;
 public class AccumuloSingleIDRetriever
         extends AccumuloItemRetriever<GetElementsOperation<? extends ElementSeed, ?>, ElementSeed> {
 
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetIterableElementsOperation<? extends ElementSeed, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetElementsOperation<? extends ElementSeed, ?> operation,
                                      final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
