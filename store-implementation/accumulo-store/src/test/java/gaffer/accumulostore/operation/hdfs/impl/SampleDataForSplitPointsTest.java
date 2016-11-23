@@ -6,7 +6,6 @@ import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.OperationTest;
 import org.junit.Test;
-
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;

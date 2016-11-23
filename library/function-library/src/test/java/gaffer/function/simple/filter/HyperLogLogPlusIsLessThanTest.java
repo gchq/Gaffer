@@ -15,12 +15,6 @@
  */
 package gaffer.function.simple.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import gaffer.commonutil.JsonUtil;
 import gaffer.exception.SerialisationException;
@@ -30,6 +24,12 @@ import gaffer.function.Function;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
 

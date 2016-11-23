@@ -30,6 +30,9 @@ import gaffer.function.FilterFunction;
 import gaffer.function.IsA;
 import gaffer.function.context.ConsumerFunctionContext;
 import gaffer.function.context.PassThroughFunctionContext;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -380,6 +383,52 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     private TypeDefinition getTypeDef(final String typeName) {
         return getTypesLookup().getType(typeName);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final SchemaElementDefinition that = (SchemaElementDefinition) o;
+
+        return new EqualsBuilder()
+                .append(elementDefValidator, that.elementDefValidator)
+                .append(properties, that.properties)
+                .append(identifiers, that.identifiers)
+                .append(validator, that.validator)
+                .append(typesLookup, that.typesLookup)
+                .append(groupBy, that.groupBy)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(elementDefValidator)
+                .append(properties)
+                .append(identifiers)
+                .append(validator)
+                .append(typesLookup)
+                .append(groupBy)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("elementDefValidator", elementDefValidator)
+                .append("properties", properties)
+                .append("identifiers", identifiers)
+                .append("validator", validator)
+                .append("typesLookup", typesLookup)
+                .append("groupBy", groupBy)
+                .toString();
     }
 
     protected static class Builder {

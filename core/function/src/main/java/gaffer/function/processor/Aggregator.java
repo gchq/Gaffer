@@ -20,6 +20,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gaffer.function.AggregateFunction;
 import gaffer.function.Tuple;
 import gaffer.function.context.PassThroughFunctionContext;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +36,7 @@ import java.util.List;
  */
 public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, AggregateFunction>> {
 
-    private boolean initialised = false;
+    protected boolean initialised = false;
 
     /**
      * Initialise the {@link gaffer.function.AggregateFunction}s used by this <code>Aggregator</code>.
@@ -136,6 +139,40 @@ public class Aggregator<R> extends Processor<R, PassThroughFunctionContext<R, Ag
         }
 
         return hasNonNull;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Aggregator<?> that = (Aggregator<?>) o;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(initialised, that.initialised)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(initialised)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("functions", this.functions)
+                .append("initialised", initialised)
+                .toString();
     }
 
     /**

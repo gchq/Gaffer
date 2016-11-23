@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.accumulostore.operation.spark.handler;
+package gaffer.accumulostore.operation.spark.handler.javardd;
 
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.inputformat.ElementInputFormat;
+import gaffer.accumulostore.operation.spark.handler.scalardd.AbstractGetRDDOperationHandler;
 import gaffer.data.element.Element;
 import gaffer.operation.OperationException;
-import gaffer.operation.simple.spark.GetJavaRDDOfAllElements;
+import gaffer.operation.simple.spark.javardd.GetJavaRDDOfAllElements;
 import gaffer.store.Context;
 import gaffer.store.Store;
 import org.apache.hadoop.conf.Configuration;

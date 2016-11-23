@@ -16,10 +16,9 @@
 
 package gaffer.accumulostore.utils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.hash.Hash;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Utilities for the creation of Bloom Filters

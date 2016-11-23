@@ -16,10 +16,6 @@
 
 package gaffer.accumulostore.operation.handler;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
@@ -51,6 +47,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class GetElementsBetweenSetsHandlerTest {
 
@@ -154,8 +154,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldReturnSummarisedElements(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        defaultView = new View.Builder(defaultView)
+        final View opView = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
@@ -163,6 +162,9 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
+
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, opView);
+
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
@@ -184,8 +186,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        defaultView = new View.Builder(defaultView)
+        final View opView = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
@@ -193,6 +194,9 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
+
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, opView);
+
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();

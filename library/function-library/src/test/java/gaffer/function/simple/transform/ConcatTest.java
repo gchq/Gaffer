@@ -15,18 +15,18 @@
  */
 package gaffer.function.simple.transform;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-
 import gaffer.commonutil.JsonUtil;
 import gaffer.function.Function;
 import gaffer.function.TransformFunctionTest;
 import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 import java.io.IOException;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
 public class ConcatTest extends TransformFunctionTest {
     @Test

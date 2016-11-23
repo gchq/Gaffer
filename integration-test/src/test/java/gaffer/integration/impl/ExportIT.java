@@ -15,10 +15,6 @@
  */
 package gaffer.integration.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Iterables;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -44,6 +40,10 @@ import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class ExportIT extends AbstractStoreIT {
 

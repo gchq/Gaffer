@@ -1,8 +1,5 @@
 package gaffer.integration.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
@@ -27,6 +24,9 @@ import gaffer.user.User;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StoreValidationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";

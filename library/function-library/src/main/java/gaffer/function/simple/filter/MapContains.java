@@ -17,6 +17,9 @@ package gaffer.function.simple.filter;
 
 import gaffer.function.SimpleFilterFunction;
 import gaffer.function.annotation.Inputs;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Map;
 
 /**
@@ -50,5 +53,39 @@ public class MapContains extends SimpleFilterFunction<Map> {
     @Override
     public boolean isValid(final Map input) {
         return input.containsKey(key);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final MapContains that = (MapContains) o;
+
+        return new EqualsBuilder()
+                .append(inputs, that.inputs)
+                .append(key, that.key)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(inputs)
+                .append(key)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("inputs", inputs)
+                .append("key", key)
+                .toString();
     }
 }

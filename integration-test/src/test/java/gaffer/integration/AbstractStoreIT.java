@@ -15,8 +15,6 @@
  */
 package gaffer.integration;
 
-import static org.junit.Assume.assumeTrue;
-
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.commonutil.TestTypes;
@@ -53,6 +51,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Logic/config for setting up and running store integration tests.

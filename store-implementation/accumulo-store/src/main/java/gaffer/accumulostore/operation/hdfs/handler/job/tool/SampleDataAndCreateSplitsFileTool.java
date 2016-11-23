@@ -34,7 +34,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;

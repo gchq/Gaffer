@@ -16,12 +16,6 @@
 
 package gaffer.operation;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
-
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.element.Element;
 import gaffer.exception.SerialisationException;
@@ -36,6 +30,12 @@ import gaffer.operation.impl.get.GetRelatedElements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OperationChainTest {

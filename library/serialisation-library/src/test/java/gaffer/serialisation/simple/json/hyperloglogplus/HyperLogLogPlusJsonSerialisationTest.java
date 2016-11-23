@@ -16,10 +16,6 @@
 
 package gaffer.serialisation.simple.json.hyperloglogplus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +26,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class HyperLogLogPlusJsonSerialisationTest {
     private ObjectMapper mapper;

@@ -16,11 +16,11 @@
 
 package gaffer.commonutil.iterable;
 
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 public class EmptyCloseableIterableTest {
 

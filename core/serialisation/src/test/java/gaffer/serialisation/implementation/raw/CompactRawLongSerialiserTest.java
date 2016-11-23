@@ -15,16 +15,16 @@
  */
 package gaffer.serialisation.implementation.raw;
 
- import static org.junit.Assert.assertEquals;
- import static org.junit.Assert.assertFalse;
- import static org.junit.Assert.assertTrue;
-
  import gaffer.exception.SerialisationException;
  import org.apache.commons.io.output.ByteArrayOutputStream;
  import org.junit.Test;
  import java.io.ByteArrayInputStream;
  import java.io.DataInputStream;
  import java.io.DataOutputStream;
+
+ import static org.junit.Assert.assertEquals;
+ import static org.junit.Assert.assertFalse;
+ import static org.junit.Assert.assertTrue;
 
  public class CompactRawLongSerialiserTest {
 

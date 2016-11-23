@@ -16,15 +16,6 @@
 
 package gaffer.data.element.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import gaffer.data.element.Edge;
 import gaffer.data.element.Properties;
 import gaffer.data.element.PropertiesTuple;
@@ -37,6 +28,15 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElementAggregatorTest {

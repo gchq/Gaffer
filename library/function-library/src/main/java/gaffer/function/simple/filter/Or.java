@@ -18,7 +18,6 @@ package gaffer.function.simple.filter;
 import gaffer.function.FilterFunction;
 import gaffer.function.MultiFilterFunction;
 import gaffer.function.context.ConsumerFunctionContext;
-
 import java.util.List;
 
 /**

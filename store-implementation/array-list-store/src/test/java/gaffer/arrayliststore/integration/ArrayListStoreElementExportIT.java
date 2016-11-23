@@ -15,8 +15,6 @@
  */
 package gaffer.arrayliststore.integration;
 
-import static org.junit.Assert.assertEquals;
-
 import com.google.common.collect.Lists;
 import gaffer.arrayliststore.export.ArrayListStoreExporter;
 import gaffer.arrayliststore.operation.handler.InitialiseArrayListStoreExport;
@@ -41,6 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class ArrayListStoreElementExportIT extends AbstractStoreIT {
 

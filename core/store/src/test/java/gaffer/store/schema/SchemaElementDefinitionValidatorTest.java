@@ -16,12 +16,6 @@
 
 package gaffer.store.schema;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.IdentifierType;
 import gaffer.data.element.function.ElementAggregator;
@@ -39,6 +33,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SchemaElementDefinitionValidatorTest {
     @Test

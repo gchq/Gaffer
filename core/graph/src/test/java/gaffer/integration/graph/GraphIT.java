@@ -1,17 +1,17 @@
 package gaffer.integration.graph;
 
+import gaffer.commonutil.StreamUtil;
+import gaffer.graph.Graph;
+import org.junit.Test;
+import java.io.IOException;
+import java.io.InputStream;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import gaffer.commonutil.StreamUtil;
-import gaffer.graph.Graph;
-import org.junit.Test;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class GraphIT {
     @Test

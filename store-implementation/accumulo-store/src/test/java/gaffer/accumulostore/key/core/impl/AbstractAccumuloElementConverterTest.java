@@ -16,11 +16,6 @@
 package gaffer.accumulostore.key.core.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -41,6 +36,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractAccumuloElementConverterTest {
 

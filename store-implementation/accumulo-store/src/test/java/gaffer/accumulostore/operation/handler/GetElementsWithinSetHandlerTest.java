@@ -16,10 +16,6 @@
 
 package gaffer.accumulostore.operation.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Iterables;
 import gaffer.accumulostore.AccumuloProperties;
 import gaffer.accumulostore.AccumuloStore;
@@ -56,6 +52,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class GetElementsWithinSetHandlerTest {
 

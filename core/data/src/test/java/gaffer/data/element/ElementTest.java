@@ -21,7 +21,6 @@ import gaffer.jsonserialisation.JSONSerialiser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;

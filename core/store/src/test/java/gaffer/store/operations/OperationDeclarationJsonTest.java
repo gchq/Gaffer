@@ -27,7 +27,6 @@ import gaffer.store.operationdeclaration.OperationDeclaration;
 import gaffer.store.operationdeclaration.OperationDeclarations;
 import org.apache.log4j.Logger;
 import org.junit.Test;
-
 import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;

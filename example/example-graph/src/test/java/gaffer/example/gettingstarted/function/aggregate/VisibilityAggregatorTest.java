@@ -16,10 +16,10 @@
 
 package gaffer.example.gettingstarted.function.aggregate;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import org.junit.Test;
 
 public class VisibilityAggregatorTest {
 

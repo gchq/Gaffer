@@ -16,9 +16,9 @@
 
 package gaffer.function;
 
-import static org.junit.Assert.assertNull;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertNull;
 
 public abstract class AggregateFunctionTest extends ConsumerProducerFunctionTest {
     @Test

@@ -18,7 +18,6 @@ package gaffer.store.operationdeclaration;
 
 import gaffer.data.elementdefinition.exception.SchemaException;
 import gaffer.jsonserialisation.JSONSerialiser;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

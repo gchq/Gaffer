@@ -17,8 +17,6 @@
 package gaffer.accumulostore.integration.performance;
 
 
-import static org.junit.Assert.assertTrue;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.RangeFactory;
 import gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
@@ -29,8 +27,8 @@ import gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.key.exception.RangeFactoryException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
-import gaffer.commonutil.CommonTestConstants;
 import gaffer.accumulostore.utils.Pair;
+import gaffer.commonutil.CommonTestConstants;
 import gaffer.commonutil.TestGroups;
 import gaffer.commonutil.TestTypes;
 import gaffer.data.element.Edge;
@@ -72,6 +70,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
