@@ -86,19 +86,20 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
-        if (null == splitsFilePath || splitsFilePath.equals("")) {
-            // User didn't provide a splits file
-            setUpPartitionerGenerateSplitsFile(job, operation, store);
-        } else {
+        final boolean userProvidedSplitsFile = Boolean.parseBoolean(operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE));
+        if (userProvidedSplitsFile
+                && null != operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE)) {
             // Use provided splits file
             setUpPartitionerFromUserProvidedSplitsFile(job, operation);
+        } else {
+            // User didn't provide a splits file
+            setUpPartitionerGenerateSplitsFile(job, operation, store);
         }
     }
 
     private void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
                                                     final AccumuloStore store) throws IOException {
-        final String splitsFilePath = store.getProperties().getSplitsFilePath();
+        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
         final int maxReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
         final int minReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
@@ -144,7 +145,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setUpPartitionerFromUserProvidedSplitsFile(final Job job, final AddElementsFromHdfs operation)
             throws IOException {
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE);
+        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
         if (intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS) != -1
                 || intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS) != -1) {
             LOGGER.info("Using splits file provided by user {}, ignoring options {} and {}", splitsFilePath,
