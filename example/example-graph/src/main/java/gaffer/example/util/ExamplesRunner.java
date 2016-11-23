@@ -20,16 +20,10 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This runner will run a suite of examples.
@@ -70,7 +64,7 @@ public abstract class ExamplesRunner {
                 + "See the License for the specific language governing permissions and\n"
                 + "limitations under the License.\n"
                 + "\n"
-                + "_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/gchq/Gaffer/tree/master/example/src/main/java/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
+                + "_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/gchq/Gaffer/tree/master/example/example-graph/src/main/java/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
     }
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
