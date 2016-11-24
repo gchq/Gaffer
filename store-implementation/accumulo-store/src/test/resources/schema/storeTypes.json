@@ -2,15 +2,15 @@
   "types": {
     "colQualProperty": {
       "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
+        "class": "uk.gov.gchq.gaffer.accumulostore.test.function.ExampleSum"
       },
-      "serialiserClass": "gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
     },
     "simpleProperty": {
       "aggregateFunction": {
-        "class": "gaffer.accumulostore.test.function.ExampleSum"
+        "class": "uk.gov.gchq.gaffer.accumulostore.test.function.ExampleSum"
       },
-      "serialiserClass": "gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
     }
   }
 }

@@ -5,7 +5,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
           }
         }
       ]
@@ -15,7 +15,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
           }
         }
       ]
@@ -25,7 +25,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsTrue"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsTrue"
           }
         }
       ]
@@ -35,17 +35,17 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
           }
         }
       ]
     },
     "certificate": {
-      "class": "gaffer.example.films.data.Certificate",
+      "class": "uk.gov.gchq.gaffer.example.films.data.Certificate",
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
           }
         }
       ]
@@ -55,14 +55,14 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsMoreThan",
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
             "orEqualTo": true,
             "value": 0
           }
         },
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsLessThan",
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsLessThan",
             "orEqualTo": true,
             "value": 100
           }
@@ -74,7 +74,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsMoreThan",
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
             "orEqualTo": true,
             "value": 0
           }

@@ -2,23 +2,23 @@
   "types": {
     "count.long": {
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     },
     "date.earliest": {
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.ComparableMin"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.ComparableMin"
       }
     },
     "date.latest": {
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.ComparableMax"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.ComparableMax"
       }
     },
     "visibility": {
-      "serialiserClass": "gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
       "aggregateFunction": {
-        "class": "gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator"
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator"
       }
     }
   }

@@ -1,9 +1,9 @@
 {
   "operations": [
     {
-      "class": "gaffer.operation.impl.generate.GenerateElements",
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
       "elementGenerator": {
-        "class": "gaffer.example.gettingstarted.generator.DataGenerator8",
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator8",
         "skipInvalid": false
       },
       "objects": [
@@ -25,7 +25,7 @@
       ]
     },
     {
-      "class": "gaffer.operation.impl.add.AddElements",
+      "class": "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
       "validate": true,
       "skipInvalidElements": false
     }
