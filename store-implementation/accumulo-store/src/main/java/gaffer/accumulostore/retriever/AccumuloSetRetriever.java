@@ -27,7 +27,7 @@ import gaffer.commonutil.iterable.EmptyCloseableIterator;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Element;
 import gaffer.data.element.Entity;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
 import gaffer.operation.data.EntitySeed;
 import gaffer.store.StoreException;
 import gaffer.user.User;
@@ -46,30 +46,30 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetOperation<EntitySeed, ?>> {
+public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElementsOperation<EntitySeed, ?>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
                                 final User user)
             throws StoreException {
         this(store, operation, user, false);
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
                                 final User user,
                                 final boolean readEntriesIntoMemory) throws StoreException {
         super(store, operation, user);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
                                 final User user,
                                 final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final GetOperation<EntitySeed, ?> operation,
+    public AccumuloSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
                                 final User user,
                                 final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);

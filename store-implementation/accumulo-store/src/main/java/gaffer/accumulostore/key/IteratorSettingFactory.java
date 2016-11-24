@@ -19,7 +19,7 @@ package gaffer.accumulostore.key;
 import gaffer.accumulostore.AccumuloStore;
 import gaffer.accumulostore.key.exception.IteratorSettingException;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetElementsOperation;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
 
@@ -81,7 +81,7 @@ public interface IteratorSettingFactory {
      * @param operation the operation
      * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link gaffer.data.element.Element}s based on the options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(GetOperation<?, ?> operation);
+    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetElementsOperation<?, ?> operation);
 
     /**
      * Returns an Iterator that will aggregate values in the accumulo table,
@@ -138,7 +138,7 @@ public interface IteratorSettingFactory {
      * filtering {@link gaffer.data.element.Element}s based on the
      * options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getElementPropertyRangeQueryFilter(GetOperation<?, ?> operation);
+    IteratorSetting getElementPropertyRangeQueryFilter(final GetElementsOperation<?, ?> operation);
 
     /**
      * Returns the iterator settings for a given iterator name. Allowed iterator

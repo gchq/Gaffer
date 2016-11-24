@@ -32,7 +32,6 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-
 public class GetRelatedElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 

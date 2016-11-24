@@ -23,7 +23,7 @@ import gaffer.exception.SerialisationException;
 import gaffer.jsonserialisation.JSONSerialiser;
 import gaffer.operation.data.ElementSeed;
 import gaffer.operation.data.EntitySeed;
-import gaffer.operation.impl.GetOperationImpl;
+import gaffer.operation.impl.GetElementsOperationImpl;
 import org.junit.Test;
 import java.util.Collections;
 
@@ -34,13 +34,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 
-public class AbstractGetOperationTest implements OperationTest {
+public class AbstractGetElementsOperationTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     public void shouldCopyFieldsFromGivenOperationWhenConstructing() {
         // Given
-        final GetOperation<ElementSeed, ?> operationToCopy = mock(GetOperation.class);
+        final GetIterableElementsOperation<ElementSeed, ?> operationToCopy = mock(GetIterableElementsOperation.class);
         final View view = mock(View.class);
         final GetOperation.IncludeEdgeType includeEdges = GetOperation.IncludeEdgeType.ALL;
         final boolean includeEntities = true;
@@ -48,14 +48,20 @@ public class AbstractGetOperationTest implements OperationTest {
         final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
 
         given(operationToCopy.getView()).willReturn(view);
+        given(operationToCopy.getIncludeEdges()).willReturn(includeEdges);
+        given(operationToCopy.isIncludeEntities()).willReturn(includeEntities);
+        given(operationToCopy.isPopulateProperties()).willReturn(populateProperties);
         given(operationToCopy.getInput()).willReturn(input);
 
         // When
-        final GetOperation<ElementSeed, Element> operation = new GetOperationImpl<>(operationToCopy);
+        final GetElementsOperationImpl<ElementSeed, Element> operation = new GetElementsOperationImpl<>(operationToCopy);
 
         // Then
         assertSame(view, operation.getView());
+        assertSame(includeEdges, operation.getIncludeEdges());
+        assertEquals(includeEntities, operation.isIncludeEntities());
         assertSame(input, operation.getInput());
+        assertEquals(populateProperties, operation.isPopulateProperties());
     }
 
     @Test
@@ -64,11 +70,11 @@ public class AbstractGetOperationTest implements OperationTest {
         // Given
         final String identifier = "identifier";
         final ElementSeed input = new EntitySeed(identifier);
-        final GetOperationImpl<ElementSeed, Element> op = new GetOperationImpl<>(Collections.singletonList(input));
+        final GetElementsOperationImpl<ElementSeed, Element> op = new GetElementsOperationImpl<>(Collections.singletonList(input));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetOperationImpl.class);
+        final GetElementsOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetElementsOperationImpl.class);
 
         // Then
         assertNotNull(deserialisedOp);

@@ -18,7 +18,7 @@ package gaffer.operation.impl.get;
 
 import gaffer.commonutil.iterable.CloseableIterable;
 import gaffer.data.elementdefinition.view.View;
-import gaffer.operation.GetOperation;
+import gaffer.operation.GetIterableElementsOperation;
 import gaffer.operation.data.ElementSeed;
 
 /**
@@ -79,7 +79,7 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
         super(view, seeds);
     }
 
-    public GetRelatedEntities(final GetOperation<ELEMENT_SEED, ?> operation) {
+    public GetRelatedEntities(final GetIterableElementsOperation<ELEMENT_SEED, ?> operation) {
         super(operation);
     }
 
