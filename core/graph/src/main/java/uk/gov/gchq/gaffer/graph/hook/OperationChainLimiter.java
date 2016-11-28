@@ -28,9 +28,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -72,7 +77,7 @@ public class OperationChainLimiter implements GraphHook {
      * Constructs an {@link OperationAuthoriser} with the authorisations
      * defined in the property file from the {@link Path} provided.
      *
-     * @param operationScorePropertiesFileLocation path to operation scores property file
+     * @param operationScorePropertiesFileLocation         path to operation scores property file
      * @param operationAuthorisationScoreLimitFileLocation path to authorisation scores property file
      */
     public OperationChainLimiter(final Path operationScorePropertiesFileLocation, final Path operationAuthorisationScoreLimitFileLocation) {
@@ -83,7 +88,7 @@ public class OperationChainLimiter implements GraphHook {
      * Constructs an {@link OperationAuthoriser} with the authorisations
      * defined in the property file from the {@link InputStream} provided.
      *
-     * @param operationScorePropertiesStream input stream of operation scores property file
+     * @param operationScorePropertiesStream         input stream of operation scores property file
      * @param operationAuthorisationScoreLimitStream input stream of authorisation scores property file
      */
     public OperationChainLimiter(final InputStream operationScorePropertiesStream, final InputStream operationAuthorisationScoreLimitStream) {
@@ -94,11 +99,56 @@ public class OperationChainLimiter implements GraphHook {
      * Constructs an {@link OperationAuthoriser} with the authorisations
      * defined in the provided authorisations property file.
      *
-     * @param operationScorePropertiesFile authorisation scores property file
+     * @param operationScorePropertiesFile                   authorisation scores property file
      * @param operationAuthorisationScoreLimitPropertiesFile authorisation scores property file
      */
     public OperationChainLimiter(final Properties operationScorePropertiesFile, final Properties operationAuthorisationScoreLimitPropertiesFile) {
         loadMapsFromProperties(operationScorePropertiesFile, operationAuthorisationScoreLimitPropertiesFile);
+    }
+
+    private static Properties readProperties(final Path propFileLocation) {
+        Properties props;
+        if (null != propFileLocation) {
+            try {
+                props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        } else {
+            props = new Properties();
+        }
+
+        return props;
+    }
+
+    private static Properties readProperties(final InputStream stream) {
+        final Properties props = new Properties();
+        if (null != stream) {
+            try {
+                props.load(stream);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Failed to load store properties file : " + e
+                        .getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(stream);
+            }
+        }
+        return props;
+    }
+
+    private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(final Map<K, V> map) {
+        final List<Entry<K, V>> list = new LinkedList<Entry<K, V>>(map.entrySet());
+        Collections.sort(list, new Comparator<Entry<K, V>>() {
+            public int compare(final Map.Entry<K, V> entry1, final Map.Entry<K, V> entry2) {
+                return (entry1.getValue()).compareTo(entry2.getValue());
+            }
+        });
+
+        final Map<K, V> result = new LinkedHashMap<K, V>();
+        for (final Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
     }
 
     /**
@@ -157,47 +207,20 @@ public class OperationChainLimiter implements GraphHook {
     protected Integer authorise(final Operation operation) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
-            ArrayList<Class<? extends Operation>> keys = new ArrayList<>(operationScores.keySet());
+            ArrayList<Class<? extends Operation>> keys = new ArrayList<>(operationScores
+                    .keySet());
             for (int i = keys.size() - 1; i >= 0; i--) {
                 Class<? extends Operation> key = keys.get(i);
                 if (key.isAssignableFrom(opClass)) {
                     return operationScores.get(key);
                 }
             }
-            LOGGER.warn("The operation '" + operation.getClass().getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
+            LOGGER.warn("The operation '" + operation.getClass()
+                                                     .getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
         } else {
             LOGGER.warn("A Null operation was passed to the OperationChainLimiter graph hook");
         }
         return DEFAULT_OPERATION_SCORE;
-    }
-
-    private static Properties readProperties(final Path propFileLocation) {
-        Properties props;
-        if (null != propFileLocation) {
-            try {
-                props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-        } else {
-            props = new Properties();
-        }
-
-        return props;
-    }
-
-    private static Properties readProperties(final InputStream stream) {
-        final Properties props = new Properties();
-        if (null != stream) {
-            try {
-                props.load(stream);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Failed to load store properties file : " + e.getMessage(), e);
-            } finally {
-                IOUtils.closeQuietly(stream);
-            }
-        }
-        return props;
     }
 
     private void loadMapsFromProperties(final Properties operationScorePropertiesFile, final Properties operationAuthorisationScoreLimitPropertiesFile) {
@@ -205,7 +228,8 @@ public class OperationChainLimiter implements GraphHook {
         for (final String opClassName : operationScorePropertiesFile.stringPropertyNames()) {
             final Class<? extends Operation> opClass;
             try {
-                opClass = Class.forName(opClassName).asSubclass(Operation.class);
+                opClass = Class.forName(opClassName)
+                               .asSubclass(Operation.class);
             } catch (ClassNotFoundException e) {
                 LOGGER.error("An operation class could not be found for operation score property " + opClassName);
                 throw new IllegalArgumentException(e);
@@ -213,10 +237,12 @@ public class OperationChainLimiter implements GraphHook {
             final Integer score = Integer.parseInt(operationScorePropertiesFile.getProperty(opClassName));
             opScores.put(opClass, score);
         }
-        setOpScores(opScores);
+        setOpScores(sortByValue(opScores));
         Map<String, Integer> authScores = new HashMap<>();
-        for (final String authName : operationAuthorisationScoreLimitPropertiesFile.stringPropertyNames()) {
-            final Integer score = Integer.parseInt(operationAuthorisationScoreLimitPropertiesFile.getProperty(authName));
+        for (final String authName : operationAuthorisationScoreLimitPropertiesFile
+                .stringPropertyNames()) {
+            final Integer score = Integer.parseInt(operationAuthorisationScoreLimitPropertiesFile
+                    .getProperty(authName));
             authScores.put(authName, score);
         }
         setAuthScores(authScores);
@@ -253,8 +279,8 @@ public class OperationChainLimiter implements GraphHook {
     /**
      * Add a score for a given operation class.
      *
-     * @param auth    the authorisation
-     * @param score   the score for the operation class
+     * @param auth  the authorisation
+     * @param score the score for the operation class
      */
     public void addAuthScore(final String auth, final Integer score) {
         authScores.put(auth, score);
