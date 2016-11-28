@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -51,7 +51,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class AccumuloAggregationIT {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil
+            .storeProps(AccumuloStoreITs.class));
     private static final String VERTEX = "vertex";
     private static final String PUBLIC_VISIBILITY = "publicVisibility";
     private static final String PRIVATE_VISIBILITY = "privateVisibility";
@@ -88,7 +89,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
 
         // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View())
                 .build();
@@ -146,7 +147,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
 
         // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -199,7 +200,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
 
         // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -243,7 +244,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
 
         // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -287,7 +288,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
 
         // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -383,7 +384,7 @@ public class AccumuloAggregationIT {
                 )), USER);
 
         // Given
-        final GetEntitiesBySeed getElements = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

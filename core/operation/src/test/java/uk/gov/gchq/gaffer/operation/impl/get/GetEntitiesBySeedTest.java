@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Arrays;
@@ -42,7 +44,9 @@ public class GetEntitiesBySeedTest implements OperationTest {
         final EntitySeed seed1 = new EntitySeed("identifier");
 
         // When
-        final GetEntitiesBySeed op = new GetEntitiesBySeed(Collections.singletonList(seed1));
+        final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Collections.singletonList(seed1))
+                                                                    .seedMatching(SeedMatchingType.EQUAL)
+                                                                    .build();
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
@@ -54,11 +58,13 @@ public class GetEntitiesBySeedTest implements OperationTest {
         // Given
         final EntitySeed seed1 = new EntitySeed("id1");
         final EntitySeed seed2 = new EntitySeed("id2");
-        final GetEntitiesBySeed op = new GetEntitiesBySeed(Arrays.asList(seed1, seed2));
+        final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Arrays.asList(seed1, seed2))
+                                                                    .seedMatching(SeedMatchingType.EQUAL)
+                                                                    .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetEntitiesBySeed deserialisedOp = serialiser.deserialise(json, GetEntitiesBySeed.class);
+        final GetEntities deserialisedOp = serialiser.deserialise(json, GetEntities.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -70,7 +76,7 @@ public class GetEntitiesBySeedTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetEntitiesBySeed getEntitiesBySeed = new GetEntitiesBySeed.Builder()
+        final GetEntities getEntitiesBySeed = new GetEntities.Builder<>()
                 .addSeed(new EntitySeed("A"))
                 .populateProperties(true)
                 .view(new View.Builder()

@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -43,7 +43,9 @@ public class GetElementsBySeedTest implements OperationTest {
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
 
         // When
-        final GetElementsBySeed op = new GetElementsBySeed(Collections.singletonList(elementSeed1));
+        final GetElements op = new GetElements.Builder<>().seeds(Collections.singletonList(elementSeed1))
+                                                          .seedMatching(SeedMatchingType.EQUAL)
+                                                          .build();
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
@@ -55,11 +57,11 @@ public class GetElementsBySeedTest implements OperationTest {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
-        final GetElementsBySeed op = new GetElementsBySeed(Arrays.asList(elementSeed1, elementSeed2));
+        final GetElements op = new GetElements(Arrays.asList(elementSeed1, elementSeed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetElementsBySeed deserialisedOp = serialiser.deserialise(json, GetElementsBySeed.class);
+        final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -71,7 +73,8 @@ public class GetElementsBySeedTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsBySeed<EntitySeed, Element> getElementsBySeed = new GetElementsBySeed.Builder<EntitySeed, Element>().addSeed(new EntitySeed("A"))
+        final GetElements getElementsBySeed = new GetElements.Builder<>()
+                .addSeed(new EntitySeed("A"))
                 .includeEdges(GetOperation.IncludeEdgeType.ALL)
                 .includeEntities(false)
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
@@ -84,7 +87,8 @@ public class GetElementsBySeedTest implements OperationTest {
 
         assertFalse(getElementsBySeed.isIncludeEntities());
         assertFalse(getElementsBySeed.isPopulateProperties());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsBySeed.getIncludeIncomingOutGoing());
+        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH,
+                getElementsBySeed.getIncludeIncomingOutGoing());
         assertEquals(GetOperation.IncludeEdgeType.ALL, getElementsBySeed.getIncludeEdges());
         assertEquals("true", getElementsBySeed.getOption("testOption"));
         assertNotNull(getElementsBySeed.getView());

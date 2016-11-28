@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +43,7 @@ public class GetRelatedEntitiesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetRelatedEntities<EdgeSeed> op = new GetRelatedEntities<>(Collections.singletonList(seed1));
+        final GetEntities op = new GetEntities(Collections.singletonList(seed1));
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
@@ -54,11 +55,11 @@ public class GetRelatedEntitiesTest implements OperationTest {
         // Given
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", false);
-        final GetRelatedEntities<EdgeSeed> op = new GetRelatedEntities<>(Arrays.asList(seed1, seed2));
+        final GetEntities op = new GetEntities(Arrays.asList(seed1, seed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetRelatedEntities deserialisedOp = serialiser.deserialise(json, GetRelatedEntities.class);
+        final GetEntities deserialisedOp = serialiser.deserialise(json, GetEntities.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -74,7 +75,7 @@ public class GetRelatedEntitiesTest implements OperationTest {
         final EntitySeed seed = new EntitySeed("A");
 
         // When
-        final GetRelatedEntities<EntitySeed> getRelatedElements = new GetRelatedEntities.Builder<EntitySeed>()
+        final GetEntities getRelatedElements = new GetEntities.Builder<>()
                 .addSeed(seed)
                 .option("testOption", "true")
                 .populateProperties(false)

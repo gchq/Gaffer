@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 public class GetRelatedElementsExample extends OperationExample {
     public static void main(final String[] args) {
@@ -31,7 +31,7 @@ public class GetRelatedElementsExample extends OperationExample {
     }
 
     public GetRelatedElementsExample() {
-        super(GetRelatedElements.class);
+        super(GetElements.class);
     }
 
     public void runExamples() {
@@ -42,7 +42,7 @@ public class GetRelatedElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
         // ---------------------------------------------------------
-        final GetRelatedElements<EntitySeed, Element> operation = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> operation = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
@@ -52,7 +52,7 @@ public class GetRelatedElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2() {
         // ---------------------------------------------------------
-        final GetRelatedElements<EdgeSeed, Element> operation = new GetRelatedElements.Builder<EdgeSeed, Element>()
+        final GetElements<EdgeSeed, Element> operation = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .build();
         // ---------------------------------------------------------
@@ -62,7 +62,7 @@ public class GetRelatedElementsExample extends OperationExample {
 
     public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetRelatedElements<EdgeSeed, Element> operation = new GetRelatedElements.Builder<EdgeSeed, Element>()
+        final GetElements<EdgeSeed, Element> operation = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()

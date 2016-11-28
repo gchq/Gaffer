@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
 
         // [get simple] Get all the edges related to vertex 1
         // ---------------------------------------------------------
-        final GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> getRelatedEdges = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
@@ -99,7 +99,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final View view = new View.Builder()
                 .edge("red")
                 .build();
-        final GetRelatedEdges<EntitySeed> getRelatedRedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> getRelatedRedEdges = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .view(view)
                 .build();

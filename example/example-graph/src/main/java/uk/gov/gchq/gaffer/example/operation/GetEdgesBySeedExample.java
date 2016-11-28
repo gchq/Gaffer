@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 
 public class GetEdgesBySeedExample extends OperationExample {
     public static void main(final String[] args) {
@@ -30,7 +30,7 @@ public class GetEdgesBySeedExample extends OperationExample {
     }
 
     public GetEdgesBySeedExample() {
-        super(GetEdgesBySeed.class);
+        super(GetEdges.class);
     }
 
     public void runExamples() {
@@ -40,7 +40,7 @@ public class GetEdgesBySeedExample extends OperationExample {
 
     public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3() {
         // ---------------------------------------------------------
-        final GetEdgesBySeed operation = new GetEdgesBySeed.Builder()
+        final GetEdges<EdgeSeed> operation = new GetEdges.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .build();
@@ -51,7 +51,7 @@ public class GetEdgesBySeedExample extends OperationExample {
 
     public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2() {
         // ---------------------------------------------------------
-        final GetEdgesBySeed operation = new GetEdgesBySeed.Builder()
+        final GetEdges<EdgeSeed> operation = new GetEdges.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()

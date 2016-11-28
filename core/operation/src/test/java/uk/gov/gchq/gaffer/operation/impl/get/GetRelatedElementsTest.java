@@ -41,7 +41,7 @@ public class GetRelatedElementsTest implements OperationTest {
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
 
         // When
-        final GetRelatedElements op = new GetRelatedElements(Arrays.asList(elementSeed1, elementSeed2));
+        final GetElements op = new GetElements(Arrays.asList(elementSeed1, elementSeed2));
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
@@ -53,11 +53,11 @@ public class GetRelatedElementsTest implements OperationTest {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
-        final GetRelatedElements op = new GetRelatedElements(Arrays.asList(elementSeed1, elementSeed2));
+        final GetElements op = new GetElements(Arrays.asList(elementSeed1, elementSeed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetRelatedElements deserialisedOp = serialiser.deserialise(json, GetRelatedElements.class);
+        final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -70,7 +70,7 @@ public class GetRelatedElementsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         ElementSeed seed = new EntitySeed("A");
-        GetRelatedElements getRelatedElements = new GetRelatedElements.Builder<>()
+        GetElements getRelatedElements = new GetElements.Builder<>()
                 .addSeed(seed)
                 .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
                 .includeEntities(false)

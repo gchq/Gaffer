@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 
 
 public class GetRelatedEdgesExample extends OperationExample {
@@ -32,7 +32,7 @@ public class GetRelatedEdgesExample extends OperationExample {
     }
 
     public GetRelatedEdgesExample() {
-        super(GetRelatedEdges.class);
+        super(GetEdges.class);
     }
 
     public void runExamples() {
@@ -43,7 +43,7 @@ public class GetRelatedEdgesExample extends OperationExample {
 
     public CloseableIterable<Edge> getAllEdgesThatAreConnectedToVertex2() {
         // ---------------------------------------------------------
-        final GetRelatedEdges<EntitySeed> operation = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> operation = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
@@ -53,7 +53,7 @@ public class GetRelatedEdgesExample extends OperationExample {
 
     public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2() {
         // ---------------------------------------------------------
-        final GetRelatedEdges<EntitySeed> operation = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> operation = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
@@ -64,7 +64,7 @@ public class GetRelatedEdgesExample extends OperationExample {
 
     public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetRelatedEdges<EntitySeed> operation = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> operation = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()

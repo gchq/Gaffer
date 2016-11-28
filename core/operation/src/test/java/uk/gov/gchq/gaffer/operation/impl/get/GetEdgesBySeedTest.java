@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import java.util.Arrays;
@@ -41,7 +42,9 @@ public class GetEdgesBySeedTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetEdgesBySeed op = new GetEdgesBySeed(Collections.singletonList(seed1));
+        final GetEdges op = new GetEdges.Builder<EdgeSeed>().seeds(Collections.singletonList(seed1))
+                                                            .seedMatching(SeedMatchingType.EQUAL)
+                                                            .build();
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
@@ -53,11 +56,11 @@ public class GetEdgesBySeedTest implements OperationTest {
         // Given
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", true);
-        final GetEdgesBySeed op = new GetEdgesBySeed(Arrays.asList(seed1, seed2));
+        final GetEdges op = new GetEdges(Arrays.asList(seed1, seed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetEdgesBySeed deserialisedOp = serialiser.deserialise(json, GetEdgesBySeed.class);
+        final GetEdges deserialisedOp = serialiser.deserialise(json, GetEdges.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -70,13 +73,12 @@ public class GetEdgesBySeedTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         EdgeSeed seed = new EdgeSeed("A", "B", true);
-        GetEdgesBySeed getEdgesBySeed = new GetEdgesBySeed.Builder()
+        GetEdges getEdgesBySeed = new GetEdges.Builder<>()
                 .addSeed(seed)
                 .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
                 .option("testOption", "true")
                 .populateProperties(true)
-
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())

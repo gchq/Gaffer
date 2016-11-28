@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 
 public class GetEntitiesBySeedExample extends OperationExample {
     public static void main(final String[] args) {
@@ -30,7 +30,7 @@ public class GetEntitiesBySeedExample extends OperationExample {
     }
 
     public GetEntitiesBySeedExample() {
-        super(GetEntitiesBySeed.class);
+        super(GetEntities.class);
     }
 
     public void runExamples() {
@@ -40,7 +40,7 @@ public class GetEntitiesBySeedExample extends OperationExample {
 
     public CloseableIterable<Entity> getEntitiesByEntitySeed1And2() {
         // ---------------------------------------------------------
-        final GetEntitiesBySeed operation = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> operation = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .build();
@@ -51,7 +51,7 @@ public class GetEntitiesBySeedExample extends OperationExample {
 
     public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetEntitiesBySeed operation = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> operation = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .view(new View.Builder()

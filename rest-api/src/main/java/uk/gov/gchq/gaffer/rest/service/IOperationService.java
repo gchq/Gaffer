@@ -22,22 +22,19 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -73,37 +70,37 @@ public interface IOperationService {
     @Path("/get/elements/bySeed")
     @ApiOperation(value = "Gets elements by seed from the graph",
             response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation);
+    CloseableIterable<Element> getElementsBySeed(final GetElements<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/elements/related")
-    @ApiOperation(value = "Gets related elements from the graph", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
+    @Deprecated
+    CloseableIterable<Element> getRelatedElements(final GetElements<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/entities/bySeed")
     @ApiOperation(value = "Gets entities by seed from the graph", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
+    CloseableIterable<Entity> getEntitiesBySeed(final GetEntities<ElementSeed> operation);
 
     @POST
     @Path("/get/entities/related")
-    @ApiOperation(value = "Gets related entities from the graph", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation);
+    @Deprecated
+    CloseableIterable<Entity> getRelatedEntities(final GetEntities<ElementSeed> operation);
 
     @POST
     @Path("/get/edges/bySeed")
     @ApiOperation(value = "Gets edge by seed from the graph", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
+    CloseableIterable<Edge> getEdgesBySeed(final GetEdges<ElementSeed> operation);
 
     @POST
     @Path("/get/edges/related")
-    @ApiOperation(value = "Gets related edges from the graph", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation);
+    @Deprecated
+    CloseableIterable<Edge> getRelatedEdges(final GetEdges<ElementSeed> operation);
 
     @POST
     @Path("/get/entitySeeds/adjacent")
-    @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
-    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
+    @Deprecated
+    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetIterableElementsOperation<ElementSeed, EntitySeed> operation);
 
     @POST
     @Path("/get/elements/all")

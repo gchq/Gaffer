@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -123,7 +123,7 @@ public class LoadAndQuery {
                                 .build())
                         .addSeed(new EntitySeed("user02"))
                         .build())
-                .then(new GetEntitiesBySeed.Builder()
+                .then(new GetEntities.Builder()
                         .view(new View.Builder()
                                 .entity(Group.REVIEW, new ViewElementDefinition.Builder()
                                         .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)

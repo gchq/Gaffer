@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -42,7 +42,7 @@ public class GetRelatedEdgesTest implements OperationTest {
         final EntitySeed seed1 = new EntitySeed("identifier1");
 
         // When
-        final GetRelatedEdges<EntitySeed> op = new GetRelatedEdges<>(Collections.singletonList(seed1));
+        final GetEdges op = new GetEdges(Collections.singletonList(seed1));
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
@@ -54,11 +54,11 @@ public class GetRelatedEdgesTest implements OperationTest {
         // Given
         final EntitySeed seed1 = new EntitySeed("identifier1");
         final EntitySeed seed2 = new EntitySeed("identifier2");
-        final GetRelatedEdges<EntitySeed> op = new GetRelatedEdges<>(Arrays.asList(seed1, seed2));
+        final GetEdges op = new GetEdges(Arrays.asList(seed1, seed2));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetRelatedEdges deserialisedOp = serialiser.deserialise(json, GetRelatedEdges.class);
+        final GetEdges deserialisedOp = serialiser.deserialise(json, GetEdges.class);
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
@@ -70,7 +70,7 @@ public class GetRelatedEdgesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetRelatedEdges<EntitySeed> getRelatedEdges = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges getRelatedEdges = new GetEdges.Builder<>()
                 .addSeed(new EntitySeed("A"))
                 .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
                 .option("testOption", "true")

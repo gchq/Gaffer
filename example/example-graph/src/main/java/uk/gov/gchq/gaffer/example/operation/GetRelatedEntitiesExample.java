@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 
 public class GetRelatedEntitiesExample extends OperationExample {
     public static void main(final String[] args) {
@@ -29,7 +29,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
     }
 
     public GetRelatedEntitiesExample() {
-        super(GetRelatedEntities.class);
+        super(GetEntities.class);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
 
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2() {
         // ---------------------------------------------------------
-        final GetRelatedEntities<EdgeSeed> operation = new GetRelatedEntities.Builder<EdgeSeed>()
+        final GetEntities<EdgeSeed> operation = new GetEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .build();
         // ---------------------------------------------------------
@@ -50,7 +50,7 @@ public class GetRelatedEntitiesExample extends OperationExample {
 
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetRelatedEntities<EdgeSeed> operation = new GetRelatedEntities.Builder<EdgeSeed>()
+        final GetEntities<EdgeSeed> operation = new GetEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()

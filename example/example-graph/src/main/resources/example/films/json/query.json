@@ -15,7 +15,7 @@
       ]
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntities",
       "view": {
         "entities": {
           "review": {

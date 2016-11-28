@@ -208,6 +208,12 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
             op.setPopulateProperties(populateProperties);
             return self();
         }
+
+        public CHILD_CLASS seedMatching(final SeedMatchingType seedMatching) {
+            op.setSeedMatching(seedMatching);
+            return self();
+        }
+
     }
 
     public static final class Builder<OP_TYPE extends AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>

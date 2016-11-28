@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -31,16 +32,12 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -89,37 +86,37 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation) {
+    public CloseableIterable<Element> getElementsBySeed(final GetElements<ElementSeed, Element> operation) {
         return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
+    public CloseableIterable<Element> getRelatedElements(final GetElements<ElementSeed, Element> operation) {
         return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
+    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntities<ElementSeed> operation) {
         return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation) {
+    public CloseableIterable<Entity> getRelatedEntities(final GetEntities<ElementSeed> operation) {
         return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
+    public CloseableIterable<Edge> getEdgesBySeed(final GetEdges<ElementSeed> operation) {
         return execute(operation);
     }
 
     @Override
-    public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation) {
+    public CloseableIterable<Edge> getRelatedEdges(final GetEdges<ElementSeed> operation) {
         return execute(operation);
     }
 
     @Override
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
+    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetIterableElementsOperation<ElementSeed, EntitySeed> operation) {
         return execute(operation);
     }
 

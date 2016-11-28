@@ -24,15 +24,15 @@ import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 public class GetElementsBySeedExample extends OperationExample {
-    public static void main(final String[] args) {
-        new GetElementsBySeedExample().run();
+    public GetElementsBySeedExample() {
+        super(GetElements.class);
     }
 
-    public GetElementsBySeedExample() {
-        super(GetElementsBySeed.class);
+    public static void main(final String[] args) {
+        new GetElementsBySeedExample().run();
     }
 
     public void runExamples() {
@@ -42,7 +42,7 @@ public class GetElementsBySeedExample extends OperationExample {
 
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
         // ---------------------------------------------------------
-        final GetElementsBySeed<ElementSeed, Element> operation = new GetElementsBySeed.Builder<>()
+        final GetElements<ElementSeed, Element> operation = new GetElements.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .build();
@@ -53,7 +53,7 @@ public class GetElementsBySeedExample extends OperationExample {
 
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetElementsBySeed<ElementSeed, Element> operation = new GetElementsBySeed.Builder<>()
+        final GetElements<ElementSeed, Element> operation = new GetElements.Builder<>()
                 .addSeed(new EntitySeed(2))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
