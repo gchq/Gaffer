@@ -40,7 +40,7 @@ public abstract class FilterFunctionExample extends Example {
 
     private void _runExample(final FilterFunction filterFunction, final Object[][] inputs) {
         log("#### " + getMethodNameAsSentence(2) + "\n");
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
         printAsJson(filterFunction);
 
         log("Input type:");

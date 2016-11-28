@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.List;
 
 public abstract class OperationExample extends Example {
@@ -52,7 +53,7 @@ public abstract class OperationExample extends Example {
     protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
         printOperationClass(operation);
 
@@ -78,7 +79,7 @@ public abstract class OperationExample extends Example {
     protected <RESULT_TYPE> RESULT_TYPE runExample(final OperationChain<RESULT_TYPE> operationChain) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operationChain);
 
         final RESULT_TYPE result;

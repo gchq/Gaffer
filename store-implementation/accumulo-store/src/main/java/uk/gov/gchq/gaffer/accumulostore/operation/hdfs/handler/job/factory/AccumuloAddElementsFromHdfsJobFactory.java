@@ -86,9 +86,23 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
 
     private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        final boolean userProvidedSplitsFile = Boolean.parseBoolean(operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE));
-        if (userProvidedSplitsFile
-                && null != operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE)) {
+
+        boolean userSplitsFile = false;
+        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
+
+        final String userSplitsFileStr = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE);
+
+        if (userSplitsFileStr != null) {
+            userSplitsFile = Boolean.parseBoolean(userSplitsFileStr);
+        }
+
+        if (splitsFilePath == null) {
+            // Provide a default path if the splits file path is missing
+            operation.addOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "");
+            LOGGER.warn("HDFS splits file path not set - using the current directory as the default path.");
+        }
+
+        if (userSplitsFile) {
             // Use provided splits file
             setUpPartitionerFromUserProvidedSplitsFile(job, operation);
         } else {
