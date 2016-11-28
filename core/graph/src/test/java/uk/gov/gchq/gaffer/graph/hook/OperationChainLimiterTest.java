@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.user.User;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+@Ignore
 public class OperationChainLimiterTest {
 
     private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = new OperationChainLimiter(StreamUtil.opScores(OperationChainLimiterTest.class), StreamUtil.authScores(OperationChainLimiterTest.class));
