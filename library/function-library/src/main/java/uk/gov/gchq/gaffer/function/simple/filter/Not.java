@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.function.FilterFunction;
  * An <code>Not</code> is a {@link FilterFunction} that wraps a {@link FilterFunction},
  * and inverts the result from the wrapped function.
  *
- * @see gaffer.function.simple.aggregate.NumericAggregateFunction
+ * @see uk.gov.gchq.gaffer.function.simple.aggregate.NumericAggregateFunction
  */
 public class Not extends FilterFunction {
     private FilterFunction function;

@@ -33,7 +33,7 @@ import java.util.List;
  * The Graph will automatically add this operation prior to all {@link uk.gov.gchq.gaffer.operation.Validatable} operations when
  * executing.
  *
- * @see gaffer.operation.impl.Validate.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.Validate.Builder
  */
 public class Validate extends AbstractGetIterableOperation<Element, Element> {
     private boolean skipInvalidElements;
@@ -123,7 +123,7 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
         /**
          * @param elements the input {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be set on the operation.
          * @return this Builder
-         * @see gaffer.operation.impl.Validate#setElements(Iterable)
+         * @see uk.gov.gchq.gaffer.operation.impl.Validate#setElements(Iterable)
          */
         public CHILD_CLASS elements(final Iterable<Element> elements) {
             op.setElements(elements);
@@ -132,7 +132,7 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
         /**
          * @param elements the input {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be set on the operation.
          * @return this Builder
-         * @see gaffer.operation.impl.Validate#setElements(CloseableIterable)
+         * @see uk.gov.gchq.gaffer.operation.impl.Validate#setElements(CloseableIterable)
          */
         public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);
@@ -142,7 +142,7 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
         /**
          * @param skipInvalidElements the skipInvalidElements flag to be set on the operation.
          * @return this Builder
-         * @see gaffer.operation.impl.Validate#setSkipInvalidElements(boolean)
+         * @see uk.gov.gchq.gaffer.operation.impl.Validate#setSkipInvalidElements(boolean)
          */
         public CHILD_CLASS skipInvalidElements(final boolean skipInvalidElements) {
             op.setSkipInvalidElements(skipInvalidElements);

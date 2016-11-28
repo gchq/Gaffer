@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.function.processor.Transformer;
  * <p>
  * Use {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder} to build an ElementTransformer.
  *
- * @see gaffer.data.element.function.ElementTransformer.Builder
- * @see gaffer.function.processor.Transformer
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder
+ * @see uk.gov.gchq.gaffer.function.processor.Transformer
  */
 public class ElementTransformer extends Transformer<String> {
     private final ElementTuple elementTuple = new ElementTuple();

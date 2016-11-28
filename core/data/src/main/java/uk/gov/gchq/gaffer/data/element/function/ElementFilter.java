@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.function.processor.Filter;
  * <p>
  * Use {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator.Builder} to build an ElementFilter.
  *
- * @see gaffer.data.element.function.ElementFilter.Builder
- * @see gaffer.function.processor.Filter
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter.Builder
+ * @see uk.gov.gchq.gaffer.function.processor.Filter
  */
 public class ElementFilter extends Filter<String> {
     private final ElementTuple elementTuple = new ElementTuple();

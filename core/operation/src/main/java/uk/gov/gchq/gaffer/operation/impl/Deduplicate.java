@@ -39,7 +39,7 @@ public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
         /**
          * @param input the input to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setInput(Object)
+         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS input(final Iterable<T> input) {
             return super.input(new WrappedCloseableIterable<T>(input));
@@ -48,7 +48,7 @@ public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
         /**
          * @param input the input to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setInput(Object)
+         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS input(final CloseableIterable<T> input) {
             return super.input(input);

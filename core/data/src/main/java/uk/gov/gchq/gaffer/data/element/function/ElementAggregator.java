@@ -42,8 +42,8 @@ import uk.gov.gchq.gaffer.function.processor.Aggregator;
  * <li>create a new element then call state(newElement) to populate the new element with the aggregated properties</li>
  * </ul>
  *
- * @see gaffer.data.element.function.ElementAggregator.Builder
- * @see gaffer.function.processor.Aggregator
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementAggregator.Builder
+ * @see uk.gov.gchq.gaffer.function.processor.Aggregator
  */
 public class ElementAggregator extends Aggregator<String> {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();

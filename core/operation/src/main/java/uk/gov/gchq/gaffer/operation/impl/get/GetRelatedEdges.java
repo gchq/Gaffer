@@ -34,8 +34,8 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * <p>
  * However adjusting the includeEdge property and the incomingOutgoing property allows Edges to be filtered out.
  *
- * @see gaffer.operation.impl.get.GetRelatedEdges.Builder
- * @see gaffer.operation.impl.get.GetEdges
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetEdges
  */
 public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<ELEMENT_SEED> {
     public GetRelatedEdges() {

@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
  * Standard filtering will still occur before the final aggregation of the vertices.
  *
- * @see gaffer.operation.GetOperation
+ * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
 public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element> extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE> {
 

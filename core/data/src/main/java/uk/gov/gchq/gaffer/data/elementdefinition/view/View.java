@@ -37,9 +37,9 @@ import java.util.LinkedHashSet;
  * It also contains any transient properties that are created in transform functions.
  *
  * @see Builder
- * @see gaffer.data.elementdefinition.view.ViewElementDefinition
- * @see gaffer.data.element.function.ElementFilter
- * @see gaffer.data.element.function.ElementTransformer
+ * @see uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
     public View() {

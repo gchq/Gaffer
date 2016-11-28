@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * @param <SEED_TYPE>    the seed seed type
  * @param <ELEMENT_TYPE> the element return type
  * @see GetElementsBySeed.Builder
- * @see gaffer.operation.impl.get.GetElements
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class GetElementsBySeed<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends GetElements<SEED_TYPE, ELEMENT_TYPE> {

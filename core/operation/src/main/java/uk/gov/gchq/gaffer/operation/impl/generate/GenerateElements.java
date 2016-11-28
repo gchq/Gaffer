@@ -32,7 +32,7 @@ import java.util.List;
  * {@link uk.gov.gchq.gaffer.data.element.Element}s from an {@link CloseableIterable} of objects.
  *
  * @param <OBJ> the type of objects in the input iterable.
- * @see gaffer.operation.impl.generate.GenerateElements.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements.Builder
  */
 public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<OBJ>, CloseableIterable<Element>> {
     private ElementGenerator<OBJ> elementGenerator;
@@ -139,7 +139,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
         /**
          * @param objects the {@link java.lang.Iterable} of objects to set as the input to the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setInput(Object)
+         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS objects(final Iterable<OBJ> objects) {
             op.setInput(new WrappedCloseableIterable(objects));
@@ -149,7 +149,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
         /**
          * @param objects the {@link CloseableIterable} of objects to set as the input to the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setInput(Object)
+         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS objects(final CloseableIterable<OBJ> objects) {
             op.setInput(objects);
@@ -159,7 +159,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
         /**
          * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
          * @return this Builder
-         * @see gaffer.operation.impl.generate.GenerateElements#setElementGenerator(uk.gov.gchq.gaffer.data.generator.ElementGenerator)
+         * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements#setElementGenerator(uk.gov.gchq.gaffer.data.generator.ElementGenerator)
          */
         public CHILD_CLASS generator(final ElementGenerator<OBJ> generator) {
             op.setElementGenerator(generator);

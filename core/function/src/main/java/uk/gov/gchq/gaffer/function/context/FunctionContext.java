@@ -25,7 +25,7 @@ import java.io.Serializable;
  * the function so that it can be executed in the context of that application.
  *
  * @param <F> The type of {@link uk.gov.gchq.gaffer.function.Function} wrapped by the context.
- * @see gaffer.function.processor.Processor for details of how FunctionContext is used.
+ * @see uk.gov.gchq.gaffer.function.processor.Processor for details of how FunctionContext is used.
  */
 public abstract class FunctionContext<F extends Function> implements Serializable {
     private static final long serialVersionUID = -3469570249850928140L;

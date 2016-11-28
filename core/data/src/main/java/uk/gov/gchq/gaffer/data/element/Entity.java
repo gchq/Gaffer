@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Entities are designed so that multiple entities can share the same vertex but are distinguished via their
  * group.
  *
- * @see gaffer.data.element.Entity.Builder
+ * @see uk.gov.gchq.gaffer.data.element.Entity.Builder
  */
 public class Entity extends Element {
     private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);

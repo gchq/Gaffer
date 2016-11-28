@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * See implementations of {@link GetEdges} for further details.
  *
  * @param <SEED_TYPE> the seed seed type
- * @see gaffer.operation.impl.get.GetElements
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public abstract class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Edge> {
     public GetEdges() {

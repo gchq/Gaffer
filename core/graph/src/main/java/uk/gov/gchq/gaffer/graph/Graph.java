@@ -50,7 +50,7 @@ import java.util.Set;
  * <p>
  * When executing operations on a graph, an operation view would override the graph view.
  *
- * @see gaffer.graph.Graph.Builder
+ * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
     /**

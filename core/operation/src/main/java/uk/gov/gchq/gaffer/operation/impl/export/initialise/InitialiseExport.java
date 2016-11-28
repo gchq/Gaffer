@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.util.ExportUtil;
  * {@link uk.gov.gchq.gaffer.operation.OperationChain} to be added to an export, keyed on
  * an optional key. If a key is not provided the default key is 'ALL'.
  *
- * @see gaffer.operation.impl.export.UpdateExport
- * @see gaffer.operation.impl.export.FetchExport
- * @see gaffer.operation.impl.export.FetchExporter
- * @see gaffer.operation.impl.export.FetchExporters
+ * @see uk.gov.gchq.gaffer.operation.impl.export.UpdateExport
+ * @see uk.gov.gchq.gaffer.operation.impl.export.FetchExport
+ * @see uk.gov.gchq.gaffer.operation.impl.export.FetchExporter
+ * @see uk.gov.gchq.gaffer.operation.impl.export.FetchExporters
  */
 public abstract class InitialiseExport extends AbstractOperation<Object, Object> {
     private final Exporter exporter;

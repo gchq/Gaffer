@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
  * otherwise it will be automatically set for you using the class of the first number passed in.
  *
- * @see gaffer.function.simple.aggregate.NumericAggregateFunction
+ * @see uk.gov.gchq.gaffer.function.simple.aggregate.NumericAggregateFunction
  */
 public abstract class NumericAggregateFunction extends SimpleAggregateFunction<Number> {
 

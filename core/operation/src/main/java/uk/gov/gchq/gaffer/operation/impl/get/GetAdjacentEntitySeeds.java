@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
  * Seed matching is always RELATED.
  *
- * @see gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
- * @see gaffer.operation.GetOperation
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
+ * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
 public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
     public GetAdjacentEntitySeeds() {

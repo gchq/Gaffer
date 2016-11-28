@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @param <OUT> the output type of the <code>OperationChain</code>. This should match the output type of the last
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
- * @see gaffer.operation.OperationChain.Builder
+ * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
 public class OperationChain<OUT> {
     private List<Operation> operations;

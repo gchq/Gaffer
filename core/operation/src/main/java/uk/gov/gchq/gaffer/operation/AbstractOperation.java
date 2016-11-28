@@ -175,7 +175,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         /**
          * @param input the input to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setInput(Object)
+         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS input(final INPUT input) {
             op.setInput(input);
@@ -185,7 +185,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         /**
          * @param view the view to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Operation#setView(View)
+         * @see uk.gov.gchq.gaffer.operation.Operation#setView(View)
          */
         public CHILD_CLASS view(final View view) {
             op.setView(view);
@@ -196,7 +196,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
          * @param name  the name of the option to add
          * @param value the value of the option to add
          * @return this Builder
-         * @see gaffer.operation.Operation#addOption(String, String)
+         * @see uk.gov.gchq.gaffer.operation.Operation#addOption(String, String)
          */
         public CHILD_CLASS option(final String name, final String value) {
             op.addOption(name, value);

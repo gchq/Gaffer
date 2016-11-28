@@ -25,7 +25,7 @@ import java.util.List;
  * {@link uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext} contain {@link uk.gov.gchq.gaffer.function.FilterFunction}s.
  * This filter ORs together the filter results from all these filters and returns the result.
  *
- * @see gaffer.function.simple.aggregate.NumericAggregateFunction
+ * @see uk.gov.gchq.gaffer.function.simple.aggregate.NumericAggregateFunction
  */
 public class Or extends MultiFilterFunction {
     public Or() {

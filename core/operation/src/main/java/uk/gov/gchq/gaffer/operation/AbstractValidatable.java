@@ -149,7 +149,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         /**
          * @param elements the {@link uk.gov.gchq.gaffer.data.element.Element}s to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Validatable#setElements(CloseableIterable)
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setElements(CloseableIterable)
          */
         public CHILD_CLASS elements(final Element... elements) {
             if (null != elements) {
@@ -162,7 +162,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         /**
          * @param elements the {@link uk.gov.gchq.gaffer.data.element.Element}s to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Validatable#setElements(CloseableIterable)
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setElements(CloseableIterable)
          */
         public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
             op.setElements(elements);
@@ -172,7 +172,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         /**
          * @param elements the {@link uk.gov.gchq.gaffer.data.element.Element}s to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Validatable#setElements(CloseableIterable)
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setElements(CloseableIterable)
          */
         public CHILD_CLASS elements(final Iterable<Element> elements) {
             op.setElements(elements);
@@ -182,7 +182,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         /**
          * @param skipInvalidElements the skipInvalidElements flag to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Validatable#setSkipInvalidElements(boolean)
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setSkipInvalidElements(boolean)
          */
         public CHILD_CLASS skipInvalidElements(final boolean skipInvalidElements) {
             op.setSkipInvalidElements(skipInvalidElements);
@@ -192,7 +192,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         /**
          * @param validate the validate flag to set on the operation
          * @return this Builder
-         * @see gaffer.operation.Validatable#setValidate(boolean)
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setValidate(boolean)
          */
         public CHILD_CLASS validate(final boolean validate) {
             op.setValidate(validate);

@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
  * An Entity is EQUAL to an EntitySeed if the Entity's seed is equal to the EntitySeed.
  *
  * @see GetEntitiesBySeed.Builder
- * @see gaffer.operation.impl.get.GetEntities
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetEntities
  */
 public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
     public GetEntitiesBySeed() {

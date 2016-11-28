@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Edges are designed so that multiple edges can share the same identifiers but are distinguished via their
  * group.
  *
- * @see gaffer.data.element.Edge.Builder
+ * @see uk.gov.gchq.gaffer.data.element.Edge.Builder
  */
 public class Edge extends Element {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);

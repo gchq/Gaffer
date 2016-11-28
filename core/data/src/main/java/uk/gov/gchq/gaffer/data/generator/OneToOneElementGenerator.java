@@ -101,7 +101,7 @@ public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<
      * @param domainObjects an {@link java.lang.Iterable} of domain objects to convert
      * @return a {@link uk.gov.gchq.gaffer.data.TransformIterable} to lazy convert each domain object into an
      * {@link uk.gov.gchq.gaffer.data.element.Element}
-     * @see gaffer.data.generator.ElementGenerator#getElements(java.lang.Iterable)
+     * @see uk.gov.gchq.gaffer.data.generator.ElementGenerator#getElements(java.lang.Iterable)
      */
     @Override
     public Iterable<Element> getElements(final Iterable<OBJ> domainObjects) {
@@ -117,7 +117,7 @@ public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<
      * @param elements an {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element} to convert
      * @return a {@link uk.gov.gchq.gaffer.data.TransformIterable} to lazy convert each {@link uk.gov.gchq.gaffer.data.element.Element} to
      * domain object
-     * @see gaffer.data.generator.ElementGenerator#getObjects(java.lang.Iterable)
+     * @see uk.gov.gchq.gaffer.data.generator.ElementGenerator#getObjects(java.lang.Iterable)
      */
     @Override
     public Iterable<OBJ> getObjects(final Iterable<Element> elements) {

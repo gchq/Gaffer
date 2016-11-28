@@ -51,8 +51,8 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  *      .build();
  * }</pre>
  *
- * @see gaffer.operation.impl.get.GetRelatedEntities.Builder
- * @see gaffer.operation.impl.get.GetEntities
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetEntities
  */
 public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEntities<ELEMENT_SEED> {
     public GetRelatedEntities() {

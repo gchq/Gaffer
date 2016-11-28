@@ -101,13 +101,13 @@ public interface Operation<INPUT, OUTPUT> {
 
     /**
      * @return the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} for the operation.
-     * @see gaffer.data.elementdefinition.view.View
+     * @see uk.gov.gchq.gaffer.data.elementdefinition.view.View
      */
     View getView();
 
     /**
      * @param view the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} for the operation.
-     * @see gaffer.data.elementdefinition.view.View
+     * @see uk.gov.gchq.gaffer.data.elementdefinition.view.View
      */
     void setView(final View view);
 

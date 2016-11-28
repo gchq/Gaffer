@@ -26,9 +26,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
  * <p>
  * Functions may consume input and/or produce output records.
  *
- * @see gaffer.function.ConsumerFunction
- * @see gaffer.function.ConsumerProducerFunction
- * @see gaffer.function.ProducerFunction
+ * @see uk.gov.gchq.gaffer.function.ConsumerFunction
+ * @see uk.gov.gchq.gaffer.function.ConsumerProducerFunction
+ * @see uk.gov.gchq.gaffer.function.ProducerFunction
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
 public interface Function {

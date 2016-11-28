@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.VoidOutput;
  * throw an {@link uk.gov.gchq.gaffer.operation.OperationException} if unsuccessful.
  * For normal operation handlers the operation {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} will be ignored.
  *
- * @see gaffer.operation.impl.add.AddElements.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 public class AddElements extends AbstractValidatable<Void> implements VoidOutput<CloseableIterable<Element>> {
     /**

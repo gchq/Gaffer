@@ -22,8 +22,8 @@ import java.io.Serializable;
  * This interface is used by the lazy loader classes to load {@link uk.gov.gchq.gaffer.data.element.Element}'s identifiers and
  * properties.
  *
- * @see gaffer.data.element.LazyEntity
- * @see gaffer.data.element.LazyEdge
+ * @see uk.gov.gchq.gaffer.data.element.LazyEntity
+ * @see uk.gov.gchq.gaffer.data.element.LazyEdge
  * @see LazyProperties
  */
 public interface ElementValueLoader extends Serializable {

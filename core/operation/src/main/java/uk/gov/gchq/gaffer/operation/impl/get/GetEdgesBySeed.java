@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
  * However adjusting the includeEdge property allows for some Edges to be filtered out.
  *
  * @see GetEdgesBySeed.Builder
- * @see gaffer.operation.impl.get.GetEdges
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetEdges
  */
 public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
     public GetEdgesBySeed() {
