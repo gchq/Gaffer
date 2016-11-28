@@ -34,8 +34,8 @@ public abstract class SystemProperty {
     /**
      * Comma separated list of package prefixes to search for {@link uk.gov.gchq.gaffer.function.Function}s and {@link uk.gov.gchq.gaffer.operation.Operation}s.
      */
-    public static final String PACKAGE_PREFIXES_DEFAULT = "gaffer";
-    public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "gaffer.rest";
+    public static final String PACKAGE_PREFIXES_DEFAULT = "uk.gov.gchq.gaffer";
+    public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "uk.gov.gchq.gaffer.rest";
     public static final String BASE_URL_DEFAULT = "rest/v1";
     public static final String CORE_VERSION = "1.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = GraphFactory.class.getName();
