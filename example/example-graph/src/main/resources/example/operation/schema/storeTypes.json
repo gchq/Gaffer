@@ -2,9 +2,9 @@
   "types": {
     "int": {
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       },
-      "serialiserClass": "gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
     }
   }
 }

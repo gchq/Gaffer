@@ -8,7 +8,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsTrue"
+            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsTrue"
           }
         }
       ]

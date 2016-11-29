@@ -1,7 +1,7 @@
 {
   "elements": [
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "public",
         "count": 1
@@ -11,7 +11,7 @@
       "destination": "2"
     },
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "public",
         "count": 1
@@ -21,7 +21,7 @@
       "destination": "2"
     },
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "private",
         "count": 1
@@ -31,7 +31,7 @@
       "destination": "2"
     },
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "private",
         "count": 1
@@ -41,7 +41,7 @@
       "destination": "2"
     },
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "private",
         "count": 1
@@ -51,7 +51,7 @@
       "destination": "3"
     },
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "public",
         "count": 1
@@ -61,7 +61,7 @@
       "destination": "4"
     },
     {
-      "class": "gaffer.data.element.Edge",
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {
         "visibility": "public",
         "count": 1

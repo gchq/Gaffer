@@ -2,7 +2,7 @@
   "types": {
     "count.int": {
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     }
   }

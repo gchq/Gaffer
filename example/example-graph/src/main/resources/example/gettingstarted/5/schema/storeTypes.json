@@ -2,13 +2,13 @@
   "types": {
     "count.int": {
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
       }
     },
     "visibility.string": {
-      "serialiserClass": "gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
+      "serialiserClass": "uk.gov.gchq.gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
       "aggregateFunction": {
-        "class": "gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator"
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator"
       }
     }
   }

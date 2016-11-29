@@ -18,8 +18,8 @@
 #   This is a sample gaffer accumulo store properties file for when a MockAccumuloStore is being used with a MockInstance of Accumulo.
 #   The file is intended as an example of a minimal configuration file.
 
-gaffer.store.class=gaffer.accumulostore.MockAccumuloStore
-gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
+gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
+gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
 
 accumulo.instance=accumuloInstanceName
 accumulo.table=table1
