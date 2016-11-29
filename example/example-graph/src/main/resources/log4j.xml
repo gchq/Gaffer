@@ -24,7 +24,7 @@
         </layout>
     </appender>
 
-    <logger name="gaffer.accumulostore.utils.TableUtils">
+    <logger name="uk.gov.gchq.gaffer.accumulostore.utils.TableUtils">
         <level value="WARN"/>
     </logger>
 
