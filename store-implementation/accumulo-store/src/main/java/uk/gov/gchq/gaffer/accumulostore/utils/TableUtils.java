@@ -35,6 +35,9 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinitions;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,7 +80,7 @@ public final class TableUtils {
      * specified time period.
      *
      * @param store the accumulo store
-     * @throws StoreException       failure to create accumulo connection or  add iterator settings
+     * @throws StoreException       failure to create accumulo connection or add iterator settings
      * @throws TableExistsException failure to create table
      */
     public static synchronized void createTable(final AccumuloStore store)
@@ -109,10 +112,14 @@ public final class TableUtils {
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
-            // Add Combiner iterator to table for all scopes
-            LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
-            connector.tableOperations().attachIterator(tableName,
-                    store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
+            if (schemaContainsAggregators(store.getSchema())) {
+                // Add Combiner iterator to table for all scopes
+                LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
+                connector.tableOperations().attachIterator(tableName,
+                        store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
+            } else {
+                LOGGER.info("Aggregator iterator has not been added to table {}", tableName);
+            }
 
             if (store.getProperties().getEnableValidatorIterator()) {
                 // Add validator iterator to table for all scopes
@@ -225,5 +232,26 @@ public final class TableUtils {
             throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
                     + store.getProperties().getTable(), e);
         }
+    }
+
+    /**
+     * Checks the given {@link uk.gov.gchq.gaffer.store.schema.Schema} and determines
+     * whether the types specified by the schema contain aggregators.
+     *
+     * @param schema the schema
+     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
+     */
+    private static boolean schemaContainsAggregators(final Schema schema) {
+        boolean schemaContainsAggregators = false;
+
+        final TypeDefinitions types = schema.getTypes();
+
+        for (final TypeDefinition type : types.values()) {
+            if (null != type.getAggregateFunction()) {
+                schemaContainsAggregators = true;
+            }
+        }
+
+        return schemaContainsAggregators;
     }
 }
