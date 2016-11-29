@@ -15,7 +15,7 @@
         <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>gaffer.rest.application.ApplicationConfig</param-value>
+            <param-value>uk.gov.gchq.gaffer.rest.application.ApplicationConfig</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -26,7 +26,7 @@
 
     <filter>
         <filter-name>OriginFilter</filter-name>
-        <filter-class>gaffer.rest.filter.OriginFilter</filter-class>
+        <filter-class>uk.gov.gchq.gaffer.rest.filter.OriginFilter</filter-class>
     </filter>
 
     <filter-mapping>
