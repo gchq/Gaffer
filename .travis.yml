@@ -12,4 +12,6 @@ addons:
 install: true
 env:
   - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-script: mvn -q install -PreducedMemory && mvn javadoc:javadoc
+script: mvn -q cobertura:cobertura -PreducedMemory && mvn javadoc:javadoc
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

@@ -145,6 +145,10 @@ FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 - GNU Lesser Public License
 
 
+JaCoCo Annotations (org.jacoco:jacoco-maven-plugin:annotations:0.7.7.201606060606):
+
+- Eclipse Public License 1.0
+
 ------------------------------------------------------------------------------------------------
 
 The Gaffer rest-api and ui modules contain the following javascript dependencies:
