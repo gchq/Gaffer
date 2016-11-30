@@ -208,6 +208,27 @@ public final class TableUtils {
     }
 
     /**
+     * Checks the given {@link uk.gov.gchq.gaffer.store.schema.Schema} and determines
+     * whether the types specified by the schema contain aggregators.
+     *
+     * @param schema the schema
+     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
+     */
+    public static boolean schemaContainsAggregators(final Schema schema) {
+        boolean schemaContainsAggregators = false;
+
+        final TypeDefinitions types = schema.getTypes();
+
+        for (final TypeDefinition type : types.values()) {
+            if (null != type.getAggregateFunction()) {
+                schemaContainsAggregators = true;
+            }
+        }
+
+        return schemaContainsAggregators;
+    }
+
+    /**
      * Creates a {@link org.apache.accumulo.core.client.BatchWriter} for the
      * specified table
      * <p>
@@ -232,26 +253,5 @@ public final class TableUtils {
             throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
                     + store.getProperties().getTable(), e);
         }
-    }
-
-    /**
-     * Checks the given {@link uk.gov.gchq.gaffer.store.schema.Schema} and determines
-     * whether the types specified by the schema contain aggregators.
-     *
-     * @param schema the schema
-     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
-     */
-    private static boolean schemaContainsAggregators(final Schema schema) {
-        boolean schemaContainsAggregators = false;
-
-        final TypeDefinitions types = schema.getTypes();
-
-        for (final TypeDefinition type : types.values()) {
-            if (null != type.getAggregateFunction()) {
-                schemaContainsAggregators = true;
-            }
-        }
-
-        return schemaContainsAggregators;
     }
 }

@@ -32,6 +32,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.schemaContainsAggregators;
+
 /**
  * This class is designed to update iterator settings for iterators set on a
  * table.
@@ -112,8 +114,13 @@ public final class AddUpdateTableIterator {
      */
     public static void removeIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         try {
-            store.getConnection().tableOperations().removeIterator(store.getProperties().getTable(), iteratorName,
-                    EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
+            if (store.getConnection().tableOperations().listIterators(store.getProperties().getTable()).containsKey(iteratorName)) {
+                store.getConnection()
+                     .tableOperations()
+                     .removeIterator(store.getProperties()
+                                          .getTable(), iteratorName,
+                             EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
+            }
         } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
             throw new StoreException("Unable remove iterator with Name: " + iteratorName);
         }
@@ -129,10 +136,12 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         if (!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator()) {
-            try {
-                addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-            } catch (final IteratorSettingException e) {
-                throw new StoreException(e.getMessage(), e);
+            if (schemaContainsAggregators(store.getSchema())) {
+                try {
+                    addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
+                } catch (final IteratorSettingException e) {
+                    throw new StoreException(e.getMessage(), e);
+                }
             }
         }
     }
