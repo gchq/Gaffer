@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.operation.simple.spark.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.operation.simple.spark.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.operation.simple.spark.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,7 +113,7 @@ public class FiltersToOperationConverter {
     }
 
     private View applyGroupFilters(final View view) {
-        View derivedView = View.fromJson(view.toJson(false));
+        View derivedView = View.fromJson(view.toCompactJson());
         final Set<String> groups = checkForGroups();
         if (groups == null) {
             // None of the filters specify a group or groups.
@@ -149,7 +150,7 @@ public class FiltersToOperationConverter {
     }
 
     private AbstractGetRDD<?> applyVertexSourceDestinationFilters(final View view) {
-        View clonedView = View.fromJson(view.toJson(false));
+        View clonedView = View.fromJson(view.toCompactJson());
         AbstractGetRDD<?> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
