@@ -60,11 +60,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
-import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.dataframe.GetDataFrameOfElementsOperationHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.javardd.GetJavaRDDOfAllElementsOperationHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.javardd.GetJavaRDDOfElementsOperationHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.scalardd.GetRDDOfAllElementsOperationHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.scalardd.GetRDDOfElementsOperationHandler;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -79,11 +74,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.spark.dataframe.GetDataFrameOfElements;
-import uk.gov.gchq.gaffer.operation.spark.javardd.GetJavaRDDOfAllElements;
-import uk.gov.gchq.gaffer.operation.spark.javardd.GetJavaRDDOfElements;
-import uk.gov.gchq.gaffer.operation.spark.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.operation.spark.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -236,11 +226,6 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
         addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
-        addOperationHandler(GetJavaRDDOfElements.class, new GetJavaRDDOfElementsOperationHandler());
-        addOperationHandler(GetRDDOfElements.class, new GetRDDOfElementsOperationHandler());
-        addOperationHandler(GetRDDOfAllElements.class, new GetRDDOfAllElementsOperationHandler());
-        addOperationHandler(GetJavaRDDOfAllElements.class, new GetJavaRDDOfAllElementsOperationHandler());
-        addOperationHandler(GetDataFrameOfElements.class, new GetDataFrameOfElementsOperationHandler());
     }
 
     @Override

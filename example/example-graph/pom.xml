@@ -44,6 +44,12 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>sketches-all</artifactId>
+            <version>${project.parent.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-store</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

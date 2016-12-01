@@ -1,0 +1,34 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.accumulostore.spark.javardd.GetJavaRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.accumulostore.spark.operation.handler.javardd.GetJavaRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.accumulostore.spark.scalardd.GetRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.accumulostore.spark.operation.handler.scalardd.GetRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.accumulostore.spark.scalardd.GetRDDOfAllElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.accumulostore.spark.operation.handler.scalardd.GetRDDOfAllElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.accumulostore.spark.javardd.GetJavaRDDOfAllElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.accumulostore.spark.operation.handler.javardd.GetJavaRDDOfAllElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.accumulostore.spark.dataframe.GetDataFrameOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.accumulostore.spark.operation.handler.dataframe.GetDataFrameOfElementsHandler"
+      }
+    }
+  ]
+}

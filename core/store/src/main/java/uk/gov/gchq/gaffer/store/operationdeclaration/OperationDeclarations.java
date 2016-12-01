@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.operationdeclaration;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +28,7 @@ import java.util.List;
 
 /**
  * Contains a list of Operations defined in a JSON file, referenced in the store.properties.
- *
+ * <p>
  * Used to add operation handlers.
  */
 public class OperationDeclarations {
@@ -61,10 +63,14 @@ public class OperationDeclarations {
     }
 
     public static OperationDeclarations fromJson(final Path filePath) {
-        OperationDeclarations definitions = null;
+        final OperationDeclarations definitions;
 
         try {
-            definitions = JSON_SERIALISER.deserialise(Files.readAllBytes(filePath), OperationDeclarations.class);
+            if (filePath.toFile().exists()) {
+                definitions = JSON_SERIALISER.deserialise(Files.readAllBytes(filePath), OperationDeclarations.class);
+            } else {
+                definitions = JSON_SERIALISER.deserialise(StreamUtil.openStream(OperationDeclarations.class, filePath.toString()), OperationDeclarations.class);
+            }
         } catch (IOException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
         }

@@ -14,6 +14,11 @@
     <modules>
         <module>spark-operation</module>
         <module>spark-serialisation</module>
+        <module>spark-accumulo</module>
         <module>spark-all</module>
     </modules>
+
+    <properties>
+        <spark.version>2.0.0</spark.version>
+    </properties>
 </project>

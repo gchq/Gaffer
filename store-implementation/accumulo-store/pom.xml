@@ -67,16 +67,6 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-function</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-operation</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>core-all</artifactId>
             <version>${project.parent.version}</version>
             <type>pom</type>
@@ -87,19 +77,6 @@
             <version>${project.parent.version}</version>
             <type>pom</type>
         </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>spark-all</artifactId>
-            <version>${project.parent.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>sketches-all</artifactId>
-            <version>${project.parent.version}</version>
-            <type>pom</type>
-        </dependency>
-
 
         <!-- External libraries -->
         <dependency>
