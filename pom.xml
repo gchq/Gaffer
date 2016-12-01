@@ -529,17 +529,6 @@
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>${findbugs.plugin.version}</version>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
         </plugins>
     </reporting>
 
