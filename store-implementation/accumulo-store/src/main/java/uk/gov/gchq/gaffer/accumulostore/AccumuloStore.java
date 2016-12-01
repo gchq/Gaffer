@@ -176,8 +176,8 @@ public class AccumuloStore extends Store {
             addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
-            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toJson(false), CommonConstants.UTF_8));
-            conf.set(ElementInputFormat.VIEW, new String(view.toJson(false), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
             // Add iterators that depend on the view
             if (!view.getEntityGroups().isEmpty() || !view.getEdgeGroups().isEmpty()) {
                 IteratorSetting elementPreFilter = getKeyPackage()
