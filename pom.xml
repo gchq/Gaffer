@@ -23,6 +23,10 @@
     <packaging>pom</packaging>
     <version>0.4.8-SNAPSHOT</version>
 
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>A scalable Graph database framework</description>
+    <url>https://github.com/gchq/Gaffer</url>
+
     <modules>
         <module>rest-api</module>
         <module>core</module>
@@ -89,25 +93,33 @@
         </scm.developer.connection>
 
         <!-- Release configuration -->
-        <releases.repository.id>gaffer.releases.repo</releases.repository.id>
-        <releases.repository.name>Gaffer Releases Repository
+        <releases.repository.id>ossrh</releases.repository.id>
+        <releases.repository.name>Sonatype Nexus release repository
         </releases.repository.name>
         <releases.repository.url>
-            https://repository.somewhere.com/gaffer2-releases
+            https://oss.sonatype.org/service/local/staging/deploy/maven2/
         </releases.repository.url>
-        <snapshots.repository.id>gaffer.snapshots.repo</snapshots.repository.id>
-        <snapshots.repository.name>Gaffer Snapshots Repository
+        <snapshots.repository.id>ossrh-snapshots</snapshots.repository.id>
+        <snapshots.repository.name>Sonatype Nexus snapshot repository
         </snapshots.repository.name>
         <snapshots.repository.url>
-            https://repository.somewhere.com/gaffer2-snapshots
+            https://oss.sonatype.org/content/repositories/snapshots
         </snapshots.repository.url>
     </properties>
+
+    <developers>
+        <developer>
+            <name>GafferDevelopers</name>
+            <organization>GCHQ</organization>
+            <organizationUrl>https://github.com/gchq</organizationUrl>
+        </developer>
+    </developers>
 
     <scm>
         <url>${scm.url}</url>
         <connection>${scm.connection}</connection>
         <developerConnection>${scm.developer.connection}</developerConnection>
-        <tag>gaffer2-0.4.0-RC3-SNAPSHOT</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
@@ -456,6 +468,14 @@
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.2</version>
+                <configuration>
+                    <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -583,6 +603,121 @@
                         <configuration>
                             <fork>false</fork>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>ossrh-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>${releases.repository.id}</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>build-extras</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
