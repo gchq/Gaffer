@@ -12,4 +12,4 @@ addons:
 install: true
 env:
   - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-script: mvn -q install -PreducedMemory
+script: mvn -q install -PreducedMemory && mvn javadoc:javadoc

@@ -1,0 +1,278 @@
+#
+# Copyright 2016 Crown Copyright
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Description:
+#   This is a sample gaffer store properties file for use with Accumulo.
+#
+#   The contains guidance how to modify the store.properties file depending upon what type of Accumulo instance gaffer is connecting to.
+#
+#   Accumulo may be run as:
+#   1) in-memory data store with no persistance between instantiations
+#   2) a mini Accumulo cluster that starts an instance of the Zookeeper, Accumulo, the Master, and some Tablet Servers running against, and persisting data in, the local filesystem
+#   3) a full Accumulo deployment running against HDFS with one or more instances of Zookeeper
+#
+#   In the three Accumulo scenarios above, Accumulo is connected to in one of two ways.
+#       a) Using getConnector on an instance of org.apache.accumulo.core.client.ZooKeeperInstance (for scenario 2 and 3 above)
+#       b) Using getConnector on an instance of org.apache.accumulo.core.client.mock.MockInstance (for scenario 1 above)
+#
+#   This sample file contains example settings and an explanations of which of the Accumulo deployment scenarios the settings are applicable to.
+#   For further details on properties gaffer store properties files see:
+#   https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#properties-file
+#   https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#advanced-properties
+
+################################################################################
+# generic store property - gaffer.store.class
+# description - name of internal gaffer class used to connect to an accumulo store.
+# notes
+#   - property is required
+#   - no default value provided
+# Examples:
+# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
+#   - specifies that an instance of org.apache.accumulo.core.client.mock.MockInstance will be used to obtain an instance of org.apache.accumulo.core.client.Connector as a data store and that, after the first call to initialise, subsequent calls will result in the existing tables being deleted rather than a new instance of org.apache.accumulo.core.client.mock.MockInstance being created.
+# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
+#   - specifies that an instance of org.apache.accumulo.core.client.mock.MockInstance will be used to obtain an instance of org.apache.accumulo.core.client.Connector and that each time initialise is called a new instance of org.apache.accumulo.core.client.mock.MockInstance is created.
+# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.AccumuloStore
+#   - specifies that an instance of org.apache.accumulo.core.client.ZooKeeperInstance will be used to obtain an instance of org.apache.accumulo.core.client.Connector
+
+gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
+
+################################################################################
+# generic store property - gaffer.store.properties.class
+# description - name of internal gaffer class used to read the gaffer properties file where the store properties file contains properties that are specific to the particular type of store being used by Gaffer. Eg. Accumulo.
+# notes
+#   - property is required
+#   - no default value provided
+
+gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
+
+################################################################################
+
+################################################################################
+# generic store property - gaffer.store.schema.class
+# description - name of internal gaffer class used to serialise and deserialise a gaffer schema definition to file.
+#
+# notes
+#   - property is not required
+#   - default value of gaffer.store.schema.Schema
+
+# gaffer.store.schema.class=uk.gov.gchq.gaffer.store.schema.Schema
+
+################################################################################
+
+################################################################################
+# generic store property - gaffer.store.operation.declarations
+# description - path to a json file that contains definitions of additional operations and the classes that implement them.
+# notes
+#   - property is not required
+#   - no default value is provided
+
+# gaffer.store.operation.declarations=operationDeclarations.json
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.instance
+# description - the name of the accumulo instance to connect to
+# notes
+#   - property is required
+#   - no default value is provided
+#   - Note that :
+#       - where accumulo is run as a mini or full accumulo cluster, the instance name is used by zookeeper to determine the instance of accumulo to connect to.
+#       - where accumulo is run as a MockInstance, the instance name is used to set the name of the in memory accumulo instance that is instantiated and connected to.
+
+accumulo.instance=byteEntityInstance
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.zookeepers
+# description - a list of zookeeper host and ip pairs that accumulo will be connected to through.
+# notes
+#   - property is required to connect to a mini or full accumulo cluster
+#   - property is will be ignored when connecting to a MockInstance
+#   - no default value is provided
+#   - Note that:
+#       -list is of the form host1:port1,host2:port2 where there are:
+#           -no spaces
+#           -port refers to the port that zookeeper is running on (which can be omitted if the port is the default port of 2182)
+#           -host refers to the resolvable hostname or ip of the machine running that instance of zookeeper
+# Examples:
+# accumulo.zookeepers=aZookeeper
+# accumulo.zookeepers=192.168.1.101:2182,192.168.1.102:2182
+# accumulo.zookeepers=host1:2185,host2:2186
+#   - where accumulo is run as a mini or full accumulo cluster, specifies that the "aZookeeper" instance of zookeeper should be used to connect to accumulo on the default port.
+#   - where accumulo is run as a MockInstance, this property is ignored and the accumulo instance name is used in place of the zookeeper name.
+
+accumulo.zookeepers=aZookeeper
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.table
+# description - the accumulo store table to read/write gaffer data from/to
+# notes
+#   - property is required
+#   - no default value is provided
+
+accumulo.table=table1
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.user
+# description - the user that will be used to connect to accumulo
+# notes
+#   - property is required
+#   - no default value is provided
+
+accumulo.user=user
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.password
+# description - the password to use to authenticate the user defined in accumulo.user
+# notes
+#   - property is required
+#   - no default value is provided
+
+accumulo.password=password
+
+################################################################################
+# accumulo store property - accumulo.batchScannerThreads
+# description - the maximum number of parallel threads that can be used by an accumulo batch scanner.
+# notes
+#   - property is not required
+#   - default value is provided of 10
+# Examples:
+# accumulo.batchScannerThreads=10
+
+# accumulo.batchScannerThreads=10
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.entriesForBatchScanner
+# description - the max number of items that should be read into the accumulo batch scanner at any one time.
+# notes
+#   - property is not required
+#   - default value is provided of 50000
+
+# accumulo.entriesForBatchScanner=1000
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.numThreadsForBatchWriter
+# description - the max number of threads to use by a batch writer.
+# notes
+#   - property is not required
+#   - default value is provided of 10
+
+# accumulo.numThreadsForBatchWriter=10
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.maxBufferSizeForBatchWriterInBytes
+# description - sets the the max size in bytes of buffered writes.
+# notes
+#   - property is not required
+#   - default value is provided of 1000000
+# Examples:
+# accumulo.maxBufferSizeForBatchWriterInBytes=1000000
+
+# accumulo.maxBufferSizeForBatchWriterInBytes=1000000
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.maxTimeOutForBatchWriterInMilliseconds
+# description - sets the maximum time between sending batches to the tablet server if a full batch is not created in that time.
+# notes
+#   - property is not required
+#   - default value is provided of 10
+
+# accumulo.maxTimeOutForBatchWriterInMilliseconds=10
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.clientSideBloomFilterSize
+# description - The maximum size (in bits) used for the creation of bloom filters on the client side.
+# notes
+#   - property is not required
+#   - default value is provided of 838860800
+
+# accumulo.clientSideBloomFilterSize=838860800
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.falsePositiveRate
+# description - The allowable rate of false positives for bloom filters passed to iterators as a probability.
+# notes
+#   - property is not required
+#   - default value is provided of 0.0002
+
+# accumulo.falsePositiveRate=0.0001
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.maxBloomFilterToPassToAnIterator
+# description - The maximum size (in bits) used for the creation of bloom filters used by iterators.
+# notes
+#   - property is not required
+#   - default value is provided of 8388608
+
+# accumulo.maxBloomFilterToPassToAnIterator=8388608
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.splits.file.path
+# description - the path to a splits file containing a newline separated list of Base64 encoded split points that represent ranges to partition tables on.
+# notes
+#   - property is not required
+#   - default value is provided of "/data/splits.txt"
+
+# accumulo.splits.file.path=target/data/splits.txt
+
+################################################################################
+
+################################################################################
+# accumulo store property - accumulo.file.replication
+# description - the number of replicas to keep of a table's files in HDFS. When this value is LTE 0, HDFS defaults are used.
+# notes
+#   - property is not required - accumulo default value used if a value is not provided in this properties file
+#   - default value is not provided
+
+# accumulo.file.replication=0
+
+################################################################################
+
+################################################################################
+# accumulo store property - gaffer.store.accumulo.enable.validator.iterator
+# description - specifies whether the validation iterator is applied when adding rows.
+# notes
+#   - property is not required
+#   - default value is provided is "true"
+
+# gaffer.store.accumulo.enable.validator.iterator=false
+
+################################################################################
+

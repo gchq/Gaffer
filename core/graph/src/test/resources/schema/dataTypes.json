@@ -1,0 +1,25 @@
+{
+  "types": {
+    "prop.integer": {
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser",
+      "class": "java.lang.Integer"
+    },
+    "prop.count": {
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser",
+      "class": "java.lang.Long"
+    },
+    "prop.string": {
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser",
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser",
+      "class": "java.lang.Boolean"
+    },
+    "id.string": {
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser",
+      "class": "java.lang.String"
+    }
+  },
+  "vertexSerialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+}
