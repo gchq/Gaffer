@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -49,6 +50,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -58,6 +60,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class SchemaTest {
+    public static final String EDGE_DESCRIPTION = "Edge description";
+    public static final String ENTITY_DESCRIPTION = "Entity description";
+    public static final String STRING_TYPE_DESCRIPTION = "String type description";
+    public static final String INTEGER_TYPE_DESCRIPTION = "Integer type description";
+    public static final String DATE_TYPE_DESCRIPTION = "Date type description";
+
     private Schema schema;
 
     @Before
@@ -82,11 +90,11 @@ public class SchemaTest {
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
         //Given
-        final byte[] json1 = schema.toJson(false);
+        final byte[] json1 = schema.toCompactJson();
         final Schema schema2 = Schema.fromJson(Schema.class, json1);
 
         // When
-        final byte[] json2 = schema2.toJson(false);
+        final byte[] json2 = schema2.toCompactJson();
 
         // Then
         assertEquals(new String(json1), new String(json2));
@@ -110,6 +118,7 @@ public class SchemaTest {
         // Edge definitions
         SchemaElementDefinition edgeDefinition = schema.getEdge(TestGroups.EDGE);
         assertNotNull(edgeDefinition);
+        assertEquals(EDGE_DESCRIPTION, edgeDefinition.getDescription());
 
         final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
         assertEquals(3, propertyMap.size());
@@ -169,16 +178,18 @@ public class SchemaTest {
 
         TypeDefinition type = edgeDefinition.getPropertyTypeDef(TestPropertyNames.DATE);
         assertEquals(Date.class, type.getClazz());
+        assertEquals(DATE_TYPE_DESCRIPTION, type.getDescription());
         assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         // Entity definitions
         SchemaElementDefinition entityDefinition = schema.getEntity(TestGroups.ENTITY);
         assertNotNull(entityDefinition);
+        assertEquals(ENTITY_DESCRIPTION, entityDefinition.getDescription());
         assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
         type = entityDefinition.getPropertyTypeDef(TestPropertyNames.PROP_1);
         assertEquals(0, entityDefinition.getGroupBy().size());
-
+        assertEquals(STRING_TYPE_DESCRIPTION, type.getDescription());
         assertEquals(String.class, type.getClazz());
         assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
@@ -210,13 +221,20 @@ public class SchemaTest {
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER, Integer.class)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP, Integer.class)
                         .groupBy(TestPropertyNames.PROP_1)
+                        .description(EDGE_DESCRIPTION)
                         .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
-                .type(TestTypes.PROP_STRING, String.class)
-                .type(TestTypes.PROP_INTEGER, Integer.class)
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
@@ -234,6 +252,7 @@ public class SchemaTest {
                 "        \"timestamp\" : \"timestamp\"%n" +
                 "      },%n" +
                 "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"description\" : \"Edge description\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
@@ -245,9 +264,11 @@ public class SchemaTest {
                 "  \"entities\" : { },%n" +
                 "  \"types\" : {%n" +
                 "    \"prop.integer\" : {%n" +
+                "      \"description\" : \"Integer type description\",%n" +
                 "      \"class\" : \"java.lang.Integer\"%n" +
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
+                "      \"description\" : \"String type description\",%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
                 "    },%n" +
                 "    \"timestamp\" : {%n" +
@@ -501,6 +522,18 @@ public class SchemaTest {
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("visibility property"));
         }
+    }
+
+    @Test
+    public void shouldSerialiseToCompactJson() {
+        // Given - schema loaded from file
+
+        // When
+        final String compactJson = new String(schema.toCompactJson());
+
+        // Then - no description fields or new lines
+        assertFalse(compactJson.contains("description"));
+        assertFalse(compactJson.contains(String.format("%n")));
     }
 
     private class SerialisationImpl extends AbstractSerialisation<Object> {

@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueR
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.io.IOException;
 
 public class SampleDataForSplitPointsJobFactory {
@@ -69,7 +70,7 @@ public class SampleDataForSplitPointsJobFactory {
     }
 
     protected void setupJobConf(final JobConf jobConf, final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
+        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
