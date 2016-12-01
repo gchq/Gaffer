@@ -12,11 +12,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core-function</module>
-        <module>core-operation</module>
-        <module>core-serialisation</module>
-        <module>core-type</module>
-        <module>core-all</module>
+        <module>core-library-function</module>
+        <module>core-library-operation</module>
+        <module>core-library-serialisation</module>
+        <module>core-library-type</module>
+        <module>core-library-all</module>
     </modules>
 
 

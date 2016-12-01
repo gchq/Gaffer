@@ -20,15 +20,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>spark-library</artifactId>
+        <artifactId>sketches-library</artifactId>
         <version>0.4.8-SNAPSHOT</version>
     </parent>
-    <artifactId>spark-serialisation</artifactId>
+    <artifactId>sketches-library-serialisation</artifactId>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     <dependencies>
+        <!-- Internal dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
@@ -41,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>types-library</artifactId>
+            <artifactId>core-type</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -50,17 +48,11 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- External dependencies -->
         <dependency>
             <groupId>com.clearspring.analytics</groupId>
             <artifactId>stream</artifactId>
             <version>${clearspring.version}</version>
-        </dependency>
-
-        <!-- This dependency on Spark ensure the version of Kryo used is the same as the version Spark uses.-->
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.version}</artifactId>
-            <version>${spark.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

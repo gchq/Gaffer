@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
   ~ Copyright 2016 Crown Copyright
   ~
@@ -20,53 +20,50 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>core-library</artifactId>
+        <artifactId>spark-library</artifactId>
         <version>0.4.8-SNAPSHOT</version>
     </parent>
-
-    <artifactId>core-function</artifactId>
+    <artifactId>spark-library-serialisation</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>function</artifactId>
+            <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-type</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-        </dependency>
-
-        <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>function</artifactId>
+            <artifactId>core-library-all</artifactId>
             <version>${project.parent.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
-            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.clearspring.analytics</groupId>
+            <artifactId>stream</artifactId>
+            <version>${clearspring.version}</version>
+        </dependency>
+
+        <!-- This dependency on Spark ensure the version of Kryo used is the same as the version Spark uses.-->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -77,7 +74,7 @@
                 <version>2.4.1</version>
                 <executions>
                     <execution>
-                        <id>functions</id>
+                        <id>serialisers</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
@@ -85,15 +82,13 @@
                         <configuration>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>functions
-                            </shadedClassifierName>
+                            <shadedClassifierName>serialisers</shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream
                                     </include>
-                                    <include>org.apache.commons:commons-lang
+                                    <include>gaffer*
                                     </include>
-                                    <include>gaffer*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

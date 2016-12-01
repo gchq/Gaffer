@@ -26,10 +26,6 @@
 
     <artifactId>example-graph</artifactId>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -38,15 +34,13 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-all</artifactId>
+            <artifactId>core-library-all</artifactId>
             <version>${project.parent.version}</version>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>sketches-all</artifactId>
+            <artifactId>sketches-library-all</artifactId>
             <version>${project.parent.version}</version>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>

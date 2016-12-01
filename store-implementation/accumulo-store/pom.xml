@@ -67,16 +67,20 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-all</artifactId>
+            <artifactId>core-library-all</artifactId>
             <version>${project.parent.version}</version>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>hdfs-all</artifactId>
+            <artifactId>hdfs-library-all</artifactId>
             <version>${project.parent.version}</version>
-            <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>sketches-library-all</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
 
         <!-- External libraries -->
         <dependency>
@@ -150,13 +154,15 @@
                         <configuration>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>iterators
+                            <shadedClassifierName>shaded
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
+                                    <include>org.apache.commons:commons-lang</include>
                                     <include>com.fasterxml.jackson.*:*</include>
+                                    <include>com.clearspring.analytics:stream</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

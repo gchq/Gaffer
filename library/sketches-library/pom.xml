@@ -12,8 +12,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>sketches-function</module>
-        <module>sketches-serialisation</module>
-        <module>sketches-all</module>
+        <module>sketches-library-function</module>
+        <module>sketches-library-serialisation</module>
+        <module>sketches-library-all</module>
     </modules>
 </project>

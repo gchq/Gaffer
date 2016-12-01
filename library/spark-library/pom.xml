@@ -12,10 +12,10 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>spark-operation</module>
-        <module>spark-serialisation</module>
-        <module>spark-accumulo</module>
-        <module>spark-all</module>
+        <module>spark-library-operation</module>
+        <module>spark-library-serialisation</module>
+        <module>spark-library-accumulo</module>
+        <module>spark-library-all</module>
     </modules>
 
     <properties>

@@ -19,10 +19,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>spark-library</artifactId>
+        <artifactId>hdfs-library</artifactId>
         <version>0.4.8-SNAPSHOT</version>
     </parent>
-    <artifactId>spark-operation</artifactId>
+    <artifactId>hdfs-library-operation</artifactId>
 
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
@@ -54,21 +54,6 @@
             <artifactId>hadoop-mapreduce-client-core</artifactId>
             <version>${hadoop.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.version}</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.version}</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-catalyst_${scala.version}</artifactId>
-            <version>${spark.version}</version>
         </dependency>
 
         <dependency>

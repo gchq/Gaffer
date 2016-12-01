@@ -12,8 +12,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>hdfs-operation</module>
-        <module>hdfs-all</module>
+        <module>hdfs-library-operation</module>
+        <module>hdfs-library-all</module>
     </modules>
 
 </project>

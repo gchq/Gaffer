@@ -24,12 +24,11 @@
         <version>0.4.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hdfs-all</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>hdfs-library-all</artifactId>
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>hdfs-operation</artifactId>
+            <artifactId>hdfs-library-operation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

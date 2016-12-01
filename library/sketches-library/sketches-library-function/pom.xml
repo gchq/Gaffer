@@ -24,7 +24,7 @@
         <version>0.4.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sketches-function</artifactId>
+    <artifactId>sketches-library-function</artifactId>
 
     <dependencies>
         <!-- Internal Gaffer2 framework dependencies -->
