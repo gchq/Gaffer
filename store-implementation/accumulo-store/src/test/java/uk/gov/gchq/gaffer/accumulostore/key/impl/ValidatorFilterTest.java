@@ -142,7 +142,7 @@ public class ValidatorFilterTest {
     }
 
     private String getSchemaJson() throws UnsupportedEncodingException {
-        return new String(getSchema().toJson(false), CommonConstants.UTF_8);
+        return new String(getSchema().toCompactJson(), CommonConstants.UTF_8);
     }
 
     private Schema getSchema() throws UnsupportedEncodingException {
