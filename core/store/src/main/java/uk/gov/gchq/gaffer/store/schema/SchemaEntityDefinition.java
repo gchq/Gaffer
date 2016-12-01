@@ -85,6 +85,10 @@ public class SchemaEntityDefinition extends SchemaElementDefinition {
             return (Builder) super.validator(validator);
         }
 
+        public Builder description(final String description) {
+            return (Builder) super.description(description);
+        }
+
         @Override
         public SchemaEntityDefinition build() {
             return (SchemaEntityDefinition) super.build();

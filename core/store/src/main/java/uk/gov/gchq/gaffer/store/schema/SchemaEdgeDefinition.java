@@ -138,6 +138,10 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
             return directed(typeName, new TypeDefinition(typeClass));
         }
 
+        public Builder description(final String description) {
+            return (Builder) super.description(description);
+        }
+
         @Override
         public SchemaEdgeDefinition build() {
             return (SchemaEdgeDefinition) super.build();

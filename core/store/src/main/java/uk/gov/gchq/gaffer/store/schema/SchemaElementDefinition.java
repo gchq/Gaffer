@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -33,6 +34,8 @@ import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.IsA;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,6 +53,7 @@ import java.util.Set;
  *
  * @see SchemaElementDefinition.Builder
  */
+@JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * A validator to validate the element definition
@@ -80,6 +84,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * query time aggregation to group based on their values.
      */
     private LinkedHashSet<String> groupBy;
+
+    private String description;
 
     public SchemaElementDefinition() {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
@@ -148,6 +154,12 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         groupBy.addAll(elementDef.getGroupBy());
+
+        if (null == description) {
+            description = elementDef.getDescription();
+        } else if (null != elementDef.getDescription() && !description.contains(elementDef.getDescription())) {
+            description = description + " | " + elementDef.getDescription();
+        }
     }
 
     public Set<String> getProperties() {
@@ -344,6 +356,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
     @JsonIgnore
     protected TypeDefinitions getTypesLookup() {
         if (null == typesLookup) {
@@ -404,6 +424,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(validator, that.validator)
                 .append(typesLookup, that.typesLookup)
                 .append(groupBy, that.groupBy)
+                .append(description, that.description)
                 .isEquals();
     }
 
@@ -416,6 +437,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(validator)
                 .append(typesLookup)
                 .append(groupBy)
+                .append(description)
                 .toHashCode();
     }
 
@@ -428,6 +450,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append("validator", validator)
                 .append("typesLookup", typesLookup)
                 .append("groupBy", groupBy)
+                .append("description", description)
                 .toString();
     }
 
@@ -480,6 +503,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
         protected Builder groupBy(final String... propertyName) {
             elDef.getGroupBy().addAll(Arrays.asList(propertyName));
+            return this;
+        }
+
+        protected Builder description(final String description) {
+            elDef.setDescription(description);
             return this;
         }
 
