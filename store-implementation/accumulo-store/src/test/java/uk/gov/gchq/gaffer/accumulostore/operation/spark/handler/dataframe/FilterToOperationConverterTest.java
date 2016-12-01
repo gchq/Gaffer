@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.simple.spark.scalardd.AbstractGetRDD;
+import uk.gov.gchq.gaffer.operation.spark.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.HashSet;

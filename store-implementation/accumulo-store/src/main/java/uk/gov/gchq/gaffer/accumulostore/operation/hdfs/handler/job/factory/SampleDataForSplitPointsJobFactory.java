@@ -43,7 +43,7 @@ public class SampleDataForSplitPointsJobFactory {
 
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser}.
+     * {@link uk.gov.gchq.gaffer.operation.hdfs.handler.job.initialiser.JobInitialiser}.
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation

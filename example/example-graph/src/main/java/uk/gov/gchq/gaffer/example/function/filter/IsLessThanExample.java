@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.simple.filter.IsLessThan;
+import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 
 public class IsLessThanExample extends FilterFunctionExample {
     public static void main(final String[] args) {

@@ -25,7 +25,7 @@
       "class": "java.lang.Integer"
     },
     "freqMapProperty": {
-      "class": "uk.gov.gchq.gaffer.types.simple.FreqMap"
+      "class": "uk.gov.gchq.gaffer.types.FreqMap"
     },
     "hyperLogLogPlus": {
       "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"

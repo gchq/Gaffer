@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.dataframe.ClassT
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.simple.spark.scalardd.GetRDDOfElements;
+import uk.gov.gchq.gaffer.operation.spark.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 

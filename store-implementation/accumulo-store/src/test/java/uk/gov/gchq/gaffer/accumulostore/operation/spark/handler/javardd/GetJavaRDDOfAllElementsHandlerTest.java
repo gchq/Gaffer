@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.simple.spark.javardd.GetJavaRDDOfAllElements;
+import uk.gov.gchq.gaffer.operation.spark.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.DataOutputStream;
 import java.io.IOException;

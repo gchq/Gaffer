@@ -20,7 +20,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.simple.spark.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.operation.spark.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;

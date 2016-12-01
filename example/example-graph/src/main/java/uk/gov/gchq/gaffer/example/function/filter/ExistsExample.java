@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 
-import uk.gov.gchq.gaffer.function.simple.filter.Exists;
+import uk.gov.gchq.gaffer.function.filter.Exists;
 
 public class ExistsExample extends FilterFunctionExample {
     public static void main(final String[] args) {

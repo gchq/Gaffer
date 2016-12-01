@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.dataframe;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import scala.collection.JavaConverters;
-import uk.gov.gchq.gaffer.operation.simple.spark.dataframe.ConversionException;
-import uk.gov.gchq.gaffer.operation.simple.spark.dataframe.Converter;
-import uk.gov.gchq.gaffer.types.simple.FreqMap;
+import uk.gov.gchq.gaffer.operation.spark.dataframe.ConversionException;
+import uk.gov.gchq.gaffer.operation.spark.dataframe.Converter;
+import uk.gov.gchq.gaffer.types.FreqMap;
 
 /**
  * A {@link Converter} that converts a {@link FreqMap} into a Scala map that is suitable for inclusion

@@ -18,17 +18,17 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.operation.VoidInput;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.mapper.generator.MapperGenerator;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.operation.MapReduceOperation;
+import uk.gov.gchq.gaffer.operation.hdfs.mapper.generator.MapperGenerator;
+import uk.gov.gchq.gaffer.operation.hdfs.operation.MapReduceOperation;
 
 
 /**
  * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link SplitTable} operation or an
- * {@link uk.gov.gchq.gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs} operation.
+ * {@link uk.gov.gchq.gaffer.operation.hdfs.operation.AddElementsFromHdfs} operation.
  * This operation requires an input and output path as well as a path to a file to use as the resulitngSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
- * {@link uk.gov.gchq.gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser}.
+ * {@link uk.gov.gchq.gaffer.operation.hdfs.handler.job.initialiser.JobInitialiser}.
  * <p>
  * For normal operation handlers the operation {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
@@ -44,8 +44,8 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
 
     /**
      * Used to generate elements from the Hdfs files.
-     * For Avro data see {@link uk.gov.gchq.gaffer.operation.simple.hdfs.mapper.generator.AvroMapperGenerator}.
-     * For Text data see {@link uk.gov.gchq.gaffer.operation.simple.hdfs.mapper.generator.TextMapperGenerator}.
+     * For Avro data see {@link uk.gov.gchq.gaffer.operation.hdfs.mapper.generator.AvroMapperGenerator}.
+     * For Text data see {@link uk.gov.gchq.gaffer.operation.hdfs.mapper.generator.TextMapperGenerator}.
      */
     private String mapperGeneratorClassName;
 

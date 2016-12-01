@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.scalardd.Abstrac
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.simple.spark.javardd.GetJavaRDDOfElements;
+import uk.gov.gchq.gaffer.operation.spark.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 

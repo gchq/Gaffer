@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.FetchEle
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.ImportElementsToAccumuloTool;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.operation.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;

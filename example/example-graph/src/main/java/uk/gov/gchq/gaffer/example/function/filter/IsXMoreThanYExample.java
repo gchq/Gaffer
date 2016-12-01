@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.simple.filter.IsXMoreThanY;
+import uk.gov.gchq.gaffer.function.filter.IsXMoreThanY;
 
 public class IsXMoreThanYExample extends FilterFunctionExample {
     public static void main(final String[] args) {

@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.accumulostore.operation.spark.handler.dataframe;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
-import uk.gov.gchq.gaffer.operation.simple.spark.dataframe.ConversionException;
-import uk.gov.gchq.gaffer.operation.simple.spark.dataframe.Converter;
+import uk.gov.gchq.gaffer.operation.spark.dataframe.ConversionException;
+import uk.gov.gchq.gaffer.operation.spark.dataframe.Converter;
 
 /**
  * A {@link Converter} that converts a {@link HyperLogLogPlus} into a <code>long</code> so that it can be

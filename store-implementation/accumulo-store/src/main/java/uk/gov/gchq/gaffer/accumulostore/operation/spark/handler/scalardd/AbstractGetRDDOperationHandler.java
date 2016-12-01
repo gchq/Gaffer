@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.simple.spark.GetSparkRDDOperation;
+import uk.gov.gchq.gaffer.operation.spark.GetSparkRDDOperation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.io.ByteArrayInputStream;

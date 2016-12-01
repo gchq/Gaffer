@@ -5,7 +5,7 @@
         "preAggregationFilterFunctions": [
           {
             "function": {
-              "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+              "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
               "value": 3
             },
             "selection": [
