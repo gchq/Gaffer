@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.glassfish.jersey.server.ChunkedOutput;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -58,6 +59,11 @@ public interface IOperationService {
     @POST
     @ApiOperation(value = "Performs the given operation chain on the graph", response = Object.class)
     Object execute(final OperationChain opChain);
+
+    @POST
+    @Path("/async")
+    @ApiOperation(value = "Performs the given operation chain on the graph (asynchronously)", response = Element.class)
+    ChunkedOutput<Element> executeAsync(final OperationChain<CloseableIterable<Element>> opChain);
 
     @POST
     @Path("/generate/objects")

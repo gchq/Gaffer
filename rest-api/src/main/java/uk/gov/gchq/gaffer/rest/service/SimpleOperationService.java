@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -43,6 +46,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.IOException;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -71,6 +75,37 @@ public class SimpleOperationService implements IOperationService {
     @Override
     public Object execute(final OperationChain opChain) {
         return execute(opChain, false);
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<Element> executeAsync(final OperationChain<CloseableIterable<Element>> opChain) {
+
+        final ChunkedOutput<Element> output = new ChunkedOutput<>(Element.class);
+
+        final CloseableIterator<Element> objects = execute(opChain, false).iterator();
+
+        new Thread() {
+            public void run() {
+                try {
+                    while (objects.hasNext()) {
+                        output.write(objects.next());
+                    }
+                } catch (final IOException e) {
+                    // IOException thrown when writing the
+                    // chunks of response: should be handled
+                } finally {
+                    try {
+                        objects.close();
+                        output.close();
+                    } catch (final IOException e) {
+                        // simplified: IOException thrown from
+                        // this close() should be handled here...
+                    }
+                }
+            }
+        }.start();
+        return output;
     }
 
     @Override

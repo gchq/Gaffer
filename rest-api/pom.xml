@@ -29,7 +29,7 @@
         <swagger-version>1.5.9</swagger-version>
         <json4s.version>3.2.11</json4s.version>
         <servlet-api-version>2.5</servlet-api-version>
-        <jersey-version>1.9</jersey-version>
+        <jersey-version>2.22.2</jersey-version>
         <resteasy-version>3.0.16.Final</resteasy-version>
         <maven-war-plugin-version>2.6</maven-war-plugin-version>
     </properties>
@@ -51,12 +51,6 @@
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <scope>compile</scope>
-            <version>${jersey-version}</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
@@ -150,6 +144,12 @@
             <artifactId>jersey-media-multipart</artifactId>
             <version>2.22.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>2.22.1</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>

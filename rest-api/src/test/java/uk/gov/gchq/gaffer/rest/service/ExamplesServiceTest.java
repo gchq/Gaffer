@@ -142,6 +142,19 @@ public class ExamplesServiceTest {
     }
 
     @Test
+    public void shouldSerialiseAndDeserialiseOperationChainAsync() throws IOException {
+        //Given
+        final OperationChain opChain = service.execute();
+
+        // When
+        byte[] bytes = serialiser.serialise(opChain);
+        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
+
+        // Then
+        assertNotNull(deserialisedOp);
+    }
+
+    @Test
     public void shouldCreateViewForEdges() {
         final View.Builder builder = service.generateViewBuilder();
         final View view = builder.build();
