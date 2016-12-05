@@ -67,6 +67,7 @@
         <httpcomponents.version>4.3.3</httpcomponents.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
+        <jersey2.version>2.22.2</jersey2.version>
         <log4j.version>1.2.17</log4j.version>
         <paranamer.version>2.6</paranamer.version>
         <reflections.version>0.9.10</reflections.version>

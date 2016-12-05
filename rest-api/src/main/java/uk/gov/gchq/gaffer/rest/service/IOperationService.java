@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -63,7 +64,11 @@ public interface IOperationService {
     @POST
     @Path("/async")
     @ApiOperation(value = "Performs the given operation chain on the graph (asynchronously)", response = Element.class)
-    ChunkedOutput<Element> executeAsync(final OperationChain<CloseableIterable<Element>> opChain);
+    ChunkedOutput<String> executeAsync(final OperationChain<CloseableIterable<Element>> opChain);
+
+    @GET
+    @Path("/async/test")
+    ChunkedOutput<String> getChunkedStream() throws Exception;
 
     @POST
     @Path("/generate/objects")

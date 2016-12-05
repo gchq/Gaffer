@@ -15,7 +15,7 @@
         <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>uk.gov.gchq.gaffer.rest.application.ApplicationConfig</param-value>
+            <param-value>uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

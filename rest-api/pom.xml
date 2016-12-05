@@ -29,7 +29,6 @@
         <swagger-version>1.5.9</swagger-version>
         <json4s.version>3.2.11</json4s.version>
         <servlet-api-version>2.5</servlet-api-version>
-        <jersey-version>2.22.2</jersey-version>
         <resteasy-version>3.0.16.Final</resteasy-version>
         <maven-war-plugin-version>2.6</maven-war-plugin-version>
     </properties>
@@ -142,14 +141,18 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
-            <version>2.22.2</version>
+            <version>${jersey2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>2.22.1</version>
+            <version>${jersey2.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-grizzly2-http</artifactId>
+            <version>${jersey2.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>

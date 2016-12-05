@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterators;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
@@ -46,7 +48,13 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import java.io.IOException;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -79,32 +87,76 @@ public class SimpleOperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<Element> executeAsync(final OperationChain<CloseableIterable<Element>> opChain) {
-
-        final ChunkedOutput<Element> output = new ChunkedOutput<>(Element.class);
-
-        final CloseableIterator<Element> objects = execute(opChain, false).iterator();
+    public ChunkedOutput<String> getChunkedStream() throws Exception {
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
 
         new Thread() {
             public void run() {
                 try {
-                    while (objects.hasNext()) {
-                        output.write(objects.next());
+                    String chunk = "Message";
+
+                    for (int i = 0; i < 10; i++) {
+                        output.write(chunk + "#" + i);
+                        Thread.sleep(1000);
                     }
-                } catch (final IOException e) {
-                    // IOException thrown when writing the
-                    // chunks of response: should be handled
+                } catch (Exception e) {
                 } finally {
                     try {
-                        objects.close();
                         output.close();
-                    } catch (final IOException e) {
-                        // simplified: IOException thrown from
-                        // this close() should be handled here...
+                    } catch (IOException ex) {
+                        LOGGER.error("Error", ex);
                     }
                 }
             }
         }.start();
+        return output;
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeAsync(final OperationChain<CloseableIterable<Element>> opChain) {
+
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
+
+        final CloseableIterator<Element> objects = execute(opChain, false).iterator();
+
+        final List<Element> elements = asList(Iterators.toArray(objects, Element.class));
+
+        final ObjectMapper mapper = createDefaultMapper();
+
+        new Thread() {
+            public void run() {
+                try {
+                    for (final Element e : elements) {
+                        Thread.sleep(1000L);
+                        LOGGER.info("Element: " + e);
+                        output.write(mapper.writeValueAsString(e));
+                    }
+
+
+//                    while (objects.hasNext()) {
+//                        int i = 0;
+//                        i++;
+//                        LOGGER.info("Doing element: " + i);
+//                        Thread.sleep(1000L);
+//                        final Element element = objects.next();
+//
+//                        LOGGER.info("Element: " + element);
+//                        output.write(mapper.writeValueAsString(element));
+//                    }
+                    LOGGER.info("Out of the loop now");
+                } catch (final IOException e) {
+                    LOGGER.warn("IOException (chunks)", e);
+                } catch (InterruptedException e) {
+                    LOGGER.warn("InterruptedException", e);
+                } finally {
+                    LOGGER.info("closing down");
+//                        objects.close();
+//                        output.close();
+                }
+            }
+        }.start();
+
         return output;
     }
 
