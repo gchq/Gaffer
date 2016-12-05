@@ -55,7 +55,6 @@ public class AccumuloProperties extends StoreProperties {
     private static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER_DEFAULT = "1000000";
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
-    private static final String SPLITS_FILE_PATH_DEFAULT = "/data/splits.txt";
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
 
     public AccumuloProperties() {
