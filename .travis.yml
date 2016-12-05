@@ -11,5 +11,8 @@ addons:
       - oracle-java8-installer
 install: true
 env:
-  - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-script: mvn -q install -PreducedMemory && mvn javadoc:javadoc
+  global:
+    - MAVEN_OPTS="-Xmx3072m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+script: mvn install -Ptravis && mvn javadoc:javadoc
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
