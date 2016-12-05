@@ -29,19 +29,8 @@ import uk.gov.gchq.gaffer.function.annotation.Inputs;
 public class AgeOffFromDays extends FilterFunction {
     public static final long DAYS_TO_MILLISECONDS = 24L * 60L * 60L * 1000L;
 
-    /**
-     * The default age of time (1 year) in days.
-     */
-    public static final long AGE_OFF_TIME_DEFAULT = 365L;
-
-    private long ageOffTime = AGE_OFF_TIME_DEFAULT;
-
     // Default constructor for serialisation
     public AgeOffFromDays() {
-    }
-
-    public AgeOffFromDays(final long ageOffTime) {
-        this.ageOffTime = ageOffTime;
     }
 
     @Override
@@ -57,26 +46,7 @@ public class AgeOffFromDays extends FilterFunction {
     }
 
     public AgeOffFromDays statelessClone() {
-        final AgeOffFromDays clone = new AgeOffFromDays(ageOffTime);
-        clone.setAgeOffTime(ageOffTime);
-
-        return clone;
-    }
-
-    public long getAgeOffTime() {
-        return ageOffTime;
-    }
-
-    public void setAgeOffTime(final long ageOffTime) {
-        this.ageOffTime = ageOffTime;
-    }
-
-    public void setAgeOffHours(final int ageOfHours) {
-        setAgeOffTime((long) Math.ceil(ageOfHours / 24.0));
-    }
-
-    public void setAgeOffWeeks(final long ageOfHours) {
-        setAgeOffTime(ageOfHours * 7L);
+        return new AgeOffFromDays();
     }
 
     @Override
@@ -93,7 +63,6 @@ public class AgeOffFromDays extends FilterFunction {
 
         return new EqualsBuilder()
                 .append(inputs, ageOff.inputs)
-                .append(ageOffTime, ageOff.ageOffTime)
                 .isEquals();
     }
 
@@ -101,7 +70,6 @@ public class AgeOffFromDays extends FilterFunction {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(inputs)
-                .append(ageOffTime)
                 .toHashCode();
     }
 
@@ -109,7 +77,6 @@ public class AgeOffFromDays extends FilterFunction {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("inputs", inputs)
-                .append("ageOffTime", ageOffTime)
                 .toString();
     }
 }
