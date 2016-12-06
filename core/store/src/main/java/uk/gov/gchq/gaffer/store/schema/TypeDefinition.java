@@ -16,16 +16,22 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.AggregateFunction;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,11 +39,13 @@ import java.util.List;
  * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
  * It is used to deserialise/serialise a {@link Schema} to/from JSON.
  */
+@JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public class TypeDefinition {
     private Class<?> clazz;
     private Serialisation serialiser;
     private ElementFilter validator;
     private AggregateFunction aggregateFunction;
+    private String description;
 
     public TypeDefinition() {
     }
@@ -143,6 +151,14 @@ public class TypeDefinition {
         this.aggregateFunction = aggregateFunction;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
     public void merge(final TypeDefinition type) {
         if (null == clazz) {
             clazz = type.getClazz();
@@ -172,16 +188,23 @@ public class TypeDefinition {
             throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") aggregate function, options are: "
                     + aggregateFunction + " and " + type.getAggregateFunction());
         }
+
+        if (null == description) {
+            description = type.getDescription();
+        } else if (null != type.getDescription() && !description.contains(type.getDescription())) {
+            description = description + " | " + type.getDescription();
+        }
     }
 
     @Override
     public String toString() {
-        return "TypeDefinition{"
-                + "clazz=" + clazz
-                + ", validator=" + validator
-                + ", aggregateFunction=" + aggregateFunction
-                + ", serialiser=" + serialiser
-                + '}';
+        return new ToStringBuilder(this)
+                .append("clazz", clazz)
+                .append("validator", validator)
+                .append("serialiser", serialiser)
+                .append("aggregateFunction", aggregateFunction)
+                .append("description", description)
+                .toString();
     }
 
     @Override
@@ -193,28 +216,26 @@ public class TypeDefinition {
             return false;
         }
 
-        final TypeDefinition type = (TypeDefinition) o;
+        final TypeDefinition that = (TypeDefinition) o;
 
-        if (!getClazz().equals(type.getClazz())) {
-            return false;
-        }
-        if (getValidator() != null ? !getValidator().equals(type.getValidator()) : type.getValidator() != null) {
-            return false;
-        }
-        if (getSerialiser() != null ? !getSerialiser().equals(type.getSerialiser()) : type.getSerialiser() != null) {
-            return false;
-        }
-
-        return !(getAggregateFunction() != null ? !getAggregateFunction().equals(type.getAggregateFunction()) : type.getAggregateFunction() != null);
+        return new EqualsBuilder()
+                .append(clazz, that.clazz)
+                .append(validator, that.validator)
+                .append(serialiser, that.serialiser)
+                .append(aggregateFunction, that.aggregateFunction)
+                .append(description, that.description)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = getClazz().hashCode();
-        result = 31 * result + (getValidator() != null ? getValidator().hashCode() : 0);
-        result = 31 * result + (getSerialiser() != null ? getSerialiser().hashCode() : 0);
-        result = 31 * result + (getAggregateFunction() != null ? getAggregateFunction().hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .append(clazz)
+                .append(validator)
+                .append(serialiser)
+                .append(aggregateFunction)
+                .append(description)
+                .toHashCode();
     }
 
     public static class Builder {
@@ -240,6 +261,11 @@ public class TypeDefinition {
 
         public Builder aggregateFunction(final AggregateFunction aggregateFunction) {
             type.setAggregateFunction(aggregateFunction);
+            return this;
+        }
+
+        public Builder description(final String description) {
+            type.setDescription(description);
             return this;
         }
 

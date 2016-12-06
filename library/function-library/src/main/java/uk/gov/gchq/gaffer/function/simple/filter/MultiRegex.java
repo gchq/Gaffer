@@ -85,7 +85,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
 
         return new EqualsBuilder()
                 .append(inputs, that.inputs)
-                .append(patternsToStrings(this.patterns), patternsToStrings(that.patterns))
+                .append(patternsToStrings(patterns), patternsToStrings(that.patterns))
                 .isEquals();
     }
 
@@ -93,7 +93,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(inputs)
-                .append(patterns)
+                .append(patternsToStrings(patterns))
                 .toHashCode();
     }
 
@@ -105,6 +105,16 @@ public class MultiRegex extends SimpleFilterFunction<String> {
                 .toString();
     }
 
+    /**
+     * Utility method to convert an array of {@link java.util.regex.Pattern}s to
+     * and array of {@link java.lang.String}s.
+     *
+     * This is required since the Pattern class does not override {@link java.lang.Object#equals(Object)}
+     * or {@link Object#hashCode()}
+     *
+     * @param patterns an array of Patterns to convert
+     * @return an array of Strings representing the regex pattern
+     */
     private String[] patternsToStrings(final Pattern[] patterns) {
         final List<String> strings = new ArrayList<>(patterns.length);
 

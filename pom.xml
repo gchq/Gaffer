@@ -74,6 +74,7 @@
         <zookeeper.version>3.4.6</zookeeper.version>
 
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
+        <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
         <surefire.plugin.version>2.19.1</surefire.plugin.version>
 
@@ -583,6 +584,50 @@
                         <configuration>
                             <fork>false</fork>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>travis</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.plugin.version}</version>
+                        <configuration>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
+                            <argLine>${argLine}</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>${findbugs.plugin.version}</version>
+                        <configuration>
+                            <fork>false</fork>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

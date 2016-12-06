@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -112,9 +113,9 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return elementDefs;
     }
 
-    public byte[] toJson(final boolean prettyPrint) throws SchemaException {
+    public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
-            return JSON_SERIALISER.serialise(this, prettyPrint);
+            return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
         } catch (SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
