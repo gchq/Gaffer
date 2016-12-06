@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.function.simple.filter;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 
@@ -71,12 +70,5 @@ public class AgeOffFromDays extends FilterFunction {
         return new HashCodeBuilder(17, 37)
                 .append(inputs)
                 .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .toString();
     }
 }
