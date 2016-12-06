@@ -60,6 +60,77 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
     }
 
     @Test
+    public void shouldNotAcceptWhenInputIsNull() {
+        // Given
+        final AgeOffFromDays filter = new AgeOffFromDays();
+
+        // When
+        final Object[] input = null;
+        final boolean accepted = filter.isValid(input);
+
+        // Then
+        assertFalse(accepted);
+    }
+
+    @Test
+    public void shouldNotAcceptWhenInputIsEmpty() {
+        // Given
+        final AgeOffFromDays filter = new AgeOffFromDays();
+
+        // When
+        final Object[] input = new Object[]{};
+        final boolean accepted = filter.isValid(input);
+
+        // Then
+        assertFalse(accepted);
+    }
+
+    @Test
+    public void shouldNotAcceptWhenInputIsIncorrectSize() {
+        // Given
+        final AgeOffFromDays filter = new AgeOffFromDays();
+
+        // When
+        final Object[] smallInput = new Object[]{""};
+        final Object[] largeInput = new Object[]{"","",""};
+
+        final boolean acceptedSmall = filter.isValid(smallInput);
+        final boolean acceptedLarge = filter.isValid(largeInput);
+
+        // Then
+        assertFalse(acceptedSmall);
+        assertFalse(acceptedLarge);
+    }
+
+    @Test
+    public void shouldNotAcceptWhenTimestampIsNull() {
+        // Given
+        final AgeOffFromDays filter = new AgeOffFromDays();
+
+        // When
+        final Object[] input = new Object[]{null, 0};
+
+        final boolean accepted = filter.isValid(input);
+
+        // Then
+        assertFalse(accepted);
+    }
+
+    @Test
+    public void shouldNotAcceptWhenDaysIsNull() {
+        // Given
+        final AgeOffFromDays filter = new AgeOffFromDays();
+
+        // When
+        final Object[] input = new Object[]{0L, null};
+
+        final boolean accepted = filter.isValid(input);
+
+        // Then
+        assertFalse(accepted);
+    }
+
+    @Test
     public void shouldClone() {
         // Given
         final AgeOffFromDays filter = new AgeOffFromDays();
