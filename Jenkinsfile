@@ -1,32 +1,28 @@
-def labels = ['Centos7', 'Debian8', 'WinServer2012R2']
+def labels = ['Centos7', 'Debian8']
+def envs = ['java-7-openjdk', 'java-8-jdk']
 def builders = [:]
 
 for (x in labels) {
-
     def label = x
+    for (y in envs) {
+        def env = y
 
-    builders[label] = {
-        node() {
-            def mvnHome
-            stage('prepare') {
-                jdk7 = tool name: 'java-7-openjdk'
-                jdk8 = tool name: 'java-8-jdk'
-                git url: "https://github.com/gchq/Gaffer.git", branch: "develop"
-                mvnHome = tool 'M3'
-            }
-            stage('java-7-jdk') {
-                env.JAVA_HOME = "${jdk7}"
-                echo "jdk installation path is: ${jdk7}"
-                sh "${jdk7}/bin/java -version"
-                sh "'${mvnHome}/bin/mvn' clean"
-                sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore package"
-            }
-            stage('java-8-jdk') {
-                env.JAVA_HOME = "${jdk8}"
-                echo "jdk installation path is: ${jdk8}"
-                sh "${jdk8}/bin/java -version"
-                sh "'${mvnHome}/bin/mvn' clean"
-                sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore package"
+        builders[label + ":" + env] = {
+            node(label) {
+                def mvnHome = tool name: 'M3'
+                def jdk = tool name: env
+                println jdk
+                println env
+                println mvnHome
+                stage('prepare') {
+                    git url: "https://github.com/gchq/Gaffer.git", branch: "develop"
+                }
+                stage('package') {
+                    echo "jdk installation path is: ${jdk}"
+                    sh "${jdk}/bin/java -version"
+                    sh "'${mvnHome}/bin/mvn' clean"
+                    sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore package"
+                }
             }
         }
     }
