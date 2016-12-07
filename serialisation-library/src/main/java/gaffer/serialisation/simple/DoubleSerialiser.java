@@ -53,6 +53,11 @@ public class DoubleSerialiser extends AbstractSerialisation<Double> {
     }
 
     @Override
+    public Double deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }
