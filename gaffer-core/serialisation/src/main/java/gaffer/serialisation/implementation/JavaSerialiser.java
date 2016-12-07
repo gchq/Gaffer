@@ -62,6 +62,11 @@ public class JavaSerialiser extends AbstractSerialisation<Object> {
         }
     }
 
+    @Override
+    public Object deserialiseEmptyBytes() {
+        return null;
+    }
+
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
         return clazz.cast(this.deserialise(bytes));
     }

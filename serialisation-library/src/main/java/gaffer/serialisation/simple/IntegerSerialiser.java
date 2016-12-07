@@ -53,6 +53,11 @@ public class IntegerSerialiser extends AbstractSerialisation<Integer> {
     }
 
     @Override
+    public Integer deserialiseEmptyBytes() throws SerialisationException {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }
