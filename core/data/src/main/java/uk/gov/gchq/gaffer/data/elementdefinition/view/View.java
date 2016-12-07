@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -56,6 +57,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     public static View fromJson(final byte[] jsonBytes) throws SchemaException {
         return fromJson(View.class, jsonBytes);
+    }
+
+    public byte[] toCompactJson() throws SchemaException {
+        return toJson(false);
     }
 
     @Override

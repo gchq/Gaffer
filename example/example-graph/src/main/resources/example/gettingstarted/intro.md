@@ -29,3 +29,23 @@ mvn clean install -Pquick
 
 We've written some ${EXAMPLES_LINK} to show you how to get started.
 
+## Running the Examples
+
+The section below provides an overview of a number of examples of working with a Gaffer graph, including a description of the input and output at each stage.
+
+It is possible to run these examples yourself using one of two methods:
+
+* The examples can be run directly from the IDE of your choice, or
+* The examples JAR file can be compiled and the examples can be executed from the command line.
+
+In order to run the examples from the command line, first the examples JAR must be compiled:
+
+```bash
+mvn clean install -Pquick -PexampleJar
+```
+
+The examples can then be run from the JAR, for instance
+
+```bash
+java -cp example/example-graph/target/example-jar-with-dependencies.jar uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery1
+```

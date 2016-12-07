@@ -24,11 +24,13 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -237,8 +239,8 @@ public class ViewTest {
         // Check that the objects are equal
         assertEquals(view, clone);
 
-        final byte[] viewJson = view.toJson(false);
-        final byte[] cloneJson = clone.toJson(false);
+        final byte[] viewJson = view.toCompactJson();
+        final byte[] cloneJson = clone.toCompactJson();
 
         // Check that JSON representations of the objects are equal
         assertArrayEquals(viewJson, cloneJson);
@@ -252,5 +254,17 @@ public class ViewTest {
         // Check that objects created from JSON representations are equal
         assertEquals(viewFromJson, view);
         assertEquals(cloneFromJson, clone);
+    }
+
+    @Test
+    public void shouldSerialiseToCompactJson() {
+        // Given
+        final View view = new View();
+
+        // When
+        final String compactJson = new String(view.toCompactJson());
+
+        // Then - no description fields or new lines
+        assertFalse(compactJson.contains(String.format("%n")));
     }
 }

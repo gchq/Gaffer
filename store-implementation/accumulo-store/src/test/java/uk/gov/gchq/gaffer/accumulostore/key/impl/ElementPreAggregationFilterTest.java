@@ -172,14 +172,14 @@ public class ElementPreAggregationFilterTest {
                 .edge(TestGroups.EDGE)
                 .build();
 
-        return new String(view.toJson(false), CommonConstants.UTF_8);
+        return new String(view.toCompactJson(), CommonConstants.UTF_8);
     }
 
     private String getEmptyViewJson() throws UnsupportedEncodingException {
         final View view = new View.Builder()
                 .build();
 
-        return new String(view.toJson(false), CommonConstants.UTF_8);
+        return new String(view.toCompactJson(), CommonConstants.UTF_8);
     }
 
     private Schema getSchema() throws UnsupportedEncodingException {
@@ -193,6 +193,6 @@ public class ElementPreAggregationFilterTest {
     }
 
     private String getSchemaJson() throws UnsupportedEncodingException {
-        return new String(getSchema().toJson(false), CommonConstants.UTF_8);
+        return new String(getSchema().toCompactJson(), CommonConstants.UTF_8);
     }
 }
