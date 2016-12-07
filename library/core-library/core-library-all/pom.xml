@@ -33,12 +33,12 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-library-operation</artifactId>
+            <artifactId>core-library-serialisation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-library-serialisation</artifactId>
+            <artifactId>core-library-type</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

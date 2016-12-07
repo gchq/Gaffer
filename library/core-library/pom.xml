@@ -13,7 +13,6 @@
 
     <modules>
         <module>core-library-function</module>
-        <module>core-library-operation</module>
         <module>core-library-serialisation</module>
         <module>core-library-type</module>
         <module>core-library-all</module>
