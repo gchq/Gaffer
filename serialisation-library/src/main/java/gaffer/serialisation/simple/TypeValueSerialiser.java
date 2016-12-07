@@ -91,7 +91,7 @@ public class TypeValueSerialiser extends AbstractSerialisation<TypeValue> {
 
     @Override
     public TypeValue deserialiseEmptyBytes() throws SerialisationException {
-        return new TypeValue();
+        return null;
     }
 
     @Override

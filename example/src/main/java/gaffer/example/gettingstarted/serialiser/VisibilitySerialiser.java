@@ -53,6 +53,11 @@ public class VisibilitySerialiser extends AbstractSerialisation<String> {
     }
 
     @Override
+    public String deserialiseEmptyBytes() throws SerialisationException {
+        return "";
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }

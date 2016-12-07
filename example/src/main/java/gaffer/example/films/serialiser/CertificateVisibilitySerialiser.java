@@ -53,6 +53,11 @@ public class CertificateVisibilitySerialiser extends AbstractSerialisation<Certi
     }
 
     @Override
+    public Certificate deserialiseEmptyBytes() throws SerialisationException {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }

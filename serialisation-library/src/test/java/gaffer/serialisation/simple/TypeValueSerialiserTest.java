@@ -19,9 +19,7 @@ import gaffer.commonutil.ByteArrayEscapeUtils;
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
 import gaffer.serialisation.SerialisationTest;
-import gaffer.types.simple.FreqMap;
 import gaffer.types.simple.TypeValue;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -73,7 +71,8 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
         byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeValue));
         String serialisedForm = new String(bytes);
         assertEquals("testType\1\1testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(ByteArrayEscapeUtils.unEscape(bytes));
+        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(ByteArrayEscapeUtils
+                .unEscape(bytes));
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -85,7 +84,7 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
         final TypeValue value = serialiser.deserialiseEmptyBytes();
 
         // Then
-        assertEquals(new TypeValue(), value);
+        assertNull(value);
     }
 
     @Override
