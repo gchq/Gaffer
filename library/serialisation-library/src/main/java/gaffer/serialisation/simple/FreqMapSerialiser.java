@@ -123,4 +123,9 @@ public class FreqMapSerialiser extends AbstractSerialisation<FreqMap> {
     public boolean isByteOrderPreserved() {
         return false;
     }
+
+    @Override
+    public FreqMap deserialiseEmptyBytes() {
+        return new FreqMap();
+    }
 }

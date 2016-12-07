@@ -63,8 +63,9 @@ public interface Serialisation<T> extends Serializable {
      * Handle an empty byte array and reconstruct an appropriate representation in Object form.
      *
      * @return T the deserialised object
+     * @throws SerialisationException if the object fails to deserialise
      */
-    T deserialiseEmptyBytes();
+    T deserialiseEmptyBytes() throws SerialisationException;
 
     /**
      * @return true if the serialisation will preserve the order of bytes, otherwise false.

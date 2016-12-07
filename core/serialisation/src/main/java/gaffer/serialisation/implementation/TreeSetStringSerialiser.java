@@ -78,6 +78,11 @@ public class TreeSetStringSerialiser extends AbstractSerialisation<TreeSet> {
     }
 
     @Override
+    public TreeSet deserialiseEmptyBytes() {
+        return new TreeSet<>();
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }

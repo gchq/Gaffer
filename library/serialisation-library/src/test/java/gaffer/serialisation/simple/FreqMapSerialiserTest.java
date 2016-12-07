@@ -16,6 +16,8 @@
 package gaffer.serialisation.simple;
 
 import gaffer.exception.SerialisationException;
+import gaffer.serialisation.Serialisation;
+import gaffer.serialisation.test.SerialisationTest;
 import gaffer.types.simple.FreqMap;
 import org.junit.Test;
 
@@ -23,14 +25,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class FreqMapSerialiserTest {
-
-    private static final FreqMapSerialiser SERIALISER = new FreqMapSerialiser();
+public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(new FreqMap());
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(new FreqMap());
+        Object o = serialiser.deserialise(b);
         assertEquals(FreqMap.class, o.getClass());
         assertEquals(0, ((FreqMap) o).size());
     }
@@ -44,8 +44,8 @@ public class FreqMapSerialiserTest {
         freqMap.put("z", 20L);
 
         // When
-        final byte[] serialised = SERIALISER.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(freqMap);
+        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
 
         // Then
         assertEquals((Long) 10L, deserialised.get("x"));
@@ -62,8 +62,8 @@ public class FreqMapSerialiserTest {
         freqMap.put("z", 20L);
 
         // When
-        final byte[] serialised = SERIALISER.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(freqMap);
+        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
 
         assertEquals((Long) 10L, deserialised.get(""));
         assertEquals((Long) 5L, deserialised.get("y"));
@@ -79,8 +79,8 @@ public class FreqMapSerialiserTest {
         freqMap.put("z", 20L);
 
         // When
-        final byte[] serialised = SERIALISER.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(freqMap);
+        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
 
         assertFalse(deserialised.containsKey("x"));
         assertEquals((Long) 5L, deserialised.get("y"));
@@ -98,8 +98,8 @@ public class FreqMapSerialiserTest {
         freqMap.put("z", null);
 
         // When
-        final byte[] serialised = SERIALISER.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(freqMap);
+        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
 
         assertFalse(deserialised.containsKey("v"));
         assertEquals((Long) 5L, deserialised.get("w"));
@@ -108,14 +108,27 @@ public class FreqMapSerialiserTest {
         assertFalse(deserialised.containsKey("z"));
     }
 
+    @Override
+    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+        // When
+        final FreqMap value = serialiser.deserialiseEmptyBytes();
+
+        // Then
+        assertEquals(new FreqMap(), value);
+    }
+
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseFreqMap() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(FreqMap.class));
+        assertTrue(serialiser.canHandle(FreqMap.class));
     }
 
+    @Override
+    public Serialisation<FreqMap> getSerialisation() {
+        return new FreqMapSerialiser();
+    }
 }
