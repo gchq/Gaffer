@@ -555,6 +555,11 @@ public class SchemaTest {
         }
 
         @Override
+        public Object deserialiseEmptyBytes() throws SerialisationException {
+            return null;
+        }
+
+        @Override
         public boolean isByteOrderPreserved() {
             return true;
         }

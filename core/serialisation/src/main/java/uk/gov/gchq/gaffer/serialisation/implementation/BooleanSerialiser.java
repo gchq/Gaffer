@@ -35,6 +35,11 @@ public class BooleanSerialiser extends AbstractSerialisation<Boolean> {
         return bytes.length == 1 && TRUE == bytes[0];
     }
 
+    @Override
+    public Boolean deserialiseEmptyBytes() {
+        return Boolean.FALSE;
+    }
+
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
         return clazz.cast(bytes.length == 1 && TRUE == bytes[0]);
     }

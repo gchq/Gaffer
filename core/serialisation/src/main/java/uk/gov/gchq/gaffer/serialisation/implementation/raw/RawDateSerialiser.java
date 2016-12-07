@@ -63,6 +63,11 @@ public class RawDateSerialiser extends AbstractSerialisation<Date> {
     }
 
     @Override
+    public Date deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }
