@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-library-all</artifactId>
+            <artifactId>core-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

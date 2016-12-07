@@ -13,8 +13,8 @@
 
     <modules>
         <module>core-library</module>
-        <module>spark-library</module>
-        <module>sketches-library</module>
         <module>hdfs-library</module>
+        <module>sketches-library</module>
+        <module>spark</module>
     </modules>
 </project>
