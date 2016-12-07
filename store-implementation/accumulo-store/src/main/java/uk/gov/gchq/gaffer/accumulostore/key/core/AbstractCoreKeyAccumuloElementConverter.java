@@ -109,11 +109,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         while (propertyNames.hasNext()) {
             propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            if (isStoredInValue(propertyName, elementDefinition)) {
+            if (typeDefinition != null && isStoredInValue(propertyName, elementDefinition)) {
                 final Serialisation<?> serialiser = typeDefinition.getSerialiser();
-                try {
-                    if (null != serialiser) {
-                        Object value = properties.get(propertyName);
+                if (null != serialiser) {
+                    Object value = properties.get(propertyName);
+                    try {
                         if (null != value) {
                             final byte[] bytes = typeDefinition.getSerialiser().serialise(value);
                             hasValue = writeBytes(bytes, out);
@@ -121,11 +121,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                             final byte[] bytes = typeDefinition.getSerialiser().serialiseNull();
                             writeBytes(bytes, out);
                         }
-                    } else {
-                        writeBytes(AccumuloStoreConstants.EMPTY_BYTES, out);
+                    } catch (final IOException e) {
+                        throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
                     }
-                } catch (final IOException e) {
-                    throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
                 }
             }
         }

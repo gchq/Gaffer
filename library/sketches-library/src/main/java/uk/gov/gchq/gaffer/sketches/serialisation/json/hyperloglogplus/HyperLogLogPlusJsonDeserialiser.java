@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.node.TextNode;
-
 import java.io.IOException;
 
 public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLogPlus> {
@@ -36,7 +35,7 @@ public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLo
 
         final TreeNode coreHyperLogLogPlusObject = treeNode.get("hyperLogLogPlus");
         if (coreHyperLogLogPlusObject != null) {
-            final TextNode jsonNodes = (TextNode) coreHyperLogLogPlusObject.get(uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus.HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD);
+            final TextNode jsonNodes = (TextNode) coreHyperLogLogPlusObject.get(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD);
 
             final byte[] nodeAsString = jsonNodes.binaryValue();
             final HyperLogLogPlus hyperLogLogPlus = HyperLogLogPlus.Builder.build(nodeAsString);

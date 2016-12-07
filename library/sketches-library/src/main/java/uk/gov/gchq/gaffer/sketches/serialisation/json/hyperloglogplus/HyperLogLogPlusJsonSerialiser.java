@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-
 import java.io.IOException;
 
 public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlus> {
@@ -49,7 +48,7 @@ public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlu
 
     private void _serialise(final HyperLogLogPlus hyperLogLogPlus, final JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart("hyperLogLogPlus");
-        jsonGenerator.writeObjectField(uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus.HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD, hyperLogLogPlus.getBytes());
+        jsonGenerator.writeObjectField(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD, hyperLogLogPlus.getBytes());
         jsonGenerator.writeNumberField(HyperLogLogPlusJsonConstants.CARDINALITY_FIELD, hyperLogLogPlus.cardinality());
         jsonGenerator.writeEndObject();
     }

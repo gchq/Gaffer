@@ -27,9 +27,19 @@ In order to make use of the spark libraries you will need to include these libra
 </dependency>
 ```
 
-You will then need to register the spark operations and their handlers with your store. Currently only spark operation handlers for the Accumulo Store have been written.
-This is done by providing an operations declaration json file that tells the Gaffer store to register the spark operations.
-Just add the following to your store properties file.
+You will then need to register the spark operations and their handlers with your store.
+Currently only spark operation handlers for the Accumulo Store have been written.
+To use spark with accumulo you will need to include this dependency:
+```
+ <dependency>
+  <groupId>uk.gov.gchq.gaffer</groupId>
+  <artifactId>spark-accumulo-library</artifactId>
+  <version>${gaffer.version}</version>
+</dependency>
+```
+
+Then to register the spark operations with the accumulo store you just need
+to add the following to your store properties file.
 ```
 gaffer.store.operation.declarations=sparkAccumuloOperationsDeclarations.json
 ```
