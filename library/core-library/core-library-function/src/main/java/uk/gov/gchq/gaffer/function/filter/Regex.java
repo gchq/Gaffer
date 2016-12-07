@@ -84,7 +84,8 @@ public class Regex extends SimpleFilterFunction<String> {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(inputs)
-                .append(controlValue)
+                // Pattern does not override hashCode()
+                .append(controlValue.toString())
                 .toHashCode();
     }
 
@@ -92,7 +93,8 @@ public class Regex extends SimpleFilterFunction<String> {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("inputs", inputs)
-                .append("controlValue", controlValue)
+                // Pattern does not override equals()
+                .append("controlValue", controlValue.toString())
                 .toString();
     }
 }
