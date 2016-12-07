@@ -22,7 +22,7 @@ In order to make use of the spark libraries you will need to include these libra
 ```
  <dependency>
   <groupId>uk.gov.gchq.gaffer</groupId>
-  <artifactId>spark-library-all</artifactId>
+  <artifactId>spark-library</artifactId>
   <version>${gaffer.version}</version>
 </dependency>
 ```
