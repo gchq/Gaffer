@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.function.simple.filter;
+package uk.gov.gchq.gaffer.function.filter;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -92,7 +91,7 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
 
         // When
         final Object[] smallInput = new Object[]{""};
-        final Object[] largeInput = new Object[]{"","",""};
+        final Object[] largeInput = new Object[]{"", "", ""};
 
         final boolean acceptedSmall = filter.isValid(smallInput);
         final boolean acceptedLarge = filter.isValid(largeInput);
@@ -152,7 +151,7 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.function.simple.filter.AgeOffFromDays\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.function.filter.AgeOffFromDays\"%n" +
                 "}"), json);
 
         // When 2
