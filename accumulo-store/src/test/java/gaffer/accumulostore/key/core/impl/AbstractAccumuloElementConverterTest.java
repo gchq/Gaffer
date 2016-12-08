@@ -16,11 +16,6 @@
 package gaffer.accumulostore.key.core.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
 import gaffer.accumulostore.key.AccumuloElementConverter;
 import gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -28,12 +23,18 @@ import gaffer.accumulostore.utils.AccumuloStoreConstants;
 import gaffer.accumulostore.utils.Pair;
 import gaffer.commonutil.StreamUtil;
 import gaffer.commonutil.TestGroups;
+import gaffer.commonutil.TestPropertyNames;
 import gaffer.data.element.Edge;
 import gaffer.data.element.Entity;
 import gaffer.data.element.Properties;
 import gaffer.data.elementdefinition.exception.SchemaException;
+import gaffer.function.simple.aggregate.FreqMapAggregator;
+import gaffer.serialisation.simple.FreqMapSerialiser;
 import gaffer.store.schema.Schema;
 import gaffer.store.schema.SchemaEdgeDefinition;
+import gaffer.store.schema.SchemaEntityDefinition;
+import gaffer.store.schema.TypeDefinition;
+import gaffer.types.simple.FreqMap;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
@@ -41,6 +42,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractAccumuloElementConverterTest {
 
@@ -202,25 +208,6 @@ public abstract class AbstractAccumuloElementConverterTest {
         assertEquals("1", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
         assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
-    }
-
-    @Test
-    public void shouldSkipNullPropertyValuesWhenCreatingAccumuloValue() throws SchemaException, AccumuloElementConversionException, IOException {
-        // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setSource("1");
-        edge.setDestination("2");
-        edge.setDirected(true);
-        edge.putProperty(AccumuloPropertyNames.PROP_1, null);
-        edge.putProperty(AccumuloPropertyNames.PROP_2, null);
-        edge.putProperty(AccumuloPropertyNames.PROP_3, null);
-        edge.putProperty(AccumuloPropertyNames.COUNT, null);
-
-        // When
-        final Value value = converter.getValueFromElement(edge);
-
-        // Then
-        assertEquals(0, value.getSize());
     }
 
     @Test
@@ -504,5 +491,46 @@ public abstract class AbstractAccumuloElementConverterTest {
         } catch (final AccumuloElementConversionException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+
+    @Test
+    public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty()
+            throws AccumuloElementConversionException {
+        // Given 
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                                .vertex(String.class)
+                                .property(TestPropertyNames.PROP_1, "map")
+                                .property(TestPropertyNames.PROP_2, "map")
+                                .build()
+                )
+                .type("map", new TypeDefinition.Builder()
+                        .clazz(FreqMap.class)
+                        .aggregateFunction(new FreqMapAggregator())
+                        .serialiser(new FreqMapSerialiser())
+                        .build())
+                .build();
+
+        converter = createConverter(schema);
+
+        final Entity entity = new Entity.Builder()
+                .vertex("vertex1")
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+
+        // When 1 
+        final Value value = converter.getValueFromProperties(TestGroups.ENTITY, entity.getProperties());
+
+        // Then 1
+        assertTrue(value.getSize() > 0);
+
+        // When 2
+        final Properties properties = converter.getPropertiesFromValue(
+                TestGroups.ENTITY, value);
+
+        // Then 2
+        assertEquals(entity.getProperties(), properties);
     }
 }
