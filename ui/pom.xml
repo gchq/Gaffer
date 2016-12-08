@@ -19,7 +19,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.7-SNAPSHOT</version>
+        <version>0.4.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ui</artifactId>
@@ -72,9 +72,14 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.rest-api.basePath>rest/v1</gaffer.rest-api.basePath>
-                                <gaffer.schemas>${project.build.outputDirectory}/example-schema.json</gaffer.schemas>
-                                <gaffer.storeProperties>${project.build.outputDirectory}/example-store.properties</gaffer.storeProperties>
+                                <gaffer.rest-api.basePath>rest/v1
+                                </gaffer.rest-api.basePath>
+                                <gaffer.schemas>
+                                    ${project.build.outputDirectory}/example-schema.json
+                                </gaffer.schemas>
+                                <gaffer.storeProperties>
+                                    ${project.build.outputDirectory}/example-store.properties
+                                </gaffer.storeProperties>
                             </systemProperties>
                         </configuration>
                         <dependencies>

@@ -16,11 +16,6 @@
 
 package gaffer.rest.service;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import gaffer.commonutil.TestGroups;
 import gaffer.data.elementdefinition.view.View;
 import gaffer.graph.Graph;
@@ -36,6 +31,11 @@ import gaffer.store.schema.ViewValidator;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 
 public class ExamplesServiceTest {

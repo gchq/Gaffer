@@ -95,6 +95,11 @@ Jersey Server (com.sun.jersey:jersey-server:1.9)
 - GNU General Public License 2.0
 
 
+Joda Time (joda-time:joda-time:2.9.5)
+
+- Apache License, Version 2.0
+
+
 Junit (junit:junit:4.12):
 
 - Eclipse Public License 1.0
