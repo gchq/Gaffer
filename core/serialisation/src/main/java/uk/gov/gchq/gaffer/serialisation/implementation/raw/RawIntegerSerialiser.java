@@ -49,6 +49,11 @@ public class RawIntegerSerialiser extends AbstractSerialisation<Integer> {
     }
 
     @Override
+    public Integer deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }

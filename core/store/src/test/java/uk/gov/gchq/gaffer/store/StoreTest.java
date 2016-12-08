@@ -80,10 +80,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -93,6 +89,10 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
     private final User user = new User();

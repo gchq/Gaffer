@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.simple.filter.And;
-import uk.gov.gchq.gaffer.function.simple.filter.IsLessThan;
-import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.filter.And;
+import uk.gov.gchq.gaffer.function.filter.IsLessThan;
+import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import java.util.Arrays;
 
 public class AndExample extends FilterFunctionExample {

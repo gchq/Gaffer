@@ -56,9 +56,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;

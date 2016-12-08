@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueR
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.store.Store;
-
 import java.io.IOException;
 
 public class SampleDataForSplitPointsJobFactory {
@@ -43,7 +42,7 @@ public class SampleDataForSplitPointsJobFactory {
 
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser}.
+     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation

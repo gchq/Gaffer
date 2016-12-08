@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.simple.filter.MapContains;
+import uk.gov.gchq.gaffer.function.filter.MapContains;
 import java.util.HashMap;
 import java.util.Map;
 

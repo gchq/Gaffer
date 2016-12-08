@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 
-import uk.gov.gchq.gaffer.function.simple.filter.AreEqual;
-import uk.gov.gchq.gaffer.function.simple.filter.Exists;
-import uk.gov.gchq.gaffer.function.simple.filter.Not;
+import uk.gov.gchq.gaffer.function.filter.AreEqual;
+import uk.gov.gchq.gaffer.function.filter.Exists;
+import uk.gov.gchq.gaffer.function.filter.Not;
 
 public class NotExample extends FilterFunctionExample {
     public static void main(final String[] args) {

@@ -30,8 +30,4 @@ public abstract class AbstractSerialisation<T> implements Serialisation<T> {
         return EMPTY_BYTES;
     }
 
-    @Override
-    public T deserialiseEmptyBytes() {
-        return null;
-    }
 }

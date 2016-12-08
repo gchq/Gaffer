@@ -60,9 +60,9 @@ public class Properties extends HashMap<String, Object> {
      * @param propertiesToKeep a set of properties to keep
      */
     public void keepOnly(final Collection<String> propertiesToKeep) {
-        Iterator<Map.Entry<String, Object>> it = entrySet().iterator();
+        Iterator<Entry<String, Object>> it = entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<String, Object> entry = it.next();
+            Entry<String, Object> entry = it.next();
             if (!propertiesToKeep.contains(entry.getKey())) {
                 it.remove();
             }
@@ -79,11 +79,11 @@ public class Properties extends HashMap<String, Object> {
 
     @Override
     public String toString() {
-        final Iterator<Map.Entry<String, Object>> iter = entrySet().iterator();
+        final Iterator<Entry<String, Object>> iter = entrySet().iterator();
         StringBuilder sb = new StringBuilder();
         sb.append('{');
         while (iter.hasNext()) {
-            final Map.Entry<String, Object> e = iter.next();
+            final Entry<String, Object> e = iter.next();
             sb.append(e.getKey());
             sb.append("=");
             if (null != e.getValue()) {
