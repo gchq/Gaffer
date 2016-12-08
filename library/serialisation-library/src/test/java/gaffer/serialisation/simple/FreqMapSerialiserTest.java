@@ -17,7 +17,7 @@ package gaffer.serialisation.simple;
 
 import gaffer.exception.SerialisationException;
 import gaffer.serialisation.Serialisation;
-import gaffer.serialisation.test.SerialisationTest;
+import gaffer.serialisation.SerialisationTest;
 import gaffer.types.simple.FreqMap;
 import org.junit.Test;
 

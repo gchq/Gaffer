@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.test;
+package gaffer.serialisation;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.Serialisation;
 import org.junit.Test;
-
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 public abstract class SerialisationTest<T> {
 
