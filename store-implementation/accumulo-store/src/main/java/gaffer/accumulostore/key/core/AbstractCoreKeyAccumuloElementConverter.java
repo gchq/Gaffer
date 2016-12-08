@@ -304,15 +304,15 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         while (propertyNames.hasNext()) {
             String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final Serialisation serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
             try {
                 if (null != serialiser) {
                     Object value = properties.get(propertyName);
                     if (null != value) {
-                        final byte[] bytes = typeDefinition.getSerialiser().serialise(value);
+                        final byte[] bytes = serialiser.serialise(value);
                         writeBytes(bytes, out);
                     } else {
-                        final byte[] bytes = typeDefinition.getSerialiser().serialiseNull();
+                        final byte[] bytes = serialiser.serialiseNull();
                         writeBytes(bytes, out);
                     }
 
