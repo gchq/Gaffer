@@ -70,6 +70,11 @@ public class AvroSerialiser extends AbstractSerialisation<Object> {
     }
 
     @Override
+    public Object deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return false;
     }

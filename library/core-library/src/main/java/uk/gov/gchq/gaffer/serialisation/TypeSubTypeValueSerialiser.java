@@ -113,4 +113,9 @@ public class TypeSubTypeValueSerialiser extends AbstractSerialisation<TypeSubTyp
     public boolean isByteOrderPreserved() {
         return true;
     }
+
+    @Override
+    public TypeSubTypeValue deserialiseEmptyBytes() {
+        return new TypeSubTypeValue();
+    }
 }

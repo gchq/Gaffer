@@ -19,21 +19,18 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.TypeValue;
-
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TypeValueSerialiserTest {
-
-    private static final TypeValueSerialiser SERIALISER = new TypeValueSerialiser();
+public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectly() throws SerialisationException {
         TypeValue typeValue = new TypeValue("testType", "testValue");
-        byte[] bytes = SERIALISER.serialise(typeValue);
+        byte[] bytes = serialiser.serialise(typeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) SERIALISER.deserialise(bytes);
+        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(bytes);
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -43,10 +40,10 @@ public class TypeValueSerialiserTest {
     public void testCanSerialiseDeSerialiseCorrectlyValueOnly() throws SerialisationException {
         TypeValue typeValue = new TypeValue();
         typeValue.setValue("testValue");
-        byte[] bytes = SERIALISER.serialise(typeValue);
+        byte[] bytes = serialiser.serialise(typeValue);
         String serialisedForm = new String(bytes);
         assertEquals("\0testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) SERIALISER.deserialise(bytes);
+        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(bytes);
         assertNull(deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -56,10 +53,10 @@ public class TypeValueSerialiserTest {
     public void testCanSerialiseDeSerialiseCorrectlyTypeOnly() throws SerialisationException {
         TypeValue typeValue = new TypeValue();
         typeValue.setType("testType");
-        byte[] bytes = SERIALISER.serialise(typeValue);
+        byte[] bytes = serialiser.serialise(typeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) SERIALISER.deserialise(bytes);
+        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(bytes);
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertNull(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -68,12 +65,27 @@ public class TypeValueSerialiserTest {
     @Test
     public void testCanSerialiseDeserialiseCorrectlyAndBeEscaped() throws SerialisationException {
         TypeValue typeValue = new TypeValue("testType", "testValue");
-        byte[] bytes = ByteArrayEscapeUtils.escape(SERIALISER.serialise(typeValue));
+        byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeValue));
         String serialisedForm = new String(bytes);
         assertEquals("testType\1\1testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) SERIALISER.deserialise(ByteArrayEscapeUtils.unEscape(bytes));
+        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(ByteArrayEscapeUtils
+                .unEscape(bytes));
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
+    }
+
+    @Override
+    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+        // When
+        final TypeValue value = serialiser.deserialiseEmptyBytes();
+
+        // Then
+        assertNull(value);
+    }
+
+    @Override
+    public Serialisation<TypeValue> getSerialisation() {
+        return new TypeValueSerialiser();
     }
 }

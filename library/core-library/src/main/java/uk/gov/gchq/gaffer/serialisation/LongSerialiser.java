@@ -53,6 +53,11 @@ public class LongSerialiser extends AbstractSerialisation<Long> {
     }
 
     @Override
+    public Long deserialiseEmptyBytes() throws SerialisationException {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }

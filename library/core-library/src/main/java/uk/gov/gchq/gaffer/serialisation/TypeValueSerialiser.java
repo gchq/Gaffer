@@ -68,7 +68,8 @@ public class TypeValueSerialiser extends AbstractSerialisation<TypeValue> {
             if (bytes[i] == ByteArrayEscapeUtils.DELIMITER) {
                 if (i > 0) {
                     try {
-                        typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8));
+                        typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(Arrays
+                                .copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8));
                     } catch (UnsupportedEncodingException e) {
                         throw new SerialisationException("Failed to deserialise the Type from TypeValue Object", e);
                     }
@@ -79,12 +80,18 @@ public class TypeValueSerialiser extends AbstractSerialisation<TypeValue> {
         }
         if (bytes.length > lastDelimiter) {
             try {
-                typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, bytes.length)), CommonConstants.UTF_8));
+                typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(Arrays
+                        .copyOfRange(bytes, lastDelimiter, bytes.length)), CommonConstants.UTF_8));
             } catch (UnsupportedEncodingException e) {
                 throw new SerialisationException("Failed to deserialise the Value from TypeValue Object", e);
             }
         }
         return typeValue;
+    }
+
+    @Override
+    public TypeValue deserialiseEmptyBytes() throws SerialisationException {
+        return null;
     }
 
     @Override

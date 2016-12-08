@@ -50,6 +50,11 @@ public class RawFloatSerialiser extends AbstractSerialisation<Float> {
     }
 
     @Override
+    public Float deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return true;
     }

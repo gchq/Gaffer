@@ -17,22 +17,21 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class StringSerialiserTest {
-
-    private static final StringSerialiser SERIALISER = new StringSerialiser();
+public class StringSerialiserTest extends SerialisationTest<String> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
             builder.append(i);
-            byte[] b = SERIALISER.serialise(builder.toString());
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(builder.toString());
+            Object o = serialiser.deserialise(b);
             assertEquals(String.class, o.getClass());
             assertEquals(builder.toString(), o);
         }
@@ -40,11 +39,25 @@ public class StringSerialiserTest {
 
     @Test
     public void cantSerialiseLongClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(Long.class));
+        assertFalse(serialiser.canHandle(Long.class));
     }
 
     @Test
     public void canSerialiseStringClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+        // When
+        final String value = serialiser.deserialiseEmptyBytes();
+
+        // Then
+        assertEquals("", value);
+    }
+
+    @Override
+    public Serialisation<String> getSerialisation() {
+        return new StringSerialiser();
     }
 }
