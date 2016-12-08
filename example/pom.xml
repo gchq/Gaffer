@@ -20,7 +20,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.8-SNAPSHOT</version>
+        <version>0.4.7.2</version>
     </parent>
 
     <artifactId>example</artifactId>
