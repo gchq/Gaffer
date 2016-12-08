@@ -303,16 +303,31 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public Builder preAggregationFilter(final ElementFilter filter) {
+            if (null != getElementDef().getPreAggregationFilter()) {
+                throw new IllegalArgumentException("ViewElementDefinition.Builder().preAggregationFilter(ElementFilter)" +
+                        "may only be called once.");
+            }
+
             getElementDef().setPreAggregationFilter(filter);
             return this;
         }
 
         public Builder postAggregationFilter(final ElementFilter filter) {
+            if (null != getElementDef().getPostAggregationFilter()) {
+                throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
+                        "may only be called once.");
+            }
+
             getElementDef().setPostAggregationFilter(filter);
             return this;
         }
 
         public Builder postTransformFilter(final ElementFilter postFilter) {
+            if (null != getElementDef().getPostTransformFilter()) {
+                throw new IllegalArgumentException("ViewElementDefinition.Builder().postTransformFilter(ElementFilter)" +
+                        "may only be called once.");
+            }
+
             getElementDef().setPostTransformFilter(postFilter);
             return this;
         }
