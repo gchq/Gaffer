@@ -58,13 +58,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 
 public class RowIdAggregatorTest {
@@ -263,8 +263,8 @@ public class RowIdAggregatorTest {
             final Range r = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("1")), new EntitySeed("4")), new SummariseGroupOverRanges());
             final Range r2 = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("5")), new EntitySeed("5")), new SummariseGroupOverRanges());
             scanner.setRanges(Arrays.asList(r, r2));
-            final Iterator<Map.Entry<Key, Value>> it = scanner.iterator();
-            Map.Entry<Key, Value> entry = it.next();
+            final Iterator<Entry<Key, Value>> it = scanner.iterator();
+            Entry<Key, Value> entry = it.next();
             Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
 
             Edge expectedEdge = new Edge("BasicEdge2");

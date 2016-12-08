@@ -315,7 +315,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                         final byte[] bytes = serialiser.serialiseNull();
                         writeBytes(bytes, out);
                     }
-
                 } else {
                     writeBytes(AccumuloStoreConstants.EMPTY_BYTES, out);
                 }

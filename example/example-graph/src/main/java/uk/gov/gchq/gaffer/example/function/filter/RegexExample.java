@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.simple.filter.Regex;
+import uk.gov.gchq.gaffer.function.filter.Regex;
 
 public class RegexExample extends FilterFunctionExample {
     public static void main(final String[] args) {

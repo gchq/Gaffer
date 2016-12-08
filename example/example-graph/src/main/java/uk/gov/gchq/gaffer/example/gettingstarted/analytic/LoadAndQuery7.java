@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator7;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
-import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationChain;

@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.function.IsA;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -239,7 +238,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementAggregator getAggregator() {
         final ElementAggregator aggregator = new ElementAggregator();
-        for (final Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
+        for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
             addTypeAggregateFunctions(aggregator, entry.getKey(), entry.getValue());
         }
 
@@ -261,14 +260,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
-        for (final Map.Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
+        for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final String key = entry.getKey().name();
             if (includeIsA) {
                 addIsAFunction(fullValidator, key, entry.getValue());
             }
             addTypeValidatorFunctions(fullValidator, key, entry.getValue());
         }
-        for (final Map.Entry<String, String> entry : getPropertyMap().entrySet()) {
+        for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
             final String key = entry.getKey();
             if (includeIsA) {
                 addIsAFunction(fullValidator, key, entry.getValue());

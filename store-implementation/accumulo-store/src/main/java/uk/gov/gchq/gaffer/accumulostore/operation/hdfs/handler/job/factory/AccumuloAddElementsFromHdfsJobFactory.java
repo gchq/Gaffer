@@ -31,13 +31,14 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdf
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.handler.job.factory.AbstractAddElementsFromHdfsJobFactory;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractAddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
 
-public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFromHdfsJobFactory {
+public class AccumuloAddElementsFromHdfsJobFactory extends
+        AbstractAddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
 
     @Override
@@ -120,7 +121,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends AbstractAddElementsFr
         if (maxReducers != -1 && minReducers != -1) {
             if (minReducers > maxReducers) {
                 LOGGER.error("Minimum number of reducers must be less than the maximum number of reducers: minimum was {} "
-                    + "maximum was {}", minReducers, maxReducers);
+                        + "maximum was {}", minReducers, maxReducers);
                 throw new IOException("Minimum number of reducers must be less than the maximum number of reducers");
             }
         }

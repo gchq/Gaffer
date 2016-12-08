@@ -41,11 +41,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class StoreIT {
     @Test

@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -87,7 +87,7 @@ public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
 
     protected class AllElementsIterator implements CloseableIterator<Element> {
         private BatchScanner scanner;
-        private Iterator<Map.Entry<Key, Value>> scannerIterator;
+        private Iterator<Entry<Key, Value>> scannerIterator;
 
         protected AllElementsIterator() throws RetrieverException {
             final Set<Range> ranges = Sets.newHashSet(new Range());
@@ -111,7 +111,7 @@ public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
 
         @Override
         public Element next() {
-            final Map.Entry<Key, Value> entry = scannerIterator.next();
+            final Entry<Key, Value> entry = scannerIterator.next();
             try {
                 final Element elm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
                         operation.getOptions());
