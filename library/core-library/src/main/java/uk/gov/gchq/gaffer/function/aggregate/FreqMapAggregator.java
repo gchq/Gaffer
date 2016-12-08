@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import uk.gov.gchq.gaffer.function.annotation.Outputs;
 import uk.gov.gchq.gaffer.types.FreqMap;
-
 import java.util.Map.Entry;
 
 /**

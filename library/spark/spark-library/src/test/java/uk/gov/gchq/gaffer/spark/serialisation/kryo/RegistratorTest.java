@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+
 import static org.junit.Assert.assertEquals;
 
 public class RegistratorTest {

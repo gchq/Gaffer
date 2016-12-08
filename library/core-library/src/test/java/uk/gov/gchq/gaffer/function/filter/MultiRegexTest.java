@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.sketches.serialisation;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
-
 import java.io.IOException;
 
 public class HyperLogLogPlusSerialiser extends AbstractSerialisation<HyperLogLogPlus> {

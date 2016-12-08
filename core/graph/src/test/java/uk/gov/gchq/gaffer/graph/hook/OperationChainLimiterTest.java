@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;

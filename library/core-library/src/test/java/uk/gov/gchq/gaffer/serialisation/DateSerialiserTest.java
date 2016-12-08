@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;

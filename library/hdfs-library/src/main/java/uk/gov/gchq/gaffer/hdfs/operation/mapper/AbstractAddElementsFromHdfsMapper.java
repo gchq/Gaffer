@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfs
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 

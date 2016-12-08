@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueR
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.store.Store;
-
 import java.io.IOException;
 
 public class SampleDataForSplitPointsJobFactory {

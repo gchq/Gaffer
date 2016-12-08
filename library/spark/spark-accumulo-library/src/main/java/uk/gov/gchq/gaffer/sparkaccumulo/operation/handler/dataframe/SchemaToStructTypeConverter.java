@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -188,7 +189,7 @@ public class SchemaToStructTypeConverter {
             }
         }
         // Check consistency, i.e. if the same field appears in multiple groups then the types are consistent
-        for (final Map.Entry<String, Set<StructField>> entry : fieldToStructs.entrySet()) {
+        for (final Entry<String, Set<StructField>> entry : fieldToStructs.entrySet()) {
             final Set<StructField> schemas = entry.getValue();
             if (schemas.size() > 1) {
                 throw new IllegalArgumentException("Inconsistent fields: the field "

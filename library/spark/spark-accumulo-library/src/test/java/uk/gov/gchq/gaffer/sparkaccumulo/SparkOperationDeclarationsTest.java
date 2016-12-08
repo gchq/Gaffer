@@ -17,19 +17,19 @@
 package uk.gov.gchq.gaffer.sparkaccumulo;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandler;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 

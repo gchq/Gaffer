@@ -42,7 +42,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -261,7 +261,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
         protected Set<Object> currentSeeds;
         protected BatchScanner scanner;
         protected BloomFilter filter;
-        private Iterator<Map.Entry<Key, Value>> scannerIterator;
+        private Iterator<Entry<Key, Value>> scannerIterator;
         private Element nextElm;
         private int count;
 
@@ -282,7 +282,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
             }
             try {
                 while (_hasNext()) {
-                    final Map.Entry<Key, Value> entry = scannerIterator.next();
+                    final Entry<Key, Value> entry = scannerIterator.next();
                     try {
                         nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
                                 operation.getOptions());

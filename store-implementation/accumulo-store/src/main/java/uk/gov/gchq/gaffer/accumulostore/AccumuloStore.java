@@ -81,7 +81,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;

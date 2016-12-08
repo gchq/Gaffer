@@ -152,8 +152,8 @@ public abstract class AbstractStoreIT {
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
 
         for (final Annotation annotation : testMethod.getDeclaredAnnotations()) {
-            if (annotation.annotationType().equals(uk.gov.gchq.gaffer.integration.TraitRequirement.class)) {
-                final uk.gov.gchq.gaffer.integration.TraitRequirement traitRequirement = (uk.gov.gchq.gaffer.integration.TraitRequirement) annotation;
+            if (annotation.annotationType().equals(TraitRequirement.class)) {
+                final TraitRequirement traitRequirement = (TraitRequirement) annotation;
                 requiredTraits.addAll(Arrays.asList(traitRequirement.value()));
             }
         }

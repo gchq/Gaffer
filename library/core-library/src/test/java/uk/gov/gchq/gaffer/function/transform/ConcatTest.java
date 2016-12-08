@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.function.TransformFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-
 import java.io.IOException;
 
 import static org.junit.Assert.assertArrayEquals;

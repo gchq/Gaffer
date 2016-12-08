@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operationdeclaration;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

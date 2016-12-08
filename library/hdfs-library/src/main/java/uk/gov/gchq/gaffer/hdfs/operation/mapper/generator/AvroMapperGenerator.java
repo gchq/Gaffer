@@ -21,7 +21,6 @@ import org.apache.hadoop.mapreduce.MapContext;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
 

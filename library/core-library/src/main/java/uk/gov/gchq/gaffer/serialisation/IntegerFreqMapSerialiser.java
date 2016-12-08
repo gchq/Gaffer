@@ -18,9 +18,8 @@ package uk.gov.gchq.gaffer.serialisation;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -39,11 +38,11 @@ public class IntegerFreqMapSerialiser extends AbstractSerialisation<IntegerFreqM
 
     @Override
     public byte[] serialise(final IntegerFreqMap map) throws SerialisationException {
-        Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
+        Set<Entry<String, Integer>> entrySet = map.entrySet();
         StringBuilder builder = new StringBuilder();
         int last = entrySet.size() - 1;
         int start = 0;
-        for (final Map.Entry<String, Integer> entry : entrySet) {
+        for (final Entry<String, Integer> entry : entrySet) {
             Integer value = entry.getValue();
             if (value == null) {
                 continue;

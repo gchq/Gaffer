@@ -20,7 +20,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
 import uk.gov.gchq.gaffer.store.Store;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -28,7 +27,7 @@ import java.util.List;
  * An <code>AvroJobInitialiser</code> is an {@link JobInitialiser} that
  * initialises the provided {@link Job} to handle text input data.
  */
-public class TextJobInitialiser implements uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser {
+public class TextJobInitialiser implements JobInitialiser {
 
     public TextJobInitialiser() {
     }

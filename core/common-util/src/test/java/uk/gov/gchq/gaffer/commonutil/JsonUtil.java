@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
 import java.io.IOException;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class JsonUtil {
         try {
             final Map expectedSchemaMap = OBJECT_MAPPER.readValue(expectedJson, Map.class);
             final Map actualSchemaMap = OBJECT_MAPPER.readValue(actualJson, Map.class);
-            org.junit.Assert.assertEquals(expectedSchemaMap, actualSchemaMap);
+            Assert.assertEquals(expectedSchemaMap, actualSchemaMap);
         } catch (final IOException e) {
             throw new AssertionError(expectedJson + "is not equal to " + actualJson, e);
         }

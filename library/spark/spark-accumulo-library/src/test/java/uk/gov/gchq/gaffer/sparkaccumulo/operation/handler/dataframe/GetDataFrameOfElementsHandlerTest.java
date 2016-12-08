@@ -25,6 +25,9 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.junit.Test;
+import scala.collection.mutable.Map;
+import scala.collection.mutable.Map$;
+import scala.collection.mutable.MutableList;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -71,7 +74,7 @@ public class GetDataFrameOfElementsHandlerTest {
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields1 = new MutableList<>();
             fields1.appendElem(EDGE_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem("B");
@@ -82,7 +85,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(5L);
             fields1.appendElem(100L);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
-            final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields2 = new MutableList<>();
             fields2.appendElem(EDGE_GROUP);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
@@ -106,7 +109,7 @@ public class GetDataFrameOfElementsHandlerTest {
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields1 = new MutableList<>();
             fields1.clear();
             fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
@@ -137,7 +140,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields1 = new MutableList<>();
             fields1.appendElem(EDGE_GROUP);
             fields1.appendElem(null);
             fields1.appendElem(1);
@@ -149,7 +152,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem("" + i);
             fields1.appendElem("B");
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
-            final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields2 = new MutableList<>();
             fields2.appendElem(EDGE_GROUP);
             fields2.appendElem(null);
             fields2.appendElem(6);
@@ -161,7 +164,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem("" + i);
             fields2.appendElem("C");
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
-            final scala.collection.mutable.MutableList<Object> fields3 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields3 = new MutableList<>();
             fields3.appendElem(ENTITY_GROUP);
             fields3.appendElem("" + i);
             fields3.appendElem(1);
@@ -186,7 +189,7 @@ public class GetDataFrameOfElementsHandlerTest {
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields1 = new MutableList<>();
             fields1.clear();
             fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);
@@ -219,12 +222,12 @@ public class GetDataFrameOfElementsHandlerTest {
         Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2").collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            MutableList<Object> fields1 = new MutableList<>();
             fields1.appendElem("" + i);
             fields1.appendElem("B");
             fields1.appendElem(3.0F);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
-            scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            MutableList<Object> fields2 = new MutableList<>();
             fields2.appendElem("" + i);
             fields2.appendElem("C");
             fields2.appendElem(8.0F);
@@ -236,10 +239,10 @@ public class GetDataFrameOfElementsHandlerTest {
         results = new HashSet<>(dataFrame.select("property2").collectAsList());
         expectedRows.clear();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            MutableList<Object> fields1 = new MutableList<>();
             fields1.appendElem(3.0F);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
-            scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+            MutableList<Object> fields2 = new MutableList<>();
             fields2.appendElem(8.0F);
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
         }
@@ -264,7 +267,7 @@ public class GetDataFrameOfElementsHandlerTest {
         Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0").collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields = new MutableList<>();
             fields.appendElem(EDGE_GROUP);
             fields.appendElem("" + i);
             fields.appendElem("C");
@@ -282,7 +285,7 @@ public class GetDataFrameOfElementsHandlerTest {
         results = new HashSet<>(dataFrame.select("property2", "property3").filter("property2 > 4.0").collectAsList());
         expectedRows.clear();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields = new MutableList<>();
             fields.appendElem(8.0F);
             fields.appendElem(9.0D);
             expectedRows.add(Row$.MODULE$.fromSeq(fields));
@@ -326,8 +329,8 @@ public class GetDataFrameOfElementsHandlerTest {
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
-        final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
-        scala.collection.mutable.Map<String, Long> freqMap = scala.collection.mutable.Map$.MODULE$.empty();
+        final MutableList<Object> fields1 = new MutableList<>();
+        Map<String, Long> freqMap = Map$.MODULE$.empty();
         freqMap.put("Y", 1000L);
         freqMap.put("Z", 10000L);
         fields1.appendElem(EDGE_GROUP);
@@ -382,8 +385,8 @@ public class GetDataFrameOfElementsHandlerTest {
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
-        final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
-        scala.collection.mutable.Map<String, Long> freqMap = scala.collection.mutable.Map$.MODULE$.empty();
+        final MutableList<Object> fields1 = new MutableList<>();
+        Map<String, Long> freqMap = Map$.MODULE$.empty();
         freqMap.put("Y", 1000L);
         freqMap.put("Z", 10000L);
         fields1.appendElem(EDGE_GROUP);
@@ -447,7 +450,7 @@ public class GetDataFrameOfElementsHandlerTest {
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             if (i * 200L > 800L) {
-                final scala.collection.mutable.MutableList<Object> fields2 = new scala.collection.mutable.MutableList<>();
+                final MutableList<Object> fields2 = new MutableList<>();
                 fields2.appendElem(EDGE_GROUP);
                 fields2.appendElem("" + i);
                 fields2.appendElem("C");
@@ -479,7 +482,7 @@ public class GetDataFrameOfElementsHandlerTest {
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
         for (int i = 2; i < NUM_ELEMENTS; i++) {
-            final scala.collection.mutable.MutableList<Object> fields1 = new scala.collection.mutable.MutableList<>();
+            final MutableList<Object> fields1 = new MutableList<>();
             fields1.clear();
             fields1.appendElem(ENTITY_GROUP);
             fields1.appendElem("" + i);

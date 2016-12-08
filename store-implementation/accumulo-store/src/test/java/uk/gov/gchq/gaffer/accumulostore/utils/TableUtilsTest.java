@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;

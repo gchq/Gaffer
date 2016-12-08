@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import static org.junit.Assert.assertArrayEquals;
 
 public abstract class SerialisationTest<T> {

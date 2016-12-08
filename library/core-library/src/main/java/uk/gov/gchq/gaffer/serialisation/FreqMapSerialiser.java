@@ -20,12 +20,11 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -38,10 +37,10 @@ public class FreqMapSerialiser extends AbstractSerialisation<FreqMap> {
 
     @Override
     public byte[] serialise(final FreqMap map) throws SerialisationException {
-        Set<Map.Entry<String, Long>> entrySet = map.entrySet();
+        Set<Entry<String, Long>> entrySet = map.entrySet();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         boolean isFirst = true;
-        for (final Map.Entry<String, Long> entry : entrySet) {
+        for (final Entry<String, Long> entry : entrySet) {
             if (entry.getKey() != null && entry.getValue() != null) {
                 if (isFirst) {
                     isFirst = false;

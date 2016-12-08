@@ -25,11 +25,11 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
-
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Contains the full list of {@link uk.gov.gchq.gaffer.data.element.Element} types to be stored in the graph.
@@ -108,7 +108,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        for (final Map.Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
+        for (final Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
@@ -119,7 +119,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        for (final Map.Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
+        for (final Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }

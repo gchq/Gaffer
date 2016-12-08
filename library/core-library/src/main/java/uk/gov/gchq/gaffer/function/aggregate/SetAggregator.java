@@ -21,7 +21,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import uk.gov.gchq.gaffer.function.annotation.Outputs;
-
 import java.util.Set;
 
 /**

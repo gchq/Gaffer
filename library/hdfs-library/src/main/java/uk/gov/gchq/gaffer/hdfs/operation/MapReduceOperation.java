@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
+import scala.collection.mutable.MutableList;
 import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -45,7 +46,7 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
 
     @Override
     public Row apply(final Element element) {
-        final scala.collection.mutable.MutableList<Object> fields = new scala.collection.mutable.MutableList<>();
+        final MutableList<Object> fields = new MutableList<>();
         for (final String property : properties) {
             switch (property) {
                 case AccumuloStoreRelation.GROUP:

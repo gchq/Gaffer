@@ -24,7 +24,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;

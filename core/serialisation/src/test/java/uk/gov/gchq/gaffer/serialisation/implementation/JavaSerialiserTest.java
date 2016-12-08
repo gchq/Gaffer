@@ -20,6 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

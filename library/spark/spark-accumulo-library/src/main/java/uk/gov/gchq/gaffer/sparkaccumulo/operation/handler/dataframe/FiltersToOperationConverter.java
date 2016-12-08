@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.function.filter.IsEqual;
 import uk.gov.gchq.gaffer.function.filter.IsIn;
 import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
@@ -424,7 +425,7 @@ public class FiltersToOperationConverter {
             LOGGER.debug("Converted {} to IsIn ({})", filter, properties.get(0));
         } else if (filter instanceof IsNull) {
             final IsNull isNull = (IsNull) filter;
-            final FilterFunction doesntExist = new uk.gov.gchq.gaffer.function.filter.Not(new Exists());
+            final FilterFunction doesntExist = new Not(new Exists());
             final List<String> properties = Collections.singletonList(isNull.attribute());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {

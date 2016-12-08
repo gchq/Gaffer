@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;

@@ -23,7 +23,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
 import uk.gov.gchq.gaffer.store.Store;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;

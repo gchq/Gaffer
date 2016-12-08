@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.function.filter;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.MultiFilterFunction;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-
 import java.util.List;
 
 /**

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser;
 import org.apache.hadoop.mapreduce.Job;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
 import uk.gov.gchq.gaffer.store.Store;
-
 import java.io.IOException;
 
 /**

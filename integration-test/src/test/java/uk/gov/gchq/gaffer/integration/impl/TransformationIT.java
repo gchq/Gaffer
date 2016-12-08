@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

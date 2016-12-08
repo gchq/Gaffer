@@ -36,7 +36,7 @@ public class CompactRawLongSerialiser extends AbstractSerialisation<Long> {
 
     @Override
     public byte[] serialise(final Long l) throws SerialisationException {
-        return uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils.writeLong(l);
+        return CompactRawSerialisationUtils.writeLong(l);
     }
 
     @Override

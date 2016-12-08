@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.io.IOException;
 import java.io.InputStream;
 
