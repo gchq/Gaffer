@@ -19,7 +19,7 @@
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.6.2-SNAPSHOT</version>
+        <version>0.4.6.2</version>
     </parent>
     <artifactId>operation-library</artifactId>
 
