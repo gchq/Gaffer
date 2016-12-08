@@ -23,10 +23,9 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.test.ParameterisedTestObject;
-import uk.gov.gchq.gaffer.serialisation.test.SimpleTestObject;
+import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
+import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;

@@ -90,6 +90,11 @@ public class IntegerFreqMapSerialiser extends AbstractSerialisation<IntegerFreqM
     }
 
     @Override
+    public IntegerFreqMap deserialiseEmptyBytes() throws SerialisationException {
+        return new IntegerFreqMap();
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return false;
     }

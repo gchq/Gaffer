@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.test;
+package uk.gov.gchq.gaffer.serialisation;
 
 import java.io.Serializable;
 
