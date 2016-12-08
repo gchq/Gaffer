@@ -15,11 +15,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>gaffer</groupId>
         <artifactId>example</artifactId>
-        <version>0.4.7</version>
+        <version>0.4.7.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>example-rest</artifactId>
@@ -61,7 +63,9 @@
                                     <version>${project.parent.version}</version>
                                     <type>war</type>
                                     <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}
+                                    </outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -89,7 +93,9 @@
                             <webApp>
                                 <contextPath>/rest</contextPath>
                             </webApp>
-                            <war>${project.build.directory}/${project.artifactId}-${project.version}.war</war>
+                            <war>
+                                ${project.build.directory}/${project.artifactId}-${project.version}.war
+                            </war>
                             <systemProperties>
                                 <systemProperty>
                                     <name>gaffer.rest-api.basePath</name>
@@ -97,11 +103,15 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <name>gaffer.schemas</name>
-                                    <value>${project.build.outputDirectory}/example-schema.json</value>
+                                    <value>
+                                        ${project.build.outputDirectory}/example-schema.json
+                                    </value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>gaffer.storeProperties</name>
-                                    <value>${project.build.outputDirectory}/mockaccumulostore.properties</value>
+                                    <value>
+                                        ${project.build.outputDirectory}/mockaccumulostore.properties
+                                    </value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>

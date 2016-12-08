@@ -17,8 +17,8 @@
 package gaffer.serialisation.implementation;
 
 import gaffer.exception.SerialisationException;
-import gaffer.serialisation.test.ParameterisedTestObject;
-import gaffer.serialisation.test.SimpleTestObject;
+import gaffer.serialisation.ParameterisedTestObject;
+import gaffer.serialisation.SimpleTestObject;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

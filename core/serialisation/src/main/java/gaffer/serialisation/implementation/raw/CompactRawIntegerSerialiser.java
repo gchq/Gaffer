@@ -53,6 +53,11 @@ public class CompactRawIntegerSerialiser extends AbstractSerialisation<Integer> 
     }
 
     @Override
+    public Integer deserialiseEmptyBytes() {
+        return null;
+    }
+
+    @Override
     public boolean isByteOrderPreserved() {
         return false;
     }
