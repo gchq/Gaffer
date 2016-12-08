@@ -358,8 +358,10 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true
+                            </addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true
+                            </addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                 </configuration>
@@ -448,9 +450,13 @@
                 <artifactId>maven-scm-publish-plugin</artifactId>
                 <version>1.1</version>
                 <configuration>
-                    <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
-                    <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
-                    <content>${project.reporting.outputDirectory}/apidocs</content>
+                    <checkoutDirectory>${project.build.directory}/scmpublish
+                    </checkoutDirectory>
+                    <checkinComment>Publishing javadoc for
+                        ${project.artifactId}:${project.version}
+                    </checkinComment>
+                    <content>${project.reporting.outputDirectory}/apidocs
+                    </content>
                     <skipDeletedFiles>true</skipDeletedFiles>
                     <pubScmUrl>${scm.connection}</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch>

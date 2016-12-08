@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package gaffer.serialisation.test;
+package gaffer.serialisation;
 
 import java.io.Serializable;
 
