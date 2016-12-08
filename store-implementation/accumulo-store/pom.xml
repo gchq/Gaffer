@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -154,15 +155,17 @@
                         <configuration>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>shaded
+                            <shadedClassifierName>iterators
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>gaffer*</include>
+                                    <include>uk.gov.gchq.gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
-                                    <include>org.apache.commons:commons-lang</include>
+                                    <include>org.apache.commons:commons-lang
+                                    </include>
                                     <include>com.fasterxml.jackson.*:*</include>
-                                    <include>com.clearspring.analytics:stream</include>
+                                    <include>com.clearspring.analytics:stream
+                                    </include>
                                 </includes>
                             </artifactSet>
                         </configuration>
