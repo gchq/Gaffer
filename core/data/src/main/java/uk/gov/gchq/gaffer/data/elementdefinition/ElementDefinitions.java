@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -186,7 +185,8 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     public void merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
-        for (final Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
+        for (final Map.Entry<String, ENTITY_DEF> entry : elementDefs.getEntities
+                ().entrySet()) {
             if (!edges.containsKey(entry.getKey())) {
                 addEntity(entry.getKey(), entry.getValue());
             } else {
@@ -194,7 +194,8 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             }
         }
 
-        for (final Entry<String, EDGE_DEF> entry : elementDefs.getEdges().entrySet()) {
+        for (final Map.Entry<String, EDGE_DEF> entry : elementDefs.getEdges()
+                .entrySet()) {
             if (!edges.containsKey(entry.getKey())) {
                 addEdge(entry.getKey(), entry.getValue());
             } else {
