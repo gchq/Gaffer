@@ -37,7 +37,7 @@ public class LazyProperties extends Properties {
      * Constructs a {@link LazyProperties} by wrapping the provided {@link Properties}
      * and using the {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader} to lazily load the property values when requested.
      *
-     * @param properties    the properties to wrap.
+     * @param properties  the properties to wrap.
      * @param valueLoader the element value loader to use to lazily load the property values
      */
     public LazyProperties(final Properties properties, final ElementValueLoader valueLoader) {
@@ -148,7 +148,7 @@ public class LazyProperties extends Properties {
     }
 
     @Override
-    public Set<Entry<String, Object>> entrySet() {
+    public Set<Map.Entry<String, Object>> entrySet() {
         return properties.entrySet();
     }
 
