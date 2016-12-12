@@ -148,7 +148,7 @@ public class LazyProperties extends Properties {
     }
 
     @Override
-    public Set<Map.Entry<String, Object>> entrySet() {
+    public Set<Entry<String, Object>> entrySet() {
         return properties.entrySet();
     }
 

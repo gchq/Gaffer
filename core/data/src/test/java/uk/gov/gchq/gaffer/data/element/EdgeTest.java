@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Date;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -294,7 +294,7 @@ public class EdgeTest extends ElementTest {
         final Edge newEdge  = cloneCoreFields(edge);
 
         final Properties properties = edge.getProperties();
-        for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+        for (final Entry<String, Object> entry : properties.entrySet()) {
             newEdge.putProperty(entry.getKey(), entry.getValue());
         }
 

@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import uk.gov.gchq.gaffer.function.simple.filter.HyperLogLogPlusIsLessThan;
+import uk.gov.gchq.gaffer.sketches.function.filter.HyperLogLogPlusIsLessThan;
 
 public class HyperLogLogPlusIsLessThanExample extends FilterFunctionExample {
     private final HyperLogLogPlus hllp1 = new HyperLogLogPlus(15);

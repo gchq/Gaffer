@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.mapper.AbstractAddElementsFromHdfsMapper;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
