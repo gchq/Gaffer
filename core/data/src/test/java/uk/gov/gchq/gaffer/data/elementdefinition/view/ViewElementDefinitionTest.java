@@ -53,4 +53,52 @@ public class ViewElementDefinitionTest {
         assertSame(postFilter, elementDef.getPostTransformFilter());
         assertSame(transformer, elementDef.getTransformer());
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToBuildElementDefinitionWhenPreAggregationFilterSpecifiedTwice() {
+        // Given
+        final ElementTransformer transformer = mock(ElementTransformer.class);
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        // When
+        final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
+                .transientProperty(TestPropertyNames.PROP_1, String.class)
+                .transientProperty(TestPropertyNames.PROP_2, String.class)
+                .transformer(transformer)
+                .preAggregationFilter(filter)
+                .preAggregationFilter(filter)
+                .build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToBuildElementDefinitionWhenPostAggregationFilterSpecifiedTwice() {
+        // Given
+        final ElementTransformer transformer = mock(ElementTransformer.class);
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        // When
+        final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
+                .transientProperty(TestPropertyNames.PROP_1, String.class)
+                .transientProperty(TestPropertyNames.PROP_2, String.class)
+                .transformer(transformer)
+                .postAggregationFilter(filter)
+                .postAggregationFilter(filter)
+                .build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToBuildElementDefinitionWhenPostTransformFilterSpecifiedTwice() {
+        // Given
+        final ElementTransformer transformer = mock(ElementTransformer.class);
+        final ElementFilter postFilter = mock(ElementFilter.class);
+
+        // When
+        final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
+                .transientProperty(TestPropertyNames.PROP_1, String.class)
+                .transientProperty(TestPropertyNames.PROP_2, String.class)
+                .transformer(transformer)
+                .postTransformFilter(postFilter)
+                .postTransformFilter(postFilter)
+                .build();
+    }
 }
