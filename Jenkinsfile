@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 def labels = ['Centos7', 'Debian8']
 def envs = ['java-7-openjdk', 'java-8-jdk']
 def builders = [:]
@@ -11,13 +13,10 @@ for (x in labels) {
             node(label) {
                 def mvnHome = tool name: 'M3'
                 def jdk = tool name: env
-                println jdk
-                println env
-                println mvnHome
-                stage('prepare') {
-                    git url: "https://github.com/gchq/Gaffer.git", branch: "develop"
+                stage('checkout') {
+                    checkout scm
                 }
-                stage('package') {
+                stage('test') {
                     echo "jdk installation path is: ${jdk}"
                     sh "${jdk}/bin/java -version"
                     sh "'${mvnHome}/bin/mvn' clean"
