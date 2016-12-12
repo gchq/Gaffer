@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
@@ -141,5 +140,26 @@ public class PropertiesTest {
         assertNotSame(properties, clone);
         assertEquals(propertyValue1, clone.get(property1));
         assertEquals(propertyValue2, clone.get(property2));
+    }
+
+    @Test
+    public void shouldReturnHumanReadableToString() {
+        // Given
+        final String property1 = "property 1";
+        final String property2 = "property 2";
+        final String propertyValue1 = "property value 1";
+        final String propertyValue2 = "property value 2";
+        final Properties properties = new Properties();
+        properties.put(property1, propertyValue1);
+        properties.put(property2, propertyValue2);
+
+        // When
+        final String toString = properties.toString();
+
+        // Then
+        assertTrue(toString.contains("property 2="
+                + "<java.lang.String>property value 2"));
+        assertTrue(toString.contains("property 1="
+                + "<java.lang.String>property value 1"));
     }
 }

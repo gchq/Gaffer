@@ -186,7 +186,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     public void merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
         for (final Map.Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
-            if (!edges.containsKey(entry.getKey())) {
+            if (!entities.containsKey(entry.getKey())) {
                 addEntity(entry.getKey(), entry.getValue());
             } else {
                 entities.get(entry.getKey()).merge(entry.getValue());
