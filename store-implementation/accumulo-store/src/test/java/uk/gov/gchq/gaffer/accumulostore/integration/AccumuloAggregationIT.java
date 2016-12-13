@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -509,7 +510,7 @@ public class AccumuloAggregationIT {
                 )), USER);
 
         // Given
-        final GetEntities<EntitySeed> getAllEntities = new GetEntities.Builder<EntitySeed>().build();
+        final GetAllEntities getAllEntities = new GetAllEntities();
 
         // When
         final List<Entity> results = Lists.newArrayList(graph.execute(getAllEntities, USER));
