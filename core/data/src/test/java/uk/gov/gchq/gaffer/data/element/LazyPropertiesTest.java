@@ -20,8 +20,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.collections.Sets;
 import org.mockito.runners.MockitoJUnitRunner;
-
+import java.util.Map;
+import java.util.Set;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -184,5 +186,21 @@ public class LazyPropertiesTest {
         verify(elementLoader, times(1)).getProperty(propertyName2);
         assertEquals(propertyValue1, properties.get(propertyName1));
         assertEquals(propertyValue2, properties.get(propertyName2));
+    }
+
+    @Test
+    public void shouldDelegateEntrySetMethodToPropertiesInstance() {
+        // Given
+        final Properties properties = mock(Properties.class);
+        final LazyProperties lazyProperties =
+                new LazyProperties(properties, null);
+        final Set<Map.Entry<String, Object>> expectedEntrySet = mock(Set.class);
+        given(properties.entrySet()).willReturn(expectedEntrySet);
+
+        // When
+        final Set<Map.Entry<String, Object>> entrySet = lazyProperties.entrySet();
+
+        // Then
+        assertSame(expectedEntrySet, entrySet);
     }
 }

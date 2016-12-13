@@ -37,9 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -96,7 +94,8 @@ public class TableUtilsTest {
 
 
         final Map<String, String> tableProps = new HashMap<>();
-        for (final Entry<String, String> entry : store.getConnection().tableOperations().getProperties(TABLE_NAME)) {
+        for (final Map.Entry<String, String> entry : store.getConnection()
+                .tableOperations().getProperties(TABLE_NAME)) {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 
@@ -170,7 +169,8 @@ public class TableUtilsTest {
         assertNull(aggregatorSetting);
 
         final Map<String, String> tableProps = new HashMap<>();
-        for (final Entry<String, String> entry : store.getConnection().tableOperations().getProperties(NO_AGGREGATORS_TABLE_NAME)) {
+        for (final Map.Entry<String, String> entry : store.getConnection()
+                .tableOperations().getProperties(NO_AGGREGATORS_TABLE_NAME)) {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 
