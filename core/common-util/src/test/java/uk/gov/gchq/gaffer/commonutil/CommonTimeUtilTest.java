@@ -16,17 +16,19 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.Test;
-
 import static org.joda.time.DateTime.parse;
 import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.DAY;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MONTH;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.timeToBucket;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.Test;
 
 public class CommonTimeUtilTest {
 
@@ -35,6 +37,8 @@ public class CommonTimeUtilTest {
         final long time = parse("2000-01-01T12:34:56.789").getMillis();
         final DateTime dateTime = new DateTime(time, DateTimeZone.UTC);
 
+        assertEquals(parse("2000-01-01T12:34:56.000").getMillis(), timeToBucket(time, SECOND));
+        assertEquals(parse("2000-01-01T12:34:00.000").getMillis(), timeToBucket(time, MINUTE));
         assertEquals(parse("2000-01-01T12:00:00.000").getMillis(), timeToBucket(time, HOUR));
         assertEquals(parse("2000-01-01T00:00:00.000").getMillis(),timeToBucket(time, DAY));
         assertEquals(parse("1999-12-27T00:00:00.000").getMillis(),timeToBucket(time, WEEK));
