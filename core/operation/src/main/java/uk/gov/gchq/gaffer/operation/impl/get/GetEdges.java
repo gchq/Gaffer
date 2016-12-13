@@ -91,6 +91,10 @@ public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TY
         public BaseBuilder() {
             super(new GetEdges());
         }
+
+        protected BaseBuilder(final GetEdges<SEED_TYPE> op) {
+            super(op);
+        }
     }
 
     public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {

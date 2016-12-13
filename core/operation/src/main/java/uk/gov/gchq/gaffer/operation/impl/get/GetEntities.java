@@ -89,6 +89,10 @@ public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED
         protected BaseBuilder() {
             super(new GetEntities<SEED_TYPE>());
         }
+
+        protected BaseBuilder(final GetEntities<SEED_TYPE> op) {
+            super(op);
+        }
     }
 
     public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
