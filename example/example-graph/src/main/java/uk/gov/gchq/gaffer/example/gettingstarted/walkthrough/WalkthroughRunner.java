@@ -23,7 +23,6 @@ import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
@@ -85,7 +84,7 @@ public class WalkthroughRunner {
                 + "See the License for the specific language governing permissions and\n"
                 + "limitations under the License.\n"
                 + "\n"
-                + "_This page has been generated from code. To make any changes please update the getting started example walkthroughs in the [example](https://github.com/gchq/Gaffer/tree/master/example/example-graph/src/main/java/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
+                + "_This page has been generated from code. To make any changes please update the getting started example walkthroughs in the [example](https://github.com/gchq/Gaffer/tree/master/example/example-graph/src/main/java/uk/gov/gchq/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
     }
 
     private void printTableOfContents() throws InstantiationException, IllegalAccessException {

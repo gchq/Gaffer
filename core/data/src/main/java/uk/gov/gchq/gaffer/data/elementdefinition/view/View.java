@@ -58,6 +58,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return fromJson(View.class, jsonBytes);
     }
 
+    public byte[] toCompactJson() throws SchemaException {
+        return toJson(false);
+    }
+
     @Override
     public String toString() {
         try {

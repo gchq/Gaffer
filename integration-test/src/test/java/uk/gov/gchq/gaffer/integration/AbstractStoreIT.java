@@ -24,9 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.function.simple.aggregate.Max;
-import uk.gov.gchq.gaffer.function.simple.aggregate.StringConcat;
-import uk.gov.gchq.gaffer.function.simple.aggregate.Sum;
+import uk.gov.gchq.gaffer.function.aggregate.Max;
+import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
+import uk.gov.gchq.gaffer.function.aggregate.Sum;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -152,8 +152,8 @@ public abstract class AbstractStoreIT {
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
 
         for (final Annotation annotation : testMethod.getDeclaredAnnotations()) {
-            if (annotation.annotationType().equals(uk.gov.gchq.gaffer.integration.TraitRequirement.class)) {
-                final uk.gov.gchq.gaffer.integration.TraitRequirement traitRequirement = (uk.gov.gchq.gaffer.integration.TraitRequirement) annotation;
+            if (annotation.annotationType().equals(TraitRequirement.class)) {
+                final TraitRequirement traitRequirement = (TraitRequirement) annotation;
                 requiredTraits.addAll(Arrays.asList(traitRequirement.value()));
             }
         }

@@ -5,7 +5,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
           }
         }
       ]
@@ -15,7 +15,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
           }
         }
       ]
@@ -25,7 +25,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsTrue"
+            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
           }
         }
       ]
@@ -35,7 +35,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
           }
         }
       ]
@@ -45,7 +45,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.Exists"
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
           }
         }
       ]
@@ -55,14 +55,14 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
             "orEqualTo": true,
             "value": 0
           }
         },
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsLessThan",
+            "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
             "orEqualTo": true,
             "value": 100
           }
@@ -74,7 +74,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
             "orEqualTo": true,
             "value": 0
           }

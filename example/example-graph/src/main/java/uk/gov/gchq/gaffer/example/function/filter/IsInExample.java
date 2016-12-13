@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.simple.filter.IsIn;
+import uk.gov.gchq.gaffer.function.filter.IsIn;
 
 public class IsInExample extends FilterFunctionExample {
     public static void main(final String[] args) {

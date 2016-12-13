@@ -73,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -243,7 +244,7 @@ public abstract class Store {
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
         schemaElements.putAll(getSchema().getEdges());
         schemaElements.putAll(getSchema().getEntities());
-        for (final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+        for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
             for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                 Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();

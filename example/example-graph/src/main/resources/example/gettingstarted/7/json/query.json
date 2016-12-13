@@ -12,7 +12,7 @@
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
                   "value": 1
                 },
                 "selection": [
@@ -52,7 +52,7 @@
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
                   "value": 1
                 },
                 "selection": [
