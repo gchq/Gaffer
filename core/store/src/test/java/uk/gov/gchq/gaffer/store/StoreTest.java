@@ -296,15 +296,15 @@ public class StoreTest {
         final CloseableIterable<Element> getElementsResult = mock(CloseableIterable.class);
 
         final AddElements addElements1 = new AddElements();
-        final GetElements<ElementSeed, Element> getElementsBySeed = new GetElements<>();
+        final GetElements<ElementSeed, Element> getElements = new GetElements<>();
         final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
-                .then(getElementsBySeed)
+                .then(getElements)
                 .build();
 
 
         given(addElementsHandler.doOperation(addElements1, context, store)).willReturn(null);
-        given(getElementsHandler.doOperation(getElementsBySeed, context, store))
+        given(getElementsHandler.doOperation(getElements, context, store))
                 .willReturn(getElementsResult);
 
         store.initialise(schema, properties);

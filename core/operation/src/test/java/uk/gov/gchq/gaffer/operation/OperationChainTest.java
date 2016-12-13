@@ -129,17 +129,17 @@ public class OperationChainTest {
     public void shouldBuildOperationChain_AdjEntitySeedsThenRelatedEdges() throws SerialisationException {
         // Given
         final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
-        final GetEdges<EntitySeed> getRelatedEdges = mock(GetEdges.class);
+        final GetEdges<EntitySeed> getEdges = mock(GetEdges.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
                 .first(getAdjacentEntitySeeds)
-                .then(getRelatedEdges)
+                .then(getEdges)
                 .build();
 
         // Then
         assertEquals(2, opChain.getOperations().size());
         assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
-        assertSame(getRelatedEdges, opChain.getOperations().get(1));
+        assertSame(getEdges, opChain.getOperations().get(1));
     }
 }
