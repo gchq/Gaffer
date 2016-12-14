@@ -44,6 +44,12 @@ public final class CommonTimeUtil {
         final long timeBucket;
 
         switch (bucket) {
+            case SECOND:
+                timeBucket = roundDown(dateTime.secondOfMinute());
+                break;
+            case MINUTE:
+                timeBucket = roundDown(dateTime.minuteOfHour());
+                break;
             case HOUR:
                 timeBucket = roundDown(dateTime.hourOfDay());
                 break;
@@ -71,6 +77,6 @@ public final class CommonTimeUtil {
      * Type representing a "bucket" of time.
      */
     public enum TimeBucket {
-        HOUR, DAY, WEEK, MONTH, YEAR;
+        SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR;
     }
 }
