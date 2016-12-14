@@ -76,6 +76,42 @@ public class EdgeTest extends ElementTest {
     }
 
     @Test
+    public void shouldConstructEdge() {
+        // Given
+        final String source = "source vertex";
+        final String destination = "dest vertex";
+        final boolean directed = true;
+        final String propValue = "propValue";
+
+        // When
+        final Edge edge = new Edge(TestGroups.EDGE, source, destination, directed);
+        edge.putProperty(TestPropertyNames.STRING, propValue);
+
+        // Then
+        assertEquals(TestGroups.EDGE, edge.getGroup());
+        assertEquals(source, edge.getSource());
+        assertEquals(destination, edge.getDestination());
+        assertTrue(edge.isDirected());
+        assertEquals(propValue, edge.getProperty(TestPropertyNames.STRING));
+    }
+
+    @Test
+    public void shouldCloneEdge() {
+        // Given
+        final String source = "source vertex";
+        final String destination = "dest vertex";
+        final boolean directed = true;
+        final String propValue = "propValue";
+
+        // When
+        final Edge edge = new Edge(TestGroups.EDGE, source, destination, directed);
+        final Edge clone = edge.emptyClone();
+
+        // Then
+        assertEquals(edge, clone);
+    }
+
+    @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
         final Edge edge = new Edge("group");
@@ -265,7 +301,8 @@ public class EdgeTest extends ElementTest {
 
         // When
         final byte[] serialisedElement = serialiser.serialise(edge);
-        final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge.getClass());
+        final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge
+                .getClass());
 
         // Then
         assertEquals(edge, deserialisedElement);
@@ -291,7 +328,7 @@ public class EdgeTest extends ElementTest {
     }
 
     private Edge cloneAllFields(final Edge edge) {
-        final Edge newEdge  = cloneCoreFields(edge);
+        final Edge newEdge = cloneCoreFields(edge);
 
         final Properties properties = edge.getProperties();
         for (final Entry<String, Object> entry : properties.entrySet()) {
