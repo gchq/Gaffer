@@ -210,6 +210,61 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
+    public GetElements getElements() {
+        final GetElements<ElementSeed, Element> op = new GetElements<>();
+        final List<ElementSeed> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntitySeed(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeSeed(1, 2));
+        }
+
+        op.setSeeds(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetEntities getEntities() {
+        final GetEntities op = new GetEntities();
+        final List<ElementSeed> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntitySeed(1));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeSeed(1, 2));
+        }
+
+        op.setSeeds(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetEdges getEdges() {
+        final GetEdges op = new GetEdges();
+        final List<ElementSeed> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntitySeed(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeSeed(1, 2));
+        }
+
+        op.setSeeds(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
     public AddElements addElements() {
         final AddElements op = new AddElements();
         List<Element> elements = new ArrayList<>();
