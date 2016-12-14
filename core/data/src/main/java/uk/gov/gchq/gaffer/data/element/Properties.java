@@ -60,7 +60,7 @@ public class Properties extends HashMap<String, Object> {
      * @param propertiesToKeep a set of properties to keep
      */
     public void keepOnly(final Collection<String> propertiesToKeep) {
-        Iterator<Map.Entry<String, Object>> it = entrySet().iterator();
+        final Iterator<Map.Entry<String, Object>> it = entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> entry = it.next();
             if (!propertiesToKeep.contains(entry.getKey())) {

@@ -24,7 +24,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import java.io.IOException;
@@ -35,6 +39,7 @@ import java.io.InputStream;
  * The serialisation is set to not include nulls or default values.
  */
 public class JSONSerialiser {
+    public static final String FILTER_FIELDS_BY_NAME = "filterFieldsByName";
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     private final ObjectMapper mapper;
@@ -63,7 +68,19 @@ public class JSONSerialiser {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
+        mapper.setFilterProvider(getFilterProvider());
+
         return mapper;
+    }
+
+    public static FilterProvider getFilterProvider(final String... fieldsToExclude) {
+        if (null == fieldsToExclude || fieldsToExclude.length == 0) {
+            return new SimpleFilterProvider()
+                    .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAll());
+        }
+
+        return new SimpleFilterProvider()
+                .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
     }
 
 
@@ -78,26 +95,29 @@ public class JSONSerialiser {
     /**
      * Serialises an object.
      *
-     * @param object the object to be serialised
+     * @param object          the object to be serialised
+     * @param fieldsToExclude optional property names to exclude from the json
      * @return the provided object serialised into bytes
      * @throws SerialisationException if the object fails to be serialised
      */
-    public byte[] serialise(final Object object) throws SerialisationException {
-        return serialise(object, false);
+    public byte[] serialise(final Object object, final String... fieldsToExclude) throws SerialisationException {
+        return serialise(object, false, fieldsToExclude);
     }
+
 
     /**
      * Serialises an object.
      *
-     * @param object      the object to be serialised
-     * @param prettyPrint true if the object should be serialised with pretty printing
+     * @param object          the object to be serialised
+     * @param prettyPrint     true if the object should be serialised with pretty printing
+     * @param fieldsToExclude optional property names to exclude from the json
      * @return the provided object serialised (with pretty printing) into bytes
      * @throws SerialisationException if the object fails to serialise
      */
-    public byte[] serialise(final Object object, final boolean prettyPrint) throws SerialisationException {
+    public byte[] serialise(final Object object, final boolean prettyPrint, final String... fieldsToExclude) throws SerialisationException {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
         try {
-            serialise(object, JSON_FACTORY.createGenerator(byteArrayBuilder, JsonEncoding.UTF8), prettyPrint);
+            serialise(object, JSON_FACTORY.createGenerator(byteArrayBuilder, JsonEncoding.UTF8), prettyPrint, fieldsToExclude);
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -108,19 +128,21 @@ public class JSONSerialiser {
     /**
      * Serialises an object using the provided json generator.
      *
-     * @param object        the object to be serialised and written to file
-     * @param jsonGenerator the {@link com.fasterxml.jackson.core.JsonGenerator} to use to write the object to
-     * @param prettyPrint   true if the object should be serialised with pretty printing
+     * @param object          the object to be serialised and written to file
+     * @param jsonGenerator   the {@link com.fasterxml.jackson.core.JsonGenerator} to use to write the object to
+     * @param prettyPrint     true if the object should be serialised with pretty printing
+     * @param fieldsToExclude optional property names to exclude from the json
      * @throws SerialisationException if the object fails to serialise
      */
-    public void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint)
+    public void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint, final String... fieldsToExclude)
             throws SerialisationException {
         if (prettyPrint) {
             jsonGenerator.useDefaultPrettyPrinter();
         }
 
+        final ObjectWriter writer = mapper.writer(getFilterProvider(fieldsToExclude));
         try {
-            mapper.writeValue(jsonGenerator, object);
+            writer.writeValue(jsonGenerator, object);
         } catch (IOException e) {
             throw new SerialisationException("Failed to serialise object to json: " + e.getMessage(), e);
         }

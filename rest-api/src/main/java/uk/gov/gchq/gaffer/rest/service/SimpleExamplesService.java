@@ -37,12 +37,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
@@ -85,8 +82,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetElementsBySeed<ElementSeed, Element> getElementsBySeed() {
-        final GetElementsBySeed<ElementSeed, Element> op = new GetElementsBySeed<>();
+    public GetElements<ElementSeed, Element> getElementsBySeed() {
+        final GetElements<ElementSeed, Element> op = new GetElements<>();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));
@@ -102,8 +99,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetRelatedElements<ElementSeed, Element> getRelatedElements() {
-        final GetRelatedElements<ElementSeed, Element> op = new GetRelatedElements<>();
+    public GetElements<ElementSeed, Element> getRelatedElements() {
+        final GetElements<ElementSeed, Element> op = new GetElements<>();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));
@@ -121,8 +118,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetEntitiesBySeed getEntitiesBySeed() {
-        final GetEntitiesBySeed op = new GetEntitiesBySeed();
+    public GetEntities getEntitiesBySeed() {
+        final GetEntities op = new GetEntities<>();
         if (hasEntities()) {
             op.setSeeds(Collections.singletonList(getEntitySeed(1)));
         }
@@ -131,8 +128,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetRelatedEntities getRelatedEntities() {
-        final GetRelatedEntities op = new GetRelatedEntities();
+    public GetEntities getRelatedEntities() {
+        final GetEntities op = new GetEntities();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));
@@ -148,8 +145,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetEdgesBySeed getEdgesBySeed() {
-        final GetEdgesBySeed op = new GetEdgesBySeed();
+    public GetEdges getEdgesBySeed() {
+        final GetEdges op = new GetEdges();
         if (hasEdges()) {
             op.setSeeds(Collections.singletonList(getEdgeSeed(1, 2)));
         }
@@ -158,8 +155,8 @@ public class SimpleExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetRelatedEdges getRelatedEdges() {
-        final GetRelatedEdges op = new GetRelatedEdges();
+    public GetEdges getRelatedEdges() {
+        final GetEdges op = new GetEdges();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));
@@ -208,6 +205,61 @@ public class SimpleExamplesService implements IExamplesService {
     @Override
     public GetAllEdges getAllEdges() {
         final GetAllEdges op = new GetAllEdges();
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetElements getElements() {
+        final GetElements<ElementSeed, Element> op = new GetElements<>();
+        final List<ElementSeed> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntitySeed(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeSeed(1, 2));
+        }
+
+        op.setSeeds(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetEntities getEntities() {
+        final GetEntities op = new GetEntities();
+        final List<ElementSeed> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntitySeed(1));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeSeed(1, 2));
+        }
+
+        op.setSeeds(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetEdges getEdges() {
+        final GetEdges op = new GetEdges();
+        final List<ElementSeed> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntitySeed(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeSeed(1, 2));
+        }
+
+        op.setSeeds(seeds);
         populateOperation(op);
         return op;
     }

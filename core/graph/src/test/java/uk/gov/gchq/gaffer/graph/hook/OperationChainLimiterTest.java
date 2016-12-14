@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertNotNull;
@@ -32,13 +32,14 @@ import static org.junit.Assert.fail;
 
 public class OperationChainLimiterTest {
 
-    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = new OperationChainLimiter(StreamUtil.opScores(OperationChainLimiterTest.class), StreamUtil.authScores(OperationChainLimiterTest.class));
+    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = new OperationChainLimiter(StreamUtil.opScores(OperationChainLimiterTest.class), StreamUtil
+            .authScores(OperationChainLimiterTest.class));
 
     @Test
      public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
+                .first(new GetEntities())
                 .build();
         final User user = new User.Builder()
                 .opAuths("User")

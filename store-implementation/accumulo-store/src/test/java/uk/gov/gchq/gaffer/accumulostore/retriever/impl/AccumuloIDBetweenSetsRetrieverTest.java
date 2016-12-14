@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import org.apache.hadoop.util.bloom.BloomFilter;
+import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.AfterClass;
@@ -297,7 +298,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
         for (final EntitySeed seed : seeds) {
-            filter.add(new org.apache.hadoop.util.bloom.Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
+            filter.add(new Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 
         // Test random items against it - should only have to shouldRetieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
@@ -306,7 +307,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
         while (count < maxNumberOfTries) {
             count++;
-            if (filter.membershipTest(new org.apache.hadoop.util.bloom.Key(("" + count).getBytes()))) {
+            if (filter.membershipTest(new Key(("" + count).getBytes()))) {
                 break;
             }
         }

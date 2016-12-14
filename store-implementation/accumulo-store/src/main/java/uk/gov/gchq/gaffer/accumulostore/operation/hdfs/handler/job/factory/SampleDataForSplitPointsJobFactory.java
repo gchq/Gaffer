@@ -42,7 +42,7 @@ public class SampleDataForSplitPointsJobFactory {
 
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.operation.simple.hdfs.handler.job.initialiser.JobInitialiser}.
+     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation
@@ -69,7 +69,7 @@ public class SampleDataForSplitPointsJobFactory {
     }
 
     protected void setupJobConf(final JobConf jobConf, final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        jobConf.set(SCHEMA, new String(store.getSchema().toJson(false), CommonConstants.UTF_8));
+        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));

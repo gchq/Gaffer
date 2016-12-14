@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.AGGREGATION)
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
-        final GetRelatedElements<ElementSeed, Element> getElements = new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElements = new GetElements.Builder<>()
                 .addSeed(new EntitySeed(AGGREGATED_SOURCE))
                 .build();
 
@@ -112,7 +112,7 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
-        final GetRelatedEdges<EntitySeed> getEdges = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(NON_AGGREGATED_SOURCE))
                 .build();
 

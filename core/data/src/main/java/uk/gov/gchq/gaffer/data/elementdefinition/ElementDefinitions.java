@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -112,9 +111,9 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return elementDefs;
     }
 
-    public byte[] toJson(final boolean prettyPrint) throws SchemaException {
+    public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
-            return JSON_SERIALISER.serialise(this, prettyPrint);
+            return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
         } catch (SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
@@ -186,15 +185,16 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     public void merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
-        for (final Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
-            if (!edges.containsKey(entry.getKey())) {
+        for (final Map.Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
+            if (!entities.containsKey(entry.getKey())) {
                 addEntity(entry.getKey(), entry.getValue());
             } else {
                 entities.get(entry.getKey()).merge(entry.getValue());
             }
         }
 
-        for (final Entry<String, EDGE_DEF> entry : elementDefs.getEdges().entrySet()) {
+        for (final Map.Entry<String, EDGE_DEF> entry : elementDefs.getEdges()
+                .entrySet()) {
             if (!edges.containsKey(entry.getKey())) {
                 addEdge(entry.getKey(), entry.getValue());
             } else {

@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter.Builder;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -142,14 +143,14 @@ public class ValidatorFilterTest {
     }
 
     private String getSchemaJson() throws UnsupportedEncodingException {
-        return new String(getSchema().toJson(false), CommonConstants.UTF_8);
+        return new String(getSchema().toCompactJson(), CommonConstants.UTF_8);
     }
 
     private Schema getSchema() throws UnsupportedEncodingException {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .validator(new uk.gov.gchq.gaffer.data.element.function.ElementFilter.Builder()
+                        .validator(new Builder()
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())

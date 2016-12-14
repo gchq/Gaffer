@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -76,7 +76,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation
         private final Iterator<? extends SEED_TYPE> idsIterator;
         private int count;
         private BatchScanner scanner;
-        private Iterator<Map.Entry<Key, Value>> scannerIterator;
+        private Iterator<Entry<Key, Value>> scannerIterator;
         private Element nextElm;
 
         protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
@@ -109,7 +109,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation
                 return true;
             }
             while (scannerIterator.hasNext()) {
-                final Map.Entry<Key, Value> entry = scannerIterator.next();
+                final Entry<Key, Value> entry = scannerIterator.next();
                 try {
                     nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
                             operation.getOptions());

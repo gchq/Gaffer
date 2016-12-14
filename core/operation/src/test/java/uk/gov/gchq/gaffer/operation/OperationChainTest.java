@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -28,8 +26,8 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+//@RunWith(MockitoJUnitRunner.class)
 public class OperationChainTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
@@ -56,17 +54,21 @@ public class OperationChainTest {
         // Then
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
-        assertEquals(OperationImpl.class, deserialisedOp.getOperations().get(0).getClass());
-        assertEquals(OperationImpl.class, deserialisedOp.getOperations().get(1).getClass());
+        assertEquals(OperationImpl.class, deserialisedOp.getOperations()
+                                                        .get(0)
+                                                        .getClass());
+        assertEquals(OperationImpl.class, deserialisedOp.getOperations()
+                                                        .get(1)
+                                                        .getClass());
     }
 
     @Test
     public void shouldBuildOperationChain() {
         // Given
         final AddElements addElements = mock(AddElements.class);
-        final GetAdjacentEntitySeeds getAdj1 = mock(GetAdjacentEntitySeeds.class);
-        final GetAdjacentEntitySeeds getAdj2 = mock(GetAdjacentEntitySeeds.class);
-        final GetRelatedElements<EntitySeed, Element> getRelElements = mock(GetRelatedElements.class);
+        final GetElements getAdj1 = mock(GetElements.class);
+        final GetElements getAdj2 = mock(GetElements.class);
+        final GetElements<EntitySeed, Element> getRelElements = mock(GetElements.class);
 
         // When
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
@@ -91,7 +93,7 @@ public class OperationChainTest {
         final AddElements addElements = new AddElements();
         final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
         final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
-        final GetRelatedElements<EntitySeed, Element> getRelElements = new GetRelatedElements<>();
+        final GetElements<EntitySeed, Element> getRelElements = new GetElements<>();
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
@@ -104,7 +106,7 @@ public class OperationChainTest {
 
         // Then
         final String expectedToString =
-                "OperationChain[AddElements->GetAdjacentEntitySeeds->GetAdjacentEntitySeeds->GetRelatedElements]";
+                "OperationChain[AddElements->GetAdjacentEntitySeeds->GetAdjacentEntitySeeds->GetElements]";
         assertEquals(expectedToString, toString);
     }
 
@@ -127,17 +129,17 @@ public class OperationChainTest {
     public void shouldBuildOperationChain_AdjEntitySeedsThenRelatedEdges() throws SerialisationException {
         // Given
         final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
-        final GetRelatedEdges<EntitySeed> getRelatedEdges = mock(GetRelatedEdges.class);
+        final GetEdges<EntitySeed> getEdges = mock(GetEdges.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
                 .first(getAdjacentEntitySeeds)
-                .then(getRelatedEdges)
+                .then(getEdges)
                 .build();
 
         // Then
         assertEquals(2, opChain.getOperations().size());
         assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
-        assertSame(getRelatedEdges, opChain.getOperations().get(1));
+        assertSame(getEdges, opChain.getOperations().get(1));
     }
 }

@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator7;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
-import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.user.User;
 
 public class LoadAndQuery7 extends LoadAndQuery {
@@ -118,14 +118,14 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // ---------------------------------------------------------
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new InitialiseSetExport())
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder<EntitySeed>()
                         .seeds(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
                 .then(new UpdateExport())
                 .then(new GenerateObjects<Edge, EntitySeed>(destVerticesExtractor))
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder<EntitySeed>()
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())

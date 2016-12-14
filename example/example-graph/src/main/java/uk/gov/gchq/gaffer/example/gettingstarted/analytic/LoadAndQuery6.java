@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 
@@ -86,7 +86,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
                                 .addSeed(new EntitySeed("1"))
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new GetRelatedEdges.Builder<EntitySeed>()
+                        .then(new GetEdges.Builder<EntitySeed>()
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
                         .then(new GenerateObjects.Builder<Edge, String>()

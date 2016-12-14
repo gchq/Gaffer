@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
 
         // [get] Get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetRelatedEdges<EntitySeed> query = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> query = new GetEdges.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(query, user);

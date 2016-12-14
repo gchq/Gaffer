@@ -23,7 +23,6 @@ import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;

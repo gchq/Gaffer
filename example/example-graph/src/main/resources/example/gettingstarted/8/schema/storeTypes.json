@@ -2,17 +2,17 @@
   "types": {
     "count.long": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
       }
     },
     "date.earliest": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.ComparableMin"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.ComparableMin"
       }
     },
     "date.latest": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.simple.aggregate.ComparableMax"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.ComparableMax"
       }
     },
     "visibility": {

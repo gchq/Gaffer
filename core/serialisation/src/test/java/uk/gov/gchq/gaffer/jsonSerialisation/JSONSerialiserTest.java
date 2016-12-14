@@ -18,15 +18,20 @@ package uk.gov.gchq.gaffer.jsonSerialisation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.test.ParameterisedTestObject;
-import uk.gov.gchq.gaffer.serialisation.test.SimpleTestObject;
+import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
+import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 import java.io.IOException;
-
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -154,5 +159,46 @@ public class JSONSerialiserTest {
         serialiser.deserialise(b, Integer.class);
     }
 
+    @Test
+    public void shouldGetFilterProviderWithFieldsToExclude() throws Exception {
+        // Given
+        final String[] fieldsToExclude = {"testField1", "testField2"};
 
+        // When
+        final FilterProvider filterProvider = JSONSerialiser.getFilterProvider(fieldsToExclude);
+
+        // Then
+        final PropertyFilter propertyFilter = filterProvider.findPropertyFilter(
+                JSONSerialiser.FILTER_FIELDS_BY_NAME, null);
+        assertTrue(propertyFilter instanceof SimpleBeanPropertyFilter.SerializeExceptFilter);
+
+        final Field field = SimpleBeanPropertyFilter.SerializeExceptFilter
+                .class.getDeclaredField("_propertiesToExclude");
+        field.setAccessible(true); //required if field is not normally accessible
+        final Set<String> fieldsExcluded = (Set<String>) field.get(propertyFilter);
+        assertEquals(fieldsToExclude.length, fieldsExcluded.size());
+        assertTrue(fieldsExcluded.containsAll(
+                Arrays.asList(fieldsToExclude)));
+    }
+
+    @Test
+    public void shouldGetFilterProviderWithNoFieldsToExclude()
+            throws Exception {
+        // Given
+        final String[] fieldsToExclude = {};
+
+        // When
+        final FilterProvider filterProvider = JSONSerialiser.getFilterProvider(fieldsToExclude);
+
+        // Then
+        final PropertyFilter propertyFilter = filterProvider.findPropertyFilter(
+                JSONSerialiser.FILTER_FIELDS_BY_NAME, null);
+        assertTrue(propertyFilter instanceof SimpleBeanPropertyFilter.SerializeExceptFilter);
+
+        final Field field = SimpleBeanPropertyFilter.SerializeExceptFilter
+                .class.getDeclaredField("_propertiesToExclude");
+        field.setAccessible(true); //required if field is not normally accessible
+        final Set<String> fieldsExcluded = (Set<String>) field.get(propertyFilter);
+        assertEquals(0, fieldsExcluded.size());
+    }
 }

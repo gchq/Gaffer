@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -48,12 +48,14 @@ import static org.junit.Assert.assertEquals;
 
 public class AggregatorIteratorTest {
 
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .storeProps(AggregatorIteratorTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AggregatorIteratorTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws IOException, StoreException {
@@ -66,17 +68,17 @@ public class AggregatorIteratorTest {
                 .build();
     }
 
-    @Before
-    public void reInitialise() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
-    }
-
     @AfterClass
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
+    }
+
+    @Before
+    public void reInitialise() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
     }
 
     @Test
@@ -134,7 +136,7 @@ public class AggregatorIteratorTest {
         final User user = new User();
         store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
 
-        final GetRelatedEdges<EntitySeed> get = new GetRelatedEdges.Builder<EntitySeed>()
+        final GetEdges<EntitySeed> get = new GetEdges.Builder<EntitySeed>()
                 .view(defaultView)
                 .addSeed(new EntitySeed("1"))
                 .build();

@@ -85,11 +85,11 @@ public class ViewIT {
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws IOException {
         //Given
         final View view1 = loadView();
-        final byte[] json1 = view1.toJson(false);
+        final byte[] json1 = view1.toCompactJson();
         final View view2 = View.fromJson(json1);
 
         // When
-        final byte[] json2 = view2.toJson(false);
+        final byte[] json2 = view2.toCompactJson();
 
         // Then
         assertEquals(new String(json1), new String(json2));

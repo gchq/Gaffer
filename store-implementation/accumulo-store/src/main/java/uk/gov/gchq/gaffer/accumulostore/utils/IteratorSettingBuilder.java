@@ -120,7 +120,7 @@ public class IteratorSettingBuilder {
 
     public IteratorSettingBuilder schema(final Schema schema) {
         try {
-            setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toJson(false), CommonConstants.UTF_8));
+            setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toCompactJson(), CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON", e);
         }
@@ -129,7 +129,7 @@ public class IteratorSettingBuilder {
 
     public IteratorSettingBuilder view(final View view) {
         try {
-            setting.addOption(AccumuloStoreConstants.VIEW, new String(view.toJson(false), CommonConstants.UTF_8));
+            setting.addOption(AccumuloStoreConstants.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise view from JSON", e);
         }

@@ -5,14 +5,14 @@
       "timestamp": 1471521078817
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
       "view": {
         "edges": {
           "data": {
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
                   "value": 1
                 },
                 "selection": [
@@ -45,14 +45,14 @@
       }
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
       "view": {
         "edges": {
           "data": {
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan",
+                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
                   "value": 1
                 },
                 "selection": [

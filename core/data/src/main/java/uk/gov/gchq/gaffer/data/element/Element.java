@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * <code>Elements</code> are the fundamental building blocks of the Graph.
@@ -63,7 +63,7 @@ public abstract class Element implements Serializable {
     }
 
     public void copyProperties(final Properties properties) {
-        for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+        for (final Entry<String, Object> entry : properties.entrySet()) {
             putProperty(entry.getKey(), entry.getValue());
         }
     }

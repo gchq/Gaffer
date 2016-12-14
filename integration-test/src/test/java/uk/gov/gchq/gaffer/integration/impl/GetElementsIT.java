@@ -36,8 +36,6 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -130,7 +128,7 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
         // Given
-        final GetElementsBySeed<ElementSeed, Element> op = new GetElementsBySeed<>();
+        final GetElements<ElementSeed, Element> op = new GetElements<>();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
@@ -142,7 +140,7 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
         // Given
-        final GetRelatedElements<ElementSeed, Element> op = new GetRelatedElements<>();
+        final GetElements<ElementSeed, Element> op = new GetElements<>();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
@@ -227,12 +225,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                    final Iterable<ElementSeed> seeds) throws IOException, OperationException {
         // Given
         final User user = new User();
-        final GetElements<ElementSeed, Element> op;
-        if (SeedMatchingType.EQUAL.equals(seedMatching)) {
-            op = new GetElementsBySeed<>();
-        } else {
-            op = new GetRelatedElements<>();
-        }
+        final GetElements<ElementSeed, Element> op = new GetElements.Builder<>().seedMatching(seedMatching).build();
         op.setSeeds(seeds);
         op.setIncludeEntities(includeEntities);
         op.setIncludeEdges(includeEdgeType);
