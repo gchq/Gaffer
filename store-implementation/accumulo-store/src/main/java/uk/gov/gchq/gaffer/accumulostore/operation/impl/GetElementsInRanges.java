@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
@@ -47,6 +50,12 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
 
     public GetElementsInRanges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+        return ((TypeReference) closeableItrElementTypeReference);
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>,

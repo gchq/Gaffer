@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.export.Exporter;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import java.util.Map;
@@ -29,6 +31,16 @@ import java.util.Map;
  */
 public class FetchExporters extends ExportOperation<Void, Map<String, Exporter>>
         implements VoidInput<Map<String, Exporter>> {
+    private TypeReference<Map<String, Exporter>> typeReference =
+            new TypeReference<Map<String, Exporter>>() {
+            };
+
+    @JsonIgnore
+    @Override
+    public TypeReference<Map<String, Exporter>> getTypeReference() {
+        return typeReference;
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
             extends ExportOperation.BaseBuilder<FetchExporters, Void, Map<String, Exporter>, CHILD_CLASS> {
         public BaseBuilder() {

@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
@@ -59,6 +62,12 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
         }
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+        return ((TypeReference) closeableItrElementTypeReference);
     }
 
     public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, ?>>

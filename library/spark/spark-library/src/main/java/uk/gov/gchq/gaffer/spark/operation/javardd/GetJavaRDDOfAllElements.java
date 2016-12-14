@@ -16,15 +16,29 @@
 
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import uk.gov.gchq.gaffer.data.element.Element;
 
 public class GetJavaRDDOfAllElements extends AbstractGetJavaRDD<Void> {
+
+    private TypeReference<JavaRDD<Element>> typeReference =
+            new TypeReference<JavaRDD<Element>>() {
+            };
 
     public GetJavaRDDOfAllElements() {
     }
 
     public GetJavaRDDOfAllElements(final JavaSparkContext sparkContext) {
         setJavaSparkContext(sparkContext);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<JavaRDD<Element>> getTypeReference() {
+        return typeReference;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

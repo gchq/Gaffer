@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
@@ -40,5 +42,12 @@ public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extend
 
     public GetOperationImpl(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<ELEMENT_TYPE> getTypeReference() {
+        return (TypeReference) new TypeReference<Element>() {
+        };
     }
 }

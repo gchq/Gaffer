@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractValidatable;
@@ -57,6 +59,12 @@ public class AddElements extends AbstractValidatable<Void> implements VoidOutput
      */
     public AddElements(final Iterable<Element> elements) {
         super(elements);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<Void> getTypeReference() {
+        return voidTypeReference;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

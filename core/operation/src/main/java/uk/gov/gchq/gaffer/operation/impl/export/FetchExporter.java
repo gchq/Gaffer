@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.export.Exporter;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 
@@ -27,12 +29,22 @@ import uk.gov.gchq.gaffer.operation.VoidInput;
  * @see FetchExport
  */
 public class FetchExporter extends ExportOperation<Void, Exporter> implements VoidInput<Exporter> {
+    private TypeReference<Exporter> typeReference =
+            new TypeReference<Exporter>() {
+            };
+
     public FetchExporter() {
         super();
     }
 
     public FetchExporter(final String key) {
         super(key);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<Exporter> getTypeReference() {
+        return typeReference;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

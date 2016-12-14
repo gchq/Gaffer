@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.export;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 
@@ -56,6 +57,12 @@ public class UpdateExport extends ExportOperation<CloseableIterable<Object>, Clo
 
     public void setInput(final Iterable input) {
         super.setInput(new WrappedCloseableIterable<Object>(input));
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<CloseableIterable<Object>> getTypeReference() {
+        return closeableItrObjTypeReference;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

@@ -49,4 +49,11 @@ public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
 
         return new WrappedCloseableIterator<>(iterator);
     }
+
+    @Override
+    public String toString() {
+        return "WrappedCloseableIterable{" +
+                "iterable=" + iterable +
+                '}';
+    }
 }

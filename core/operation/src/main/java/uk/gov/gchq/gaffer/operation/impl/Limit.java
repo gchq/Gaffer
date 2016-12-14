@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 
@@ -28,6 +31,12 @@ import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
  * @see Limit.Builder
  */
 public class Limit<T> extends AbstractGetIterableOperation<T, T> {
+
+    @JsonIgnore
+    @Override
+    public TypeReference<CloseableIterable<T>> getTypeReference() {
+        return ((TypeReference) closeableItrTypeReference);
+    }
 
     public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractGetIterableOperation.BaseBuilder<Limit<T>, T, T, CHILD_CLASS> {
 
