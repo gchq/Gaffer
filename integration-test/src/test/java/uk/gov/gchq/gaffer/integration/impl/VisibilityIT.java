@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -93,7 +93,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
@@ -131,7 +131,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graphNoVisibility.execute(addElements, USER_DEFAULT);
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
@@ -166,7 +166,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
@@ -204,7 +204,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("B"))
                 .build();
@@ -247,7 +247,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_VIS_1);
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("B"))
                 .build();
@@ -292,7 +292,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, new User());
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("B"))
                 .build();
 
@@ -325,7 +325,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, new User());
 
-        final GetRelatedElements<EntitySeed, Element> get = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("B"))
                 .build();
         final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets

@@ -46,7 +46,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -133,12 +132,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));
 
         // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
-        final GetElements<EntitySeed, ?> a1Operation = new GetRelatedElements<>(defaultView, AccumuloTestData.SEED_A1_SET);
+        final GetElements<EntitySeed, ?> a1Operation = new GetElements<>(defaultView, AccumuloTestData.SEED_A1_SET);
         final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, new User(), loadIntoMemory);
         assertEquals(1, a1Results.size());
         assertThat(a1Results, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
@@ -148,7 +147,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntitySeed> a1A2Seeds = new HashSet<>();
         a1A2Seeds.add(AccumuloTestData.SEED_A1);
         a1A2Seeds.add(AccumuloTestData.SEED_A2);
-        final GetElements<EntitySeed, ?> a1A2Operation = new GetRelatedElements<>(defaultView, a1A2Seeds);
+        final GetElements<EntitySeed, ?> a1A2Operation = new GetElements<>(defaultView, a1A2Seeds);
         final Set<Element> a1A2Results = returnElementsFromOperation(store, a1A2Operation, new User(), loadIntoMemory);
         assertEquals(2, a1A2Results.size());
         assertThat(a1A2Results, IsCollectionContaining.hasItems(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY));
@@ -186,7 +185,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             final Set<Element> expectedResults = new HashSet<>();
             expectedResults.add(AccumuloTestData.EDGE_C_D_DIRECTED);
             expectedResults.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-            final GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
+            final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
             op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
             final Set<Element> results = returnElementsFromOperation(store, op, new User(), true);
             assertEquals(expectedResults, results);
@@ -230,7 +229,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
         seeds.add(new EntitySeed("D"));
-        final GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
         // Set undirected edges only option, and query for edges in set {C, D} - should get the undirected edge
         op.setIncludeEdges(GetOperation.IncludeEdgeType.UNDIRECTED);
         op.setIncludeEntities(false);
@@ -238,12 +237,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_C_D_UNDIRECTED));
 
         // Set directed edges only option, and query for edges in set {C, D} - should get the directed edge
-        final GetElements<EntitySeed, ?> directedCOop = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> directedCOop = new GetElements<>(defaultView, seeds);
         directedCOop.setIncludeEdges(IncludeEdgeType.DIRECTED);
         final Set<Element> directedCDResults = returnElementsFromOperation(store, directedCOop, new User(), loadIntoMemory);
         assertThat(directedCDResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_C_D_DIRECTED));
 
-        final GetElements<EntitySeed, ?> bothDirectedAndUndirectedOp = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> bothDirectedAndUndirectedOp = new GetElements<>(defaultView, seeds);
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
         bothDirectedAndUndirectedOp.setIncludeEdges(IncludeEdgeType.ALL);
         final Set<Element> bothDirectedAndUndirectedResults = returnElementsFromOperation(store, bothDirectedAndUndirectedOp, new User(), loadIntoMemory);
@@ -327,7 +326,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
 
         // False positive is "" + count so create an edge from seeds to that
-        final GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
         // Now query for all edges in set - shouldn't get the false positive
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
 
@@ -366,14 +365,14 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
         // Set graph to give us edges only
         op.setIncludeEntities(false);
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A0_A23));
 
         // Set graph to return entities only
-        final GetElements<EntitySeed, ?> entitiesOnlyOp = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> entitiesOnlyOp = new GetElements<>(defaultView, seeds);
         entitiesOnlyOp.setIncludeEntities(true);
         entitiesOnlyOp.setIncludeEdges(IncludeEdgeType.NONE);
         // Query for all edges in set {A0, A23}
@@ -383,7 +382,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data)
         final View view = new View.Builder().edge("X").build();
-        final GetElements<EntitySeed, ?> entitiesAndEdgesOp = new GetRelatedElements<>(view, seeds);
+        final GetElements<EntitySeed, ?> entitiesAndEdgesOp = new GetElements<>(view, seeds);
         entitiesAndEdgesOp.setIncludeEdges(IncludeEdgeType.ALL);
         entitiesAndEdgesOp.setIncludeEntities(true);
         final Set<Element> entitiesAndEdgesResults = returnElementsFromOperation(store, entitiesAndEdgesOp, new User(), loadIntoMemory);
@@ -417,12 +416,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntitySeed> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElements<EntitySeed, ?> op = new GetRelatedElements<>(defaultView, seeds);
+        final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));
 
         // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
-        final GetElements<EntitySeed, ?> a1Operation = new GetRelatedElements<>(defaultView, AccumuloTestData.SEED_A1_SET);
+        final GetElements<EntitySeed, ?> a1Operation = new GetElements<>(defaultView, AccumuloTestData.SEED_A1_SET);
         final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, new User(), loadIntoMemory);
         assertEquals(1, a1Results.size());
         assertThat(a1Results, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
@@ -432,7 +431,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntitySeed> a1A2Seeds = new HashSet<>();
         a1A2Seeds.add(AccumuloTestData.SEED_A1);
         a1A2Seeds.add(AccumuloTestData.SEED_A2);
-        final GetElements<EntitySeed, ?> a1A23Operation = new GetRelatedElements<>(defaultView, a1A2Seeds);
+        final GetElements<EntitySeed, ?> a1A23Operation = new GetElements<>(defaultView, a1A2Seeds);
         final Set<Element> a1A23Results = returnElementsFromOperation(store, a1A23Operation, new User(), loadIntoMemory);
         assertEquals(2, a1A23Results.size());
         assertThat(a1A23Results, IsCollectionContaining.hasItems(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY));

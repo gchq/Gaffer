@@ -45,10 +45,8 @@ import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +64,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the edges
         final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEdges.Builder<>()
+                .first(new GetEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .view(new View.Builder()
@@ -125,7 +123,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEntities.Builder<>()
+                .first(new GetEntities.Builder<>()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -173,7 +171,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEntitiesBySeed.Builder()
+                .first(new GetEntities.Builder()
                         .addSeed(new EntitySeed(1))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -217,7 +215,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the edges
         final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEdgesBySeed.Builder()
+                .first(new GetEdges.Builder()
                         .addSeed(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -264,13 +262,13 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEdges.Builder<>()
+                .first(new GetEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .build())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor(IdentifierType.DESTINATION))
                         .build())
-                .then(new GetEntitiesBySeed.Builder()
+                .then(new GetEntities.Builder()
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()

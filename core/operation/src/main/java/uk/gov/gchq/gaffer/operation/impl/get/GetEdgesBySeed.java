@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
  * @see GetEdgesBySeed.Builder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetEdges
  */
+@Deprecated
 public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
     public GetEdgesBySeed() {
         super();
@@ -73,7 +74,7 @@ public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends GetEdges.BaseBuilder<GetEdgesBySeed, EdgeSeed, CHILD_CLASS> {
+            extends GetEdges.BaseBuilder<EdgeSeed, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetEdgesBySeed());
         }

@@ -38,8 +38,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -66,7 +65,7 @@ public class GeneratorsIT extends AbstractStoreIT {
     public void shouldConvertToDomainObjects() throws OperationException, UnsupportedEncodingException {
         // Given
         final OperationChain<CloseableIterable<DomainObject>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedElements.Builder<>()
+                .first(new GetElements.Builder<>()
                         .addSeed(new EntitySeed(SOURCE_1))
                         .build())
                 .then(new GenerateObjects.Builder<Element, DomainObject>()
@@ -106,7 +105,7 @@ public class GeneratorsIT extends AbstractStoreIT {
         graph.execute(opChain, getUser());
 
         // Then - check they were added correctly
-        final List<Element> results = Lists.newArrayList(graph.execute(new GetElementsBySeed.Builder<>()
+        final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder<>()
                 .addSeed(new EntitySeed(NEW_VERTEX))
                 .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));

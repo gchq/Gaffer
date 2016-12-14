@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -48,12 +49,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -187,16 +183,9 @@ public class StoreTest {
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
         assertSame(addElementsHandler, store.getOperationHandlerExposed(AddElements.class));
 
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetElementsBySeed.class));
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedElements.class));
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetEntitiesBySeed.class));
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetEdgesBySeed.class));
-        assertSame(getElementsHandler, store.getOperationHandlerExposed(GetRelatedEntities.class));
         assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
         assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEntities.class));
         assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEdges.class));
-        assertSame(getAdjacentEntitySeedsHandler, store.getOperationHandlerExposed(GetAdjacentEntitySeeds.class));
 
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
@@ -307,15 +296,16 @@ public class StoreTest {
         final CloseableIterable<Element> getElementsResult = mock(CloseableIterable.class);
 
         final AddElements addElements1 = new AddElements();
-        final GetElementsBySeed<ElementSeed, Element> getElementsBySeed = new GetElementsBySeed<>();
+        final GetElements<ElementSeed, Element> getElements = new GetElements<>();
         final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
-                .then(getElementsBySeed)
+                .then(getElements)
                 .build();
 
 
         given(addElementsHandler.doOperation(addElements1, context, store)).willReturn(null);
-        given(getElementsHandler.doOperation(getElementsBySeed, context, store)).willReturn(getElementsResult);
+        given(getElementsHandler.doOperation(getElements, context, store))
+                .willReturn(getElementsResult);
 
         store.initialise(schema, properties);
 
@@ -335,13 +325,13 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 26;
+        final int expectedNumberOfOperations = 23;
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
 
         given(validatableHandler.doOperation(validatable, context, store)).
-                willReturn(expectedNumberOfOperations);
+                                                                                  willReturn(expectedNumberOfOperations);
 
         store.initialise(schema, properties);
 
@@ -396,7 +386,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final boolean supported = store.isSupported(GetElements.class);
+        final boolean supported = store.isSupported(GetOperation.class);
 
         // Then
         assertFalse(supported);
@@ -432,9 +422,8 @@ public class StoreTest {
 
     private class StoreImpl extends Store {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
-
-        private int createOperationHandlersCallCount;
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+        private int createOperationHandlersCallCount;
         private boolean validationRequired;
 
         public StoreImpl() {

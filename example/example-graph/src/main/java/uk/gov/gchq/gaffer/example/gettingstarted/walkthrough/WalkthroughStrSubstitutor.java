@@ -50,7 +50,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
 import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
@@ -147,7 +147,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("PROPERTIES_JAVADOC", getJavaDocLink(Properties.class));
         params.put("ADD_ELEMENTS_JAVADOC", getJavaDocLink(AddElements.class));
         params.put("OPERATION_JAVADOC", getJavaDocLink(Operation.class));
-        params.put("GET_RELATED_EDGES_JAVADOC", getJavaDocLink(GetRelatedEdges.class));
+        params.put("GET_RELATED_EDGES_JAVADOC", getJavaDocLink(GetEdges.class));
         params.put("VIEW_JAVADOC", getJavaDocLink(View.class));
         params.put("SUM_JAVADOC", getJavaDocLink(Sum.class));
         params.put("EXISTS_JAVADOC", getJavaDocLink(Exists.class));

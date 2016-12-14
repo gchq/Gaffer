@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
@@ -80,7 +80,7 @@ public class OperationAuthoriserTest {
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
-                .then(new GetRelatedElements())
+                .then(new GetElements())
                 .build();
 
         final User user = new User();
@@ -100,7 +100,7 @@ public class OperationAuthoriserTest {
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
-                .then(new GetRelatedElements())
+                .then(new GetElements())
                 .build();
 
         final User user = new User.Builder()

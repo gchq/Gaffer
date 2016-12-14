@@ -15,32 +15,35 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 
-public class GetRelatedEntitiesExample extends OperationExample {
+public class GetEntitiesExample extends OperationExample {
     public static void main(final String[] args) {
-        new GetRelatedEntitiesExample().run();
+        new GetEntitiesExample().run();
     }
 
-    public GetRelatedEntitiesExample() {
-        super(GetRelatedEntities.class);
+    public GetEntitiesExample() {
+        super(GetEntities.class);
     }
 
-    @Override
     public void runExamples() {
+        getEntitiesByEntitySeed1And2();
+        getEntitiesByEntitySeed1And2WithCountGreaterThan1();
         getAllEntitiesThatAreConnectedToEdge1to2();
         getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1();
     }
 
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2() {
         // ---------------------------------------------------------
-        final GetRelatedEntities<EdgeSeed> operation = new GetRelatedEntities.Builder<EdgeSeed>()
+        final GetEntities<EdgeSeed> operation = new GetEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .build();
         // ---------------------------------------------------------
@@ -50,8 +53,38 @@ public class GetRelatedEntitiesExample extends OperationExample {
 
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetRelatedEntities<EdgeSeed> operation = new GetRelatedEntities.Builder<EdgeSeed>()
+        final GetEntities<EdgeSeed> operation = new GetEntities.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(1, 2, true))
+                .view(new View.Builder()
+                        .entity("entity", new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("count")
+                                        .execute(new IsMoreThan(1))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
+    }
+
+    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2() {
+        // ---------------------------------------------------------
+        final GetEntities<EntitySeed> operation = new GetEntities.Builder<EntitySeed>()
+                .addSeed(new EntitySeed(1))
+                .addSeed(new EntitySeed(2))
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation);
+    }
+
+    public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1() {
+        // ---------------------------------------------------------
+        final GetEntities<EntitySeed> operation = new GetEntities.Builder<EntitySeed>()
+                .addSeed(new EntitySeed(1))
+                .addSeed(new EntitySeed(2))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
