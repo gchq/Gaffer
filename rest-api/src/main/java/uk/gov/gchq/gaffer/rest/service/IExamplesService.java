@@ -93,6 +93,18 @@ public interface IExamplesService {
     GetAllEdges getAllEdges();
 
     @GET
+    @Path("/graph/doOperation/get/elements")
+    GetElements getElements();
+
+    @GET
+    @Path("/graph/doOperation/get/entities")
+    GetEntities getEntities();
+
+    @GET
+    @Path("/graph/doOperation/get/edges")
+    GetEdges getEdges();
+
+    @GET
     @Path("/graph/doOperation/add/elements")
     AddElements addElements();
 

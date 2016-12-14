@@ -75,31 +75,43 @@ public interface IOperationService {
     @POST
     @Path("/get/elements/bySeed")
     @Deprecated
+    @ApiOperation(value = "Gets elements by seed from the graph",
+            response = Element.class, responseContainer = "List", hidden = true)
     CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/elements/related")
     @Deprecated
+    @ApiOperation(value = "Gets related elements from the graph", response =
+            Element.class, responseContainer = "List", hidden = true)
     CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
 
     @POST
     @Path("/get/entities/bySeed")
     @Deprecated
+    @ApiOperation(value = "Gets entities by seed from the graph", response =
+            Entity.class, responseContainer = "List", hidden = true)
     CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
 
     @POST
     @Path("/get/entities/related")
     @Deprecated
+    @ApiOperation(value = "Gets related entities from the graph", response =
+            Entity.class, responseContainer = "List", hidden = true)
     CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation);
 
     @POST
     @Path("/get/edges/bySeed")
     @Deprecated
+    @ApiOperation(value = "Gets edge by seed from the graph", response = Edge
+            .class, responseContainer = "List", hidden = true)
     CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
 
     @POST
     @Path("/get/edges/related")
     @Deprecated
+    @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed
+            .class, responseContainer = "List", hidden = true)
     CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation);
 
     @POST
