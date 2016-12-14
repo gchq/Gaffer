@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,12 +58,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetElements.Builder<>()
                         .seeds(seeds)
                         .build();
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
                 .seeds(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
@@ -101,12 +101,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetElements.Builder<>()
                         .seeds(seeds)
                         .build();
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
                 .seeds(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
@@ -152,12 +152,12 @@ public class FilteringIT extends AbstractStoreIT {
         final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
                 new EdgeSeed("A5", "B5", false));
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetElements.Builder<>()
                         .seeds(seeds)
                         .build();
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
                 .seeds(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -213,12 +213,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetElements.Builder<>()
                         .seeds(seeds)
                         .build();
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
                 .seeds(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
@@ -264,12 +264,12 @@ public class FilteringIT extends AbstractStoreIT {
         final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
                 new EdgeSeed("A5", "B5", false));
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
+                new GetElements.Builder<>()
                         .seeds(seeds)
                         .build();
 
-        final GetRelatedElements<ElementSeed, Element> getElementsWithFiltering = new GetRelatedElements.Builder<>()
+        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
                 .seeds(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

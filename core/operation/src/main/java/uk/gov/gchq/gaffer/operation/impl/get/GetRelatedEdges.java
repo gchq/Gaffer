@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges.Builder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetEdges
  */
+@Deprecated
 public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<ELEMENT_SEED> {
     public GetRelatedEdges() {
         super();
@@ -79,7 +80,7 @@ public class GetRelatedEdges<ELEMENT_SEED extends ElementSeed> extends GetEdges<
     }
 
     public abstract static class BaseBuilder<ELEMENT_SEED extends ElementSeed, CHILD_CLASS extends BaseBuilder<ELEMENT_SEED, ?>>
-            extends GetEdges.BaseBuilder<GetRelatedEdges<ELEMENT_SEED>, ELEMENT_SEED, CHILD_CLASS> {
+            extends GetEdges.BaseBuilder<ELEMENT_SEED, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetRelatedEdges<ELEMENT_SEED>());
         }

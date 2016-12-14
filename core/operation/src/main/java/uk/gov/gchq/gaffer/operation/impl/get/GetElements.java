@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * @param <ELEMENT_TYPE> the element return type
  * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
-public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
         extends AbstractGetIterableElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetElements() {
         super();
@@ -74,19 +74,25 @@ public abstract class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE ex
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
+
+        protected BaseBuilder() {
+            super((OP_TYPE) new GetElements<SEED_TYPE, ELEMENT_TYPE>());
+        }
     }
 
-    public static final class Builder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
-            SEED_TYPE extends ElementSeed,
-            ELEMENT_TYPE extends Element>
-            extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE>> {
+    public static final class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
+            extends BaseBuilder<GetElements<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
 
-        protected Builder(final OP_TYPE op) {
+        public Builder() {
+            super(new GetElements<SEED_TYPE, ELEMENT_TYPE>());
+        }
+
+        public Builder(final GetElements<SEED_TYPE, ELEMENT_TYPE> op) {
             super(op);
         }
 
         @Override
-        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> self() {
+        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
             return this;
         }
     }

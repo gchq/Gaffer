@@ -16,7 +16,7 @@ import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -71,7 +71,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When 1 - before age off
-        final CloseableIterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
+        final CloseableIterable<Entity> results1 = graph.execute(new GetEntities.Builder<>()
                 .addSeed(new EntitySeed(VERTEX))
                 .build(), user);
 
@@ -87,7 +87,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         }
 
         // When 2 - after age off
-        final CloseableIterable<Entity> results2 = graph.execute(new GetEntitiesBySeed.Builder()
+        final CloseableIterable<Entity> results2 = graph.execute(new GetEntities.Builder<>()
                 .addSeed(new EntitySeed(VERTEX))
                 .build(), user);
 
@@ -111,7 +111,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When
-        final CloseableIterable<Entity> results1 = graph.execute(new GetEntitiesBySeed.Builder()
+        final CloseableIterable<Entity> results1 = graph.execute(new GetEntities.Builder<>()
                 .addSeed(new EntitySeed(VERTEX))
                 .build(), user);
 

@@ -11,7 +11,7 @@
       ]
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
       "includeIncomingOutGoing": "OUTGOING"
     },
     {

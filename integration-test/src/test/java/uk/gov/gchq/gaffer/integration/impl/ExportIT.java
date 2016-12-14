@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.FetchExporters;
 import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import java.io.IOException;
 import java.util.Map;
 
@@ -77,14 +77,14 @@ public class ExportIT extends AbstractStoreIT {
         // Given
         final OperationChain<Exporter> exportOpChain = new OperationChain.Builder()
                 .first(new InitialiseSetExport())
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder()
                         .addSeed(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new UpdateExport())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new GetEdges())
                 .then(new UpdateExport())
                 .then(new FetchExporter())
                 .build();
@@ -104,14 +104,14 @@ public class ExportIT extends AbstractStoreIT {
         final OperationChain<Map<String, Exporter>> exportOpChain = new Builder()
                 .first(new InitialiseSetExport(hop1Export))
                 .then(new InitialiseSetExport(hop2Export))
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder()
                         .addSeed(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new UpdateExport(hop1Export))
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new GetEdges())
                 .then(new UpdateExport(hop2Export))
                 .then(new FetchExporters())
                 .build();
@@ -131,14 +131,14 @@ public class ExportIT extends AbstractStoreIT {
         final String unknownKey = "unknownKey";
         final OperationChain<Exporter> exportOpChain = new Builder()
                 .first(new InitialiseSetExport(key))
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder()
                         .addSeed(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new UpdateExport(key))
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new GetEdges())
                 .then(new UpdateExport(unknownKey))
                 .then(new FetchExporter(key))
                 .build();
@@ -159,14 +159,14 @@ public class ExportIT extends AbstractStoreIT {
         final String unknownKey = "unknownKey";
         final OperationChain<Exporter> exportOpChain = new Builder()
                 .first(new InitialiseSetExport(key))
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder()
                         .addSeed(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new UpdateExport(key))
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new GetEdges())
                 .then(new UpdateExport(key))
                 .then(new FetchExporter(unknownKey))
                 .build();
@@ -185,14 +185,14 @@ public class ExportIT extends AbstractStoreIT {
         // Given
         final OperationChain<CloseableIterable<?>> fetchOpChain = new OperationChain.Builder()
                 .first(new InitialiseSetExport())
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder()
                         .addSeed(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new UpdateExport())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new GetEdges())
                 .then(new UpdateExport())
                 .then(new FetchExport.Builder()
                         .start(0).end(1)

@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 
 public class DeduplicateExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -42,7 +42,7 @@ public class DeduplicateExample extends OperationExample {
 
     public Iterable<Edge> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
-        final GetRelatedEdges<ElementSeed> operation = new GetRelatedEdges.Builder<>()
+        final GetEdges<ElementSeed> operation = new GetEdges.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .build();
@@ -53,7 +53,7 @@ public class DeduplicateExample extends OperationExample {
 
     public Iterable<Edge> withDeduplicateEdgesFlag() {
         // ---------------------------------------------------------
-        final GetRelatedEdges<ElementSeed> build = new GetRelatedEdges.Builder<>()
+        final GetEdges<ElementSeed> build = new GetEdges.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .deduplicate(true)
@@ -66,7 +66,7 @@ public class DeduplicateExample extends OperationExample {
     public Iterable<Edge> withDeduplicateEdgesChain() {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Edge>> opChain = new OperationChain.Builder()
-                .first(new GetRelatedEdges.Builder<>()
+                .first(new GetEdges.Builder<>()
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .build())

@@ -54,6 +54,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities.Builder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetEntities
  */
+@Deprecated
 public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEntities<ELEMENT_SEED> {
     public GetRelatedEntities() {
         super();
@@ -96,7 +97,7 @@ public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEnt
     }
 
     public abstract static class BaseBuilder<ELEMENT_SEED extends ElementSeed, CHILD_CLASS extends BaseBuilder<ELEMENT_SEED, ?>>
-            extends GetEntities.BaseBuilder<GetRelatedEntities<ELEMENT_SEED>, ELEMENT_SEED, CHILD_CLASS> {
+            extends GetEntities.BaseBuilder<ELEMENT_SEED, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetRelatedEntities<ELEMENT_SEED>());
         }

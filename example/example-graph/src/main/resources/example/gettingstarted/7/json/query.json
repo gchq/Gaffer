@@ -5,7 +5,7 @@
       "timestamp": 1471521078817
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
       "view": {
         "edges": {
           "data": {
@@ -45,7 +45,7 @@
       }
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
       "view": {
         "edges": {
           "data": {
