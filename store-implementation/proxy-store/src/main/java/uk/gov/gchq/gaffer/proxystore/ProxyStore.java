@@ -75,7 +75,7 @@ public class ProxyStore extends Store {
 
     protected void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/storeTraits");
-        traits = getViaUrl(url, new TypeReferenceStoreTraits());
+        traits = doGet(url, new TypeReferenceStoreTraits());
         if (null == traits) {
             traits = new HashSet<>(0);
         }
@@ -84,7 +84,7 @@ public class ProxyStore extends Store {
     protected void fetchSchema(final ProxyProperties proxyProps) throws
             StoreException {
         final URL url = proxyProps.getGafferUrl("graph/schema");
-        schema = getViaUrl(url, new TypeReferenceSchema());
+        schema = doGet(url, new TypeReferenceSchema());
     }
 
     @Override
@@ -106,15 +106,15 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/doOperation");
         try {
-            return postViaUrl(url, opChainJson, operationChain.getTypeReference(), context);
+            return doPost(url, opChainJson, operationChain.getTypeReference(), context);
         } catch (StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
     }
 
-    protected <OUTPUT> OUTPUT postViaUrl(final URL url, final String jsonBody,
-                                         final TypeReference<OUTPUT> outputTypeReference,
-                                         final Context context) throws StoreException {
+    protected <OUTPUT> OUTPUT doPost(final URL url, final String jsonBody,
+                                     final TypeReference<OUTPUT> outputTypeReference,
+                                     final Context context) throws StoreException {
         final ClientRequest request = createRequest(jsonBody, url, context);
         final ClientResponse<String> response;
         try {
@@ -127,8 +127,8 @@ public class ProxyStore extends Store {
         return handleResponse(response, outputTypeReference);
     }
 
-    protected <OUTPUT> OUTPUT getViaUrl(final URL url,
-                                        final TypeReference<OUTPUT> outputTypeReference)
+    protected <OUTPUT> OUTPUT doGet(final URL url,
+                                    final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
         final ClientRequest request = createRequest(null, url, null);
         final ClientResponse<String> response;
