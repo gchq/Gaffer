@@ -57,10 +57,10 @@ public class ProxyStore extends Store {
     private Set<StoreTrait> traits;
     private Schema schema;
 
-    private static class TypeReferenceSchema extends TypeReference<Schema> {
+    public static class TypeReferenceSchema extends TypeReference<Schema> {
     }
 
-    private static class TypeReferenceStoreTraits extends TypeReference<Set<StoreTrait>> {
+    public static class TypeReferenceStoreTraits extends TypeReference<Set<StoreTrait>> {
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
@@ -73,55 +73,123 @@ public class ProxyStore extends Store {
         super.initialise(schema, proxyProps);
     }
 
-    private void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
+    protected void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/storeTraits");
-        final ClientRequest request = createRequest(null, url);
-
-        traits = new HashSet<>(0);
-        try {
-            final ClientResponse<String> response = request.get(String.class);
-            switch (response.getStatus()) {
-                case HttpStatus.SC_OK:
-                    final String rawJson = response.getEntity(String.class);
-                    traits = deserialise(rawJson, new TypeReferenceStoreTraits());
-                    break;
-                case HttpStatus.SC_NO_CONTENT:
-                    break;
-                default:
-                    LOGGER.warn("Gaffer bad status " + response.getStatus());
-                    throw new StoreException("Unable to connect to rest api to fetch " +
-                            "traits");
-            }
-        } catch (Exception e) {
-            throw new StoreException("Unable to connect to rest api to fetch " +
-                    "traits", e);
+        traits = getViaUrl(url, new TypeReferenceStoreTraits());
+        if (null == traits) {
+            traits = new HashSet<>(0);
         }
     }
 
-    private void fetchSchema(final ProxyProperties proxyProps) throws StoreException {
+    protected void fetchSchema(final ProxyProperties proxyProps) throws
+            StoreException {
         final URL url = proxyProps.getGafferUrl("graph/schema");
-        final ClientRequest request = createRequest(null, url);
+        schema = getViaUrl(url, new TypeReferenceSchema());
+    }
 
-        schema = null;
+    @Override
+    protected <OUTPUT> OUTPUT handleOperationChain(
+            final OperationChain<OUTPUT> operationChain, final Context context)
+            throws OperationException {
+        return executeOpChainViaUrl(operationChain, context);
+    }
+
+    protected <OUTPUT> OUTPUT executeOpChainViaUrl(
+            final OperationChain<OUTPUT> operationChain, final Context context)
+            throws OperationException {
+        final String opChainJson;
         try {
-            final ClientResponse<String> response = request.get(String.class);
-            switch (response.getStatus()) {
-                case HttpStatus.SC_OK:
-                    final String rawJson = response.getEntity(String.class);
-
-                    schema = deserialise(rawJson, new TypeReferenceSchema());
-                    break;
-                case HttpStatus.SC_NO_CONTENT:
-                    break;
-                default:
-                    LOGGER.warn("Gaffer bad status " + response.getStatus());
-                    throw new StoreException("Unable to connect to rest api to fetch " +
-                            "schema");
-            }
-        } catch (Exception e) {
-            throw new StoreException("Unable to connect to rest api to fetch " +
-                    "schema", e);
+            opChainJson = new String(JSON_SERIALISER.serialise(operationChain), CommonConstants.UTF_8);
+        } catch (UnsupportedEncodingException | SerialisationException e) {
+            throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
+
+        final URL url = getProperties().getGafferUrl("graph/doOperation");
+        try {
+            return postViaUrl(url, opChainJson, operationChain.getTypeReference(), context);
+        } catch (StoreException e) {
+            throw new OperationException(e.getMessage(), e);
+        }
+    }
+
+    protected <OUTPUT> OUTPUT postViaUrl(final URL url, final String jsonBody,
+                                         final TypeReference<OUTPUT> outputTypeReference,
+                                         final Context context) throws StoreException {
+        final ClientRequest request = createRequest(jsonBody, url, context);
+        final ClientResponse<String> response;
+        try {
+            response = request.post(String.class);
+        } catch (Exception e) {
+            throw new StoreException("Failed to execute post via " +
+                    "the Gaffer URL " + url.toExternalForm(), e);
+        }
+
+        return handleResponse(response, outputTypeReference);
+    }
+
+    protected <OUTPUT> OUTPUT getViaUrl(final URL url,
+                                        final TypeReference<OUTPUT> outputTypeReference)
+            throws StoreException {
+        final ClientRequest request = createRequest(null, url, null);
+        final ClientResponse<String> response;
+        try {
+            response = request.get(String.class);
+        } catch (Exception e) {
+            throw new StoreException("Request failed to execute via url "
+                    + url.toExternalForm(), e);
+        }
+
+        return handleResponse(response, outputTypeReference);
+    }
+
+    protected <OUTPUT> OUTPUT handleResponse(final ClientResponse<String> response,
+                                             final TypeReference<OUTPUT> outputTypeReference)
+            throws StoreException {
+        String outputJson = null;
+        switch (response.getStatus()) {
+            case HttpStatus.SC_OK:
+                outputJson = response.getEntity(String.class);
+                break;
+            case HttpStatus.SC_NO_CONTENT:
+                break;
+            default:
+                LOGGER.warn("Gaffer bad status " + response.getStatus());
+                throw new StoreException("Gaffer bad status " +
+                        response.getStatus());
+        }
+
+        OUTPUT output = null;
+        if (null != outputJson) {
+            try {
+                output = deserialise(outputJson, outputTypeReference);
+            } catch (SerialisationException e) {
+                throw new StoreException(e.getMessage(), e);
+            }
+        }
+
+        return output;
+    }
+
+    protected ClientRequest createRequest(final String body, final URL url, final Context context) {
+        final ClientRequest request = new ClientRequest(url.toString());
+        if (null != body) {
+            request.body(MediaType.APPLICATION_JSON_TYPE, body);
+        }
+        return request;
+    }
+
+    protected <OUTPUT> OUTPUT deserialise(final String jsonString,
+                                          final TypeReference<OUTPUT> typeReference)
+            throws SerialisationException {
+        final byte[] jsonBytes;
+        try {
+            jsonBytes = jsonString.getBytes(CommonConstants.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            throw new SerialisationException(
+                    "Unable to deserialise JSON: " + jsonString, e);
+        }
+
+        return JSON_SERIALISER.deserialise(jsonBytes, typeReference);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
@@ -148,78 +216,6 @@ public class ProxyStore extends Store {
     @Override
     public boolean isValidationRequired() {
         return false;
-    }
-
-    @Override
-    protected <OUTPUT> OUTPUT handleOperationChain(final OperationChain<OUTPUT> operationChain, final Context context) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/doOperation");
-        final String opChainJson;
-        try {
-            opChainJson = new String(JSON_SERIALISER.serialise(operationChain), CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException | SerialisationException e) {
-            throw new OperationException("Unable to serialise operation chain into JSON.", e);
-        }
-
-
-        final String responseJson = executeViaUrl(url, opChainJson, context);
-
-        OUTPUT output = null;
-        if (null != responseJson) {
-            try {
-                output = deserialise(responseJson, operationChain.getTypeReference());
-            } catch (SerialisationException e) {
-                throw new OperationException("Failed to deserialise response " +
-                        "from operation chain", e);
-            }
-        }
-
-        return output;
-    }
-
-    protected String executeViaUrl(final URL url, final String opChainJson,
-                                   final Context context) throws OperationException {
-        final ClientRequest request = createRequest(opChainJson, url);
-        String responseJson = null;
-        try {
-            final ClientResponse<String> response = request.post(String.class);
-            switch (response.getStatus()) {
-                case HttpStatus.SC_OK:
-                    responseJson = response.getEntity(String.class);
-                    break;
-                case HttpStatus.SC_NO_CONTENT:
-                    break;
-                default:
-                    LOGGER.warn("Gaffer bad status " + response.getStatus());
-                    throw new OperationException("Gaffer bad status " +
-                            response.getStatus());
-            }
-        } catch (Exception e) {
-            throw new OperationException("Failed to execute operation chain via the Gaffer URL " + url.toExternalForm(), e);
-        }
-
-        return responseJson;
-    }
-
-    protected ClientRequest createRequest(final String body, final URL url) {
-        final ClientRequest request = new ClientRequest(url.toString());
-        if (null != body) {
-            request.body(MediaType.APPLICATION_JSON_TYPE, body);
-        }
-        return request;
-    }
-
-    protected <OUTPUT> OUTPUT deserialise(final String jsonString,
-                                          final TypeReference<OUTPUT> typeReference)
-            throws SerialisationException {
-        final byte[] jsonBytes;
-        try {
-            jsonBytes = jsonString.getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            throw new SerialisationException(
-                    "Unable to deserialise JSON: " + jsonString, e);
-        }
-
-        return JSON_SERIALISER.deserialise(jsonBytes, typeReference);
     }
 
     @Override
