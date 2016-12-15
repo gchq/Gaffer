@@ -64,6 +64,36 @@ public class EntityTest extends ElementTest {
     }
 
     @Test
+    public void shouldConstructEntity() {
+        // Given
+        final String vertex = "vertex1";
+        final String propValue = "propValue";
+
+        // When
+        final Entity entity = new Entity(TestGroups.ENTITY, vertex);
+        entity.putProperty(TestPropertyNames.STRING, propValue);
+
+        // Then
+        assertEquals(TestGroups.ENTITY, entity.getGroup());
+        assertEquals(vertex, entity.getVertex());
+        assertEquals(propValue, entity.getProperty(TestPropertyNames.STRING));
+    }
+
+    @Test
+    public void shouldCloneEntity() {
+        // Given
+        final String vertex = "vertex1";
+        final String propValue = "propValue";
+
+        // When
+        final Entity entity = new Entity(TestGroups.ENTITY, vertex);
+        final Entity clone = entity.emptyClone();
+
+        // Then
+        assertEquals(clone, entity);
+    }
+
+    @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
         final Entity entity = new Entity("group");
