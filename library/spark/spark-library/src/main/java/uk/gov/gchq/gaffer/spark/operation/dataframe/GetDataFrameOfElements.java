@@ -41,9 +41,9 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     private SQLContext sqlContext;
     private List<Converter> converters;
-    private TypeReference<Dataset<Row>> typeReference =
-            new TypeReference<Dataset<Row>>() {
-            };
+
+    public static class TypeReferenceDataSetRow extends TypeReference<Dataset<Row>> {
+    }
 
     public GetDataFrameOfElements() {
     }
@@ -73,7 +73,7 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
     @JsonIgnore
     @Override
     public TypeReference<Dataset<Row>> getTypeReference() {
-        return typeReference;
+        return new TypeReferenceDataSetRow();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

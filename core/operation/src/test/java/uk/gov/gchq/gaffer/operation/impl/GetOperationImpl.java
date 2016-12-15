@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetOperationImpl() {
@@ -47,7 +48,6 @@ public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extend
     @JsonIgnore
     @Override
     public TypeReference<ELEMENT_TYPE> getTypeReference() {
-        return (TypeReference) new TypeReference<Element>() {
-        };
+        return new TypeReferenceImpl.ElementT<>();
     }
 }

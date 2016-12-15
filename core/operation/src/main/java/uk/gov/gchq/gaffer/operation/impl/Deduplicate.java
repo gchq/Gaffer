@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * A <code>Deduplicate</code> operation takes in an {@link Iterable} of items
@@ -33,7 +34,7 @@ public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
     @JsonIgnore
     @Override
     public TypeReference<CloseableIterable<T>> getTypeReference() {
-        return (TypeReference) closeableItrTypeReference;
+        return new TypeReferenceImpl.CloseableIterableT<>();
     }
 
     public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>

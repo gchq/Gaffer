@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
 /**
@@ -117,7 +118,7 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
     @JsonIgnore
     @Override
     public TypeReference<CloseableIterable<Element>> getTypeReference() {
-        return ((TypeReference) closeableItrElementTypeReference);
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

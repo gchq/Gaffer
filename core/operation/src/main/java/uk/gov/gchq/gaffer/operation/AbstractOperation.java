@@ -17,15 +17,12 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.core.type.TypeReference;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,29 +36,6 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
      * The input for the operation.
      */
     private INPUT input;
-
-    protected TypeReference<Void> voidTypeReference = new TypeReference<Void>() {
-    };
-
-    protected TypeReference<Object> objTypeReference =
-            new TypeReference<Object>() {
-            };
-
-    protected TypeReference<CloseableIterable<?>>
-            closeableItrTypeReference = new TypeReference<CloseableIterable<?>>() {
-    };
-
-    protected TypeReference<CloseableIterable<Object>> closeableItrObjTypeReference =
-            new TypeReference<CloseableIterable<Object>>() {
-            };
-
-    protected TypeReference<CloseableIterable<Element>> closeableItrElementTypeReference =
-            new TypeReference<CloseableIterable<Element>>() {
-            };
-
-    protected TypeReference<CloseableIterable<EntitySeed>> closeableItrEntitySeedTypeReference =
-            new TypeReference<CloseableIterable<EntitySeed>>() {
-            };
 
     private Map<String, String> options = new HashMap<>();
 

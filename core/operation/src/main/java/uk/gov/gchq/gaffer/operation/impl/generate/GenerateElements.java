@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
 /**
@@ -37,6 +38,7 @@ import java.util.List;
  */
 public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<OBJ>, CloseableIterable<Element>> {
     private ElementGenerator<OBJ> elementGenerator;
+
     public GenerateElements() {
     }
 
@@ -96,7 +98,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
     @JsonIgnore
     @Override
     public TypeReference<CloseableIterable<Element>> getTypeReference() {
-        return closeableItrElementTypeReference;
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     @JsonIgnore

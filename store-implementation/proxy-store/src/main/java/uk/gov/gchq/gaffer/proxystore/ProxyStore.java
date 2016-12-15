@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpStatus;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -48,25 +49,21 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    private static final Pattern CLASS_PATTERN =
-            Pattern.compile("\"class\":\"?([\\w[\\.]]+)\"?");
-    private static final String EMPTY_LIST = "[]";
     private Set<StoreTrait> traits;
     private Schema schema;
 
-    final TypeReference<Set<StoreTrait>> storeTraitTypeReference = new
-            TypeReference<Set<StoreTrait>>() {
-            };
+    private static class TypeReferenceSchema extends TypeReference<Schema> {
+    }
 
-    final TypeReference<Schema> schemaTypeReference = new TypeReference<Schema>() {
-    };
+    private static class TypeReferenceStoreTraits extends TypeReference<Set<StoreTrait>> {
+    }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
@@ -86,7 +83,7 @@ public class ProxyStore extends Store {
             switch (response.getStatus()) {
                 case HttpStatus.SC_OK:
                     final String rawJson = response.getEntity(String.class);
-                    traits = deserialise(rawJson, storeTraitTypeReference);
+                    traits = deserialise(rawJson, new TypeReferenceStoreTraits());
                     break;
                 case HttpStatus.SC_NO_CONTENT:
                     break;
@@ -112,7 +109,7 @@ public class ProxyStore extends Store {
                 case HttpStatus.SC_OK:
                     final String rawJson = response.getEntity(String.class);
 
-                    schema = deserialise(rawJson, schemaTypeReference);
+                    schema = deserialise(rawJson, new TypeReferenceSchema());
                     break;
                 case HttpStatus.SC_NO_CONTENT:
                     break;
@@ -127,6 +124,7 @@ public class ProxyStore extends Store {
         }
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
     @Override
     public ProxyProperties getProperties() {
         return (ProxyProperties) super.getProperties();

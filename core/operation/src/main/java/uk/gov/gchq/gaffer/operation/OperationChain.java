@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,8 +64,7 @@ public class OperationChain<OUT> {
     @JsonIgnore
     public TypeReference<OUT> getTypeReference() {
         if (null == operations || operations.isEmpty()) {
-            return (TypeReference) new TypeReference<Object>() {
-            };
+            return new TypeReferenceImpl.ObjectT<>();
         }
 
         return operations.get(operations.size() - 1).getTypeReference();

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
@@ -69,7 +70,7 @@ public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation
     @JsonIgnore
     @Override
     public TypeReference<CloseableIterable<EntitySeed>> getTypeReference() {
-        return closeableItrEntitySeedTypeReference;
+        return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

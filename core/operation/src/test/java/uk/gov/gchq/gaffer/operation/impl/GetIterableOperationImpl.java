@@ -23,8 +23,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetIterableOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetIterableOperation<SEED_TYPE, CloseableIterable<ELEMENT_TYPE>> {
+public class GetIterableOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetIterableOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetIterableOperationImpl() {
     }
 
@@ -45,8 +46,7 @@ public class GetIterableOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYP
     }
 
     @Override
-    public TypeReference<CloseableIterable<CloseableIterable<ELEMENT_TYPE>>> getTypeReference() {
-        return new TypeReference<CloseableIterable<CloseableIterable<ELEMENT_TYPE>>>() {
-        };
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElementT<>();
     }
 }

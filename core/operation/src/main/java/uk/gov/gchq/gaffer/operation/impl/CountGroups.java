@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
 /**
@@ -37,9 +38,6 @@ import java.util.List;
  */
 public class CountGroups extends AbstractOperation<CloseableIterable<Element>, GroupCounts> {
     private Integer limit;
-    private TypeReference<GroupCounts> typeReference =
-            new TypeReference<GroupCounts>() {
-            };
 
     public CountGroups() {
         this(null);
@@ -81,7 +79,7 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
     @JsonIgnore
     @Override
     public TypeReference<GroupCounts> getTypeReference() {
-        return typeReference;
+        return new TypeReferenceImpl.CountGroups();
     }
 
     @JsonIgnore

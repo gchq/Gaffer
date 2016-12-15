@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * A <code>UpdateExport</code> allows the results of a previous operation in an
@@ -62,7 +63,7 @@ public class UpdateExport extends ExportOperation<CloseableIterable<Object>, Clo
     @JsonIgnore
     @Override
     public TypeReference<CloseableIterable<Object>> getTypeReference() {
-        return closeableItrObjTypeReference;
+        return new TypeReferenceImpl.CloseableIterableObj();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

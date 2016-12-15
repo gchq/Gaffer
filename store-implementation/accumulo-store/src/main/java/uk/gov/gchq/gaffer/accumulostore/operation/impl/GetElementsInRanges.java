@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * This returns all data between the provided
@@ -55,7 +56,7 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
     @JsonIgnore
     @Override
     public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
-        return ((TypeReference) closeableItrElementTypeReference);
+        return new TypeReferenceImpl.CloseableIterableElementT<>();
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>,

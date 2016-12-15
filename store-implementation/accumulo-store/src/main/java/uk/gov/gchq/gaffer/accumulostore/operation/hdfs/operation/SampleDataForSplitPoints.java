@@ -22,6 +22,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 
 /**
@@ -43,10 +44,6 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
     private String resultingSplitsFilePath;
     private boolean validate = true;
     private float proportionToSample;
-
-    protected TypeReference<String> stringTypeReference =
-            new TypeReference<String>() {
-            };
 
     /**
      * Used to generate elements from the Hdfs files.
@@ -111,7 +108,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
     @JsonIgnore
     @Override
     public TypeReference<String> getTypeReference() {
-        return stringTypeReference;
+        return new TypeReferenceImpl.String();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

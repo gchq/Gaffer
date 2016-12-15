@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.VoidOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void> implements VoidOutput<String> {
 
@@ -49,7 +50,7 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void>
     @JsonIgnore
     @Override
     public TypeReference<Void> getTypeReference() {
-        return voidTypeReference;
+        return new TypeReferenceImpl.Void();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

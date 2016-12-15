@@ -15,21 +15,13 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
-import org.apache.spark.rdd.RDD;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
 
 public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
-    private TypeReference<RDD<Element>> typeReference =
-            new TypeReference<RDD<Element>>() {
-            };
-
     public GetRDDOfElements() {
     }
 
@@ -44,12 +36,6 @@ public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGet
 
     public GetRDDOfElements(final SparkContext sparkContext, final SEED_TYPE seed) {
         this(sparkContext, Collections.singleton(seed));
-    }
-
-    @JsonIgnore
-    @Override
-    public TypeReference<RDD<Element>> getTypeReference() {
-        return typeReference;
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
