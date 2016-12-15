@@ -159,17 +159,32 @@ public class ProxyStore extends Store {
         } catch (UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
-        final ClientRequest request = createRequest(opChainJson, url);
+
+
+        final String responseJson = executeViaUrl(url, opChainJson, context);
 
         OUTPUT output = null;
+        if (null != responseJson) {
+            try {
+                output = deserialise(responseJson, operationChain.getTypeReference());
+            } catch (SerialisationException e) {
+                throw new OperationException("Failed to deserialise response " +
+                        "from operation chain", e);
+            }
+        }
+
+        return output;
+    }
+
+    protected String executeViaUrl(final URL url, final String opChainJson,
+                                   final Context context) throws OperationException {
+        final ClientRequest request = createRequest(opChainJson, url);
+        String responseJson = null;
         try {
             final ClientResponse<String> response = request.post(String.class);
             switch (response.getStatus()) {
                 case HttpStatus.SC_OK:
-                    final TypeReference<OUTPUT> typeReference =
-                            operationChain.getTypeReference();
-                    final String rawJson = response.getEntity(String.class);
-                    output = deserialise(rawJson, typeReference);
+                    responseJson = response.getEntity(String.class);
                     break;
                 case HttpStatus.SC_NO_CONTENT:
                     break;
@@ -178,13 +193,14 @@ public class ProxyStore extends Store {
                     throw new OperationException("Gaffer bad status " +
                             response.getStatus());
             }
-            return output;
         } catch (Exception e) {
             throw new OperationException("Failed to execute operation chain via the Gaffer URL " + url.toExternalForm(), e);
         }
+
+        return responseJson;
     }
 
-    private ClientRequest createRequest(final String body, final URL url) {
+    protected ClientRequest createRequest(final String body, final URL url) {
         final ClientRequest request = new ClientRequest(url.toString());
         if (null != body) {
             request.body(MediaType.APPLICATION_JSON_TYPE, body);
@@ -192,8 +208,8 @@ public class ProxyStore extends Store {
         return request;
     }
 
-    private <OUTPUT> OUTPUT deserialise(final String jsonString,
-                                        final TypeReference<OUTPUT> typeReference)
+    protected <OUTPUT> OUTPUT deserialise(final String jsonString,
+                                          final TypeReference<OUTPUT> typeReference)
             throws SerialisationException {
         final byte[] jsonBytes;
         try {
