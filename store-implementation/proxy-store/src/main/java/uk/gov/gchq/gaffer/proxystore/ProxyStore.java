@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.proxystore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.HttpStatus;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -44,16 +46,28 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static javax.ws.rs.core.Response.Status.OK;
+
 
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+    private final Client client = JerseyClientBuilder.newClient();
     private Set<StoreTrait> traits;
     private Schema schema;
 
@@ -67,6 +81,10 @@ public class ProxyStore extends Store {
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
+
+        client.property(ClientProperties.CONNECT_TIMEOUT, 1000);
+        client.property(ClientProperties.READ_TIMEOUT,    1000);
+
         fetchSchema(proxyProps);
         fetchTraits(proxyProps);
 
@@ -115,10 +133,15 @@ public class ProxyStore extends Store {
     protected <OUTPUT> OUTPUT doPost(final URL url, final String jsonBody,
                                      final TypeReference<OUTPUT> outputTypeReference,
                                      final Context context) throws StoreException {
-        final ClientRequest request = createRequest(jsonBody, url, context);
-        final ClientResponse<String> response;
+
+
+
+
+
+        final Builder request = createRequest(jsonBody, url, context);
+        final Response response;
         try {
-            response = request.post(String.class);
+            response = request.post(Entity.json(jsonBody));
         } catch (Exception e) {
             throw new StoreException("Failed to execute post via " +
                     "the Gaffer URL " + url.toExternalForm(), e);
@@ -130,10 +153,10 @@ public class ProxyStore extends Store {
     protected <OUTPUT> OUTPUT doGet(final URL url,
                                     final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
-        final ClientRequest request = createRequest(null, url, null);
-        final ClientResponse<String> response;
+        final Builder request = createRequest(null, url, null);
+        final Response response;
         try {
-            response = request.get(String.class);
+            response = request.get();
         } catch (Exception e) {
             throw new StoreException("Request failed to execute via url "
                     + url.toExternalForm(), e);
@@ -142,15 +165,15 @@ public class ProxyStore extends Store {
         return handleResponse(response, outputTypeReference);
     }
 
-    protected <OUTPUT> OUTPUT handleResponse(final ClientResponse<String> response,
+    protected <OUTPUT> OUTPUT handleResponse(final Response response,
                                              final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
         String outputJson = null;
-        switch (response.getStatus()) {
-            case HttpStatus.SC_OK:
-                outputJson = response.getEntity(String.class);
+        switch ((Status) response.getStatusInfo()) {
+            case OK:
+                outputJson = response.readEntity(String.class);
                 break;
-            case HttpStatus.SC_NO_CONTENT:
+            case NO_CONTENT:
                 break;
             default:
                 LOGGER.warn("Gaffer bad status " + response.getStatus());
@@ -170,10 +193,11 @@ public class ProxyStore extends Store {
         return output;
     }
 
-    protected ClientRequest createRequest(final String body, final URL url, final Context context) {
-        final ClientRequest request = new ClientRequest(url.toString());
+    protected Builder createRequest(final String body, final URL url, final Context context) {
+        final Invocation.Builder request = client.target(url.toString()).request();
         if (null != body) {
-            request.body(MediaType.APPLICATION_JSON_TYPE, body);
+            request.header("Content",MediaType.APPLICATION_JSON_TYPE);
+            request.build(body);
         }
         return request;
     }
