@@ -77,10 +77,22 @@
         <snappy.version>1.1.2.4</snappy.version>
         <zookeeper.version>3.4.6</zookeeper.version>
 
+        <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
-        <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
+        <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
+        <dependency.plugin.version>2.10</dependency.plugin.version>
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
+        <gpg.plugin.version>1.6</gpg.plugin.version>
+        <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
+        <jar.plugin.version>2.4</jar.plugin.version>
+        <javadoc.plugin.version>2.10.3</javadoc.plugin.version>
+        <nexus.plugin.version>1.6.7</nexus.plugin.version>
+        <release.plugin.version>2.5.3</release.plugin.version>
+        <scm.plugin.version>1.1</scm.plugin.version>
+        <shade.plugin.version>2.4.1</shade.plugin.version>
+        <source.plugin.version>2.4</source.plugin.version>
         <surefire.plugin.version>2.19.1</surefire.plugin.version>
+        <war.plugin.version>2.6</war.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -314,7 +326,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
+                    <version>${release.plugin.version}</version>
                     <configuration>
                         <preparationGoals>clean install</preparationGoals>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -323,7 +335,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
+                    <version>${compiler.plugin.verson}</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -367,7 +379,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>${jar.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -448,7 +460,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${javadoc.plugin.version}</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <show>public</show>
@@ -461,7 +473,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>
-                <version>1.1</version>
+                <version>${scm.plugin.version}</version>
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish
                     </checkoutDirectory>
@@ -478,7 +490,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.2</version>
+                <version>${release.plugin.version}</version>
                 <configuration>
                     <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
                 </configuration>
@@ -491,7 +503,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${javadoc.plugin.version}</version>
                 <reportSets>
                     <reportSet>
                         <id>aggregate</id>
@@ -621,7 +633,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>${gpg.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -642,7 +654,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <version>${nexus.plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>${releases.repository.id}</serverId>
@@ -653,7 +665,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>${source.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -666,7 +678,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>${javadoc.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -679,7 +691,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${gpg.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -703,7 +715,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
+                        <version>${source.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -716,7 +728,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
+                        <version>${javadoc.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>

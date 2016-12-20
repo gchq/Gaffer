@@ -144,14 +144,10 @@ FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 
 - GNU Lesser Public License
 
-maven release plugin
 
-maven gpg plugin
+Nexus Staging (org.sonatype.nexus.maven:nexus-staging:1.6.7):
 
-nexus staging maven plugin
-
-maven source plugin
-
+- Eclipse Public License, Version 1.0
 
 
 ------------------------------------------------------------------------------------------------
