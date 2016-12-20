@@ -144,6 +144,15 @@ FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 
 - GNU Lesser Public License
 
+maven release plugin
+
+maven gpg plugin
+
+nexus staging maven plugin
+
+maven source plugin
+
+
 
 ------------------------------------------------------------------------------------------------
 
