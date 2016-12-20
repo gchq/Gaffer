@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.rest.service.SimpleExamplesService;
 import uk.gov.gchq.gaffer.rest.service.SimpleGraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.SimpleOperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,7 @@ import java.util.Set;
 /**
  * An <code>ApplicationConfig</code> sets up the application resources and singletons.
  */
+@ApplicationPath("/rest")
 public class ApplicationConfig extends Application {
     protected final Set<Object> singletons = new HashSet<>();
     protected final Set<Class<?>> resources = new HashSet<>();

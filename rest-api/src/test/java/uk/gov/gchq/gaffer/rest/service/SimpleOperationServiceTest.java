@@ -21,6 +21,7 @@ import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig;
 import javax.ws.rs.client.Client;
@@ -45,6 +46,7 @@ public class SimpleOperationServiceTest {
     }
 
     @Test
+    @Ignore
     public void shouldProvideChunkedOutput() throws IOException {
         final String opChainJson = "{\n" +
                 "  \"operations\": [\n" +

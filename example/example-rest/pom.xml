@@ -24,10 +24,17 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>example-rest</artifactId>
     <properties>
-        <jetty.version>9.2.11.v20150529</jetty.version>
+        <jetty.version>9.4.0.v20161208</jetty.version>
     </properties>
     <packaging>war</packaging>
     <dependencies>
+        <!-- Trick to prevent Maven from including this dependency in the WAR -->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.9</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>example-graph</artifactId>

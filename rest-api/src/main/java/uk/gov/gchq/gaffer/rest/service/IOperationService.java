@@ -65,13 +65,9 @@ public interface IOperationService {
     Object execute(final OperationChain opChain);
 
     @POST
-    @Path("/async")
-    @ApiOperation(value = "Performs the given operation chain on the graph (asynchronously)", response = Element.class)
-    ChunkedOutput<String> executeAsync(final OperationChain<CloseableIterable<Element>> opChain);
-
-    @GET
-    @Path("/async/test")
-    ChunkedOutput<String> getChunkedStream() throws Exception;
+    @Path("/chunked")
+    @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output", response = Element.class)
+    ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain);
 
     @POST
     @Path("/generate/objects")
