@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.serialisation;
 
 /**
  * Abstract implementation of the {@link Serialisation} interface, providing default
- * implementations of the {@link Serialisation#deserialiseEmptyBytes()} and
- * {@link Serialisation#serialiseNull()} methods.
+ * implementations of the {@link Serialisation#serialiseNull()} method.
  */
 public abstract class AbstractSerialisation<T> implements Serialisation<T> {
 
