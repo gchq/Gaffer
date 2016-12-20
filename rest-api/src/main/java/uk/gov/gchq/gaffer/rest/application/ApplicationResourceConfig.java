@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
+import uk.gov.gchq.gaffer.rest.serialisation.JacksonJsonProvider;
 import uk.gov.gchq.gaffer.rest.service.SimpleExamplesService;
 import uk.gov.gchq.gaffer.rest.service.SimpleGraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.SimpleOperationService;
@@ -68,6 +68,7 @@ public class ApplicationResourceConfig extends ResourceConfig {
     protected void addSystemResources() {
         resources.add(ApiListingResource.class);
         resources.add(SwaggerSerializers.class);
-        resources.add(RestJsonProvider.class);
+        resources.add(JacksonJsonProvider.class);
     }
+
 }

@@ -51,8 +51,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import java.io.IOException;
 import java.util.List;
 
@@ -90,72 +88,29 @@ public class SimpleOperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> getChunkedStream() throws Exception {
+    public ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain) {
+
+        // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
 
-        new Thread() {
-            public void run() {
-                try {
-                    String chunk = "Message";
-
-                    for (int i = 0; i < 10; i++) {
-                        output.write(chunk + "#" + i);
-                        Thread.sleep(1000);
-                    }
-                } catch (Exception e) {
-                } finally {
-                    try {
-                        output.close();
-                    } catch (IOException ex) {
-                        LOGGER.error("Error", ex);
-                    }
-                }
-            }
-        }.start();
-        return output;
-    }
-
-    @SuppressFBWarnings
-    @Override
-    public ChunkedOutput<String> executeAsync(final OperationChain<CloseableIterable<Element>> opChain) {
-
-        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
-
+        // Execute the operation chain and convert to a list
         final CloseableIterator<Element> objects = execute(opChain, false).iterator();
 
         final List<Element> elements = asList(Iterators.toArray(objects, Element.class));
 
         final ObjectMapper mapper = createDefaultMapper();
 
+        // write chunks to the chunked output object
         new Thread() {
             public void run() {
                 try {
-                    for (final Element e : elements) {
-                        Thread.sleep(1000L);
-                        LOGGER.info("Element: " + e);
-                        output.write(mapper.writeValueAsString(e));
+                    for (final Element element : elements) {
+                        output.write(mapper.writeValueAsString(element));
                     }
-
-
-//                    while (objects.hasNext()) {
-//                        int i = 0;
-//                        i++;
-//                        LOGGER.info("Doing element: " + i);
-//                        Thread.sleep(1000L);
-//                        final Element element = objects.next();
-//
-//                        LOGGER.info("Element: " + element);
-//                        output.write(mapper.writeValueAsString(element));
-//                    }
-                    LOGGER.info("Out of the loop now");
-                } catch (final IOException e) {
-                    LOGGER.warn("IOException (chunks)", e);
-                } catch (InterruptedException e) {
-                    LOGGER.warn("InterruptedException", e);
+                } catch (final IOException ioe) {
+                    LOGGER.warn("IOException (chunks)", ioe);
                 } finally {
-                    LOGGER.info("closing down");
-//                        objects.close();
-//                        output.close();
+                    objects.close();
                 }
             }
         }.start();

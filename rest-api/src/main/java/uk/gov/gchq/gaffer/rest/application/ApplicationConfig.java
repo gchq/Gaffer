@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,15 @@ package uk.gov.gchq.gaffer.rest.application;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.rest.serialisation.JacksonJsonProvider;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
 import uk.gov.gchq.gaffer.rest.service.SimpleExamplesService;
 import uk.gov.gchq.gaffer.rest.service.SimpleGraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.SimpleOperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +35,7 @@ import java.util.Set;
 /**
  * An <code>ApplicationConfig</code> sets up the application resources and singletons.
  */
+@ApplicationPath("/rest")
 public class ApplicationConfig extends Application {
     protected final Set<Object> singletons = new HashSet<>();
     protected final Set<Class<?>> resources = new HashSet<>();
@@ -64,7 +68,7 @@ public class ApplicationConfig extends Application {
     protected void addSystemResources() {
         resources.add(ApiListingResource.class);
         resources.add(SwaggerSerializers.class);
-        resources.add(RestJsonProvider.class);
+        resources.add(JacksonJsonProvider.class);
     }
 
     @Override
