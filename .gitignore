@@ -22,6 +22,7 @@ target/
 */atlassian-ide*
 */.idea
 .idea/*
+.idea
 */.classpath
 __pycache__
 *.pem

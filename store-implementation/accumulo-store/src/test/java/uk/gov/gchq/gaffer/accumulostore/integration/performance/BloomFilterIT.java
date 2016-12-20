@@ -58,7 +58,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -80,6 +79,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class BloomFilterIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory Gaffer1RangeFactory;
@@ -103,9 +104,6 @@ public class BloomFilterIT {
         gafferV1ElementConverter = new ClassicAccumuloElementConverter(schema);
     }
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @Test
     public void test() throws AccumuloElementConversionException, RangeFactoryException, IOException {
         testFilter(byteEntityElementConverter, byteEntityRangeFactory);
@@ -128,7 +126,8 @@ public class BloomFilterIT {
             sourceEntity.setVertex(source.getVertex());
             final Entity destinationEntity = new Entity(destination.getGroup());
             destinationEntity.setVertex(destination.getVertex());
-            final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination.getVertex(), true);
+            final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination
+                    .getVertex(), true);
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
             keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
             final Pair<Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
@@ -143,9 +142,11 @@ public class BloomFilterIT {
         final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, property);
 
         // Create Accumulo configuration
-        final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration.getDefaultConfiguration());
+        final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration
+                .getDefaultConfiguration());
         accumuloConf.set(Property.TABLE_BLOOM_ENABLED, "true");
-        accumuloConf.set(Property.TABLE_BLOOM_KEY_FUNCTOR, CoreKeyBloomFunctor.class.getName());
+        accumuloConf.set(Property.TABLE_BLOOM_KEY_FUNCTOR, CoreKeyBloomFunctor.class
+                .getName());
         accumuloConf.set(Property.TABLE_FILE_TYPE, RFile.EXTENSION);
         accumuloConf.set(Property.TABLE_BLOOM_LOAD_THRESHOLD, "1");
         accumuloConf.set(Property.TSERV_BLOOM_LOAD_MAXCONCURRENT, "1");
@@ -162,13 +163,16 @@ public class BloomFilterIT {
         if (file.exists()) {
             file.delete();
         }
-        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
+        final FileSKVWriter writer = FileOperations.getInstance()
+                                                   .openWriter(filename, fs, conf, accumuloConf);
 
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
-                if (elementConverter.getElementFromKey(key).getGroup().equals(TestGroups.ENTITY)) {
+                if (elementConverter.getElementFromKey(key)
+                                    .getGroup()
+                                    .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -179,7 +183,8 @@ public class BloomFilterIT {
         }
 
         // Reader
-        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
+        final FileSKVIterator reader = FileOperations.getInstance()
+                                                     .openReader(filename, false, fs, conf, accumuloConf);
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
@@ -251,7 +256,7 @@ public class BloomFilterIT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view);
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);

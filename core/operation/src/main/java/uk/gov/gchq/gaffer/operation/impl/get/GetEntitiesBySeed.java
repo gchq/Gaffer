@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
  * @see GetEntitiesBySeed.Builder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetEntities
  */
+@Deprecated
 public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
     public GetEntitiesBySeed() {
         super();
@@ -72,7 +73,7 @@ public class GetEntitiesBySeed extends GetEntities<EntitySeed> {
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends GetEntities.BaseBuilder<GetEntitiesBySeed, EntitySeed, BaseBuilder<CHILD_CLASS>> {
+            extends GetEntities.BaseBuilder<EntitySeed, BaseBuilder<CHILD_CLASS>> {
         public BaseBuilder() {
             super(new GetEntitiesBySeed());
         }

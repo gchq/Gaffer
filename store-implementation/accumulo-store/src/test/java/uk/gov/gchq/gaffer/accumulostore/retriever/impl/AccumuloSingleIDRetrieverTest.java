@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -103,7 +102,7 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.ALL);
         try {
@@ -133,7 +132,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEntities(false);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -162,7 +161,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEntities(true);
         operation.setIncludeEdges(IncludeEdgeType.NONE);
         try {
@@ -193,7 +192,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -227,7 +226,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEdges(IncludeEdgeType.DIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -261,7 +260,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
@@ -295,7 +294,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        GetElements<ElementSeed, ?> operation = new GetRelatedElements<>(view, ids);
+        GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
         operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {

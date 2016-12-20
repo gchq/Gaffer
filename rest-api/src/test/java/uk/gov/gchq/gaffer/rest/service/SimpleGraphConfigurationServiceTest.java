@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.function.IsA;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -34,12 +33,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -47,6 +40,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class SimpleGraphConfigurationServiceTest {
     private SimpleGraphConfigurationService service;

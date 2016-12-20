@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.function.simple.filter.IsShorterThan;
+import uk.gov.gchq.gaffer.function.filter.IsShorterThan;
 import java.util.HashMap;
 import java.util.Map;
 

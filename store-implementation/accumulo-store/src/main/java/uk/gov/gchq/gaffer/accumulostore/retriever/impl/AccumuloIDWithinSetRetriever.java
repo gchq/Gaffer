@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
+import org.apache.hadoop.util.bloom.Key;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
@@ -164,7 +165,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             boolean destMatchesClientFilter;
             try {
                 destMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertex(destination)));
+                        new Key(elementConverter.serialiseVertex(destination)));
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
@@ -174,7 +175,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
             boolean sourceMatchesClientFilter;
             try {
                 sourceMatchesClientFilter = clientSideFilter.membershipTest(
-                        new org.apache.hadoop.util.bloom.Key(elementConverter.serialiseVertex(source)));
+                        new Key(elementConverter.serialiseVertex(source)));
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }

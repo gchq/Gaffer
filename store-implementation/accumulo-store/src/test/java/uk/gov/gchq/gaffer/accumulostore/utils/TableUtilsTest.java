@@ -16,18 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
-import org.apache.accumulo.core.client.TableExistsException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -37,16 +30,13 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
-import uk.gov.gchq.gaffer.function.simple.aggregate.StringConcat;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import java.io.UnsupportedEncodingException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -105,7 +95,8 @@ public class TableUtilsTest {
 
 
         final Map<String, String> tableProps = new HashMap<>();
-        for (final Entry<String, String> entry : store.getConnection().tableOperations().getProperties(TABLE_NAME)) {
+        for (final Map.Entry<String, String> entry : store.getConnection()
+                .tableOperations().getProperties(TABLE_NAME)) {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 
@@ -179,7 +170,8 @@ public class TableUtilsTest {
         assertNull(aggregatorSetting);
 
         final Map<String, String> tableProps = new HashMap<>();
-        for (final Entry<String, String> entry : store.getConnection().tableOperations().getProperties(NO_AGGREGATORS_TABLE_NAME)) {
+        for (final Map.Entry<String, String> entry : store.getConnection()
+                .tableOperations().getProperties(NO_AGGREGATORS_TABLE_NAME)) {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 

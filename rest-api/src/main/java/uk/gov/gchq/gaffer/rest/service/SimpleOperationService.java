@@ -40,8 +40,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
@@ -166,13 +169,8 @@ public class SimpleOperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> generateElements(final GenerateElements operation) {
-        return execute((GenerateElements<?>) operation);
-    }
-
-    @Override
-    public void addElements(final AddElements operation) {
-        execute(operation);
+    public CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation) {
+        return execute(operation);
     }
 
     @Override
@@ -223,6 +221,26 @@ public class SimpleOperationService implements IOperationService {
     @Override
     public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation) {
         return execute(operation);
+    }
+
+    @Override
+    public CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation) {
+        return execute(operation);
+    }
+
+    @Override
+    public CloseableIterable<Entity> getEntities(final GetEntities<ElementSeed> operation) {
+        return execute(operation);
+    }
+
+    @Override
+    public CloseableIterable<Edge> getEdges(final GetEdges<ElementSeed> operation) {
+        return execute(operation);
+    }
+
+    @Override
+    public void addElements(final AddElements operation) {
+        execute(operation);
     }
 
     /**

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * <code>TypeDefinitions</code> simply extends {@link HashMap} with key = {@link String}, value = {@link TypeDefinition}.
  * This is required for serialising to JSON.

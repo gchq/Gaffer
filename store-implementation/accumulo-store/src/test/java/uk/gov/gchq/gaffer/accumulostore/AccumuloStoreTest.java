@@ -49,7 +49,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.simple.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -57,9 +58,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.simple.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -72,6 +70,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -80,11 +83,6 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class AccumuloStoreTest {
 
@@ -143,7 +141,7 @@ public class AccumuloStoreTest {
 
         final EntitySeed entitySeed1 = new EntitySeed("1");
 
-        final GetElements<EntitySeed, Element> getBySeed = new GetElementsBySeed.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> getBySeed = new GetElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -154,7 +152,7 @@ public class AccumuloStoreTest {
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
 
-        final GetRelatedElements<EntitySeed, Element> getRelated = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> getRelated = new GetElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -164,7 +162,7 @@ public class AccumuloStoreTest {
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
 
-        final GetRelatedElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetRelatedElements.Builder<EntitySeed, Element>()
+        final GetElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                     .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                             .preAggregationFilter(new ElementFilter.Builder()

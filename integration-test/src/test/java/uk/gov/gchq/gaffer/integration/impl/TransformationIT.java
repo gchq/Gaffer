@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.clearspring.analytics.util.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,15 +27,15 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.simple.transform.Concat;
+import uk.gov.gchq.gaffer.function.transform.Concat;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +75,7 @@ public class TransformationIT extends AbstractStoreIT {
     @Test
     public void shouldNotStoreEntityPropertiesThatAreNotInSchema() throws OperationException {
         // Given
-        final GetEntitiesBySeed getEntities = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed(VERTEX))
                 .build();
 
@@ -98,7 +98,7 @@ public class TransformationIT extends AbstractStoreIT {
     @Test
     public void shouldNotStoreEdgePropertiesThatAreNotInSchema() throws OperationException {
         // Given
-        final GetEdgesBySeed getEdges = new GetEdgesBySeed.Builder()
+        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
                 .build();
 
@@ -118,7 +118,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEntityProperty() throws OperationException {
         // Given
-        final GetEntitiesBySeed getEntities = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -147,7 +147,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEdgeProperty() throws OperationException {
         // Given
-        final GetEdgesBySeed getEdges = new GetEdgesBySeed.Builder()
+        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
                 .addSeed(new EdgeSeed(SOURCE_1, DEST_1, false))
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -175,7 +175,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldTransformExistingProperty() throws OperationException {
         // Given
-        final GetEntitiesBySeed getEntities = new GetEntitiesBySeed.Builder()
+        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
                 .addSeed(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

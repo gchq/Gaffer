@@ -15,7 +15,7 @@
       ]
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntities",
       "view": {
         "entities": {
           "review": {
@@ -26,9 +26,9 @@
             "preAggregationFilterFunctions": [
               {
                 "function": {
-                  "class": "uk.gov.gchq.gaffer.function.simple.filter.Not",
+                  "class": "uk.gov.gchq.gaffer.function.filter.Not",
                   "function": {
-                    "class": "uk.gov.gchq.gaffer.function.simple.filter.IsEqual",
+                    "class": "uk.gov.gchq.gaffer.function.filter.IsEqual",
                     "value": "user02"
                   }
                 },

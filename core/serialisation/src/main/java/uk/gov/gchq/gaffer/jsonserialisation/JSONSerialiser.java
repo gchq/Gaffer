@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -69,7 +68,19 @@ public class JSONSerialiser {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
+        mapper.setFilterProvider(getFilterProvider());
+
         return mapper;
+    }
+
+    public static FilterProvider getFilterProvider(final String... fieldsToExclude) {
+        if (null == fieldsToExclude || fieldsToExclude.length == 0) {
+            return new SimpleFilterProvider()
+                    .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAll());
+        }
+
+        return new SimpleFilterProvider()
+                .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
     }
 
 
@@ -129,10 +140,7 @@ public class JSONSerialiser {
             jsonGenerator.useDefaultPrettyPrinter();
         }
 
-        final FilterProvider filters = new SimpleFilterProvider()
-                .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
-        final ObjectWriter writer = mapper.writer(filters);
-
+        final ObjectWriter writer = mapper.writer(getFilterProvider(fieldsToExclude));
         try {
             writer.writeValue(jsonGenerator, object);
         } catch (IOException e) {

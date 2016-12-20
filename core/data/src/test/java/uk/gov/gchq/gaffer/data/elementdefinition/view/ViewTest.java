@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -266,5 +265,28 @@ public class ViewTest {
 
         // Then - no description fields or new lines
         assertFalse(compactJson.contains(String.format("%n")));
+    }
+
+    @Test
+    public void shouldMergeDifferentViews() {
+        // Given
+        final View view1 = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build();
+
+        final View view2 = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2)
+                .build();
+
+        // When
+        view1.merge(view2);
+
+        // Then
+        assertEquals(2, view1.getEntities().size());
+        assertEquals(2, view1.getEdges().size());
     }
 }

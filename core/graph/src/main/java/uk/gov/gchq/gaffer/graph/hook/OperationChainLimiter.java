@@ -139,13 +139,13 @@ public class OperationChainLimiter implements GraphHook {
     private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(final Map<K, V> map) {
         final List<Entry<K, V>> list = new LinkedList<Entry<K, V>>(map.entrySet());
         Collections.sort(list, new Comparator<Entry<K, V>>() {
-            public int compare(final Map.Entry<K, V> entry1, final Map.Entry<K, V> entry2) {
+            public int compare(final Entry<K, V> entry1, final Entry<K, V> entry2) {
                 return (entry1.getValue()).compareTo(entry2.getValue());
             }
         });
 
         final Map<K, V> result = new LinkedHashMap<K, V>();
-        for (final Map.Entry<K, V> entry : list) {
+        for (final Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;

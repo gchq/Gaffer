@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 import uk.gov.gchq.gaffer.example.films.data.schema.TransientProperty;
 import uk.gov.gchq.gaffer.example.films.function.transform.StarRatingTransform;
 import uk.gov.gchq.gaffer.example.films.generator.DataGenerator;
-import uk.gov.gchq.gaffer.function.simple.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.simple.filter.Not;
+import uk.gov.gchq.gaffer.function.filter.IsEqual;
+import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -123,7 +123,7 @@ public class LoadAndQuery {
                                 .build())
                         .addSeed(new EntitySeed("user02"))
                         .build())
-                .then(new GetEntitiesBySeed.Builder()
+                .then(new GetEntities.Builder()
                         .view(new View.Builder()
                                 .entity(Group.REVIEW, new ViewElementDefinition.Builder()
                                         .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.function;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public abstract class FunctionTest {
 
@@ -36,5 +37,38 @@ public abstract class FunctionTest {
 
         // Then
         assertEquals(instance, other);
+        assertEquals(instance.hashCode(), other.hashCode());
+    }
+
+    @Test
+    public void shouldEqualsWhenSameObject() {
+        // Given
+        final Function instance = getInstance();
+
+        // Then
+        assertEquals(instance, instance);
+        assertEquals(instance.hashCode(), instance.hashCode());
+    }
+
+    @Test
+    public void shouldNotEqualsWhenDifferentClass() {
+        // Given
+        final Function instance = getInstance();
+
+        // When
+        final Object other = new Object();
+
+        // Then
+        assertNotEquals(instance, other);
+        assertNotEquals(instance.hashCode(), other.hashCode());
+    }
+
+    @Test
+    public void shouldNotEqualsNull() {
+        // Given
+        final Function instance = getInstance();
+
+        // Then
+        assertNotEquals(instance, null);
     }
 }

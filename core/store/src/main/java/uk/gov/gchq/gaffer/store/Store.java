@@ -44,13 +44,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
@@ -77,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -247,7 +244,7 @@ public abstract class Store {
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
         schemaElements.putAll(getSchema().getEdges());
         schemaElements.putAll(getSchema().getEntities());
-        for (final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+        for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
             for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
                 Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                 Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
@@ -409,13 +406,9 @@ public abstract class Store {
         addOperationHandler(AddElements.class, getAddElementsHandler());
 
         // Get Elements
-        addOperationHandler(GetElementsBySeed.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetEntitiesBySeed.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetEdgesBySeed.class, (OperationHandler) getGetElementsHandler());
-
-        addOperationHandler(GetRelatedElements.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetRelatedEntities.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetRelatedEdges.class, (OperationHandler) getGetElementsHandler());
+        addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
+        addOperationHandler(GetEntities.class, (OperationHandler) getGetElementsHandler());
+        addOperationHandler(GetEdges.class, (OperationHandler) getGetElementsHandler());
 
         addOperationHandler(GetAdjacentEntitySeeds.class, (OperationHandler) getAdjacentEntitySeedsHandler());
 

@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -551,6 +550,11 @@ public class SchemaTest {
 
         @Override
         public Object deserialise(final byte[] bytes) throws SerialisationException {
+            return null;
+        }
+
+        @Override
+        public Object deserialiseEmptyBytes() throws SerialisationException {
             return null;
         }
 

@@ -29,7 +29,8 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * @param <SEED_TYPE> the seed seed type
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
-public abstract class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Entity> {
+public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Entity> {
+
     public GetEntities() {
         super();
     }
@@ -82,24 +83,22 @@ public abstract class GetEntities<SEED_TYPE extends ElementSeed> extends GetElem
         }
     }
 
-    public abstract static class BaseBuilder<OP_TYPE extends GetEntities<SEED_TYPE>,
-            SEED_TYPE extends ElementSeed,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
-            extends GetElements.BaseBuilder<OP_TYPE, SEED_TYPE, Entity, CHILD_CLASS> {
-        protected BaseBuilder(final OP_TYPE op) {
+    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed,
+            CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
+            extends GetElements.BaseBuilder<GetEntities<SEED_TYPE>, SEED_TYPE, Entity, CHILD_CLASS> {
+        protected BaseBuilder() {
+            super(new GetEntities<SEED_TYPE>());
+        }
+
+        protected BaseBuilder(final GetEntities<SEED_TYPE> op) {
             super(op);
         }
     }
 
-    public static final class Builder<OP_TYPE extends GetEntities<SEED_TYPE>, SEED_TYPE extends ElementSeed>
-            extends BaseBuilder<OP_TYPE, SEED_TYPE, Builder<OP_TYPE, SEED_TYPE>> {
-
-        protected Builder(final OP_TYPE op) {
-            super(op);
-        }
+    public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
 
         @Override
-        protected Builder<OP_TYPE, SEED_TYPE> self() {
+        protected Builder<SEED_TYPE> self() {
             return this;
         }
     }

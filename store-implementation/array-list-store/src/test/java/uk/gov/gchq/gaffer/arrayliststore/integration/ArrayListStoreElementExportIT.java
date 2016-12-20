@@ -35,8 +35,8 @@ import uk.gov.gchq.gaffer.operation.impl.export.FetchExporter;
 import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -56,14 +56,14 @@ public class ArrayListStoreElementExportIT extends AbstractStoreIT {
         // Given
         final OperationChain<Exporter> exportOpChain = new OperationChain.Builder()
                 .first(new InitialiseArrayListStoreExport())
-                .then(new GetRelatedEdges.Builder<EntitySeed>()
+                .then(new GetEdges.Builder<EntitySeed>()
                         .addSeed(new EntitySeed(SOURCE_1))
                         .build())
                 .then(new UpdateExport())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetRelatedEdges<EntitySeed>())
+                .then(new GetEdges<EntitySeed>())
                 .then(new UpdateExport())
                 .then(new FetchExporter())
                 .build();
@@ -83,7 +83,7 @@ public class ArrayListStoreElementExportIT extends AbstractStoreIT {
         // Given
         final OperationChain<CloseableIterable<?>> exportOpChain = new OperationChain.Builder()
                 .first(new InitialiseArrayListStoreExport())
-                .then(new GetRelatedElements.Builder<EntitySeed, Element>()
+                .then(new GetElements.Builder<EntitySeed, Element>()
                         .addSeed(new EntitySeed(SOURCE_1))
                         .build())
                 .then(new UpdateExport())

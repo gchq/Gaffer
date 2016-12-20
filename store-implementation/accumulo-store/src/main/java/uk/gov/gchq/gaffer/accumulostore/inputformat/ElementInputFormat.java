@@ -40,7 +40,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * An {@link InputFormatBase} that allows the data in an Accumulo store to be read as {@link Element},
@@ -90,7 +90,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
         public boolean nextKeyValue() throws IOException, InterruptedException {
             if (scannerIterator.hasNext()) {
                 ++numKeysRead;
-                final Map.Entry<Key, Value> entry = scannerIterator.next();
+                final Entry<Key, Value> entry = scannerIterator.next();
                 try {
                     currentK = converter.getFullElement(entry.getKey(), entry.getValue());
                     final ViewElementDefinition viewDef = view.getElement(currentK.getGroup());
