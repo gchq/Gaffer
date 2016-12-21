@@ -53,7 +53,7 @@ import javax.ws.rs.core.MediaType;
  * {@link uk.gov.gchq.gaffer.graph.Graph}.
  */
 @Path("/graph/doOperation")
-@Api(value = "/graph/doOperation", description = "Allows operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
+@Api(value = "operations", description = "Allows operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface IOperationService {
