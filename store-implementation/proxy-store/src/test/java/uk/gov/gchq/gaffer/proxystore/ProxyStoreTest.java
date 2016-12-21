@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import com.google.common.collect.Iterables;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,12 +37,25 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs.ApplicationConfig;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.rest.SystemStatus;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,11 +74,42 @@ public class ProxyStoreTest {
 
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(ProxyStoreTest.class));
 
-    private ProxyStore store;
+    private static ProxyStore store;
+    private static ProxyProperties props;
+    private static HttpServer server;
+
+    @BeforeClass
+    public static void beforeClass() throws IOException, InterruptedException, StoreException {
+        // start REST
+        server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8080/rest/v1"), new ApplicationConfig());
+
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/store.properties");
+        System.setProperty(SystemProperty.SCHEMA_PATHS, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/proxy-schema.json");
+
+        Logger l = Logger.getLogger("org.glassfish.grizzly.http.server.HttpHandler");
+        l.setLevel(Level.FINE);
+        l.setUseParentHandlers(false);
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.ALL);
+        l.addHandler(ch);
+
+        // Check status URL
+        final Client client = ClientBuilder.newClient();
+        final Response response = client.target("http://localhost:8080/rest/v1").path("status").request().get();
+        l.info(response.readEntity(SystemStatus.class).getDescription());
+
+        store = new ProxyStore();
+        props = new ProxyProperties(Paths.get("/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/proxy-store.properties"));
+        store.initialise(null, props);
+
+        // Check schema URL
+        final Response response2 = client.target("http://localhost:8080/rest/v1").path("graph/schema").request().get();
+        l.info(response2.readEntity(String.class));
+    }
 
     @Before
-    public void before() {
-        store = new ProxyStore();
+    public void before() throws StoreException {
+
     }
 
     @Test

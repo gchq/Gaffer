@@ -58,40 +58,6 @@
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxb-provider</artifactId>
-            <version>3.0.2.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-client</artifactId>
-            <version>3.0.2.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>jaxrs-api</artifactId>
-            <version>3.0.2.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <version>3.0.2.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.bom</groupId>
-            <artifactId>jboss-javaee-6.0-with-resteasy</artifactId>
-            <version>${jboss.javaee.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.bom</groupId>
-            <artifactId>jboss-javaee-6.0-with-tools</artifactId>
-            <version>${jboss.javaee.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -137,6 +103,12 @@
             <artifactId>rest-api</artifactId>
             <version>0.4.8-SNAPSHOT</version>
             <classifier>classes</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
+            <version>0.4.8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
