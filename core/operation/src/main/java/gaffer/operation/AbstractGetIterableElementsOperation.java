@@ -172,7 +172,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param includeEntities sets the includeEntities flag on the operation.
          * @return this Builder
-         * @see GetIterableOperation#setIncludeEntities(boolean)
+         * @see GetIterableElementsOperation#setIncludeEntities(boolean)
          */
         public CHILD_CLASS includeEntities(final boolean includeEntities) {
             op.setIncludeEntities(includeEntities);
@@ -182,7 +182,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param includeEdgeType sets the includeEdges option on the operation.
          * @return this Builder
-         * @see GetIterableOperation#setIncludeEdges(IncludeEdgeType)
+         * @see GetIterableElementsOperation#setIncludeEdges(IncludeEdgeType)
          */
         public CHILD_CLASS includeEdges(final IncludeEdgeType includeEdgeType) {
             op.setIncludeEdges(includeEdgeType);
@@ -192,7 +192,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param inOutType sets the includeIncomingOutGoing option on the operation.
          * @return this Builder
-         * @see GetIterableOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
+         * @see GetIterableElementsOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
          */
         public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
             op.setIncludeIncomingOutGoing(inOutType);
@@ -202,7 +202,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         /**
          * @param populateProperties set the populateProperties flag on the operation.
          * @return this Builder
-         * @see GetIterableOperation#setPopulateProperties(boolean)
+         * @see GetIterableElementsOperation#setPopulateProperties(boolean)
          */
         public CHILD_CLASS populateProperties(final boolean populateProperties) {
             op.setPopulateProperties(populateProperties);
