@@ -49,7 +49,7 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void>
 
     @JsonIgnore
     @Override
-    public TypeReference<Void> getTypeReference() {
+    public TypeReference<Void> getOutputTypeReference() {
         return new TypeReferenceImpl.Void();
     }
 

@@ -71,7 +71,7 @@ public abstract class InitialiseExport extends AbstractOperation<Object, Object>
 
     @JsonIgnore
     @Override
-    public TypeReference<Object> getTypeReference() {
+    public TypeReference<Object> getOutputTypeReference() {
         return new TypeReferenceImpl.Object();
     }
 

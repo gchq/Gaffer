@@ -78,7 +78,7 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
 
     @JsonIgnore
     @Override
-    public TypeReference<GroupCounts> getTypeReference() {
+    public TypeReference<GroupCounts> getOutputTypeReference() {
         return new TypeReferenceImpl.CountGroups();
     }
 

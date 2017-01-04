@@ -46,7 +46,7 @@ public class GetIterableOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYP
     }
 
     @Override
-    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElementT<>();
     }
 }

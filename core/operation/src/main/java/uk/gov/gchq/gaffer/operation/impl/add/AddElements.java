@@ -64,7 +64,7 @@ public class AddElements extends AbstractValidatable<Void> implements VoidOutput
 
     @JsonIgnore
     @Override
-    public TypeReference<Void> getTypeReference() {
+    public TypeReference<Void> getOutputTypeReference() {
         return new TypeReferenceImpl.Void();
     }
 

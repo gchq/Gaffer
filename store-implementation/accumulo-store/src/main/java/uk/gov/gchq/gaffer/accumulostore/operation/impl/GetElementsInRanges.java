@@ -55,7 +55,7 @@ public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, 
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElementT<>();
     }
 

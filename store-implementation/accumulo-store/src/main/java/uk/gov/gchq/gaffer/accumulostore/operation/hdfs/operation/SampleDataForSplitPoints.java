@@ -107,7 +107,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
 
     @JsonIgnore
     @Override
-    public TypeReference<String> getTypeReference() {
+    public TypeReference<String> getOutputTypeReference() {
         return new TypeReferenceImpl.String();
     }
 

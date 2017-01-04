@@ -97,7 +97,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<Element>> getTypeReference() {
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
     }
 

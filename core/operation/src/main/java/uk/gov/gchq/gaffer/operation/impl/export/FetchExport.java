@@ -66,7 +66,7 @@ public class FetchExport extends ExportOperation<Void, CloseableIterable<?>> {
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<?>> getTypeReference() {
+    public TypeReference<CloseableIterable<?>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.CloseableIterableGeneric();
     }
 

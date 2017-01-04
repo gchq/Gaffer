@@ -47,7 +47,7 @@ public class GetElementsOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYP
 
     @JsonIgnore
     @Override
-    public TypeReference<ELEMENT_TYPE> getTypeReference() {
+    public TypeReference<ELEMENT_TYPE> getOutputTypeReference() {
         return new TypeReferenceImpl.ElementT<>();
     }
 }
