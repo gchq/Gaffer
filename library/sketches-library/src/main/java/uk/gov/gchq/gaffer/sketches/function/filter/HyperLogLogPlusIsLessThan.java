@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 
 /**
- * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks that the input
+ * An <code>HyperLogLogPlus</code> is a {@link SimpleFilterFunction} that simply checks that the input
  * {@link HyperLogLogPlus} cardinality is less than a control value.
  */
 @Inputs(HyperLogLogPlus.class)
