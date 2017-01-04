@@ -30,6 +30,7 @@
     <modules>
         <module>spark-library</module>
         <module>spark-accumulo-library</module>
+        <module>spark-examples</module>
     </modules>
 
     <properties>

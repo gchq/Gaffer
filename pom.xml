@@ -43,8 +43,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java.version>1.7</java.version>
-        <scala.version>2.10</scala.version>
-        <scala.minor.version>2.10.6</scala.minor.version>
+        <scala.version>2.11</scala.version>
+        <scala.minor.version>2.11.8</scala.minor.version>
 
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
@@ -438,6 +438,9 @@
                     <findbugsXmlOutputDirectory>
                         ${project.build.directory}/findbugs
                     </findbugsXmlOutputDirectory>
+                    <excludeFilterFile>
+                        findbugs-exclude.xml
+                    </excludeFilterFile>
                 </configuration>
                 <executions>
                     <execution>
