@@ -17,7 +17,7 @@
             "transientProperty1"
           ],
           "function": {
-            "class": "gaffer.function.ExampleTransformFunction"
+            "class": "uk.gov.gchq.gaffer.function.ExampleTransformFunction"
           }
         }
       ],
@@ -27,7 +27,7 @@
             "transientProperty1"
           ],
           "function": {
-            "class": "gaffer.function.ExampleFilterFunction"
+            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
           }
         }
       ]

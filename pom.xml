@@ -15,13 +15,18 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>gaffer</groupId>
+    <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.8-SNAPSHOT</version>
+    <version>0.5.0</version>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>A scalable Graph database framework</description>
+    <url>https://github.com/gchq/Gaffer</url>
 
     <modules>
         <module>rest-api</module>
@@ -38,8 +43,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java.version>1.7</java.version>
-        <scala.version>2.10</scala.version>
-        <scala.minor.version>2.10.6</scala.minor.version>
+        <scala.version>2.11</scala.version>
+        <scala.minor.version>2.11.8</scala.minor.version>
 
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
@@ -51,7 +56,6 @@
         <avro.version>1.7.7</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
         <jackson.version>2.6.5</jackson.version>
-        <spark.version>2.0.0</spark.version>
 
         <clearspring.version>2.7.0</clearspring.version>
         <commons-codec.version>1.6</commons-codec.version>
@@ -73,9 +77,22 @@
         <snappy.version>1.1.2.4</snappy.version>
         <zookeeper.version>3.4.6</zookeeper.version>
 
+        <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
+        <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
+        <dependency.plugin.version>2.10</dependency.plugin.version>
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
+        <gpg.plugin.version>1.6</gpg.plugin.version>
+        <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
+        <jar.plugin.version>2.4</jar.plugin.version>
+        <javadoc.plugin.version>2.10.3</javadoc.plugin.version>
+        <nexus.plugin.version>1.6.7</nexus.plugin.version>
+        <release.plugin.version>2.5.3</release.plugin.version>
+        <scm.plugin.version>1.1</scm.plugin.version>
+        <shade.plugin.version>2.4.1</shade.plugin.version>
+        <source.plugin.version>2.4</source.plugin.version>
         <surefire.plugin.version>2.19.1</surefire.plugin.version>
+        <war.plugin.version>2.6</war.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -89,25 +106,33 @@
         </scm.developer.connection>
 
         <!-- Release configuration -->
-        <releases.repository.id>gaffer.releases.repo</releases.repository.id>
-        <releases.repository.name>Gaffer Releases Repository
+        <releases.repository.id>ossrh</releases.repository.id>
+        <releases.repository.name>Sonatype Nexus release repository
         </releases.repository.name>
         <releases.repository.url>
-            https://repository.somewhere.com/gaffer2-releases
+            https://oss.sonatype.org/service/local/staging/deploy/maven2/
         </releases.repository.url>
-        <snapshots.repository.id>gaffer.snapshots.repo</snapshots.repository.id>
-        <snapshots.repository.name>Gaffer Snapshots Repository
+        <snapshots.repository.id>ossrh-snapshots</snapshots.repository.id>
+        <snapshots.repository.name>Sonatype Nexus snapshot repository
         </snapshots.repository.name>
         <snapshots.repository.url>
-            https://repository.somewhere.com/gaffer2-snapshots
+            https://oss.sonatype.org/content/repositories/snapshots
         </snapshots.repository.url>
     </properties>
+
+    <developers>
+        <developer>
+            <name>GafferDevelopers</name>
+            <organization>GCHQ</organization>
+            <organizationUrl>https://github.com/gchq</organizationUrl>
+        </developer>
+    </developers>
 
     <scm>
         <url>${scm.url}</url>
         <connection>${scm.connection}</connection>
         <developerConnection>${scm.developer.connection}</developerConnection>
-        <tag>gaffer2-0.4.0-RC3-SNAPSHOT</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
@@ -301,7 +326,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
+                    <version>${release.plugin.version}</version>
                     <configuration>
                         <preparationGoals>clean install</preparationGoals>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -310,7 +335,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
+                    <version>${compiler.plugin.verson}</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -354,7 +379,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>${jar.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -413,6 +438,9 @@
                     <findbugsXmlOutputDirectory>
                         ${project.build.directory}/findbugs
                     </findbugsXmlOutputDirectory>
+                    <excludeFilterFile>
+                        findbugs-exclude.xml
+                    </excludeFilterFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -435,7 +463,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${javadoc.plugin.version}</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <show>public</show>
@@ -448,7 +476,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>
-                <version>1.1</version>
+                <version>${scm.plugin.version}</version>
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish
                     </checkoutDirectory>
@@ -462,6 +490,14 @@
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${release.plugin.version}</version>
+                <configuration>
+                    <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -470,7 +506,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>${javadoc.plugin.version}</version>
                 <reportSets>
                     <reportSet>
                         <id>aggregate</id>
@@ -589,6 +625,165 @@
                         <configuration>
                             <fork>false</fork>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${gpg.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>ossrh-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>${releases.repository.id}</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${source.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${gpg.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>build-extras</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${source.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>travis</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.plugin.version}</version>
+                        <configuration>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
+                            <argLine>${argLine}</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>${findbugs.plugin.version}</version>
+                        <configuration>
+                            <fork>false</fork>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

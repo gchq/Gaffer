@@ -183,7 +183,7 @@ angular.module('app').controller('AppController',
         var operation = createOperation();
         for(var vertex in $scope.selectedEntities) {
             operation.seeds.push({
-                      "class": "gaffer.operation.data.EntitySeed",
+                      "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
                       "vertex": vertex
                    });
         }

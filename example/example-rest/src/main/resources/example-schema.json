@@ -21,7 +21,7 @@
     "int": {
       "class": "java.lang.Integer",
       "aggregateFunction": {
-        "class": "gaffer.function.simple.aggregate.Sum"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
       }
     },
     "string": {
@@ -32,7 +32,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "gaffer.function.simple.filter.IsTrue"
+            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
           }
         }
       ]
