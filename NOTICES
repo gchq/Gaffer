@@ -89,7 +89,7 @@ Javax Web Api (javax:javaee-web-api:7.0)
 - Common Development and Distribution License 1.0
 
 
-Jersey Server (com.sun.jersey:jersey-server:1.9)
+Jersey Server (org.glassfish.jersey.core:jersey-server:2.22.2)
 
 - Common Development and Distribution License 1.0
 - GNU General Public License 2.0
