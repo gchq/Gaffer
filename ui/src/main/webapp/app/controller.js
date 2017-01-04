@@ -289,7 +289,7 @@ angular.module('app').controller('AppController',
 
     var createOperation = function() {
         return {
-            class: "gaffer.operation.impl.get.GetRelatedElements",
+            class: "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
             resultLimit:  settings.resultLimit,
             deduplicate: true,
             seeds: [],
@@ -323,7 +323,7 @@ angular.module('app').controller('AppController',
 
     var createCountOperation = function() {
         return {
-            class: "gaffer.operation.impl.CountGroups",
+            class: "uk.gov.gchq.gaffer.operation.impl.CountGroups",
             limit: (settings.resultLimit - 1)
         };
     }
