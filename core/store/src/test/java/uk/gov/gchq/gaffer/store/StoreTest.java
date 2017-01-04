@@ -325,13 +325,12 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 23;
+        final int expectedNumberOfOperations = 29; // this includes the deprecated Get operations
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
 
-        given(validatableHandler.doOperation(validatable, context, store)).
-                                                                                  willReturn(expectedNumberOfOperations);
+        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
 
         store.initialise(schema, properties);
 
