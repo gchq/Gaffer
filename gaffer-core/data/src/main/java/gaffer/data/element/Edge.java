@@ -46,28 +46,28 @@ public class Edge extends Element<EdgeId> {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getSource() {
-        return id().getSource();
+        return getId().getSource();
     }
 
     public void setSource(final Object source) {
-        id().setSource(source);
+        getId().setSource(source);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getDestination() {
-        return id().getDestination();
+        return getId().getDestination();
     }
 
     public void setDestination(final Object destination) {
-        id().setDestination(destination);
+        getId().setDestination(destination);
     }
 
     public boolean isDirected() {
-        return id().isDirected();
+        return getId().isDirected();
     }
 
     public void setDirected(final boolean directed) {
-        id().setDirected(directed);
+        getId().setDirected(directed);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class Edge extends Element<EdgeId> {
     @Override
     public String toString() {
         return "Edge{"
-                + id()
+                + getId()
                 + super.toString()
                 + "} ";
     }

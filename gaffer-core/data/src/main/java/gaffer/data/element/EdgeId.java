@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EdgeId extends GraphId implements Id<EdgeId> {
+public class EdgeId extends ElementId implements Id<EdgeId> {
     private static final long serialVersionUID = -2967503081774931299L;
     private static final Logger LOGGER = LoggerFactory.getLogger(EdgeId.class);
     private Object source;
@@ -95,15 +95,15 @@ public class EdgeId extends GraphId implements Id<EdgeId> {
 
     /**
      * This {@link EdgeId} is related to a
-     * {@link GraphId} if either the GraphId is equal to this EdgeId or it is
+     * {@link ElementId} if either the ElementId is equal to this EdgeId or it is
      * an EntityId and it's identifier matches this EdgeId's source or destination.
      *
-     * @param that the {@link GraphId} to compare
-     * @return An instance of {@link GraphId.Matches} to describe how the seeds are related.
+     * @param that the {@link ElementId} to compare
+     * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
      */
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
     @Override
-    public Matches isRelated(final GraphId that) {
+    public Matches isRelated(final ElementId that) {
         if (that instanceof EdgeId) {
             if (equals(that)) {
                 return Matches.BOTH;
@@ -120,8 +120,8 @@ public class EdgeId extends GraphId implements Id<EdgeId> {
      * {@link EntityId} if the EntityId's identifier matches this
      * EdgeId's source or destination.
      *
-     * @param that the {@link GraphId} to compare
-     * @return An instance of {@link GraphId.Matches} to describe how the seeds are related.
+     * @param that the {@link ElementId} to compare
+     * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
      */
     public Matches isRelated(final EntityId that) {
         boolean matchesSource = (source == null) ? that.getVertex() == null : source.equals(that.getVertex());
@@ -183,7 +183,7 @@ public class EdgeId extends GraphId implements Id<EdgeId> {
     }
 
     @Override
-    public EdgeId id() {
+    public EdgeId getId() {
         return this;
     }
 }

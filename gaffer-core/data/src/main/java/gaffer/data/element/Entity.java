@@ -46,11 +46,11 @@ public class Entity extends Element<EntityId> {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getVertex() {
-        return id().getVertex();
+        return getId().getVertex();
     }
 
     public void setVertex(final Object vertex) {
-        id().setVertex(vertex);
+        getId().setVertex(vertex);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class Entity extends Element<EntityId> {
     @Override
     public String toString() {
         return "Entity{"
-                + id()
+                + getId()
                 + super.toString()
                 + "} ";
     }

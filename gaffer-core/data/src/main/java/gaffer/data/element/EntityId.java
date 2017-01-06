@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EntityId extends GraphId implements Id<EntityId> {
+public class EntityId extends ElementId implements Id<EntityId> {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityId.class);
     private static final long serialVersionUID = 2965833460091737229L;
     private Object vertex;
@@ -65,15 +65,15 @@ public class EntityId extends GraphId implements Id<EntityId> {
 
     /**
      * This {@link EntityId} is related to a
-     * {@link GraphId} if either the GraphId is equal to this EntityId or it is
+     * {@link ElementId} if either the ElementId is equal to this EntityId or it is
      * an EdgeId and it's source or destination matches this EntityId's vertex.
      *
-     * @param that the {@link GraphId} to compare
-     * @return An instance of {@link GraphId.Matches} to describe how the seeds are related.
+     * @param that the {@link ElementId} to compare
+     * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
      */
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Edge")
     @Override
-    public Matches isRelated(final GraphId that) {
+    public Matches isRelated(final ElementId that) {
         if (that instanceof EntityId) {
             if (equals(that)) {
                 return Matches.VERTEX;
@@ -85,12 +85,12 @@ public class EntityId extends GraphId implements Id<EntityId> {
     }
 
     /**
-     * This {@link GraphId} is related to an
+     * This {@link ElementId} is related to an
      * {@link EdgeId} if either EdgeSeed's source or destination matches this
      * EntitySeed's vertex.
      *
      * @param that the {@link EdgeId} to compare
-     * @return An instance of {@link GraphId.Matches} to describe how the seeds are related.
+     * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
      */
     public Matches isRelated(final EdgeId that) {
         boolean matchesSource = (vertex == null) ? that.getSource() == null : vertex.equals(that.getSource());
@@ -135,7 +135,7 @@ public class EntityId extends GraphId implements Id<EntityId> {
     }
 
     @Override
-    public EntityId id() {
+    public EntityId getId() {
         return this;
     }
 }

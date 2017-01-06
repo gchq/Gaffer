@@ -41,7 +41,7 @@ import java.util.Map;
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-public abstract class Element<IdType extends GraphId> implements Serializable, Id<IdType> {
+public abstract class Element<IdType extends ElementId> implements Serializable, Id<IdType> {
     public static final String DEFAULT_GROUP = "UNKNOWN";
 
     @JsonIgnore
@@ -50,21 +50,21 @@ public abstract class Element<IdType extends GraphId> implements Serializable, I
     private Properties properties;
     private String group;
 
-    Element(final IdType graphId) {
-        this(DEFAULT_GROUP, graphId);
+    Element(final IdType elementId) {
+        this(DEFAULT_GROUP, elementId);
     }
 
-    Element(final String group, final IdType graphId) {
+    Element(final String group, final IdType elementId) {
         setGroup(group);
-        setId(graphId);
+        setId(elementId);
         properties = new Properties();
     }
 
-    public void setId(final IdType graphId) {
-        this.id = graphId;
+    public void setId(final IdType elementId) {
+        this.id = elementId;
     }
 
-    public IdType id() {
+    public IdType getId() {
         return id;
     }
 
@@ -110,7 +110,7 @@ public abstract class Element<IdType extends GraphId> implements Serializable, I
                 && new EqualsBuilder()
                 .append(group, element.getGroup())
                 .isEquals()
-                && id.equals(element.id());
+                && id.equals(element.getId());
     }
 
     @Override

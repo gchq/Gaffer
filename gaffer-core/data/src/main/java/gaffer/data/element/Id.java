@@ -20,5 +20,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
 public interface Id<IdType> {
-    IdType id();
+    IdType getId();
 }

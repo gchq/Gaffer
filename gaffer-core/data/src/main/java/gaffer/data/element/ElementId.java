@@ -18,19 +18,19 @@ package gaffer.data.element;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public abstract class GraphId {
+public abstract class ElementId {
     @JsonIgnore
     public abstract Object getIdentifier(final IdentifierType identifierType);
 
     public abstract void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet);
 
     /**
-     * @param that the {@link GraphId} to compare
+     * @param that the {@link ElementId} to compare
      * @return An instance of {@link Matches} to describe how the seeds are related.
-     * @see EntityId#isRelated(GraphId)
-     * @see EdgeId#isRelated(GraphId)
+     * @see EntityId#isRelated(ElementId)
+     * @see EdgeId#isRelated(ElementId)
      */
-    public abstract Matches isRelated(GraphId that);
+    public abstract Matches isRelated(ElementId that);
 
     public enum Matches {
         BOTH,
