@@ -1,0 +1,59 @@
+{
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "view": {
+        "edges": {
+          "viewing": {}
+        }
+      },
+      "seeds": [
+        {
+          "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
+          "vertex": "user02"
+        }
+      ]
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntities",
+      "view": {
+        "entities": {
+          "review": {
+            "groupBy": [],
+            "transientProperties": {
+              "starRating": "java.lang.Float"
+            },
+            "preAggregationFilterFunctions": [
+              {
+                "function": {
+                  "class": "uk.gov.gchq.gaffer.function.filter.Not",
+                  "function": {
+                    "class": "uk.gov.gchq.gaffer.function.filter.IsEqual",
+                    "value": "user02"
+                  }
+                },
+                "selection": [
+                  "userId"
+                ]
+              }
+            ],
+            "transformFunctions": [
+              {
+                "function": {
+                  "class": "uk.gov.gchq.gaffer.example.films.function.transform.StarRatingTransform"
+                },
+                "selection": [
+                  "rating",
+                  "count"
+                ],
+                "projection": [
+                  "starRating"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

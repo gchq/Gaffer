@@ -17,9 +17,9 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>gaffer</groupId>
+        <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.4.6-SNAPSHOT</version>
+        <version>0.5.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ui</artifactId>
@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
+                <version>${war.plugin.version}</version>
                 <configuration>
                     <webResources>
                         <resource>
@@ -56,7 +56,7 @@
                             <webapps>
                                 <webapp>
                                     <contextPath>/ui</contextPath>
-                                    <groupId>gaffer</groupId>
+                                    <groupId>uk.gov.gchq.gaffer</groupId>
                                     <artifactId>ui</artifactId>
                                     <version>${project.parent.version}</version>
                                     <type>war</type>
@@ -64,7 +64,7 @@
                                 </webapp>
                                 <webapp>
                                     <contextPath>/rest</contextPath>
-                                    <groupId>gaffer</groupId>
+                                    <groupId>uk.gov.gchq.gaffer</groupId>
                                     <artifactId>example-rest</artifactId>
                                     <version>${project.parent.version}</version>
                                     <type>war</type>
@@ -72,14 +72,19 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.rest-api.basePath>rest/v1</gaffer.rest-api.basePath>
-                                <gaffer.schemas>${project.build.outputDirectory}/example-schema.json</gaffer.schemas>
-                                <gaffer.storeProperties>${project.build.outputDirectory}/example-store.properties</gaffer.storeProperties>
+                                <gaffer.rest-api.basePath>rest/v1
+                                </gaffer.rest-api.basePath>
+                                <gaffer.schemas>
+                                    ${project.build.outputDirectory}/example-schema.json
+                                </gaffer.schemas>
+                                <gaffer.storeProperties>
+                                    ${project.build.outputDirectory}/example-store.properties
+                                </gaffer.storeProperties>
                             </systemProperties>
                         </configuration>
                         <dependencies>
                             <dependency>
-                                <groupId>gaffer</groupId>
+                                <groupId>uk.gov.gchq.gaffer</groupId>
                                 <artifactId>example-rest</artifactId>
                                 <version>${project.parent.version}</version>
                                 <type>war</type>

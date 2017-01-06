@@ -1,0 +1,100 @@
+{
+  "types": {
+    "filmId.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "userId.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+          }
+        }
+      ]
+    },
+    "name.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "certificate": {
+      "class": "uk.gov.gchq.gaffer.example.films.data.Certificate",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "rating.int": {
+      "class": "java.lang.Integer",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+            "orEqualTo": true,
+            "value": 0
+          }
+        },
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
+            "orEqualTo": true,
+            "value": 100
+          }
+        }
+      ]
+    },
+    "count.int": {
+      "class": "java.lang.Integer",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+            "orEqualTo": true,
+            "value": 0
+          }
+        }
+      ]
+    },
+    "total.long": {
+      "class": "java.lang.Long"
+    },
+    "timestamp.long": {
+      "class": "java.lang.Long"
+    },
+    "max.integer": {
+      "class": "java.lang.Integer"
+    },
+    "timestamp.long": {
+      "class": "java.lang.Long"
+    },
+    "max.integer": {
+      "class": "java.lang.Integer"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer"
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer"
+    },
+    "timestamp": {
+      "class": "java.lang.Integer"
+    }
+  }
+}
