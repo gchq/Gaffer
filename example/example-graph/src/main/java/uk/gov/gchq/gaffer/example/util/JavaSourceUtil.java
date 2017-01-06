@@ -24,6 +24,7 @@ public final class JavaSourceUtil {
     private static final String JAVA_SRC_PATH = "src/main/java/";
     private static final String START_TAG_CODE_SNIPPET_MARKER = String.format("----%n");
     private static final String TAG_END_CODE_SNIPPET_MARKER = "// ----";
+    public static final String NEW_LINE = String.format("%n");
 
     private JavaSourceUtil() {
     }
@@ -52,7 +53,15 @@ public final class JavaSourceUtil {
             javaCode = javaCode.substring(markerIndex);
             javaCode = javaCode.substring(javaCode.indexOf(start) + start.length());
             javaCode = javaCode.substring(0, javaCode.indexOf(end));
-            javaCode = StringUtils.stripEnd(javaCode, " " + String.format("%n"));
+            javaCode = StringUtils.stripEnd(javaCode, " " + NEW_LINE);
+
+            // Remove indentation
+            final String trimmedJavaCode = javaCode.trim();
+            final int leadingSpaces = javaCode.indexOf(trimmedJavaCode);
+            if (leadingSpaces > 0) {
+                final String spacesRegex = NEW_LINE + StringUtils.repeat(" ", leadingSpaces);
+                javaCode = trimmedJavaCode.replace(spacesRegex, NEW_LINE);
+            }
         } else {
             javaCode = "";
         }
