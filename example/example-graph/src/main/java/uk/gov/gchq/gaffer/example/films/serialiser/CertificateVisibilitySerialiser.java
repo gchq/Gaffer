@@ -58,7 +58,7 @@ public class CertificateVisibilitySerialiser extends AbstractSerialisation<Certi
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }

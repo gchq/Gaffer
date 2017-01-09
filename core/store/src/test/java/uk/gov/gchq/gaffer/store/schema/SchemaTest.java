@@ -559,7 +559,7 @@ public class SchemaTest {
         }
 
         @Override
-        public boolean isByteOrderPreserved() {
+        public boolean preservesObjectOrdering() {
             return true;
         }
     }

@@ -57,7 +57,7 @@ public class FloatSerialiser extends AbstractSerialisation<Float> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }

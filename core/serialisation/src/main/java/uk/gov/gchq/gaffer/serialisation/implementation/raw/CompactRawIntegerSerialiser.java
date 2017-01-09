@@ -58,7 +58,7 @@ public class CompactRawIntegerSerialiser extends AbstractSerialisation<Integer> 
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }
