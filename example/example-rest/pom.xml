@@ -28,6 +28,13 @@
     </properties>
     <packaging>war</packaging>
     <dependencies>
+        <!-- Trick to prevent Maven from including this dependency in the WAR -->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.9</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>example-graph</artifactId>
