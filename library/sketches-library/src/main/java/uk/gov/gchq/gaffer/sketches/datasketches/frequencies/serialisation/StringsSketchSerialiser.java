@@ -46,7 +46,7 @@ public class StringsSketchSerialiser extends AbstractSerialisation<ItemsSketch<S
 
     @Override
     public ItemsSketch<String> deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create an ItemsSketch<String> from an empty byte array");
+        return null;
     }
 
     @Override

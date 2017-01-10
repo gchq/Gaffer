@@ -46,7 +46,7 @@ public class ReservoirNumbersUnionSerialiser extends AbstractSerialisation<Reser
 
     @Override
     public ReservoirItemsUnion<Number> deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create a ReservoirItemsUnion<Number> from an empty byte array");
+        return null;
     }
 
     @Override

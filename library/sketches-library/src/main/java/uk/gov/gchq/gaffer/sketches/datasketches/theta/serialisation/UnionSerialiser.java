@@ -48,7 +48,7 @@ public class UnionSerialiser extends AbstractSerialisation<Union> {
 
     @Override
     public Union deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create a UnionSerialiser from an empty byte array");
+        return null;
     }
 
     @Override

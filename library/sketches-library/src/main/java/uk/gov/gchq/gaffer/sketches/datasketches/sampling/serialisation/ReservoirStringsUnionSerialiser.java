@@ -46,7 +46,7 @@ public class ReservoirStringsUnionSerialiser extends AbstractSerialisation<Reser
 
     @Override
     public ReservoirItemsUnion<String> deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create a ReservoirItemsUnion<String> from an empty byte array");
+        return null;
     }
 
     @Override

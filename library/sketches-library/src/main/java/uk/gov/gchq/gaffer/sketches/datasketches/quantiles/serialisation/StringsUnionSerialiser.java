@@ -50,7 +50,7 @@ public class StringsUnionSerialiser extends AbstractSerialisation<ItemsUnion<Str
 
     @Override
     public ItemsUnion<String> deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create an ItemsUnion<String> from an empty byte array");
+        return null;
     }
 
     @Override

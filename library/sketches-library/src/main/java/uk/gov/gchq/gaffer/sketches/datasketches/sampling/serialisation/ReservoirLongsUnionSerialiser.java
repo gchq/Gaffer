@@ -44,7 +44,7 @@ public class ReservoirLongsUnionSerialiser extends AbstractSerialisation<Reservo
 
     @Override
     public ReservoirLongsUnion deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create a ReservoirLongsUnion from an empty byte array");
+        return null;
     }
 
     @Override

@@ -44,7 +44,7 @@ public class LongsSketchSerialiser extends AbstractSerialisation<LongsSketch> {
 
     @Override
     public LongsSketch deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create a LongsSketch from an empty byte array");
+        return null;
     }
 
     @Override

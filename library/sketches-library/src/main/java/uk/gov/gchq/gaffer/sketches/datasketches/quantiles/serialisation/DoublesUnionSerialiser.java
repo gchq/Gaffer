@@ -46,7 +46,7 @@ public class DoublesUnionSerialiser extends AbstractSerialisation<DoublesUnion> 
 
     @Override
     public DoublesUnion deserialiseEmptyBytes() throws SerialisationException {
-        throw new SerialisationException("Unable to create a DoublesUnion from an empty byte array");
+        return null;
     }
 
     @Override
