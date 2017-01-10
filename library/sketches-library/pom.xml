@@ -61,6 +61,11 @@
             <artifactId>stream</artifactId>
             <version>${clearspring.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.yahoo.datasketches</groupId>
+            <artifactId>sketches-core</artifactId>
+            <version>${datasketches.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

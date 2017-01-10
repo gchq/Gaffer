@@ -138,7 +138,8 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
                 "}"), json);
 
         // When 2
-        final HyperLogLogPlusAggregator deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), HyperLogLogPlusAggregator.class);
+        final HyperLogLogPlusAggregator deserialisedAggregator = new JSONSerialiser()
+                .deserialise(json.getBytes(), HyperLogLogPlusAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);
     }
