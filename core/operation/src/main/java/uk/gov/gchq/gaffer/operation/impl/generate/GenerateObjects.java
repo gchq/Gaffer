@@ -98,7 +98,7 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<OBJ>> getTypeReference() {
+    public TypeReference<CloseableIterable<OBJ>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableT<>();
     }
 

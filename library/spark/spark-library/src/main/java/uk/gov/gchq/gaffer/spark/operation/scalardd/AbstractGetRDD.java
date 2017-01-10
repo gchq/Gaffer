@@ -41,7 +41,7 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
 
     @JsonIgnore
     @Override
-    public TypeReference<RDD<Element>> getTypeReference() {
+    public TypeReference<RDD<Element>> getOutputTypeReference() {
         return new TypeReferenceRDDElement();
     }
 

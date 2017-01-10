@@ -78,7 +78,7 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
 
     @JsonIgnore
     @Override
-    public TypeReference<Void> getTypeReference() {
+    public TypeReference<Void> getOutputTypeReference() {
         return new TypeReferenceImpl.Void();
     }
 

@@ -69,7 +69,7 @@ public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<EntitySeed>> getTypeReference() {
+    public TypeReference<CloseableIterable<EntitySeed>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 

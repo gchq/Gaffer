@@ -35,7 +35,7 @@ public class FetchExporters extends ExportOperation<Void, Map<String, Exporter>>
 
     @JsonIgnore
     @Override
-    public TypeReference<Map<String, Exporter>> getTypeReference() {
+    public TypeReference<Map<String, Exporter>> getOutputTypeReference() {
         return new TypeReferenceImpl.MapExporter();
     }
 

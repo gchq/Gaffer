@@ -62,7 +62,7 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>function-library</artifactId>
+            <artifactId>core-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>

@@ -67,7 +67,7 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElementT<>();
     }
 

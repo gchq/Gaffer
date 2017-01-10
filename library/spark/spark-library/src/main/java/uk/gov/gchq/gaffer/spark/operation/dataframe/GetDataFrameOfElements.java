@@ -72,7 +72,7 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     @JsonIgnore
     @Override
-    public TypeReference<Dataset<Row>> getTypeReference() {
+    public TypeReference<Dataset<Row>> getOutputTypeReference() {
         return new TypeReferenceDataSetRow();
     }
 

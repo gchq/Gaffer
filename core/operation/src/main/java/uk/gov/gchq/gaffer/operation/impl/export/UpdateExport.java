@@ -62,7 +62,7 @@ public class UpdateExport extends ExportOperation<CloseableIterable<Object>, Clo
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<Object>> getTypeReference() {
+    public TypeReference<CloseableIterable<Object>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableObj();
     }
 

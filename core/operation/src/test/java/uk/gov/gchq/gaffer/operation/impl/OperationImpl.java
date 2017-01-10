@@ -45,7 +45,7 @@ public class OperationImpl<INPUT, OUTPUT> extends AbstractOperation<INPUT, OUTPU
 
     @JsonIgnore
     @Override
-    public TypeReference<OUTPUT> getTypeReference() {
+    public TypeReference<OUTPUT> getOutputTypeReference() {
         return new TypeReferenceImpl.ObjectT<>();
     }
 }

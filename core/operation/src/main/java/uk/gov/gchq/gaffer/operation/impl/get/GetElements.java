@@ -71,7 +71,7 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getTypeReference() {
+    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElementT<>();
     }
 

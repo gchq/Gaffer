@@ -45,7 +45,7 @@ public class SplitTable extends AbstractOperation<String, Void> implements VoidO
 
     @JsonIgnore
     @Override
-    public TypeReference<Void> getTypeReference() {
+    public TypeReference<Void> getOutputTypeReference() {
         return new TypeReferenceImpl.Void();
     }
 

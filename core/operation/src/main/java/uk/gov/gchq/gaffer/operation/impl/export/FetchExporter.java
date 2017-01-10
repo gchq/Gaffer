@@ -40,7 +40,7 @@ public class FetchExporter extends ExportOperation<Void, Exporter> implements Vo
 
     @JsonIgnore
     @Override
-    public TypeReference<Exporter> getTypeReference() {
+    public TypeReference<Exporter> getOutputTypeReference() {
         return new TypeReferenceImpl.Exporter();
     }
 

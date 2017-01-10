@@ -67,7 +67,7 @@ public class OperationChain<OUT> {
             return new TypeReferenceImpl.ObjectT<>();
         }
 
-        return operations.get(operations.size() - 1).getTypeReference();
+        return operations.get(operations.size() - 1).getOutputTypeReference();
     }
 
     public List<Operation> getOperations() {

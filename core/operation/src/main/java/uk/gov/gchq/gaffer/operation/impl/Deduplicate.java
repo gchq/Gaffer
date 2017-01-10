@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<T>> getTypeReference() {
+    public TypeReference<CloseableIterable<T>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableT<>();
     }
 
