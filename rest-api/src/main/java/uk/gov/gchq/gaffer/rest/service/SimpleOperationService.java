@@ -16,9 +16,14 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterators;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -46,6 +51,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.IOException;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -74,6 +84,38 @@ public class SimpleOperationService implements IOperationService {
     @Override
     public Object execute(final OperationChain opChain) {
         return execute(opChain, false);
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain) {
+
+        // Create chunked output instance
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
+
+        // Execute the operation chain and convert to a list
+        final CloseableIterator<Element> objects = execute(opChain, false).iterator();
+
+        final List<Element> elements = asList(Iterators.toArray(objects, Element.class));
+
+        final ObjectMapper mapper = createDefaultMapper();
+
+        // write chunks to the chunked output object
+        new Thread() {
+            public void run() {
+                try {
+                    for (final Element element : elements) {
+                        output.write(mapper.writeValueAsString(element));
+                    }
+                } catch (final IOException ioe) {
+                    LOGGER.warn("IOException (chunks)", ioe);
+                } finally {
+                    objects.close();
+                }
+            }
+        }.start();
+
+        return output;
     }
 
     @Override

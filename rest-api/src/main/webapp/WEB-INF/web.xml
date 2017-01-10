@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee"
+         metadata-complete="false"
+         version="3.1">
 
     <display-name>Gaffer REST example</display-name>
 
@@ -13,6 +14,7 @@
             <param-value>uk.gov.gchq.gaffer.rest.application.ApplicationConfig</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
         <servlet-name>Gaffer REST example</servlet-name>
@@ -22,6 +24,7 @@
     <filter>
         <filter-name>OriginFilter</filter-name>
         <filter-class>uk.gov.gchq.gaffer.rest.filter.OriginFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
 
     <filter-mapping>

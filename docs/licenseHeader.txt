@@ -1,5 +1,5 @@
 ^(/\*|#)$
-^(\s\*|#) Copyright 2016
+^(\s\*|#) Copyright (20\d\d)(-20\d\d)?
 ^(\s\*|#)$
 ^(\s\*|#) Licensed under the Apache License, Version 2.0 \(the "License"\);$
 ^(\s\*|#) you may not use this file except in compliance with the License.$
