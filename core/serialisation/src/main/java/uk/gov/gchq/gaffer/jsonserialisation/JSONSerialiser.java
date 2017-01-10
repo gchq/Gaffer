@@ -26,19 +26,16 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.util.StdConverter;
 import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 /**
  * A <code>JSONSerialiser</code> provides the ability to serialise and deserialise to/from JSON.
@@ -82,13 +79,7 @@ public class JSONSerialiser {
 
     private static SimpleModule getCloseableIterableDeserialiserModule() {
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(CloseableIterable.class, new StdDelegatingDeserializer<>(
-                new StdConverter<Object[], CloseableIterable>() {
-                    @Override
-                    public CloseableIterable convert(final Object[] value) {
-                        return new WrappedCloseableIterable<>(Arrays.asList(value));
-                    }
-                }));
+        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
         return module;
     }
 

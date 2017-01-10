@@ -18,27 +18,29 @@ package uk.gov.gchq.gaffer.proxystore.integration;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.proxystore.ProxyStoreTest;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.service.SimpleGraphConfigurationService;
-import uk.gov.gchq.gaffer.rest.service.SimpleOperationService;
-import uk.gov.gchq.gaffer.rest.service.StatusService;
+import uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.io.IOException;
 import java.net.URI;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.bind;
-
-
+@Ignore
 public class ProxyStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil
-            .storeProps(ProxyStoreITs.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStoreTest.class);
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/proxy-store.properties"));
 
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(ProxyStoreTest.class));
+
+    private static final String REST_URI = "http://localhost:8080/rest/v1";
     private static HttpServer server;
 
     public ProxyStoreITs() {
@@ -46,27 +48,12 @@ public class ProxyStoreITs extends AbstractStoreITs {
     }
 
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws IOException, InterruptedException, StoreException {
         // start REST
-        server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8080/rest/v1"), new ApplicationConfig());
+        server = GrizzlyHttpServerFactory.createHttpServer(URI.create(REST_URI), new ApplicationResourceConfig());
 
+        // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/proxy-schema.json");
-
-        Logger l = Logger.getLogger("org.glassfish.grizzly.http.server.HttpHandler");
-        l.setLevel(Level.FINE);
-        l.setUseParentHandlers(false);
-        ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.ALL);
-        l.addHandler(ch);
-    }
-
-    public static class ApplicationConfig extends ResourceConfig {
-
-        public ApplicationConfig() {
-            register(SimpleOperationService.class);
-            register(SimpleGraphConfigurationService.class);
-            register(StatusService.class);
-        }
+        System.setProperty(SystemProperty.SCHEMA_PATHS, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/schema");
     }
 }

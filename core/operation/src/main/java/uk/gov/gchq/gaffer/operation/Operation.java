@@ -66,7 +66,7 @@ public interface Operation<INPUT, OUTPUT> {
     OUTPUT castToOutputType(final Object result);
 
     @JsonIgnore
-    TypeReference<OUTPUT> getOutputTypeReference();
+    TypeReference<?> getOutputTypeReference();
 
     /**
      * Validates an element against the pre aggregation contained in the operation View.

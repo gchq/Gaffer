@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.CloseableIterableElement;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.AbstractGetOperation} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
@@ -71,8 +71,8 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
 
     @JsonIgnore
     @Override
-    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElementT<>();
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new CloseableIterableElement();
     }
 
     public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,

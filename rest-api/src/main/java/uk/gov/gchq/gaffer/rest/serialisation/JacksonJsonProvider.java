@@ -37,7 +37,7 @@ public class JacksonJsonProvider implements ContextResolver<ObjectMapper> {
     }
 
     @Override
-    public ObjectMapper getContext(final Class<?> aClass) {
+    public ObjectMapper getContext(final Class<?> clazz) {
         return mapper;
     }
 }

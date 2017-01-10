@@ -49,13 +49,10 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-
-import static javax.ws.rs.core.Response.Status.OK;
 
 
 public class ProxyStore extends Store {
@@ -65,19 +62,13 @@ public class ProxyStore extends Store {
     private Set<StoreTrait> traits;
     private Schema schema;
 
-    public static class TypeReferenceSchema extends TypeReference<Schema> {
-    }
-
-    public static class TypeReferenceStoreTraits extends TypeReference<Set<StoreTrait>> {
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
 
         client.property(ClientProperties.CONNECT_TIMEOUT, 10000);
-        client.property(ClientProperties.READ_TIMEOUT,    10000);
+        client.property(ClientProperties.READ_TIMEOUT, 10000);
 
         fetchSchema(proxyProps);
         fetchTraits(proxyProps);
@@ -112,46 +103,43 @@ public class ProxyStore extends Store {
         final String opChainJson;
         try {
             opChainJson = new String(JSON_SERIALISER.serialise(operationChain), CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException | SerialisationException e) {
+        } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
         final URL url = getProperties().getGafferUrl("graph/doOperation");
         try {
             return doPost(url, opChainJson, operationChain.getTypeReference(), context);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
     }
 
     protected <OUTPUT> OUTPUT doPost(final URL url, final String jsonBody,
-                                     final TypeReference<OUTPUT> outputTypeReference,
-                                     final Context context) throws StoreException {
-
-
-
+            final TypeReference<OUTPUT> clazz,
+            final Context context) throws StoreException {
 
 
         final Builder request = createRequest(jsonBody, url, context);
         final Response response;
         try {
             response = request.post(Entity.json(jsonBody));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new StoreException("Failed to execute post via " +
                     "the Gaffer URL " + url.toExternalForm(), e);
         }
 
-        return handleResponse(response, outputTypeReference);
+        return handleResponse(response, clazz);
     }
 
     protected <OUTPUT> OUTPUT doGet(final URL url,
-                                    final TypeReference<OUTPUT> outputTypeReference)
+            final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
         final Invocation.Builder request = createRequest(null, url, null);
         final Response response;
         try {
             response = request.get();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new StoreException("Request failed to execute via url "
                     + url.toExternalForm(), e);
         }
@@ -160,7 +148,7 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT handleResponse(final Response response,
-                                             final TypeReference<OUTPUT> outputTypeReference)
+            final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
         String outputJson = null;
         switch (response.getStatus()) {
@@ -180,7 +168,7 @@ public class ProxyStore extends Store {
         if (null != outputJson) {
             try {
                 output = deserialise(outputJson, outputTypeReference);
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new StoreException(e.getMessage(), e);
             }
         }
@@ -189,7 +177,8 @@ public class ProxyStore extends Store {
     }
 
     protected Builder createRequest(final String body, final URL url, final Context context) {
-        final Invocation.Builder request = client.target(url.toString()).request();
+        final Invocation.Builder request = client.target(url.toString())
+                                                 .request();
         if (null != body) {
             request.header("Content", MediaType.APPLICATION_JSON_TYPE);
             request.build(body);
@@ -198,17 +187,31 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT deserialise(final String jsonString,
-                                          final TypeReference<OUTPUT> typeReference)
+            final Class<OUTPUT> clazz)
             throws SerialisationException {
         final byte[] jsonBytes;
         try {
             jsonBytes = jsonString.getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(
                     "Unable to deserialise JSON: " + jsonString, e);
         }
 
-        return JSON_SERIALISER.deserialise(jsonBytes, typeReference);
+        return JSON_SERIALISER.deserialise(jsonBytes, clazz);
+    }
+
+    protected <OUTPUT> OUTPUT deserialise(final String jsonString,
+            final TypeReference<OUTPUT> outputTypeReference)
+            throws SerialisationException {
+        final byte[] jsonBytes;
+        try {
+            jsonBytes = jsonString.getBytes(CommonConstants.UTF_8);
+        } catch (final UnsupportedEncodingException e) {
+            throw new SerialisationException(
+                    "Unable to deserialise JSON: " + jsonString, e);
+        }
+
+        return JSON_SERIALISER.deserialise(jsonBytes, outputTypeReference);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
@@ -260,5 +263,11 @@ public class ProxyStore extends Store {
     @Override
     protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
         throw new UnsupportedOperationException("All operations should be executed via the provided Gaffer URL");
+    }
+
+    public static class TypeReferenceSchema extends TypeReference<Schema> {
+    }
+
+    public static class TypeReferenceStoreTraits extends TypeReference<Set<StoreTrait>> {
     }
 }

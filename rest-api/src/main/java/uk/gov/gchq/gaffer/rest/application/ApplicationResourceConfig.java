@@ -36,14 +36,17 @@ public class ApplicationResourceConfig extends ResourceConfig {
     protected final Set<Class<?>> resources = new HashSet<>();
 
     public ApplicationResourceConfig() {
-//        addSystemResources();
-//        addServices();
         setupBeanConfig();
 
+        // register classes
+        register(SimpleExamplesService.class);
         register(SimpleOperationService.class);
+        register(SimpleGraphConfigurationService.class);
+        register(StatusService.class);
 
-        packages("uk.gov.gchq.gaffer");
-//        registerClasses(resources);
+        // register system resources
+        addSystemResources();
+        registerClasses(resources);
     }
 
     protected void setupBeanConfig() {

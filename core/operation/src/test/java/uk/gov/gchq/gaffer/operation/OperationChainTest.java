@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -33,6 +34,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 //@RunWith(MockitoJUnitRunner.class)
@@ -142,4 +144,19 @@ public class OperationChainTest {
         assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
         assertSame(getEdges, opChain.getOperations().get(1));
     }
+
+//    @Test
+//    public void shouldDetermineOperationChainOutputType() {
+//        // Given
+//        final CountGroups countGroups = new CountGroups.Builder().build();
+//
+//        // When
+//        final OperationChain opChain = new OperationChain.Builder()
+//                .first(countGroups)
+//                .build();
+//
+//        // When / Then
+//        assertEquals(CloseableIterable.class, opChain.getOutputType());
+////        assertTrue(CountGroups.class.isAssignableFrom(opChain.getOutputType()));
+//    }
 }

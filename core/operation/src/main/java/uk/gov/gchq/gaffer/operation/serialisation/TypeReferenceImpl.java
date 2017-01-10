@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.operation.serialisation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import java.util.List;
 import java.util.Map;
 
 
@@ -56,6 +58,10 @@ public class TypeReferenceImpl {
 
     public static class CloseableIterableT<T> extends
             TypeReference<CloseableIterable<T>> {
+    }
+
+    public static class ListElement extends
+            TypeReference<List<uk.gov.gchq.gaffer.data.element.Element>> {
     }
 
     public static class CloseableIterableElement extends
