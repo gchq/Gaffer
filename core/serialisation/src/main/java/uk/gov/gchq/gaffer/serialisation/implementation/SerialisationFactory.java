@@ -66,7 +66,7 @@ public class SerialisationFactory {
         }
 
         for (final Serialisation serialiser : SERIALISERS) {
-            if (serialiser.canHandle(objClass) && (!preserveOrder || (serialiser.isByteOrderPreserved()))) {
+            if (serialiser.canHandle(objClass) && (!preserveOrder || (serialiser.preservesObjectOrdering()))) {
                 return serialiser;
             }
         }

@@ -83,7 +83,7 @@ public class TreeSetStringSerialiser extends AbstractSerialisation<TreeSet> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }
