@@ -50,7 +50,7 @@ public class DoublesUnionSerialiser extends AbstractSerialisation<DoublesUnion> 
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

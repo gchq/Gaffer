@@ -48,7 +48,7 @@ public class LongsSketchSerialiser extends AbstractSerialisation<LongsSketch> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

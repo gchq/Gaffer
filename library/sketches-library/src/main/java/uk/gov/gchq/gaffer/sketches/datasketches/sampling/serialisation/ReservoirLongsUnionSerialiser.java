@@ -48,7 +48,7 @@ public class ReservoirLongsUnionSerialiser extends AbstractSerialisation<Reservo
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

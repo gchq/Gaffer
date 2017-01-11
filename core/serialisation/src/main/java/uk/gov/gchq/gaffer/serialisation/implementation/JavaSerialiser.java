@@ -86,7 +86,7 @@ public class JavaSerialiser extends AbstractSerialisation<Object> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

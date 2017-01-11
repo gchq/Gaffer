@@ -53,7 +53,7 @@ public class StringSerialiser extends AbstractSerialisation<String> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 

@@ -50,7 +50,7 @@ public class StringsSketchSerialiser extends AbstractSerialisation<ItemsSketch<S
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }
