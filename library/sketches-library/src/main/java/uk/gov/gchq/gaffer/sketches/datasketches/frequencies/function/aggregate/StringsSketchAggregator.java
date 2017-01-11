@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.function.annotation.Outputs;
  *
  * NB: We cannot provide a generic aggregator for any type T as we need to clone the first sketch that is
  * supplied to the <code>_aggregate</code> method and that requires serialising and deserialising which
- * requires a specific SERIALISER.
+ * requires a specific serialiser.
  */
 @Inputs(ItemsSketch.class)
 @Outputs(ItemsSketch.class)
@@ -72,6 +72,13 @@ public class StringsSketchAggregator extends SimpleAggregateFunction<ItemsSketch
         return clone;
     }
 
+    /**
+     * As an {@link ItemsSketch} does not have an <code>equals()</code> method, the serialised form of the extracted
+     * {@link ItemsSketch} is used.
+     *
+     * @param o the object to test
+     * @return true if o equals this object
+     */
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

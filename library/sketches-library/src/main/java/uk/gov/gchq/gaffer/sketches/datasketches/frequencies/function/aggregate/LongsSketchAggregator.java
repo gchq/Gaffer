@@ -67,6 +67,13 @@ public class LongsSketchAggregator extends SimpleAggregateFunction<LongsSketch> 
         return clone;
     }
 
+    /**
+     * As a {@link LongsSketch} does not have an <code>equals()</code> method, the serialised form of the extracted
+     * {@link LongsSketch} is used.
+     *
+     * @param o the object to test
+     * @return true if o equals this object
+     */
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

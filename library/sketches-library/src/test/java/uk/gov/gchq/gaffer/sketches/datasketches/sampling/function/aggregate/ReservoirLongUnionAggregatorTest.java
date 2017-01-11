@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate;
 
-import com.google.common.collect.Ordering;
-import com.yahoo.sketches.quantiles.ItemsUnion;
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.apache.commons.lang.ArrayUtils;
@@ -27,7 +25,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
 import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate.StringsUnionAggregator;
 
 import java.util.*;
 
