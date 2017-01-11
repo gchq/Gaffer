@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.data.elementdefinition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -46,6 +48,7 @@ import java.util.Set;
  * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
  * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges
  */
+@JsonDeserialize(builder = ElementDefinitions.Builder.class)
 public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
@@ -59,56 +62,9 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
      */
     private Map<String, ENTITY_DEF> entities;
 
-    public ElementDefinitions() {
+    protected ElementDefinitions() {
         edges = new HashMap<>();
         entities = new HashMap<>();
-    }
-
-
-    public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final Path... filePaths) throws SchemaException {
-        return fromJson(clazz, (Object[]) filePaths);
-    }
-
-    public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final InputStream... inputStreams) throws SchemaException {
-        try {
-            return fromJson(clazz, (Object[]) inputStreams);
-        } finally {
-            if (null != inputStreams) {
-                for (final InputStream inputStream : inputStreams) {
-                    IOUtils.closeQuietly(inputStream);
-                }
-            }
-        }
-    }
-
-    public static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final byte[]... jsonBytes) throws SchemaException {
-        return fromJson(clazz, (Object[]) jsonBytes);
-    }
-
-    private static <T extends ElementDefinitions> T fromJson(final Class<T> clazz, final Object[] jsonItems) throws SchemaException {
-        T elementDefs = null;
-        for (final Object jsonItem : jsonItems) {
-            final T elDefsTmp;
-            try {
-                if (jsonItem instanceof InputStream) {
-                    elDefsTmp = JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz);
-                } else if (jsonItem instanceof Path) {
-                    elDefsTmp = JSON_SERIALISER.deserialise(Files.readAllBytes((Path) jsonItem), clazz);
-                } else {
-                    elDefsTmp = JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz);
-                }
-            } catch (IOException e) {
-                throw new SchemaException("Failed to load element definitions from bytes", e);
-            }
-
-            if (null == elementDefs) {
-                elementDefs = elDefsTmp;
-            } else {
-                elementDefs.merge(elDefsTmp);
-            }
-        }
-
-        return elementDefs;
     }
 
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
@@ -160,14 +116,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return null != entities ? entities.keySet() : new HashSet<String>(0);
     }
 
-    public void setEdges(final Map<String, EDGE_DEF> edges) {
-        this.edges = edges;
-    }
-
-    public void setEntities(final Map<String, ENTITY_DEF> entities) {
-        this.entities = entities;
-    }
-
     public Map<String, EDGE_DEF> getEdges() {
         return Collections.unmodifiableMap(edges);
     }
@@ -176,32 +124,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return Collections.unmodifiableMap(entities);
     }
 
-    protected void addEdge(final String group, final EDGE_DEF elementDef) {
-        edges.put(group, elementDef);
-    }
-
-    protected void addEntity(final String group, final ENTITY_DEF elementDef) {
-        entities.put(group, elementDef);
-    }
-
-    public void merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs) {
-        for (final Map.Entry<String, ENTITY_DEF> entry : elementDefs.getEntities().entrySet()) {
-            if (!entities.containsKey(entry.getKey())) {
-                addEntity(entry.getKey(), entry.getValue());
-            } else {
-                entities.get(entry.getKey()).merge(entry.getValue());
-            }
-        }
-
-        for (final Map.Entry<String, EDGE_DEF> entry : elementDefs.getEdges()
-                .entrySet()) {
-            if (!edges.containsKey(entry.getKey())) {
-                addEdge(entry.getKey(), entry.getValue());
-            } else {
-                edges.get(entry.getKey()).merge(entry.getValue());
-            }
-        }
-    }
 
     @Override
     public boolean equals(final Object o) {
@@ -243,6 +165,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
      * @param <ENTITY_DEF> the entity definition type.
      * @param <EDGE_DEF>   the entity definition type.
      */
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "set")
     public static class Builder<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
         private final ElementDefinitions<ENTITY_DEF, EDGE_DEF> elementDefs;
 
@@ -258,7 +181,12 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return this Builder
          */
         protected Builder edge(final String group, final EDGE_DEF edgeDef) {
-            elementDefs.addEdge(group, edgeDef);
+            elementDefs.edges.put(group, edgeDef);
+            return this;
+        }
+
+        protected Builder edges(final Map<String, EDGE_DEF> edges) {
+            elementDefs.edges.putAll(edges);
             return this;
         }
 
@@ -270,7 +198,73 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return this Builder
          */
         protected Builder entity(final String group, final ENTITY_DEF entityDef) {
-            elementDefs.addEntity(group, entityDef);
+            elementDefs.entities.put(group, entityDef);
+            return this;
+        }
+
+        protected Builder entities(final Map<String, ENTITY_DEF> entities) {
+            elementDefs.entities.putAll(entities);
+            return this;
+        }
+
+        protected Builder merge(final ElementDefinitions<ENTITY_DEF, EDGE_DEF> newElementDefs) {
+            for (final Map.Entry<String, ENTITY_DEF> entry : newElementDefs.getEntities().entrySet()) {
+                if (!elementDefs.entities.containsKey(entry.getKey())) {
+                    entity(entry.getKey(), entry.getValue());
+                } else {
+                    elementDefs.entities.get(entry.getKey()).merge(entry.getValue());
+                }
+            }
+
+            for (final Map.Entry<String, EDGE_DEF> entry : newElementDefs.getEdges().entrySet()) {
+                if (!elementDefs.edges.containsKey(entry.getKey())) {
+                    edge(entry.getKey(), entry.getValue());
+                } else {
+                    elementDefs.edges.get(entry.getKey()).merge(entry.getValue());
+                }
+            }
+
+            return this;
+        }
+
+        protected <T extends ElementDefinitions<ENTITY_DEF, EDGE_DEF>> Builder json(final Class<T> clazz, final Path... filePaths) throws SchemaException {
+            return json(clazz, (Object[]) filePaths);
+        }
+
+        protected <T extends ElementDefinitions<ENTITY_DEF, EDGE_DEF>> Builder json(final Class<T> clazz, final InputStream... inputStreams) throws SchemaException {
+            try {
+                return json(clazz, (Object[]) inputStreams);
+            } finally {
+                if (null != inputStreams) {
+                    for (final InputStream inputStream : inputStreams) {
+                        IOUtils.closeQuietly(inputStream);
+                    }
+                }
+            }
+        }
+
+        protected <T extends ElementDefinitions<ENTITY_DEF, EDGE_DEF>> Builder json(final Class<T> clazz, final byte[]... jsonBytes) throws SchemaException {
+            return json(clazz, (Object[]) jsonBytes);
+        }
+
+        protected <T extends ElementDefinitions<ENTITY_DEF, EDGE_DEF>> Builder json(final Class<T> clazz, final Object[] jsonItems) throws SchemaException {
+            for (final Object jsonItem : jsonItems) {
+                final T elDefsTmp;
+                try {
+                    if (jsonItem instanceof InputStream) {
+                        elDefsTmp = JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz);
+                    } else if (jsonItem instanceof Path) {
+                        elDefsTmp = JSON_SERIALISER.deserialise(Files.readAllBytes((Path) jsonItem), clazz);
+                    } else {
+                        elDefsTmp = JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz);
+                    }
+                } catch (IOException e) {
+                    throw new SchemaException("Failed to load element definitions from bytes", e);
+                }
+
+                merge(elDefsTmp);
+            }
+
             return this;
         }
 
@@ -280,15 +274,8 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return the build {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions}.
          */
         protected ElementDefinitions<ENTITY_DEF, EDGE_DEF> build() {
-            return elementDefs;
-        }
-
-        /**
-         * Builds the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions} without validating it and returns it.
-         *
-         * @return the build {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions}.
-         */
-        protected ElementDefinitions<ENTITY_DEF, EDGE_DEF> buildModule() {
+            elementDefs.edges = Collections.unmodifiableMap(elementDefs.edges);
+            elementDefs.entities = Collections.unmodifiableMap(elementDefs.entities);
             return elementDefs;
         }
 

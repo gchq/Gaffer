@@ -152,7 +152,10 @@ public class SchemaOptimiser {
                     LOGGER.warn("Java serialisation is not recommended for vertex serialisation - it may cause aggregation to fail. Please implement your own or change your vertex class types.");
                 }
 
-                schema.setVertexSerialiser(serialiser);
+                // TODO fix this
+                new Schema.Builder()
+                        .merge(schema)
+                        .vertexSerialiser(serialiser);
             }
         }
     }

@@ -34,7 +34,7 @@ public class ViewValidatorTest {
     public void shouldValidateAndReturnTrueWhenEmptyFunctions() {
         // Given
         final ViewValidator validator = new ViewValidator();
-        final View view = new View();
+        final View view = new View.Builder().build();
         final Schema schema = new Schema();
 
         // When
@@ -379,7 +379,7 @@ public class ViewValidatorTest {
     public void shouldValidateAndReturnTrueForNullView() {
         // Given
         final ViewValidator validator = new ViewValidator();
-        final View view = new View();
+        final View view = new View.Builder().build();
         final Schema schema = new Schema.Builder()
                 .type("vertex", String.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()

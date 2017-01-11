@@ -99,9 +99,12 @@ public class SchemaOptimiserTest {
         given(serialisationFactory.getSerialiser(Serializable.class, true)).willReturn(javaSerialiser);
         given(javaSerialiser.canHandle(Mockito.any(Class.class))).willReturn(true);
 
-        schema.addEntity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                .vertex(Serializable.class)
-                .build());
+        schema = new Schema.Builder()
+                .merge(schema)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex(Serializable.class)
+                        .build())
+                .build();
 
         // When
         optimiser.optimise(schema, isOrdered);
@@ -121,9 +124,12 @@ public class SchemaOptimiserTest {
         final boolean isOrdered = true;
 
         // Add a new entity with vertex that can't be serialised
-        schema.addEntity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                .vertex(Object.class)
-                .build());
+        schema = new Schema.Builder()
+                .merge(schema)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex(Object.class)
+                        .build())
+                .build();
 
         // When / Then
         try {

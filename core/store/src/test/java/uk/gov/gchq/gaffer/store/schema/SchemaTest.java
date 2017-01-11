@@ -70,7 +70,7 @@ public class SchemaTest {
 
     @Before
     public void setup() throws IOException {
-        schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class SchemaTest {
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
         //Given
         final byte[] json1 = schema.toCompactJson();
-        final Schema schema2 = Schema.fromJson(Schema.class, json1);
+        final Schema schema2 = new Schema.Builder().json(json1).build();
 
         // When
         final byte[] json2 = schema2.toCompactJson();
@@ -104,7 +104,7 @@ public class SchemaTest {
     public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() throws SerialisationException {
         //Given
         final byte[] json1 = schema.toJson(true);
-        final Schema schema2 = Schema.fromJson(json1);
+        final Schema schema2 = new Schema.Builder().json(json1).build();
 
         // When
         final byte[] json2 = schema2.toJson(true);
@@ -324,7 +324,7 @@ public class SchemaTest {
     public void testSchemaConstructedFromInputStream() throws IOException {
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.DATA_SCHEMA);
         assertNotNull(resourceAsStream);
-        final Schema deserialisedSchema = Schema.fromJson(resourceAsStream);
+        final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
         assertNotNull(deserialisedSchema);
 
         final Map<String, SchemaEdgeDefinition> edges = deserialisedSchema.getEdges();
@@ -396,21 +396,24 @@ public class SchemaTest {
                 .build();
 
         // When
-        schema1.merge(schema2);
+        final Schema mergedSchema = new Schema.Builder()
+                .merge(schema1)
+                .merge(schema2)
+                .build();
 
         // Then
-        assertEquals(2, schema1.getEdges().size());
-        assertNotNull(schema1.getEdge(TestGroups.EDGE));
-        assertNotNull(schema1.getEdge(TestGroups.EDGE_2));
+        assertEquals(2, mergedSchema.getEdges().size());
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
 
-        assertEquals(2, schema1.getEntities().size());
-        assertNotNull(schema1.getEntity(TestGroups.ENTITY));
-        assertNotNull(schema1.getEntity(TestGroups.ENTITY_2));
+        assertEquals(2, mergedSchema.getEntities().size());
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(Integer.class, schema1.getType(type1).getClazz());
-        assertEquals(String.class, schema1.getType(type2).getClazz());
-        assertSame(vertexSerialiser, schema1.getVertexSerialiser());
-        assertEquals(TestPropertyNames.VISIBILITY, schema1.getVisibilityProperty());
+        assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
+        assertEquals(String.class, mergedSchema.getType(type2).getClazz());
+        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
     }
 
     @Test
@@ -435,21 +438,24 @@ public class SchemaTest {
                 .build();
 
         // When
-        schema2.merge(schema1);
+        final Schema mergedSchema = new Schema.Builder()
+                .merge(schema2)
+                .merge(schema1)
+                .build();
 
         // Then
-        assertEquals(2, schema2.getEdges().size());
-        assertNotNull(schema2.getEdge(TestGroups.EDGE));
-        assertNotNull(schema2.getEdge(TestGroups.EDGE_2));
+        assertEquals(2, mergedSchema.getEdges().size());
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
 
-        assertEquals(2, schema2.getEntities().size());
-        assertNotNull(schema2.getEntity(TestGroups.ENTITY));
-        assertNotNull(schema2.getEntity(TestGroups.ENTITY_2));
+        assertEquals(2, mergedSchema.getEntities().size());
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(Integer.class, schema2.getType(type1).getClazz());
-        assertEquals(String.class, schema2.getType(type2).getClazz());
-        assertSame(vertexSerialiser, schema2.getVertexSerialiser());
-        assertEquals(TestPropertyNames.VISIBILITY, schema2.getVisibilityProperty());
+        assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
+        assertEquals(String.class, mergedSchema.getType(type2).getClazz());
+        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
     }
 
 
@@ -468,20 +474,23 @@ public class SchemaTest {
                 .build();
 
         // When
-        schema.merge(schema);
+        final Schema mergedSchema = new Schema.Builder()
+                .merge(schema)
+                .merge(schema)
+                .build();
 
         // Then
-        assertEquals(2, schema.getEdges().size());
-        assertNotNull(schema.getEdge(TestGroups.EDGE));
-        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+        assertEquals(2, mergedSchema.getEdges().size());
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
 
-        assertEquals(2, schema.getEntities().size());
-        assertNotNull(schema.getEntity(TestGroups.ENTITY));
-        assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
+        assertEquals(2, mergedSchema.getEntities().size());
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
-        assertSame(vertexSerialiser, schema.getVertexSerialiser());
-        assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
+        assertEquals(String.class, mergedSchema.getType(TestTypes.PROP_STRING).getClazz());
+        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
     }
 
     @Test
@@ -498,7 +507,10 @@ public class SchemaTest {
 
         // When / Then
         try {
-            schema1.merge(schema2);
+            new Schema.Builder()
+                    .merge(schema1)
+                    .merge(schema2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("vertex serialiser"));
@@ -517,7 +529,10 @@ public class SchemaTest {
 
         // When / Then
         try {
-            schema1.merge(schema2);
+            new Schema.Builder()
+                    .merge(schema1)
+                    .merge(schema2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("visibility property"));
@@ -568,7 +583,7 @@ public class SchemaTest {
                 "}");
 
         // When
-        Schema schema = Schema.fromJson(stringSchema.getBytes());
+        Schema schema = new Schema.Builder().json(stringSchema.getBytes()).build();
 
         // Then
         assertEquals(2, schema.getEdges().size());
@@ -630,7 +645,7 @@ public class SchemaTest {
                 "}");
 
         // When
-        Schema schema = Schema.fromJson(stringSchema.getBytes());
+        Schema schema = new Schema.Builder().json(stringSchema.getBytes()).build();
 
         // Then
         assertEquals(2, schema.getEdges().size());
@@ -696,7 +711,7 @@ public class SchemaTest {
 
         // When
         // When
-        Schema schema = Schema.fromJson(stringSchema.getBytes());
+        Schema schema = new Schema.Builder().json(stringSchema.getBytes()).build();
 
         // Then
         assertEquals(2, schema.getEdges().size());
@@ -775,7 +790,7 @@ public class SchemaTest {
 
         // When
         // When
-        Schema schema = Schema.fromJson(stringSchema.getBytes());
+        Schema schema = new Schema.Builder().json(stringSchema.getBytes()).build();
 
         // Then
         assertEquals(2, schema.getEdges().size());
@@ -864,8 +879,7 @@ public class SchemaTest {
                 "}");
 
         // When
-        // When
-        Schema schema = Schema.fromJson(stringSchema.getBytes());
+        Schema schema = new Schema.Builder().json(stringSchema.getBytes()).build();
 
         // Then
         assertEquals(2, schema.getEdges().size());

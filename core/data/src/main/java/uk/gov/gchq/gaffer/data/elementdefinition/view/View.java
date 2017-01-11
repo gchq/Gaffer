@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
@@ -42,20 +43,8 @@ import java.util.LinkedHashSet;
  * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
-    public View() {
+    protected View() {
         super();
-    }
-
-    public static View fromJson(final InputStream inputStream) throws SchemaException {
-        return fromJson(View.class, inputStream);
-    }
-
-    public static View fromJson(final Path filePath) throws SchemaException {
-        return fromJson(View.class, filePath);
-    }
-
-    public static View fromJson(final byte[] jsonBytes) throws SchemaException {
-        return fromJson(View.class, jsonBytes);
     }
 
     public byte[] toCompactJson() throws SchemaException {
@@ -89,7 +78,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
     public View clone() {
-        return fromJson(toJson(false));
+        return new View.Builder().json(toJson(false)).build();
     }
 
     public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
@@ -135,11 +124,32 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return this;
         }
 
+        @JsonIgnore
+        public Builder json(final InputStream... inputStreams) throws SchemaException {
+            return (Builder) json(View.class, inputStreams);
+        }
+
+        @JsonIgnore
+        public Builder json(final Path... filePaths) throws SchemaException {
+            return (Builder) json(View.class, filePaths);
+        }
+
+        @JsonIgnore
+        public Builder json(final byte[]... jsonBytes) throws SchemaException {
+            return (Builder) json(View.class, jsonBytes);
+        }
+
+        @JsonIgnore
+        public Builder merge(final ElementDefinitions<ViewElementDefinition, ViewElementDefinition> view) {
+            return (Builder) super.merge(view);
+        }
+
         @Override
         public View build() {
             return (View) super.build();
         }
 
+        @JsonIgnore
         @Override
         protected View getElementDefs() {
             return (View) super.getElementDefs();

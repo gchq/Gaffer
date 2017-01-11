@@ -52,7 +52,7 @@ public class StoreIT {
     public void shouldCreateStoreAndValidateSchemas() throws IOException, SchemaException, StoreException {
         // Given
         final TestStore testStore = new TestStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
         // When
         testStore.initialise(schema, new StoreProperties());
