@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import uk.gov.gchq.gaffer.function.annotation.Outputs;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * An <code>HyperLogLogPlusAggregator</code> is a {@link SimpleAggregateFunction} that takes in
@@ -86,11 +87,27 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
 
         final HyperLogLogPlusAggregator that = (HyperLogLogPlusAggregator) o;
 
-        return new EqualsBuilder()
+        if (!new EqualsBuilder()
                 .append(inputs, that.inputs)
                 .append(outputs, that.outputs)
-                .append(sketch, that.sketch)
-                .isEquals();
+                .isEquals()) {
+            return false;
+        }
+
+        if (null == sketch) {
+            return null == that.sketch;
+        }
+
+        if (null == that.sketch) {
+            return false;
+        }
+
+        try {
+            return Arrays.equals(sketch.getBytes(), that.sketch.getBytes());
+        } catch (IOException e) {
+            LOGGER.warn("Could not compare HyperLogLogPlus objects using their bytes", e);
+            return false;
+        }
     }
 
     @Override

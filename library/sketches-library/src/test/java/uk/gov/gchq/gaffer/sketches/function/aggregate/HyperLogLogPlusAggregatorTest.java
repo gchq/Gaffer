@@ -23,8 +23,10 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
 import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -149,6 +151,66 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         final HyperLogLogPlusAggregator deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), HyperLogLogPlusAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);
+    }
+
+    @Test
+    public void shouldBeEqualWhenBothAggregatorsHaveSameSketches() throws IOException {
+        // Given
+        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
+        hllp1.offer("A");
+        hllp1.offer("B");
+
+        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(5, 5);
+        hllp2.offer("A");
+        hllp2.offer("B");
+
+        aggregator1._aggregate(hllp1);
+        aggregator2._aggregate(hllp2);
+
+        // Then
+        assertEquals(aggregator1, aggregator2);
+    }
+
+    @Test
+    public void shouldBeEqualWhenBothAggregatorsHaveDifferentSketches() throws IOException {
+        // Given
+        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
+        hllp1.offer("A");
+        hllp1.offer("B");
+
+        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(5, 5);
+        hllp2.offer("A");
+        hllp2.offer("C");
+
+        aggregator1._aggregate(hllp1);
+        aggregator2._aggregate(hllp2);
+
+        // Then
+        assertNotEquals(aggregator1, aggregator2);
+    }
+
+    @Test
+    public void shouldBeEqualWhenBothAggregatorsHaveSketchesWithDifferentPAndSpValues() throws IOException {
+        // Given
+        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
+        hllp1.offer("A");
+        hllp1.offer("B");
+
+        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(6, 6);
+        hllp2.offer("A");
+        hllp2.offer("B");
+
+        aggregator1._aggregate(hllp1);
+        aggregator2._aggregate(hllp2);
+
+        // Then
+        assertNotEquals(aggregator1, aggregator2);
     }
 
     @Override
