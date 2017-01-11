@@ -20,14 +20,15 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import java.io.Serializable;
 
 /**
- * Definition of what is required from a serialisation mechanism used by the Graph Store.
- * <p>
- * As a minimum, any Serialisation mechanism must be able to serialise and deserialise any given Property.
+ * A class that implements this interface is responsible for serialising an
+ * object of class T to a byte array, and for deserialising it back again.
+ *
+ * It must also be able to deal with serialising null values.
  */
 public interface Serialisation<T> extends Serializable {
 
     /**
-     * Enables checking whether the serialiser can serialise a particular class.
+     * Check whether the serialiser can serialise a particular class.
      *
      * @param clazz the object class to serialise
      * @return boolean true if it can be handled
@@ -35,7 +36,7 @@ public interface Serialisation<T> extends Serializable {
     boolean canHandle(final Class clazz);
 
     /**
-     * Request that the Serialisation serialises some object and returns the raw bytes of the serialised form.
+     * Serialise some object and returns the raw bytes of the serialised form.
      *
      * @param object the object to be serialised
      * @return byte[] the serialised bytes
@@ -44,9 +45,9 @@ public interface Serialisation<T> extends Serializable {
     byte[] serialise(final T object) throws SerialisationException;
 
     /**
-     * From a byte array representing the Serialised form of a Property we should reconstruct the Object.
+     * Deserialise an array of bytes into the original object.
      *
-     * @param bytes the serialised bytes to deserialise
+     * @param bytes the bytes to deserialise
      * @return T the deserialised object
      * @throws SerialisationException if the object fails to deserialise
      */
@@ -68,8 +69,15 @@ public interface Serialisation<T> extends Serializable {
     T deserialiseEmptyBytes() throws SerialisationException;
 
     /**
-     * @return true if the serialisation will preserve the order of bytes, otherwise false.
+     * Indicates whether the serialisation process preserves the ordering of the T,
+     * i.e. if x and y are objects of class T, and x is less than y, then this method should
+     * return true if the serialised form of x is guaranteed to be less than the serialised form
+     * of y (using the standard ordering of byte arrays).
+     *
+     * If T is not Comparable then this test makes no sense and false should be returned.
+     *
+     * @return true if the serialisation will preserve the order of the T, otherwise false.
      */
-    boolean isByteOrderPreserved();
+    boolean preservesObjectOrdering();
 
 }

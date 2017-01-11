@@ -1,0 +1,20 @@
+{
+  "types": {
+    "count.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "set": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.SetAggregator"
+      }
+    },
+    "hllp": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.function.aggregate.HyperLogLogPlusAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
+    }
+  }
+}

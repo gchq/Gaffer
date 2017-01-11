@@ -96,7 +96,7 @@ public class GraphTest {
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .build())
                 .buildModule();

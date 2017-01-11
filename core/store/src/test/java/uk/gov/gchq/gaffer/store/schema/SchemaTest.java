@@ -388,7 +388,6 @@ public class SchemaTest {
                 .build();
 
         final Schema schema2 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
                 .type(type2, String.class)
@@ -427,7 +426,6 @@ public class SchemaTest {
                 .build();
 
         final Schema schema2 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
                 .type(type2, String.class)
@@ -451,36 +449,42 @@ public class SchemaTest {
         assertEquals(TestPropertyNames.VISIBILITY, schema2.getVisibilityProperty());
     }
 
-
     @Test
-    public void shouldBeAbleToMergeSchemaWithItselfAndNotDuplicateObjects() {
+    public void shouldThrowExceptionWhenMergeSchemasWithASharedEdgeGroup() {
         // Given
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
-        final Schema schema = new Schema.Builder()
+        final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
-                .vertexSerialiser(vertexSerialiser)
-                .type(TestTypes.PROP_STRING, String.class)
-                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .build();
+        final Schema schema2 = new Schema.Builder()
+                .edge(TestGroups.EDGE)
                 .build();
 
-        // When
-        schema.merge(schema);
+        // When / Then
+        try {
+            schema1.merge(schema2);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+        }
+    }
 
-        // Then
-        assertEquals(2, schema.getEdges().size());
-        assertNotNull(schema.getEdge(TestGroups.EDGE));
-        assertNotNull(schema.getEdge(TestGroups.EDGE_2));
+    @Test
+    public void shouldThrowExceptionWhenMergeSchemasWithASharedEntityGroup() {
+        // Given
+        final Schema schema1 = new Schema.Builder()
+                .entity(TestGroups.ENTITY)
+                .build();
+        final Schema schema2 = new Schema.Builder()
+                .entity(TestGroups.ENTITY)
+                .build();
 
-        assertEquals(2, schema.getEntities().size());
-        assertNotNull(schema.getEntity(TestGroups.ENTITY));
-        assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
-
-        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
-        assertSame(vertexSerialiser, schema.getVertexSerialiser());
-        assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
+        // When / Then
+        try {
+            schema1.merge(schema2);
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+        }
     }
 
     @Test
@@ -559,7 +563,7 @@ public class SchemaTest {
         }
 
         @Override
-        public boolean isByteOrderPreserved() {
+        public boolean preservesObjectOrdering() {
             return true;
         }
     }

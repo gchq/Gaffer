@@ -57,7 +57,7 @@ public class DoubleSerialiser extends AbstractSerialisation<Double> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }
