@@ -119,7 +119,7 @@ public class FreqMapSerialiser extends AbstractSerialisation<FreqMap> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 

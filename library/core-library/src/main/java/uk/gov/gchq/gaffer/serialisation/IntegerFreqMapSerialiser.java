@@ -94,7 +94,7 @@ public class IntegerFreqMapSerialiser extends AbstractSerialisation<IntegerFreqM
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }
