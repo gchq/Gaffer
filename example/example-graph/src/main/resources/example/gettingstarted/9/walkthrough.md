@@ -2,7 +2,7 @@ ${HEADER}
 
 ${CODE_LINK}
 
-This example demonstrates how we can use a HyperLogLogPlus object to estimate the cardinality of vertices in a graph.
+This example demonstrates how storing a HyperLogLogPlus object on each vertex in a graph allows us to quickly estimate its degree (i.e. the number of edges it is involved in). The estimate can be obtained without scanning through all the edges involving a node and so is very quick, even if the degree is very large.
 
 To add properties to vertices we need to add an Entity to our schema. Entities are associated with a vertex and contain a set of properties about that vertex.
 
