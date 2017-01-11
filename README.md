@@ -56,9 +56,9 @@ The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Ins
 
 ### Inclusion in other projects
 
-Gaffer is hosted on Maven Central and can easily be incorporated into your own projects.
+Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
 
-The only required dependency is the accumulo-store dependency:
+To use Gaffer on Accumulo the only required dependency is the accumulo-store dependency:
 
 ```
 <dependency>
