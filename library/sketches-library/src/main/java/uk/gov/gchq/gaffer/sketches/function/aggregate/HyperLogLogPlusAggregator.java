@@ -48,14 +48,14 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
             if (null == sketch) {
                 try {
                     sketch = HyperLogLogPlus.Builder.build(input.getBytes());
-                } catch (IOException e) {
-                    LOGGER.warn("Unable to clone hyper log log plus object", e);
+                } catch (final IOException e) {
+                    LOGGER.warn("Unable to clone a HyperLogLogPlus object", e);
                     sketch = input;
                 }
             } else {
                 try {
                     sketch.addAll(input);
-                } catch (CardinalityMergeException exception) {
+                } catch (final CardinalityMergeException exception) {
                     throw new RuntimeException("An Exception occurred when trying to aggregate the HyperLogLogPlus objects", exception);
                 }
             }
