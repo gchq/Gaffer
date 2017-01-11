@@ -57,7 +57,7 @@ public class LongSerialiser extends AbstractSerialisation<Long> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }
