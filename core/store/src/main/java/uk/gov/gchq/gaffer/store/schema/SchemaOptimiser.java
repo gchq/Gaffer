@@ -94,7 +94,7 @@ public class SchemaOptimiser {
         for (final TypeDefinition typeDef : groupByTypeDefs) {
             if (null == typeDef.getSerialiser()) {
                 typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), isStoreOrdered));
-            } else if (isStoreOrdered && !typeDef.getSerialiser().isByteOrderPreserved()) {
+            } else if (isStoreOrdered && !typeDef.getSerialiser().preservesObjectOrdering()) {
                 LOGGER.warn(typeDef.getSerialiser().getClass().getName() + " serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes.");
             }
 

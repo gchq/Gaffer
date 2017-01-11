@@ -60,7 +60,7 @@ public class DateSerialiser extends AbstractSerialisation<Date> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }
