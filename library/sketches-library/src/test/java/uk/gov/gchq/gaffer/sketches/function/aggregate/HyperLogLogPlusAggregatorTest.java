@@ -35,17 +35,22 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
 
     @Before
     public void setup() {
-        hyperLogLogPlus1 = new HyperLogLogPlus(5, 5);
-        hyperLogLogPlus1.offer("A");
-        hyperLogLogPlus1.offer("B");
-
-        hyperLogLogPlus2 = new HyperLogLogPlus(5, 5);
-        hyperLogLogPlus2.offer("C");
-        hyperLogLogPlus2.offer("D");
+        setupHllp(5, 5);
     }
 
     @Test
-    public void testExecute() {
+    public void shouldAggregateHyperLogLogPlusWithVariousPAndSpValues() {
+        setupHllp(5, 5);
+        shouldAggregateHyperLogLogPlus();
+
+        setupHllp(5, 6);
+        shouldAggregateHyperLogLogPlus();
+
+        setupHllp(6, 6);
+        shouldAggregateHyperLogLogPlus();
+    }
+
+    private void shouldAggregateHyperLogLogPlus() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         hyperLogLogPlusAggregator.init();
         assertNull((hyperLogLogPlusAggregator.state()[0]));
@@ -53,6 +58,9 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         assertEquals(2l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus2);
         assertEquals(4l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
+
+        assertNotSame(hyperLogLogPlus1, hyperLogLogPlusAggregator.state());
+        assertNotSame(hyperLogLogPlus2, hyperLogLogPlusAggregator.state());
     }
 
     @Test
@@ -152,5 +160,15 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     @Override
     protected HyperLogLogPlusAggregator getInstance() {
         return new HyperLogLogPlusAggregator();
+    }
+
+    private void setupHllp(final int p, final int sp) {
+        hyperLogLogPlus1 = new HyperLogLogPlus(p, sp);
+        hyperLogLogPlus1.offer("A");
+        hyperLogLogPlus1.offer("B");
+
+        hyperLogLogPlus2 = new HyperLogLogPlus(p, sp);
+        hyperLogLogPlus2.offer("C");
+        hyperLogLogPlus2.offer("D");
     }
 }
