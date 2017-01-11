@@ -54,7 +54,7 @@ public class StringsUnionSerialiser extends AbstractSerialisation<ItemsUnion<Str
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

@@ -52,7 +52,7 @@ public class UnionSerialiser extends AbstractSerialisation<Union> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

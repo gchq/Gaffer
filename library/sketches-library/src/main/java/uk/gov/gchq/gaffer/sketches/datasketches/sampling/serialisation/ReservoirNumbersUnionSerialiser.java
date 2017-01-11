@@ -50,7 +50,7 @@ public class ReservoirNumbersUnionSerialiser extends AbstractSerialisation<Reser
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }
