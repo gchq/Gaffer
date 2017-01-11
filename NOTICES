@@ -52,14 +52,14 @@ Commons IO (commons-io:commons-io:2.4)
 - Apache License, Version 2.0
 
 
-Json4S (org.json4s:json4s-core_2.10:3.2.4, org.json4s:json4s-ext_2.10:3.2.4,
-org.json4s.jackson:json4s-jackson_2.10:3.2.4, org.json4s:json4s-native_2.10:3.2.4,
-org.json4s:json4s-ast_2.10:3.2.4):
+Json4S (org.json4s:json4s-core_2.10:3.2.11, org.json4s:json4s-ext_2.10:3.2.11,
+org.json4s.jackson:json4s-jackson_2.10:3.2.11, org.json4s:json4s-native_2.10:3.2.11,
+org.json4s:json4s-ast_2.10:3.2.11):
 
 - Apache License, Version 2.0
 
 
-Swagger (io.swagger:swagger-jaxrs:1.5.9):
+Swagger (io.swagger:-jersey2-jaxrs:1.5.9):
 
 - Apache License, Version 2.0
 
@@ -89,10 +89,15 @@ Javax Web Api (javax:javaee-web-api:7.0)
 - Common Development and Distribution License 1.0
 
 
-Jersey Server (org.glassfish.jersey.core:jersey-server:2.22.2)
+Jersey Server (org.glassfish.jersey.core:jersey-server:2.25)
 
 - Common Development and Distribution License 1.0
 - GNU General Public License 2.0
+
+
+Javax Servlet (javax.servlet:java.servlet-api:3.1.0)
+
+- CDDL + GPLv2 with classpath exception
 
 
 Joda Time (joda-time:joda-time:2.9.5)
@@ -143,6 +148,16 @@ FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.3):
 FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 
 - GNU Lesser Public License
+
+
+Nexus Staging (org.sonatype.nexus.maven:nexus-staging:1.6.7):
+
+- Eclipse Public License, Version 1.0
+
+
+Maven war plugin (org.apache.maven.plugins:maven-war-plugin:3.0.0):
+
+- Apache License, Version 2.0
 
 
 ------------------------------------------------------------------------------------------------
