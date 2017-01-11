@@ -19,7 +19,9 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -72,6 +74,24 @@ public class HyperLogLogPlusSerialiserTest {
             return;
         }
         assertEquals(preSerialisationCardinality, hyperLogLogPlusDeserialised.cardinality());
+    }
+
+    @Test
+    public void testSerialiseNullReturnsEmptyBytes() {
+        // Given
+        final byte[] hyperLogLogPlusSerialised = hyperLogLogPlusSerialiser.serialiseNull();
+
+        // Then
+        assertArrayEquals(new byte[0], hyperLogLogPlusSerialised);
+    }
+
+    @Test
+    public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
+        // Given
+        final HyperLogLogPlus hllp = hyperLogLogPlusSerialiser.deserialiseEmptyBytes();
+
+        // Then
+        assertNull(hllp);
     }
 
 
