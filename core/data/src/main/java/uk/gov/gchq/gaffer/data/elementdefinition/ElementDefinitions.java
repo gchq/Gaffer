@@ -21,8 +21,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -144,10 +142,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     public boolean isEdge(final String group) {
         return edges.containsKey(group);
-    }
-
-    public Class<? extends Element> getGroup(final String group) {
-        return isEntity(group) ? Element.class : isEdge(group) ? Edge.class : null;
     }
 
     @JsonIgnore
