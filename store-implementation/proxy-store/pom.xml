@@ -23,7 +23,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.4.8-SNAPSHOT</version>
+        <version>0.5.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>proxy-store</artifactId>
@@ -90,25 +90,25 @@
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <version>2.25</version>
+            <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>2.25</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>rest-api</artifactId>
-            <version>0.4.8-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
             <classifier>classes</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-store</artifactId>
-            <version>0.4.8-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
