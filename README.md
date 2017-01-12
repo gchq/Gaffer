@@ -54,6 +54,22 @@ To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This
 
 The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Instructions for installing Gaffer on Accumulo can be found on the [wiki](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#accumulo-set-up).
 
+### Inclusion in other projects
+
+Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
+
+To use Gaffer on Accumulo the only required dependency is the accumulo-store dependency:
+
+```
+<dependency>
+    <groupId>uk.gov.gchq.gaffer</groupId>
+    <artifactId>accumulo-store</artifactId>
+    <version>${gaffer.version}</version>
+</dependency>
+```
+
+This will include all other mandatory dependencies. Other (optional) components can be added to your project as required.
+
 ### Documentation
 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
