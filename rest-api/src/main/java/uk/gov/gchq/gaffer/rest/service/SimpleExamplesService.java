@@ -72,13 +72,15 @@ public class SimpleExamplesService implements IExamplesService {
 
     @Override
     public OperationChain execute() {
-        final AddElements addElements = addElements();
-        // delete the example elements as these are generated from the generate elements op
-        addElements.setElements(null);
         return new OperationChain.Builder()
-                .first(generateElements())
-                .then(addElements)
+                .first(getAdjacentEntitySeeds())
+                .then(new GetEdges<EntitySeed>())
                 .build();
+    }
+
+    @Override
+    public OperationChain executeChunked() {
+        return execute();
     }
 
     @Override

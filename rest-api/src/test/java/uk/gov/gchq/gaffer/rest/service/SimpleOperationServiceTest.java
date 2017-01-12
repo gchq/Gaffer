@@ -21,8 +21,14 @@ import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -34,8 +40,8 @@ import java.io.IOException;
 import java.net.URI;
 
 public class SimpleOperationServiceTest {
-
     private final static URI BASE_URI = URI.create("http://localhost:8081/test");
+    private final static JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
     private HttpServer server;
 
@@ -46,34 +52,20 @@ public class SimpleOperationServiceTest {
     }
 
     @Test
-    @Ignore
     public void shouldProvideChunkedOutput() throws IOException {
-        final String opChainJson = "{\n" +
-                "  \"operations\": [\n" +
-                "    {\n" +
-                "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\n" +
-                "      \"validate\": true,\n" +
-                "      \"skipInvalidElements\": false,\n" +
-                "      \"elements\": [\n" +
-                "        {\n" +
-                "          \"properties\": {},\n" +
-                "          \"group\": \"entity\",\n" +
-                "          \"vertex\": \"1\",\n" +
-                "          \"class\": \"uk.gov.gchq.gaffer.data.element.Entity\"\n" +
-                "        },\n" +
-                "        {" +
-                "          \"properties\": {},\n" +
-                "          \"group\": \"entity\",\n" +
-                "          \"vertex\": \"2\",\n" +
-                "          \"class\": \"uk.gov.gchq.gaffer.data.element.Entity\"\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+                .first(new AddElements.Builder()
+                        .elements(new uk.gov.gchq.gaffer.data.element.Entity.Builder()
+                                        .group(TestGroups.ENTITY)
+                                        .vertex(1)
+                                        .build(),
+                                new uk.gov.gchq.gaffer.data.element.Entity.Builder()
+                                        .group(TestGroups.ENTITY)
+                                        .vertex(2)
+                                        .build())
+                        .build())
+                .then(new GetAllElements<>())
+                .build();
 
         final Client client = ClientBuilder.newClient();
 
@@ -82,16 +74,17 @@ public class SimpleOperationServiceTest {
         System.out.println("Status: " + status.readEntity(String.class));
 
         final Response response = client.target(BASE_URI)
-                                        .path("/v1/graph/doOperation/chunked")
-                                        .request()
-                                        .post(Entity.entity(opChainJson, MediaType.APPLICATION_JSON_TYPE));
+                .path("/v1/graph/doOperation/chunked")
+                .request()
+                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
 
         System.out.println(response.getStatus());
 
-        final ChunkedInput<String> input = response.readEntity(new GenericType<ChunkedInput<String>>(){});
+        final ChunkedInput<String> input = response.readEntity(new GenericType<ChunkedInput<String>>() {
+        });
 
         String chunk;
-        while((chunk = input.read())!= null) {
+        while ((chunk = input.read()) != null) {
             System.out.println("Element: " + chunk);
         }
     }

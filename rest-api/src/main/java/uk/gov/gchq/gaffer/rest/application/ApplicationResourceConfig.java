@@ -36,14 +36,10 @@ public class ApplicationResourceConfig extends ResourceConfig {
     protected final Set<Class<?>> resources = new HashSet<>();
 
     public ApplicationResourceConfig() {
-//        addSystemResources();
-//        addServices();
+        addSystemResources();
+        addServices();
         setupBeanConfig();
-
-        register(SimpleOperationService.class);
-
-        packages("uk.gov.gchq.gaffer");
-//        registerClasses(resources);
+        registerClasses(resources);
     }
 
     protected void setupBeanConfig() {
@@ -55,7 +51,7 @@ public class ApplicationResourceConfig extends ResourceConfig {
         beanConfig.setBasePath(baseUrl);
         beanConfig.setVersion(System.getProperty(SystemProperty.VERSION, SystemProperty.CORE_VERSION));
         beanConfig.setResourcePackage(System.getProperty(SystemProperty.SERVICES_PACKAGE_PREFIX, SystemProperty.SERVICES_PACKAGE_PREFIX_DEFAULT));
-        beanConfig.setScan(true);
+        beanConfig.setScan(false);
     }
 
     protected void addServices() {

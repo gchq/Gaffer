@@ -27,7 +27,6 @@ import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -147,12 +146,12 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     }
 
     @Override
-    public Set<Class<? extends Operation>> getOperations() {
-        return graphFactory.getGraph().getSupportedOperations();
+    public Set<Class> getOperations() {
+        return (Set) graphFactory.getGraph().getSupportedOperations();
     }
 
     @Override
-    public Boolean isOperationSupported(final Class<? extends Operation> operation) {
+    public Boolean isOperationSupported(final Class operation) {
         return graphFactory.getGraph().isSupported(operation);
     }
 
