@@ -1,0 +1,42 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "count.int": {
+      "class": "java.lang.Integer",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+            "orEqualTo": true,
+            "value": 0
+          }
+        }
+      ]
+    },
+    "set": {
+      "class": "java.util.TreeSet"
+    },
+    "hllp": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -410,7 +410,7 @@ public class VisibilityIT extends AbstractStoreIT {
         }
 
         @Override
-        public boolean isByteOrderPreserved() {
+        public boolean preservesObjectOrdering() {
             return true;
         }
     }
