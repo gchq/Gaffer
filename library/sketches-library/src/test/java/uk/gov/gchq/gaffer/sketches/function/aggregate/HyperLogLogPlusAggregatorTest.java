@@ -175,7 +175,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     }
 
     @Test
-    public void shouldBeEqualWhenBothAggregatorsHaveDifferentSketches() throws IOException {
+    public void shouldBeNotEqualWhenBothAggregatorsHaveDifferentSketches() throws IOException {
         // Given
         final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
         final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
@@ -195,7 +195,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     }
 
     @Test
-    public void shouldBeEqualWhenBothAggregatorsHaveSketchesWithDifferentPAndSpValues() throws IOException {
+    public void shouldBeNotEqualWhenBothAggregatorsHaveSketchesWithDifferentPAndSpValues() throws IOException {
         // Given
         final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
         final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
