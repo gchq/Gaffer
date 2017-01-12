@@ -89,6 +89,13 @@ public abstract class Example {
         log("```\n");
     }
 
+    protected void printScala(final String scala) {
+        log("As Scala:");
+        log("\n```scala");
+        log(scala);
+        log("```\n");
+    }
+
     protected void printJson(final String json) {
         log("As JSON:");
         log("\n```json");

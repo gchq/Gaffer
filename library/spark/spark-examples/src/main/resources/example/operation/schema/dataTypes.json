@@ -1,0 +1,17 @@
+{
+  "types": {
+    "int": {
+      "class": "java.lang.Integer"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+          }
+        }
+      ]
+    }
+  }
+}
