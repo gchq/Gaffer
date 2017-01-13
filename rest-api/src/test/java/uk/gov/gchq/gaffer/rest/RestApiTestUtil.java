@@ -46,7 +46,7 @@ public class RestApiTestUtil {
     private static HttpServer server;
 
     private RestApiTestUtil() {
-        // This class should not be contructed it only has utility methods
+        // This class should not be constructed it only has utility methods
     }
 
     public static void stopServer() {
