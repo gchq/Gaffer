@@ -54,7 +54,7 @@
         <accumulo.version>1.7.2</accumulo.version>
         <avro.version>1.7.7</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
-        <jackson.version>2.6.5</jackson.version>
+        <jackson.version>2.3.1</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>0.8.3</datasketches.version>
