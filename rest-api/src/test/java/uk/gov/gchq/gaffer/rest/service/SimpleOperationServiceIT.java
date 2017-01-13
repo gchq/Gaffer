@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
+import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -38,10 +39,10 @@ public class SimpleOperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnAllElements() throws IOException {
         // Given
-        addElements(DEFAULT_ELEMENTS);
+        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = executeOperation(new GetAllElements<>());
+        final Response response = RestApiTestUtil.executeOperation(new GetAllElements<>());
 
         // Then
         final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
@@ -53,10 +54,10 @@ public class SimpleOperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnGroupCounts() throws IOException {
         // Given
-        addElements(DEFAULT_ELEMENTS);
+        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = executeOperationChainChunked(new OperationChain.Builder()
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new CountGroups())
                 .build());
@@ -71,10 +72,10 @@ public class SimpleOperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnChunkedElements() throws IOException {
         // Given
-        addElements(DEFAULT_ELEMENTS);
+        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -84,10 +85,10 @@ public class SimpleOperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnChunkedGroupCounts() throws IOException {
         // Given
-        addElements(DEFAULT_ELEMENTS);
+        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = executeOperationChainChunked(new OperationChain.Builder()
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
                 .first(new GetAllElements<>())
                 .then(new CountGroups())
                 .build());
@@ -103,7 +104,7 @@ public class SimpleOperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnNoChunkedElementsWhenNoElementsInGraph() throws IOException {
         // When
-        final Response response = executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
 
         // Then
         final List<Element> results = readChunkedElements(response);

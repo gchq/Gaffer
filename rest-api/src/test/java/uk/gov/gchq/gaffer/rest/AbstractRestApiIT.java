@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,25 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import org.apache.commons.io.FileUtils;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.rest.application.ApplicationConfig;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class AbstractRestApiIT {
-    protected final static JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     protected static final Element[] DEFAULT_ELEMENTS = {
             new uk.gov.gchq.gaffer.data.element.Entity.Builder()
                     .group(TestGroups.ENTITY)
@@ -71,11 +53,6 @@ public class AbstractRestApiIT {
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 3)
                     .build()};
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRestApiIT.class);
-    private static final Client client = ClientBuilder.newClient();
-    private static final String REST_URI = "http://localhost:8080/rest/v1";
-    private static HttpServer server;
-
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -83,104 +60,31 @@ public class AbstractRestApiIT {
     private final String schemaResourcePath;
 
     public AbstractRestApiIT() {
-        this(StreamUtil.SCHEMA, StreamUtil.STORE_PROPERTIES, DEFAULT_ELEMENTS);
+        this(StreamUtil.SCHEMA, StreamUtil.STORE_PROPERTIES);
     }
 
-    public AbstractRestApiIT(final String schemaResourcePath, final String storePropertiesResourcePath, final Element... elements) {
+    public AbstractRestApiIT(final String schemaResourcePath, final String storePropertiesResourcePath) {
         this.schemaResourcePath = schemaResourcePath;
         this.storePropertiesResourcePath = storePropertiesResourcePath;
     }
 
+    @BeforeClass
+    public static void beforeClass() throws IOException {
+        RestApiTestUtil.startServer();
+    }
+
     @AfterClass
     public static void afterClass() {
-        stopServer();
+        RestApiTestUtil.stopServer();
     }
 
     @Before
     public void before() throws IOException {
-        reinitialiseGraph();
-    }
-
-    private static void stopServer() {
-        if (null != server) {
-            server.shutdownNow();
-            server = null;
-        }
-    }
-
-    protected void reinitialiseGraph() throws IOException {
-        try (final InputStream stream = StreamUtil.openStream(AbstractRestApiIT.class, schemaResourcePath)) {
-            FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), IOUtils.readFully(stream, stream.available(), true));
-        }
-
-        try (final InputStream stream = StreamUtil.openStream(AbstractRestApiIT.class, storePropertiesResourcePath)) {
-            FileUtils.writeByteArrayToFile(testFolder.newFile("store.properties"), IOUtils.readFully(stream, stream.available(), true));
-        }
-
-        // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-
-        GraphFactory.setGraph(null);
-
-        initialise();
-        checkRestServiceStatus();
-    }
-
-    protected void addElements(final Element... elements) throws IOException {
-        executeOperation(new AddElements.Builder()
-                .elements(elements)
-                .build());
-    }
-
-    protected Response executeOperation(final Operation<?, ?> operation) throws IOException {
-        initialise();
-        return client.target(REST_URI)
-                .path("/graph/doOperation")
-                .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(new OperationChain<>(operation)), MediaType.APPLICATION_JSON_TYPE));
-    }
-
-    protected Response executeOperationChain(final OperationChain opChain) throws IOException {
-        initialise();
-        return client.target(REST_URI)
-                .path("/graph/doOperation")
-                .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
-    }
-
-    protected Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
-        initialise();
-        return client.target(REST_URI)
-                .path("/graph/doOperation/chunked")
-                .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
+        RestApiTestUtil.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
     }
 
     protected void verifyElements(final Element[] expected, final List<Element> actual) {
         assertEquals(expected.length, actual.size());
         assertThat(actual, IsCollectionContaining.hasItems(expected));
     }
-
-    private void initialise() throws IOException {
-        if (null == server) {
-            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(REST_URI), new ApplicationConfig());
-        }
-    }
-
-    private void checkRestServiceStatus() {
-        // Given
-        final Response response = client.target(REST_URI)
-                .path("status")
-                .request()
-                .get();
-
-        // When
-        final String statusMsg = response.readEntity(SystemStatus.class)
-                .getDescription();
-
-        // Then
-        assertEquals("The system is working normally.", statusMsg);
-    }
-
 }
