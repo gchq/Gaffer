@@ -17,10 +17,9 @@
 package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
-
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
  * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide a default
@@ -32,11 +31,15 @@ public class RestJsonProvider implements ContextResolver<ObjectMapper> {
     public final ObjectMapper mapper;
 
     public RestJsonProvider() {
-        this.mapper = createDefaultMapper();
+        this.mapper = createMapper();
     }
 
     @Override
     public ObjectMapper getContext(final Class<?> aClass) {
         return mapper;
+    }
+
+    protected ObjectMapper createMapper() {
+        return JSONSerialiser.createDefaultMapper();
     }
 }

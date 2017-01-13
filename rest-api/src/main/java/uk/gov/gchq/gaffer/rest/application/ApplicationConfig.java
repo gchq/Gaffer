@@ -51,7 +51,7 @@ public class ApplicationConfig extends ResourceConfig {
         beanConfig.setBasePath(baseUrl);
         beanConfig.setVersion(System.getProperty(SystemProperty.VERSION, SystemProperty.CORE_VERSION));
         beanConfig.setResourcePackage(System.getProperty(SystemProperty.SERVICES_PACKAGE_PREFIX, SystemProperty.SERVICES_PACKAGE_PREFIX_DEFAULT));
-        beanConfig.setScan(false);
+        beanConfig.setScan(true);
     }
 
     protected void addServices() {
