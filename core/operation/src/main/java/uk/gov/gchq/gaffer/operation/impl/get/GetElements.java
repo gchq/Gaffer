@@ -16,15 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.CloseableIterableElement;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.AbstractGetOperation} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
@@ -67,12 +64,6 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
 
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         super.setSeedMatching(seedMatching);
-    }
-
-    @JsonIgnore
-    @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
-        return new CloseableIterableElement();
     }
 
     public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,

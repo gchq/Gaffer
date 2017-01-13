@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -45,6 +44,7 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
 
     public CountGroups(final Integer limit) {
         this.limit = limit;
+        setOutputTypeReference(new TypeReferenceImpl.CountGroups());
     }
 
     /**
@@ -74,12 +74,6 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
 
     public void setLimit(final Integer limit) {
         this.limit = limit;
-    }
-
-    @JsonIgnore
-    @Override
-    public TypeReference<GroupCounts> getOutputTypeReference() {
-        return new TypeReferenceImpl.CountGroups();
     }
 
     @JsonIgnore

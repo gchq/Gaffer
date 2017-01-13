@@ -16,38 +16,34 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
+public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends uk.gov.gchq.gaffer.data.element.Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetOperationImpl() {
+        setOutputTypeReference(new TypeReferenceImpl.Element());
     }
 
     public GetOperationImpl(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
+        setOutputTypeReference(new TypeReferenceImpl.Element());
     }
 
     public GetOperationImpl(final View view) {
         super(view);
+        setOutputTypeReference(new TypeReferenceImpl.Element());
     }
 
     public GetOperationImpl(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
+        setOutputTypeReference(new TypeReferenceImpl.Element());
     }
 
     public GetOperationImpl(final GetOperation<SEED_TYPE, ?> operation) {
         super(operation);
-    }
-
-    @JsonIgnore
-    @Override
-    public TypeReference<ELEMENT_TYPE> getOutputTypeReference() {
-        return new TypeReferenceImpl.ElementT<>();
+        setOutputTypeReference(new TypeReferenceImpl.Element());
     }
 }

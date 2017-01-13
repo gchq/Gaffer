@@ -93,6 +93,7 @@ public class JSONSerialiser {
                 .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
     }
 
+
     /**
      * @param clazz the clazz of the object to be serialised/deserialised
      * @return true if the clazz can be serialised/deserialised

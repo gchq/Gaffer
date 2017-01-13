@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.spark.operation.javardd;
 import org.apache.spark.api.java.JavaSparkContext;
 
 public class GetJavaRDDOfAllElements extends AbstractGetJavaRDD<Void> {
+
     public GetJavaRDDOfAllElements() {
     }
 

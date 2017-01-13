@@ -62,9 +62,9 @@ public class OperationChain<OUT> {
     }
 
     @JsonIgnore
-    public TypeReference<OUT> getTypeReference() {
+    public TypeReference<OUT> getOutputTypeReference() {
         if (null == operations || operations.isEmpty()) {
-            return new TypeReferenceImpl.ObjectT<>();
+            return (TypeReference<OUT>) new TypeReferenceImpl.Object();
         }
 
         return operations.get(operations.size() - 1).getOutputTypeReference();

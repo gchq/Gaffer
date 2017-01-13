@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
@@ -27,6 +26,10 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
 
     private SparkContext sparkContext;
 
+    public AbstractGetRDD() {
+        setOutputTypeReference(new TypeReferenceRDDElement());
+    }
+
     public static class TypeReferenceRDDElement extends
             TypeReference<RDD<Element>> {
     }
@@ -37,12 +40,6 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
 
     public void setSparkContext(final SparkContext sparkContext) {
         this.sparkContext = sparkContext;
-    }
-
-    @JsonIgnore
-    @Override
-    public TypeReference<RDD<Element>> getOutputTypeReference() {
-        return new TypeReferenceRDDElement();
     }
 
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>,

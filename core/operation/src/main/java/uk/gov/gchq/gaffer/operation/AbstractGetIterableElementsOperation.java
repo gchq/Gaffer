@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE> implements GetIterableElementsOperation<SEED_TYPE, RESULT_TYPE> {
@@ -33,6 +34,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
 
     protected AbstractGetIterableElementsOperation() {
         super();
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final Iterable<SEED_TYPE> seeds) {
@@ -41,10 +43,12 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
 
     protected AbstractGetIterableElementsOperation(final CloseableIterable<SEED_TYPE> seeds) {
         super(seeds);
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final View view) {
         super(view);
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final View view, final Iterable<SEED_TYPE> seeds) {
@@ -53,6 +57,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
 
     protected AbstractGetIterableElementsOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
@@ -61,6 +66,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         setIncludeEdges(operation.getIncludeEdges());
         setIncludeEntities(operation.isIncludeEntities());
         setSeedMatching(operation.getSeedMatching());
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     /**

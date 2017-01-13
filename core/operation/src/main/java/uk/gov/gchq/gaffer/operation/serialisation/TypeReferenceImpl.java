@@ -19,10 +19,9 @@ package uk.gov.gchq.gaffer.operation.serialisation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 
 public class TypeReferenceImpl {
@@ -38,38 +37,18 @@ public class TypeReferenceImpl {
     public static class Object extends TypeReference<java.lang.Object> {
     }
 
-    public static class ObjectT<T> extends TypeReference<T> {
+    public static class Element extends TypeReference<Element> {
     }
 
-    public static class Element extends TypeReference {
-    }
-
-    public static class ElementT<T extends uk.gov.gchq.gaffer.data.element.Element>
-            extends TypeReference<T> {
+    public static class Boolean extends TypeReference<java.lang.Boolean> {
     }
 
     public static class CloseableIterableObj extends
             TypeReference<CloseableIterable<java.lang.Object>> {
     }
 
-    public static class CloseableIterableGeneric extends
-            TypeReference<CloseableIterable> {
-    }
-
-    public static class CloseableIterableT<T> extends
-            TypeReference<CloseableIterable<T>> {
-    }
-
-    public static class ListElement extends
-            TypeReference<List<uk.gov.gchq.gaffer.data.element.Element>> {
-    }
-
     public static class CloseableIterableElement extends
             TypeReference<CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>> {
-    }
-
-    public static class CloseableIterableElementT<T extends uk.gov.gchq.gaffer.data.element.Element> extends
-            TypeReference<CloseableIterable<T>> {
     }
 
     public static class CloseableIterableEntitySeed extends
@@ -79,7 +58,13 @@ public class TypeReferenceImpl {
     public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.export.Exporter> {
     }
 
-    public static class MapExporter extends TypeReference<Map<java.lang.String, uk.gov.gchq.gaffer.export.Exporter>> {
+    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.export.Exporter>> {
+    }
+
+    public static class Map extends TypeReference<java.util.LinkedHashMap> {
+    }
+
+    public static class Operations extends TypeReference<Set<Class<Operation>>> {
     }
 }
 

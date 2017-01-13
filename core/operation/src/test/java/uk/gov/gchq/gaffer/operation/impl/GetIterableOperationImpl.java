@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
@@ -27,26 +25,26 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class GetIterableOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetIterableOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetIterableOperationImpl() {
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     public GetIterableOperationImpl(final Iterable<SEED_TYPE> seeds) {
         super(seeds);
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     public GetIterableOperationImpl(final View view) {
         super(view);
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     public GetIterableOperationImpl(final View view, final Iterable<SEED_TYPE> seeds) {
         super(view, seeds);
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     public GetIterableOperationImpl(final GetIterableOperation<SEED_TYPE, ?> operation) {
         super(operation);
-    }
-
-    @Override
-    public TypeReference<CloseableIterable<ELEMENT_TYPE>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElementT<>();
+        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 }

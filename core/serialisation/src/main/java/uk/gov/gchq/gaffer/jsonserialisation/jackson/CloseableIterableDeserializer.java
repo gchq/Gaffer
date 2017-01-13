@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.jsonserialisation.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -43,18 +42,18 @@ public class CloseableIterableDeserializer extends JsonDeserializer<CloseableIte
 
     @Override
     public CloseableIterable<?> deserialize(final JsonParser jp,
-            final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                                            final DeserializationContext ctxt) throws IOException {
         final JavaType typeReference = ctxt.getTypeFactory()
-                                           .constructCollectionType(List.class, valueType);
+                .constructCollectionType(List.class, valueType);
 
         return new WrappedCloseableIterable<>(ctxt.<Iterable<?>>readValue(jp, typeReference));
     }
 
     @Override
     public JsonDeserializer<?> createContextual(final DeserializationContext deserializationContext,
-            final BeanProperty property) throws JsonMappingException {
+                                                final BeanProperty property) throws JsonMappingException {
         final JavaType valueType = deserializationContext.getContextualType()
-                                                         .containedType(0);
+                .containedType(0);
 
         final CloseableIterableDeserializer deserializer = new CloseableIterableDeserializer();
         deserializer.valueType = valueType;

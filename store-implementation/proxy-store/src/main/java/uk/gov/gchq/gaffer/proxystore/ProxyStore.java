@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -51,29 +52,50 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    private final Client client = ClientBuilder.newClient();
+    private Client client;
     private Set<StoreTrait> traits;
     private Schema schema;
+    private Set<Class<? extends Operation>> supportedOperations;
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
 
-        client.property(ClientProperties.CONNECT_TIMEOUT, 10000);
-        client.property(ClientProperties.READ_TIMEOUT, 10000);
-
+        client = createClient(proxyProps);
         fetchSchema(proxyProps);
         fetchTraits(proxyProps);
+        fetchOperations(proxyProps);
 
         super.initialise(schema, proxyProps);
+
+        final URL url = proxyProps.getGafferUrl("status");
+        final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map());
+        LOGGER.info("Delegate REST API status: " + status.get("description"));
+    }
+
+    private void fetchOperations(final ProxyProperties proxyProps) throws StoreException {
+        final URL url = proxyProps.getGafferUrl("graph/operations");
+        supportedOperations = (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations()));
+    }
+
+    @Override
+    public Set<Class<? extends Operation>> getSupportedOperations() {
+        return supportedOperations;
+    }
+
+    @Override
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        return supportedOperations.contains(operationClass);
     }
 
     protected void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
@@ -81,6 +103,9 @@ public class ProxyStore extends Store {
         traits = doGet(url, new TypeReferenceStoreTraits());
         if (null == traits) {
             traits = new HashSet<>(0);
+        } else {
+            // This proxy store cannot handle visibility due to the simple rest api using a default user.
+            traits.remove(StoreTrait.VISIBILITY);
         }
     }
 
@@ -109,15 +134,30 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/doOperation");
         try {
-            return doPost(url, opChainJson, operationChain.getTypeReference(), context);
+            return doPost(url, opChainJson, operationChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
     }
 
+    protected <OUTPUT> OUTPUT doPost(final URL url, final Object body,
+                                     final TypeReference<OUTPUT> outputType) throws StoreException {
+        return doPost(url, body, outputType, null);
+    }
+
+    protected <OUTPUT> OUTPUT doPost(final URL url, final Object body,
+                                     final TypeReference<OUTPUT> outputType,
+                                     final Context context) throws StoreException {
+        try {
+            return doPost(url, new String(JSON_SERIALISER.serialise(body), CommonConstants.UTF_8), outputType, context);
+        } catch (SerialisationException | UnsupportedEncodingException e) {
+            throw new StoreException("Unable to serialise body of request into json.");
+        }
+    }
+
     protected <OUTPUT> OUTPUT doPost(final URL url, final String jsonBody,
-            final TypeReference<OUTPUT> clazz,
-            final Context context) throws StoreException {
+                                     final TypeReference<OUTPUT> clazz,
+                                     final Context context) throws StoreException {
 
 
         final Builder request = createRequest(jsonBody, url, context);
@@ -133,7 +173,7 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT doGet(final URL url,
-            final TypeReference<OUTPUT> outputTypeReference)
+                                    final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
         final Invocation.Builder request = createRequest(null, url, null);
         final Response response;
@@ -148,7 +188,7 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT handleResponse(final Response response,
-            final TypeReference<OUTPUT> outputTypeReference)
+                                             final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
         String outputJson = null;
         switch (response.getStatus()) {
@@ -160,8 +200,7 @@ public class ProxyStore extends Store {
             default:
                 LOGGER.warn("Gaffer bad status " + response.getStatus());
                 LOGGER.warn("Detail: " + response.readEntity(String.class));
-                throw new StoreException("Gaffer bad status " +
-                        response.getStatus());
+                throw new StoreException("Gaffer bad status " + response.getStatus());
         }
 
         OUTPUT output = null;
@@ -178,7 +217,7 @@ public class ProxyStore extends Store {
 
     protected Builder createRequest(final String body, final URL url, final Context context) {
         final Invocation.Builder request = client.target(url.toString())
-                                                 .request();
+                .request();
         if (null != body) {
             request.header("Content", MediaType.APPLICATION_JSON_TYPE);
             request.build(body);
@@ -187,21 +226,7 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT deserialise(final String jsonString,
-            final Class<OUTPUT> clazz)
-            throws SerialisationException {
-        final byte[] jsonBytes;
-        try {
-            jsonBytes = jsonString.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(
-                    "Unable to deserialise JSON: " + jsonString, e);
-        }
-
-        return JSON_SERIALISER.deserialise(jsonBytes, clazz);
-    }
-
-    protected <OUTPUT> OUTPUT deserialise(final String jsonString,
-            final TypeReference<OUTPUT> outputTypeReference)
+                                          final TypeReference<OUTPUT> outputTypeReference)
             throws SerialisationException {
         final byte[] jsonBytes;
         try {
@@ -263,6 +288,13 @@ public class ProxyStore extends Store {
     @Override
     protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
         throw new UnsupportedOperationException("All operations should be executed via the provided Gaffer URL");
+    }
+
+    protected Client createClient(final ProxyProperties proxyProps) {
+        final Client client = ClientBuilder.newClient();
+        client.property(ClientProperties.CONNECT_TIMEOUT, proxyProps.getConnectTimeout());
+        client.property(ClientProperties.READ_TIMEOUT, proxyProps.getReadTimeout());
+        return client;
     }
 
     public static class TypeReferenceSchema extends TypeReference<Schema> {

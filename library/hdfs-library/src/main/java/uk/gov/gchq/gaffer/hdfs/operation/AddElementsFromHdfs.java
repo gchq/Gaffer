@@ -15,9 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.VoidOutput;
@@ -47,6 +45,10 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
      */
     private String mapperGeneratorClassName;
 
+    public AddElementsFromHdfs() {
+        setOutputTypeReference(new TypeReferenceImpl.Void());
+    }
+
     public String getFailurePath() {
         return failurePath;
     }
@@ -74,12 +76,6 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
 
     public void setMapperGeneratorClassName(final Class<? extends MapperGenerator> mapperGeneratorClass) {
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
-    }
-
-    @JsonIgnore
-    @Override
-    public TypeReference<Void> getOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

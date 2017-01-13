@@ -29,8 +29,14 @@ public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_HOST = "gaffer.host";
     public static final String GAFFER_PORT = "gaffer.port";
     public static final String GAFFER_CONTEXT_ROOT = "gaffer.context-root";
+    public static final String CONNECT_TIMEOUT = "gaffer.connect_timeout";
+    public static final String READ_TIMEOUT = "gaffer.read_timeout";
 
+    public static final String DEFAULT_GAFFER_HOST = "localhost";
+    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v1";
     public static final int DEFAULT_GAFFER_PORT = 8080;
+    public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
+    public static final int DEFAULT_READ_TIMEOUT = 10000;
 
     public ProxyProperties() {
     }
@@ -47,8 +53,34 @@ public class ProxyProperties extends StoreProperties {
         super(storeClass);
     }
 
+    public int getConnectTimeout() {
+        final String timeout = get(CONNECT_TIMEOUT, null);
+        try {
+            return null == timeout ? DEFAULT_CONNECT_TIMEOUT : Integer.parseInt(timeout);
+        } catch (final NumberFormatException e) {
+            throw new IllegalArgumentException("Unable to convert gaffer timeout into an integer", e);
+        }
+    }
+
+    public void setConnectTimeout(final int timeout) {
+        set(CONNECT_TIMEOUT, String.valueOf(timeout));
+    }
+
+    public int getReadTimeout() {
+        final String timeout = get(READ_TIMEOUT, null);
+        try {
+            return null == timeout ? DEFAULT_READ_TIMEOUT : Integer.parseInt(timeout);
+        } catch (final NumberFormatException e) {
+            throw new IllegalArgumentException("Unable to convert gaffer timeout into an integer", e);
+        }
+    }
+
+    public void setReadTimeout(final int timeout) {
+        set(READ_TIMEOUT, String.valueOf(timeout));
+    }
+
     public String getGafferHost() {
-        return get(GAFFER_HOST);
+        return get(GAFFER_HOST, DEFAULT_GAFFER_HOST);
     }
 
     public void setGafferHost(final String gafferHost) {
@@ -69,7 +101,7 @@ public class ProxyProperties extends StoreProperties {
     }
 
     public String getGafferContextRoot() {
-        return get(GAFFER_CONTEXT_ROOT);
+        return get(GAFFER_CONTEXT_ROOT, DEFAULT_GAFFER_CONTEXT_ROOT);
     }
 
     public void setGafferContextRoot(final String gafferContextRoot) {
