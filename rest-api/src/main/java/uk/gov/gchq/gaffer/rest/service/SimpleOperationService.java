@@ -88,35 +88,17 @@ public class SimpleOperationService implements IOperationService {
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
-
         // Create chunked output instance
-        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
-
-        // Execute the operation chain and convert to a list
-        final Object result = execute(opChain);
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
         // write chunks to the chunked output object
         new Thread() {
             public void run() {
-                if (result instanceof Iterable) {
-                    final Iterable itr = (Iterable) result;
-                    try {
-                        for (final Object item : itr) {
-                            output.write(mapper.writeValueAsString(item));
-                        }
-                    } catch (final IOException ioe) {
-                        LOGGER.warn("IOException (chunks)", ioe);
-                    } finally {
-                        if (itr instanceof Closeable) {
-                            IOUtils.closeQuietly(((Closeable) itr));
-                        }
-                    }
-                } else {
-                    try {
-                        output.write(mapper.writeValueAsString(result));
-                    } catch (IOException ioe) {
-                        LOGGER.warn("IOException (chunks)", ioe);
-                    }
+                try {
+                    final Object result = execute(opChain);
+                    chunkResult(result, output);
+                } finally {
+                    IOUtils.closeQuietly(output);
                 }
             }
         }.start();
@@ -260,6 +242,29 @@ public class SimpleOperationService implements IOperationService {
                 throw new RuntimeException("Error executing opChain", e);
             } finally {
                 postOperationHook(opChain, user);
+            }
+        }
+    }
+
+    protected void chunkResult(final Object result, final ChunkedOutput<String> output) {
+        if (result instanceof Iterable) {
+            final Iterable itr = (Iterable) result;
+            try {
+                for (final Object item : itr) {
+                    output.write(mapper.writeValueAsString(item));
+                }
+            } catch (final IOException ioe) {
+                LOGGER.warn("IOException (chunks)", ioe);
+            } finally {
+                if (itr instanceof Closeable) {
+                    IOUtils.closeQuietly(((Closeable) itr));
+                }
+            }
+        } else {
+            try {
+                output.write(mapper.writeValueAsString(result));
+            } catch (IOException ioe) {
+                LOGGER.warn("IOException (chunks)", ioe);
             }
         }
     }
