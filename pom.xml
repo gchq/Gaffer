@@ -15,7 +15,9 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -86,6 +88,7 @@
         <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
+        <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
         <jar.plugin.version>2.4</jar.plugin.version>
@@ -96,7 +99,6 @@
         <shade.plugin.version>2.4.1</shade.plugin.version>
         <source.plugin.version>2.4</source.plugin.version>
         <surefire.plugin.version>2.19.1</surefire.plugin.version>
-        <war.plugin.version>2.6</war.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>

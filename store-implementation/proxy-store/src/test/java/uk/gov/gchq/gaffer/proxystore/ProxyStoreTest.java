@@ -18,13 +18,14 @@ package uk.gov.gchq.gaffer.proxystore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Iterables;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -35,69 +36,46 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.SystemStatus;
-import uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig;
-import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 import uk.gov.gchq.gaffer.user.User;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
-import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class ProxyStoreTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStoreTest.class);
+    private Graph graph;
 
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(ProxyStoreTest.class));
-    private static final Client client = ClientBuilder.newClient();
-    private static final String REST_URI = "http://localhost:8080/rest/v1";
-    private static ProxyStore store;
-    private static ProxyProperties props;
-    private static HttpServer server;
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
 
     @BeforeClass
-    public static void beforeClass() throws IOException, InterruptedException, StoreException {
-        // start REST
-        server = GrizzlyHttpServerFactory.createHttpServer(URI.create(REST_URI), new ApplicationResourceConfig());
+    public static void beforeClass() throws Exception {
+        RestApiTestUtil.startServer();
+    }
 
-        // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/schema");
-
-        // setup ProxyStore
-        store = new ProxyStore();
-        props = new ProxyProperties(Paths.get("/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/proxy-store.properties"));
-        store.initialise(null, props);
+    @AfterClass
+    public static void afterClass() {
+        RestApiTestUtil.stopServer();
     }
 
     @Before
-    public void before() {
-        checkRestServiceStatus();
+    public void before() throws IOException {
+        RestApiTestUtil.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "accumulo-store.properties");
+
+        // setup ProxyStore
+        graph = new Graph.Builder()
+                .storeProperties(StreamUtil.openStream(ProxyStoreTest.class, "proxy-store.properties"))
+                .build();
     }
 
     @Test
@@ -115,7 +93,7 @@ public class ProxyStoreTest {
         final AddElements add = new AddElements.Builder()
                 .elements(elements)
                 .build();
-        store.execute(add, user);
+        graph.execute(add, user);
 
         final EntitySeed entitySeed1 = new EntitySeed("1");
 
@@ -125,7 +103,7 @@ public class ProxyStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final CloseableIterable<Element> results = store.execute(getBySeed, user);
+        final CloseableIterable<Element> results = graph.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, hasItem(e));
@@ -136,7 +114,7 @@ public class ProxyStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
+        CloseableIterable<Element> relatedResults = graph.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, hasItem(e));
 
@@ -155,42 +133,12 @@ public class ProxyStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
+        relatedResults = graph.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));
     }
 
     @Test
     public void testStoreTraits() {
-        final Collection<StoreTrait> traits = store.getTraits();
-        assertNotNull(traits);
-        assertTrue("Collection size should be 8", traits.size() == 8);
-        assertTrue("Collection should contain AGGREGATION trait", traits.contains(AGGREGATION));
-        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits
-                .contains(PRE_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits
-                .contains(POST_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
-        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits
-                .contains(POST_TRANSFORMATION_FILTERING));
-        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
-        assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
-        assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
+        assertEquals(AccumuloStore.TRAITS, graph.getStoreTraits());
     }
-
-    private void checkRestServiceStatus() {
-        // Given
-        final Response response = client.target(REST_URI)
-                                        .path("status")
-                                        .request()
-                                        .get();
-
-        // When
-        final String statusMsg = response.readEntity(SystemStatus.class)
-                                         .getDescription();
-
-        // Then
-        assertNotNull(statusMsg);
-        assertEquals("The system is working normally.", statusMsg);
-    }
-
 }

@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.rest.service;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.GET;
@@ -66,7 +65,7 @@ public interface IGraphConfigurationService {
     @GET
     @Path("/operations")
     @ApiOperation(value = "Gets all operations supported by the store. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
-    Set<Class<? extends Operation>> getOperations();
+    Set<Class> getOperations();
 
     @GET
     @Path("/storeTraits")
@@ -77,7 +76,7 @@ public interface IGraphConfigurationService {
     @Path("/isOperationSupported")
     @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",
             response = Boolean.class)
-    Boolean isOperationSupported(final Class<? extends Operation> operation);
+    Boolean isOperationSupported(final Class operation);
 
     @GET
     @Path("/serialisedFields/{className}")

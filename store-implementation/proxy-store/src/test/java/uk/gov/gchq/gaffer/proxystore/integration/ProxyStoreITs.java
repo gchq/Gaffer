@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.proxystore.ProxyStoreTest;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig;
+import uk.gov.gchq.gaffer.rest.application.ApplicationConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -50,7 +50,7 @@ public class ProxyStoreITs extends AbstractStoreITs {
     @BeforeClass
     public static void beforeClass() throws IOException, InterruptedException, StoreException {
         // start REST
-        server = GrizzlyHttpServerFactory.createHttpServer(URI.create(REST_URI), new ApplicationResourceConfig());
+        server = GrizzlyHttpServerFactory.createHttpServer(URI.create(REST_URI), new ApplicationConfig());
 
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "/home/user/projects/gaffer/store-implementation/proxy-store/src/test/resources/store.properties");

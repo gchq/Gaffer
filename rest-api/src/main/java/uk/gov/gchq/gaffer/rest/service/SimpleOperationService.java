@@ -17,13 +17,12 @@
 package uk.gov.gchq.gaffer.rest.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Iterators;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -51,10 +50,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
 
-import static java.util.Arrays.asList;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
@@ -72,6 +70,7 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
 public class SimpleOperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOperationService.class);
     private final GraphFactory graphFactory;
+    public final ObjectMapper mapper = createDefaultMapper();
 
     public SimpleOperationService() {
         this(GraphFactory.createGraphFactory());
@@ -88,29 +87,18 @@ public class SimpleOperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain) {
-
+    public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
         // Create chunked output instance
-        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class);
-
-        // Execute the operation chain and convert to a list
-        final CloseableIterator<Element> objects = execute(opChain, false).iterator();
-
-        final List<Element> elements = asList(Iterators.toArray(objects, Element.class));
-
-        final ObjectMapper mapper = createDefaultMapper();
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
         // write chunks to the chunked output object
         new Thread() {
             public void run() {
                 try {
-                    for (final Element element : elements) {
-                        output.write(mapper.writeValueAsString(element));
-                    }
-                } catch (final IOException ioe) {
-                    LOGGER.warn("IOException (chunks)", ioe);
+                    final Object result = execute(opChain);
+                    chunkResult(result, output);
                 } finally {
-                    objects.close();
+                    IOUtils.closeQuietly(output);
                 }
             }
         }.start();
@@ -254,6 +242,29 @@ public class SimpleOperationService implements IOperationService {
                 throw new RuntimeException("Error executing opChain", e);
             } finally {
                 postOperationHook(opChain, user);
+            }
+        }
+    }
+
+    protected void chunkResult(final Object result, final ChunkedOutput<String> output) {
+        if (result instanceof Iterable) {
+            final Iterable itr = (Iterable) result;
+            try {
+                for (final Object item : itr) {
+                    output.write(mapper.writeValueAsString(item));
+                }
+            } catch (final IOException ioe) {
+                LOGGER.warn("IOException (chunks)", ioe);
+            } finally {
+                if (itr instanceof Closeable) {
+                    IOUtils.closeQuietly(((Closeable) itr));
+                }
+            }
+        } else {
+            try {
+                output.write(mapper.writeValueAsString(result));
+            } catch (IOException ioe) {
+                LOGGER.warn("IOException (chunks)", ioe);
             }
         }
     }

@@ -106,8 +106,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class AccumuloStore extends Store {
+    public static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY));
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
