@@ -86,11 +86,24 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
 
         final HyperLogLogPlusAggregator that = (HyperLogLogPlusAggregator) o;
 
-        return new EqualsBuilder()
-                .append(inputs, that.inputs)
-                .append(outputs, that.outputs)
-                .append(sketch, that.sketch)
-                .isEquals();
+        if (null == sketch) {
+            return null == that.sketch;
+        }
+
+        if (null == that.sketch) {
+            return false;
+        }
+
+        try {
+            return new EqualsBuilder()
+                    .append(inputs, that.inputs)
+                    .append(outputs, that.outputs)
+                    .append(sketch.getBytes(), that.sketch.getBytes())
+                    .isEquals();
+        } catch (IOException e) {
+            LOGGER.warn("Could not compare HyperLogLogPlus objects using their bytes", e);
+            return false;
+        }
     }
 
     @Override
