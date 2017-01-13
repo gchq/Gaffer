@@ -195,6 +195,36 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
     }
 
     @Test
+    public void shouldBeNotEqualWhenFirstAggregatorsHasNullHllp() throws IOException {
+        // Given
+        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(5, 5);
+        hllp2.offer("A");
+        hllp2.offer("C");
+
+        aggregator2._aggregate(hllp2);
+
+        // Then
+        assertNotEquals(aggregator1, aggregator2);
+    }
+
+    @Test
+    public void shouldBeNotEqualWhenSecondAggregatorsHasNullHllp() throws IOException {
+        // Given
+        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
+        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
+        hllp1.offer("A");
+        hllp1.offer("B");
+
+        aggregator1._aggregate(hllp1);
+
+        // Then
+        assertNotEquals(aggregator1, aggregator2);
+    }
+
+    @Test
     public void shouldBeNotEqualWhenBothAggregatorsHaveSketchesWithDifferentPAndSpValues() throws IOException {
         // Given
         final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
