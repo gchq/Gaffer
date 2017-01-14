@@ -16,11 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
@@ -63,6 +66,13 @@ public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation
     public SeedMatchingType getSeedMatching() {
         return SeedMatchingType.RELATED;
     }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<CloseableIterable<EntitySeed>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableEntitySeed();
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
             extends AbstractGetIterableElementsOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
         public BaseBuilder() {

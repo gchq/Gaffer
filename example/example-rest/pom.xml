@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 Crown Copyright
+  ~ Copyright 2016-2017 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,10 +24,17 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>example-rest</artifactId>
     <properties>
-        <jetty.version>9.2.11.v20150529</jetty.version>
+        <jetty.version>9.4.0.v20161208</jetty.version>
     </properties>
     <packaging>war</packaging>
     <dependencies>
+        <!-- Trick to prevent Maven from including this dependency in the WAR -->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.9</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>example-graph</artifactId>
@@ -73,46 +80,43 @@
 
         </plugins>
     </build>
-    <!-- Use this profile to create an war with embedded jetty-->
+    <!-- Use this profile to create an war with embedded tomcat-->
     <profiles>
         <profile>
             <id>standalone</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-maven-plugin</artifactId>
-                        <version>${jetty.version}</version>
+                        <groupId>org.apache.tomcat.maven</groupId>
+                        <artifactId>tomcat7-maven-plugin</artifactId>
+                        <version>2.2</version>
                         <configuration>
-                            <httpConnector>
-                                <host>localhost</host>
-                                <port>8080</port>
-                            </httpConnector>
-                            <webApp>
-                                <contextPath>/rest</contextPath>
-                            </webApp>
-                            <war>
-                                ${project.build.directory}/${project.artifactId}-${project.version}.war
-                            </war>
+                            <path>/</path>
+                            <port>8080</port>
+                            <webapps>
+                                <webapp>
+                                    <contextPath>/rest</contextPath>
+                                    <groupId>uk.gov.gchq.gaffer</groupId>
+                                    <artifactId>example-rest</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>war</type>
+                                    <asWebapp>true</asWebapp>
+                                </webapp>
+                            </webapps>
                             <systemProperties>
-                                <systemProperty>
-                                    <name>gaffer.rest-api.basePath</name>
-                                    <value>rest/v1</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>gaffer.schemas</name>
-                                    <value>
-                                        ${project.build.outputDirectory}/example-schema.json
-                                    </value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>gaffer.storeProperties</name>
-                                    <value>
-                                        ${project.build.outputDirectory}/mockaccumulostore.properties
-                                    </value>
-                                </systemProperty>
+                                <gaffer.rest-api.basePath>rest/v1</gaffer.rest-api.basePath>
+                                <gaffer.schemas>${project.build.outputDirectory}/example-schema.json</gaffer.schemas>
+                                <gaffer.storeProperties>${project.build.outputDirectory}/mockaccumulostore.properties</gaffer.storeProperties>
                             </systemProperties>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>uk.gov.gchq.gaffer</groupId>
+                                <artifactId>example-rest</artifactId>
+                                <version>${project.parent.version}</version>
+                                <type>war</type>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <!-- this will fire up jetty as soon as you reach the integration-test phase in the test profile -->

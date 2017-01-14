@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
 /**
@@ -92,6 +94,12 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
      */
     public CloseableIterable<ELEMENT_TYPE> getElements() {
         return getInput();
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<CloseableIterable<OBJ>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableT<>();
     }
 
     @JsonIgnore

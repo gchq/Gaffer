@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +59,15 @@ public class OperationChain<OUT> {
 
     public OperationChain(final List<Operation> operations) {
         this.operations = operations;
+    }
+
+    @JsonIgnore
+    public TypeReference<OUT> getTypeReference() {
+        if (null == operations || operations.isEmpty()) {
+            return new TypeReferenceImpl.ObjectT<>();
+        }
+
+        return operations.get(operations.size() - 1).getOutputTypeReference();
     }
 
     public List<Operation> getOperations() {
@@ -97,6 +109,20 @@ public class OperationChain<OUT> {
         strBuilder.append("]");
         return strBuilder.toString();
     }
+
+//    public Class<?> getOutputType() {
+//        if (null == operations || operations.isEmpty()) {
+//            return Object.class;
+//        }
+//
+////        System.out.println(operations.get(operations.size() - 1)
+////                                     .getInput()
+////                                     .getClass());
+//
+//        return operations.get(operations.size() - 1)
+//                         .getInput()
+//                         .getClass();
+//    }
 
     /**
      * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.

@@ -15,11 +15,14 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 
 /**
@@ -100,6 +103,12 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
     @Override
     public void setPartitioner(final Class<? extends Partitioner> partitioner) {
         throw new IllegalArgumentException(getClass().getSimpleName() + " is not able to set its own partitioner");
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<String> getOutputTypeReference() {
+        return new TypeReferenceImpl.String();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

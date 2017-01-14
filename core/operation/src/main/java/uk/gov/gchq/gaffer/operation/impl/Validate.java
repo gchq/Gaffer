@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.ListElement;
 import java.util.List;
 
 /**
@@ -113,6 +115,12 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
         setInput(new WrappedCloseableIterable<>(elements));
     }
 
+    @JsonIgnore
+    @Override
+    public TypeReference<List<Element>> getOutputTypeReference() {
+        return new ListElement();
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
             extends AbstractOperation.BaseBuilder<Validate, CloseableIterable<Element>, CloseableIterable<Element>, CHILD_CLASS> {
 
@@ -129,6 +137,7 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
             op.setElements(elements);
             return self();
         }
+
         /**
          * @param elements the input {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be set on the operation.
          * @return this Builder

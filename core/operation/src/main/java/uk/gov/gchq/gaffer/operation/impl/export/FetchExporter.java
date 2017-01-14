@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.export.Exporter;
 import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * A <code>FetchExporter</code> fetches the {@link Exporter} containing the export
@@ -33,6 +36,12 @@ public class FetchExporter extends ExportOperation<Void, Exporter> implements Vo
 
     public FetchExporter(final String key) {
         super(key);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<Exporter> getOutputTypeReference() {
+        return new TypeReferenceImpl.Exporter();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

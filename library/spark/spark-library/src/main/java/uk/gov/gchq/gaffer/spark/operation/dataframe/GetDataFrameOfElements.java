@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
@@ -40,7 +42,11 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
     private SQLContext sqlContext;
     private List<Converter> converters;
 
-    public GetDataFrameOfElements() { }
+    public static class TypeReferenceDataSetRow extends TypeReference<Dataset<Row>> {
+    }
+
+    public GetDataFrameOfElements() {
+    }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
                                   final List<Converter> converters) {
@@ -64,7 +70,13 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
         return converters;
     }
 
-    public abstract static class BaseBuilder <CHILD_CLASS extends BaseBuilder<?>>
+    @JsonIgnore
+    @Override
+    public TypeReference<Dataset<Row>> getOutputTypeReference() {
+        return new TypeReferenceDataSetRow();
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
             extends AbstractGetOperation.BaseBuilder<GetDataFrameOfElements, Void, Dataset<Row>, CHILD_CLASS> {
 
         public BaseBuilder() {

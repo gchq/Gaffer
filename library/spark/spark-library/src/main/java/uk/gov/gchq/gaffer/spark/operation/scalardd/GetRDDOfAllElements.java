@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 import org.apache.spark.SparkContext;
 
 public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
-
     public GetRDDOfAllElements() {
     }
 

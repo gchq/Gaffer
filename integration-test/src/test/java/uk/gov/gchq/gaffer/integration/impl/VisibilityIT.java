@@ -290,6 +290,7 @@ public class VisibilityIT extends AbstractStoreIT {
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
+        System.out.println("execute");
         graph.execute(addElements, new User());
 
         final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()

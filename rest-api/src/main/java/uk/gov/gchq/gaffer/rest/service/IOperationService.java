@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.glassfish.jersey.server.ChunkedOutput;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -53,7 +54,7 @@ import javax.ws.rs.core.MediaType;
  * {@link uk.gov.gchq.gaffer.graph.Graph}.
  */
 @Path("/graph/doOperation")
-@Api(value = "/graph/doOperation", description = "Allows operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
+@Api(value = "operations", description = "Allows operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface IOperationService {
@@ -61,6 +62,11 @@ public interface IOperationService {
     @POST
     @ApiOperation(value = "Performs the given operation chain on the graph", response = Object.class)
     Object execute(final OperationChain opChain);
+
+    @POST
+    @Path("/chunked")
+    @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output", response = Element.class)
+    ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain);
 
     @POST
     @Path("/generate/objects")

@@ -16,11 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class GetElementsOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetElementsOperationImpl() {
@@ -40,5 +43,11 @@ public class GetElementsOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYP
 
     public GetElementsOperationImpl(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<ELEMENT_TYPE> getOutputTypeReference() {
+        return new TypeReferenceImpl.ElementT<>();
     }
 }

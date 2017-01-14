@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
 
 public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
-
     public GetRDDOfElements() {
     }
 

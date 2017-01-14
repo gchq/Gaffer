@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class OperationImpl<INPUT, OUTPUT> extends AbstractOperation<INPUT, OUTPUT> {
     public OperationImpl() {
@@ -38,5 +41,11 @@ public class OperationImpl<INPUT, OUTPUT> extends AbstractOperation<INPUT, OUTPU
 
     public OperationImpl(final Operation<INPUT, ?> operation) {
         super(operation);
+    }
+
+    @JsonIgnore
+    @Override
+    public TypeReference<OUTPUT> getOutputTypeReference() {
+        return new TypeReferenceImpl.ObjectT<>();
     }
 }
