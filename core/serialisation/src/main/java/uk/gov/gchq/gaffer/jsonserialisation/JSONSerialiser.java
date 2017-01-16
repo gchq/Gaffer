@@ -68,15 +68,18 @@ public class JSONSerialiser {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
-        mapper.setFilterProvider(getFilterProvider());
+
+        // Use the 'setFilters' method so it is compatible with older versions of jackson
+        mapper.setFilters(getFilterProvider());
 
         return mapper;
     }
 
     public static FilterProvider getFilterProvider(final String... fieldsToExclude) {
         if (null == fieldsToExclude || fieldsToExclude.length == 0) {
+            // Use the 'serializeAllExcept' method so it is compatible with older versions of jackson
             return new SimpleFilterProvider()
-                    .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAll());
+                    .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAllExcept());
         }
 
         return new SimpleFilterProvider()
