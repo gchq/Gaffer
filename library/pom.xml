@@ -31,4 +31,19 @@
         <module>sketches-library</module>
         <module>spark</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>serialisation-compatibility</id>
+            <properties>
+                <jackson.version>${jackson.min.version}</jackson.version>
+            </properties>
+            <!-- Skip spark as requires a newer version of jackson-->
+            <modules>
+                <module>core-library</module>
+                <module>hdfs-library</module>
+                <module>sketches-library</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
