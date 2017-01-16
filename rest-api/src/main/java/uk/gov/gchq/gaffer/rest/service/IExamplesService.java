@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,10 @@ public interface IExamplesService {
     @GET
     @Path("/graph/doOperation")
     OperationChain execute();
+
+    @GET
+    @Path("/graph/doOperation/chunked")
+    OperationChain executeChunked();
 
     @GET
     @Path("/graph/doOperation/get/elements/bySeed")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,27 @@ package uk.gov.gchq.gaffer.rest.application;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
+import org.glassfish.jersey.server.ResourceConfig;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
 import uk.gov.gchq.gaffer.rest.service.SimpleExamplesService;
 import uk.gov.gchq.gaffer.rest.service.SimpleGraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.SimpleOperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
-import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>ApplicationConfig</code> sets up the application resources and singletons.
+ * An <code>ApplicationConfig</code> sets up the application resources.
  */
-public class ApplicationConfig extends Application {
-    protected final Set<Object> singletons = new HashSet<>();
+public class ApplicationConfig extends ResourceConfig {
     protected final Set<Class<?>> resources = new HashSet<>();
 
     public ApplicationConfig() {
         addSystemResources();
         addServices();
         setupBeanConfig();
+        registerClasses(resources);
     }
 
     protected void setupBeanConfig() {
@@ -67,13 +67,4 @@ public class ApplicationConfig extends Application {
         resources.add(RestJsonProvider.class);
     }
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        return resources;
-    }
-
-    @Override
-    public Set<Object> getSingletons() {
-        return singletons;
-    }
 }
