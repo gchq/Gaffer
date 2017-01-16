@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 function addExampleButtons(){
-$("#resource_graphdoOperation .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
+$("#resource_operations .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
 }
 
 function loadExample(exampleButton){

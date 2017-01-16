@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,6 +130,19 @@ public class ExamplesServiceTest {
 
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws IOException {
+        //Given
+        final OperationChain opChain = service.execute();
+
+        // When
+        byte[] bytes = serialiser.serialise(opChain);
+        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
+
+        // Then
+        assertNotNull(deserialisedOp);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationChainAsync() throws IOException {
         //Given
         final OperationChain opChain = service.execute();
 

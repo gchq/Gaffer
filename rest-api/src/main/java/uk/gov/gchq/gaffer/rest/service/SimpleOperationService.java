@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -46,6 +50,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.Closeable;
+import java.io.IOException;
+
+import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
@@ -62,6 +70,7 @@ import uk.gov.gchq.gaffer.user.User;
 public class SimpleOperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOperationService.class);
     private final GraphFactory graphFactory;
+    public final ObjectMapper mapper = createDefaultMapper();
 
     public SimpleOperationService() {
         this(GraphFactory.createGraphFactory());
@@ -74,6 +83,27 @@ public class SimpleOperationService implements IOperationService {
     @Override
     public Object execute(final OperationChain opChain) {
         return execute(opChain, false);
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
+        // Create chunked output instance
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
+
+        // write chunks to the chunked output object
+        new Thread() {
+            public void run() {
+                try {
+                    final Object result = execute(opChain);
+                    chunkResult(result, output);
+                } finally {
+                    IOUtils.closeQuietly(output);
+                }
+            }
+        }.start();
+
+        return output;
     }
 
     @Override
@@ -212,6 +242,29 @@ public class SimpleOperationService implements IOperationService {
                 throw new RuntimeException("Error executing opChain", e);
             } finally {
                 postOperationHook(opChain, user);
+            }
+        }
+    }
+
+    protected void chunkResult(final Object result, final ChunkedOutput<String> output) {
+        if (result instanceof Iterable) {
+            final Iterable itr = (Iterable) result;
+            try {
+                for (final Object item : itr) {
+                    output.write(mapper.writeValueAsString(item));
+                }
+            } catch (final IOException ioe) {
+                LOGGER.warn("IOException (chunks)", ioe);
+            } finally {
+                if (itr instanceof Closeable) {
+                    IOUtils.closeQuietly(((Closeable) itr));
+                }
+            }
+        } else {
+            try {
+                output.write(mapper.writeValueAsString(result));
+            } catch (IOException ioe) {
+                LOGGER.warn("IOException (chunks)", ioe);
             }
         }
     }
