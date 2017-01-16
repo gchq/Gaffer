@@ -14,24 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation;
+package uk.gov.gchq.gaffer.jsonSerialisation;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import java.io.Serializable;
-
-@JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
-public class SimpleTestObject implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-    private String x = "TEST";
-
-    public String getX() {
-        return x;
-    }
-
-    public void setX(String x) {
-        this.x = x;
-    }
-
+public class JSONSerialiserCompatibilityTest extends JSONSerialiserTest {
 }
