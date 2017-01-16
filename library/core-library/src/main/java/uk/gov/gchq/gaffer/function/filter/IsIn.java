@@ -56,7 +56,7 @@ public class IsIn extends SimpleFilterFunction<Object> {
     }
 
     @JsonProperty("values")
-    public void setAllowedValues(final Object[] allowedValuesArray) {
+    public void setAllowedValuesArray(final Object[] allowedValuesArray) {
         if (null != allowedValuesArray) {
             allowedValues = new HashSet<>(Arrays.asList(allowedValuesArray));
         } else {
@@ -69,6 +69,7 @@ public class IsIn extends SimpleFilterFunction<Object> {
         return allowedValues;
     }
 
+    @JsonIgnore
     public void setAllowedValues(final Set<Object> allowedValues) {
         this.allowedValues = allowedValues;
     }
