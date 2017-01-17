@@ -1,0 +1,10 @@
+red,1,2
+red,1,2
+red,1,2
+red,1,3
+red,1,3
+red,1,4
+red,2,3
+blue,1,2
+blue,1,5
+blue,2,6

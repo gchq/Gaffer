@@ -1,0 +1,20 @@
+{
+  "entities": {
+    "entity": {
+      "vertex": "int",
+      "properties": {
+        "count": "int"
+      }
+    }
+  },
+  "edges": {
+    "edge": {
+      "source": "int",
+      "destination": "int",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    }
+  }
+}

@@ -179,7 +179,7 @@ public class OperationChainLimiter implements GraphHook {
     /**
      * Iterates through each of the users operation authorisations listed in the config file and returns the highest score
      * associated with those auths.
-     * <p>
+     * <p/>
      * Defaults to 0.
      *
      * @param opAuths a set of operation authorisations
@@ -217,7 +217,7 @@ public class OperationChainLimiter implements GraphHook {
                 }
             }
             LOGGER.warn("The operation '" + operation.getClass()
-                    .getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
+                                                     .getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
         } else {
             LOGGER.warn("A Null operation was passed to the OperationChainLimiter graph hook");
         }
@@ -230,7 +230,7 @@ public class OperationChainLimiter implements GraphHook {
             final Class<? extends Operation> opClass;
             try {
                 opClass = Class.forName(opClassName)
-                        .asSubclass(Operation.class);
+                               .asSubclass(Operation.class);
             } catch (ClassNotFoundException e) {
                 LOGGER.error("An operation class could not be found for operation score property " + opClassName);
                 throw new IllegalArgumentException(e);

@@ -21,6 +21,7 @@ for (x in labels) {
                     sh "${jdk}/bin/java -version"
                     sh "'${mvnHome}/bin/mvn' clean"
                     sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore package"
+                    sh "'${mvnHome}/bin/mvn' test integration-test -Pserialisation-compatibility -Dmaven.test.failure.ignore -pl :serialisation"
                 }
             }
         }
