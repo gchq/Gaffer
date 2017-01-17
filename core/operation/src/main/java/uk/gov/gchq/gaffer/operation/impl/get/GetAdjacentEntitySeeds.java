@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
@@ -34,42 +35,40 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
     public GetAdjacentEntitySeeds() {
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     public GetAdjacentEntitySeeds(final Iterable<EntitySeed> seeds) {
         super(seeds);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     public GetAdjacentEntitySeeds(final CloseableIterable<EntitySeed> seeds) {
         super(seeds);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     public GetAdjacentEntitySeeds(final View view) {
         super(view);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     public GetAdjacentEntitySeeds(final View view, final Iterable<EntitySeed> seeds) {
         super(view, seeds);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     public GetAdjacentEntitySeeds(final View view, final CloseableIterable<EntitySeed> seeds) {
         super(view, seeds);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     public GetAdjacentEntitySeeds(final GetIterableElementsOperation<EntitySeed, ?> operation) {
         super(operation);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableEntitySeed());
     }
 
     @Override
     public SeedMatchingType getSeedMatching() {
         return SeedMatchingType.RELATED;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

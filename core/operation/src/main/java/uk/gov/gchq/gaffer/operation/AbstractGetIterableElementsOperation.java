@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -34,7 +35,6 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
 
     protected AbstractGetIterableElementsOperation() {
         super();
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final Iterable<SEED_TYPE> seeds) {
@@ -43,12 +43,10 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
 
     protected AbstractGetIterableElementsOperation(final CloseableIterable<SEED_TYPE> seeds) {
         super(seeds);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final View view) {
         super(view);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final View view, final Iterable<SEED_TYPE> seeds) {
@@ -57,7 +55,6 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
 
     protected AbstractGetIterableElementsOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
         super(view, seeds);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     protected AbstractGetIterableElementsOperation(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
@@ -66,8 +63,8 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         setIncludeEdges(operation.getIncludeEdges());
         setIncludeEntities(operation.isIncludeEntities());
         setSeedMatching(operation.getSeedMatching());
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
+
 
     /**
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
@@ -147,6 +144,11 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
     @Override
     public void setPopulateProperties(final boolean populateProperties) {
         this.populateProperties = populateProperties;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     public abstract static class BaseBuilder<

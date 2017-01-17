@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -39,7 +40,6 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
     private ElementGenerator<OBJ> elementGenerator;
 
     public GenerateElements() {
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
     }
 
     /**
@@ -77,7 +77,6 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
      */
     public GenerateElements(final CloseableIterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
         super(objects);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableElement());
         this.elementGenerator = elementGenerator;
     }
 
@@ -131,6 +130,11 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
     @JsonProperty(value = "objects")
     void setObjectsList(final List<OBJ> objs) {
         setInput(new WrappedCloseableIterable<OBJ>(objs));
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     public abstract static class BaseBuilder<OBJ, CHILD_CLASS extends BaseBuilder<OBJ, ?>>

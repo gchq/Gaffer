@@ -23,12 +23,7 @@ import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
 import uk.gov.gchq.gaffer.spark.operation.AbstractGetSparkRDD;
 
 public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, RDD<Element>> {
-
     private SparkContext sparkContext;
-
-    public AbstractGetRDD() {
-        setOutputTypeReference(new TypeReferenceRDDElement());
-    }
 
     public static class TypeReferenceRDDElement extends
             TypeReference<RDD<Element>> {
@@ -40,6 +35,11 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
 
     public void setSparkContext(final SparkContext sparkContext) {
         this.sparkContext = sparkContext;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceRDDElement();
     }
 
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>,

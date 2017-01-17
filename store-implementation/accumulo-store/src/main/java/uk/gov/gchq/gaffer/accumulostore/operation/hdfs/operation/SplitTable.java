@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.VoidOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -26,11 +27,6 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * @see SplitTable.Builder
  */
 public class SplitTable extends AbstractOperation<String, Void> implements VoidOutput<String> {
-
-    public SplitTable() {
-        setOutputTypeReference(new TypeReferenceImpl.Void());
-    }
-
     private String inputPath;
 
     public String getInputPath() {
@@ -39,6 +35,11 @@ public class SplitTable extends AbstractOperation<String, Void> implements VoidO
 
     public void setInputPath(final String inputPath) {
         this.inputPath = inputPath;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.Void();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

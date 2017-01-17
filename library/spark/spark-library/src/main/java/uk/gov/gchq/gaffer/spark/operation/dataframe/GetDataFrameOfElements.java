@@ -45,7 +45,6 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
     }
 
     public GetDataFrameOfElements() {
-        setOutputTypeReference(new TypeReferenceDataSetRow());
     }
 
     public GetDataFrameOfElements(final SQLContext sqlContext,
@@ -69,6 +68,11 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     public List<Converter> getConverters() {
         return converters;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceDataSetRow();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

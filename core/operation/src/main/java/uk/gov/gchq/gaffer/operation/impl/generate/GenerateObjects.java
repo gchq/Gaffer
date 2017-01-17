@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -38,7 +39,6 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
     private ElementGenerator<OBJ> elementGenerator;
 
     public GenerateObjects() {
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableObj());
     }
 
     /**
@@ -51,7 +51,6 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s into objects
      */
     public GenerateObjects(final ElementGenerator<OBJ> elementGenerator) {
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableObj());
         this.elementGenerator = elementGenerator;
     }
 
@@ -65,7 +64,6 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
      */
     public GenerateObjects(final CloseableIterable<ELEMENT_TYPE> elements, final ElementGenerator<OBJ> elementGenerator) {
         super(elements);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableObj());
         this.elementGenerator = elementGenerator;
     }
 
@@ -130,6 +128,11 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
     @JsonProperty(value = "elements")
     void setElementList(final List<ELEMENT_TYPE> elements) {
         setInput(new WrappedCloseableIterable<>(elements));
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableObj();
     }
 
     public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, OBJ, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, OBJ, ?>>

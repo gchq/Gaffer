@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -35,7 +36,6 @@ public class FetchExport extends ExportOperation<Void, CloseableIterable<?>> {
      */
     public FetchExport() {
         super();
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableObj());
     }
 
     /**
@@ -45,7 +45,6 @@ public class FetchExport extends ExportOperation<Void, CloseableIterable<?>> {
      */
     public FetchExport(final String key) {
         super(key);
-        setOutputTypeReference(new TypeReferenceImpl.CloseableIterableObj());
     }
 
     public int getStart() {
@@ -62,6 +61,11 @@ public class FetchExport extends ExportOperation<Void, CloseableIterable<?>> {
 
     public void setEnd(final int end) {
         this.end = end;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableObj();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

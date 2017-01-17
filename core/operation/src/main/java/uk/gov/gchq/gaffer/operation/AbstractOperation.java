@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     private INPUT input;
 
     private Map<String, String> options = new HashMap<>();
-    private TypeReference<?> outputTypeReference = new TypeReferenceImpl.Object();
+    private TypeReference<?> outputTypeReference = createOutputTypeReference();
 
     protected AbstractOperation() {
         this(null, null);
@@ -167,6 +166,8 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     public void setOutputTypeReference(final TypeReference<?> outputTypeReference) {
         this.outputTypeReference = outputTypeReference;
     }
+
+    protected abstract TypeReference createOutputTypeReference();
 
     public abstract static class BaseBuilder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>,
             INPUT,
