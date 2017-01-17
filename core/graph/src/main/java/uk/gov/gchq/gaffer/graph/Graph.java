@@ -131,7 +131,7 @@ public final class Graph {
         OUTPUT result = store.execute(operationChain, user);
 
         for (final GraphHook graphHook : graphHooks) {
-            graphHook.postExecute(result, operationChain, user);
+            result = graphHook.postExecute(result, operationChain, user);
         }
 
         return result;
