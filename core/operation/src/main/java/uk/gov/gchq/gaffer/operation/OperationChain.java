@@ -110,20 +110,6 @@ public class OperationChain<OUT> {
         return strBuilder.toString();
     }
 
-//    public Class<?> getOutputType() {
-//        if (null == operations || operations.isEmpty()) {
-//            return Object.class;
-//        }
-//
-////        System.out.println(operations.get(operations.size() - 1)
-////                                     .getInput()
-////                                     .getClass());
-//
-//        return operations.get(operations.size() - 1)
-//                         .getInput()
-//                         .getClass();
-//    }
-
     /**
      * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
