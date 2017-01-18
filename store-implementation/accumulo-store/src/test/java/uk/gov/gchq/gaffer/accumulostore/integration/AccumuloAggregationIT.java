@@ -572,7 +572,7 @@ public class AccumuloAggregationIT {
                         .type("visibility", new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .aggregateFunction(new StringConcat())
-                                .serialiser(new VisibilitySerialiser())
+                                .serialiser(new StringSerialiser())
                                 .build())
                         .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                                 .vertex(TestTypes.ID_STRING)
@@ -642,47 +642,6 @@ public class AccumuloAggregationIT {
                                 .build())
                         .build())
                 .build();
-    }
-
-    public static final class VisibilitySerialiser extends AbstractSerialisation<String> {
-
-        @Override
-        public boolean canHandle(final Class clazz) {
-            return String.class.equals(clazz);
-        }
-
-        @Override
-        public byte[] serialise(final String value) throws SerialisationException {
-            try {
-                return value.getBytes(CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                throw new SerialisationException(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public String deserialise(final byte[] bytes) throws SerialisationException {
-            try {
-                return new String(bytes, CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                throw new SerialisationException(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public byte[] serialiseNull() {
-            return new byte[]{};
-        }
-
-        @Override
-        public String deserialiseEmptyBytes() {
-            return "";
-        }
-
-        @Override
-        public boolean preservesObjectOrdering() {
-            return true;
-        }
     }
 
 }
