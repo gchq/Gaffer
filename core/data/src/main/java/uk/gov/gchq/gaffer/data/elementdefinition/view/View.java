@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -43,8 +44,9 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter
  * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
+@JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
-    protected View() {
+    public View() {
         super();
     }
 
@@ -79,16 +81,12 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
     public View clone() {
-        return new View.Builder().json(toJson(false)).build();
+        return new View.Builder().json(toCompactJson()).build();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<View, ViewElementDefinition, ViewElementDefinition, CHILD_CLASS> {
         public BaseBuilder() {
             super(new View());
-        }
-
-        public BaseBuilder(final View view) {
-            super(view.clone());
         }
 
         @Override
@@ -152,7 +150,15 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-    public final static class Builder extends BaseBuilder<Builder> {
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final View view) {
+            this();
+            merge(view);
+        }
+
         @Override
         protected Builder self() {
             return this;

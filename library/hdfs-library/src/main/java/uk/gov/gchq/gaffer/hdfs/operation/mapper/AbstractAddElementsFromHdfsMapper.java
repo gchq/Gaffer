@@ -51,7 +51,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     protected void setup(final Context context) {
         doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
         try {
-            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
+            schema = new Schema.Builder().json(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8)).build();
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

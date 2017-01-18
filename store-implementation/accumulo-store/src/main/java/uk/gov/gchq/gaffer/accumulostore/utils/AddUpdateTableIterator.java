@@ -116,10 +116,10 @@ public final class AddUpdateTableIterator {
         try {
             if (store.getConnection().tableOperations().listIterators(store.getProperties().getTable()).containsKey(iteratorName)) {
                 store.getConnection()
-                     .tableOperations()
-                     .removeIterator(store.getProperties()
-                                          .getTable(), iteratorName,
-                             EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
+                        .tableOperations()
+                        .removeIterator(store.getProperties()
+                                        .getTable(), iteratorName,
+                                EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
             }
         } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
             throw new StoreException("Unable remove iterator with Name: " + iteratorName);
@@ -174,7 +174,9 @@ public final class AddUpdateTableIterator {
         }
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(Schema.fromJson(getSchemaPaths(args)),
+        store.initialise(new Schema.Builder()
+                        .json(getSchemaPaths(args))
+                        .build(),
                 AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
 
         final String modifyKey = getModifyKey(args);

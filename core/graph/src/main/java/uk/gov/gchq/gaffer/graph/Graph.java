@@ -118,9 +118,10 @@ public final class Graph {
                 operation.setView(view);
             } else if (operation.getView().getEntityGroups().isEmpty()
                     && operation.getView().getEdgeGroups().isEmpty()) {
-                // this allows users to create an empty view and setup summarisation,
-                // without having to specify all the element groups.
-                operation.getView().merge(view);
+                operation.setView(new View.Builder()
+                        .merge(operation.getView())
+                        .merge(view)
+                        .build());
             }
         }
 
@@ -202,15 +203,15 @@ public final class Graph {
         }
 
         public Builder view(final Path view) {
-            return view(View.fromJson(view));
+            return view(new View.Builder().json(view).build());
         }
 
         public Builder view(final InputStream view) {
-            return view(View.fromJson(view));
+            return view(new View.Builder().json(view).build());
         }
 
         public Builder view(final byte[] jsonBytes) {
-            return view(View.fromJson(jsonBytes));
+            return view(new View.Builder().json(jsonBytes).build());
         }
 
         public Builder storeProperties(final StoreProperties properties) {
@@ -274,9 +275,12 @@ public final class Graph {
 
         public Builder addSchema(final Schema schemaModule) {
             if (null != schema) {
-                schema.merge(schemaModule);
+                schema = new Schema.Builder()
+                        .merge(schema)
+                        .merge(schemaModule)
+                        .build();
             } else {
-                this.schema = schemaModule;
+                schema = schemaModule;
             }
 
             return this;
@@ -338,12 +342,10 @@ public final class Graph {
                 }
 
                 final Class<? extends Schema> schemaClass = properties.getSchemaClass();
-                final Schema newSchema = Schema.fromJson(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]));
-                if (null != schema) {
-                    schema.merge(newSchema);
-                } else {
-                    schema = newSchema;
-                }
+                final Schema newSchema = new Schema.Builder()
+                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
+                        .build();
+                addSchema(newSchema);
             }
         }
 
@@ -360,7 +362,7 @@ public final class Graph {
                     throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties");
                 }
             } else {
-                store.optimiseSchemas();
+                store.optimiseSchema();
                 store.validateSchemas();
             }
         }

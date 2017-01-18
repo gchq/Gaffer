@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 
+@JsonDeserialize(builder = SchemaEntityDefinition.Builder.class)
 public class SchemaEntityDefinition extends SchemaElementDefinition {
     public String getVertex() {
         return getIdentifierTypeName(IdentifierType.VERTEX);
@@ -28,13 +31,23 @@ public class SchemaEntityDefinition extends SchemaElementDefinition {
             super(new SchemaEntityDefinition());
         }
 
+
         public CHILD_CLASS vertex(final String typeName) {
             getElementDef().identifiers.put(IdentifierType.VERTEX, typeName);
             return self();
         }
     }
 
-    public final static class Builder extends BaseBuilder<Builder> {
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final SchemaEntityDefinition schemaElementDef) {
+            this();
+            merge(schemaElementDef);
+        }
+
         @Override
         protected Builder self() {
             return this;

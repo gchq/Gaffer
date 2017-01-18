@@ -109,7 +109,7 @@ public class AggregatorIterator extends Combiner {
         }
 
         try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
+            schema = new Schema.Builder().json(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build();
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema from json", e);
         }

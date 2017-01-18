@@ -63,7 +63,7 @@ import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
+    private static final Schema schema = new Schema.Builder().json(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class)).build();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
 

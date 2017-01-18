@@ -128,7 +128,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
         final MockAccumuloStore store = new MockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class)).build();
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise(schema, properties);
@@ -192,7 +192,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
         final MockAccumuloStore store = new MockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class)).build();
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise(schema, properties);
@@ -256,7 +256,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
         final MockAccumuloStore store = new MockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class)).build();
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise(schema, properties);

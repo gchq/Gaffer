@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -43,6 +45,7 @@ import java.util.Set;
  * A <code>ViewElementDefinition</code> is an {@link ElementDefinition} containing
  * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}'s.
  */
+@JsonDeserialize(builder = ViewElementDefinition.Builder.class)
 public class ViewElementDefinition implements ElementDefinition {
     protected ElementTransformer transformer;
     protected ElementFilter preAggregationFilter;
@@ -208,8 +211,18 @@ public class ViewElementDefinition implements ElementDefinition {
             this.elDef = new ViewElementDefinition();
         }
 
+        public BaseBuilder(final ViewElementDefinition elementDef) {
+            this();
+            merge(elementDef);
+        }
+
         public CHILD_CLASS transientProperty(final String propertyName, final Class<?> clazz) {
             elDef.transientProperties.put(propertyName, clazz);
+            return self();
+        }
+
+        public CHILD_CLASS transientProperties(final Map<String, Class<?>> transientProperties) {
+            elDef.transientProperties = new LinkedHashMap<>(transientProperties);
             return self();
         }
 
@@ -223,6 +236,12 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS preAggregationFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            getElementDef().preAggregationFilter = new ElementFilter();
+            getElementDef().preAggregationFilter.addFunctions(filterFunctions);
+            return self();
+        }
+
         public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
             if (null != getElementDef().getPostAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
@@ -230,6 +249,12 @@ public class ViewElementDefinition implements ElementDefinition {
             }
 
             getElementDef().postAggregationFilter = postAggregationFilter;
+            return self();
+        }
+
+        public CHILD_CLASS postAggregationFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            getElementDef().postAggregationFilter = new ElementFilter();
+            getElementDef().postAggregationFilter.addFunctions(filterFunctions);
             return self();
         }
 
@@ -243,8 +268,20 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS postTransformFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            getElementDef().postTransformFilter = new ElementFilter();
+            getElementDef().postTransformFilter.addFunctions(filterFunctions);
+            return self();
+        }
+
         public CHILD_CLASS transformer(final ElementTransformer transformer) {
             getElementDef().transformer = transformer;
+            return self();
+        }
+
+        public CHILD_CLASS transformFunctions(final List<ConsumerProducerFunctionContext<String, TransformFunction>> transformFunctions) {
+            getElementDef().transformer = new ElementTransformer();
+            getElementDef().transformer.addFunctions(transformFunctions);
             return self();
         }
 
@@ -295,7 +332,11 @@ public class ViewElementDefinition implements ElementDefinition {
                 getElementDef().transformer.addFunctions(elementDef.transformer.getFunctions());
             }
 
-            getElementDef().groupBy.addAll(elementDef.getGroupBy());
+            if (null != getElementDef().groupBy) {
+                getElementDef().groupBy.addAll(elementDef.getGroupBy());
+            } else if (null != elementDef.getGroupBy()) {
+                getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
+            }
 
             return self();
         }
@@ -311,7 +352,15 @@ public class ViewElementDefinition implements ElementDefinition {
         protected abstract CHILD_CLASS self();
     }
 
-    public final static class Builder extends BaseBuilder<Builder> {
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final ViewElementDefinition viewElementDef) {
+            super(viewElementDef);
+        }
+
         @Override
         protected Builder self() {
             return this;

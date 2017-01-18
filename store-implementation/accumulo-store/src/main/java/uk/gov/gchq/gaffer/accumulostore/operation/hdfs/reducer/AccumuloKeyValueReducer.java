@@ -49,8 +49,9 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
     @Override
     protected void setup(final Context context) {
         try {
-            schema = Schema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
+            schema = new Schema.Builder()
+                    .json(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8))
+                    .build();
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON");
         }

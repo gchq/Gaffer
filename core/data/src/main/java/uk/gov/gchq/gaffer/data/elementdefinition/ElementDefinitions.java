@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -159,11 +160,13 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
      */
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "set")
     public abstract static class BaseBuilder<ELEMENT_DEFS extends ElementDefinitions<ENTITY_DEF, EDGE_DEF>, ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition, CHILD_CLASS extends BaseBuilder<ELEMENT_DEFS, ENTITY_DEF, EDGE_DEF, ?>> {
-        private final ELEMENT_DEFS elementDefs;
+        private ELEMENT_DEFS elementDefs;
 
         protected BaseBuilder(final ELEMENT_DEFS elementDefs) {
             this.elementDefs = elementDefs;
         }
+
+        protected abstract CHILD_CLASS edge(final String group);
 
         /**
          * Adds an edge definition for a given edge type.
@@ -177,10 +180,23 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
+        @JsonSetter("edges")
         public CHILD_CLASS edges(final Map<String, EDGE_DEF> edges) {
+            elementDefs.edges.clear();
             elementDefs.edges.putAll(edges);
             return self();
         }
+
+        public CHILD_CLASS edges(final Collection<String> groups) {
+            for (final String group : groups) {
+                edge(group);
+            }
+
+            return self();
+        }
+
+        protected abstract CHILD_CLASS entity(final String group);
+
 
         /**
          * Adds an entity definition for a given entity type.
@@ -194,15 +210,14 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
-        protected abstract CHILD_CLASS entity(final String group);
-
-        protected abstract CHILD_CLASS edge(final String group);
-
+        @JsonSetter("entities")
         public CHILD_CLASS entities(final Map<String, ENTITY_DEF> entities) {
+            elementDefs.entities.clear();
             elementDefs.entities.putAll(entities);
             return self();
         }
 
+        @JsonIgnore
         public CHILD_CLASS entities(final Collection<String> groups) {
             for (final String group : groups) {
                 entity(group);
@@ -211,19 +226,12 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
-        public CHILD_CLASS edges(final Collection<String> groups) {
-            for (final String group : groups) {
-                edge(group);
-            }
 
-            return self();
-        }
-
-        protected CHILD_CLASS json(final Class<ELEMENT_DEFS> clazz, final Path... filePaths) throws SchemaException {
+        public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Path... filePaths) throws SchemaException {
             return json(clazz, (Object[]) filePaths);
         }
 
-        protected CHILD_CLASS json(final Class<ELEMENT_DEFS> clazz, final InputStream... inputStreams) throws SchemaException {
+        public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final InputStream... inputStreams) throws SchemaException {
             try {
                 return json(clazz, (Object[]) inputStreams);
             } finally {
@@ -235,11 +243,11 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             }
         }
 
-        protected CHILD_CLASS json(final Class<ELEMENT_DEFS> clazz, final byte[]... jsonBytes) throws SchemaException {
+        public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final byte[]... jsonBytes) throws SchemaException {
             return json(clazz, (Object[]) jsonBytes);
         }
 
-        protected CHILD_CLASS json(final Class<ELEMENT_DEFS> clazz, final Object[] jsonItems) throws SchemaException {
+        public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Object[] jsonItems) throws SchemaException {
             for (final Object jsonItem : jsonItems) {
                 final ELEMENT_DEFS elDefsTmp;
                 try {
@@ -275,6 +283,10 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
         protected ELEMENT_DEFS getElementDefs() {
             return elementDefs;
+        }
+
+        protected void setElementDefs(final ELEMENT_DEFS elementDefs) {
+            this.elementDefs = elementDefs;
         }
 
         protected abstract CHILD_CLASS self();

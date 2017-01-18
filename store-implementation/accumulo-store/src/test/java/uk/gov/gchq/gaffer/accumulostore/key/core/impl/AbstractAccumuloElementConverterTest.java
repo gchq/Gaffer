@@ -54,7 +54,9 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.schemas(getClass()))
+                .build();
         converter = createConverter(schema);
     }
 
@@ -354,10 +356,13 @@ public abstract class AbstractAccumuloElementConverterTest {
     public void shouldBuildTimestampFromProperty() throws AccumuloElementConversionException {
         // Given
         // add extra timestamp property to schema
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.schemas(getClass()))
+                .build();
         converter = createConverter(new Schema.Builder(schema)
+                .type("timestamp", Long.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(AccumuloPropertyNames.TIMESTAMP, Long.class)
+                        .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
                 .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
                 .build());
@@ -382,10 +387,11 @@ public abstract class AbstractAccumuloElementConverterTest {
     public void shouldBuildTimestampFromDefaultTimeWhenPropertyIsNull() throws AccumuloElementConversionException {
         // Given
         // add extra timestamp property to schema
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
         converter = createConverter(new Schema.Builder(schema)
+                .type("timestamp", Long.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(AccumuloPropertyNames.TIMESTAMP, Long.class)
+                        .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
                 .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
                 .build());
@@ -427,10 +433,11 @@ public abstract class AbstractAccumuloElementConverterTest {
     public void shouldGetPropertiesFromTimestamp() throws AccumuloElementConversionException {
         // Given
         // add extra timestamp property to schema
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
         converter = createConverter(new Schema.Builder(schema)
+                .type("timestamp", Long.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(AccumuloPropertyNames.TIMESTAMP, Long.class)
+                        .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
                 .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
                 .build());
@@ -450,7 +457,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampPropertyInGroup() throws AccumuloElementConversionException {
         // Given
         // add timestamp property name but don't add the property to the edge group
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
         converter = createConverter(new Schema.Builder(schema)
                 .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
                 .build());
@@ -500,11 +507,12 @@ public abstract class AbstractAccumuloElementConverterTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(String.class)
+                                .vertex("string")
                                 .property(TestPropertyNames.PROP_1, "map")
                                 .property(TestPropertyNames.PROP_2, "map")
                                 .build()
                 )
+                .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
                         .clazz(FreqMap.class)
                         .aggregateFunction(new FreqMapAggregator())

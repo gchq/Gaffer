@@ -55,10 +55,13 @@ public class SchemaEntityDefinitionTest {
     public void shouldReturnFullValidator() {
         // Given
         final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer", Integer.class)
-                .property("property", "property.string", String.class)
-                .vertex(Integer.class)
-                .property("property", String.class)
+                .vertex("id.integer")
+                .property("property", "property.string")
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("property.string", String.class)
+                .type("id.integer", Integer.class)
+                .entity("entity", elementDef)
                 .build();
 
         // When
@@ -83,9 +86,9 @@ public class SchemaEntityDefinitionTest {
 
         // When
         final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, "property.string", String.class)
-                .vertex("id.integer", Integer.class)
-                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
+                .property(TestPropertyNames.PROP_1, "property.string")
+                .vertex("id.integer")
+                .property(TestPropertyNames.PROP_2, "property.object")
                 .validator(validator)
                 .build();
 
@@ -95,7 +98,7 @@ public class SchemaEntityDefinitionTest {
         assertTrue(elementDef.containsProperty(TestPropertyNames.PROP_2));
 
         assertEquals(1, elementDef.getIdentifiers().size());
-        assertEquals(Integer.class, elementDef.getIdentifierClass(IdentifierType.VERTEX));
+        assertEquals("id.integer", elementDef.getIdentifierTypeName(IdentifierType.VERTEX));
         assertSame(clonedValidator, elementDef.getValidator());
     }
 
@@ -103,11 +106,16 @@ public class SchemaEntityDefinitionTest {
     public void shouldReturnFullAggregator() {
         // Given
         final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer", Integer.class)
-                .property("property", "property.string", new TypeDefinition.Builder()
+                .vertex("id.integer")
+                .property("property", "property.string")
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build())
+                .type("id.integer", Integer.class)
+                .entity("entity", elementDef)
                 .build();
 
         // When
@@ -125,8 +133,8 @@ public class SchemaEntityDefinitionTest {
         // Given
         // When
         final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer", Integer.class)
-                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .vertex("id.integer")
+                .property(TestPropertyNames.PROP_1, "property.integer")
                 .validator(new ElementFilter.Builder()
                         .select(TestPropertyNames.PROP_1)
                         .execute(new ExampleFilterFunction())
@@ -134,7 +142,7 @@ public class SchemaEntityDefinitionTest {
                 .build();
 
         final SchemaEntityDefinition elementDef2 = new SchemaEntityDefinition.Builder()
-                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
+                .property(TestPropertyNames.PROP_2, "property.object")
                 .validator(new ElementFilter.Builder()
                         .select(TestPropertyNames.PROP_2)
                         .execute(new ExampleFilterFunction())
@@ -143,16 +151,19 @@ public class SchemaEntityDefinitionTest {
                 .build();
 
         // When
-        elementDef1.merge(elementDef2);
+        final SchemaEntityDefinition mergedDef = new SchemaEntityDefinition.Builder()
+                .merge(elementDef1)
+                .merge(elementDef2)
+                .build();
 
         // Then
-        assertEquals("id.integer", elementDef1.getVertex());
-        assertEquals(2, elementDef1.getProperties().size());
-        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_1));
-        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_2));
+        assertEquals("id.integer", mergedDef.getVertex());
+        assertEquals(2, mergedDef.getProperties().size());
+        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
+        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_2));
 
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_2)),
-                elementDef1.getGroupBy());
+                mergedDef.getGroupBy());
     }
 
     @Test
@@ -160,8 +171,8 @@ public class SchemaEntityDefinitionTest {
         // Given
         // When
         final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer", Integer.class)
-                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .vertex("id.integer")
+                .property(TestPropertyNames.PROP_1, "property.integer")
                 .validator(new ElementFilter.Builder()
                         .select(TestPropertyNames.PROP_1)
                         .execute(new ExampleFilterFunction())
@@ -170,15 +181,18 @@ public class SchemaEntityDefinitionTest {
                 .build();
 
         // When
-        elementDef1.merge(elementDef1);
+        final SchemaEntityDefinition mergedDef = new SchemaEntityDefinition.Builder()
+                .merge(elementDef1)
+                .merge(elementDef1)
+                .build();
 
         // Then
-        assertEquals("id.integer", elementDef1.getVertex());
-        assertEquals(1, elementDef1.getProperties().size());
-        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_1));
+        assertEquals("id.integer", mergedDef.getVertex());
+        assertEquals(1, mergedDef.getProperties().size());
+        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
 
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_1)),
-                elementDef1.getGroupBy());
+                mergedDef.getGroupBy());
     }
 
     @Test
@@ -186,16 +200,19 @@ public class SchemaEntityDefinitionTest {
         // Given
         // When
         final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
-                .vertex("vertex.integer", Integer.class)
+                .vertex("vertex.integer")
                 .build();
 
         final SchemaEntityDefinition elementDef2 = new SchemaEntityDefinition.Builder()
-                .vertex("vertex.string", String.class)
+                .vertex("vertex.string")
                 .build();
 
         // When / Then
         try {
-            elementDef1.merge(elementDef2);
+            new SchemaEntityDefinition.Builder()
+                    .merge(elementDef1)
+                    .merge(elementDef2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("identifier"));
@@ -207,16 +224,19 @@ public class SchemaEntityDefinitionTest {
         // Given
         // When
         final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, Integer.class)
+                .property(TestPropertyNames.PROP_1, "int")
                 .build();
 
         final SchemaEntityDefinition elementDef2 = new SchemaEntityDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, String.class)
+                .property(TestPropertyNames.PROP_1, "string")
                 .build();
 
         // When / Then
         try {
-            elementDef1.merge(elementDef2);
+            new SchemaEntityDefinition.Builder()
+                    .merge(elementDef1)
+                    .merge(elementDef2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("property"));

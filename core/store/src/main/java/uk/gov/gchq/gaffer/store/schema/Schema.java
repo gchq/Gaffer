@@ -52,6 +52,7 @@ import java.util.Set;
 @JsonDeserialize(builder = Schema.Builder.class)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
+    private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
      * The {@link uk.gov.gchq.gaffer.serialisation.Serialisation} for all vertices.
@@ -61,7 +62,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     /**
      * A map of custom type name to {@link TypeDefinition}.
      *
-     * @see TypeDefinitions
      * @see TypeDefinition
      */
     private final Map<String, TypeDefinition> types;
@@ -70,7 +70,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     private String timestampProperty;
 
-    protected Schema() {
+    public Schema() {
         this(new LinkedHashMap<String, TypeDefinition>());
     }
 
@@ -130,7 +130,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     public TypeDefinition getType(final String typeName) {
-        return types.get(typeName);
+        TypeDefinition typeDef = types.get(typeName);
+        if (null == typeDef) {
+            typeDef = unknownType;
+        }
+
+        return typeDef;
     }
 
     /**
@@ -179,14 +184,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public byte[] toCompactJson() throws SchemaException {
         return toJson(false, "description");
-    }
-
-    private void validateSharedGroups(final Set<String> groupsA, final Set<String> groupsB) {
-        final Set<String> sharedGroups = new HashSet<>(groupsA);
-        sharedGroups.retainAll(groupsB);
-        if (!sharedGroups.isEmpty()) {
-            throw new SchemaException("Element groups cannot be shared across different schema files/parts. Each group must be fully defined in a single schema. Please fix these groups: " + sharedGroups);
-        }
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<Schema, SchemaEntityDefinition, SchemaEdgeDefinition, CHILD_CLASS> {
@@ -250,7 +247,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return type(typeName, new TypeDefinition(typeClass));
         }
 
-        public CHILD_CLASS types(final TypeDefinitions types) {
+        public CHILD_CLASS types(final Map<String, TypeDefinition> types) {
+            getThisSchema().types.clear();
             getThisSchema().types.putAll(types);
             return self();
         }
@@ -268,6 +266,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final Schema schema) {
+            validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
+            validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
+
             for (final Map.Entry<String, SchemaEntityDefinition> entry : schema.getEntities().entrySet()) {
                 if (!getThisSchema().entities.containsKey(entry.getKey())) {
                     entity(entry.getKey(), entry.getValue());
@@ -360,10 +361,26 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         private Schema getThisSchema() {
             return getElementDefs();
         }
+
+        private void validateSharedGroups(final Set<String> groupsA, final Set<String> groupsB) {
+            final Set<String> sharedGroups = new HashSet<>(groupsA);
+            sharedGroups.retainAll(groupsB);
+            if (!sharedGroups.isEmpty()) {
+                throw new SchemaException("Element groups cannot be shared across different schema files/parts. Each group must be fully defined in a single schema. Please fix these groups: " + sharedGroups);
+            }
+        }
     }
 
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-    public final static class Builder extends BaseBuilder<Builder> {
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final Schema schema) {
+            this();
+            merge(schema);
+        }
+
         @Override
         protected Builder self() {
             return this;

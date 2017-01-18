@@ -55,7 +55,7 @@ public class ValidatorFilter extends AbstractElementFilter {
         }
 
         try {
-            return new ElementValidator(Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)), false);
+            return new ElementValidator(new Schema.Builder().json(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build(), false);
         } catch (UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON", e);
         }

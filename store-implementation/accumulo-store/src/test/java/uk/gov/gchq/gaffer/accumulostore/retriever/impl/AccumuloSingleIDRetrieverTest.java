@@ -57,7 +57,7 @@ public class AccumuloSingleIDRetrieverTest {
     private static final int numEntries = 1000;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloSingleIDRetrieverTest.class));
+    private static final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AccumuloSingleIDRetrieverTest.class)).build();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSingleIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 

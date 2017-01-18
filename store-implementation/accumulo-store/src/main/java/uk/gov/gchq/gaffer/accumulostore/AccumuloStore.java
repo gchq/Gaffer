@@ -121,7 +121,7 @@ public class AccumuloStore extends Store {
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
         }
-        this.keyPackage.setSchema(schema);
+        this.keyPackage.setSchema(getSchema());
         TableUtils.ensureTableExists(this);
     }
 

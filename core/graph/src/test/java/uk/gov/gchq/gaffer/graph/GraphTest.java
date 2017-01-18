@@ -90,7 +90,7 @@ public class GraphTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .build())
-                .buildModule();
+                .build();
 
         final Schema schemaModule2 = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
@@ -99,19 +99,19 @@ public class GraphTest {
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .build())
-                .buildModule();
+                .build();
 
         final Schema schemaModule3 = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .build())
-                .buildModule();
+                .build();
 
         final Schema schemaModule4 = new Schema.Builder()
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .build())
-                .buildModule();
+                .build();
 
 
         // When
@@ -131,8 +131,9 @@ public class GraphTest {
     @Test
     public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
-        final Schema expectedSchema = Schema.fromJson(StreamUtil.dataSchema(getClass()),
-                StreamUtil.dataTypes(getClass()));
+        final Schema expectedSchema = new Schema.Builder()
+                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .build();
 
         Graph graph = null;
         File schemaDir = null;
@@ -166,7 +167,7 @@ public class GraphTest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchema(new Schema())
+                .addSchema(new Schema.Builder().build())
                 .addHook(hook1)
                 .addHook(hook2)
                 .build();
@@ -197,7 +198,7 @@ public class GraphTest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchema(new Schema())
+                .addSchema(new Schema.Builder().build())
                 .addHook(hook1)
                 .addHook(hook2)
                 .build();
@@ -222,7 +223,7 @@ public class GraphTest {
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Schema schema = new Schema();
+        final Schema schema = new Schema.Builder().build();
         given(store.getSchema()).willReturn(schema);
 
         final Graph graph = new Graph.Builder()
@@ -256,7 +257,7 @@ public class GraphTest {
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Schema schema = new Schema();
+        final Schema schema = new Schema.Builder().build();
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.storeProps(getClass()))

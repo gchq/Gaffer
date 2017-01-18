@@ -81,7 +81,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
         assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).getEdge(TestGroups.EDGE));
+        assertNotNull(new Schema.Builder().json(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build().getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
@@ -90,7 +90,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY, aggregatorSetting.getPriority());
         assertEquals(AggregatorIterator.class.getName(), aggregatorSetting.getIteratorClass());
         final Map<String, String> aggregatorOptions = aggregatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(aggregatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).getEdge(TestGroups.EDGE));
+        assertNotNull(new Schema.Builder().json(aggregatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build().getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), aggregatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
 
@@ -161,7 +161,7 @@ public class TableUtilsTest {
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
         assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).getEdge(TestGroups.EDGE));
+        assertNotNull(new Schema.Builder().json(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build().getEdge(TestGroups.EDGE));
         assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);

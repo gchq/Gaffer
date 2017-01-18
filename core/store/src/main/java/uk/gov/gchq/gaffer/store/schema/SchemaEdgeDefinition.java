@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 
+@JsonDeserialize(builder = SchemaEdgeDefinition.Builder.class)
 public class SchemaEdgeDefinition extends SchemaElementDefinition {
     public String getSource() {
         return getIdentifierTypeName(IdentifierType.SOURCE);
@@ -36,6 +39,11 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
             super(new SchemaEdgeDefinition());
         }
 
+        protected BaseBuilder(final SchemaEdgeDefinition schemaElementDef) {
+            this();
+            merge(schemaElementDef);
+        }
+
         public CHILD_CLASS source(final String typeName) {
             getElementDef().identifiers.put(IdentifierType.SOURCE, typeName);
             return self();
@@ -52,7 +60,16 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
         }
     }
 
-    public final static class Builder extends BaseBuilder<Builder> {
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final SchemaEdgeDefinition schemaElementDef) {
+            this();
+            merge(schemaElementDef);
+        }
+
         @Override
         protected Builder self() {
             return this;

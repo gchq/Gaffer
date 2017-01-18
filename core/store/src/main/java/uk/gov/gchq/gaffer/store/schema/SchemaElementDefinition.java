@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -69,11 +68,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     protected ElementFilter validator;
 
-    /**
-     * The <code>TypeDefinitions</code> provides the different element identifier value types and property value types.
-     *
-     * @see TypeDefinitions
-     */
     protected Schema schemaReference;
 
     /**
@@ -82,7 +76,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      */
     protected LinkedHashSet<String> groupBy;
 
-    protected String parentGroup;
+    protected String parent;
     protected String description;
 
     public SchemaElementDefinition() {
@@ -225,14 +219,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null;
     }
 
-    @JsonSetter("validateFunctions")
-    public void addValidateFunctions(final ConsumerFunctionContext<String, FilterFunction>... functions) {
-        if (null == validator) {
-            validator = new ElementFilter();
-        }
-        validator.addFunctions(Arrays.asList(functions));
-    }
-
     @JsonIgnore
     public Iterable<TypeDefinition> getPropertyTypeDefs() {
         return new TransformIterable<String, TypeDefinition>(getPropertyMap().values()) {
@@ -270,8 +256,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return groupBy;
     }
 
-    public String getParentGroup() {
-        return parentGroup;
+    public String getParent() {
+        return parent;
     }
 
     public String getDescription() {
@@ -329,7 +315,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(validator, that.validator)
                 .append(groupBy, that.groupBy)
                 .append(description, that.description)
-                .append(parentGroup, that.parentGroup)
+                .append(parent, that.parent)
                 .isEquals();
     }
 
@@ -342,7 +328,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(validator)
                 .append(groupBy)
                 .append(description)
-                .append(parentGroup)
+                .append(parent)
                 .toHashCode();
     }
 
@@ -355,7 +341,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append("validator", validator)
                 .append("groupBy", groupBy)
                 .append("description", description)
-                .append("parent", parentGroup)
+                .append("parent", parent)
                 .toString();
     }
 
@@ -372,13 +358,39 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS properties(final Map<String, String> properties) {
+            if (null == elDef.properties) {
+                elDef.properties = new LinkedHashMap<>(properties);
+            } else {
+                elDef.properties.putAll(properties);
+            }
+            return self();
+        }
+
         public CHILD_CLASS identifier(final IdentifierType identifierType, final String typeName) {
             elDef.identifiers.put(identifierType, typeName);
             return self();
         }
 
+        public CHILD_CLASS identifiers(final Map<IdentifierType, String> identifiers) {
+            if (null == elDef.identifiers) {
+                elDef.identifiers = new LinkedHashMap<>(identifiers);
+            } else {
+                elDef.identifiers.putAll(identifiers);
+            }
+            return self();
+        }
+
         public CHILD_CLASS validator(final ElementFilter validator) {
             elDef.validator = validator;
+            return self();
+        }
+
+        public CHILD_CLASS validateFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            if (null == getElementDef().validator) {
+                getElementDef().validator = new ElementFilter();
+            }
+            getElementDef().validator.addFunctions(filterFunctions);
             return self();
         }
 
@@ -388,7 +400,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS parent(final String parentGroup) {
-            elDef.parentGroup = parentGroup;
+            elDef.parent = parentGroup;
             return self();
         }
 
@@ -432,7 +444,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 getElementDef().validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
             }
 
-            getElementDef().groupBy.addAll(elementDef.getGroupBy());
+            if (null != getElementDef().groupBy) {
+                getElementDef().groupBy.addAll(elementDef.getGroupBy());
+            } else if (null != elementDef.getGroupBy()) {
+                getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
+            }
 
             if (null == getElementDef().description) {
                 getElementDef().description = elementDef.getDescription();

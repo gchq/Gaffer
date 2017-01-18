@@ -57,9 +57,16 @@ public class SchemaEdgeDefinitionTest {
     public void shouldReturnFullValidator() {
         // Given
         final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
-                .source("id.integer", Integer.class)
-                .property("property", "property.string", String.class)
+                .source("id.integer")
+                .property("property", "property.string")
                 .build();
+
+        final Schema schema = new Schema.Builder()
+                .type("id.integer", Integer.class)
+                .type("property.string", String.class)
+                .edge("edge", elementDef)
+                .build();
+
 
         // When
         final ElementFilter validator = elementDef.getValidator();
@@ -84,12 +91,20 @@ public class SchemaEdgeDefinitionTest {
 
         // When
         final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
-                .source("id.integer", Integer.class)
-                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
-                .destination("id.date", Date.class)
-                .directed("directed.true", Boolean.class)
+                .property(TestPropertyNames.PROP_1, "property.integer")
+                .source("id.integer")
+                .property(TestPropertyNames.PROP_2, "property.object")
+                .destination("id.date")
+                .directed("directed.true")
                 .validator(validator)
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("id.integer", Integer.class)
+                .type("id.date", Date.class)
+                .type("directed.true", Boolean.class)
+                .type("property.integer", Integer.class)
+                .type("property.object", Object.class)
+                .edge("edge", elementDef)
                 .build();
 
         // Then
@@ -108,11 +123,17 @@ public class SchemaEdgeDefinitionTest {
     public void shouldReturnFullAggregator() {
         // Given
         final SchemaEdgeDefinition elementDef = new Builder()
-                .source("id.integer", Integer.class)
-                .property("property", "property.string", new TypeDefinition.Builder()
+                .source("id.integer")
+                .property("property", "property.string")
+                .build();
+
+        final Schema schema = new Schema.Builder()
+                .type("property.string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build())
+                .type("id.integer", Integer.class)
+                .edge("edge", elementDef)
                 .build();
 
         // When
@@ -130,9 +151,9 @@ public class SchemaEdgeDefinitionTest {
         // Given
         // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
-                .source("source.integer", Integer.class)
-                .directed("directed.true", Boolean.class)
-                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .source("source.integer")
+                .directed("directed.true")
+                .property(TestPropertyNames.PROP_1, "property.integer")
                 .validator(new ElementFilter.Builder()
                         .select(TestPropertyNames.PROP_1)
                         .execute(new ExampleFilterFunction())
@@ -140,8 +161,8 @@ public class SchemaEdgeDefinitionTest {
                 .build();
 
         final SchemaEdgeDefinition elementDef2 = new SchemaEdgeDefinition.Builder()
-                .destination("dest.integer", Integer.class)
-                .property(TestPropertyNames.PROP_2, "property.object", Object.class)
+                .destination("dest.integer")
+                .property(TestPropertyNames.PROP_2, "property.object")
                 .validator(new ElementFilter.Builder()
                         .select(TestPropertyNames.PROP_2)
                         .execute(new ExampleFilterFunction())
@@ -150,17 +171,20 @@ public class SchemaEdgeDefinitionTest {
                 .build();
 
         // When
-        elementDef1.merge(elementDef2);
+        final SchemaEdgeDefinition mergedDef = new Builder()
+                .merge(elementDef1)
+                .merge(elementDef2)
+                .build();
 
         // Then
-        assertEquals("source.integer", elementDef1.getSource());
-        assertEquals("dest.integer", elementDef1.getDestination());
-        assertEquals("directed.true", elementDef1.getDirected());
-        assertEquals(2, elementDef1.getProperties().size());
-        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_1));
-        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_2));
+        assertEquals("source.integer", mergedDef.getSource());
+        assertEquals("dest.integer", mergedDef.getDestination());
+        assertEquals("directed.true", mergedDef.getDirected());
+        assertEquals(2, mergedDef.getProperties().size());
+        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
+        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_2));
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_2)),
-                elementDef1.getGroupBy());
+                mergedDef.getGroupBy());
     }
 
     @Test
@@ -168,9 +192,9 @@ public class SchemaEdgeDefinitionTest {
         // Given
         // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
-                .source("source.integer", Integer.class)
-                .directed("directed.true", Boolean.class)
-                .property(TestPropertyNames.PROP_1, "property.integer", Integer.class)
+                .source("source.integer")
+                .directed("directed.true")
+                .property(TestPropertyNames.PROP_1, "property.integer")
                 .validator(new ElementFilter.Builder()
                         .select(TestPropertyNames.PROP_1)
                         .execute(new ExampleFilterFunction())
@@ -179,15 +203,18 @@ public class SchemaEdgeDefinitionTest {
                 .build();
 
         // When
-        elementDef1.merge(elementDef1);
+        final SchemaEdgeDefinition mergedDef = new Builder()
+                .merge(elementDef1)
+                .merge(elementDef1)
+                .build();
 
         // Then
-        assertEquals("source.integer", elementDef1.getSource());
-        assertEquals("directed.true", elementDef1.getDirected());
-        assertEquals(1, elementDef1.getProperties().size());
-        assertNotNull(elementDef1.getPropertyTypeDef(TestPropertyNames.PROP_1));
+        assertEquals("source.integer", mergedDef.getSource());
+        assertEquals("directed.true", mergedDef.getDirected());
+        assertEquals(1, mergedDef.getProperties().size());
+        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_1)),
-                elementDef1.getGroupBy());
+                mergedDef.getGroupBy());
     }
 
     @Test
@@ -195,16 +222,19 @@ public class SchemaEdgeDefinitionTest {
         // Given
         // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
-                .source("source.integer", Integer.class)
+                .source("source.integer")
                 .build();
 
         final SchemaEdgeDefinition elementDef2 = new SchemaEdgeDefinition.Builder()
-                .source("source.string", String.class)
+                .source("source.string")
                 .build();
 
         // When / Then
         try {
-            elementDef1.merge(elementDef2);
+            new Builder()
+                    .merge(elementDef1)
+                    .merge(elementDef2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("identifier"));
@@ -216,16 +246,19 @@ public class SchemaEdgeDefinitionTest {
         // Given
         // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
-                .destination("destination.integer", Integer.class)
+                .destination("destination.integer")
                 .build();
 
         final SchemaEdgeDefinition elementDef2 = new SchemaEdgeDefinition.Builder()
-                .destination("destination.string", String.class)
+                .destination("destination.string")
                 .build();
 
         // When / Then
         try {
-            elementDef1.merge(elementDef2);
+            new Builder()
+                    .merge(elementDef1)
+                    .merge(elementDef2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("identifier"));
@@ -237,16 +270,19 @@ public class SchemaEdgeDefinitionTest {
         // Given
         // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, Integer.class)
+                .property(TestPropertyNames.PROP_1, "string")
                 .build();
 
         final SchemaEdgeDefinition elementDef2 = new SchemaEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, String.class)
+                .property(TestPropertyNames.PROP_1, "int")
                 .build();
 
         // When / Then
         try {
-            elementDef1.merge(elementDef2);
+            new Builder()
+                    .merge(elementDef1)
+                    .merge(elementDef2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("property"));

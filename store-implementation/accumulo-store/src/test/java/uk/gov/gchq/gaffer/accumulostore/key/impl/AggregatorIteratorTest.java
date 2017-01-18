@@ -48,7 +48,7 @@ import static org.junit.Assert.assertEquals;
 
 public class AggregatorIteratorTest {
 
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
+    private static final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AggregatorIteratorTest.class)).build();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(AggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties

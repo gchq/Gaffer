@@ -118,14 +118,14 @@ public class StoreTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .property(TestPropertyNames.PROP_1, "string")
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .property(TestPropertyNames.PROP_1, "string")
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
@@ -143,6 +143,7 @@ public class StoreTest {
                         .clazz(String.class)
                         .serialiser(new StringSerialiser())
                         .build())
+                .type("true", Boolean.class)
                 .build();
     }
 
@@ -426,7 +427,6 @@ public class StoreTest {
         private boolean validationRequired;
 
         public StoreImpl() {
-            setSchemaOptimiser(schemaOptimiser);
         }
 
         public StoreImpl(final ViewValidator viewValidator) {
@@ -499,6 +499,11 @@ public class StoreTest {
         @Override
         protected Context createContext(final User user) {
             return context;
+        }
+
+        @Override
+        public void optimiseSchema() {
+            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
         }
     }
 }
