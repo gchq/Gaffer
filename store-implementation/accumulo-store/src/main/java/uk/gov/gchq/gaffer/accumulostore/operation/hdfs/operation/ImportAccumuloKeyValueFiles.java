@@ -16,17 +16,14 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.VoidOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void> implements VoidOutput<String> {
-
     private String failurePath;
     private String inputPath;
-
-    public ImportAccumuloKeyValueFiles() {
-
-    }
 
     public String getInputPath() {
         return inputPath;
@@ -42,6 +39,11 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void>
 
     public void setFailurePath(final String failurePath) {
         this.failurePath = failurePath;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.Void();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

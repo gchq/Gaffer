@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.VoidOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
@@ -71,6 +73,11 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
 
     public void setMapperGeneratorClassName(final Class<? extends MapperGenerator> mapperGeneratorClass) {
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.Void();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

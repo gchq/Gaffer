@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.operation.impl.export.initialise;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.export.Exporter;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.impl.export.ExportOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.util.ExportUtil;
 
 /**
@@ -65,6 +67,11 @@ public abstract class InitialiseExport extends AbstractOperation<Object, Object>
 
     public void setTimestamp(final long timestamp) {
         exporter.setTimestamp(timestamp);
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.Object();
     }
 
     public abstract static class BaseBuilder<OP_TYPE extends InitialiseExport, CHILD_CLASS extends BaseBuilder<OP_TYPE, ?>>

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
@@ -70,6 +71,8 @@ public class GeneratorsIT extends AbstractStoreIT {
                         .build())
                 .then(new GenerateObjects.Builder<Element, DomainObject>()
                         .generator(new BasicGenerator())
+                        .outputType(new TypeReference<CloseableIterable<DomainObject>>() {
+                        })
                         .build())
                 .build();
 
