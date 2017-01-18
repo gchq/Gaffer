@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
 import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +59,15 @@ public class OperationChain<OUT> {
 
     public OperationChain(final List<Operation> operations) {
         this.operations = operations;
+    }
+
+    @JsonIgnore
+    public TypeReference<OUT> getOutputTypeReference() {
+        if (null == operations || operations.isEmpty()) {
+            return (TypeReference<OUT>) new TypeReferenceImpl.Object();
+        }
+
+        return operations.get(operations.size() - 1).getOutputTypeReference();
     }
 
     public List<Operation> getOperations() {

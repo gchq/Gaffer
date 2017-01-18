@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -62,6 +64,11 @@ public interface Operation<INPUT, OUTPUT> {
     boolean validate(final Entity entity);
 
     OUTPUT castToOutputType(final Object result);
+
+    @JsonIgnore
+    TypeReference<OUTPUT> getOutputTypeReference();
+
+    void setOutputTypeReference(final TypeReference<?> outputTypeReference);
 
     /**
      * Validates an element against the pre aggregation contained in the operation View.
@@ -138,7 +145,7 @@ public interface Operation<INPUT, OUTPUT> {
     /**
      * Gets an operation option by its given name.
      *
-     * @param name  the name of the option
+     * @param name the name of the option
      * @return the value of the option
      */
     String getOption(final String name);
