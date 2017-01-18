@@ -147,7 +147,7 @@ public class ExportIT extends AbstractStoreIT {
         try {
             graph.execute(exportOpChain, getUser());
             fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
+        } catch (final Exception e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -175,7 +175,7 @@ public class ExportIT extends AbstractStoreIT {
         try {
             graph.execute(exportOpChain, getUser());
             fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
+        } catch (final Exception e) {
             assertNotNull(e.getMessage());
         }
     }

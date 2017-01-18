@@ -1,4 +1,5 @@
 /*
+/*
  * Copyright 2016 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +35,8 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -181,7 +182,7 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new CompactRawIntegerSerialiser())
+                        .serialiser(new RawIntegerSerialiser())
                         .build())
                 .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
                         .clazz(Long.class)

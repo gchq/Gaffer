@@ -41,6 +41,16 @@ public class ComparableMaxTest extends AggregateFunctionTest {
         assertNull(clone.state()[0]);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void shouldGetNullPointerExceptionForNullInput() {
+        // Given
+        final ComparableMax aggregator = getInstance();
+        aggregator._aggregate(1);
+
+        // When
+        aggregator.aggregate(new Object[]{null});
+    }
+
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
