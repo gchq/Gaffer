@@ -47,7 +47,12 @@ public class HyperLogLogPlusSerialiser extends AbstractSerialisation<HyperLogLog
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public HyperLogLogPlus deserialiseEmptyBytes() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

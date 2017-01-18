@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -24,15 +23,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -66,73 +64,18 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * @see TypeDefinitions
      * @see TypeDefinition
      */
-    private final TypeDefinitions types;
+    private final Map<String, TypeDefinition> types;
 
     private String visibilityProperty;
 
     private String timestampProperty;
 
     protected Schema() {
-        this(new TypeDefinitions());
+        this(new LinkedHashMap<String, TypeDefinition>());
     }
 
-    protected Schema(final TypeDefinitions types) {
+    protected Schema(final Map<String, TypeDefinition> types) {
         this.types = types;
-    }
-
-    public <T extends SchemaElementDefinition> T expandChild(final T childDefinition, final T parentDefinition) {
-        if (childDefinition.getGroupBy().isEmpty()) {
-            childDefinition.setGroupBy(parentDefinition.getGroupBy());
-        }
-        LinkedHashMap<String, String> childProps = new LinkedHashMap<>(childDefinition.getPropertyMap());
-        Set<String> childPropertyNames = childProps.keySet();
-        Map<String, String> parentProperties = parentDefinition.getPropertyMap();
-        for (final Map.Entry<String, String> entry : parentProperties.entrySet()) {
-            String parentPropName = entry.getKey();
-            if (!childPropertyNames.contains(parentPropName)) {
-                childProps.put(parentPropName, entry.getValue());
-            }
-        }
-        childDefinition.setPropertyMap(childProps);
-        Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
-        for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
-            if (!childDefinition.containsIdentifier(identifierType)) {
-                identifiers.put(identifierType, parentDefinition.getIdentifierTypeName(identifierType));
-            }
-        }
-        return childDefinition;
-    }
-
-    public <T extends SchemaElementDefinition> T collapseChild(final T childDefinition, final T parentDefinition) {
-        if (childDefinition.getGroupBy().equals(parentDefinition.getGroupBy())) {
-            childDefinition.setGroupBy(new LinkedHashSet<String>());
-        }
-
-        LinkedHashMap<String, String> props = new LinkedHashMap<>(childDefinition.getPropertyMap());
-        for (final String prop : parentDefinition.getProperties()) {
-            if (!props.keySet().contains(prop)) {
-                props.put(prop, parentDefinition.getPropertyMap().get(prop));
-            }
-        }
-
-        LinkedHashMap<String, String> childProps = new LinkedHashMap<>(childDefinition.getPropertyMap());
-        Set<String> childPropertyNames = childProps.keySet();
-        Map<String, String> parentProperties = parentDefinition.getPropertyMap();
-        for (final Map.Entry<String, String> entry : parentProperties.entrySet()) {
-            String propName = entry.getKey();
-            if (childPropertyNames.contains(propName) && entry.getValue().equals(childProps.get(propName))) {
-                childProps.remove(propName);
-            }
-        }
-        childDefinition.setPropertyMap(childProps);
-
-        Map<IdentifierType, String> identifiers = childDefinition.getIdentifierMap();
-        for (final IdentifierType identifierType : parentDefinition.getIdentifiers()) {
-            if (childDefinition.containsIdentifier(identifierType) && childDefinition.getIdentifierTypeName(identifierType).equals(parentDefinition.getIdentifierTypeName(identifierType))) {
-                identifiers.remove(identifierType);
-            }
-        }
-        return childDefinition;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -182,12 +125,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return true;
     }
 
-    public TypeDefinitions getTypes() {
+    public Map<String, TypeDefinition> getTypes() {
         return types;
     }
 
     public TypeDefinition getType(final String typeName) {
-        return types.getType(typeName);
+        return types.get(typeName);
     }
 
     /**
@@ -210,37 +153,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         return vertexSerialiser.getClass().getName();
-    }
-
-    @JsonGetter("edges")
-    protected Map<String, SchemaEdgeDefinition> getEdgesCollapsed() throws SchemaException {
-        Map<String, SchemaEdgeDefinition> edges = super.getEdges();
-        for (final SchemaElementDefinition elementDef : edges.values()) {
-
-            if (null != elementDef.getParentGroup()) {
-                SchemaElementDefinition parentDefinition = getEdge(elementDef.getParentGroup());
-                if (null == parentDefinition) {
-                    throw new SchemaException("Attempted to get an Invalid edge, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
-                }
-                collapseChild(elementDef, parentDefinition);
-            }
-        }
-        return edges;
-    }
-
-    @JsonGetter("entities")
-    protected Map<String, SchemaEntityDefinition> getEntitiesCollapsed() throws SchemaException {
-        Map<String, SchemaEntityDefinition> entities = super.getEntities();
-        for (final SchemaEntityDefinition elementDef : entities.values()) {
-            if (null != elementDef.getParentGroup()) {
-                SchemaElementDefinition parentDefinition = getEntity(elementDef.getParentGroup());
-                if (null == parentDefinition) {
-                    throw new SchemaException("Attempted to get an Invalid entity, the parent group \"" + elementDef.getParentGroup() + "\" specified could not be found.");
-                }
-                collapseChild(elementDef, parentDefinition);
-            }
-        }
-        return entities;
     }
 
     @Override
@@ -269,14 +181,27 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return toJson(false, "description");
     }
 
-    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-    public static class Builder extends ElementDefinitions.Builder<SchemaEntityDefinition, SchemaEdgeDefinition> {
-        public Builder() {
-            this(new Schema());
+    private void validateSharedGroups(final Set<String> groupsA, final Set<String> groupsB) {
+        final Set<String> sharedGroups = new HashSet<>(groupsA);
+        sharedGroups.retainAll(groupsB);
+        if (!sharedGroups.isEmpty()) {
+            throw new SchemaException("Element groups cannot be shared across different schema files/parts. Each group must be fully defined in a single schema. Please fix these groups: " + sharedGroups);
+        }
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<Schema, SchemaEntityDefinition, SchemaEdgeDefinition, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new Schema());
         }
 
-        public Builder(final Schema schema) {
-            super(schema);
+        @Override
+        public CHILD_CLASS entity(final String group) {
+            return entity(group, new SchemaEntityDefinition());
+        }
+
+        @Override
+        public CHILD_CLASS edge(final String group) {
+            return edge(group, new SchemaEdgeDefinition());
         }
 
         /**
@@ -285,9 +210,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
          * @param vertexSerialiser the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} to set
          * @return this Builder
          */
-        public Builder vertexSerialiser(final Serialisation vertexSerialiser) {
+        public CHILD_CLASS vertexSerialiser(final Serialisation vertexSerialiser) {
             getThisSchema().vertexSerialiser = vertexSerialiser;
-            return this;
+            return self();
         }
 
         /**
@@ -296,7 +221,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
          * @param vertexSerialiserClass the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} class name to set
          * @return this Builder
          */
-        public Builder vertexSerialiserClass(final String vertexSerialiserClass) {
+        public CHILD_CLASS vertexSerialiserClass(final String vertexSerialiserClass) {
             if (null == vertexSerialiserClass) {
                 getThisSchema().vertexSerialiser = null;
             } else {
@@ -313,76 +238,59 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 }
             }
 
-            return this;
+            return self();
         }
 
-        @Override
-        public Builder edge(final String group, final SchemaEdgeDefinition edgeDef) {
-            edgeDef.setTypesLookup(getThisSchema().types);
-            return (Builder) super.edge(group, edgeDef);
-        }
-
-        public Builder edge(final String group) {
-            return edge(group, new SchemaEdgeDefinition());
-        }
-
-        @Override
-        public Builder edges(final Map<String, SchemaEdgeDefinition> edges) {
-            return (Builder) super.edges(edges);
-        }
-
-        @Override
-        public Builder entity(final String group, final SchemaEntityDefinition entityDef) {
-            entityDef.setTypesLookup(getThisSchema().types);
-            return (Builder) super.entity(group, entityDef);
-        }
-
-        public Builder entity(final String group) {
-            return entity(group, new SchemaEntityDefinition());
-        }
-
-        @Override
-        public Builder entities(final Map<String, SchemaEntityDefinition> entities) {
-            return (Builder) super.entities(entities);
-        }
-
-        public Builder type(final String typeName, final TypeDefinition type) {
+        public CHILD_CLASS type(final String typeName, final TypeDefinition type) {
             getThisSchema().types.put(typeName, type);
-            return this;
+            return self();
         }
 
-        public Builder type(final String typeName, final Class<?> typeClass) {
+        public CHILD_CLASS type(final String typeName, final Class<?> typeClass) {
             return type(typeName, new TypeDefinition(typeClass));
         }
 
-        public Builder types(final TypeDefinitions types) {
+        public CHILD_CLASS types(final TypeDefinitions types) {
             getThisSchema().types.putAll(types);
-            return this;
+            return self();
         }
 
-        public Builder visibilityProperty(final String visibilityProperty) {
+        public CHILD_CLASS visibilityProperty(final String visibilityProperty) {
             getThisSchema().visibilityProperty = visibilityProperty;
-            return this;
+            return self();
         }
 
-        public Builder timestampProperty(final String timestampProperty) {
+        public CHILD_CLASS timestampProperty(final String timestampProperty) {
             getThisSchema().timestampProperty = timestampProperty;
-            return this;
+            return self();
         }
 
-        @JsonIgnore
         @Override
-        public Builder merge(final ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> elementDefs) {
-            if (elementDefs instanceof Schema) {
-                return merge(((Schema) elementDefs));
-            } else {
-                return (Builder) super.merge(elementDefs);
-            }
-        }
-
         @JsonIgnore
-        public Builder merge(final Schema schema) {
-            super.merge(schema);
+        public CHILD_CLASS merge(final Schema schema) {
+            for (final Map.Entry<String, SchemaEntityDefinition> entry : schema.getEntities().entrySet()) {
+                if (!getThisSchema().entities.containsKey(entry.getKey())) {
+                    entity(entry.getKey(), entry.getValue());
+                } else {
+                    final SchemaEntityDefinition mergedElementDef = new SchemaEntityDefinition.Builder()
+                            .merge(getThisSchema().entities.get(entry.getKey()))
+                            .merge(entry.getValue())
+                            .build();
+                    getThisSchema().entities.put(entry.getKey(), mergedElementDef);
+                }
+            }
+
+            for (final Map.Entry<String, SchemaEdgeDefinition> entry : schema.getEdges().entrySet()) {
+                if (!getThisSchema().edges.containsKey(entry.getKey())) {
+                    edge(entry.getKey(), entry.getValue());
+                } else {
+                    final SchemaEdgeDefinition mergedElementDef = new SchemaEdgeDefinition.Builder()
+                            .merge(getThisSchema().edges.get(entry.getKey()))
+                            .merge(entry.getValue())
+                            .build();
+                    getThisSchema().edges.put(entry.getKey(), mergedElementDef);
+                }
+            }
 
             if (null != schema.getVertexSerialiser()) {
                 if (null == getThisSchema().vertexSerialiser) {
@@ -407,43 +315,58 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         + getThisSchema().timestampProperty + " and " + schema.getTimestampProperty());
             }
 
-            getThisSchema().types.merge(schema.getTypes());
-            return this;
+            for (final Entry<String, TypeDefinition> entry : schema.types.entrySet()) {
+                final String newType = entry.getKey();
+                final TypeDefinition newTypeDef = entry.getValue();
+                final TypeDefinition typeDef = getThisSchema().types.get(newType);
+                if (null == typeDef) {
+                    getThisSchema().types.put(newType, newTypeDef);
+                } else {
+                    typeDef.merge(newTypeDef);
+                }
+            }
+
+            return self();
         }
 
         @JsonIgnore
-        public Builder json(final InputStream... inputStreams) throws SchemaException {
-            return (Builder) json(Schema.class, inputStreams);
+        public CHILD_CLASS json(final InputStream... inputStreams) throws SchemaException {
+            return json(Schema.class, inputStreams);
         }
 
         @JsonIgnore
-        public Builder json(final Path... filePaths) throws SchemaException {
-            return (Builder) json(Schema.class, filePaths);
+        public CHILD_CLASS json(final Path... filePaths) throws SchemaException {
+            return json(Schema.class, filePaths);
         }
 
         @JsonIgnore
-        public Builder json(final byte[]... jsonBytes) throws SchemaException {
-            return (Builder) json(Schema.class, jsonBytes);
+        public CHILD_CLASS json(final byte[]... jsonBytes) throws SchemaException {
+            return json(Schema.class, jsonBytes);
         }
 
         @Override
         public Schema build() {
-            getThisSchema().types.lock();
-            for (SchemaEdgeDefinition schemaEdgeDefinition : getThisSchema().getEdges().values()) {
-                schemaEdgeDefinition.
+            for (final SchemaElementDefinition elementDef : getThisSchema().getEntities().values()) {
+                elementDef.schemaReference = getThisSchema();
             }
 
-            return (Schema) super.build();
-        }
+            for (final SchemaElementDefinition elementDef : getThisSchema().getEdges().values()) {
+                elementDef.schemaReference = getThisSchema();
+            }
 
-        @JsonIgnore
-        @Override
-        protected Schema getElementDefs() {
-            return (Schema) super.getElementDefs();
+            return super.build();
         }
 
         private Schema getThisSchema() {
             return getElementDefs();
+        }
+    }
+
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public final static class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }

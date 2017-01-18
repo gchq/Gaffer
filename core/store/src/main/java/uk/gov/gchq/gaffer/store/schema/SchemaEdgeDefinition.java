@@ -17,21 +17,8 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 
 public class SchemaEdgeDefinition extends SchemaElementDefinition {
-    public void setSource(final String typeName) {
-        getIdentifierMap().put(IdentifierType.SOURCE, typeName);
-    }
-
-    public void setDestination(final String typeName) {
-        getIdentifierMap().put(IdentifierType.DESTINATION, typeName);
-    }
-
-    public void setDirected(final String typeName) {
-        getIdentifierMap().put(IdentifierType.DIRECTED, typeName);
-    }
-
     public String getSource() {
         return getIdentifierTypeName(IdentifierType.SOURCE);
     }
@@ -44,112 +31,31 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
         return getIdentifierTypeName(IdentifierType.DIRECTED);
     }
 
-    public static class Builder extends SchemaElementDefinition.Builder {
-        public Builder() {
-            this(new SchemaEdgeDefinition());
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends SchemaElementDefinition.BaseBuilder<SchemaEdgeDefinition, CHILD_CLASS> {
+        protected BaseBuilder() {
+            super(new SchemaEdgeDefinition());
         }
 
-        public Builder(final SchemaEdgeDefinition elDef) {
-            super(elDef);
+        public CHILD_CLASS source(final String typeName) {
+            getElementDef().identifiers.put(IdentifierType.SOURCE, typeName);
+            return self();
         }
 
+        public CHILD_CLASS destination(final String typeName) {
+            getElementDef().identifiers.put(IdentifierType.DESTINATION, typeName);
+            return self();
+        }
 
+        public CHILD_CLASS directed(final String typeName) {
+            getElementDef().identifiers.put(IdentifierType.DIRECTED, typeName);
+            return self();
+        }
+    }
+
+    public final static class Builder extends BaseBuilder<Builder> {
         @Override
-        public Builder property(final String propertyName, final Class<?> typeClass) {
-            return (Builder) super.property(propertyName, typeClass);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final String exisitingTypeName) {
-            return (Builder) super.property(propertyName, exisitingTypeName);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
-            return (Builder) super.property(propertyName, typeName, type);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
-            return (Builder) super.property(propertyName, typeName, typeClass);
-        }
-
-        @Override
-        public Builder groupBy(final String... propertyName) {
-            return (Builder) super.groupBy(propertyName);
-        }
-
-        @Override
-        public Builder validator(final ElementFilter validator) {
-            return (Builder) super.validator(validator);
-        }
-
-        public Builder source(final Class<?> typeClass) {
-            return source(typeClass.getName(), typeClass);
-        }
-
-        public Builder source(final String exisitingTypeName) {
-            identifier(IdentifierType.SOURCE, exisitingTypeName);
+        protected Builder self() {
             return this;
-        }
-
-        public Builder source(final String typeName, final TypeDefinition type) {
-            type(typeName, type);
-            return source(typeName);
-        }
-
-        public Builder source(final String typeName, final Class<?> typeClass) {
-            return source(typeName, new TypeDefinition(typeClass));
-        }
-
-        public Builder destination(final Class<?> typeClass) {
-            return destination(typeClass.getName(), typeClass);
-        }
-
-        public Builder destination(final String exisitingTypeName) {
-            identifier(IdentifierType.DESTINATION, exisitingTypeName);
-            return this;
-        }
-
-        public Builder destination(final String typeName, final TypeDefinition type) {
-            type(typeName, type);
-            return destination(typeName);
-        }
-
-        public Builder destination(final String typeName, final Class<?> typeClass) {
-            return destination(typeName, new TypeDefinition(typeClass));
-        }
-
-        public Builder directed(final Class<?> typeClass) {
-            return directed(typeClass.getName(), typeClass);
-        }
-
-        public Builder directed(final String exisitingTypeName) {
-            identifier(IdentifierType.DIRECTED, exisitingTypeName);
-            return this;
-        }
-
-        public Builder directed(final String typeName, final TypeDefinition type) {
-            type(typeName, type);
-            return directed(typeName);
-        }
-
-        public Builder directed(final String typeName, final Class<?> typeClass) {
-            return directed(typeName, new TypeDefinition(typeClass));
-        }
-
-        public Builder description(final String description) {
-            return (Builder) super.description(description);
-        }
-
-        @Override
-        public SchemaEdgeDefinition build() {
-            return (SchemaEdgeDefinition) super.build();
-        }
-
-        @Override
-        protected SchemaEdgeDefinition getElementDef() {
-            return (SchemaEdgeDefinition) super.getElementDef();
         }
     }
 }

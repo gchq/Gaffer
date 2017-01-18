@@ -1,0 +1,33 @@
+{
+  "edges": {
+    "red": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int"
+      }
+    },
+    "blue": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int"
+      }
+    }
+  },
+  "entities": {
+    "Cardinality": {
+      "vertex": "vertex.string",
+      "properties": {
+        "edgeGroup": "set",
+        "hllp": "hllp",
+        "count": "count.int"
+      },
+      "groupBy": [
+        "edgeGroup"
+      ]
+    }
+  }
+}

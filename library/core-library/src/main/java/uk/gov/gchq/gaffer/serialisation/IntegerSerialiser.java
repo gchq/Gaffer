@@ -57,7 +57,7 @@ public class IntegerSerialiser extends AbstractSerialisation<Integer> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }

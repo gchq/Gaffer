@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,11 +34,29 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/status", description = "Methods to check the status of the system.")
 public class StatusService {
+    private final GraphFactory graphFactory;
+
+    public StatusService() {
+        this(GraphFactory.createGraphFactory());
+    }
+
+    public StatusService(final GraphFactory graphFactory) {
+        this.graphFactory = graphFactory;
+    }
+
     @GET
     @ApiOperation(value = "Returns the status of the service", response = SystemStatus.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 500, message = "Something wrong in Server")})
     public SystemStatus status() {
-        return new SystemStatus("The system is working normally.");
+        try {
+            if (null != graphFactory.getGraph()) {
+                return new SystemStatus("The system is working normally.");
+            }
+        } catch (final Exception e) {
+            return new SystemStatus("Unable to create graph. Error: " + e.getMessage());
+        }
+
+        return new SystemStatus("Unable to create graph.");
     }
 }

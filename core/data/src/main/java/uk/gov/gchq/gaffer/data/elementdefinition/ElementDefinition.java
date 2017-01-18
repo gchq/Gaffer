@@ -21,5 +21,4 @@ package uk.gov.gchq.gaffer.data.elementdefinition;
  * This interface requires element definitions to able to be merged.
  */
 public interface ElementDefinition {
-    void merge(ElementDefinition elDef);
 }

@@ -49,8 +49,6 @@ import java.util.Set;
  * A <code>SchemaElementDefinition</code> is the representation of a single group in a
  * {@link Schema}.
  * Each element needs identifiers and can optionally have properties, an aggregator and a validator.
- *
- * @see SchemaElementDefinition.Builder
  */
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public abstract class SchemaElementDefinition implements ElementDefinition {
@@ -62,36 +60,37 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * Property map of property name to accepted type.
      */
-    private LinkedHashMap<String, String> properties;
+    protected LinkedHashMap<String, String> properties;
 
     /**
      * Identifier map of identifier type to accepted type.
      */
-    private LinkedHashMap<IdentifierType, String> identifiers;
+    protected LinkedHashMap<IdentifierType, String> identifiers;
 
-    private ElementFilter validator;
+    protected ElementFilter validator;
 
     /**
      * The <code>TypeDefinitions</code> provides the different element identifier value types and property value types.
      *
      * @see TypeDefinitions
      */
-    private TypeDefinitions typesLookup;
+    protected Schema schemaReference;
 
     /**
      * A ordered set of property names that should be stored to allow
      * query time aggregation to group based on their values.
      */
-    private LinkedHashSet<String> groupBy;
+    protected LinkedHashSet<String> groupBy;
 
-    private String parentGroup;
-    private String description;
+    protected String parentGroup;
+    protected String description;
 
     public SchemaElementDefinition() {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
         properties = new LinkedHashMap<>();
         identifiers = new LinkedHashMap<>();
         groupBy = new LinkedHashSet<>();
+        schemaReference = new Schema();
     }
 
     /**
@@ -101,65 +100,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      */
     public boolean validate() {
         return elementDefValidator.validate(this);
-    }
-
-    @Override
-    public void merge(final ElementDefinition elementDef) {
-        if (elementDef instanceof SchemaElementDefinition) {
-            merge(((SchemaElementDefinition) elementDef));
-        } else {
-            throw new IllegalArgumentException("Cannot merge a schema element definition with a " + elementDef.getClass());
-        }
-    }
-
-    public void merge(final SchemaElementDefinition elementDef) {
-        for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-            final String newProp = entry.getKey();
-            final String newPropTypeName = entry.getValue();
-            if (!properties.containsKey(newProp)) {
-                properties.put(newProp, newPropTypeName);
-            } else {
-                final String typeName = properties.get(newProp);
-                if (!typeName.equals(newPropTypeName)) {
-                    throw new SchemaException("Unable to merge schemas. Conflict of types with property " + newProp
-                            + ". Type names are: " + typeName + " and " + newPropTypeName);
-                }
-            }
-        }
-
-        for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
-            final IdentifierType newId = entry.getKey();
-            final String newIdTypeName = entry.getValue();
-            if (!identifiers.containsKey(newId)) {
-                identifiers.put(newId, newIdTypeName);
-            } else {
-                final String typeName = identifiers.get(newId);
-                if (!typeName.equals(newIdTypeName)) {
-                    throw new SchemaException("Unable to merge schemas. Conflict of types with identifier " + newId
-                            + ". Type names are: " + typeName + " and " + newIdTypeName);
-                }
-            }
-        }
-
-        if (null == validator) {
-            validator = elementDef.validator;
-        } else if (null != elementDef.getOriginalValidateFunctions()) {
-            validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
-        }
-
-        if (typesLookup == null) {
-            typesLookup = elementDef.getTypesLookup();
-        } else if (typesLookup != elementDef.getTypesLookup()) {
-            typesLookup.merge(elementDef.getTypesLookup());
-        }
-
-        groupBy.addAll(elementDef.getGroupBy());
-
-        if (null == description) {
-            description = elementDef.getDescription();
-        } else if (null != elementDef.getDescription() && !description.contains(elementDef.getDescription())) {
-            description = description + " | " + elementDef.getDescription();
-        }
     }
 
     public Set<String> getProperties() {
@@ -174,11 +114,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonGetter("properties")
     public Map<String, String> getPropertyMap() {
         return Collections.unmodifiableMap(properties);
-    }
-
-    @JsonSetter("properties")
-    protected void setPropertyMap(final LinkedHashMap<String, String> properties) {
-        this.properties = properties;
     }
 
     @JsonIgnore
@@ -279,11 +214,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return fullValidator;
     }
 
-    @JsonSetter("validator")
-    private void setValidator(final ElementFilter validator) {
-        this.validator = validator;
-    }
-
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
     @JsonGetter("validateFunctions")
     public ConsumerFunctionContext<String, FilterFunction>[] getOriginalValidateFunctions() {
@@ -301,14 +231,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             validator = new ElementFilter();
         }
         validator.addFunctions(Arrays.asList(functions));
-    }
-
-    public void setTypesLookup(final TypeDefinitions newTypes) {
-        if (null != typesLookup && null != newTypes) {
-            newTypes.merge(typesLookup);
-        }
-
-        typesLookup = newTypes;
     }
 
     @JsonIgnore
@@ -348,37 +270,12 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return groupBy;
     }
 
-    public void setGroupBy(final LinkedHashSet<String> groupBy) {
-        if (null == groupBy) {
-            this.groupBy = new LinkedHashSet<>();
-        } else {
-            this.groupBy = groupBy;
-        }
-    }
-
-    public void setParentGroup(final String parentGroup) {
-        this.parentGroup = parentGroup;
-    }
-
     public String getParentGroup() {
         return parentGroup;
     }
 
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    @JsonIgnore
-    protected TypeDefinitions getTypesLookup() {
-        if (null == typesLookup) {
-            setTypesLookup(new TypeDefinitions());
-        }
-
-        return typesLookup;
     }
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
@@ -410,7 +307,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     private TypeDefinition getTypeDef(final String typeName) {
-        return getTypesLookup().getType(typeName);
+        return schemaReference.getType(typeName);
     }
 
     @Override
@@ -430,9 +327,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(properties, that.properties)
                 .append(identifiers, that.identifiers)
                 .append(validator, that.validator)
-                .append(typesLookup, that.typesLookup)
                 .append(groupBy, that.groupBy)
                 .append(description, that.description)
+                .append(parentGroup, that.parentGroup)
                 .isEquals();
     }
 
@@ -443,9 +340,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(properties)
                 .append(identifiers)
                 .append(validator)
-                .append(typesLookup)
                 .append(groupBy)
                 .append(description)
+                .append(parentGroup)
                 .toHashCode();
     }
 
@@ -456,80 +353,104 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append("properties", properties)
                 .append("identifiers", identifiers)
                 .append("validator", validator)
-                .append("typesLookup", typesLookup)
                 .append("groupBy", groupBy)
                 .append("description", description)
+                .append("parent", parentGroup)
                 .toString();
     }
 
-    protected static class Builder {
-        private final SchemaElementDefinition elDef;
+    protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
+            CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
+        protected ELEMENT_DEF elDef;
 
-        protected Builder(final SchemaElementDefinition elDef) {
-            this.elDef = elDef;
+        protected BaseBuilder(final ELEMENT_DEF elementDef) {
+            this.elDef = elementDef;
         }
 
-        protected Builder property(final String propertyName, final String typeName) {
+        public CHILD_CLASS property(final String propertyName, final String typeName) {
             elDef.properties.put(propertyName, typeName);
-            return this;
+            return self();
         }
 
-        protected Builder identifier(final IdentifierType identifierType, final String typeName) {
+        public CHILD_CLASS identifier(final IdentifierType identifierType, final String typeName) {
             elDef.identifiers.put(identifierType, typeName);
-            return this;
+            return self();
         }
 
-        protected Builder validator(final ElementFilter validator) {
-            elDef.setValidator(validator);
-            return this;
+        public CHILD_CLASS validator(final ElementFilter validator) {
+            elDef.validator = validator;
+            return self();
         }
 
-        protected Builder property(final String propertyName, final Class<?> clazz) {
-            return property(propertyName, clazz.getName(), clazz);
+        public CHILD_CLASS groupBy(final String... propertyName) {
+            elDef.getGroupBy().addAll(Arrays.asList(propertyName));
+            return self();
         }
 
-        protected Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
-            type(typeName, type);
-            return property(propertyName, typeName);
+        public CHILD_CLASS parent(final String parentGroup) {
+            elDef.parentGroup = parentGroup;
+            return self();
         }
 
-        protected Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
-            return property(propertyName, typeName, new TypeDefinition(typeClass));
+        public CHILD_CLASS description(final String description) {
+            elDef.description = description;
+            return self();
         }
 
-        protected Builder type(final String typeName, final TypeDefinition type) {
-            final TypeDefinitions types = getElementDef().getTypesLookup();
-            final TypeDefinition exisitingType = types.get(typeName);
-            if (null == exisitingType) {
-                types.put(typeName, type);
-            } else if (!exisitingType.equals(type)) {
-                throw new IllegalArgumentException("The type provided conflicts with an existing type with the same name");
+        public CHILD_CLASS merge(final SchemaElementDefinition elementDef) {
+            for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+                final String newProp = entry.getKey();
+                final String newPropTypeName = entry.getValue();
+                if (!getElementDef().properties.containsKey(newProp)) {
+                    getElementDef().properties.put(newProp, newPropTypeName);
+                } else {
+                    final String typeName = getElementDef().properties.get(newProp);
+                    if (!typeName.equals(newPropTypeName)) {
+                        throw new SchemaException("Unable to merge schemas. Conflict of types with property " + newProp
+                                + ". Type names are: " + typeName + " and " + newPropTypeName);
+                    }
+                }
             }
 
-            return this;
+            for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+                final IdentifierType newId = entry.getKey();
+                final String newIdTypeName = entry.getValue();
+                if (!getElementDef().identifiers.containsKey(newId)) {
+                    getElementDef().identifiers.put(newId, newIdTypeName);
+                } else {
+                    final String typeName = getElementDef().identifiers.get(newId);
+                    if (!typeName.equals(newIdTypeName)) {
+                        throw new SchemaException("Unable to merge schemas. Conflict of types with identifier " + newId
+                                + ". Type names are: " + typeName + " and " + newIdTypeName);
+                    }
+                }
+            }
+
+            if (null == getElementDef().validator) {
+                getElementDef().validator = elementDef.validator;
+            } else if (null != elementDef.getOriginalValidateFunctions()) {
+                getElementDef().validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
+            }
+
+            getElementDef().groupBy.addAll(elementDef.getGroupBy());
+
+            if (null == getElementDef().description) {
+                getElementDef().description = elementDef.getDescription();
+            } else if (null != elementDef.getDescription() && !getElementDef().description.contains(elementDef.getDescription())) {
+                getElementDef().description = getElementDef().description + " | " + elementDef.getDescription();
+            }
+
+            return self();
         }
 
-        protected Builder groupBy(final String... propertyName) {
-            elDef.getGroupBy().addAll(Arrays.asList(propertyName));
-            return this;
-        }
-
-
-        protected Builder setParent(final String parentGroup) {
-            elDef.setParentGroup(parentGroup);
-            return this;
-        }
-
-        protected Builder description(final String description) {
-            elDef.setDescription(description);
-            return this;
-        }
-
-        protected SchemaElementDefinition build() {
+        public ELEMENT_DEF build() {
+            //TODO lock all fields
             return elDef;
         }
 
-        protected SchemaElementDefinition getElementDef() {
+        protected abstract CHILD_CLASS self();
+
+        protected ELEMENT_DEF getElementDef() {
             return elDef;
         }
     }

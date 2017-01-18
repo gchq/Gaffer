@@ -20,9 +20,12 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import java.io.IOException;
 
 /**
  * An <code>HyperLogLogPlusAggregator</code> is a {@link SimpleAggregateFunction} that takes in
@@ -31,6 +34,7 @@ import uk.gov.gchq.gaffer.function.annotation.Outputs;
 @Inputs(HyperLogLogPlus.class)
 @Outputs(HyperLogLogPlus.class)
 public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogLogPlus> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HyperLogLogPlusAggregator.class);
     private HyperLogLogPlus sketch;
 
     @Override
@@ -42,12 +46,18 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
     protected void _aggregate(final HyperLogLogPlus input) {
         if (input != null) {
             if (null == sketch) {
-                sketch = new HyperLogLogPlus(5, 5);
-            }
-            try {
-                sketch.addAll(input);
-            } catch (CardinalityMergeException exception) {
-                throw new RuntimeException("An Exception occurred when trying to aggregate the HyperLogLogPlus objects", exception);
+                try {
+                    sketch = HyperLogLogPlus.Builder.build(input.getBytes());
+                } catch (final IOException e) {
+                    LOGGER.warn("Unable to clone a HyperLogLogPlus object", e);
+                    sketch = input;
+                }
+            } else {
+                try {
+                    sketch.addAll(input);
+                } catch (final CardinalityMergeException exception) {
+                    throw new RuntimeException("An Exception occurred when trying to aggregate the HyperLogLogPlus objects", exception);
+                }
             }
         }
     }
@@ -76,11 +86,24 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
 
         final HyperLogLogPlusAggregator that = (HyperLogLogPlusAggregator) o;
 
-        return new EqualsBuilder()
-                .append(inputs, that.inputs)
-                .append(outputs, that.outputs)
-                .append(sketch, that.sketch)
-                .isEquals();
+        if (null == sketch) {
+            return null == that.sketch;
+        }
+
+        if (null == that.sketch) {
+            return false;
+        }
+
+        try {
+            return new EqualsBuilder()
+                    .append(inputs, that.inputs)
+                    .append(outputs, that.outputs)
+                    .append(sketch.getBytes(), that.sketch.getBytes())
+                    .isEquals();
+        } catch (IOException e) {
+            LOGGER.warn("Could not compare HyperLogLogPlus objects using their bytes", e);
+            return false;
+        }
     }
 
     @Override

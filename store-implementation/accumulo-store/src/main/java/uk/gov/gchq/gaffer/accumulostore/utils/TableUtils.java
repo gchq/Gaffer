@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinitions;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -217,7 +216,7 @@ public final class TableUtils {
     public static boolean schemaContainsAggregators(final Schema schema) {
         boolean schemaContainsAggregators = false;
 
-        final TypeDefinitions types = schema.getTypes();
+        final Map<String, TypeDefinition> types = schema.getTypes();
 
         for (final TypeDefinition type : types.values()) {
             if (null != type.getAggregateFunction()) {

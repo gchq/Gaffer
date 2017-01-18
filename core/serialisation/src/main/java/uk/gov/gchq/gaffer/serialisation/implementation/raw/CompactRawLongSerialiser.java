@@ -50,7 +50,7 @@ public class CompactRawLongSerialiser extends AbstractSerialisation<Long> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

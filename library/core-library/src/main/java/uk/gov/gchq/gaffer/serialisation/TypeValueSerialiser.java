@@ -94,7 +94,7 @@ public class TypeValueSerialiser extends AbstractSerialisation<TypeValue> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }

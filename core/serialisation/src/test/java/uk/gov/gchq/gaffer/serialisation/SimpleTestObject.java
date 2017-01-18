@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.Serializable;
 
+@JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public class SimpleTestObject implements Serializable {
 
     private static final long serialVersionUID = 1L;
