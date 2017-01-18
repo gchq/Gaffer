@@ -111,11 +111,11 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     public Map<String, EDGE_DEF> getEdges() {
-        return Collections.unmodifiableMap(edges);
+        return edges;
     }
 
     public Map<String, ENTITY_DEF> getEntities() {
-        return Collections.unmodifiableMap(entities);
+        return entities;
     }
 
     @Override

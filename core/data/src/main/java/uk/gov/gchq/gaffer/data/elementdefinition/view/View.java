@@ -81,7 +81,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
     public View clone() {
-        return new View.Builder().json(toCompactJson()).build();
+        return new View.Builder().json(toJson(false)).build();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<View, ViewElementDefinition, ViewElementDefinition, CHILD_CLASS> {

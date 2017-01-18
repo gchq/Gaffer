@@ -75,8 +75,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * query time aggregation to group based on their values.
      */
     protected LinkedHashSet<String> groupBy;
-
-    protected String parent;
+    protected LinkedHashSet<String> parents;
     protected String description;
 
     public SchemaElementDefinition() {
@@ -256,12 +255,25 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return groupBy;
     }
 
-    public String getParent() {
-        return parent;
+    /**
+     * For json serialisation
+     *
+     * @return parents
+     */
+    @JsonGetter("parents")
+    protected LinkedHashSet<String> getParents() {
+        return parents;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    @JsonIgnore
+    public abstract SchemaElementDefinition getExpandedDefinition();
+
+    protected Schema getSchemaReference() {
+        return schemaReference;
     }
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
@@ -315,7 +327,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(validator, that.validator)
                 .append(groupBy, that.groupBy)
                 .append(description, that.description)
-                .append(parent, that.parent)
                 .isEquals();
     }
 
@@ -328,7 +339,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(validator)
                 .append(groupBy)
                 .append(description)
-                .append(parent)
                 .toHashCode();
     }
 
@@ -341,7 +351,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append("validator", validator)
                 .append("groupBy", groupBy)
                 .append("description", description)
-                .append("parent", parent)
                 .toString();
     }
 
@@ -395,12 +404,18 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS groupBy(final String... propertyName) {
-            elDef.getGroupBy().addAll(Arrays.asList(propertyName));
+            Collections.addAll(elDef.getGroupBy(), propertyName);
             return self();
         }
 
-        public CHILD_CLASS parent(final String parentGroup) {
-            elDef.parent = parentGroup;
+        public CHILD_CLASS parents(final String... parents) {
+            if (parents.length > 0) {
+                if (null == elDef.parents) {
+                    elDef.parents = new LinkedHashSet<>();
+                }
+
+                Collections.addAll(elDef.parents, parents);
+            }
             return self();
         }
 
@@ -409,33 +424,17 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
-        public CHILD_CLASS merge(final SchemaElementDefinition elementDef) {
+        public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
             for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-                final String newProp = entry.getKey();
-                final String newPropTypeName = entry.getValue();
-                if (!getElementDef().properties.containsKey(newProp)) {
-                    getElementDef().properties.put(newProp, newPropTypeName);
+                if (null == getElementDef().getPropertyTypeName(entry.getKey())) {
+                    getElementDef().properties.put(entry.getKey(), entry.getValue());
                 } else {
-                    final String typeName = getElementDef().properties.get(newProp);
-                    if (!typeName.equals(newPropTypeName)) {
-                        throw new SchemaException("Unable to merge schemas. Conflict of types with property " + newProp
-                                + ". Type names are: " + typeName + " and " + newPropTypeName);
-                    }
+                    throw new SchemaException("Unable to merge element definitions because the property exists in both definitions");
                 }
             }
 
             for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
-                final IdentifierType newId = entry.getKey();
-                final String newIdTypeName = entry.getValue();
-                if (!getElementDef().identifiers.containsKey(newId)) {
-                    getElementDef().identifiers.put(newId, newIdTypeName);
-                } else {
-                    final String typeName = getElementDef().identifiers.get(newId);
-                    if (!typeName.equals(newIdTypeName)) {
-                        throw new SchemaException("Unable to merge schemas. Conflict of types with identifier " + newId
-                                + ". Type names are: " + typeName + " and " + newIdTypeName);
-                    }
-                }
+                getElementDef().identifiers.put(entry.getKey(), entry.getValue());
             }
 
             if (null == getElementDef().validator) {
@@ -444,17 +443,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 getElementDef().validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
             }
 
-            if (null != getElementDef().groupBy) {
-                getElementDef().groupBy.addAll(elementDef.getGroupBy());
-            } else if (null != elementDef.getGroupBy()) {
-                getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
-            }
-
-            if (null == getElementDef().description) {
-                getElementDef().description = elementDef.getDescription();
-            } else if (null != elementDef.getDescription() && !getElementDef().description.contains(elementDef.getDescription())) {
-                getElementDef().description = getElementDef().description + " | " + elementDef.getDescription();
-            }
+            getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);
+            getElementDef().parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
+            getElementDef().description = elementDef.description;
 
             return self();
         }

@@ -71,6 +71,8 @@ public final class Graph {
      */
     private List<GraphHook> graphHooks;
 
+    private Schema schema;
+
     /**
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
@@ -79,10 +81,11 @@ public final class Graph {
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final Store store, final Schema schema, final View view, final List<GraphHook> graphHooks) {
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
+        this.schema = schema;
     }
 
     /**
@@ -166,7 +169,7 @@ public final class Graph {
      * @return the schema.
      */
     public Schema getSchema() {
-        return store.getSchema();
+        return schema;
     }
 
     /**
@@ -332,7 +335,7 @@ public final class Graph {
             updateStore();
             updateView();
 
-            return new Graph(store, view, graphHooks);
+            return new Graph(store, schema, view, graphHooks);
         }
 
         private void updateSchema() {
@@ -351,17 +354,15 @@ public final class Graph {
 
         private void updateStore() {
             if (null == store) {
-                store = createStore(properties, schema);
+                store = createStore(properties, cloneSchema(schema));
             } else if (null != properties || null != schema) {
-                if (null == properties || null == schema) {
-                    throw new IllegalArgumentException("To initialise a provided store both a schema and store properties are required");
-                }
                 try {
-                    store.initialise(schema, properties);
+                    store.initialise(cloneSchema(schema), properties);
                 } catch (StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties");
+                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
                 }
             } else {
+                schema = store.getSchema();
                 store.optimiseSchema();
                 store.validateSchemas();
             }
@@ -399,6 +400,10 @@ public final class Graph {
                         .edges(store.getSchema().getEdgeGroups())
                         .build();
             }
+        }
+
+        private Schema cloneSchema(final Schema schema) {
+            return null != schema ? schema.clone() : null;
         }
     }
 }

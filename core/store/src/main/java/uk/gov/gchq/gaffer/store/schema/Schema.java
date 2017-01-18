@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -355,6 +356,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 elementDef.schemaReference = getThisSchema();
             }
 
+            expandElementDefinitions(getThisSchema());
+
+            // LOCK all fields
             return super.build();
         }
 
@@ -367,6 +371,16 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             sharedGroups.retainAll(groupsB);
             if (!sharedGroups.isEmpty()) {
                 throw new SchemaException("Element groups cannot be shared across different schema files/parts. Each group must be fully defined in a single schema. Please fix these groups: " + sharedGroups);
+            }
+        }
+
+        private void expandElementDefinitions(final Schema schema) {
+            for (final Entry<String, SchemaEdgeDefinition> entry : Lists.newArrayList(schema.getEdges().entrySet())) {
+                schema.getEdges().put(entry.getKey(), entry.getValue().getExpandedDefinition());
+            }
+
+            for (final Entry<String, SchemaEntityDefinition> entry : Lists.newArrayList(schema.getEntities().entrySet())) {
+                schema.getEntities().put(entry.getKey(), entry.getValue().getExpandedDefinition());
             }
         }
     }

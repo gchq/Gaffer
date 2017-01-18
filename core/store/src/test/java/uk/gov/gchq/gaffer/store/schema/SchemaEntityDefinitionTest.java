@@ -167,38 +167,8 @@ public class SchemaEntityDefinitionTest {
     }
 
     @Test
-    public void shouldBeAbleToMergeSchemaElementDefinitionsWithItselfAndNotDuplicateObjects() {
+    public void shouldOverrideVertexWhenMerging() {
         // Given
-        // When
-        final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
-                .vertex("id.integer")
-                .property(TestPropertyNames.PROP_1, "property.integer")
-                .validator(new ElementFilter.Builder()
-                        .select(TestPropertyNames.PROP_1)
-                        .execute(new ExampleFilterFunction())
-                        .build())
-                .groupBy(TestPropertyNames.PROP_1)
-                .build();
-
-        // When
-        final SchemaEntityDefinition mergedDef = new SchemaEntityDefinition.Builder()
-                .merge(elementDef1)
-                .merge(elementDef1)
-                .build();
-
-        // Then
-        assertEquals("id.integer", mergedDef.getVertex());
-        assertEquals(1, mergedDef.getProperties().size());
-        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
-
-        assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_1)),
-                mergedDef.getGroupBy());
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenMergeSchemaElementDefinitionWithConflictingDestination() {
-        // Given
-        // When
         final SchemaEntityDefinition elementDef1 = new SchemaEntityDefinition.Builder()
                 .vertex("vertex.integer")
                 .build();
@@ -207,16 +177,14 @@ public class SchemaEntityDefinitionTest {
                 .vertex("vertex.string")
                 .build();
 
-        // When / Then
-        try {
-            new SchemaEntityDefinition.Builder()
-                    .merge(elementDef1)
-                    .merge(elementDef2)
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("identifier"));
-        }
+        // When
+        final SchemaEntityDefinition mergedDef = new SchemaEntityDefinition.Builder()
+                .merge(elementDef1)
+                .merge(elementDef2)
+                .build();
+
+        // Then
+        assertEquals("vertex.string", mergedDef.getVertex());
     }
 
     @Test

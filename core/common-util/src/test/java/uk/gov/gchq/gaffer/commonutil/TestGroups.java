@@ -22,4 +22,7 @@ public class TestGroups {
 
     public static final String EDGE = "BasicEdge";
     public static final String EDGE_2 = "BasicEdge2";
+    public static final String EDGE_3 = "BasicEdge3";
+    public static final String EDGE_4 = "BasicEdge4";
+    public static final String EDGE_5 = "BasicEdge5";
 }

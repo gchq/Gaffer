@@ -16,14 +16,54 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 
 @JsonDeserialize(builder = SchemaEntityDefinition.Builder.class)
 public class SchemaEntityDefinition extends SchemaElementDefinition {
     public String getVertex() {
         return getIdentifierTypeName(IdentifierType.VERTEX);
+    }
+
+    @JsonIgnore
+    @Override
+    public SchemaEntityDefinition getExpandedDefinition() {
+        return getExpandedDefinition(this);
+    }
+
+    private SchemaEntityDefinition getExpandedDefinition(final SchemaEntityDefinition entityDef) {
+        if (null == entityDef.parents || entityDef.parents.isEmpty()) {
+            return this;
+        }
+
+        final SchemaEntityDefinition.Builder builder = new SchemaEntityDefinition.Builder();
+        for (final String parent : Lists.newArrayList(entityDef.parents)) {
+            final SchemaEntityDefinition parentDef = getExpandedDefinition(parent);
+            if (null != parentDef) {
+                builder.merge(parentDef);
+                entityDef.parents.remove(parent);
+            }
+        }
+        builder.merge(entityDef);
+        return builder.build();
+    }
+
+    private SchemaEntityDefinition getExpandedDefinition(String parent) {
+        SchemaEntityDefinition parentDefinition = getSchemaReference().getEntity(parent);
+        if (null == parentDefinition) {
+            return null;
+        }
+
+        if (null == parentDefinition.parents || parentDefinition.parents.isEmpty()) {
+            return parentDefinition;
+        }
+
+        parentDefinition = getExpandedDefinition(parentDefinition);
+        getSchemaReference().getEntities().put(parent, parentDefinition);
+        return parentDefinition;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends SchemaElementDefinition.BaseBuilder<SchemaEntityDefinition, CHILD_CLASS> {

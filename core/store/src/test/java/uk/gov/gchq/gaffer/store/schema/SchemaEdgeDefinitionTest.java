@@ -67,7 +67,6 @@ public class SchemaEdgeDefinitionTest {
                 .edge("edge", elementDef)
                 .build();
 
-
         // When
         final ElementFilter validator = elementDef.getValidator();
 
@@ -188,39 +187,8 @@ public class SchemaEdgeDefinitionTest {
     }
 
     @Test
-    public void shouldBeAbleToMergeSchemaElementDefinitionsWithItselfAndNotDuplicateObjects() {
+    public void shouldOverrideSourceWhenMerging() {
         // Given
-        // When
-        final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
-                .source("source.integer")
-                .directed("directed.true")
-                .property(TestPropertyNames.PROP_1, "property.integer")
-                .validator(new ElementFilter.Builder()
-                        .select(TestPropertyNames.PROP_1)
-                        .execute(new ExampleFilterFunction())
-                        .build())
-                .groupBy(TestPropertyNames.PROP_1)
-                .build();
-
-        // When
-        final SchemaEdgeDefinition mergedDef = new Builder()
-                .merge(elementDef1)
-                .merge(elementDef1)
-                .build();
-
-        // Then
-        assertEquals("source.integer", mergedDef.getSource());
-        assertEquals("directed.true", mergedDef.getDirected());
-        assertEquals(1, mergedDef.getProperties().size());
-        assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
-        assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_1)),
-                mergedDef.getGroupBy());
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenMergeSchemaElementDefinitionWithConflictingSource() {
-        // Given
-        // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
                 .source("source.integer")
                 .build();
@@ -229,22 +197,19 @@ public class SchemaEdgeDefinitionTest {
                 .source("source.string")
                 .build();
 
-        // When / Then
-        try {
-            new Builder()
-                    .merge(elementDef1)
-                    .merge(elementDef2)
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("identifier"));
-        }
+        // When
+        final SchemaEdgeDefinition mergedDef = new Builder()
+                .merge(elementDef1)
+                .merge(elementDef2)
+                .build();
+
+        // Then
+        assertEquals("source.string", mergedDef.getSource());
     }
 
     @Test
-    public void shouldThrowExceptionWhenMergeSchemaElementDefinitionWithConflictingDestination() {
+    public void shouldOverrideDestinationWhenMerging() {
         // Given
-        // When
         final SchemaEdgeDefinition elementDef1 = new SchemaEdgeDefinition.Builder()
                 .destination("destination.integer")
                 .build();
@@ -253,16 +218,14 @@ public class SchemaEdgeDefinitionTest {
                 .destination("destination.string")
                 .build();
 
-        // When / Then
-        try {
-            new Builder()
-                    .merge(elementDef1)
-                    .merge(elementDef2)
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("identifier"));
-        }
+        // When
+        final SchemaEdgeDefinition mergedDef = new Builder()
+                .merge(elementDef1)
+                .merge(elementDef2)
+                .build();
+
+        // Then
+        assertEquals("destination.string", mergedDef.getDestination());
     }
 
     @Test
