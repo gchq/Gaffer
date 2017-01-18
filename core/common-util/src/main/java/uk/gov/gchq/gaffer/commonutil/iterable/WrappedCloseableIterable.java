@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Iterator;
 
 public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
@@ -52,8 +53,8 @@ public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
 
     @Override
     public String toString() {
-        return "WrappedCloseableIterable{" +
-                "iterable=" + iterable +
-                '}';
+        return new ToStringBuilder(this)
+                .append("iterable", iterable)
+                .toString();
     }
 }

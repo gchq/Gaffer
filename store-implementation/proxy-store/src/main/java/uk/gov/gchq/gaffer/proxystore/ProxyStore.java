@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.client.Client;
@@ -100,7 +101,7 @@ public class ProxyStore extends Store {
 
     protected void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/storeTraits");
-        traits = doGet(url, new TypeReferenceStoreTraits());
+        traits = doGet(url, new TypeReferenceStoreImpl.StoreTraits());
         if (null == traits) {
             traits = new HashSet<>(0);
         } else {
@@ -112,7 +113,7 @@ public class ProxyStore extends Store {
     protected void fetchSchema(final ProxyProperties proxyProps) throws
             StoreException {
         final URL url = proxyProps.getGafferUrl("graph/schema");
-        schema = doGet(url, new TypeReferenceSchema());
+        schema = doGet(url, new TypeReferenceStoreImpl.Schema());
     }
 
     @Override
@@ -190,17 +191,11 @@ public class ProxyStore extends Store {
     protected <OUTPUT> OUTPUT handleResponse(final Response response,
                                              final TypeReference<OUTPUT> outputTypeReference)
             throws StoreException {
-        String outputJson = null;
-        switch (response.getStatus()) {
-            case 200:
-                outputJson = response.readEntity(String.class);
-                break;
-            case 204:
-                break;
-            default:
-                LOGGER.warn("Gaffer bad status " + response.getStatus());
-                LOGGER.warn("Detail: " + response.readEntity(String.class));
-                throw new StoreException("Gaffer bad status " + response.getStatus());
+        final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
+        if (200 != response.getStatus() && 204 != response.getStatus()) {
+            LOGGER.warn("Gaffer bad status " + response.getStatus());
+            LOGGER.warn("Detail: " + response.readEntity(String.class));
+            throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
         }
 
         OUTPUT output = null;
@@ -295,11 +290,5 @@ public class ProxyStore extends Store {
         client.property(ClientProperties.CONNECT_TIMEOUT, proxyProps.getConnectTimeout());
         client.property(ClientProperties.READ_TIMEOUT, proxyProps.getReadTimeout());
         return client;
-    }
-
-    public static class TypeReferenceSchema extends TypeReference<Schema> {
-    }
-
-    public static class TypeReferenceStoreTraits extends TypeReference<Set<StoreTrait>> {
     }
 }

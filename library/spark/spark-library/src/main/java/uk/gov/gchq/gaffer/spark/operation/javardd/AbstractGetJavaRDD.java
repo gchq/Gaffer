@@ -21,13 +21,10 @@ import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
 import uk.gov.gchq.gaffer.spark.operation.AbstractGetSparkRDD;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, JavaRDD<Element>> {
     private JavaSparkContext javaSparkContext;
-
-    public static class TypeReferenceJavaRDDElement extends
-            TypeReference<JavaRDD<Element>> {
-    }
 
     public JavaSparkContext getJavaSparkContext() {
         return javaSparkContext;
@@ -39,7 +36,7 @@ public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<
 
     @Override
     protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceJavaRDDElement();
+        return new TypeReferenceSparkImpl.JavaRDDElement();
     }
 
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>,

@@ -20,6 +20,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.List;
 
 /**
@@ -40,9 +41,6 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     private SQLContext sqlContext;
     private List<Converter> converters;
-
-    public static class TypeReferenceDataSetRow extends TypeReference<Dataset<Row>> {
-    }
 
     public GetDataFrameOfElements() {
     }
@@ -72,7 +70,7 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
 
     @Override
     protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceDataSetRow();
+        return new TypeReferenceSparkImpl.DataSetRow();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

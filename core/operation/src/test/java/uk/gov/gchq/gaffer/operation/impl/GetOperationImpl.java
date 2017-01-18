@@ -17,13 +17,14 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends uk.gov.gchq.gaffer.data.element.Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
+public class GetOperationImpl<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element> extends AbstractGetOperation<SEED_TYPE, ELEMENT_TYPE> {
     public GetOperationImpl() {
     }
 

@@ -29,8 +29,8 @@ public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_HOST = "gaffer.host";
     public static final String GAFFER_PORT = "gaffer.port";
     public static final String GAFFER_CONTEXT_ROOT = "gaffer.context-root";
-    public static final String CONNECT_TIMEOUT = "gaffer.connect_timeout";
-    public static final String READ_TIMEOUT = "gaffer.read_timeout";
+    public static final String CONNECT_TIMEOUT = "gaffer.connect-timeout";
+    public static final String READ_TIMEOUT = "gaffer.read-timeout";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
     public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v1";
