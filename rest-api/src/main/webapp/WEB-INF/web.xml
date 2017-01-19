@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app
+        metadata-complete="false"
+        version="3.1">
 
     <display-name>Gaffer REST example</display-name>
 
-    <context-param>
-        <param-name>resteasy.servlet.mapping.prefix</param-name>
-        <param-value>/v1</param-value>
-    </context-param>
-
     <servlet>
-        <servlet-name>resteasy</servlet-name>
-        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+        <servlet-name>Gaffer REST example</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer
+        </servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>uk.gov.gchq.gaffer.rest.application.ApplicationConfig</param-value>
+            <param-value>
+                uk.gov.gchq.gaffer.rest.application.ApplicationConfig
+            </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
-        <servlet-name>resteasy</servlet-name>
+        <servlet-name>Gaffer REST example</servlet-name>
         <url-pattern>/v1/*</url-pattern>
     </servlet-mapping>
 
     <filter>
         <filter-name>OriginFilter</filter-name>
         <filter-class>uk.gov.gchq.gaffer.rest.filter.OriginFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
 
     <filter-mapping>

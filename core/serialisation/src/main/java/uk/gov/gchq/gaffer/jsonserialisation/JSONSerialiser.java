@@ -26,11 +26,15 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import sun.misc.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -68,19 +72,28 @@ public class JSONSerialiser {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
-        mapper.setFilterProvider(getFilterProvider());
+        mapper.registerModule(getCloseableIterableDeserialiserModule());
 
+        // Use the 'setFilters' method so it is compatible with older versions of jackson
+        mapper.setFilters(getFilterProvider());
         return mapper;
+    }
+
+    private static SimpleModule getCloseableIterableDeserialiserModule() {
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
+        return module;
     }
 
     public static FilterProvider getFilterProvider(final String... fieldsToExclude) {
         if (null == fieldsToExclude || fieldsToExclude.length == 0) {
+            // Use the 'serializeAllExcept' method so it is compatible with older versions of jackson
             return new SimpleFilterProvider()
-                    .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAll());
+                    .addFilter(FILTER_FIELDS_BY_NAME, (BeanPropertyFilter) SimpleBeanPropertyFilter.serializeAllExcept());
         }
 
         return new SimpleFilterProvider()
-                .addFilter(FILTER_FIELDS_BY_NAME, SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
+                .addFilter(FILTER_FIELDS_BY_NAME, (BeanPropertyFilter) SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
     }
 
 

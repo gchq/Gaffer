@@ -51,7 +51,7 @@ public class MyPropertySerialiser implements Serialisation {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return false;
     }
 }

@@ -50,7 +50,7 @@ public class BooleanSerialiser extends AbstractSerialisation<Boolean> {
     }
 
     @Override
-    public boolean isByteOrderPreserved() {
+    public boolean preservesObjectOrdering() {
         return true;
     }
 }

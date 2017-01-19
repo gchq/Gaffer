@@ -118,7 +118,9 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("EXTRACTOR_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "extractor"));
         params.put("GET_ALL_EDGES_SUMMARISED_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all edges summarised"));
         params.put("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all edges summarised in time window"));
-
+        params.put("GET_ALL_CARDINALITIES_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all cardinalities"));
+        params.put("GET_ALL_SUMMARISED_CARDINALITIES_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all summarised cardinalities"));
+        params.put("GET_RED_EDGE_CARDINALITY_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get red edge cardinality 1"));
 
         try {
             example.run();

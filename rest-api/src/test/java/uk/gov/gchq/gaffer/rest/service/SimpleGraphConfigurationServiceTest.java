@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldGetAllAvailableOperations() throws IOException {
         // When
-        final Set<Class<? extends Operation>> supportedOperations = service.getOperations();
+        final Set<Class> supportedOperations = service.getOperations();
 
         // Then
         assertTrue(supportedOperations.size() > 0);
@@ -165,7 +165,7 @@ public class SimpleGraphConfigurationServiceTest {
     @Test
     public void shouldValidateWhetherOperationIsSupported() throws IOException {
         // When
-        final Set<Class<? extends Operation>> supportedOperations = service.getOperations();
+        final Set<Class> supportedOperations = service.getOperations();
 
         for (final Class<? extends Operation> operationClass : supportedOperations) {
             // Then

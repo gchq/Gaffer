@@ -28,8 +28,10 @@ import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Contains the full list of {@link uk.gov.gchq.gaffer.data.element.Element} types to be stored in the graph.
@@ -245,6 +247,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     public void merge(final Schema schema) {
+        validateSharedGroups(getEntityGroups(), schema.getEntityGroups());
+        validateSharedGroups(getEdgeGroups(), schema.getEdgeGroups());
         super.merge(schema);
 
         if (null != schema.getVertexSerialiser()) {
@@ -296,6 +300,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public byte[] toCompactJson() throws SchemaException {
         return toJson(false, "description");
+    }
+
+    private void validateSharedGroups(final Set<String> groupsA, final Set<String> groupsB) {
+        final Set<String> sharedGroups = new HashSet<>(groupsA);
+        sharedGroups.retainAll(groupsB);
+        if (!sharedGroups.isEmpty()) {
+            throw new SchemaException("Element groups cannot be shared across different schema files/parts. Each group must be fully defined in a single schema. Please fix these groups: " + sharedGroups);
+        }
     }
 
     public static class Builder extends ElementDefinitions.Builder<SchemaEntityDefinition, SchemaEdgeDefinition> {

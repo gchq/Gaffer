@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
     </parent>
 
     <artifactId>core-library</artifactId>
@@ -48,7 +48,6 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
         </dependency>
 
         <!-- Test dependencies -->

@@ -222,7 +222,7 @@ angular.module('app').controller('AppController',
                         "function": {
                             class: filter['function']
                         },
-                        selection: [{ key: filter.property }]
+                        selection: [ filter.property ]
                     };
 
                     for(var i in filter.availableFunctionParameters) {
