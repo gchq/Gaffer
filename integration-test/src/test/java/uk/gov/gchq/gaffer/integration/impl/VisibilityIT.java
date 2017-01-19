@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -60,22 +59,9 @@ public class VisibilityIT extends AbstractStoreIT {
 
     private static final User USER_DEFAULT = new User();
     private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1")
-                                                             .build();
+            .build();
     private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
-                                                             .build();
-
-    protected static Graph graphNoVisibility;
-
-    @Before
-    @Override
-    public void setup() throws Exception {
-        super.setup();
-        graphNoVisibility = new Graph.Builder()
-                .storeProperties(getStoreProperties())
-                .addSchema(createSchemaNoVisibility())
-                .addSchema(getStoreSchema())
-                .build();
-    }
+            .build();
 
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
@@ -108,11 +94,11 @@ public class VisibilityIT extends AbstractStoreIT {
 
             // Check that all visible entities contain the visibility property
             assertTrue("Visibility property should be visible.", e.getProperties()
-                                                                  .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
 
             assertThat("Visibility property should contain an empty String.", e.getProperties()
-                                                                               .get(TestTypes.VISIBILITY)
-                                                                               .toString(), isEmptyString());
+                    .get(TestTypes.VISIBILITY)
+                    .toString(), isEmptyString());
         }
 
         iterable.close();
@@ -121,6 +107,7 @@ public class VisibilityIT extends AbstractStoreIT {
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
     public void shouldAccessMissingVisibilityGroupsWithNoVisibilityPropertyInSchema() throws OperationException, JsonProcessingException {
+        graph = createGraphWithNoVisibility();
 
         final Set<Element> elements = new HashSet<>();
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
@@ -129,13 +116,13 @@ public class VisibilityIT extends AbstractStoreIT {
         final AddElements addElements = new AddElements.Builder()
                 .elements(elements)
                 .build();
-        graphNoVisibility.execute(addElements, USER_DEFAULT);
+        graph.execute(addElements, USER_DEFAULT);
 
         final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<Element> iterable = graphNoVisibility.execute(get, USER_DEFAULT);
+        final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -146,7 +133,7 @@ public class VisibilityIT extends AbstractStoreIT {
 
             // Check that all visible entities do not contain the visibility property
             assertFalse("Visibility property should not be visible.", e.getProperties()
-                                                                       .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
         }
 
         iterable.close();
@@ -181,11 +168,11 @@ public class VisibilityIT extends AbstractStoreIT {
 
             // Check that all visible entities contain the visibility property
             assertTrue("Visibility property should be visible.", e.getProperties()
-                                                                  .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
 
             assertThat("Visibility property should contain an empty String.", e.getProperties()
-                                                                               .get(TestTypes.VISIBILITY)
-                                                                               .toString(), isEmptyString());
+                    .get(TestTypes.VISIBILITY)
+                    .toString(), isEmptyString());
         }
 
         iterable.close();
@@ -220,11 +207,11 @@ public class VisibilityIT extends AbstractStoreIT {
 
             // Check that all visible entities contain the visibility property
             assertTrue("Visibility property should be visible.", e.getProperties()
-                                                                  .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
 
             assertThat("Visibility property should contain an empty String.", e.getProperties()
-                                                                               .get(TestTypes.VISIBILITY)
-                                                                               .toString(), isEmptyString());
+                    .get(TestTypes.VISIBILITY)
+                    .toString(), isEmptyString());
         }
 
         iterable.close();
@@ -264,14 +251,14 @@ public class VisibilityIT extends AbstractStoreIT {
         for (final Element e : userVis1Results) {
             // Check that all visible entities contain the visibility property
             assertTrue("Missing visibility property.", e.getProperties()
-                                                        .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
 
             // Check that the visibility key contai
             // ns the correct value
             assertEquals("Visibility property should be \"vis1\"",
                     e.getProperties()
-                     .get(TestTypes.VISIBILITY)
-                     .toString(), "vis1");
+                            .get(TestTypes.VISIBILITY)
+                            .toString(), "vis1");
         }
 
         userVis1Iterable.close();
@@ -305,7 +292,7 @@ public class VisibilityIT extends AbstractStoreIT {
 
         for (final Element e : iterable) {
             assertTrue(e.getProperties()
-                        .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
         }
 
         iterable.close();
@@ -337,7 +324,7 @@ public class VisibilityIT extends AbstractStoreIT {
 
         for (final Element e : results) {
             assertTrue(e.getProperties()
-                        .containsKey(TestTypes.VISIBILITY));
+                    .containsKey(TestTypes.VISIBILITY));
         }
 
         iterable.close();
@@ -370,6 +357,14 @@ public class VisibilityIT extends AbstractStoreIT {
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
                         .build())
+                .build();
+    }
+
+    private Graph createGraphWithNoVisibility() {
+        return new Graph.Builder()
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchemaNoVisibility())
+                .addSchema(getStoreSchema())
                 .build();
     }
 

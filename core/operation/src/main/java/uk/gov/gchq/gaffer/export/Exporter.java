@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.export;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.ExportOperation;
 import uk.gov.gchq.gaffer.user.User;
@@ -25,6 +28,7 @@ import uk.gov.gchq.gaffer.util.ExportUtil;
  * An <code>Exporter</code> can store data of any kind and retrieve it with
  * pagination.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
 public abstract class Exporter<CONFIG> {
     public static final String SEPARATOR = "_";
     private User user;
@@ -105,5 +109,15 @@ public abstract class Exporter<CONFIG> {
     private void setKey(final String key) {
         ExportUtil.validateKey(key);
         this.key = key;
+    }
+
+    @JsonGetter("class")
+    String getClassName() {
+        return getClass().getName();
+    }
+
+    @JsonSetter("class")
+    void setClassName(final String className) {
+        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 }

@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,6 +40,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     private INPUT input;
 
     private Map<String, String> options = new HashMap<>();
+    private TypeReference<?> outputTypeReference = createOutputTypeReference();
 
     protected AbstractOperation() {
         this(null, null);
@@ -153,6 +156,19 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
         return options.isEmpty() ? null : options;
     }
 
+    @JsonIgnore
+    @Override
+    public TypeReference<OUTPUT> getOutputTypeReference() {
+        return (TypeReference<OUTPUT>) outputTypeReference;
+    }
+
+    @Override
+    public void setOutputTypeReference(final TypeReference<?> outputTypeReference) {
+        this.outputTypeReference = outputTypeReference;
+    }
+
+    protected abstract TypeReference createOutputTypeReference();
+
     public abstract static class BaseBuilder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>,
             INPUT,
             OUTPUT,
@@ -200,6 +216,11 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
          */
         public CHILD_CLASS option(final String name, final String value) {
             op.addOption(name, value);
+            return self();
+        }
+
+        public CHILD_CLASS outputType(final TypeReference<?> typeReference) {
+            op.setOutputTypeReference(typeReference);
             return self();
         }
 

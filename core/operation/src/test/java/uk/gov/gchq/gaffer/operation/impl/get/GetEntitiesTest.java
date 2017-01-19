@@ -58,8 +58,8 @@ public class GetEntitiesTest implements OperationTest {
 
         // When
         final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Collections.singletonList(seed1))
-                                                                    .seedMatching(SeedMatchingType.EQUAL)
-                                                                    .build();
+                .seedMatching(SeedMatchingType.EQUAL)
+                .build();
 
         // Then
         assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
@@ -70,8 +70,8 @@ public class GetEntitiesTest implements OperationTest {
         final EntitySeed seed1 = new EntitySeed("id1");
         final EntitySeed seed2 = new EntitySeed("id2");
         final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Arrays.asList(seed1, seed2))
-                                                                    .seedMatching(SeedMatchingType.EQUAL)
-                                                                    .build();
+                .seedMatching(SeedMatchingType.EQUAL)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);

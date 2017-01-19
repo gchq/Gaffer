@@ -17,11 +17,13 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE> implements GetIterableElementsOperation<SEED_TYPE, RESULT_TYPE> {
@@ -62,6 +64,7 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         setIncludeEntities(operation.isIncludeEntities());
         setSeedMatching(operation.getSeedMatching());
     }
+
 
     /**
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
@@ -141,6 +144,11 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
     @Override
     public void setPopulateProperties(final boolean populateProperties) {
         this.populateProperties = populateProperties;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     public abstract static class BaseBuilder<
