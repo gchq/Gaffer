@@ -59,12 +59,12 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * Property map of property name to accepted type.
      */
-    protected LinkedHashMap<String, String> properties;
+    protected Map<String, String> properties;
 
     /**
      * Identifier map of identifier type to accepted type.
      */
-    protected LinkedHashMap<IdentifierType, String> identifiers;
+    protected Map<IdentifierType, String> identifiers;
 
     protected ElementFilter validator;
 
@@ -74,8 +74,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * A ordered set of property names that should be stored to allow
      * query time aggregation to group based on their values.
      */
-    protected LinkedHashSet<String> groupBy;
-    protected LinkedHashSet<String> parents;
+    protected Set<String> groupBy;
+    protected Set<String> parents;
     protected String description;
 
     public SchemaElementDefinition() {
@@ -251,7 +251,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
-    public LinkedHashSet<String> getGroupBy() {
+    public Set<String> getGroupBy() {
         return groupBy;
     }
 
@@ -261,7 +261,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * @return parents
      */
     @JsonGetter("parents")
-    protected LinkedHashSet<String> getParents() {
+    protected Set<String> getParents() {
         return parents;
     }
 
@@ -352,6 +352,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append("groupBy", groupBy)
                 .append("description", description)
                 .toString();
+    }
+
+    @Override
+    public void lock() {
+        if (null != parents) {
+            parents = Collections.unmodifiableSet(parents);
+        }
+        groupBy = Collections.unmodifiableSet(groupBy);
+        properties = Collections.unmodifiableMap(properties);
+        identifiers = Collections.unmodifiableMap(identifiers);
     }
 
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
@@ -451,7 +461,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
-            //TODO lock all fields
             return elDef;
         }
 

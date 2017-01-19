@@ -278,6 +278,14 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         public ELEMENT_DEFS build() {
             elementDefs.edges = Collections.unmodifiableMap(elementDefs.edges);
             elementDefs.entities = Collections.unmodifiableMap(elementDefs.entities);
+
+            for (final ElementDefinition elementDef : elementDefs.entities.values()) {
+                elementDef.lock();
+            }
+            for (final ElementDefinition elementDef : elementDefs.edges.values()) {
+                elementDef.lock();
+            }
+
             return elementDefs;
         }
 

@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -80,7 +80,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return (ViewElementDefinition) super.getElement(group);
     }
 
-    public LinkedHashSet<String> getElementGroupBy(final String group) {
+    public Set<String> getElementGroupBy(final String group) {
         ViewElementDefinition viewElementDef = (ViewElementDefinition) super.getElement(group);
         if (null == viewElementDef) {
             return null;
@@ -129,27 +129,35 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
-            for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
-                if (!getThisView().entities.containsKey(entry.getKey())) {
-                    entity(entry.getKey(), entry.getValue());
-                } else {
-                    final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
-                            .merge(getThisView().entities.get(entry.getKey()))
-                            .merge(entry.getValue())
-                            .build();
-                    getThisView().entities.put(entry.getKey(), mergedElementDef);
+            if (getThisView().entities.isEmpty()) {
+                getThisView().entities.putAll(view.getEntities());
+            } else {
+                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
+                    if (!getThisView().entities.containsKey(entry.getKey())) {
+                        entity(entry.getKey(), entry.getValue());
+                    } else {
+                        final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
+                                .merge(getThisView().entities.get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisView().entities.put(entry.getKey(), mergedElementDef);
+                    }
                 }
             }
 
-            for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
-                if (!getThisView().edges.containsKey(entry.getKey())) {
-                    edge(entry.getKey(), entry.getValue());
-                } else {
-                    final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
-                            .merge(getThisView().edges.get(entry.getKey()))
-                            .merge(entry.getValue())
-                            .build();
-                    getThisView().edges.put(entry.getKey(), mergedElementDef);
+            if (getThisView().edges.isEmpty()) {
+                getThisView().edges.putAll(view.getEdges());
+            } else {
+                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
+                    if (!getThisView().edges.containsKey(entry.getKey())) {
+                        edge(entry.getKey(), entry.getValue());
+                    } else {
+                        final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
+                                .merge(getThisView().edges.get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisView().edges.put(entry.getKey(), mergedElementDef);
+                    }
                 }
             }
 

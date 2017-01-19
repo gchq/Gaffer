@@ -19,8 +19,9 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @JsonDeserialize(builder = SchemaEdgeDefinition.Builder.class)
 public class SchemaEdgeDefinition extends SchemaElementDefinition {
@@ -48,18 +49,20 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
         }
 
         final SchemaEdgeDefinition.Builder builder = new SchemaEdgeDefinition.Builder();
-        for (final String parent : Lists.newArrayList(edgeDef.parents)) {
+        final Set<String> parents = new LinkedHashSet<>(edgeDef.parents);
+        for (final String parent : edgeDef.parents) {
             final SchemaEdgeDefinition parentDef = getExpandedDefinition(parent);
             if (null != parentDef) {
                 builder.merge(parentDef);
-                edgeDef.parents.remove(parent);
+                parents.remove(parent);
             }
         }
+        edgeDef.parents = parents;
         builder.merge(edgeDef);
         return builder.build();
     }
 
-    private SchemaEdgeDefinition getExpandedDefinition(String parent) {
+    private SchemaEdgeDefinition getExpandedDefinition(final String parent) {
         SchemaEdgeDefinition parentDefinition = getSchemaReference().getEdge(parent);
         if (null == parentDefinition) {
             return null;

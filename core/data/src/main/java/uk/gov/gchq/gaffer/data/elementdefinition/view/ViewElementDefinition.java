@@ -68,14 +68,14 @@ public class ViewElementDefinition implements ElementDefinition {
      * summarised.
      * </p>
      */
-    protected LinkedHashSet<String> groupBy;
+    protected Set<String> groupBy;
 
     /**
      * Transient property map of property name to class.
      */
-    protected LinkedHashMap<String, Class<?>> transientProperties = new LinkedHashMap<>();
+    protected Map<String, Class<?>> transientProperties = new LinkedHashMap<>();
 
-    public LinkedHashSet<String> getGroupBy() {
+    public Set<String> getGroupBy() {
         return groupBy;
     }
 
@@ -202,6 +202,15 @@ public class ViewElementDefinition implements ElementDefinition {
                 .append("groupBy", groupBy)
                 .append("transientProperties", transientProperties)
                 .toString();
+    }
+
+    @Override
+    public void lock() {
+        if (null != groupBy) {
+            groupBy = Collections.unmodifiableSet(groupBy);
+        }
+
+        transientProperties = Collections.unmodifiableMap(transientProperties);
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> {

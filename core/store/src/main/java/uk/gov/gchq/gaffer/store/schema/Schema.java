@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -65,14 +66,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      *
      * @see TypeDefinition
      */
-    private final Map<String, TypeDefinition> types;
+    private Map<String, TypeDefinition> types;
 
     private String visibilityProperty;
 
     private String timestampProperty;
 
     public Schema() {
-        this(new LinkedHashMap<String, TypeDefinition>());
+        this(new LinkedHashMap<>());
     }
 
     protected Schema(final Map<String, TypeDefinition> types) {
@@ -282,27 +283,36 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
             validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
 
-            for (final Map.Entry<String, SchemaEntityDefinition> entry : schema.getEntities().entrySet()) {
-                if (!getThisSchema().entities.containsKey(entry.getKey())) {
-                    entity(entry.getKey(), entry.getValue());
-                } else {
-                    final SchemaEntityDefinition mergedElementDef = new SchemaEntityDefinition.Builder()
-                            .merge(getThisSchema().entities.get(entry.getKey()))
-                            .merge(entry.getValue())
-                            .build();
-                    getThisSchema().entities.put(entry.getKey(), mergedElementDef);
+
+            if (getThisSchema().entities.isEmpty()) {
+                getThisSchema().entities.putAll(schema.getEntities());
+            } else {
+                for (final Map.Entry<String, SchemaEntityDefinition> entry : schema.getEntities().entrySet()) {
+                    if (!getThisSchema().entities.containsKey(entry.getKey())) {
+                        entity(entry.getKey(), entry.getValue());
+                    } else {
+                        final SchemaEntityDefinition mergedElementDef = new SchemaEntityDefinition.Builder()
+                                .merge(getThisSchema().entities.get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisSchema().entities.put(entry.getKey(), mergedElementDef);
+                    }
                 }
             }
 
-            for (final Map.Entry<String, SchemaEdgeDefinition> entry : schema.getEdges().entrySet()) {
-                if (!getThisSchema().edges.containsKey(entry.getKey())) {
-                    edge(entry.getKey(), entry.getValue());
-                } else {
-                    final SchemaEdgeDefinition mergedElementDef = new SchemaEdgeDefinition.Builder()
-                            .merge(getThisSchema().edges.get(entry.getKey()))
-                            .merge(entry.getValue())
-                            .build();
-                    getThisSchema().edges.put(entry.getKey(), mergedElementDef);
+            if (getThisSchema().edges.isEmpty()) {
+                getThisSchema().edges.putAll(schema.getEdges());
+            } else {
+                for (final Map.Entry<String, SchemaEdgeDefinition> entry : schema.getEdges().entrySet()) {
+                    if (!getThisSchema().edges.containsKey(entry.getKey())) {
+                        edge(entry.getKey(), entry.getValue());
+                    } else {
+                        final SchemaEdgeDefinition mergedElementDef = new SchemaEdgeDefinition.Builder()
+                                .merge(getThisSchema().edges.get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisSchema().edges.put(entry.getKey(), mergedElementDef);
+                    }
                 }
             }
 
@@ -329,14 +339,18 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         + getThisSchema().timestampProperty + " and " + schema.getTimestampProperty());
             }
 
-            for (final Entry<String, TypeDefinition> entry : schema.types.entrySet()) {
-                final String newType = entry.getKey();
-                final TypeDefinition newTypeDef = entry.getValue();
-                final TypeDefinition typeDef = getThisSchema().types.get(newType);
-                if (null == typeDef) {
-                    getThisSchema().types.put(newType, newTypeDef);
-                } else {
-                    typeDef.merge(newTypeDef);
+            if (getThisSchema().types.isEmpty()) {
+                getThisSchema().types.putAll(schema.types);
+            } else {
+                for (final Entry<String, TypeDefinition> entry : schema.types.entrySet()) {
+                    final String newType = entry.getKey();
+                    final TypeDefinition newTypeDef = entry.getValue();
+                    final TypeDefinition typeDef = getThisSchema().types.get(newType);
+                    if (null == typeDef) {
+                        getThisSchema().types.put(newType, newTypeDef);
+                    } else {
+                        typeDef.merge(newTypeDef);
+                    }
                 }
             }
 
@@ -370,7 +384,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             expandElementDefinitions(getThisSchema());
 
-            // LOCK all fields
+            getThisSchema().types = Collections.unmodifiableMap(getThisSchema().types);
+
             return super.build();
         }
 

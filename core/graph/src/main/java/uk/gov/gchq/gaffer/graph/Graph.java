@@ -78,6 +78,7 @@ public final class Graph {
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param store      a {@link Store} used to store the elements and handle operations.
+     * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
