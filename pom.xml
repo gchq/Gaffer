@@ -43,7 +43,7 @@
         <disable.forking>false</disable.forking>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
         <scala.version>2.11</scala.version>
         <scala.minor.version>2.11.8</scala.minor.version>
 
