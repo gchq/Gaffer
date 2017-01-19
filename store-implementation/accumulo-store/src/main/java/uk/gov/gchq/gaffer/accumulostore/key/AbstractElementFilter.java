@@ -81,7 +81,7 @@ public abstract class AbstractElementFilter extends Filter {
 
         final Schema schema;
         try {
-            schema = new Schema.Builder().json(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build();
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema from JSON", e);
         }
@@ -107,7 +107,7 @@ public abstract class AbstractElementFilter extends Filter {
         }
 
         try {
-            return new ElementValidator(new View.Builder().json(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8)).build());
+            return new ElementValidator(View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8)));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise view from JSON", e);
         }

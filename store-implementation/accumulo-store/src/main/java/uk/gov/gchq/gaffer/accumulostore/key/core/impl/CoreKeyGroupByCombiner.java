@@ -355,7 +355,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
         }
         try {
-            schema = new Schema.Builder().json(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8)).build();
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema", e);
         }
@@ -364,7 +364,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
         }
         try {
-            view = new View.Builder().json(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8)).build();
+            view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the view", e);
         }

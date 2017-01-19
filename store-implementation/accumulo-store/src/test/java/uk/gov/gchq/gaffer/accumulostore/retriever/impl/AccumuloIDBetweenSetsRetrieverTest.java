@@ -62,7 +62,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class)).build();
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
@@ -114,20 +114,20 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     private void shouldGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges between the set {A0} and the set {A23}
         final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET, defaultView);
-        final Set<Element> initalResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> initalResults = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
         assertThat(initalResults, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
 
         // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
-        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> secondOp = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A1_SET, AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET, defaultView);
-        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
+        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element>  secondOp = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A1_SET, AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET, defaultView);
+        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(),loadIntoMemory);
         assertEquals(1, secondResults.size());
         assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
 
         // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
-        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> thirdOp = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A1_SET, AccumuloTestData.SEED_A2_SET, defaultView);
-        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
+        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element>  thirdOp = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A1_SET, AccumuloTestData.SEED_A2_SET, defaultView);
+        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(),loadIntoMemory);
         assertEquals(1, thirdResults.size());
         assertThat(thirdResults, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
     }
@@ -163,24 +163,24 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> opA1B1 = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A1_SET, AccumuloTestData.SEED_B1_SET, defaultView);
             opA1B1.setIncludeEntities(false);
             opA1B1.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-            final Set<Element> a1B1OutgoingEdgeResults = returnElementsFromOperation(store, opA1B1, new User(), false);
+            final Set<Element> a1B1OutgoingEdgeResults = returnElementsFromOperation(store, opA1B1, new User(),false);
             assertThat(a1B1OutgoingEdgeResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A1_B1));
 
             // Query for edges between {A1} and {B1}, with incoming edges only. Should get nothing.
             opA1B1.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-            final Set<Element> a1B1EdgeIncomingResults = returnElementsFromOperation(store, opA1B1, new User(), false);
+            final Set<Element> a1B1EdgeIncomingResults = returnElementsFromOperation(store, opA1B1, new User(),false);
             assertEquals(0, a1B1EdgeIncomingResults.size());
 
             // Query for edges between {A2} and {B2}, with incoming edges only. Should get the edge B2->A2.
             final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> opA2B2 = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A2_SET, AccumuloTestData.SEED_B2_SET, defaultView);
             opA2B2.setIncludeEntities(false);
             opA2B2.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-            final Set<Element> a2B2EdgeIncomingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
+            final Set<Element> a2B2EdgeIncomingResults = returnElementsFromOperation(store, opA2B2, new User(),false);
             assertThat(a2B2EdgeIncomingResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_B2_A2));
 
             // Query for edges between {A2} and {B2}, with outgoing edges only. Should get nothing.
             opA2B2.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-            final Set<Element> a2B2EdgeOutgoingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
+            final Set<Element> a2B2EdgeOutgoingResults = returnElementsFromOperation(store, opA2B2, new User(),false);
             assertEquals(0, a2B2EdgeOutgoingResults.size());
 
         } catch (StoreException e) {
@@ -324,7 +324,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         addElements(data, store, user);
         // Now query for all edges in set - shouldn't get the false positive
         AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_SET, seeds, defaultView);
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
         // Check results are as expected
 
         assertEquals(2, results.size());
@@ -364,7 +364,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         op.setIncludeEdges(IncludeEdgeType.ALL);
         op.setIncludeEntities(false);
 
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A0_A23));
 
         // Set graph to return entities only
@@ -373,7 +373,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         secondOp.setIncludeEntities(true);
 
         // Query for all edges in set {A0, A23}, should get the entity for A0
-        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
+        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(),loadIntoMemory);
 
         assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.A0_ENTITY));
 
@@ -383,11 +383,11 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .edge("edgeX")
                 .entity("entityX")
                 .build();
-        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> thirdOp = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET, view);
+        final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> thirdOp  = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET, view);
         thirdOp.setIncludeEdges(IncludeEdgeType.ALL);
         thirdOp.setIncludeEntities(true);
 
-        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
+        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(),loadIntoMemory);
         assertEquals(0, thirdResults.size());
     }
 
@@ -416,7 +416,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
         // Query for all edges between the set {A0} and the set {A23}
         final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET, defaultView);
-        final Set<Element> betweenA0A23results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> betweenA0A23results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
         assertEquals(2, betweenA0A23results.size());
         assertThat(betweenA0A23results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
 
@@ -458,7 +458,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     private void testEdgesWithinSetAAreNotReturned(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         final AbstractAccumuloTwoSetSeededOperation<EntitySeed, Element> op = new GetElementsBetweenSets<>(AccumuloTestData.SEED_A0_A23_SET, AccumuloTestData.SEED_B_SET, defaultView);
-        final Set<Element> betweenA0A23_B_Results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> betweenA0A23_B_Results = returnElementsFromOperation(store, op, new User(),loadIntoMemory);
         //Should have the two entities A0 A23 but not the edge A0-23
         assertEquals(2, betweenA0A23_B_Results.size());
         assertThat(betweenA0A23_B_Results, IsCollectionContaining.hasItems(AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));

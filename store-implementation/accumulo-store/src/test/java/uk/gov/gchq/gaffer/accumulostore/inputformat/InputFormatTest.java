@@ -68,7 +68,6 @@ public class InputFormatTest {
 
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
-
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity(TestGroups.ENTITY);
@@ -136,7 +135,7 @@ public class InputFormatTest {
                                                        final String instanceName, final Set<String> expectedResults)
             throws Exception {
         final AccumuloStore store = new MockAccumuloStore();
-        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:

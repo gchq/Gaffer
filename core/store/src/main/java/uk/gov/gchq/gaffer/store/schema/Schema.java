@@ -79,11 +79,23 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         this.types = types;
     }
 
+    public static Schema fromJson(final InputStream... inputStreams) throws SchemaException {
+        return new Schema.Builder().json(inputStreams).build();
+    }
+
+    public static Schema fromJson(final Path... filePaths) throws SchemaException {
+        return new Schema.Builder().json(filePaths).build();
+    }
+
+    public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
+        return new Schema.Builder().json(jsonBytes).build();
+    }
+
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses toJson instead.")
     @Override
     public Schema clone() {
-        return new Schema.Builder().json(toJson(false)).build();
+        return fromJson(toJson(false));
     }
 
     /**

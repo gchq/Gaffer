@@ -42,7 +42,7 @@ public final class JavaSourceUtil {
             final String javaCode = FileUtils.readFileToString(new File(path));
             return javaCode.substring(javaCode.indexOf("public class "));
         } catch (final IOException e) {
-            throw new RuntimeException("Unable find the java source code, this code is used to generate the Wiki and requires access to the Gaffer source code. Please run the code from within the Gaffer parents directory.", e);
+            throw new RuntimeException("Unable find the java source code, this code is used to generate the Wiki and requires access to the Gaffer source code. Please run the code from within the Gaffer parent directory.", e);
         }
     }
 

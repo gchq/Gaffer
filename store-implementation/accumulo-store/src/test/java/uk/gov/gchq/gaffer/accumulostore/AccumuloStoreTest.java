@@ -88,7 +88,7 @@ public class AccumuloStoreTest {
 
     private static MockAccumuloStore byteEntityStore;
     private static MockAccumuloStore gaffer1KeyStore;
-    private static final Schema schema = new Schema.Builder().json(StreamUtil.schemas(AccumuloStoreTest.class)).build();
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
 
@@ -164,17 +164,17 @@ public class AccumuloStoreTest {
 
         final GetElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.PROP_1)
-                                        .execute(new IsMoreThan(0))
-                                        .build())
-                                .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.COUNT)
-                                        .execute(new IsMoreThan(6))
-                                        .build())
-                                .build())
-                        .build())
+                    .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                            .preAggregationFilter(new ElementFilter.Builder()
+                                    .select(TestPropertyNames.PROP_1)
+                                    .execute(new IsMoreThan(0))
+                                    .build())
+                            .postAggregationFilter(new ElementFilter.Builder()
+                                    .select(TestPropertyNames.COUNT)
+                                    .execute(new IsMoreThan(6))
+                                    .build())
+                            .build())
+                .build())
                 .addSeed(entitySeed1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);

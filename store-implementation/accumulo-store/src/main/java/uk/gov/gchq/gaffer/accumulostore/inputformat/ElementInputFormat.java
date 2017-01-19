@@ -58,12 +58,8 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
         log.setLevel(getLogLevel(context));
         final Configuration conf = context.getConfiguration();
         final String keyPackageClass = conf.get(KEY_PACKAGE);
-        final Schema schema = new Schema.Builder()
-                .json(conf.get(SCHEMA).getBytes(CommonConstants.UTF_8))
-                .build();
-        final View view = new View.Builder()
-                .json(conf.get(VIEW).getBytes(CommonConstants.UTF_8))
-                .build();
+        final Schema schema = Schema.fromJson(conf.get(SCHEMA).getBytes(CommonConstants.UTF_8));
+        final View view = View.fromJson(conf.get(VIEW).getBytes(CommonConstants.UTF_8));
         try {
             return new ElementWithPropertiesRecordReader(keyPackageClass, schema, view);
         } catch (final StoreException | SchemaException | SerialisationException e) {

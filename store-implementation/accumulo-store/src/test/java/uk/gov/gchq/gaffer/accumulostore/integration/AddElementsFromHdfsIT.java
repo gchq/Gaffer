@@ -199,7 +199,7 @@ public class AddElementsFromHdfsIT {
     }
 
     private Graph createGraph(final Class<? extends AccumuloKeyPackage> keyPackageClass) throws StoreException {
-        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());
         properties.setInstanceName("instance_" + keyPackageClass.getName());

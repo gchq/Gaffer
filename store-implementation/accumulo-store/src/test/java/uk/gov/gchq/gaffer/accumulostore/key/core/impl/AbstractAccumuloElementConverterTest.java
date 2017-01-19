@@ -54,9 +54,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Before
     public void setUp() throws SchemaException, IOException {
-        final Schema schema = new Schema.Builder()
-                .json(StreamUtil.schemas(getClass()))
-                .build();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         converter = createConverter(schema);
     }
 

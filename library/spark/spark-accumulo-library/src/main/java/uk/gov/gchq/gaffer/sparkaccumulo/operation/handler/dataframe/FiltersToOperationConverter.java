@@ -113,7 +113,7 @@ public class FiltersToOperationConverter {
     }
 
     private View applyGroupFilters(final View view) {
-        View derivedView = new View.Builder().json(view.toCompactJson()).build();
+        View derivedView = View.fromJson(view.toCompactJson());
         final Set<String> groups = checkForGroups();
         if (groups == null) {
             // None of the filters specify a group or groups.

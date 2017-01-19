@@ -50,6 +50,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         super();
     }
 
+    public static View fromJson(final InputStream inputStream) throws SchemaException {
+        return new View.Builder().json(inputStream).build();
+    }
+
+    public static View fromJson(final Path filePath) throws SchemaException {
+        return new View.Builder().json(filePath).build();
+    }
+
+    public static View fromJson(final byte[] jsonBytes) throws SchemaException {
+        return new View.Builder().json(jsonBytes).build();
+    }
+
     public byte[] toCompactJson() throws SchemaException {
         return toJson(false);
     }
@@ -81,7 +93,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
     public View clone() {
-        return new View.Builder().json(toJson(false)).build();
+        return fromJson(toJson(false));
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<View, ViewElementDefinition, ViewElementDefinition, CHILD_CLASS> {
