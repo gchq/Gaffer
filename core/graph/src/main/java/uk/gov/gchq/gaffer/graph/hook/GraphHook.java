@@ -39,6 +39,10 @@ public interface GraphHook {
      * @param result  the result from the operation chain
      * @param opChain the {@link OperationChain} that was executed.
      * @param user    the {@link User} who executed the operation chain
+     * @param <T>     the result type
+     * @return result object
      */
-    void postExecute(final Object result, final OperationChain<?> opChain, final User user);
+    <T> T postExecute(final T result,
+                      final OperationChain<?> opChain,
+                      final User user);
 }

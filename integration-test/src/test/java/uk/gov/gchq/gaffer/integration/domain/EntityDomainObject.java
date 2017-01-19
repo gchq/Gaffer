@@ -20,7 +20,7 @@ package uk.gov.gchq.gaffer.integration.domain;
  * It is not intended to be a representative example of how to map a domain object to a Gaffer graph element.  For an
  * example of how this mapping may be achieved, please see the 'example' project.
  */
-public class EntityDomainObject implements DomainObject {
+public class EntityDomainObject extends DomainObject {
 
     private String name;
     private String stringproperty;

@@ -28,7 +28,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class OperationChainLimiterTest {
 
@@ -36,7 +38,7 @@ public class OperationChainLimiterTest {
             .authScores(OperationChainLimiterTest.class));
 
     @Test
-     public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
+    public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetEntities())
@@ -148,5 +150,23 @@ public class OperationChainLimiterTest {
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldReturnResultWithoutModification() {
+        // Given
+        final Object result = mock(Object.class);
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(new GenerateObjects<>())
+                .build();
+        final User user = new User.Builder()
+                .opAuths("NoScore")
+                .build();
+
+        // When
+        final Object returnedResult = OPERATION_CHAIN_LIMITER.postExecute(result, opChain, user);
+
+        // Then
+        assertSame(result, returnedResult);
     }
 }

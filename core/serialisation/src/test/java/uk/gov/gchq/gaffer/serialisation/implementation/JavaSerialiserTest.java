@@ -58,7 +58,7 @@ public class JavaSerialiserTest {
 
     @Test
     public void testParameterisedDAOSerialisation() throws SerialisationException {
-        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
+        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject();
         test.setX("Test");
         test.setK(2);
         final byte[] b = SERIALISER.serialise(test);
@@ -89,7 +89,7 @@ public class JavaSerialiserTest {
 
     @Test
     public void testParameterisedDeserialisationOfParameterisedComplexObject() throws SerialisationException {
-        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
+        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject();
         test.setX("Test");
         test.setK(2);
         final byte[] b = SERIALISER.serialise(test);

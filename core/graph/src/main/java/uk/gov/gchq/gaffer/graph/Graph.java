@@ -131,7 +131,7 @@ public final class Graph {
         OUTPUT result = store.execute(operationChain, user);
 
         for (final GraphHook graphHook : graphHooks) {
-            graphHook.postExecute(result, operationChain, user);
+            result = graphHook.postExecute(result, operationChain, user);
         }
 
         return result;
@@ -366,8 +366,8 @@ public final class Graph {
         }
 
         private Store createStore(final StoreProperties storeProperties, final Schema schema) {
-            if (null == storeProperties || null == schema) {
-                throw new IllegalArgumentException("Store properties and schema are required to create a store");
+            if (null == storeProperties) {
+                throw new IllegalArgumentException("Store properties are required to create a store");
             }
 
             final String storeClass = storeProperties.getStoreClass();

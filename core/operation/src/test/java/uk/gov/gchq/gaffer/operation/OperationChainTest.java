@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -33,6 +34,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 //@RunWith(MockitoJUnitRunner.class)
@@ -55,11 +57,11 @@ public class OperationChainTest {
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(0)
-                                                        .getClass());
+                .get(0)
+                .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(1)
-                                                        .getClass());
+                .get(1)
+                .getClass());
     }
 
     @Test
@@ -141,5 +143,24 @@ public class OperationChainTest {
         assertEquals(2, opChain.getOperations().size());
         assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
         assertSame(getEdges, opChain.getOperations().get(1));
+    }
+
+    @Test
+    public void shouldDetermineOperationChainOutputType() {
+        // Given
+        final Operation operation1 = mock(Operation.class);
+        final Operation operation2 = mock(Operation.class);
+        final TypeReference typeRef = mock(TypeReference.class);
+
+        given(operation2.getOutputTypeReference()).willReturn(typeRef);
+
+        // When
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(operation1)
+                .then(operation2)
+                .build();
+
+        // When / Then
+        assertSame(typeRef, opChain.getOutputTypeReference());
     }
 }

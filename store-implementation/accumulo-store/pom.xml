@@ -269,6 +269,7 @@
                                     <include>com.fasterxml.jackson.*:*</include>
                                     <include>com.clearspring.analytics:stream
                                     </include>
+                                    <include>com.yahoo.*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

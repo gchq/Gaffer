@@ -15,14 +15,15 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
 import uk.gov.gchq.gaffer.spark.operation.AbstractGetSparkRDD;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, RDD<Element>> {
-
     private SparkContext sparkContext;
 
     public SparkContext getSparkContext() {
@@ -33,9 +34,14 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
         this.sparkContext = sparkContext;
     }
 
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceSparkImpl.RDDElement();
+    }
+
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>,
-                SEED_TYPE,
-                CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
+            SEED_TYPE,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
             extends AbstractGetElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, RDD<Element>, CHILD_CLASS> {
 
         public BaseBuilder(final OP_TYPE op) {

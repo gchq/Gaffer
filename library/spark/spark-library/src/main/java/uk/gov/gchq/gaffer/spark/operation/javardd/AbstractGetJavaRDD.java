@@ -15,14 +15,15 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
 import uk.gov.gchq.gaffer.spark.operation.AbstractGetSparkRDD;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, JavaRDD<Element>> {
-
     private JavaSparkContext javaSparkContext;
 
     public JavaSparkContext getJavaSparkContext() {
@@ -31,6 +32,11 @@ public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<
 
     public void setJavaSparkContext(final JavaSparkContext javaSparkContext) {
         this.javaSparkContext = javaSparkContext;
+    }
+
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceSparkImpl.JavaRDDElement();
     }
 
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>,
