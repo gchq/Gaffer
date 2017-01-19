@@ -69,6 +69,7 @@ uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser
 uk.gov.gchq.gaffer.hdfs.operation.mapper
 uk.gov.gchq.gaffer.hdfs.operation.mapper.generator
 uk.gov.gchq.gaffer.jsonserialisation
+uk.gov.gchq.gaffer.jsonserialisation.jackson
 uk.gov.gchq.gaffer.operation
 uk.gov.gchq.gaffer.operation.data
 uk.gov.gchq.gaffer.operation.data.generator
@@ -78,6 +79,8 @@ uk.gov.gchq.gaffer.operation.impl.export
 uk.gov.gchq.gaffer.operation.impl.export.initialise
 uk.gov.gchq.gaffer.operation.impl.generate
 uk.gov.gchq.gaffer.operation.impl.get
+uk.gov.gchq.gaffer.operation.serialisation
+uk.gov.gchq.gaffer.proxystore
 uk.gov.gchq.gaffer.rest
 uk.gov.gchq.gaffer.rest.application
 uk.gov.gchq.gaffer.rest.example
@@ -87,6 +90,14 @@ uk.gov.gchq.gaffer.rest.service
 uk.gov.gchq.gaffer.serialisation
 uk.gov.gchq.gaffer.serialisation.implementation
 uk.gov.gchq.gaffer.serialisation.implementation.raw
+uk.gov.gchq.gaffer.sketches.datasketches.frequencies.function.aggregate
+uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation
+uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate
+uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation
+uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate
+uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation
+uk.gov.gchq.gaffer.sketches.datasketches.theta.function.aggregate
+uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation
 uk.gov.gchq.gaffer.sketches.function.aggregate
 uk.gov.gchq.gaffer.sketches.function.filter
 uk.gov.gchq.gaffer.sketches.serialisation
@@ -96,6 +107,7 @@ uk.gov.gchq.gaffer.spark.operation
 uk.gov.gchq.gaffer.spark.operation.dataframe
 uk.gov.gchq.gaffer.spark.operation.javardd
 uk.gov.gchq.gaffer.spark.operation.scalardd
+uk.gov.gchq.gaffer.spark.serialisation
 uk.gov.gchq.gaffer.spark.serialisation.kryo
 uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe
 uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd
