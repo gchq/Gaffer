@@ -30,7 +30,9 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 
 public class OperationAuthoriserTest {
@@ -127,5 +129,24 @@ public class OperationAuthoriserTest {
         // Then
         assertThat(allOpAuths,
                 IsCollectionContaining.hasItems("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser"));
+    }
+
+    @Test
+    public void shouldReturnResultWithoutModification() {
+        // Given
+        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final Object result = mock(Object.class);
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(new GenerateObjects<>())
+                .build();
+        final User user = new User.Builder()
+                .opAuths("NoScore")
+                .build();
+
+        // When
+        final Object returnedResult = opAuthoriser.postExecute(result, opChain, user);
+
+        // Then
+        assertSame(result, returnedResult);
     }
 }

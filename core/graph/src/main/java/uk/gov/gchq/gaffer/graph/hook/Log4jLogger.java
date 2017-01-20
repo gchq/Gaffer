@@ -40,7 +40,8 @@ public class Log4jLogger implements GraphHook {
     }
 
     @Override
-    public void postExecute(final Object result, final OperationChain<?> operationChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> operationChain, final User user) {
         // No logging required.
+        return result;
     }
 }

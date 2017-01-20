@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def labels = ['Centos7', 'Debian8']
-def envs = ['java-7-openjdk', 'java-8-jdk']
+def envs = ['java-8-jdk']
 def builders = [:]
 
 for (x in labels) {
