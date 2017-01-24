@@ -111,7 +111,9 @@ public class WalkthroughRunner {
         Collections.sort(classes, new Comparator<Class>() {
             @Override
             public int compare(final Class class1, final Class class2) {
-                return class1.getName().compareTo(class2.getName());
+                final int class1Number = Integer.parseInt(class1.getName().replaceAll(clazz.getName(), ""));
+                final int class2Number = Integer.parseInt(class2.getName().replaceAll(clazz.getName(), ""));
+                return class1Number - class2Number;
             }
         });
 
