@@ -1,0 +1,16 @@
+{
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
+      "elementGenerator": {
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator10"
+      },
+      "objects": [
+        ""
+      ]
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.add.AddElements"
+    }
+  ]
+}

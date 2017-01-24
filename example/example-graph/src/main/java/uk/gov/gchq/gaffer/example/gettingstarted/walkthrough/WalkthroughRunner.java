@@ -23,6 +23,7 @@ import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
@@ -62,7 +63,7 @@ public class WalkthroughRunner {
         final String intro;
         try (final InputStream stream = StreamUtil.openStream(getClass(), "/example/gettingstarted/intro.md")) {
             intro = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 

@@ -121,6 +121,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("GET_ALL_CARDINALITIES_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all cardinalities"));
         params.put("GET_ALL_SUMMARISED_CARDINALITIES_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all summarised cardinalities"));
         params.put("GET_RED_EDGE_CARDINALITY_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get red edge cardinality 1"));
+        params.put("GET_FREQUENCIES_OF_1_AND_9_FOR_EDGE_A_B_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get frequencies of 1L and 9L"));
 
         try {
             example.run();
