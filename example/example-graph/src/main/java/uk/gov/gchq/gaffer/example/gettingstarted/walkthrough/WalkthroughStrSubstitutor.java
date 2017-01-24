@@ -153,6 +153,10 @@ public abstract class WalkthroughStrSubstitutor {
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get 0.25, 0.5, 0.75 percentiles"));
         params.put("GET_CDF_SNIPPET",
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get cdf"));
+        params.put("GET_SAMPLE_FOR_EDGE_A_B_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get strings sample from the red edge"));
+        params.put("GET_ENTITY_FOR_X_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get sample from the blue entity"));
 
         try {
             example.run();
