@@ -157,6 +157,12 @@ public abstract class WalkthroughStrSubstitutor {
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get strings sample from the red edge"));
         params.put("GET_ENTITY_FOR_X_SNIPPET",
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get sample from the blue entity"));
+        params.put("GET_ESTIMATE_SEPARATE_DAYS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get estimate separate days"));
+        params.put("INTERSECT_ACROSS_DAYS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get intersection"));
+        params.put("UNION_ACROSS_DAYS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get union across all days"));
 
         try {
             example.run();
