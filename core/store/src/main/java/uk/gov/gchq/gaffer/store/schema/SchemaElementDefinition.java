@@ -435,16 +435,24 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
-            for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-                if (null == getElementDef().getPropertyTypeName(entry.getKey())) {
-                    getElementDef().properties.put(entry.getKey(), entry.getValue());
-                } else {
-                    throw new SchemaException("Unable to merge element definitions because the property exists in both definitions");
+            if (getElementDef().properties.isEmpty()) {
+                getElementDef().properties.putAll(elementDef.getPropertyMap());
+            } else {
+                for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+                    if (null == getElementDef().getPropertyTypeName(entry.getKey())) {
+                        getElementDef().properties.put(entry.getKey(), entry.getValue());
+                    } else {
+                        throw new SchemaException("Unable to merge element definitions because the property exists in both definitions");
+                    }
                 }
             }
 
-            for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
-                getElementDef().identifiers.put(entry.getKey(), entry.getValue());
+            if (getElementDef().identifiers.isEmpty()) {
+                getElementDef().identifiers.putAll(elementDef.getIdentifierMap());
+            } else {
+                for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+                    getElementDef().identifiers.put(entry.getKey(), entry.getValue());
+                }
             }
 
             if (null == getElementDef().validator) {
@@ -461,6 +469,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
+            elDef.lock();
             return elDef;
         }
 

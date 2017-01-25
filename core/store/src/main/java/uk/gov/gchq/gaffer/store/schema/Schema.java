@@ -283,7 +283,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
             validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
 
-
             if (getThisSchema().entities.isEmpty()) {
                 getThisSchema().entities.putAll(schema.getEntities());
             } else {

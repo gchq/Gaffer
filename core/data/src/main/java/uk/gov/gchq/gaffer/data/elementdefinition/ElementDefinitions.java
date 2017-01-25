@@ -152,6 +152,11 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                 .toString();
     }
 
+    protected void lock() {
+        edges = Collections.unmodifiableMap(edges);
+        entities = Collections.unmodifiableMap(entities);
+    }
+
     /**
      * Builder for {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions}.
      *
@@ -276,16 +281,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return the build {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions}.
          */
         public ELEMENT_DEFS build() {
-            elementDefs.edges = Collections.unmodifiableMap(elementDefs.edges);
-            elementDefs.entities = Collections.unmodifiableMap(elementDefs.entities);
-
-            for (final ElementDefinition elementDef : elementDefs.entities.values()) {
-                elementDef.lock();
-            }
-            for (final ElementDefinition elementDef : elementDefs.edges.values()) {
-                elementDef.lock();
-            }
-
+            elementDefs.lock();
             return elementDefs;
         }
 

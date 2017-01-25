@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
                 parents.remove(parent);
             }
         }
-        edgeDef.parents = parents;
+        edgeDef.parents = Collections.unmodifiableSet(parents);
         builder.merge(edgeDef);
         return builder.build();
     }

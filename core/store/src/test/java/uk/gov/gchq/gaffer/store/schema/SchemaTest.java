@@ -212,6 +212,8 @@ public class SchemaTest {
     private Schema createSchema() {
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
@@ -221,6 +223,22 @@ public class SchemaTest {
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .description(EDGE_DESCRIPTION)
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
                         .build())
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -252,6 +270,8 @@ public class SchemaTest {
                 "      },%n" +
                 "      \"groupBy\" : [ \"property1\" ],%n" +
                 "      \"description\" : \"Edge description\",%n" +
+                "      \"source\" : \"id.string\",%n" +
+                "      \"destination\" : \"id.string\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
@@ -260,8 +280,29 @@ public class SchemaTest {
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +
-                "  \"entities\" : { },%n" +
+                "  \"entities\" : {%n" +
+                "    \"BasicEntity\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"description\" : \"Edge description\",%n" +
+                "      \"vertex\" : \"id.string\",%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    }%n" +
+                "  },%n" +
                 "  \"types\" : {%n" +
+                "    \"id.string\" : {%n" +
+                "      \"description\" : \"String type description\",%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
