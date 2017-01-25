@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+    <!-- Copied from blog: http://uniqueexperiments.blogspot.co.uk/2015/09/foolproof-method-of-excluding-resteasy.html -->
     <deployment>
         <exclude-subsystems>
             <subsystem name="jaxrs"/>

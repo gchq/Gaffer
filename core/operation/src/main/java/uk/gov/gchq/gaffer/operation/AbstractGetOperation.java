@@ -83,8 +83,8 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
-    SEED_TYPE[] getSeedArray() {
-        final Iterable<SEED_TYPE> input = getInput();
+    public SEED_TYPE[] getSeedArray() {
+        final CloseableIterable<SEED_TYPE> input = getInput();
         return null != input ? (SEED_TYPE[]) Lists.newArrayList(input).toArray() : null;
     }
 
