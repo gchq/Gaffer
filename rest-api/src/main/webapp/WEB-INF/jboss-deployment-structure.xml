@@ -18,6 +18,7 @@
             <module name="org.jboss.resteasy.resteasy-hibernatevalidator-provider"/>
             <module name="org.jboss.resteasy.resteasy-jaxb-provider"/>
             <module name="org.jboss.resteasy.resteasy-jettison-provider"/>
+            <module name="org.jboss.resteasy.resteasy-jackson-provider"/>
             <module name="org.jboss.resteasy.resteasy-jsapi"/>
             <module name="org.jboss.resteasy.resteasy-multipart-provider"/>
             <module name="org.jboss.resteasy.resteasy-yaml-provider"/>
