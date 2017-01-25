@@ -2,17 +2,7 @@ ${HEADER}
 
 ${CODE_LINK}
 
-This example demonstrates how the sketches from the Data Sketches library can be used to maintain estimates of properties on vertices and edges.
-
-Examples are given for the following sketches: LongsSketch, DoublesUnion, ReservoirLongsUnion and Union.
-
-- LongsSketch: This allows estimation of the frequencies of longs. For example suppose every time an edge is observed there is a long value associated with it which specifies the size of the interaction. Storing all the different longs on the edge could be expensive in storage. Instead we can use a LongsSketch which will give us approximate counts of the number of times a particular long was observed.
-
-TODO: Move the following 3 to their own pages.
-- DoublesUnion: This allows estimation of the quantiles of a distribution of doubles. Again suppose that every time an edge is observed, there is a double value associated with it, possibly a value between 0 and 1 giving a score of the edge. Instead of storing a property that contains all the doubles observed, we can store a DoublesUnion which will allow us to estimate the median double, the 99th percentile, etc.
-- ReservoirStringsUnion: This sketch produces a sample of a set of strings. Suppose that every time an edge is observed, there is a string value associated with it. We do not want to store all of those strings on a set on the edge but we want to be able to quickly see a sample of them.
-- Union: This sketch can be used to estimate the cardinality of a set (similarly to a HyperLogLogPlusPlus sketch) but also allows the size of the intersection with other sets to be calculated. This could be used to maintain estimates of the number of distinct vertices seen each day, and to estimate the overlap in the vertices seen on one day with those seen on another day.
-
+This example demonstrates how the LongsSketch sketch from the Data Sketches library can be used to maintain estimates of the frequencies of longs stored on on vertices and edges. The LongsSketch sketch allows estimation of the frequencies of longs. For example suppose every time an edge is observed there is a long value associated with it which specifies the size of the interaction. Storing all the different longs on the edge could be expensive in storage. Instead we can use a LongsSketch which will give us approximate counts of the number of times a particular long was observed.
 
 ##### Data schema
 This is our new data schema. The edge has a property called 'longsSketch'. This will store the LongsSketch object.

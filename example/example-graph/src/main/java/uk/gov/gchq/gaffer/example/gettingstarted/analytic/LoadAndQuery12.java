@@ -100,16 +100,16 @@ public class LoadAndQuery12 extends LoadAndQuery {
         final Edge edge = edges.iterator().next();
         final ReservoirItemsSketch<String> stringsSketch = ((ReservoirItemsUnion<String>) edge.getProperty("stringsSample")).getResult();
         final String[] samples = stringsSketch.getSamples();
-        String sampleResult = "10 samples: ";
+        final StringBuffer sb = new StringBuffer("10 samples: ");
         for (int i = 0; i < 10 && i < samples.length; i++) {
             if (i > 0) {
-                sampleResult += ", ";
+                sb.append(", ");
             }
-            sampleResult += samples[i];
+            sb.append(samples[i]);
         }
         // ---------------------------------------------------------
         log("\nEdge A-B with a sample of the strings");
-        log("GET_SAMPLE_FOR_RED_EDGE", sampleResult);
+        log("GET_SAMPLE_FOR_RED_EDGE", sb.toString());
 
 
         // [get sample from the blue entity] Get the entity Y and print a sample of the neighbours
@@ -121,13 +121,17 @@ public class LoadAndQuery12 extends LoadAndQuery {
         final Entity entity = entities.iterator().next();
         final ReservoirItemsSketch<String> neighboursSketch = ((ReservoirItemsUnion<String>) entity.getProperty("neighboursSample")).getResult();
         final String[] neighboursSample = neighboursSketch.getSamples();
-        String neighbourSampleResult = "10 samples: ";
+        sb.setLength(0);
+        sb.append("10 samples: ");
         for (int i = 0; i < 10 && i < neighboursSample.length; i++) {
-            neighbourSampleResult += neighboursSample[i] + ", ";
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(neighboursSample[i]);
         }
         // ---------------------------------------------------------
         log("\nEntity for vertex X with a sample of its neighbouring vertices");
-        log("GET_SAMPLES_FOR_X_RESULT", neighbourSampleResult);
+        log("GET_SAMPLES_FOR_X_RESULT", sb.toString());
         return null;
     }
 }
