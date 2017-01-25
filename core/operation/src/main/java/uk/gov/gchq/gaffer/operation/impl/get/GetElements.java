@@ -16,12 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import java.util.List;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.AbstractGetOperation} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
@@ -64,6 +69,20 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
 
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         super.setSeedMatching(seedMatching);
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @JsonGetter(value = "seeds")
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
+    @Override
+    public SEED_TYPE[] getSeedArray() {
+        final CloseableIterable<SEED_TYPE> input = getInput();
+        if (null != input) {
+            final List<SEED_TYPE> inputList = Lists.newArrayList(input);
+            return (SEED_TYPE[]) inputList.toArray(new ElementSeed[inputList.size()]);
+        }
+
+        return null;
     }
 
     public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,

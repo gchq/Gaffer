@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.5.2-SNAPSHOT</version>
+        <version>0.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -269,6 +269,7 @@
                                     <include>com.fasterxml.jackson.*:*</include>
                                     <include>com.clearspring.analytics:stream
                                     </include>
+                                    <include>com.yahoo.*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

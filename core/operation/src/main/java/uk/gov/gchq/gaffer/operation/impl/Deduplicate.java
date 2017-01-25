@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * A <code>Deduplicate</code> operation takes in an {@link Iterable} of items
@@ -28,6 +30,10 @@ import uk.gov.gchq.gaffer.operation.AbstractOperation;
  * @see Deduplicate.Builder
  */
 public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
+    @Override
+    protected TypeReference createOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableObj();
+    }
 
     public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>
             extends AbstractOperation.BaseBuilder<Deduplicate<T>, CloseableIterable<T>, CloseableIterable<T>, CHILD_CLASS> {

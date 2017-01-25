@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.5.2-SNAPSHOT</version>
+        <version>0.6.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,8 +28,7 @@
 
     <modules>
         <module>accumulo-store</module>
+        <module>proxy-store</module>
         <module>array-list-store</module>
     </modules>
-
-
 </project>

@@ -104,8 +104,9 @@ public class OperationAuthoriser implements GraphHook {
     }
 
     @Override
-    public void postExecute(final Object result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
         // This method can be overridden to add additional authorisation checks on the results.
+        return result;
     }
 
     /**

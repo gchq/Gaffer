@@ -15,10 +15,19 @@
  */
 package uk.gov.gchq.gaffer.integration.domain;
 
-/**
- * Please note that this object has been created in order to test the ElementGenerator code in the Gaffer framework.
- * It is not intended to be a representative example of how to map a domain object to a Gaffer graph element.  For an
- * example of how this mapping may be achieved, please see the 'example' project.
- */
-public interface DomainObject {
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+public class DomainObject {
+    @JsonGetter("class")
+    String getClassName() {
+        return getClass().getName();
+    }
+
+    @JsonSetter("class")
+    void setClassName(final String className) {
+        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
+    }
 }
