@@ -205,6 +205,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             super(new Schema());
         }
 
+        protected BaseBuilder(final Schema schema) {
+            super(schema);
+        }
+
         @Override
         public CHILD_CLASS entity(final String group) {
             return entity(group, new SchemaEntityDefinition());

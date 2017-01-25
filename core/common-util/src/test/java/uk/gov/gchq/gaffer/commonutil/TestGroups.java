@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil;
 public class TestGroups {
     public static final String ENTITY = "BasicEntity";
     public static final String ENTITY_2 = "BasicEntity2";
+    public static final String ENTITY_3 = "BasicEntity3";
 
     public static final String EDGE = "BasicEdge";
     public static final String EDGE_2 = "BasicEdge2";
