@@ -21,13 +21,10 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery;
 import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery8;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class DataGenerator13 extends OneToManyElementGenerator<String> {

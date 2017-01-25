@@ -74,26 +74,6 @@ public class LoadAndQuery13 extends LoadAndQuery {
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
 
-/**
-        // [get entity over all days] Get the entity over all days
-        // ---------------------------------------------------------
-        final GetAllEntities getAllEntities = new GetAllEntities.Builder()
-                .view(new View.Builder().entity("size", new ViewElementDefinition.Builder()
-                            .groupBy() // set the group by properties to 'none'
-                            .build())
-                        .build())
-                .build();
-        final Iterable<Entity> allEntities = graph.execute(getAllEntities, user);
-        final Entity entity = allEntities.iterator().next();
-        // ---------------------------------------------------------
-        log("\nThe entity:");
-        log("GET_ENTITY_OVER_ALL_DAYS_RESULT", entity.toString());
-
-
-        // [get count over all days] Get the entity and print out the count
-        // ---------------------------------------------------------
-        log("GET_ESTIMATE_OVER_ALL_DAYS", "" + ((Union) entity.getProperty("size")).getResult().getEstimate());*/
-
 
         // [get entities] Get the entities for separate days
         // ---------------------------------------------------------
