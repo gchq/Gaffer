@@ -24,7 +24,7 @@ Ensure that one of the following classes is being used for the `gaffer.store.cla
 - uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
 - uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore
 
-Ensure that the Accumulo user specified by the `accumulo.user` property has the following scan authorisations:
+Ensure that the Accumulo user specified by the `accumulo.user` property has the `System.CREATE_TABLE` permission and the following scan authorisations:
 
 | Authorisation     | Required by |
 | ----------------- | ----------- |
