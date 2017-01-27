@@ -23,7 +23,7 @@ Here is the Entity for the different days:
 ${GET_ESTIMATE_OVER_SEPARATE_DAYS}
 ```
 
-This is not very illuminating as this just shows the default `toString()`` method on the sketch. To get value from it we need to call a method on the Union object:
+This is not very illuminating as this just shows the default `toString()` method on the sketch. To get value from it we need to call a method on the Union object:
 ${GET_ESTIMATE_SEPARATE_DAYS_SNIPPET}
 The result is:
 ```
