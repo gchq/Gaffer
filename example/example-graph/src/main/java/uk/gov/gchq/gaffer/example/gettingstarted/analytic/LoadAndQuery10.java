@@ -34,7 +34,7 @@ import java.util.Set;
 
 public class LoadAndQuery10 extends LoadAndQuery {
     public LoadAndQuery10() {
-        super("LongsSketch to estimate the frequency of longs seen on an Element");
+        super("Using LongsSketch to estimate the frequency of longs seen on an Element");
     }
 
     public static void main(final String[] args) throws OperationException {

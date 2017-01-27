@@ -92,15 +92,17 @@ public class LoadAndQuery13 extends LoadAndQuery {
         // ---------------------------------------------------------
         final GetAllEntities getAllEntities2 = new GetAllEntities();
         final Iterable<Entity> allEntities2 = graph.execute(getAllEntities2, user);
-        log("\nThe estimates for the different days");
         final Iterator<Entity> it = allEntities2.iterator();
         final Entity entityDay1 = it.next();
         final CompactSketch sketchDay1 = ((Union) entityDay1.getProperty("size")).getResult();
         final Entity entityDay2 = it.next();
         final CompactSketch sketchDay2 = ((Union) entityDay2.getProperty("size")).getResult();
-        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + sketchDay1.getEstimate());
-        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + sketchDay2.getEstimate());
+        final double estimateDay1 = sketchDay1.getEstimate();
+        final double estimateDay2 = sketchDay2.getEstimate();
         // ---------------------------------------------------------
+        log("\nThe estimates for the different days");
+        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + estimateDay1);
+        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + estimateDay2);
 
 
         // [get intersection] Get the number of edges in common across the two days

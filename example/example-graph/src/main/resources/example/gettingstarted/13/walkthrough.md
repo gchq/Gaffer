@@ -23,8 +23,12 @@ Here is the Entity for the different days:
 ${GET_ESTIMATE_OVER_SEPARATE_DAYS}
 ```
 
-This is not very illuminating as this just shows the default 'toString()' method on the sketch. To get value from it we need to call a method on the Union object:
+This is not very illuminating as this just shows the default `toString()`` method on the sketch. To get value from it we need to call a method on the Union object:
 ${GET_ESTIMATE_SEPARATE_DAYS_SNIPPET}
+The result is:
+```
+${GET_ESTIMATE_OVER_SEPARATE_DAYS}
+```
 
 Now we can get an estimate for the number of edges in common across the two days:
 ${INTERSECT_ACROSS_DAYS_SNIPPET}

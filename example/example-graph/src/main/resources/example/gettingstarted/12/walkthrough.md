@@ -21,7 +21,7 @@ An edge A-B was added to the graph 1000 times. Each time it had the stringsSampl
 ${GET_A-B_EDGE_RESULT}
 ```
 
-This is not very illuminating as this just shows the default 'toString()' method on the sketch. To get value from it we need to call a method on the ReservoirItemsUnion object:
+This is not very illuminating as this just shows the default `toString()`` method on the sketch. To get value from it we need to call a method on the ReservoirItemsUnion object:
 ${GET_SAMPLE_FOR_EDGE_A_B_SNIPPET}
 
 The results contain a random sample of the strings added to the edge:
