@@ -58,6 +58,6 @@ public class DataGenerator9 extends OneToManyElementGenerator<String> {
 
     @Override
     public Iterable<String> getObjects(final Iterable<Element> elements) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

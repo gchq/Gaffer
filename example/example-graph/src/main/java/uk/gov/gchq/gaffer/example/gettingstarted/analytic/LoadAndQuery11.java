@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +68,10 @@ public class LoadAndQuery11 extends LoadAndQuery {
                         .build())
                 .then(new AddElements())
                 .build();
-
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("Added an edge A-B 1000 times, each time with a DoublesUnion containing a normally distributed"
+            + " (mean 0, standard deviation 1) random double.");
 
 
         // [get] Get all edges
@@ -92,7 +93,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         final Edge edge = edges.iterator().next();
         final DoublesUnion doublesUnion = (DoublesUnion) edge.getProperty("doublesUnion");
         final double[] quantiles = doublesUnion.getResult().getQuantiles(new double[]{0.25D, 0.5D, 0.75D});
-        final String quantilesEstimate = "25th percentile: " + quantiles[0]
+        final String quantilesEstimate = "Edge A-B with percentiles of double property - 25th percentile: " + quantiles[0]
                 + ", 50th percentile: " + quantiles[1]
                 + ", 75th percentile: " + quantiles[2];
         // ---------------------------------------------------------
@@ -109,9 +110,9 @@ public class LoadAndQuery11 extends LoadAndQuery {
         final Edge edge2 = edges2.iterator().next();
         final DoublesSketch doublesSketch2 = ((DoublesUnion) edge2.getProperty("doublesUnion")).getResult();
         final double[] cdf = doublesSketch2.getCDF(new double[]{0.0D, 1.0D, 2.0D});
-        final String cdfEstimate = "CDF at 0: " + cdf[0]
-                + ", CDF at 1: " + cdf[1]
-                + ", CDF at 2: " + cdf[2];
+        final String cdfEstimate = "Edge A-B with CDF values at 0: " + cdf[0]
+                + ", at 1: " + cdf[1]
+                + ", at 2: " + cdf[2];
         // ---------------------------------------------------------
         log("\nEdge A-B with the cumulative density function values at 0, 1, 2");
         log("GET_CDF_FOR_EDGE_A_B_RESULT", cdfEstimate);

@@ -57,7 +57,7 @@ public class DataGenerator13 extends OneToManyElementGenerator<String> {
                     .build();
             elements.add(entity);
         }
-        // On day 11/1/17 there are 500 edges A-B750, A-B1, ..., A-B1249.
+        // On day 11/1/17 there are 500 edges A-B750, A-B751, ..., A-B1249.
         final Date midnight11th = LoadAndQuery8.getDate("11/01/17");
         for (int i = 750; i < 1250; i++) {
             final Edge edge = new Edge.Builder()
@@ -85,7 +85,7 @@ public class DataGenerator13 extends OneToManyElementGenerator<String> {
 
     @Override
     public Iterable<String> getObjects(final Iterable<Element> elements) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }

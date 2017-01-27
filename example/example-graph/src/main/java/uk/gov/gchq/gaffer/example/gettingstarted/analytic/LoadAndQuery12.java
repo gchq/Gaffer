@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,9 @@ public class LoadAndQuery12 extends LoadAndQuery {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("Added the edge A-B 1000 times each time with a ReservoirItemsUnion<String> containing a random string."
+            + " Also added 500 edges X-Y0, X-Y1, ..., X-Y499 each and for each an Entity on X with a"
+            + " ReservoirItemsUnion<String> containing the destination node.");
 
 
         // [get red edge] Get the red edge
@@ -98,9 +101,10 @@ public class LoadAndQuery12 extends LoadAndQuery {
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
         final Edge edge = edges.iterator().next();
-        final ReservoirItemsSketch<String> stringsSketch = ((ReservoirItemsUnion<String>) edge.getProperty("stringsSample")).getResult();
+        final ReservoirItemsSketch<String> stringsSketch = ((ReservoirItemsUnion<String>) edge.getProperty("stringsSample"))
+                .getResult();
         final String[] samples = stringsSketch.getSamples();
-        final StringBuffer sb = new StringBuffer("10 samples: ");
+        final StringBuilder sb = new StringBuilder("10 samples: ");
         for (int i = 0; i < 10 && i < samples.length; i++) {
             if (i > 0) {
                 sb.append(", ");
@@ -119,7 +123,8 @@ public class LoadAndQuery12 extends LoadAndQuery {
                 .build();
         final Iterable<Entity> entities = graph.execute(query2, user);
         final Entity entity = entities.iterator().next();
-        final ReservoirItemsSketch<String> neighboursSketch = ((ReservoirItemsUnion<String>) entity.getProperty("neighboursSample")).getResult();
+        final ReservoirItemsSketch<String> neighboursSketch = ((ReservoirItemsUnion<String>) entity.getProperty("neighboursSample"))
+                .getResult();
         final String[] neighboursSample = neighboursSketch.getSamples();
         sb.setLength(0);
         sb.append("10 samples: ");

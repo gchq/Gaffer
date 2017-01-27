@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("Added an edge A-B 1000 times, each time with a LongsSketch containing a random long between 0 and 9.");
 
 
         // [get] Get all edges
@@ -90,8 +91,8 @@ public class LoadAndQuery10 extends LoadAndQuery {
         final Iterable<Edge> edges = graph.execute(query, user);
         final Edge edge = edges.iterator().next();
         final LongsSketch longsSketch = (LongsSketch) edge.getProperty("longsSketch");
-        final String estimates = "1L -> " + longsSketch.getEstimate(1L)
-            + "\t9L -> " + longsSketch.getEstimate(9L);
+        final String estimates = "Edge A-B: 1L seen approximately " + longsSketch.getEstimate(1L)
+            + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";
         // ---------------------------------------------------------
         log("\nEdge A-B with estimates of the frequencies of 1 and 9");
         log("GET_FREQUENCIES_OF_1_AND_9_FOR_EDGE_A_B", estimates);

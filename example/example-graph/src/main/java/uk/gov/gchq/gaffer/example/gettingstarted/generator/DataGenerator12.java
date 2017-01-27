@@ -65,7 +65,7 @@ public class DataGenerator12 extends OneToManyElementGenerator<String> {
 
     @Override
     public Iterable<String> getObjects(final Iterable<Element> elements) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private static String getRandomString() {

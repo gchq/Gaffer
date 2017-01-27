@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,9 @@ public class LoadAndQuery13 extends LoadAndQuery {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("Added 1000 edges A-B0, A-B1, ..., A-B999 on 10/1/17. For each edge we create an Entity with a union sketch"
+                + " containing a string of the source and destination from the edge. Added 500 edges A-B750, A-B751, "
+                + "..., A-B1249 for day 11/1/17. Again for each edge we create an Entity with a union sketch.");
 
 
         // [get entities] Get the entities for separate days
@@ -95,8 +98,8 @@ public class LoadAndQuery13 extends LoadAndQuery {
         final CompactSketch sketchDay1 = ((Union) entityDay1.getProperty("size")).getResult();
         final Entity entityDay2 = it.next();
         final CompactSketch sketchDay2 = ((Union) entityDay2.getProperty("size")).getResult();
-        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + entityDay1);
-        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + entityDay2);
+        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + sketchDay1.getEstimate());
+        log("GET_ESTIMATE_OVER_SEPARATE_DAYS", "" + sketchDay2.getEstimate());
         // ---------------------------------------------------------
 
 
@@ -111,7 +114,7 @@ public class LoadAndQuery13 extends LoadAndQuery {
         log("PRINT_ESTIMATE", "" + intersectionSizeEstimate);
 
 
-        // [get union across all days] Get the total number edges in common across the two days
+        // [get union across all days] Get the total number edges across the two days
         // ---------------------------------------------------------
         final GetAllEntities getAllEntities = new GetAllEntities.Builder()
                 .view(new View.Builder().entity("size", new ViewElementDefinition.Builder()
@@ -123,6 +126,7 @@ public class LoadAndQuery13 extends LoadAndQuery {
         final Entity entity = allEntities.iterator().next();
         final double unionSizeEstimate = ((Union) entity.getProperty("size")).getResult().getEstimate();
         // ---------------------------------------------------------
+        log("\nThe estimate of the number of edges across the different days");
         log("UNION_ESTIMATE", "" + unionSizeEstimate);
         return null;
     }
