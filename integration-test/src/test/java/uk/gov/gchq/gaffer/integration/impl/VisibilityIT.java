@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -339,7 +340,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new VisibilityITSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -366,47 +367,6 @@ public class VisibilityIT extends AbstractStoreIT {
                 .addSchema(createSchemaNoVisibility())
                 .addSchema(getStoreSchema())
                 .build();
-    }
-
-    public static final class VisibilityITSerialiser extends AbstractSerialisation<String> {
-
-        @Override
-        public boolean canHandle(final Class clazz) {
-            return String.class.equals(clazz);
-        }
-
-        @Override
-        public byte[] serialise(final String value) throws SerialisationException {
-            try {
-                return value.getBytes(CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                throw new SerialisationException(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public String deserialise(final byte[] bytes) throws SerialisationException {
-            try {
-                return new String(bytes, CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                throw new SerialisationException(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public byte[] serialiseNull() {
-            return new byte[]{};
-        }
-
-        @Override
-        public String deserialiseEmptyBytes() {
-            return "";
-        }
-
-        @Override
-        public boolean preservesObjectOrdering() {
-            return true;
-        }
     }
 
 }
