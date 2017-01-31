@@ -129,34 +129,34 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
-            if (getThisView().entities.isEmpty()) {
-                getThisView().entities.putAll(view.getEntities());
+            if (getThisView().getEntities().isEmpty()) {
+                getThisView().getEntities().putAll(view.getEntities());
             } else {
                 for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
-                    if (!getThisView().entities.containsKey(entry.getKey())) {
+                    if (!getThisView().getEntities().containsKey(entry.getKey())) {
                         entity(entry.getKey(), entry.getValue());
                     } else {
                         final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
-                                .merge(getThisView().entities.get(entry.getKey()))
+                                .merge(getThisView().getEntities().get(entry.getKey()))
                                 .merge(entry.getValue())
                                 .build();
-                        getThisView().entities.put(entry.getKey(), mergedElementDef);
+                        getThisView().getEntities().put(entry.getKey(), mergedElementDef);
                     }
                 }
             }
 
-            if (getThisView().edges.isEmpty()) {
-                getThisView().edges.putAll(view.getEdges());
+            if (getThisView().getEdges().isEmpty()) {
+                getThisView().getEdges().putAll(view.getEdges());
             } else {
                 for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
-                    if (!getThisView().edges.containsKey(entry.getKey())) {
+                    if (!getThisView().getEdges().containsKey(entry.getKey())) {
                         edge(entry.getKey(), entry.getValue());
                     } else {
                         final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
-                                .merge(getThisView().edges.get(entry.getKey()))
+                                .merge(getThisView().getEdges().get(entry.getKey()))
                                 .merge(entry.getValue())
                                 .build();
-                        getThisView().edges.put(entry.getKey(), mergedElementDef);
+                        getThisView().getEdges().put(entry.getKey(), mergedElementDef);
                     }
                 }
             }

@@ -637,6 +637,59 @@ public class SchemaTest {
     }
 
     @Test
+    public void shouldInheritPropertiesFromParentsInOrderFromJson() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(getClass(), "schemaWithParents.json"))
+                .build();
+
+        // Then
+        // Check edges
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4},
+                schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
+
+        // Check order of properties and overrides is from order of parents
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4,
+                        TestPropertyNames.PROP_5},
+                schema.getEdge(TestGroups.EDGE_5).getProperties().toArray());
+
+        assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE).getDescription());
+        assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema.getEdge(TestGroups.EDGE_5).getDescription());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
+
+        // Check entities
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4},
+                schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
+
+        // Check order of properties and overrides is from order of parents
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4,
+                        TestPropertyNames.PROP_5},
+                schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
+
+        assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
+        assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
+    }
+
+    @Test
     public void shouldInheritPropertiesFromParentsInOrder() {
         // When
         final Schema schema = new Schema.Builder()
