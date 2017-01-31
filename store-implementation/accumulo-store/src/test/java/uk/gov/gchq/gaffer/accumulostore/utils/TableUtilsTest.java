@@ -66,6 +66,7 @@ public class TableUtilsTest {
                 .build();
 
         final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        props.setTable(TABLE_NAME);
         store.initialise(schema, props);
 
         // When
