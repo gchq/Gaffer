@@ -255,13 +255,21 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return groupBy;
     }
 
+    protected Set<String> getParents() {
+        return parents;
+    }
+
     /**
-     * For json serialisation
+     * For json serialisation if there are no parents then just return null
      *
      * @return parents
      */
     @JsonGetter("parents")
-    protected Set<String> getParents() {
+    protected Set<String> getParentsOrNull() {
+        if (null == parents || parents.isEmpty()) {
+            return null;
+        }
+
         return parents;
     }
 

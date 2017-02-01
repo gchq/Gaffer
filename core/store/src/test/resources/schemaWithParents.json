@@ -1,0 +1,70 @@
+{
+  "edges": {
+    "BasicEdge": {
+      "properties": {
+        "property1": "prop.string"
+      },
+      "groupBy": ["property1"],
+      "description": "A parent edge with a single property"
+    },
+    "BasicEdge2": {
+      "properties": {
+        "property2": "prop.string2"
+      }
+    },
+    "BasicEdge3": {
+      "properties": {
+        "property3": "prop.string3"
+      },
+      "parents": ["BasicEdge", "BasicEdge2"]
+    },
+    "BasicEdge4": {
+      "properties": {
+        "property4": "prop.string4"
+      },
+      "parents": ["BasicEdge3"]
+    },
+    "BasicEdge5": {
+      "properties": {
+        "property5": "prop.string5"
+      },
+      "parents": ["BasicEdge4"],
+      "groupBy": ["property4"],
+      "description": "An edge that should have properties: 1, 2, 3, 4 and 5"
+    }
+  },
+  "entities": {
+    "BasicEntity": {
+      "properties": {
+        "property1": "prop.string"
+      },
+      "groupBy": ["property1"],
+      "description": "A parent entity with a single property"
+    },
+    "BasicEntity2": {
+      "properties": {
+        "property2": "prop.string2"
+      }
+    },
+    "BasicEntity3": {
+      "properties": {
+        "property3": "prop.string3"
+      },
+      "parents": ["BasicEntity", "BasicEntity2"]
+    },
+    "BasicEntity4": {
+      "properties": {
+        "property4": "prop.string4"
+      },
+      "parents": ["BasicEntity3"]
+    },
+    "BasicEntity5": {
+      "properties": {
+        "property5": "prop.string5"
+      },
+      "parents": ["BasicEntity4"],
+      "groupBy": ["property4"],
+      "description": "An entity that should have properties: 1, 2, 3, 4 and 5"
+    }
+  }
+}

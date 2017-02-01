@@ -38,7 +38,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
     public static final Date JAN_01_16 = getDate("01/01/16");
     public static final Date JAN_02_16 = getDate("02/01/16");
 
-    private static Date getDate(final String dateStr) {
+    public static Date getDate(final String dateStr) {
         try {
             return new SimpleDateFormat("dd/MM/yy").parse(dateStr);
         } catch (final ParseException e) {

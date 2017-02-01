@@ -430,7 +430,6 @@ public class StoreTest {
         }
 
         public StoreImpl(final ViewValidator viewValidator) {
-            this();
             setViewValidator(viewValidator);
         }
 

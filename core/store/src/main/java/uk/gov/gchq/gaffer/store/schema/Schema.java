@@ -287,34 +287,34 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
             validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
 
-            if (getThisSchema().entities.isEmpty()) {
-                getThisSchema().entities.putAll(schema.getEntities());
+            if (getThisSchema().getEntities().isEmpty()) {
+                getThisSchema().getEntities().putAll(schema.getEntities());
             } else {
                 for (final Map.Entry<String, SchemaEntityDefinition> entry : schema.getEntities().entrySet()) {
-                    if (!getThisSchema().entities.containsKey(entry.getKey())) {
+                    if (!getThisSchema().getEntities().containsKey(entry.getKey())) {
                         entity(entry.getKey(), entry.getValue());
                     } else {
                         final SchemaEntityDefinition mergedElementDef = new SchemaEntityDefinition.Builder()
-                                .merge(getThisSchema().entities.get(entry.getKey()))
+                                .merge(getThisSchema().getEntities().get(entry.getKey()))
                                 .merge(entry.getValue())
                                 .build();
-                        getThisSchema().entities.put(entry.getKey(), mergedElementDef);
+                        getThisSchema().getEntities().put(entry.getKey(), mergedElementDef);
                     }
                 }
             }
 
-            if (getThisSchema().edges.isEmpty()) {
-                getThisSchema().edges.putAll(schema.getEdges());
+            if (getThisSchema().getEdges().isEmpty()) {
+                getThisSchema().getEdges().putAll(schema.getEdges());
             } else {
                 for (final Map.Entry<String, SchemaEdgeDefinition> entry : schema.getEdges().entrySet()) {
-                    if (!getThisSchema().edges.containsKey(entry.getKey())) {
+                    if (!getThisSchema().getEdges().containsKey(entry.getKey())) {
                         edge(entry.getKey(), entry.getValue());
                     } else {
                         final SchemaEdgeDefinition mergedElementDef = new SchemaEdgeDefinition.Builder()
-                                .merge(getThisSchema().edges.get(entry.getKey()))
+                                .merge(getThisSchema().getEdges().get(entry.getKey()))
                                 .merge(entry.getValue())
                                 .build();
-                        getThisSchema().edges.put(entry.getKey(), mergedElementDef);
+                        getThisSchema().getEdges().put(entry.getKey(), mergedElementDef);
                     }
                 }
             }
@@ -421,7 +421,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         public Builder(final Schema schema) {
-            this();
             merge(schema);
         }
 

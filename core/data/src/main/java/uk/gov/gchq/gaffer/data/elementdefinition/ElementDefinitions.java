@@ -53,12 +53,12 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     /**
      * Map of edge type to edge definition.
      */
-    protected Map<String, EDGE_DEF> edges;
+    private Map<String, EDGE_DEF> edges;
 
     /**
      * Map of entity type to entity definition.
      */
-    protected Map<String, ENTITY_DEF> entities;
+    private Map<String, ENTITY_DEF> entities;
 
     protected ElementDefinitions() {
         edges = new HashMap<>();
@@ -181,14 +181,14 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return this Builder
          */
         public CHILD_CLASS edge(final String group, final EDGE_DEF edgeDef) {
-            elementDefs.edges.put(group, edgeDef);
+            elementDefs.getEdges().put(group, edgeDef);
             return self();
         }
 
         @JsonSetter("edges")
         public CHILD_CLASS edges(final Map<String, EDGE_DEF> edges) {
-            elementDefs.edges.clear();
-            elementDefs.edges.putAll(edges);
+            elementDefs.getEdges().clear();
+            elementDefs.getEdges().putAll(edges);
             return self();
         }
 
@@ -211,14 +211,14 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return this Builder
          */
         public CHILD_CLASS entity(final String group, final ENTITY_DEF entityDef) {
-            elementDefs.entities.put(group, entityDef);
+            elementDefs.getEntities().put(group, entityDef);
             return self();
         }
 
         @JsonSetter("entities")
         public CHILD_CLASS entities(final Map<String, ENTITY_DEF> entities) {
-            elementDefs.entities.clear();
-            elementDefs.entities.putAll(entities);
+            elementDefs.getEntities().clear();
+            elementDefs.getEntities().putAll(entities);
             return self();
         }
 

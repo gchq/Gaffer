@@ -42,13 +42,13 @@ public abstract class LoadAndQuery {
     public LoadAndQuery(final String header) {
 
         exampleId = Integer.parseInt(getClass().getSimpleName().replace(LoadAndQuery.class.getSimpleName(), ""));
-        this.header = "Example " + exampleId + " - " + header;
+        this.header = "Example - " + header;
         dataFileLocation = "/example/gettingstarted/" + exampleId + "/data.txt";
         schemaFolderLocation = "/example/gettingstarted/" + exampleId + "/schema";
         storePropertiesLocation = "/example/gettingstarted/mockaccumulostore.properties";
     }
 
-    public abstract Iterable run() throws OperationException;
+    public abstract Object run() throws OperationException;
 
     public void log(final String message) {
         log(DESCRIPTION_LOG_KEY, message);
@@ -81,7 +81,7 @@ public abstract class LoadAndQuery {
                 throw new RuntimeException("Missing walkthrough file");
             }
             walkthrough = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         final String formattedWalkthrough = WalkthroughStrSubstitutor.substitute(walkthrough, this, exampleId, header);

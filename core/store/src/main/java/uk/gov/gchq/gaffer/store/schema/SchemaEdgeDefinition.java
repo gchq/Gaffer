@@ -110,7 +110,6 @@ public class SchemaEdgeDefinition extends SchemaElementDefinition {
         }
 
         public Builder(final SchemaEdgeDefinition schemaElementDef) {
-            this();
             merge(schemaElementDef);
         }
 
