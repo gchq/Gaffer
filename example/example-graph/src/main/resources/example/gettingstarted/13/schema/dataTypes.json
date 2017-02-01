@@ -1,0 +1,50 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "date.earliest": {
+      "class": "java.util.Date",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "date.latest": {
+      "class": "java.util.Date",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "long.count": {
+      "class": "java.lang.Long"
+    },
+    "union": {
+        "class": "com.yahoo.sketches.theta.Union"
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
+          }
+        }
+      ]
+    }
+  }
+}
