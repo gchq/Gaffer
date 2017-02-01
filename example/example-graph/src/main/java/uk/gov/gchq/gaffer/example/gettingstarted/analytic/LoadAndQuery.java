@@ -42,13 +42,13 @@ public abstract class LoadAndQuery {
     public LoadAndQuery(final String header) {
 
         exampleId = Integer.parseInt(getClass().getSimpleName().replace(LoadAndQuery.class.getSimpleName(), ""));
-        this.header = "Example " + exampleId + " - " + header;
+        this.header = "Example - " + header;
         dataFileLocation = "/example/gettingstarted/" + exampleId + "/data.txt";
         schemaFolderLocation = "/example/gettingstarted/" + exampleId + "/schema";
         storePropertiesLocation = "/example/gettingstarted/mockaccumulostore.properties";
     }
 
-    public abstract Iterable run() throws OperationException;
+    public abstract Object run() throws OperationException;
 
     public void log(final String message) {
         log(DESCRIPTION_LOG_KEY, message);

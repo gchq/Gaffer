@@ -103,14 +103,20 @@ public class WalkthroughRunner {
     }
 
     private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {
-        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("gaffer.example"));
+        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("uk.gov.gchq.gaffer.example"));
 
         final List<Class<? extends CLASS>> classes = new ArrayList<>(new Reflections(urls).getSubTypesOf(clazz));
         keepPublicConcreteClasses(classes);
         Collections.sort(classes, new Comparator<Class>() {
             @Override
             public int compare(final Class class1, final Class class2) {
-                return class1.getName().compareTo(class2.getName());
+                final int prefixLength = (LoadAndQuery.class.getSimpleName().length());
+                try {
+                    return Integer.parseInt(class1.getSimpleName().substring(prefixLength))
+                            - Integer.parseInt(class2.getSimpleName().substring(prefixLength));
+                } catch (final Exception e) {
+                    return class1.getName().compareTo(class2.getName());
+                }
             }
         });
 
