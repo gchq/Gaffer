@@ -81,7 +81,7 @@ public abstract class LoadAndQuery {
                 throw new RuntimeException("Missing walkthrough file");
             }
             walkthrough = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         final String formattedWalkthrough = WalkthroughStrSubstitutor.substitute(walkthrough, this, exampleId, header);
