@@ -20,7 +20,7 @@ ${STORE_TYPES_JSON}
 
 Here is the Entity for the different days:
 ```
-${GET_ESTIMATE_OVER_SEPARATE_DAYS}
+${GET_ENTITIES}
 ```
 
 This is not very illuminating as this just shows the default `toString()` method on the sketch. To get value from it we need to call a method on the Union object:

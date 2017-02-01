@@ -51,14 +51,22 @@ public class DataGenerator12 extends OneToManyElementGenerator<String> {
                     .dest("Y" + i)
                     .build();
             elements.add(edge);
-            final ReservoirItemsUnion<String> reservoirStringsUnion = ReservoirItemsUnion.getInstance(20);
-            reservoirStringsUnion.update("Y" + i);
-            final Entity entity = new Entity.Builder()
+            final ReservoirItemsUnion<String> reservoirStringsUnionX = ReservoirItemsUnion.getInstance(20);
+            reservoirStringsUnionX.update("Y" + i);
+            final Entity entityX = new Entity.Builder()
                     .group("blueEntity")
                     .vertex("X")
-                    .property("neighboursSample", reservoirStringsUnion)
+                    .property("neighboursSample", reservoirStringsUnionX)
                     .build();
-            elements.add(entity);
+            elements.add(entityX);
+            final ReservoirItemsUnion<String> reservoirStringsUnionY = ReservoirItemsUnion.getInstance(20);
+            reservoirStringsUnionY.update("X");
+            final Entity entityY = new Entity.Builder()
+                    .group("blueEntity")
+                    .vertex("Y" + i)
+                    .property("neighboursSample", reservoirStringsUnionY)
+                    .build();
+            elements.add(entityY);
         }
         return elements;
     }

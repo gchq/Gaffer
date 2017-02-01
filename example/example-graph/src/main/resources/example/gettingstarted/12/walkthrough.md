@@ -16,7 +16,7 @@ ${DATA_TYPES_JSON}
 Here we have added in the serialiser and aggregator for the ReservoirItemsUnion object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new edges are added to the graph.
 ${STORE_TYPES_JSON}
 
-An edge A-B was added to the graph 1000 times. Each time it had the stringsSample property containing a randomly generated string. Here is the edge:
+An edge A-B of group "red" was added to the graph 1000 times. Each time it had the stringsSample property containing a randomly generated string. Here is the edge:
 ```
 ${GET_A-B_EDGE_RESULT}
 ```
@@ -29,7 +29,7 @@ The results contain a random sample of the strings added to the edge:
 ${GET_SAMPLE_FOR_RED_EDGE}
 ```
 
-We now get the Entity for the vertex X and display the sample of its neighbours:
+500 edges of group "blue" were also added to the graph (edges X-Y0, X-Y1, ..., X-Y499). For each of these edges, an Entity was created for both the source and destination. Each Entity contained a 'neighboursSample' property that contains the vertex at the other end of the edge. We now get the Entity for the vertex X and display the sample of its neighbours:
 ${GET_ENTITY_FOR_X_SNIPPET}
 
 The results are:
