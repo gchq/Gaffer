@@ -19,7 +19,7 @@ public class RoaringBitmapUtils {
     private static final short VERSION_ZERO_ONE_FIVE_TO_ZERO_THREE_SEVEN_SERIAL_COOKIE = 12345;
     private static final short VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE = 12346;
     private static final short VERSION_ZERO_FIVE_ZERO_TO_SIX_THIRTY_FIVE_COOKIE = 12347;
-    private static final byte[] VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE_BYTES = ByteBuffer.allocate(4).putInt(Integer.reverseBytes(VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE)).array();
+    private static final byte[] VERSION_ZERO_FOUR_ZERO_TO_SIX_THIRTY_FIVE_NO_RUNCONTAINER_COOKIE_BYTES = ByteBuffer.allocate(4).putInt(Integer.reverseBytes(VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE)).array();
 
     public static byte[] upConvertSerialisedForm(byte[] serialisedBitmap) throws SerialisationException {
         DataInputStream input = new DataInputStream(new ByteArrayInputStream(serialisedBitmap));
@@ -34,7 +34,7 @@ public class RoaringBitmapUtils {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(128);
                 DataOutputStream out = new DataOutputStream(baos);
-                out.write(VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE_BYTES);
+                out.write(VERSION_ZERO_FOUR_ZERO_TO_SIX_THIRTY_FIVE_NO_RUNCONTAINER_COOKIE_BYTES);
                 int sizeInt = input.readInt();
                 int size = Integer.reverseBytes(sizeInt);
 
@@ -43,7 +43,7 @@ public class RoaringBitmapUtils {
                 int startOffSet = 4 + 4 + 4 * size + 4 * size;
 
                 //Need to extract the cardinalities to calculate the offsets
-                //Bitmap containers are a fixed sixe (BITMAP_CONTAINER_SIZE) and are used when the cardinality is greater than 4096
+                //Bitmap containers are a fixed size (BITMAP_CONTAINER_SIZE) and are used when the cardinality is greater than 4096
                 //Array containers are variable size (cardinality * 2)
                 int[] cardinalities = new int[size];
                 for (int i = 0; i < size; ++i) {
@@ -93,7 +93,7 @@ public class RoaringBitmapUtils {
         } else if (cookie == VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE || (cookie & 0xFFFF) == VERSION_ZERO_FIVE_ZERO_TO_SIX_THIRTY_FIVE_COOKIE) {
             return serialisedBitmap;
         } else {
-            throw new SerialisationException("I faled to find a known roaring bitmap cookie (cookie = " + cookie + ")");
+            throw new SerialisationException("I failed to find a known roaring bitmap cookie (cookie = " + cookie + ")");
         }
     }
 }
