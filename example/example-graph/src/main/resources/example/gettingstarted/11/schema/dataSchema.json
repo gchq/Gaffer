@@ -1,0 +1,12 @@
+{
+  "edges": {
+    "red": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "doublesUnion": "doubles.union"
+      }
+    }
+  }
+}
