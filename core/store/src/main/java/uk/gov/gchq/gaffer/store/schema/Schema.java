@@ -417,7 +417,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         public Builder(final Schema schema) {
-            this();
             merge(schema);
         }
 

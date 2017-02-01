@@ -88,7 +88,6 @@ public class SchemaEntityDefinition extends SchemaElementDefinition {
         }
 
         public Builder(final SchemaEntityDefinition schemaElementDef) {
-            this();
             merge(schemaElementDef);
         }
 
