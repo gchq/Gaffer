@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.accumulostore.retriever;
+package uk.gov.gchq.gaffer.accumulostore.key;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
-public class RetrieverException extends GafferCheckedException {
+public class AccumuloException extends GafferCheckedException {
 
-    private static final long serialVersionUID = -5471324536508286444L;
-
-    public RetrieverException(final String message, final Throwable e) {
-        super(message, e, INTERNAL_SERVER_ERROR);
+    public AccumuloException(final Throwable cause) {
+        super(cause, INTERNAL_SERVER_ERROR);
     }
 
-    public RetrieverException(final Throwable e) {
-        super(e, INTERNAL_SERVER_ERROR);
+    public AccumuloException(final String message) {
+        super(message, INTERNAL_SERVER_ERROR);
+    }
+
+    public AccumuloException(final String message, final Throwable cause) {
+        super(message, cause, INTERNAL_SERVER_ERROR);
     }
 }

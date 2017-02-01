@@ -194,26 +194,74 @@ public class ViewTest {
         final ViewElementDefinition entityDef = deserialisedView.getEntity(TestGroups.ENTITY);
         assertTrue(entityDef.getTransientProperties().isEmpty());
         assertNull(entityDef.getTransformer());
-        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().size());
-        assertTrue(entityDef.getPreAggregationFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0));
+        assertEquals(1, entityDef.getPreAggregationFilter()
+                                 .getFunctions()
+                                 .size());
+        assertTrue(entityDef.getPreAggregationFilter()
+                            .getFunctions()
+                            .get(0)
+                            .getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, entityDef.getPreAggregationFilter()
+                                 .getFunctions()
+                                 .get(0)
+                                 .getSelection()
+                                 .size());
+        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter()
+                                                        .getFunctions()
+                                                        .get(0)
+                                                        .getSelection()
+                                                        .get(0));
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
         assertEquals(1, edgeDef.getTransientProperties().size());
-        assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
+        assertEquals(String.class, edgeDef.getTransientPropertyMap()
+                                          .get(TestPropertyNames.PROP_3));
         assertNull(edgeDef.getPreAggregationFilter());
         assertEquals(1, edgeDef.getTransformer().getFunctions().size());
-        assertTrue(edgeDef.getTransformer().getFunctions().get(0).getFunction() instanceof ExampleTransformFunction);
-        assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(0));
-        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(1));
-        assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().size());
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection().get(0));
+        assertTrue(edgeDef.getTransformer()
+                          .getFunctions()
+                          .get(0)
+                          .getFunction() instanceof ExampleTransformFunction);
+        assertEquals(2, edgeDef.getTransformer()
+                               .getFunctions()
+                               .get(0)
+                               .getSelection()
+                               .size());
+        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getSelection()
+                                                      .get(0));
+        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getSelection()
+                                                      .get(1));
+        assertEquals(1, edgeDef.getTransformer()
+                               .getFunctions()
+                               .get(0)
+                               .getProjection()
+                               .size());
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getProjection()
+                                                      .get(0));
         assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().size());
-        assertTrue(edgeDef.getPostTransformFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().get(0));
+        assertTrue(edgeDef.getPostTransformFilter()
+                          .getFunctions()
+                          .get(0)
+                          .getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, edgeDef.getPostTransformFilter()
+                               .getFunctions()
+                               .get(0)
+                               .getSelection()
+                               .size());
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getSelection()
+                                                      .get(0));
     }
 
     @Test

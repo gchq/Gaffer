@@ -16,19 +16,24 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.exception;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+
 /**
  * An <code>SchemaException</code> is thrown when a schema is found to be invalid.
  * This can occur for several reasons including when deserialisation of a json schema fails
  * or a schema has invalid attributes.
  */
-public class SchemaException extends RuntimeException {
+public class SchemaException extends GafferRuntimeException {
     private static final long serialVersionUID = 3150434301320173603L;
 
     public SchemaException(final String message) {
-        super(message);
+        super(message, BAD_REQUEST);
     }
 
     public SchemaException(final String message, final Throwable e) {
-        super(message, e);
+        super(message, e, BAD_REQUEST);
     }
 }
