@@ -1,0 +1,27 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "longs.sketch": {
+      "class": "com.yahoo.sketches.frequencies.LongsSketch"
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
+          }
+        }
+      ]
+    }
+  }
+}

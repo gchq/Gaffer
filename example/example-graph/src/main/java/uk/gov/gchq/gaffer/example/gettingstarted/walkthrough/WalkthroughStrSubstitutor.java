@@ -95,36 +95,78 @@ public abstract class WalkthroughStrSubstitutor {
     public static Map<String, String> createParameterMap(final LoadAndQuery example, final int exampleId, final String header) {
         final Class<?> exampleClass = example.getClass();
         final Map<String, String> params = new HashMap<>();
-        params.put("HEADER", "### " + header);
-        params.put("CODE_LINK", "The code for this example is " + getGitHubCodeLink(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH));
-        params.put("DATA", "```csv\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/data.txt", exampleClass) + "\n```");
-        params.put("DATA_GENERATOR_JAVA", JavaSourceUtil.getJava(DataGenerator1.class.getName().replace("1", String.valueOf(exampleId)), EXAMPLE_GRAPH_MODULE_PATH));
-        params.put("STORE_PROPERTIES", "```properties\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```");
-        params.put("DATA_SCHEMA_LINK", getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", EXAMPLE_GRAPH_MODULE_PATH));
-        params.put("DATA_TYPES_LINK", getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataTypes.json", EXAMPLE_GRAPH_MODULE_PATH));
-        params.put("STORE_TYPES_LINK", getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/storeTypes.json", EXAMPLE_GRAPH_MODULE_PATH));
-        params.put("STORE_PROPERTIES_LINK", getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/mockaccumulostore.properties", EXAMPLE_GRAPH_MODULE_PATH));
-        params.put("DATA_SCHEMA_JSON", "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", exampleClass) + "\n```");
-        params.put("DATA_TYPES_JSON", "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataTypes.json", exampleClass) + "\n```");
-        params.put("STORE_TYPES_JSON", "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/storeTypes.json", exampleClass) + "\n```");
-        params.put("USER_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "user"));
-        params.put("GENERATE_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "generate"));
-        params.put("GRAPH_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "graph"));
-        params.put("ADD_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "add"));
-        params.put("TRANSFORM_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "transform"));
-        params.put("GET_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get"));
-        params.put("GET_PUBLIC_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get public"));
-        params.put("GET_PRIVATE_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get private"));
-        params.put("EXTRACTOR_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "extractor"));
-        params.put("GET_ALL_EDGES_SUMMARISED_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all edges summarised"));
-        params.put("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all edges summarised in time window"));
-        params.put("GET_ALL_CARDINALITIES_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all cardinalities"));
-        params.put("GET_ALL_SUMMARISED_CARDINALITIES_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all summarised cardinalities"));
-        params.put("GET_RED_EDGE_CARDINALITY_SNIPPET", JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get red edge cardinality 1"));
+        params.put("HEADER",
+                "### " + header);
+        params.put("CODE_LINK",
+                "The code for this example is " + getGitHubCodeLink(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH));
+        params.put("DATA",
+                "```csv\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/data.txt", exampleClass) + "\n```");
+        params.put("DATA_GENERATOR_JAVA",
+                JavaSourceUtil.getJava(DataGenerator1.class.getName().replace("1", String.valueOf(exampleId)), EXAMPLE_GRAPH_MODULE_PATH));
+        params.put("STORE_PROPERTIES",
+                "```properties\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```");
+        params.put("DATA_SCHEMA_LINK",
+                getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", EXAMPLE_GRAPH_MODULE_PATH));
+        params.put("DATA_TYPES_LINK",
+                getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataTypes.json", EXAMPLE_GRAPH_MODULE_PATH));
+        params.put("STORE_TYPES_LINK",
+                getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/storeTypes.json", EXAMPLE_GRAPH_MODULE_PATH));
+        params.put("STORE_PROPERTIES_LINK",
+                getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/mockaccumulostore.properties", EXAMPLE_GRAPH_MODULE_PATH));
+        params.put("DATA_SCHEMA_JSON",
+                "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", exampleClass) + "\n```");
+        params.put("DATA_TYPES_JSON",
+                "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataTypes.json", exampleClass) + "\n```");
+        params.put("STORE_TYPES_JSON",
+                "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/storeTypes.json", exampleClass) + "\n```");
+        params.put("USER_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "user"));
+        params.put("GENERATE_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "generate"));
+        params.put("GRAPH_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "graph"));
+        params.put("ADD_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "add"));
+        params.put("TRANSFORM_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "transform"));
+        params.put("GET_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get"));
+        params.put("GET_PUBLIC_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get public"));
+        params.put("GET_PRIVATE_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get private"));
+        params.put("EXTRACTOR_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "extractor"));
+        params.put("GET_ALL_EDGES_SUMMARISED_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all edges summarised"));
+        params.put("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all edges summarised in time window"));
+        params.put("GET_ALL_CARDINALITIES_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all cardinalities"));
+        params.put("GET_ALL_SUMMARISED_CARDINALITIES_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get all summarised cardinalities"));
+        params.put("GET_RED_EDGE_CARDINALITY_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get red edge cardinality 1"));
+        params.put("GET_FREQUENCIES_OF_1_AND_9_FOR_EDGE_A_B_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get frequencies of 1L and 9L"));
+        params.put("GET_0.25_0.5_0.75_PERCENTILES_FOR_EDGE_A_B_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get 0.25, 0.5, 0.75 percentiles"));
+        params.put("GET_CDF_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get cdf"));
+        params.put("GET_SAMPLE_FOR_EDGE_A_B_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get strings sample from the red edge"));
+        params.put("GET_ENTITY_FOR_X_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get sample from the blue entity"));
+        params.put("GET_ESTIMATE_SEPARATE_DAYS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get estimate separate days"));
+        params.put("INTERSECT_ACROSS_DAYS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get intersection"));
+        params.put("UNION_ACROSS_DAYS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get union across all days"));
 
         try {
             example.run();
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -186,7 +228,7 @@ public abstract class WalkthroughStrSubstitutor {
         final String resource;
         try (final InputStream stream = StreamUtil.openStream(clazz, resourcePath)) {
             resource = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         return resource;
