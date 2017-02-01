@@ -69,7 +69,7 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
         return SUCCESS_RESPONSE;
     }
 
-    private void checkHdfsDirectories(final String failurePathString, FileSystem fs) throws IOException {
+    private void checkHdfsDirectories(final String failurePathString, final FileSystem fs) throws IOException {
         LOGGER.info("Checking that the correct HDFS directories exist");
 
         final Path failurePath = new Path(failurePathString);
