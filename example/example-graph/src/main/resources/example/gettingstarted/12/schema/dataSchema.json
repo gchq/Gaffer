@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "blueEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "neighboursSample": "reservoir.strings.union"
+      }
+    }
+  },
+  "edges": {
+    "red": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "stringsSample": "reservoir.strings.union"
+      }
+    },
+    "blue": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false"
+    }
+  }
+}
