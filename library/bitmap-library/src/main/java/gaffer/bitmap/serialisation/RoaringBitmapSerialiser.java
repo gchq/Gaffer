@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package gaffer.bitmap.serialisation;
 
 import gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
@@ -16,12 +31,12 @@ public class RoaringBitmapSerialiser implements Serialisation {
     private static final long serialVersionUID = 3772387954385745791L;
 
     @Override
-    public boolean canHandle(Class clazz) {
+    public boolean canHandle(final Class clazz) {
         return RoaringBitmap.class.equals(clazz);
     }
 
     @Override
-    public byte[] serialise(Object object) throws SerialisationException {
+    public byte[] serialise(final Object object) throws SerialisationException {
         RoaringBitmap value = (RoaringBitmap) object;
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(byteOut);
@@ -34,10 +49,10 @@ public class RoaringBitmapSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(byte[] bytes) throws SerialisationException {
+    public Object deserialise(final byte[] bytes) throws SerialisationException {
         RoaringBitmap value = new RoaringBitmap();
-        bytes = RoaringBitmapUtils.upConvertSerialisedForm(bytes);
-        ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
+        byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(bytes);
+        ByteArrayInputStream byteIn = new ByteArrayInputStream(convertedBytes);
         DataInputStream in = new DataInputStream(byteIn);
         try {
             value.deserialize(in);
