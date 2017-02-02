@@ -48,7 +48,6 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         this.setSeedsB(seedsB);
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonGetter(value = "seedsB")
     List<SEED_TYPE> getSeedBArray() {
         final Iterable<SEED_TYPE> seedsB = getSeedsB();
