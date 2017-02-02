@@ -141,18 +141,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
      */
     public void expandGlobalDefinitions() {
         if (null != globalEntities && !globalEntities.isEmpty()) {
-            entities = expandGlobalDefinitions(entities, getEntityGroups(), globalEntities, false);
+            setEntities(expandGlobalDefinitions(getEntities(), getEntityGroups(), globalEntities, false));
             globalEntities = null;
         }
 
         if (null != globalEdges && !globalEdges.isEmpty()) {
-            edges = expandGlobalDefinitions(edges, getEdgeGroups(), globalEdges, false);
+            setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalEdges, false));
             globalEdges = null;
         }
 
         if (null != globalElements && !globalElements.isEmpty()) {
-            entities = expandGlobalDefinitions(entities, getEntityGroups(), globalElements, true);
-            edges = expandGlobalDefinitions(edges, getEdgeGroups(), globalElements, true);
+            setEntities(expandGlobalDefinitions(getEntities(), getEntityGroups(), globalElements, true));
+            setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
             globalElements = null;
         }
     }

@@ -118,6 +118,14 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return entities;
     }
 
+    protected void setEdges(final Map<String, EDGE_DEF> edges) {
+        this.edges = edges;
+    }
+
+    protected void setEntities(final Map<String, ENTITY_DEF> entities) {
+        this.entities = entities;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
