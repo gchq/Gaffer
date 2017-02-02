@@ -97,7 +97,7 @@ public class RoaringBitmapJsonSerialisationTest {
     @Test
     public void testCanSerialiseWithCustomObjectMapper() throws IOException {
         //Bitmap of (2,3000,300000) serialised in 0.5.11 Roaring Bitmap base 64 encoded
-        String serialisedComparisonBitmap = "{\"roaringBitmap\":{\"value\":\"OjAAAAIAAAAAAAEABAAAABgAAAAcaAAAAAgC4C+CT\"}}";
+        String serialisedComparisonBitmap = "{\"roaringBitmap\":{\"value\":\"OjAAAAIAAAAAAAEABAAAABgAAAAcAAAAAgC4C+CT\"}}";
         RoaringBitmap comparisonBitmap = new RoaringBitmap();
         comparisonBitmap.add(2);
         comparisonBitmap.add(3000);
