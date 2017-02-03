@@ -34,6 +34,7 @@ We create a Graph and load the data using the ${ADD_ELEMENTS_JAVADOC} Operation 
 This time we'll run 2 queries using ${GET_RELATED_EDGES_JAVADOC}.
 
 The first one is exactly the same as last time. We ask for all of the Edges containing the Vertex "1". The result is:
+
 ```
 ${GET_RELATED_EDGES_RESULT}
 ```

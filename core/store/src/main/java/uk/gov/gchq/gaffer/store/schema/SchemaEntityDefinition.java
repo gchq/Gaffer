@@ -16,87 +16,84 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+@JsonDeserialize(builder = SchemaEntityDefinition.Builder.class)
 public class SchemaEntityDefinition extends SchemaElementDefinition {
-    public void setVertex(final String className) {
-        getIdentifierMap().put(IdentifierType.VERTEX, className);
-    }
-
     public String getVertex() {
         return getIdentifierTypeName(IdentifierType.VERTEX);
     }
 
-    public static class Builder extends SchemaElementDefinition.Builder {
-        public Builder() {
-            this(new SchemaEntityDefinition());
-        }
+    @JsonIgnore
+    @Override
+    public SchemaEntityDefinition getExpandedDefinition() {
+        return getExpandedDefinition(this);
+    }
 
-        public Builder(final SchemaEntityDefinition elDef) {
-            super(elDef);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final Class<?> typeClass) {
-            return (Builder) super.property(propertyName, typeClass);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final String exisitingTypeName) {
-            return (Builder) super.property(propertyName, exisitingTypeName);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
-            return (Builder) super.property(propertyName, typeName, type);
-        }
-
-        @Override
-        public Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
-            return (Builder) super.property(propertyName, typeName, typeClass);
-        }
-
-        public Builder vertex(final String exisitingTypeName) {
-            identifier(IdentifierType.VERTEX, exisitingTypeName);
+    private SchemaEntityDefinition getExpandedDefinition(final SchemaEntityDefinition entityDef) {
+        if (null == entityDef.parents || entityDef.parents.isEmpty()) {
             return this;
         }
 
-        public Builder vertex(final Class<?> typeClass) {
-            return vertex(typeClass.getName(), typeClass);
+        final SchemaEntityDefinition.Builder builder = new SchemaEntityDefinition.Builder();
+        final Set<String> parents = new LinkedHashSet<>(entityDef.parents);
+        for (final String parent : entityDef.parents) {
+            final SchemaEntityDefinition parentDef = getExpandedDefinition(parent);
+            if (null != parentDef) {
+                builder.merge(parentDef);
+                parents.remove(parent);
+            }
+        }
+        entityDef.parents = Collections.unmodifiableSet(parents);
+        builder.merge(entityDef);
+        return builder.build();
+    }
+
+    private SchemaEntityDefinition getExpandedDefinition(final String parent) {
+        SchemaEntityDefinition parentDefinition = getSchemaReference().getEntity(parent);
+        if (null == parentDefinition) {
+            return null;
         }
 
-        public Builder vertex(final String typeName, final TypeDefinition type) {
-            type(typeName, type);
-            return vertex(typeName);
+        if (null == parentDefinition.parents || parentDefinition.parents.isEmpty()) {
+            return parentDefinition;
         }
 
-        public Builder vertex(final String typeName, final Class<?> typeClass) {
-            return vertex(typeName, new TypeDefinition(typeClass));
+        parentDefinition = getExpandedDefinition(parentDefinition);
+        getSchemaReference().getEntities().put(parent, parentDefinition);
+        return parentDefinition;
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends SchemaElementDefinition.BaseBuilder<SchemaEntityDefinition, CHILD_CLASS> {
+        protected BaseBuilder() {
+            super(new SchemaEntityDefinition());
+        }
+
+
+        public CHILD_CLASS vertex(final String typeName) {
+            getElementDef().identifiers.put(IdentifierType.VERTEX, typeName);
+            return self();
+        }
+    }
+
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final SchemaEntityDefinition schemaElementDef) {
+            merge(schemaElementDef);
         }
 
         @Override
-        public Builder groupBy(final String... propertyName) {
-            return (Builder) super.groupBy(propertyName);
-        }
-
-        @Override
-        public Builder validator(final ElementFilter validator) {
-            return (Builder) super.validator(validator);
-        }
-
-        public Builder description(final String description) {
-            return (Builder) super.description(description);
-        }
-
-        @Override
-        public SchemaEntityDefinition build() {
-            return (SchemaEntityDefinition) super.build();
-        }
-
-        @Override
-        protected SchemaEntityDefinition getElementDef() {
-            return (SchemaEntityDefinition) super.getElementDef();
+        protected Builder self() {
+            return this;
         }
     }
 }

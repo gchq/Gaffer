@@ -66,8 +66,6 @@ public abstract class WalkthroughStrSubstitutor {
     private static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/gchq/Gaffer/wiki/";
     private static final String JAVA_SRC_PATH = "/src/main/java/";
     private static final String RESOURCES_SRC_PATH = "/src/main/resources/";
-    public static final String START_CODE_SNIPPET_MARKER = String.format("----%n");
-    public static final String END_CODE_SNIPPET_MARKER = "// ----";
     private static final String EXAMPLE_GRAPH_MODULE_PATH = "example/example-graph";
     private static final String EXAMPLE_RESOURCE_PATH = "example/gettingstarted";
 
@@ -100,11 +98,11 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("CODE_LINK",
                 "The code for this example is " + getGitHubCodeLink(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH));
         params.put("DATA",
-                "```csv\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/data.txt", exampleClass) + "\n```");
+                "\n```csv\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/data.txt", exampleClass) + "\n```\n");
         params.put("DATA_GENERATOR_JAVA",
                 JavaSourceUtil.getJava(DataGenerator1.class.getName().replace("1", String.valueOf(exampleId)), EXAMPLE_GRAPH_MODULE_PATH));
         params.put("STORE_PROPERTIES",
-                "```properties\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```");
+                "\n```properties\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
         params.put("DATA_SCHEMA_LINK",
                 getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", EXAMPLE_GRAPH_MODULE_PATH));
         params.put("DATA_TYPES_LINK",
@@ -114,11 +112,11 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("STORE_PROPERTIES_LINK",
                 getGitHubResourcesLink(EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/mockaccumulostore.properties", EXAMPLE_GRAPH_MODULE_PATH));
         params.put("DATA_SCHEMA_JSON",
-                "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", exampleClass) + "\n```");
+                "\n```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataSchema.json", exampleClass) + "\n```\n");
         params.put("DATA_TYPES_JSON",
-                "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataTypes.json", exampleClass) + "\n```");
+                "\n```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/dataTypes.json", exampleClass) + "\n```\n");
         params.put("STORE_TYPES_JSON",
-                "```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/storeTypes.json", exampleClass) + "\n```");
+                "\n```json\n" + getResource("/" + EXAMPLE_RESOURCE_PATH + "/" + exampleId + "/schema/storeTypes.json", exampleClass) + "\n```\n");
         params.put("USER_SNIPPET",
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "user"));
         params.put("GENERATE_SNIPPET",
@@ -227,7 +225,11 @@ public abstract class WalkthroughStrSubstitutor {
     private static String getResource(final String resourcePath, final Class<?> clazz) {
         final String resource;
         try (final InputStream stream = StreamUtil.openStream(clazz, resourcePath)) {
-            resource = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
+            if (null == stream) {
+                resource = "";
+            } else {
+                resource = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
+            }
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
