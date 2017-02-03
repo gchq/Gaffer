@@ -62,7 +62,7 @@ public class WalkthroughRunner {
         final String intro;
         try (final InputStream stream = StreamUtil.openStream(getClass(), "/example/gettingstarted/intro.md")) {
             intro = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -70,7 +70,7 @@ public class WalkthroughRunner {
     }
 
     private void printHeader() {
-        LOGGER.info("Copyright 2016 Crown Copyright\n"
+        LOGGER.info("Copyright 2016-2017 Crown Copyright\n"
                 + "\n"
                 + "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
                 + "you may not use this file except in compliance with the License.\n"
@@ -103,14 +103,16 @@ public class WalkthroughRunner {
     }
 
     private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {
-        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("gaffer.example"));
+        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("uk.gov.gchq.gaffer.example"));
 
         final List<Class<? extends CLASS>> classes = new ArrayList<>(new Reflections(urls).getSubTypesOf(clazz));
         keepPublicConcreteClasses(classes);
         Collections.sort(classes, new Comparator<Class>() {
             @Override
             public int compare(final Class class1, final Class class2) {
-                return class1.getName().compareTo(class2.getName());
+                final int class1Number = Integer.parseInt(class1.getName().replaceAll(clazz.getName(), ""));
+                final int class2Number = Integer.parseInt(class2.getName().replaceAll(clazz.getName(), ""));
+                return class1Number - class2Number;
             }
         });
 

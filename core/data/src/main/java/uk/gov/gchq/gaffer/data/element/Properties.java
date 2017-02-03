@@ -36,7 +36,7 @@ public class Properties extends HashMap<String, Object> {
     }
 
     public Properties(final String name, final Object property) {
-        this();
+        super();
         put(name, property);
     }
 
