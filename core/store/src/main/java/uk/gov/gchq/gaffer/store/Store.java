@@ -117,7 +117,7 @@ public abstract class Store {
         this.schema = schema;
         this.properties = properties;
         addOpHandlers();
-        optimiseSchemas();
+        optimiseSchema();
         validateSchemas();
     }
 
@@ -240,8 +240,8 @@ public abstract class Store {
         return properties;
     }
 
-    public void optimiseSchemas() {
-        schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
+    public void optimiseSchema() {
+        schema = schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
     }
 
     public void validateSchemas() {

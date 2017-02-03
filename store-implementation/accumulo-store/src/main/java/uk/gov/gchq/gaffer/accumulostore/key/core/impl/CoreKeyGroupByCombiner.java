@@ -40,9 +40,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * A copy of Accumulo {@link org.apache.accumulo.core.iterators.Combiner} but
@@ -70,8 +70,8 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         private final String group;
         private final SortedKeyValueIterator<Key, Value> source;
         private final AccumuloElementConverter elementConverter;
-        private final LinkedHashSet<String> groupBy;
-        private final LinkedHashSet<String> schemaGroupBy;
+        private final Set<String> groupBy;
+        private final Set<String> schemaGroupBy;
         private boolean hasNext;
 
         /**
@@ -268,9 +268,9 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
             // Remove any group by properties from the aggregated properties
             // as they should be held constant.
-            final LinkedHashSet<String> groupBy = view.getElementGroupBy(group);
+            final Set<String> groupBy = view.getElementGroupBy(group);
             if (null == groupBy) {
-                final LinkedHashSet<String> schemaGroupBy = schema.getElement(group).getGroupBy();
+                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
                 if (null != schemaGroupBy) {
                     aggregatedProperties.remove(schemaGroupBy);
                 }
