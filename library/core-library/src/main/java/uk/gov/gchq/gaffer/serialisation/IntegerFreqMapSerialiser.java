@@ -26,7 +26,7 @@ import java.util.Set;
  * @deprecated use {@link IntegerFreqMap} with {@link FreqMapSerialiser} instead.
  */
 @Deprecated
-public class IntegerFreqMapSerialiser extends AbstractSerialisation<IntegerFreqMap> {
+public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
 
     private static final long serialVersionUID = 3772387954385745791L;
     private static final String SEPERATOR = "\\,";

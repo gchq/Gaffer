@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.sketches.serialisation;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.IOException;
 
-public class HyperLogLogPlusSerialiser extends AbstractSerialisation<HyperLogLogPlus> {
+public class HyperLogLogPlusSerialiser implements Serialisation<HyperLogLogPlus> {
     private static final long serialVersionUID = 2782098698280905174L;
 
     @Override
