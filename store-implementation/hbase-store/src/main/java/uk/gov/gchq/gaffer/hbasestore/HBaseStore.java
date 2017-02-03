@@ -184,7 +184,8 @@ public class HBaseStore extends Store {
                         cf = HBaseStoreConstants.ENTITY_CF_BYTES;
                     }
                     final Put put = new Put(row.getFirst());
-                    put.addColumn(cf, cq, value);
+                    final long ts = elementSerialisation.buildTimestamp(element.getProperties());
+                    put.addColumn(cf, cq, ts, value);
                     puts.add(put);
 
                     if (null != row.getSecond()) {
