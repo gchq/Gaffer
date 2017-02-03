@@ -30,5 +30,6 @@
         <module>accumulo-store</module>
         <module>proxy-store</module>
         <module>array-list-store</module>
+        <module>hbase-store</module>
     </modules>
 </project>
