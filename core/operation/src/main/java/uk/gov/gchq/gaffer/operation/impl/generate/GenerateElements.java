@@ -51,7 +51,6 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
      */
     public GenerateElements(final ElementGenerator<OBJ> elementGenerator) {
-        this();
         this.elementGenerator = elementGenerator;
     }
 
