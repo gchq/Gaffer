@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.function.context.ConsumerProducerFunctionContext;
 import uk.gov.gchq.gaffer.function.processor.Processor;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * An <code>ViewValidator</code> validates a view against a {@link Schema}
@@ -140,11 +141,11 @@ public class ViewValidator {
     }
 
     protected boolean validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
-        final LinkedHashSet<String> viewGroupBy = viewElDef.getGroupBy();
+        final Set<String> viewGroupBy = viewElDef.getGroupBy();
 
         boolean isValid = true;
         if (null != viewGroupBy && !viewGroupBy.isEmpty()) {
-            final LinkedHashSet<String> schemaGroupBy = schemaElDef.getGroupBy();
+            final Set<String> schemaGroupBy = schemaElDef.getGroupBy();
             if (null != schemaGroupBy && schemaGroupBy.containsAll(viewGroupBy)) {
                 if (isStoreOrdered) {
                     final LinkedHashSet<String> schemaGroupBySubset = Sets.newLinkedHashSet(Iterables.limit(schemaGroupBy, viewGroupBy.size()));

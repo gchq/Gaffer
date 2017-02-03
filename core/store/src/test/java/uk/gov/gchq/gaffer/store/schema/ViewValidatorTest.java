@@ -34,7 +34,7 @@ public class ViewValidatorTest {
     public void shouldValidateAndReturnTrueWhenEmptyFunctions() {
         // Given
         final ViewValidator validator = new ViewValidator();
-        final View view = new View();
+        final View view = new View.Builder().build();
         final Schema schema = new Schema();
 
         // When
@@ -54,8 +54,9 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("prop1", Object.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
+                        .property(TestPropertyNames.PROP_1, "prop1")
                         .build())
                 .build();
 
@@ -76,8 +77,9 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_2, "obj")
                         .build())
                 .build();
 
@@ -129,8 +131,9 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
+                        .property(TestPropertyNames.PROP_1, "obj")
                         .build())
                 .build();
 
@@ -155,9 +158,11 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("string", Object.class)
+                .type("int", Object.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, String.class)
-                        .property(TestPropertyNames.PROP_2, Integer.class)
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "int")
                         .build())
                 .build();
 
@@ -182,10 +187,13 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("double", Double.class)
+                .type("int", Integer.class)
+                .type("string", String.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Double.class)
-                        .property(TestPropertyNames.PROP_2, Integer.class)
-                        .property(TestPropertyNames.PROP_3, String.class)
+                        .property(TestPropertyNames.PROP_1, "double")
+                        .property(TestPropertyNames.PROP_2, "int")
+                        .property(TestPropertyNames.PROP_3, "string")
                         .build())
                 .build();
 
@@ -207,8 +215,9 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
+                        .property(TestPropertyNames.PROP_1, "obj")
                         .build())
                 .build();
 
@@ -230,7 +239,7 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_2, "obj")
                         .build())
                 .build();
 
@@ -282,7 +291,7 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
+                        .property(TestPropertyNames.PROP_1, "obj")
                         .build())
                 .build();
 
@@ -307,9 +316,11 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("int", Integer.class)
+                .type("string", String.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Integer.class)
-                        .property(TestPropertyNames.PROP_2, String.class)
+                        .property(TestPropertyNames.PROP_1, "int")
+                        .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .build();
 
@@ -334,10 +345,13 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("double", Double.class)
+                .type("int", Integer.class)
+                .type("string", String.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Double.class)
-                        .property(TestPropertyNames.PROP_2, Integer.class)
-                        .property(TestPropertyNames.PROP_3, String.class)
+                        .property(TestPropertyNames.PROP_1, "double")
+                        .property(TestPropertyNames.PROP_2, "int")
+                        .property(TestPropertyNames.PROP_3, "string")
                         .build())
                 .build();
 
@@ -358,13 +372,14 @@ public class ViewValidatorTest {
                 .build();
         final Schema schema = new Schema.Builder()
                 .type("vertex", String.class)
+                .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .build())
                 .build();
 
@@ -379,16 +394,17 @@ public class ViewValidatorTest {
     public void shouldValidateAndReturnTrueForNullView() {
         // Given
         final ViewValidator validator = new ViewValidator();
-        final View view = new View();
+        final View view = new View.Builder().build();
         final Schema schema = new Schema.Builder()
                 .type("vertex", String.class)
+                .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .build())
                 .build();
 
@@ -419,6 +435,7 @@ public class ViewValidatorTest {
                 .type("string|Value", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .property(TestPropertyNames.PROP_1, "string|ColumnQualifier")
@@ -429,7 +446,7 @@ public class ViewValidatorTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .property(TestPropertyNames.PROP_1, "string|ColumnQualifier")
                         .property(TestPropertyNames.PROP_2, "string|ColumnQualifier")
                         .property(TestPropertyNames.PROP_3, "string|Value")
@@ -465,6 +482,7 @@ public class ViewValidatorTest {
                 .type("string|Value", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .property(TestPropertyNames.PROP_1, "string|Timestamp")
@@ -473,7 +491,7 @@ public class ViewValidatorTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .property(TestPropertyNames.PROP_2, "string|Value")
                         .build())
                 .timestampProperty(TestPropertyNames.PROP_1)
@@ -506,6 +524,7 @@ public class ViewValidatorTest {
                 .type("string|Value", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .property(TestPropertyNames.PROP_2, "string|Value")
@@ -514,7 +533,7 @@ public class ViewValidatorTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
-                        .directed(Boolean.class)
+                        .directed("true")
                         .property(TestPropertyNames.PROP_1, "string|Timestamp")
                         .property(TestPropertyNames.PROP_2, "string|Value")
                         .groupBy(TestPropertyNames.PROP_1)
@@ -548,9 +567,10 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "obj")
                         .build())
                 .build();
 
@@ -580,9 +600,10 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, Object.class)
-                        .property(TestPropertyNames.PROP_2, Object.class)
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "obj")
                         .build())
                 .build();
 

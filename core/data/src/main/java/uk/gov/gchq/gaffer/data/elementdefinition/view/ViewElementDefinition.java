@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -44,11 +45,12 @@ import java.util.Set;
  * A <code>ViewElementDefinition</code> is an {@link ElementDefinition} containing
  * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}'s.
  */
+@JsonDeserialize(builder = ViewElementDefinition.Builder.class)
 public class ViewElementDefinition implements ElementDefinition {
-    private ElementTransformer transformer;
-    private ElementFilter preAggregationFilter;
-    private ElementFilter postAggregationFilter;
-    private ElementFilter postTransformFilter;
+    protected ElementTransformer transformer;
+    protected ElementFilter preAggregationFilter;
+    protected ElementFilter postAggregationFilter;
+    protected ElementFilter postTransformFilter;
 
     /**
      * This field overrides the group by properties in the schema.
@@ -66,44 +68,19 @@ public class ViewElementDefinition implements ElementDefinition {
      * summarised.
      * </p>
      */
-    private LinkedHashSet<String> groupBy;
+    protected Set<String> groupBy;
 
     /**
      * Transient property map of property name to class.
      */
-    private LinkedHashMap<String, Class<?>> transientProperties = new LinkedHashMap<>();
+    protected Map<String, Class<?>> transientProperties = new LinkedHashMap<>();
 
-    public LinkedHashSet<String> getGroupBy() {
+    public Set<String> getGroupBy() {
         return groupBy;
     }
 
     public void setGroupBy(final LinkedHashSet<String> groupBy) {
         this.groupBy = groupBy;
-    }
-
-    @Override
-    public void merge(final ElementDefinition elementDef) {
-        if (elementDef instanceof ViewElementDefinition) {
-            merge(((ViewElementDefinition) elementDef));
-        } else {
-            throw new IllegalArgumentException("Cannot merge a schema element definition with a " + elementDef.getClass());
-        }
-    }
-
-    public void merge(final ViewElementDefinition elementDef) {
-        for (final Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
-            final String newProp = entry.getKey();
-            final Class<?> newPropClass = entry.getValue();
-            if (!transientProperties.containsKey(newProp)) {
-                transientProperties.put(newProp, newPropClass);
-            } else {
-                final Class<?> clazz = transientProperties.get(newProp);
-                if (!clazz.equals(newPropClass)) {
-                    throw new SchemaException("Unable to merge schemas. Conflict of transient property classes for " + newProp
-                            + ". Classes are: " + clazz.getName() + " and " + newPropClass.getName());
-                }
-            }
-        }
     }
 
     public Class<?> getTransientPropertyClass(final String propertyName) {
@@ -141,27 +118,9 @@ public class ViewElementDefinition implements ElementDefinition {
         return propertyMap;
     }
 
-    /**
-     * Set the transient properties.
-     *
-     * @param newTransientProperties {@link LinkedHashMap} of transient property name to class name.
-     * @throws ClassNotFoundException thrown if any of the property class names could not be found.
-     */
-    @JsonSetter("transientProperties")
-    public void setTransientPropertyMapWithClassNames(final LinkedHashMap<String, String> newTransientProperties) throws ClassNotFoundException {
-        transientProperties = new LinkedHashMap<>();
-        for (final Entry<String, String> entry : newTransientProperties.entrySet()) {
-            transientProperties.put(entry.getKey(), Class.forName(entry.getValue()));
-        }
-    }
-
     @JsonIgnore
     public ElementFilter getPreAggregationFilter() {
         return preAggregationFilter;
-    }
-
-    public void setPreAggregationFilter(final ElementFilter preAggregationFilter) {
-        this.preAggregationFilter = preAggregationFilter;
     }
 
     @JsonGetter("preAggregationFilterFunctions")
@@ -169,22 +128,9 @@ public class ViewElementDefinition implements ElementDefinition {
         return null != preAggregationFilter ? preAggregationFilter.getFunctions() : null;
     }
 
-    @JsonSetter("preAggregationFilterFunctions")
-    public void addPreAggregationElementFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> functions) {
-        if (null == preAggregationFilter) {
-            preAggregationFilter = new ElementFilter();
-        }
-
-        preAggregationFilter.addFunctions(functions);
-    }
-
     @JsonIgnore
     public ElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
-    }
-
-    public void setPostAggregationFilter(final ElementFilter postAggregationFilter) {
-        this.postAggregationFilter = postAggregationFilter;
     }
 
     @JsonGetter("postAggregationFilterFunctions")
@@ -192,22 +138,9 @@ public class ViewElementDefinition implements ElementDefinition {
         return null != postAggregationFilter ? postAggregationFilter.getFunctions() : null;
     }
 
-    @JsonSetter("postAggregationFilterFunctions")
-    public void addPostAggregationElementFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> functions) {
-        if (null == postAggregationFilter) {
-            postAggregationFilter = new ElementFilter();
-        }
-
-        postAggregationFilter.addFunctions(functions);
-    }
-
     @JsonIgnore
     public ElementFilter getPostTransformFilter() {
         return postTransformFilter;
-    }
-
-    public void setPostTransformFilter(final ElementFilter postFilter) {
-        this.postTransformFilter = postFilter;
     }
 
     @JsonGetter("postTransformFilterFunctions")
@@ -215,33 +148,14 @@ public class ViewElementDefinition implements ElementDefinition {
         return null != postTransformFilter ? postTransformFilter.getFunctions() : null;
     }
 
-    @JsonSetter("postTransformFilterFunctions")
-    public void addPostTransformFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> functions) {
-        if (null == postTransformFilter) {
-            postTransformFilter = new ElementFilter();
-        }
-
-        postTransformFilter.addFunctions(functions);
-    }
-
     @JsonIgnore
     public ElementTransformer getTransformer() {
         return transformer;
     }
 
-    public void setTransformer(final ElementTransformer transformer) {
-        this.transformer = transformer;
-    }
-
     @JsonGetter("transformFunctions")
     public List<ConsumerProducerFunctionContext<String, TransformFunction>> getTransformFunctions() {
         return null != transformer ? transformer.getFunctions() : null;
-    }
-
-    @JsonSetter("transformFunctions")
-    public void addTransformFunctions(final List<ConsumerProducerFunctionContext<String, TransformFunction>> functions) {
-        transformer = new ElementTransformer();
-        transformer.addFunctions(functions);
     }
 
     @Override
@@ -290,59 +204,150 @@ public class ViewElementDefinition implements ElementDefinition {
                 .toString();
     }
 
-    public static class Builder {
+    @Override
+    public void lock() {
+        if (null != groupBy) {
+            groupBy = Collections.unmodifiableSet(groupBy);
+        }
+
+        transientProperties = Collections.unmodifiableMap(transientProperties);
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> {
         private final ViewElementDefinition elDef;
 
-        public Builder() {
+        public BaseBuilder() {
             this.elDef = new ViewElementDefinition();
         }
 
-        public Builder transientProperty(final String propertyName, final Class<?> clazz) {
-            elDef.transientProperties.put(propertyName, clazz);
-            return this;
+        public BaseBuilder(final ViewElementDefinition elementDef) {
+            this();
+            merge(elementDef);
         }
 
-        public Builder preAggregationFilter(final ElementFilter filter) {
+        public CHILD_CLASS transientProperty(final String propertyName, final Class<?> clazz) {
+            elDef.transientProperties.put(propertyName, clazz);
+            return self();
+        }
+
+        public CHILD_CLASS transientProperties(final Map<String, Class<?>> transientProperties) {
+            elDef.transientProperties = new LinkedHashMap<>(transientProperties);
+            return self();
+        }
+
+        public CHILD_CLASS preAggregationFilter(final ElementFilter preAggregationFilter) {
             if (null != getElementDef().getPreAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().preAggregationFilter(ElementFilter)" +
                         "may only be called once.");
             }
 
-            getElementDef().setPreAggregationFilter(filter);
-            return this;
+            getElementDef().preAggregationFilter = preAggregationFilter;
+            return self();
         }
 
-        public Builder postAggregationFilter(final ElementFilter filter) {
+        public CHILD_CLASS preAggregationFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            getElementDef().preAggregationFilter = new ElementFilter();
+            getElementDef().preAggregationFilter.addFunctions(filterFunctions);
+            return self();
+        }
+
+        public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
             if (null != getElementDef().getPostAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
                         "may only be called once.");
             }
 
-            getElementDef().setPostAggregationFilter(filter);
-            return this;
+            getElementDef().postAggregationFilter = postAggregationFilter;
+            return self();
         }
 
-        public Builder postTransformFilter(final ElementFilter postFilter) {
+        public CHILD_CLASS postAggregationFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            getElementDef().postAggregationFilter = new ElementFilter();
+            getElementDef().postAggregationFilter.addFunctions(filterFunctions);
+            return self();
+        }
+
+        public CHILD_CLASS postTransformFilter(final ElementFilter postTransformFilter) {
             if (null != getElementDef().getPostTransformFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postTransformFilter(ElementFilter)" +
                         "may only be called once.");
             }
 
-            getElementDef().setPostTransformFilter(postFilter);
-            return this;
+            getElementDef().postTransformFilter = postTransformFilter;
+            return self();
         }
 
-        public Builder transformer(final ElementTransformer transformer) {
-            getElementDef().setTransformer(transformer);
-            return this;
+        public CHILD_CLASS postTransformFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            getElementDef().postTransformFilter = new ElementFilter();
+            getElementDef().postTransformFilter.addFunctions(filterFunctions);
+            return self();
         }
 
-        public Builder groupBy(final String... groupBy) {
+        public CHILD_CLASS transformer(final ElementTransformer transformer) {
+            getElementDef().transformer = transformer;
+            return self();
+        }
+
+        public CHILD_CLASS transformFunctions(final List<ConsumerProducerFunctionContext<String, TransformFunction>> transformFunctions) {
+            getElementDef().transformer = new ElementTransformer();
+            getElementDef().transformer.addFunctions(transformFunctions);
+            return self();
+        }
+
+        public CHILD_CLASS groupBy(final String... groupBy) {
             if (null == getElementDef().getGroupBy()) {
                 getElementDef().setGroupBy(new LinkedHashSet<String>());
             }
             Collections.addAll(getElementDef().getGroupBy(), groupBy);
-            return this;
+            return self();
+        }
+
+        public CHILD_CLASS merge(final ViewElementDefinition elementDef) {
+            for (final Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
+                final String newProp = entry.getKey();
+                final Class<?> newPropClass = entry.getValue();
+                if (!getElementDef().transientProperties.containsKey(newProp)) {
+                    getElementDef().transientProperties.put(newProp, newPropClass);
+                } else {
+                    final Class<?> clazz = getElementDef().transientProperties.get(newProp);
+                    if (!clazz.equals(newPropClass)) {
+                        throw new SchemaException("Unable to merge schemas. Conflict of transient property classes for " + newProp
+                                + ". Classes are: " + clazz.getName() + " and " + newPropClass.getName());
+                    }
+                }
+            }
+
+            if (null == getElementDef().preAggregationFilter) {
+                getElementDef().preAggregationFilter = elementDef.preAggregationFilter;
+            } else if (null != elementDef.preAggregationFilter) {
+                getElementDef().preAggregationFilter.addFunctions(elementDef.preAggregationFilter.getFunctions());
+            }
+
+            if (null == getElementDef().postAggregationFilter) {
+                getElementDef().postAggregationFilter = elementDef.postAggregationFilter;
+            } else if (null != elementDef.postAggregationFilter) {
+                getElementDef().postAggregationFilter.addFunctions(elementDef.postAggregationFilter.getFunctions());
+            }
+
+            if (null == getElementDef().postTransformFilter) {
+                getElementDef().postTransformFilter = elementDef.postTransformFilter;
+            } else if (null != elementDef.postTransformFilter) {
+                getElementDef().postTransformFilter.addFunctions(elementDef.postTransformFilter.getFunctions());
+            }
+
+            if (null == getElementDef().transformer) {
+                getElementDef().transformer = elementDef.transformer;
+            } else if (null != elementDef.transformer) {
+                getElementDef().transformer.addFunctions(elementDef.transformer.getFunctions());
+            }
+
+            if (null != getElementDef().groupBy) {
+                getElementDef().groupBy.addAll(elementDef.getGroupBy());
+            } else if (null != elementDef.getGroupBy()) {
+                getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
+            }
+
+            return self();
         }
 
         public ViewElementDefinition build() {
@@ -351,6 +356,23 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public ViewElementDefinition getElementDef() {
             return elDef;
+        }
+
+        protected abstract CHILD_CLASS self();
+    }
+
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final ViewElementDefinition viewElementDef) {
+            super(viewElementDef);
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }
