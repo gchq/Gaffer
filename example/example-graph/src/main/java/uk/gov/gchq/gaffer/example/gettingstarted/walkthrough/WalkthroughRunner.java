@@ -23,7 +23,6 @@ import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
@@ -104,7 +103,7 @@ public class WalkthroughRunner {
     }
 
     private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {
-        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("gaffer.example"));
+        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("uk.gov.gchq.gaffer.example"));
 
         final List<Class<? extends CLASS>> classes = new ArrayList<>(new Reflections(urls).getSubTypesOf(clazz));
         keepPublicConcreteClasses(classes);

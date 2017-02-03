@@ -32,28 +32,27 @@ public class StoreValidationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
     private static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
-
     @Override
     protected Schema createSchema() {
-        final Schema schema = super.createSchema();
-        schema.merge(new Schema.Builder()
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
-                        .validator(new ElementFilter.Builder()
-                                .execute(new AgeOff(AGE_OFF_TIME))
+        return new Schema.Builder()
+                .merge(super.createSchema())
+                .merge(new Schema.Builder()
+                        .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                                .validator(new ElementFilter.Builder()
+                                        .execute(new AgeOff(AGE_OFF_TIME))
+                                        .build())
+                                .build())
+                        .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                                .validator(new ElementFilter.Builder()
+                                        .execute(new IsLessThan(10))
+                                        .build())
+                                .build())
+                        .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                                .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                                .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
                                 .build())
                         .build())
-                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                        .validator(new ElementFilter.Builder()
-                                .execute(new IsLessThan(10))
-                                .build())
-                        .build())
-                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
-                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
-                        .build())
-                .buildModule());
-
-        return schema;
+                .build();
     }
 
     @Test

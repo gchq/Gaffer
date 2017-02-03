@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
@@ -23,8 +26,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -41,21 +44,22 @@ import java.util.LinkedHashSet;
  * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter
  * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
+@JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
     public View() {
         super();
     }
 
     public static View fromJson(final InputStream inputStream) throws SchemaException {
-        return fromJson(View.class, inputStream);
+        return new View.Builder().json(inputStream).build();
     }
 
     public static View fromJson(final Path filePath) throws SchemaException {
-        return fromJson(View.class, filePath);
+        return new View.Builder().json(filePath).build();
     }
 
     public static View fromJson(final byte[] jsonBytes) throws SchemaException {
-        return fromJson(View.class, jsonBytes);
+        return new View.Builder().json(jsonBytes).build();
     }
 
     public byte[] toCompactJson() throws SchemaException {
@@ -76,7 +80,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return (ViewElementDefinition) super.getElement(group);
     }
 
-    public LinkedHashSet<String> getElementGroupBy(final String group) {
+    public Set<String> getElementGroupBy(final String group) {
         ViewElementDefinition viewElementDef = (ViewElementDefinition) super.getElement(group);
         if (null == viewElementDef) {
             return null;
@@ -92,57 +96,92 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return fromJson(toJson(false));
     }
 
-    public static class Builder extends ElementDefinitions.Builder<ViewElementDefinition, ViewElementDefinition> {
-        public Builder() {
-            this(new View());
-        }
-
-        public Builder(final View view) {
-            super(view.clone());
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<View, ViewElementDefinition, ViewElementDefinition, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new View());
         }
 
         @Override
-        public Builder edge(final String group, final ViewElementDefinition elementDef) {
-            return (Builder) super.edge(group, elementDef);
-        }
-
-        public Builder edge(final String group) {
-            return edge(group, new ViewElementDefinition());
-        }
-
-        public Builder edges(final Collection<String> groups) {
-            for (final String group : groups) {
-                edge(group);
-            }
-
-            return this;
-        }
-
-        @Override
-        public Builder entity(final String group, final ViewElementDefinition elementDef) {
-            return (Builder) super.entity(group, elementDef);
-        }
-
-        public Builder entity(final String group) {
+        public CHILD_CLASS entity(final String group) {
             return entity(group, new ViewElementDefinition());
         }
 
-        public Builder entities(final Collection<String> groups) {
-            for (final String group : groups) {
-                entity(group);
+        @Override
+        public CHILD_CLASS edge(final String group) {
+            return edge(group, new ViewElementDefinition());
+        }
+
+        @JsonIgnore
+        public CHILD_CLASS json(final InputStream... inputStreams) throws SchemaException {
+            return json(View.class, inputStreams);
+        }
+
+        @JsonIgnore
+        public CHILD_CLASS json(final Path... filePaths) throws SchemaException {
+            return json(View.class, filePaths);
+        }
+
+        @JsonIgnore
+        public CHILD_CLASS json(final byte[]... jsonBytes) throws SchemaException {
+            return json(View.class, jsonBytes);
+        }
+
+        @Override
+        @JsonIgnore
+        public CHILD_CLASS merge(final View view) {
+            if (getThisView().getEntities().isEmpty()) {
+                getThisView().getEntities().putAll(view.getEntities());
+            } else {
+                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
+                    if (!getThisView().getEntities().containsKey(entry.getKey())) {
+                        entity(entry.getKey(), entry.getValue());
+                    } else {
+                        final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
+                                .merge(getThisView().getEntities().get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisView().getEntities().put(entry.getKey(), mergedElementDef);
+                    }
+                }
             }
 
+            if (getThisView().getEdges().isEmpty()) {
+                getThisView().getEdges().putAll(view.getEdges());
+            } else {
+                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
+                    if (!getThisView().getEdges().containsKey(entry.getKey())) {
+                        edge(entry.getKey(), entry.getValue());
+                    } else {
+                        final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
+                                .merge(getThisView().getEdges().get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisView().getEdges().put(entry.getKey(), mergedElementDef);
+                    }
+                }
+            }
+
+            return self();
+        }
+
+        private View getThisView() {
+            return getElementDefs();
+        }
+    }
+
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+    public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+        }
+
+        public Builder(final View view) {
+            this();
+            merge(view);
+        }
+
+        @Override
+        protected Builder self() {
             return this;
-        }
-
-        @Override
-        public View build() {
-            return (View) super.build();
-        }
-
-        @Override
-        protected View getElementDefs() {
-            return (View) super.getElementDefs();
         }
     }
 }

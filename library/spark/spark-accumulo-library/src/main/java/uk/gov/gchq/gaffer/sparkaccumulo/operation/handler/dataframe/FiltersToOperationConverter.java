@@ -150,7 +150,7 @@ public class FiltersToOperationConverter {
     }
 
     private AbstractGetRDD<?> applyVertexSourceDestinationFilters(final View view) {
-        View clonedView = View.fromJson(view.toCompactJson());
+        View clonedView = view.clone();
         AbstractGetRDD<?> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
@@ -231,11 +231,14 @@ public class FiltersToOperationConverter {
         }
         boolean updated = false;
         View.Builder builder = new View.Builder();
+
         for (final String group : derivedView.getEntityGroups()) {
             if (intersection.contains(group)) {
                 if (groupToFunctions.get(group) != null) {
-                    final ViewElementDefinition ved = derivedView.getEntity(group);
-                    ved.addPostAggregationElementFilterFunctions(groupToFunctions.get(group));
+                    final ViewElementDefinition ved = new ViewElementDefinition.Builder()
+                            .merge(derivedView.getEntity(group))
+                            .postAggregationFilterFunctions(groupToFunctions.get(group))
+                            .build();
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
                     for (final ConsumerFunctionContext<String, FilterFunction> cfc : groupToFunctions.get(group)) {
                         LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
@@ -249,9 +252,11 @@ public class FiltersToOperationConverter {
         }
         for (final String group : derivedView.getEdgeGroups()) {
             if (intersection.contains(group)) {
-                final ViewElementDefinition ved = derivedView.getEdge(group);
                 if (groupToFunctions.get(group) != null) {
-                    ved.addPostAggregationElementFilterFunctions(groupToFunctions.get(group));
+                    final ViewElementDefinition ved = new ViewElementDefinition.Builder()
+                            .merge(derivedView.getEdge(group))
+                            .postAggregationFilterFunctions(groupToFunctions.get(group))
+                            .build();
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
                     for (final ConsumerFunctionContext<String, FilterFunction> cfc : groupToFunctions.get(group)) {
                         LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());

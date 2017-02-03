@@ -187,7 +187,7 @@ public class ViewTest {
 
         // When
         byte[] json = view.toJson(true);
-        final View deserialisedView = View.fromJson(json);
+        final View deserialisedView = new View.Builder().json(json).build();
 
         // Then
         assertEquals(1, deserialisedView.getEntityGroups().size());
@@ -244,8 +244,8 @@ public class ViewTest {
         // Check that JSON representations of the objects are equal
         assertArrayEquals(viewJson, cloneJson);
 
-        final View viewFromJson = View.fromJson(viewJson);
-        final View cloneFromJson = View.fromJson(cloneJson);
+        final View viewFromJson = new View.Builder().json(viewJson).build();
+        final View cloneFromJson = new View.Builder().json(cloneJson).build();
 
         // Check that objects created from JSON representations are equal
         assertEquals(viewFromJson, cloneFromJson);
@@ -283,10 +283,13 @@ public class ViewTest {
                 .build();
 
         // When
-        view1.merge(view2);
+        final View mergedView = new View.Builder()
+                .merge(view1)
+                .merge(view2)
+                .build();
 
         // Then
-        assertEquals(2, view1.getEntities().size());
-        assertEquals(2, view1.getEdges().size());
+        assertEquals(2, mergedView.getEntities().size());
+        assertEquals(2, mergedView.getEdges().size());
     }
 }

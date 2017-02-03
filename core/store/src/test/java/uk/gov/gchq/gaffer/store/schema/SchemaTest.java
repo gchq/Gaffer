@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -58,19 +57,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
+
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
     public static final String ENTITY_DESCRIPTION = "Entity description";
     public static final String STRING_TYPE_DESCRIPTION = "String type description";
     public static final String INTEGER_TYPE_DESCRIPTION = "Integer type description";
+    public static final String TIMESTAMP_TYPE_DESCRIPTION = "Timestamp type description";
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
 
-    private Schema schema;
-
-    @Before
-    public void setup() throws IOException {
-        schema = Schema.fromJson(StreamUtil.schemas(getClass()));
-    }
+    private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
     @Test
     public void shouldCloneSchema() throws SerialisationException {
@@ -83,33 +79,33 @@ public class SchemaTest {
         // Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        assertArrayEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonUtil.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
         //Given
         final byte[] json1 = schema.toCompactJson();
-        final Schema schema2 = Schema.fromJson(Schema.class, json1);
+        final Schema schema2 = new Schema.Builder().json(json1).build();
 
         // When
         final byte[] json2 = schema2.toCompactJson();
 
         // Then
-        assertEquals(new String(json1), new String(json2));
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
     public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() throws SerialisationException {
         //Given
         final byte[] json1 = schema.toJson(true);
-        final Schema schema2 = Schema.fromJson(json1);
+        final Schema schema2 = new Schema.Builder().json(json1).build();
 
         // When
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        assertEquals(new String(json1), new String(json2));
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -216,15 +212,33 @@ public class SchemaTest {
     private Schema createSchema() {
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING, String.class)
-                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER, Integer.class)
-                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP, Integer.class)
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
                         .groupBy(TestPropertyNames.PROP_1)
                         .description(EDGE_DESCRIPTION)
                         .validator(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .description(EDGE_DESCRIPTION)
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
                         .build())
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -233,6 +247,10 @@ public class SchemaTest {
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
                         .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
@@ -252,6 +270,8 @@ public class SchemaTest {
                 "      },%n" +
                 "      \"groupBy\" : [ \"property1\" ],%n" +
                 "      \"description\" : \"Edge description\",%n" +
+                "      \"source\" : \"id.string\",%n" +
+                "      \"destination\" : \"id.string\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
@@ -260,18 +280,40 @@ public class SchemaTest {
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +
-                "  \"entities\" : { },%n" +
+                "  \"entities\" : {%n" +
+                "    \"BasicEntity\" : {%n" +
+                "      \"properties\" : {%n" +
+                "        \"property1\" : \"prop.string\",%n" +
+                "        \"property2\" : \"prop.integer\",%n" +
+                "        \"timestamp\" : \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"description\" : \"Edge description\",%n" +
+                "      \"vertex\" : \"id.string\",%n" +
+                "      \"validateFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    }%n" +
+                "  },%n" +
                 "  \"types\" : {%n" +
-                "    \"prop.integer\" : {%n" +
-                "      \"description\" : \"Integer type description\",%n" +
-                "      \"class\" : \"java.lang.Integer\"%n" +
+                "    \"id.string\" : {%n" +
+                "      \"description\" : \"String type description\",%n" +
+                "      \"class\" : \"java.lang.String\"%n" +
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
                 "    },%n" +
-                "    \"timestamp\" : {%n" +
+                "    \"prop.integer\" : {%n" +
+                "      \"description\" : \"Integer type description\",%n" +
                 "      \"class\" : \"java.lang.Integer\"%n" +
+                "    },%n" +
+                "    \"timestamp\" : {%n" +
+                "      \"description\" : \"Timestamp type description\",%n" +
+                "      \"class\" : \"java.lang.Long\"%n" +
                 "    }%n" +
                 "  },%n" +
                 "  \"visibilityProperty\" : \"visibility\",%n" +
@@ -323,7 +365,7 @@ public class SchemaTest {
     public void testSchemaConstructedFromInputStream() throws IOException {
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.DATA_SCHEMA);
         assertNotNull(resourceAsStream);
-        final Schema deserialisedSchema = Schema.fromJson(resourceAsStream);
+        final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
         assertNotNull(deserialisedSchema);
 
         final Map<String, SchemaEdgeDefinition> edges = deserialisedSchema.getEdges();
@@ -394,21 +436,24 @@ public class SchemaTest {
                 .build();
 
         // When
-        schema1.merge(schema2);
+        final Schema mergedSchema = new Schema.Builder()
+                .merge(schema1)
+                .merge(schema2)
+                .build();
 
         // Then
-        assertEquals(2, schema1.getEdges().size());
-        assertNotNull(schema1.getEdge(TestGroups.EDGE));
-        assertNotNull(schema1.getEdge(TestGroups.EDGE_2));
+        assertEquals(2, mergedSchema.getEdges().size());
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
 
-        assertEquals(2, schema1.getEntities().size());
-        assertNotNull(schema1.getEntity(TestGroups.ENTITY));
-        assertNotNull(schema1.getEntity(TestGroups.ENTITY_2));
+        assertEquals(2, mergedSchema.getEntities().size());
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(Integer.class, schema1.getType(type1).getClazz());
-        assertEquals(String.class, schema1.getType(type2).getClazz());
-        assertSame(vertexSerialiser, schema1.getVertexSerialiser());
-        assertEquals(TestPropertyNames.VISIBILITY, schema1.getVisibilityProperty());
+        assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
+        assertEquals(String.class, mergedSchema.getType(type2).getClazz());
+        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
     }
 
     @Test
@@ -432,21 +477,24 @@ public class SchemaTest {
                 .build();
 
         // When
-        schema2.merge(schema1);
+        final Schema mergedSchema = new Schema.Builder()
+                .merge(schema2)
+                .merge(schema1)
+                .build();
 
         // Then
-        assertEquals(2, schema2.getEdges().size());
-        assertNotNull(schema2.getEdge(TestGroups.EDGE));
-        assertNotNull(schema2.getEdge(TestGroups.EDGE_2));
+        assertEquals(2, mergedSchema.getEdges().size());
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
+        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
 
-        assertEquals(2, schema2.getEntities().size());
-        assertNotNull(schema2.getEntity(TestGroups.ENTITY));
-        assertNotNull(schema2.getEntity(TestGroups.ENTITY_2));
+        assertEquals(2, mergedSchema.getEntities().size());
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
+        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(Integer.class, schema2.getType(type1).getClazz());
-        assertEquals(String.class, schema2.getType(type2).getClazz());
-        assertSame(vertexSerialiser, schema2.getVertexSerialiser());
-        assertEquals(TestPropertyNames.VISIBILITY, schema2.getVisibilityProperty());
+        assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
+        assertEquals(String.class, mergedSchema.getType(type2).getClazz());
+        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
     }
 
     @Test
@@ -461,7 +509,9 @@ public class SchemaTest {
 
         // When / Then
         try {
-            schema1.merge(schema2);
+            new Schema.Builder()
+                    .merge(schema1)
+                    .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("Element groups cannot be shared"));
@@ -480,7 +530,9 @@ public class SchemaTest {
 
         // When / Then
         try {
-            schema1.merge(schema2);
+            new Schema.Builder()
+                    .merge(schema1)
+                    .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("Element groups cannot be shared"));
@@ -501,7 +553,10 @@ public class SchemaTest {
 
         // When / Then
         try {
-            schema1.merge(schema2);
+            new Schema.Builder()
+                    .merge(schema1)
+                    .merge(schema2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("vertex serialiser"));
@@ -520,11 +575,240 @@ public class SchemaTest {
 
         // When / Then
         try {
-            schema1.merge(schema2);
+            new Schema.Builder()
+                    .merge(schema1)
+                    .merge(schema2)
+                    .build();
             fail("Exception expected");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("visibility property"));
         }
+    }
+
+    @Test
+    public void shouldNotRemoveMissingParentsWhenExpanded() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2).getParents().toArray());
+    }
+
+    @Test
+    public void shouldInheritIdentifiersFromParents() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("int")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .destination("long")
+                        .directed("true")
+                        .build())
+                .merge(new Schema.Builder()
+                        .edge(TestGroups.EDGE_3, new SchemaEdgeDefinition.Builder()
+                                .parents(TestGroups.EDGE_2, TestGroups.EDGE)
+                                .source("date")
+                                .build())
+                        .build())
+                .build();
+
+        // Then
+        final SchemaEdgeDefinition childEdge1 = schema.getEdge(TestGroups.EDGE);
+        assertEquals("string", childEdge1.getSource());
+        assertEquals("int", childEdge1.getDestination());
+        assertEquals(null, childEdge1.getDirected());
+
+        final SchemaEdgeDefinition childEdge2 = schema.getEdge(TestGroups.EDGE_2);
+        assertEquals("string", childEdge2.getSource());
+        assertEquals("long", childEdge2.getDestination());
+        assertEquals("true", childEdge2.getDirected());
+
+        final SchemaEdgeDefinition childEdge3 = schema.getEdge(TestGroups.EDGE_3);
+        assertEquals("date", childEdge3.getSource());
+        assertEquals("int", childEdge3.getDestination());
+        assertEquals("true", childEdge3.getDirected());
+    }
+
+    @Test
+    public void shouldInheritPropertiesFromParentsInOrderFromJson() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(getClass(), "schemaWithParents.json"))
+                .build();
+
+        // Then
+        // Check edges
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4},
+                schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
+
+        // Check order of properties and overrides is from order of parents
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4,
+                        TestPropertyNames.PROP_5},
+                schema.getEdge(TestGroups.EDGE_5).getProperties().toArray());
+
+        assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE).getDescription());
+        assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema.getEdge(TestGroups.EDGE_5).getDescription());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
+
+        // Check entities
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4},
+                schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
+
+        // Check order of properties and overrides is from order of parents
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4,
+                        TestPropertyNames.PROP_5},
+                schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
+
+        assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
+        assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
+    }
+
+    @Test
+    public void shouldInheritPropertiesFromParentsInOrder() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "prop.string2")
+                        .build())
+                .edge(TestGroups.EDGE_3, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE, TestGroups.EDGE_2)
+                        .property(TestPropertyNames.PROP_3, "prop.string3")
+                        .build())
+                .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE_3)
+                        .property(TestPropertyNames.PROP_4, "prop.string4")
+                        .build())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE_4)
+                        .property(TestPropertyNames.PROP_5, "prop.string5")
+                        .build())
+                .build();
+
+
+        // Then
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4},
+                schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
+
+        // Then - check order of properties and overrides is from order of parents
+        assertArrayEquals(new String[]{
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4,
+                        TestPropertyNames.PROP_5},
+                schema.getEdge(TestGroups.EDGE_5).getProperties().toArray());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPropertyExistsInParentAndChild() {
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                            .property(TestPropertyNames.PROP_1, "prop.string")
+                            .property(TestPropertyNames.PROP_2, "prop.integer")
+                            .build())
+                    .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                            .parents(TestGroups.EDGE)
+                            .property(TestPropertyNames.PROP_1, "prop.string.changed")
+                            .build())
+                    .build();
+            fail("Exception expected");
+        } catch (final SchemaException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void shouldOverrideInheritedParentGroupBy() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .groupBy(TestPropertyNames.PROP_2)
+                        .parents(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
+                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+    }
+
+    @Test
+    public void shouldOverrideInheritedParentGroupByEvenWhenEmpty() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .groupBy()
+                        .parents(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[0],
+                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+    }
+
+    @Test
+    public void shouldOverrideInheritedParentGroupByEvenWhenNotSet() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[0],
+                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
     @Test
