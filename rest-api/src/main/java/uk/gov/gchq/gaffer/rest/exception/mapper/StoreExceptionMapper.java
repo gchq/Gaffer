@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.exception.mappers;
+package uk.gov.gchq.gaffer.rest.exception.mapper;
 
 import uk.gov.gchq.gaffer.rest.exception.Error;
 import uk.gov.gchq.gaffer.rest.exception.ErrorFactory;
@@ -28,9 +28,8 @@ import javax.ws.rs.ext.Provider;
 public class StoreExceptionMapper implements ExceptionMapper<StoreException> {
 
     @Override
-    public Response toResponse(final StoreException e) {
-
-        final Error error = ErrorFactory.from(e);
+    public Response toResponse(final StoreException ex) {
+        final Error error = ErrorFactory.from(ex);
 
         return Response.status(error.getStatusCode())
                        .entity(Entity.json(error))

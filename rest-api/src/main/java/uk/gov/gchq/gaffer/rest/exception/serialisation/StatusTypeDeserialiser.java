@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.exception;
+package uk.gov.gchq.gaffer.rest.exception.serialisation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,13 +21,14 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 import java.io.IOException;
 
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
-
+/**
+ * Custom deserialiser for handling formatted {@link javax.ws.rs.core.Response.StatusType}
+ * representations.
+ */
 public class StatusTypeDeserialiser extends JsonDeserializer<StatusType> {
 
     @Override

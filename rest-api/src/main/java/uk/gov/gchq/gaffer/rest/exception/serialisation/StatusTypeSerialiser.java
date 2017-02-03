@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.exception;
+
+package uk.gov.gchq.gaffer.rest.exception.serialisation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +24,10 @@ import org.apache.commons.lang3.text.WordUtils;
 import javax.ws.rs.core.Response.StatusType;
 import java.io.IOException;
 
+/**
+ * Custom serialiser to format the HTTP status string when displaying error
+ * messages to users.
+ */
 public class StatusTypeSerialiser extends JsonSerializer<StatusType> {
 
     @Override

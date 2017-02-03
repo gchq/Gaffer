@@ -21,12 +21,17 @@ import uk.gov.gchq.gaffer.rest.exception.ErrorFactory;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-public class GafferExceptionMapper implements ExceptionMapper<Throwable> {
+/**
+ * Jersey {@link javax.ws.rs.ext.ExceptionMapper} to be used when no specific
+ * exception mapper instance exists.
+ */
+@Provider
+public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable throwable) {
-        // covert Throwable to Error
         final Error error = ErrorFactory.from(throwable);
 
         return Response.status(error.getStatusCode())
