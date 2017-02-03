@@ -103,11 +103,6 @@ Javax Servlet (javax.servlet:java.servlet-api:3.1.0)
 - CDDL + GPLv2 with classpath exception
 
 
-Joda Time (joda-time:joda-time:2.9.5)
-
-- Apache License, Version 2.0
-
-
 Junit (junit:junit:4.12):
 
 - Eclipse Public License 1.0
