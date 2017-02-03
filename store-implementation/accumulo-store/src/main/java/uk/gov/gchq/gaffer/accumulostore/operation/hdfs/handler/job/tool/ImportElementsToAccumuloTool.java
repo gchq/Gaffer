@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 
+import java.io.IOException;
+
 public class ImportElementsToAccumuloTool extends Configured implements Tool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportElementsToAccumuloTool.class);
@@ -50,6 +52,8 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
         final Configuration conf = getConf();
         final FileSystem fs = FileSystem.get(conf);
 
+        checkHdfsDirectories(failurePath, fs);
+
         // Remove the _SUCCESS file to prevent warning in Accumulo
         LOGGER.info("Removing file {}/_SUCCESS", inputPath);
         fs.delete(new Path(inputPath + "/_SUCCESS"), false);
@@ -63,5 +67,22 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
                 failurePath, false);
 
         return SUCCESS_RESPONSE;
+    }
+
+    private void checkHdfsDirectories(final String failurePathString, final FileSystem fs) throws IOException {
+        LOGGER.info("Checking that the correct HDFS directories exist");
+
+        final Path failurePath = new Path(failurePathString);
+        LOGGER.info("Ensuring failure directory {} exists", failurePath);
+        if (fs.exists(failurePath)) {
+            if (fs.listFiles(failurePath, true).hasNext()) {
+                LOGGER.error("Failure directory exists and is not empty: {}", failurePath);
+                throw new IllegalArgumentException("Failure directory is not empty: " + failurePath);
+            }
+        } else {
+            LOGGER.info("Failure directory doesn't exist so creating: {}", failurePath);
+            fs.mkdirs(failurePath);
+        }
+        IngestUtils.setDirectoryPermsForAccumulo(fs, failurePath);
     }
 }
