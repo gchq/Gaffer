@@ -21,10 +21,15 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.filter.ElementPostAggregationFilter;
+import uk.gov.gchq.gaffer.hbasestore.filter.ElementPreAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -53,7 +58,21 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
             final Table table = store.getConnection().getTable(store.getProperties().getTable());
 
             final Scan scan = new Scan();
+            final Filter filter = new FilterList(
+                    new ElementPreAggregationFilter(store.getSchema(), operation.getView()),
+                    new ElementPostAggregationFilter(store.getSchema(), operation.getView())
+            );
+
+            scan.setFilter(filter);
+            for (final String group : operation.getView().getEntityGroups()) {
+                scan.addFamily(Bytes.toBytes(group));
+            }
+            for (final String group : operation.getView().getEdgeGroups()) {
+                scan.addFamily(Bytes.toBytes(group));
+            }
+
             final ResultScanner scanner = table.getScanner(scan);
+
             for (Result result = scanner.next(); (result != null); result = scanner.next()) {
                 for (final Cell cell : result.listCells()) {
                     elements.add(serialisation.getElement(cell));

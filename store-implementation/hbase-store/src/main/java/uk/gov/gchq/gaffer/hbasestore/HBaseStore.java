@@ -24,13 +24,10 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -57,6 +54,8 @@ import java.util.List;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 
 /**
@@ -69,7 +68,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
  * only one end of the edge.
  */
 public class HBaseStore extends Store {
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED)));
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING)));
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
     private Connection connection = null;
     private ElementSerialisation elementSerialisation;
@@ -140,28 +139,6 @@ public class HBaseStore extends Store {
         return TRAITS;
     }
 
-    public void addElementsOld(final Iterable<Element> elements) throws StoreException {
-        final Table table = TableUtils.getTable(this);
-
-        for (final Element element : elements) {
-            Put put;
-            if (element instanceof Edge) {
-                final Edge edge = ((Edge) element);
-                put = new Put(Bytes.toBytes(edge.getSource() + ", " + edge.getDestination()));
-                put.addColumn(HBaseStoreConstants.EDGE_CF_BYTES, Bytes.toBytes(element.getGroup()), Bytes.toBytes(""));
-            } else {
-                final Entity entity = ((Entity) element);
-                put = new Put(Bytes.toBytes(entity.getVertex().toString()));
-                put.addColumn(HBaseStoreConstants.ENTITY_CF_BYTES, Bytes.toBytes(element.getGroup()), Bytes.toBytes(""));
-            }
-            try {
-                table.put(put);
-            } catch (IOException e) {
-                throw new StoreException(e);
-            }
-        }
-    }
-
     public void addElements(final Iterable<Element> elements) throws StoreException {
         int batchSize = getProperties().getMaxBufferSizeForBatchWriter();
         try (final Table table = TableUtils.getTable(this)) {
@@ -170,21 +147,12 @@ public class HBaseStore extends Store {
                 final List<Put> puts = new ArrayList<>(batchSize);
                 for (int i = 0; i < batchSize && itr.hasNext(); i++) {
                     final Element element = itr.next();
-                    final Pair<byte[]> row;
-                    final byte[] cf;
-                    final byte[] cq = Bytes.toBytes(element.getGroup());
-                    final byte[] value = elementSerialisation.getValue(element);
-                    if (element instanceof Edge) {
-                        final Edge edge = ((Edge) element);
-                        row = elementSerialisation.getRowKeys(edge);
-                        cf = HBaseStoreConstants.EDGE_CF_BYTES;
-                    } else {
-                        final Entity entity = ((Entity) element);
-                        row = new Pair<>(elementSerialisation.getRowKey(entity));
-                        cf = HBaseStoreConstants.ENTITY_CF_BYTES;
-                    }
-                    final Put put = new Put(row.getFirst());
+                    final Pair<byte[]> row = elementSerialisation.getRowKeys(element);
+                    final byte[] cf = Bytes.toBytes(element.getGroup());
+                    final byte[] cq = elementSerialisation.buildColumnQualifier(element);
                     final long ts = elementSerialisation.buildTimestamp(element.getProperties());
+                    final byte[] value = elementSerialisation.getValue(element);
+                    final Put put = new Put(row.getFirst());
                     put.addColumn(cf, cq, ts, value);
                     puts.add(put);
 

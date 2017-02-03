@@ -9,8 +9,11 @@
     "simpleProperty": {
       "class": "java.lang.Integer"
     },
-    "timestamp": {
+    "colQualProperty": {
       "class": "java.lang.Integer"
+    },
+    "visibility": {
+      "class": "java.lang.String"
     }
   }
 }

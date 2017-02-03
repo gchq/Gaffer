@@ -22,6 +22,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
@@ -85,9 +86,14 @@ public final class TableUtils {
             LOGGER.info("Creating table {} as user {}", tableName, store.getProperties().getUserName());
 
             HTableDescriptor htable = new HTableDescriptor(tableName);
-            for (final byte[] cfBytes : HBaseStoreConstants.CF_BYTES_ARRAY) {
-                htable.addFamily(new HColumnDescriptor(cfBytes));
+            for (final String group : store.getSchema().getEntityGroups()) {
+                htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
             }
+            for (final String group : store.getSchema().getEdgeGroups()) {
+                htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
+            }
+            // TODO add coprocessors:
+            //            htable.addCoprocessor()
             admin.createTable(htable);
 
 //            final String repFactor = store.getProperties().getTableFileReplicationFactor();

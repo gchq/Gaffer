@@ -16,20 +16,9 @@
 
 package uk.gov.gchq.gaffer.hbasestore.utils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 
 public final class HBaseStoreConstants {
-    @SuppressFBWarnings(value = "MS_MUTABLE_ARRAY", justification = "For performance reasons")
-    public static final byte[] ENTITY_CF_BYTES = Bytes.toBytes("N");
-    @SuppressFBWarnings(value = "MS_MUTABLE_ARRAY", justification = "For performance reasons")
-    public static final byte[] EDGE_CF_BYTES = Bytes.toBytes("D");
-    //    public static final String ELEMENT_TYPE_CF = "e";
-//    public static final byte[] ELEMENT_TYPE_CF_BYTES = Bytes.toBytes(ELEMENT_TYPE_CF);
-    @SuppressFBWarnings(value = "MS_MUTABLE_ARRAY", justification = "For performance reasons")
-    static final byte[][] CF_BYTES_ARRAY = new byte[][]{ENTITY_CF_BYTES, EDGE_CF_BYTES};
-
     //Iterator names
     public static final String VALIDATOR_ITERATOR_NAME = "Validator";
     public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
@@ -41,10 +30,6 @@ public final class HBaseStoreConstants {
     public static final String COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME = "Column_Qualifier_Aggregator";
     public static final String ROW_ID_AGGREGATOR_ITERATOR_NAME = "Row_ID_Aggregator";
     public static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME = "Range_Element_Property_Filter";
-
-    // Converter class to be used in iterators must be on classpath of all
-    // iterators
-    public static final String HBASE_ELEMENT_CONVERTER_CLASS = "hbasestore.key.element_converter";
 
     // Iterator options
     public static final String VIEW = "View";

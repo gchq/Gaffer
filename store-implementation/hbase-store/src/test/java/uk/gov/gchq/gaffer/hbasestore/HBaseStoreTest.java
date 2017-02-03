@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -49,14 +53,35 @@ public class HBaseStoreTest {
                                 .dest("dest")
                                 .group(TestGroups.EDGE)
                                 .property("property1", 1)
+                                .property("columnQualifier", 10)
+                                .property("visibility", "public")
+                                .build(),
+                        new Edge.Builder()
+                                .source("source")
+                                .dest("dest")
+                                .group(TestGroups.EDGE)
+                                .property("property1", 5)
+                                .property("columnQualifier", 10)
+                                .property("visibility", "public")
                                 .build(),
                         new Entity.Builder()
                                 .vertex("vertex")
                                 .group(TestGroups.ENTITY)
                                 .property("property1", 2)
+                                .property("columnQualifier", 20)
+                                .property("visibility", "private")
                                 .build())
                 .build(), new User());
-        final CloseableIterable<Element> elements = store.execute(new GetAllElements<>(), new User());
+        final CloseableIterable<Element> elements = store.execute(new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("property1")
+                                        .execute(new IsMoreThan(1))
+                                        .build())
+                                .build())
+                        .build())
+                .build(), new User());
         for (Element element : elements) {
             LOGGER.info("Element: " + element);
         }

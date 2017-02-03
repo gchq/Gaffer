@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
@@ -36,7 +37,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractElementSerialisation {
@@ -148,77 +151,8 @@ public abstract class AbstractElementSerialisation {
         return getEdge(cell, options);
     }
 
-    public byte[] buildColumnFamily(final String group) throws SerialisationException {
-        try {
-            return group.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
-    }
-
-    public String getGroupFromColumnFamily(final byte[] columnFamily) throws SerialisationException {
-        try {
-            return new String(columnFamily, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
-    }
-
-    public byte[] buildColumnVisibility(final String group, final Properties properties)
-            throws SerialisationException {
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
-        if (null != schema.getVisibilityProperty()) {
-            final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
-            if (null != propertyDef) {
-                final Object property = properties.get(schema.getVisibilityProperty());
-                if (property != null) {
-                    try {
-                        return propertyDef.getSerialiser().serialise(property);
-                    } catch (final SerialisationException e) {
-                        throw new SerialisationException(e.getMessage(), e);
-                    }
-                } else {
-                    return propertyDef.getSerialiser().serialiseNull();
-                }
-            }
-        }
-
-        return HBaseStoreConstants.EMPTY_BYTES;
-    }
-
-    public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
-            throws SerialisationException {
-        final Properties properties = new Properties();
-
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
-
-        if (null != schema.getVisibilityProperty()) {
-            final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
-            if (null != propertyDef) {
-                final Serialisation serialiser = propertyDef.getSerialiser();
-                try {
-                    if (columnVisibility == null || columnVisibility.length == 0) {
-                        final Object value = serialiser.deserialiseEmptyBytes();
-                        if (value != null) {
-                            properties.put(schema.getVisibilityProperty(), value);
-                        }
-                    } else {
-                        properties.put(schema.getVisibilityProperty(),
-                                serialiser.deserialise(columnVisibility));
-                    }
-                } catch (final SerialisationException e) {
-                    throw new SerialisationException(e.getMessage(), e);
-                }
-            }
-        }
-
-        return properties;
+    public byte[] buildColumnQualifier(final Element element) throws SerialisationException {
+        return buildColumnQualifier(element.getGroup(), element.getProperties());
     }
 
     public byte[] buildColumnQualifier(final String group, final Properties properties)
@@ -228,7 +162,14 @@ public abstract class AbstractElementSerialisation {
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
+
+        Set<String> groupBy = elementDefinition.getGroupBy();
+        if (null != schema.getVisibilityProperty() && !groupBy.contains(schema.getVisibilityProperty())) {
+            groupBy = new LinkedHashSet(groupBy);
+            groupBy.add(schema.getVisibilityProperty());
+        }
+
+        final Iterator<String> propertyNames = groupBy.iterator();
         while (propertyNames.hasNext()) {
             String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
@@ -254,7 +195,7 @@ public abstract class AbstractElementSerialisation {
         return out.toByteArray();
     }
 
-    public Properties getProperties(final String group, final byte[] bytes)
+    public Properties getPropertiesFromColumnQualifier(final String group, final byte[] bytes)
             throws SerialisationException {
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
@@ -269,7 +210,14 @@ public abstract class AbstractElementSerialisation {
         int lastDelimiter = 0;
         final int arrayLength = bytes.length;
         long currentPropLength;
-        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
+
+        Set<String> groupBy = elementDefinition.getGroupBy();
+        if (null != schema.getVisibilityProperty() && !groupBy.contains(schema.getVisibilityProperty())) {
+            groupBy = new LinkedHashSet(groupBy);
+            groupBy.add(schema.getVisibilityProperty());
+        }
+
+        final Iterator<String> propertyNames = groupBy.iterator();
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
@@ -388,7 +336,8 @@ public abstract class AbstractElementSerialisation {
     protected abstract Pair<byte[]> getRowKeys(final Edge edge) throws SerialisationException;
 
     public boolean doesKeyRepresentEntity(final Cell cell) throws SerialisationException {
-        return Arrays.equals(HBaseStoreConstants.ENTITY_CF_BYTES, CellUtil.cloneFamily(cell));
+        final byte[] row = CellUtil.cloneRow(cell);
+        return row[row.length - 1] == ByteEntityPositions.ENTITY;
     }
 
     protected abstract Entity getEntity(final Cell cell) throws SerialisationException;
@@ -404,7 +353,7 @@ public abstract class AbstractElementSerialisation {
     protected void addPropertiesToElement(final Element element, final Cell cell)
             throws SerialisationException {
         element.copyProperties(
-                getProperties(element.getGroup(), CellUtil.cloneQualifier(cell)));
+                getPropertiesFromColumnQualifier(element.getGroup(), CellUtil.cloneQualifier(cell)));
         element.copyProperties(
                 getPropertiesFromValue(element.getGroup(), CellUtil.cloneValue(cell)));
         element.copyProperties(
@@ -447,10 +396,14 @@ public abstract class AbstractElementSerialisation {
     }
 
     protected String getGroup(final Cell cell) throws SerialisationException {
+        return getGroup(CellUtil.cloneFamily(cell));
+    }
+
+    public String getGroup(final byte[] columnFamily) throws SerialisationException {
         try {
-            return new String(CellUtil.cloneQualifier(cell), CommonConstants.UTF_8);
+            return new String(columnFamily, CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException("Failed to get element group from cell", e);
+            throw new SerialisationException(e.getMessage(), e);
         }
     }
 

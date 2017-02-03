@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
@@ -58,6 +60,15 @@ public class ElementSerialisation extends AbstractElementSerialisation {
 
     public ElementSerialisation(final Schema schema) {
         super(schema);
+    }
+
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
+    public Pair<byte[]> getRowKeys(final Element element) throws SerialisationException {
+        if (element instanceof Entity) {
+            return new Pair<>(getRowKey(((Entity) element)));
+        }
+
+        return getRowKeys(((Edge) element));
     }
 
     @Override
@@ -115,9 +126,9 @@ public class ElementSerialisation extends AbstractElementSerialisation {
     protected Entity getEntity(final Cell cell) throws SerialisationException {
 
         try {
+            final byte[] row = CellUtil.cloneRow(cell);
             final Entity entity = new Entity(getGroup(cell), getVertexSerialiser()
-                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(CellUtil.cloneRow(cell), 0,
-                            (CellUtil.cloneRow(cell).length) - 2))));
+                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0, row.length - 2))));
             addPropertiesToElement(entity, cell);
             return entity;
         } catch (final SerialisationException e) {
