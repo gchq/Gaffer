@@ -80,7 +80,7 @@ public class HBaseStore extends Store {
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         super.initialise(schema, properties);
-        elementSerialisation = new ElementSerialisation(schema);
+        elementSerialisation = new ElementSerialisation(getSchema());
         TableUtils.ensureTableExists(this);
     }
 
@@ -150,21 +150,30 @@ public class HBaseStore extends Store {
                 final List<Put> puts = new ArrayList<>(batchSize);
                 for (int i = 0; i < batchSize && itr.hasNext(); i++) {
                     final Element element = itr.next();
+                    if (null == element) {
+                        i--;
+                        continue;
+                    }
                     final Pair<byte[]> row = elementSerialisation.getRowKeys(element);
                     final byte[] cf = Bytes.toBytes(element.getGroup());
                     final byte[] cq = elementSerialisation.buildColumnQualifier(element);
                     final long ts = elementSerialisation.buildTimestamp(element.getProperties());
                     final byte[] value = elementSerialisation.getValue(element);
-                    final CellVisibility visibility = new CellVisibility(Bytes.toString(elementSerialisation.buildColumnVisibility(element)));
+                    final String visibilityStr = Bytes.toString(elementSerialisation.buildColumnVisibility(element));
+                    final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
                     final Put put = new Put(row.getFirst());
                     put.addColumn(cf, cq, ts, value);
-                    put.setCellVisibility(visibility);
+                    if (null != visibility) {
+                        put.setCellVisibility(visibility);
+                    }
                     puts.add(put);
 
                     if (null != row.getSecond()) {
                         final Put put2 = new Put(row.getSecond());
                         put2.addColumn(cf, cq, value);
-                        put2.setCellVisibility(visibility);
+                        if (null != visibility) {
+                            put2.setCellVisibility(visibility);
+                        }
                         puts.add(put2);
                         i++;
                     }

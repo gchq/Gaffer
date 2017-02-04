@@ -43,7 +43,6 @@ public class MiniHBaseStore extends HBaseStore {
 
     private static HBaseTestingUtility utility;
     private User superUser;
-    private Configuration conf;
 
     @SuppressFBWarnings("DE_MIGHT_IGNORE")
     @Override
@@ -55,7 +54,7 @@ public class MiniHBaseStore extends HBaseStore {
 
         if (null == utility) {
             try {
-                setupConf();
+                final Configuration conf = setupConf();
                 utility = new HBaseTestingUtility(conf);
                 utility.startMiniCluster();
                 utility.waitTableEnabled(VisibilityConstants.LABELS_TABLE_NAME.getName(), 50000);
@@ -78,32 +77,34 @@ public class MiniHBaseStore extends HBaseStore {
         super.initialise(schema, properties);
     }
 
-    private void setupConf() throws IOException {
-        conf = HBaseConfiguration.create();
+    private Configuration setupConf() throws IOException {
+        final Configuration conf = HBaseConfiguration.create();
         VisibilityTestUtil.enableVisiblityLabels(conf);
         conf.set("hbase.superuser", "admin");
         conf.setInt("hfile.format.version", 3);
         conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS, SimpleScanLabelGenerator.class,
                 ScanLabelGenerator.class);
         superUser = User.createUserForTesting(conf, "admin", new String[]{"supergroup"});
+        return conf;
     }
 
     @Override
     public Connection getConnection() throws StoreException {
         try {
-            return ConnectionFactory.createConnection(conf);
+            return ConnectionFactory.createConnection(utility.getConfiguration());
         } catch (IOException e) {
             throw new StoreException(e);
         }
     }
 
+    @SuppressFBWarnings("SIC_INNER_SHOULD_BE_STATIC_ANON")
     public void addLabels() throws Exception {
         PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse> action =
                 new PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse>() {
                     public VisibilityLabelsProtos.VisibilityLabelsResponse run() throws Exception {
                         //TODO Should these labels come from properties?
-                        String[] labels = {"public", "private"};
-                        try (Connection conn = ConnectionFactory.createConnection(conf)) {
+                        String[] labels = {"public", "private", "vis1", "vis2"};
+                        try (Connection conn = ConnectionFactory.createConnection(utility.getConfiguration())) {
                             VisibilityClient.addLabels(conn, labels);
                         } catch (Throwable t) {
                             throw new IOException(t);

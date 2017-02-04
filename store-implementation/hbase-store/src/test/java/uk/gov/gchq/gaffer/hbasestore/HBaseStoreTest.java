@@ -41,38 +41,13 @@ import uk.gov.gchq.gaffer.user.User;
 public class HBaseStoreTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
 
-    //    @Test
+    @Test
     public void shouldGetAllElementsWithFilters() throws StoreException, OperationException {
         final Graph graph = new Graph.Builder()
                 .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
                 .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
                 .build();
-
-        graph.execute(new AddElements.Builder()
-                .elements(new Edge.Builder()
-                                .source("source1")
-                                .dest("dest1")
-                                .group(TestGroups.EDGE)
-                                .property("property1", 1)
-                                .property("columnQualifier", 10)
-                                .property("visibility", "private")
-                                .build(),
-                        new Edge.Builder()
-                                .source("source2")
-                                .dest("dest2")
-                                .group(TestGroups.EDGE_2)
-                                .property("property1", 5)
-                                .property("columnQualifier", 10)
-                                .property("visibility", "public")
-                                .build(),
-                        new Entity.Builder()
-                                .vertex("vertex")
-                                .group(TestGroups.ENTITY)
-                                .property("property1", 2)
-                                .property("columnQualifier", 20)
-                                .property("visibility", "private")
-                                .build())
-                .build(), new User());
+        addElements(graph);
 
         final User user = new User.Builder()
                 .userId("publicUser")
@@ -100,7 +75,21 @@ public class HBaseStoreTest {
                 .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
                 .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
                 .build();
+        addElements(graph);
 
+        final User user = new User.Builder()
+                .userId("user")
+                .dataAuth("public")
+                .build();
+        final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
+                .addSeed(new EntitySeed("vertex1"))
+                .build(), user);
+        for (Element element : elements) {
+            LOGGER.info("Element: " + element);
+        }
+    }
+
+    private void addElements(final Graph graph) throws OperationException {
         graph.execute(new AddElements.Builder()
                 .elements(new Edge.Builder()
                                 .source("source1")
@@ -118,12 +107,20 @@ public class HBaseStoreTest {
                                 .property("columnQualifier", 10)
                                 .property("visibility", "public")
                                 .build(),
+                        new Edge.Builder()
+                                .source("source3")
+                                .dest("dest3")
+                                .group(TestGroups.EDGE_2)
+                                .property("property1", 10)
+                                .property("columnQualifier", 10)
+                                .property("visibility", "public")
+                                .build(),
                         new Entity.Builder()
-                                .vertex("vertex1")
+                                .vertex("vertex")
                                 .group(TestGroups.ENTITY)
                                 .property("property1", 2)
                                 .property("columnQualifier", 20)
-                                .property("visibility", "public")
+                                        //.property("visibility", "private")
                                 .build(),
                         new Entity.Builder()
                                 .vertex("vertex2")
@@ -133,16 +130,5 @@ public class HBaseStoreTest {
                                 .property("visibility", "public")
                                 .build())
                 .build(), new User());
-
-        final User user = new User.Builder()
-                .userId("user")
-                .dataAuth("public")
-                .build();
-        final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
-                .addSeed(new EntitySeed("vertex1"))
-                .build(), user);
-        for (Element element : elements) {
-            LOGGER.info("Element: " + element);
-        }
     }
 }
