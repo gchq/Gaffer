@@ -16,12 +16,16 @@
 
 package uk.gov.gchq.gaffer.hbasestore.utils;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,15 +190,16 @@ public final class TableUtils {
      */
     public static Connection getConnection(final String instanceName, final String zookeepers, final String userName,
                                            final String password) throws StoreException {
-
-//        final Configuration conf = null;
-//        try {
-//            return ConnectionFactory.createConnection(conf);
-//        } catch (IOException e) {
-//            throw new StoreException(e);
-//        }
-        // TODO: create connection
-        return null;
+        try {
+            final Configuration conf = HBaseConfiguration.create();
+            conf.set("hbase.zookeeper.quorum", zookeepers);
+            conf.set("hbase.client.instance.id", instanceName);
+            User user = null;
+            // TODO: create connection with provide username and password.
+            return ConnectionFactory.createConnection(conf);
+        } catch (IOException e) {
+            throw new StoreException(e);
+        }
     }
 
 //    /**

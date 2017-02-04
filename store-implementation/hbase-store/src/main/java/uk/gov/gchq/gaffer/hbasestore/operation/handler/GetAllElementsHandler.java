@@ -16,22 +16,10 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.security.visibility.Authorizations;
-import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.filter.ElementPostAggregationFilter;
-import uk.gov.gchq.gaffer.hbasestore.filter.ElementPreAggregationFilter;
-import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
+import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -39,9 +27,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
     @Override
@@ -51,46 +36,10 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
     }
 
     public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final HBaseStore store) throws OperationException {
-        final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
-
-        // TODO: don't load all the results into an array list.
-        final List<Element> elements = new ArrayList<>();
         try {
-            final Table table = store.getConnection().getTable(store.getProperties().getTable());
-
-            final Scan scan = new Scan();
-            final Filter filter = new FilterList(
-                    new ElementPreAggregationFilter(store.getSchema(), operation.getView()),
-                    new ElementPostAggregationFilter(store.getSchema(), operation.getView())
-            );
-
-            scan.setFilter(filter);
-            for (final String group : operation.getView().getEntityGroups()) {
-                scan.addFamily(Bytes.toBytes(group));
-            }
-            for (final String group : operation.getView().getEdgeGroups()) {
-                scan.addFamily(Bytes.toBytes(group));
-            }
-
-            Authorizations authorisations;
-            if (null != user && null != user.getDataAuths()) {
-                authorisations = new Authorizations(new ArrayList<>(user.getDataAuths()));
-            } else {
-                authorisations = new Authorizations();
-            }
-            scan.setAuthorizations(authorisations);
-
-            final ResultScanner scanner = table.getScanner(scan);
-
-            for (Result result = scanner.next(); (result != null); result = scanner.next()) {
-                for (final Cell cell : result.listCells()) {
-                    elements.add(serialisation.getElement(cell));
-                }
-            }
-        } catch (final IOException | StoreException e) {
-            throw new OperationException("Failed to get elements", e);
+            return new HBaseRetriever<>(store, operation, user, null);
+        } catch (StoreException e) {
+            throw new OperationException("Unable to fetch elements", e);
         }
-
-        return new WrappedCloseableIterable<>(elements);
     }
 }

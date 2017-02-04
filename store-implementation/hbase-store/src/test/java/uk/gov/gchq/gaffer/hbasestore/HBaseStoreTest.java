@@ -25,10 +25,13 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.transform.Concat;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -83,6 +86,17 @@ public class HBaseStoreTest {
                 .build();
         final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
                 .addSeed(new EntitySeed("vertex1"))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                        .transientProperty("transientProp", String.class)
+                                        .transformer(new ElementTransformer.Builder()
+                                                .select(IdentifierType.VERTEX.name(), "property1")
+                                                .execute(new Concat())
+                                                .project("transientProp")
+                                                .build())
+                                        .build()
+                        )
+                        .build())
                 .build(), user);
         for (Element element : elements) {
             LOGGER.info("Element: " + element);
@@ -116,11 +130,11 @@ public class HBaseStoreTest {
                                 .property("visibility", "public")
                                 .build(),
                         new Entity.Builder()
-                                .vertex("vertex")
+                                .vertex("vertex1")
                                 .group(TestGroups.ENTITY)
                                 .property("property1", 2)
                                 .property("columnQualifier", 20)
-                                        //.property("visibility", "private")
+                                .property("visibility", "public")
                                 .build(),
                         new Entity.Builder()
                                 .vertex("vertex2")
