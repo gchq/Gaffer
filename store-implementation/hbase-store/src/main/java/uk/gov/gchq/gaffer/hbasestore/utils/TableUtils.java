@@ -115,23 +115,23 @@ public final class TableUtils {
 //            final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
 //            connection.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
-            if (schemaContainsAggregators(store.getSchema())) {
-                // Add Combiner iterator to table for all scopes
-                LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
+//            if (schemaContainsAggregators(store.getSchema())) {
+            // Add Combiner iterator to table for all scopes
+            //LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
 //                connection.tableOperations().attachIterator(tableName,
 //                        store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-            } else {
-                LOGGER.info("Aggregator iterator has not been added to table {}", tableName);
-            }
+//            } else {
+            //LOGGER.info("Aggregator iterator has not been added to table {}", tableName);
+//            }
 
-            if (store.getProperties().getEnableValidatorIterator()) {
-                // Add validator iterator to table for all scopes
-                LOGGER.info("Adding Validator iterator to table {} for all scopes", tableName);
+//            if (store.getProperties().getEnableValidatorIterator()) {
+            // Add validator iterator to table for all scopes
+            //LOGGER.info("Adding Validator iterator to table {} for all scopes", tableName);
 //                connection.tableOperations().attachIterator(tableName,
 //                        store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
-            } else {
-                LOGGER.info("Validator iterator has not been added to table {}", tableName);
-            }
+//            } else {
+            // LOGGER.info("Validator iterator has not been added to table {}", tableName);
+//            }
         } catch (Throwable e) {
             throw new StoreException(e.getMessage(), e);
         }
