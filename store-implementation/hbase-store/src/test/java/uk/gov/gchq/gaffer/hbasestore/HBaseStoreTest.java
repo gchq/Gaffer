@@ -29,37 +29,36 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 public class HBaseStoreTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
 
-    private static final HBaseProperties PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
-    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(HBaseStoreTest.class));
-
     @Test
     public void test() throws StoreException, OperationException {
-        final MiniHBaseStore store = new MiniHBaseStore();
-        store.initialise(SCHEMA, PROPERTIES);
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
+                .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
+                .build();
 
-        store.execute(new AddElements.Builder()
+        graph.execute(new AddElements.Builder()
                 .elements(new Edge.Builder()
-                                .source("source")
-                                .dest("dest")
+                                .source("source1")
+                                .dest("dest1")
                                 .group(TestGroups.EDGE)
                                 .property("property1", 1)
                                 .property("columnQualifier", 10)
-                                .property("visibility", "public")
+                                .property("visibility", "private")
                                 .build(),
                         new Edge.Builder()
-                                .source("source")
-                                .dest("dest")
-                                .group(TestGroups.EDGE)
+                                .source("source2")
+                                .dest("dest2")
+                                .group(TestGroups.EDGE_2)
                                 .property("property1", 5)
                                 .property("columnQualifier", 10)
                                 .property("visibility", "public")
@@ -72,16 +71,22 @@ public class HBaseStoreTest {
                                 .property("visibility", "private")
                                 .build())
                 .build(), new User());
-        final CloseableIterable<Element> elements = store.execute(new GetAllElements.Builder()
+
+        final User user = new User.Builder()
+                .userId("publicUser")
+                .dataAuth("public")
+                .build();
+        final CloseableIterable<Element> elements = graph.execute(new GetAllElements.Builder<>()
                 .view(new View.Builder()
-                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .edge(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
                                         .select("property1")
-                                        .execute(new IsMoreThan(1))
+                                        .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
                         .build())
-                .build(), new User());
+                .build(), user);
         for (Element element : elements) {
             LOGGER.info("Element: " + element);
         }

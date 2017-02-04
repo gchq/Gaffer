@@ -93,8 +93,10 @@ public final class TableUtils {
                 htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
             }
             // TODO add coprocessors:
+            //htable.addCoprocessor(VisibilityController.class.getName());
             //            htable.addCoprocessor()
             admin.createTable(htable);
+
 
 //            final String repFactor = store.getProperties().getTableFileReplicationFactor();
 //            if (null != repFactor) {
@@ -130,7 +132,7 @@ public final class TableUtils {
             } else {
                 LOGGER.info("Validator iterator has not been added to table {}", tableName);
             }
-        } catch (IOException e) {
+        } catch (Throwable e) {
             throw new StoreException(e.getMessage(), e);
         }
         //setLocalityGroups(store);

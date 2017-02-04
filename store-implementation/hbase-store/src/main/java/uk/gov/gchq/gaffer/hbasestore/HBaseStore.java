@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.security.visibility.CellVisibility;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ import java.util.Set;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 
 /**
@@ -68,7 +70,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  * only one end of the edge.
  */
 public class HBaseStore extends Store {
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING)));
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, VISIBILITY, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING)));
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
     private Connection connection = null;
     private ElementSerialisation elementSerialisation;
@@ -152,13 +154,16 @@ public class HBaseStore extends Store {
                     final byte[] cq = elementSerialisation.buildColumnQualifier(element);
                     final long ts = elementSerialisation.buildTimestamp(element.getProperties());
                     final byte[] value = elementSerialisation.getValue(element);
+                    final CellVisibility visibility = new CellVisibility(Bytes.toString(elementSerialisation.buildColumnVisibility(element)));
                     final Put put = new Put(row.getFirst());
                     put.addColumn(cf, cq, ts, value);
+                    put.setCellVisibility(visibility);
                     puts.add(put);
 
                     if (null != row.getSecond()) {
                         final Put put2 = new Put(row.getSecond());
                         put2.addColumn(cf, cq, value);
+                        put2.setCellVisibility(visibility);
                         puts.add(put2);
                         i++;
                     }

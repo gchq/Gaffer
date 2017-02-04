@@ -37,9 +37,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractElementSerialisation {
@@ -151,6 +149,67 @@ public abstract class AbstractElementSerialisation {
         return getEdge(cell, options);
     }
 
+    public byte[] buildColumnVisibility(final Element element) throws SerialisationException {
+        return buildColumnVisibility(element.getGroup(), element.getProperties());
+    }
+
+    public byte[] buildColumnVisibility(final String group, final Properties properties)
+            throws SerialisationException {
+        final SchemaElementDefinition elementDefinition = schema.getElement(group);
+        if (null == elementDefinition) {
+            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+        }
+        if (null != schema.getVisibilityProperty()) {
+            final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
+            if (null != propertyDef) {
+                final Object property = properties.get(schema.getVisibilityProperty());
+                if (property != null) {
+                    try {
+                        return propertyDef.getSerialiser().serialise(property);
+                    } catch (final SerialisationException e) {
+                        throw new SerialisationException(e.getMessage(), e);
+                    }
+                } else {
+                    return propertyDef.getSerialiser().serialiseNull();
+                }
+            }
+        }
+
+        return HBaseStoreConstants.EMPTY_BYTES;
+    }
+
+    public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
+            throws SerialisationException {
+        final Properties properties = new Properties();
+
+        final SchemaElementDefinition elementDefinition = schema.getElement(group);
+        if (null == elementDefinition) {
+            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+        }
+
+        if (null != schema.getVisibilityProperty()) {
+            final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
+            if (null != propertyDef) {
+                final Serialisation serialiser = propertyDef.getSerialiser();
+                try {
+                    if (columnVisibility == null || columnVisibility.length == 0) {
+                        final Object value = serialiser.deserialiseEmptyBytes();
+                        if (value != null) {
+                            properties.put(schema.getVisibilityProperty(), value);
+                        }
+                    } else {
+                        properties.put(schema.getVisibilityProperty(),
+                                serialiser.deserialise(columnVisibility));
+                    }
+                } catch (final SerialisationException e) {
+                    throw new SerialisationException(e.getMessage(), e);
+                }
+            }
+        }
+
+        return properties;
+    }
+
     public byte[] buildColumnQualifier(final Element element) throws SerialisationException {
         return buildColumnQualifier(element.getGroup(), element.getProperties());
     }
@@ -162,14 +221,7 @@ public abstract class AbstractElementSerialisation {
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-
-        Set<String> groupBy = elementDefinition.getGroupBy();
-        if (null != schema.getVisibilityProperty() && !groupBy.contains(schema.getVisibilityProperty())) {
-            groupBy = new LinkedHashSet(groupBy);
-            groupBy.add(schema.getVisibilityProperty());
-        }
-
-        final Iterator<String> propertyNames = groupBy.iterator();
+        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
         while (propertyNames.hasNext()) {
             String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
@@ -210,14 +262,7 @@ public abstract class AbstractElementSerialisation {
         int lastDelimiter = 0;
         final int arrayLength = bytes.length;
         long currentPropLength;
-
-        Set<String> groupBy = elementDefinition.getGroupBy();
-        if (null != schema.getVisibilityProperty() && !groupBy.contains(schema.getVisibilityProperty())) {
-            groupBy = new LinkedHashSet(groupBy);
-            groupBy.add(schema.getVisibilityProperty());
-        }
-
-        final Iterator<String> propertyNames = groupBy.iterator();
+        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
@@ -356,6 +401,16 @@ public abstract class AbstractElementSerialisation {
                 getPropertiesFromColumnQualifier(element.getGroup(), CellUtil.cloneQualifier(cell)));
         element.copyProperties(
                 getPropertiesFromValue(element.getGroup(), CellUtil.cloneValue(cell)));
+
+//        final List<Tag> visibilityTags = new ArrayList<>();
+//        VisibilityUtils.extractVisibilityTags(cell, visibilityTags);
+//        byte[] visibility = null;
+//        for (Tag visibilityTag : visibilityTags) {
+//            visibility = visibilityTag.getValue();
+//            break;
+//        }
+//        element.copyProperties(
+//                getPropertiesFromColumnVisibility(element.getGroup(), visibility));
         element.copyProperties(
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
@@ -409,7 +464,7 @@ public abstract class AbstractElementSerialisation {
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
-                && !propertyName.equals(schema.getVisibilityProperty())
+                //&& !propertyName.equals(schema.getVisibilityProperty())
                 && !propertyName.equals(schema.getTimestampProperty());
     }
 

@@ -23,7 +23,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -33,7 +32,8 @@ import uk.gov.gchq.gaffer.hbasestore.filter.ElementPostAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.filter.ElementPreAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -43,14 +43,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
-            throws OperationException {
+    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final Context context, final Store store) throws OperationException {
         return doOperation(operation, context.getUser(), (HBaseStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final HBaseStore store) throws OperationException {
+    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final User user, final HBaseStore store) throws OperationException {
         final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
 
         // TODO: don't load all the results into an array list.
@@ -72,13 +71,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
                 scan.addFamily(Bytes.toBytes(group));
             }
 
-            Authorizations authorisations;
-            if (null != user && null != user.getDataAuths()) {
-                authorisations = new Authorizations(new ArrayList<>(user.getDataAuths()));
-            } else {
-                authorisations = new Authorizations();
-            }
-            scan.setAuthorizations(authorisations);
+            // TODO investigate timestamp range -  scan.setTimeRange()
 
             final ResultScanner scanner = table.getScanner(scan);
 
