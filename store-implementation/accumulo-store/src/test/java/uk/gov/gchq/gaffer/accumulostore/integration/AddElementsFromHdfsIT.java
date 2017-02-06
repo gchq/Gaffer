@@ -141,6 +141,9 @@ public class AddElementsFromHdfsIT {
             assertEquals("Failure directory is not empty: " + failureDir, e.getCause().getMessage());
         }
 
+        //Previous job will output data successfully to the output dir but not load it.
+        fs.delete(new Path(outputDir), true);
+
         try {
             addElementsFromHdfs(ClassicKeyPackage.class);
             fail("Exception expected");
