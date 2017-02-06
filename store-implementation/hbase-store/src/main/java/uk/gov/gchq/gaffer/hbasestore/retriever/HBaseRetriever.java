@@ -37,7 +37,9 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.filter.ElementPostAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.filter.ElementPreAggregationFilter;
+import uk.gov.gchq.gaffer.hbasestore.filter.ValidatorFilter;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
+import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -69,6 +71,7 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
         }
 
         this.filter = new FilterList(
+                new ValidatorFilter(store.getSchema()),
                 new ElementPreAggregationFilter(store.getSchema(), operation.getView()),
                 new ElementPostAggregationFilter(store.getSchema(), operation.getView())
         );
@@ -133,14 +136,33 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
         }
 
         // TODO should we use MultiRowRangeFilter?
-
-
         final Object vertex = ((EntitySeed) seed).getVertex();
+
+        setupSeededScan(scan, vertex);
+    }
+
+    private void setupSeededScan(final Scan scan, final Object vertex) {
+        final boolean includeEntities = operation.isIncludeEntities() && !operation.getView().getEntityGroups().isEmpty();
+        final boolean includeEdges = !GetOperation.SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && operation.getIncludeEdges() != GetOperation.IncludeEdgeType.NONE && !operation.getView().getEdgeGroups().isEmpty();
+
         try {
             final byte[] vertexBytes = serialisation.serialiseVertex(vertex);
+            if (includeEntities) {
+                if (includeEdges) {
+                    scan.setStartRow(serialisation.getEntityKey(vertexBytes, false));
+                    scan.setStopRow(serialisation.getEdgeKey(vertexBytes, true));
+                } else {
+                    scan.setStartRow(serialisation.getEntityKey(vertexBytes, false));
+                    scan.setStopRow(serialisation.getEntityKey(vertexBytes, true));
+                }
+            } else if (includeEdges) {
+                final Pair<byte[]> startStopPair = serialisation.getEdgeOnlyKeys(vertexBytes);
+                scan.setStartRow(startStopPair.getFirst());
+                scan.setStopRow(startStopPair.getSecond());
+            } else {
+                throw new UnsupportedOperationException("You must query for entities, edges or both");
+            }
 
-            scan.setStartRow(serialisation.getEntityKey(vertexBytes, false));
-            scan.setStopRow(serialisation.getEntityKey(vertexBytes, true));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

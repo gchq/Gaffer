@@ -99,6 +99,19 @@ public final class TableUtils {
             // TODO add coprocessors:
             //htable.addCoprocessor(VisibilityController.class.getName());
             //            htable.addCoprocessor()
+            //if (store.getProperties().getEnableValidatorIterator()) {
+            // Add validator iterator to table for all scopes
+            //LOGGER.info("Adding Validator iterator to table {}", tableName);
+
+            // Replace commas as HBase do not allow them.
+            //final String schemaJson = Bytes.toString(store.getSchema().toCompactJson()).replaceAll(",", ";");
+
+            //final Map<String, String> settings = new HashMap<>(1);
+            //settings.put(HBaseStoreConstants.SCHEMA, schemaJson);
+            //   htable.addCoprocessor(ValidatorFilterCoprocessor.class.getName(), null, HBaseStoreConstants.VALIDATOR_ITERATOR_PRIORITY, settings);
+//            } else {
+//                LOGGER.info("Validator iterator has not been added to table {}", tableName);
+//            }
             admin.createTable(htable);
 
 

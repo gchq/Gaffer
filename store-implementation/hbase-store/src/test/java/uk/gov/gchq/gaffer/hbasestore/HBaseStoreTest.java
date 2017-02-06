@@ -46,11 +46,7 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldGetAllElementsWithFilters() throws StoreException, OperationException {
-        final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
-                .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
-                .build();
-        addElements(graph);
+        final Graph graph = createPopulatedGraph();
 
         final User user = new User.Builder()
                 .userId("publicUser")
@@ -74,11 +70,7 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldGetEntity() throws StoreException, OperationException {
-        final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
-                .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
-                .build();
-        addElements(graph);
+        final Graph graph = createPopulatedGraph();
 
         final User user = new User.Builder()
                 .userId("user")
@@ -103,27 +95,71 @@ public class HBaseStoreTest {
         }
     }
 
+    @Test
+    public void shouldGetEdge() throws StoreException, OperationException {
+        final Graph graph = createPopulatedGraph();
+
+        final User user = new User.Builder()
+                .userId("user")
+                .dataAuth("public")
+                .build();
+        final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
+                .addSeed(new EntitySeed("vertex2"))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build(), user);
+        for (Element element : elements) {
+            LOGGER.info("Element: " + element);
+        }
+    }
+
+    @Test
+    public void shouldGetElements() throws StoreException, OperationException {
+        final Graph graph = createPopulatedGraph();
+
+        final User user = new User.Builder()
+                .userId("user")
+                .dataAuth("public")
+                .build();
+        final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
+                .addSeed(new EntitySeed("vertex2"))
+                .build(), user);
+        for (Element element : elements) {
+            LOGGER.info("Element: " + element);
+        }
+    }
+
+    private Graph createPopulatedGraph() throws OperationException {
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
+                .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
+                .build();
+        addElements(graph);
+        return graph;
+    }
+
     private void addElements(final Graph graph) throws OperationException {
         graph.execute(new AddElements.Builder()
                 .elements(new Edge.Builder()
-                                .source("source1")
-                                .dest("dest1")
+                                .source("vertex1")
+                                .dest("vertex1b")
                                 .group(TestGroups.EDGE)
                                 .property("property1", 1)
                                 .property("columnQualifier", 10)
                                 .property("visibility", "private")
                                 .build(),
                         new Edge.Builder()
-                                .source("source2")
-                                .dest("dest2")
-                                .group(TestGroups.EDGE_2)
+                                .source("vertex2")
+                                .dest("vertex2b")
+                                .group(TestGroups.EDGE)
                                 .property("property1", 5)
                                 .property("columnQualifier", 10)
                                 .property("visibility", "public")
                                 .build(),
                         new Edge.Builder()
-                                .source("source3")
-                                .dest("dest3")
+                                .source("vertex3")
+                                .dest("vertex3b")
                                 .group(TestGroups.EDGE_2)
                                 .property("property1", 10)
                                 .property("columnQualifier", 10)

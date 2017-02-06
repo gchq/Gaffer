@@ -646,4 +646,29 @@ public class ElementSerialisation {
                 && options.containsKey(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
                 && "true".equalsIgnoreCase(options.get(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
+
+    public Pair<byte[]> getEdgeOnlyKeys(final byte[] serialisedVertex) {
+        final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
+        endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
+        endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
+        endKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
+        final byte[] startKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
+        startKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
+        startKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
+        startKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER;
+        return new Pair<>(startKeyBytes, endKeyBytes);
+    }
+
+    public byte[] getEdgeKey(final byte[] serialisedVertex, final boolean endKey) {
+        byte[] key;
+        if (endKey) {
+            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
+            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
+        } else {
+            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
+        }
+        key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
+        key[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
+        return key;
+    }
 }
