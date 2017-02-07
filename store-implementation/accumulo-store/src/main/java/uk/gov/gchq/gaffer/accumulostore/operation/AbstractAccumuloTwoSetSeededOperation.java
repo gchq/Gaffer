@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -48,7 +47,6 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         this.setSeedsB(seedsB);
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonGetter(value = "seedsB")
     List<SEED_TYPE> getSeedBArray() {
         final Iterable<SEED_TYPE> seedsB = getSeedsB();
