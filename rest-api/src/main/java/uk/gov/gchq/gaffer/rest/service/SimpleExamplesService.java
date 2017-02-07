@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.GetOperation;
@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.rest.example.ExampleTransformFunction;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -346,15 +345,9 @@ public class SimpleExamplesService implements IExamplesService {
                 viewElement = new ViewElementDefinition();
             } else {
                 viewElement = new ViewElementDefinition.Builder()
-                        .transientProperty(TRANSFORMED_PROPERTIES, String.class)
                         .preAggregationFilter(new ElementFilter.Builder()
                                 .select(getAnEntityPropertyName())
                                 .execute(new ExampleFilterFunction())
-                                .build())
-                        .transformer(new ElementTransformer.Builder()
-                                .select(getAnEntityPropertyName())
-                                .execute(new ExampleTransformFunction())
-                                .project(TRANSFORMED_PROPERTIES)
                                 .build())
                         .build();
             }
@@ -367,20 +360,18 @@ public class SimpleExamplesService implements IExamplesService {
                 viewElement = new ViewElementDefinition();
             } else {
                 viewElement = new ViewElementDefinition.Builder()
-                        .transientProperty(TRANSFORMED_PROPERTIES, String.class)
                         .preAggregationFilter(new ElementFilter.Builder()
                                 .select(getAnEdgePropertyName())
                                 .execute(new ExampleFilterFunction())
-                                .build())
-                        .transformer(new ElementTransformer.Builder()
-                                .select(getAnEdgePropertyName())
-                                .execute(new ExampleTransformFunction())
-                                .project(TRANSFORMED_PROPERTIES)
                                 .build())
                         .build();
             }
             viewBuilder.edge(getAnEdgeGroup(), viewElement);
         }
+
+        viewBuilder.globalElements(new GlobalViewElementDefinition.Builder()
+                .groupBy()
+                .build());
 
         return viewBuilder;
     }
