@@ -21,13 +21,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -166,6 +170,23 @@ public class ValidatedElementsTest {
             fail("Exception expected");
         } catch (UnsupportedOperationException e) {
             assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void shouldNotThrowStackOverflowExceptionOnSkipInvalid() {
+        final Set<Element> x = new HashSet<>();
+        for (int i = 0; i < 10000; i++) {
+            x.add(new Entity("G", "" + i));
+        }
+        final ValidatedElements ve = new ValidatedElements(x, new View.Builder().build(), true);
+        Iterator<Element> it = ve.iterator();
+        try {
+            while (it.hasNext()) {
+                it.next();
+            }
+        } catch (final StackOverflowError ex) {
+            fail("Unexpected StackOverflowError.");
         }
     }
 }
