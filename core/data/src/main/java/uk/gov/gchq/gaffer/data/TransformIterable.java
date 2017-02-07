@@ -85,20 +85,20 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
             @Override
             public boolean hasNext() {
                 if (null == hasNext) {
-                    if (inputItr.hasNext()) {
+                    while (inputItr.hasNext()) {
                         final INPUT possibleNext = inputItr.next();
                         if (validator.validate(possibleNext)) {
                             nextElement = transform(possibleNext);
                             hasNext = true;
+                            return Boolean.TRUE.equals(hasNext);
                         } else if (skipInvalid) {
-                            hasNext();
+                            continue;
                         } else {
                             handleInvalidItem(possibleNext);
                         }
-                    } else {
-                        hasNext = false;
-                        nextElement = null;
                     }
+                    hasNext = false;
+                    nextElement = null;
                 }
 
                 return Boolean.TRUE.equals(hasNext);
