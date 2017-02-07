@@ -81,7 +81,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         final Dataset<Row> df = graph.execute(operation, new User("user01"));
 
         // Show
-        String result = df.showString(100, false);
+        String result = df.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("GetDataFrameOfElements operation = new GetDataFrameOfElements.Builder()\n"
                 + "                .view(new View.Builder()\n"
@@ -99,7 +99,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
 
         // Restrict to entities involving certain vertices
         final Dataset<Row> seeded = df.filter("vertex = 1 OR vertex = 2");
-        result = seeded.showString(100, false);
+        result = seeded.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"vertex = 1 OR vertex = 2\").show();");
         log("The results are:");
@@ -110,7 +110,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
 
         // Filter by property
         final Dataset<Row> filtered = df.filter("count > 1");
-        result = filtered.showString(100, false);
+        result = filtered.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"count > 1\").show();");
         log("The results are:");
@@ -134,7 +134,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         final Dataset<Row> df = graph.execute(operation, new User("user01"));
 
         // Show
-        String result = df.showString(100, false);
+        String result = df.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("GetDataFrameOfElements operation = new GetDataFrameOfElements.Builder()\n"
                 + "                .view(new View.Builder()\n"
@@ -152,7 +152,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
 
         // Restrict to edges involving given vertices
         final Dataset<Row> seeded = df.filter("src = 1 OR src = 3");
-        result = seeded.showString(100, false);
+        result = seeded.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"src = 1 OR src = 3\").show();");
         log("The results are:");
@@ -163,7 +163,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
 
         // Filter by property
         final Dataset<Row> filtered = df.filter("count > 1");
-        result = filtered.showString(100, false);
+        result = filtered.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"count > 1\").show();");
         log("The results are:");

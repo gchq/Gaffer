@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gaffer.bitmap.serialisation.json;
 
-package uk.gov.gchq.gaffer.data.elementdefinition;
+public final class RoaringBitmapConstants {
 
-/**
- * An <code>ElementDefinition</code> defines information about an element.
- * This interface requires element definitions to able to be locked.
- */
-public interface ElementDefinition extends Cloneable {
-    /**
-     * Locks the fields so only read access is allowed.
-     */
-    void lock();
+    public static final String BITMAP_WRAPPER_OBJECT_NAME = "roaringBitmap";
+    public static final String BITMAP_VALUE_FIELD_NAME = "value";
+    public static final String BITMAP_MODULE_NAME = "RoaringBitmapModule";
+
+    private RoaringBitmapConstants() {
+
+    }
 }
