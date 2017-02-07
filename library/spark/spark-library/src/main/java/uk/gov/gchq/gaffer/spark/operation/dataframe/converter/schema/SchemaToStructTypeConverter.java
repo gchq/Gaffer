@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
+package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.sql.types.DataType;
@@ -24,7 +24,9 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.FreqMapConverter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.HyperLogLogPlusConverter;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -54,12 +56,21 @@ public class SchemaToStructTypeConverter {
         DEFAULT_CONVERTERS.add(new HyperLogLogPlusConverter());
     }
 
+    enum EntityOrEdge {
+        ENTITY, EDGE
+    }
+
+    public static final String GROUP = "group";
+    public static final String VERTEX_COL_NAME = "vertex";
+    public static final String SRC_COL_NAME = "src";
+    public static final String DST_COL_NAME = "dst";
+
     private final Schema schema;
     private final View view;
     private final List<Converter> converters = new ArrayList<>();
     private final LinkedHashSet<String> groups = new LinkedHashSet<>();
     private StructType structType;
-    private final Map<String, AccumuloStoreRelation.EntityOrEdge> entityOrEdgeByGroup = new HashMap<>();
+    private final Map<String, EntityOrEdge> entityOrEdgeByGroup = new HashMap<>();
     private final LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
     private final Map<String, Boolean> propertyNeedsConversion = new HashMap<>();
     private final Map<String, Converter> converterByProperty = new HashMap<>();
@@ -113,17 +124,17 @@ public class SchemaToStructTypeConverter {
             final SchemaElementDefinition elementDefn = schema.getElement(group);
             final List<StructField> structFieldList = new ArrayList<>();
             if (elementDefn instanceof SchemaEntityDefinition) {
-                entityOrEdgeByGroup.put(group, AccumuloStoreRelation.EntityOrEdge.ENTITY);
+                entityOrEdgeByGroup.put(group, EntityOrEdge.ENTITY);
                 final SchemaEntityDefinition entityDefinition = (SchemaEntityDefinition) elementDefn;
                 final String vertexClass = schema.getType(entityDefinition.getVertex()).getClassString();
                 final DataType vertexType = getType(vertexClass);
                 if (vertexType == null) {
                     throw new RuntimeException("Vertex must be a recognised type: found " + vertexClass);
                 }
-                LOGGER.info("Group {} is an entity group - {} is of type {}", group, AccumuloStoreRelation.VERTEX_COL_NAME, vertexType);
-                structFieldList.add(new StructField(AccumuloStoreRelation.VERTEX_COL_NAME, vertexType, true, Metadata.empty()));
+                LOGGER.info("Group {} is an entity group - {} is of type {}", group, VERTEX_COL_NAME, vertexType);
+                structFieldList.add(new StructField(VERTEX_COL_NAME, vertexType, true, Metadata.empty()));
             } else {
-                entityOrEdgeByGroup.put(group, AccumuloStoreRelation.EntityOrEdge.EDGE);
+                entityOrEdgeByGroup.put(group, EntityOrEdge.EDGE);
                 final SchemaEdgeDefinition edgeDefinition = (SchemaEdgeDefinition) elementDefn;
                 final String srcClass = schema.getType(edgeDefinition.getSource()).getClassString();
                 final String dstClass = schema.getType(edgeDefinition.getDestination()).getClassString();
@@ -135,12 +146,12 @@ public class SchemaToStructTypeConverter {
                 }
                 LOGGER.info("Group {} is an edge group - {} is of type {}, {} is of type {}",
                         group,
-                        AccumuloStoreRelation.SRC_COL_NAME,
+                        SRC_COL_NAME,
                         srcType,
-                        AccumuloStoreRelation.DST_COL_NAME,
+                        DST_COL_NAME,
                         dstType);
-                structFieldList.add(new StructField(AccumuloStoreRelation.SRC_COL_NAME, srcType, true, Metadata.empty()));
-                structFieldList.add(new StructField(AccumuloStoreRelation.DST_COL_NAME, dstType, true, Metadata.empty()));
+                structFieldList.add(new StructField(SRC_COL_NAME, srcType, true, Metadata.empty()));
+                structFieldList.add(new StructField(DST_COL_NAME, dstType, true, Metadata.empty()));
             }
             final Set<String> properties = elementDefn.getProperties();
             for (final String property : properties) {
@@ -200,8 +211,8 @@ public class SchemaToStructTypeConverter {
         }
         // Merge schemas for groups together - fields should appear in the order the groups were provided
         final LinkedHashSet<StructField> fields = new LinkedHashSet<>();
-        fields.add(new StructField(AccumuloStoreRelation.GROUP, DataTypes.StringType, false, Metadata.empty()));
-        usedProperties.add(AccumuloStoreRelation.GROUP);
+        fields.add(new StructField(GROUP, DataTypes.StringType, false, Metadata.empty()));
+        usedProperties.add(GROUP);
         for (final String group : groups) {
             final StructType groupSchema = structTypeByGroup.get(group);
             for (final String field : groupSchema.fieldNames()) {

@@ -20,6 +20,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.List;
 

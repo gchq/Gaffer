@@ -33,6 +33,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
@@ -57,8 +59,8 @@ public class FilterToOperationConverterTest {
         final SQLContext sqlContext = getSqlContext("testIncompatibleGroups");
 
         final Filter[] filters = new Filter[2];
-        filters[0] = new EqualTo(AccumuloStoreRelation.GROUP, "A");
-        filters[1] = new EqualTo(AccumuloStoreRelation.GROUP, "B");
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "A");
+        filters[1] = new EqualTo(SchemaToStructTypeConverter.GROUP, "B");
         final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 new View.Builder().build(), graph.getSchema(), filters);
 
@@ -74,7 +76,7 @@ public class FilterToOperationConverterTest {
         final SQLContext sqlContext = getSqlContext("testSingleGroup");
 
         final Filter[] filters = new Filter[1];
-        filters[0] = new EqualTo(AccumuloStoreRelation.GROUP, GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
         final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
 
@@ -102,7 +104,7 @@ public class FilterToOperationConverterTest {
         final SQLContext sqlContext = getSqlContext("testSingleGroupNotInSchema");
 
         final Filter[] filters = new Filter[1];
-        filters[0] = new EqualTo(AccumuloStoreRelation.GROUP, "random");
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "random");
         final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
 
@@ -118,8 +120,8 @@ public class FilterToOperationConverterTest {
         final SQLContext sqlContext = getSqlContext("testTwoGroups");
 
         final Filter[] filters = new Filter[1];
-        final Filter left = new EqualTo(AccumuloStoreRelation.GROUP, GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
-        final Filter right = new EqualTo(AccumuloStoreRelation.GROUP, GetDataFrameOfElementsHandlerTest.EDGE_GROUP2);
+        final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
+        final Filter right = new EqualTo(SchemaToStructTypeConverter.GROUP, GetDataFrameOfElementsHandlerTest.EDGE_GROUP2);
         filters[0] = new Or(left, right);
         final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
@@ -149,7 +151,7 @@ public class FilterToOperationConverterTest {
         final SQLContext sqlContext = getSqlContext("testSpecifyVertex");
 
         final Filter[] filters = new Filter[1];
-        filters[0] = new EqualTo(AccumuloStoreRelation.VERTEX_COL_NAME, "0");
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
 
@@ -177,7 +179,7 @@ public class FilterToOperationConverterTest {
         final SQLContext sqlContext = getSqlContext("testSpecifySourceOrDestination");
 
         final Filter[] filters = new Filter[1];
-        filters[0] = new EqualTo(AccumuloStoreRelation.SRC_COL_NAME, "0");
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
 
@@ -198,7 +200,7 @@ public class FilterToOperationConverterTest {
         }
         assertEquals(expectedResults, results);
 
-        filters[0] = new EqualTo(AccumuloStoreRelation.SRC_COL_NAME, "0");
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
 
         operation = converter.getOperation();
@@ -326,7 +328,7 @@ public class FilterToOperationConverterTest {
 
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
-        filters[1] = new EqualTo(AccumuloStoreRelation.VERTEX_COL_NAME, "0");
+        filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
         AbstractGetRDD<?> operation = converter.getOperation();
@@ -348,7 +350,7 @@ public class FilterToOperationConverterTest {
 
         filters = new Filter[3];
         filters[0] = new GreaterThan("property1", 5);
-        filters[1] = new EqualTo(AccumuloStoreRelation.VERTEX_COL_NAME, "0");
+        filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
         converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
         operation = converter.getOperation();
@@ -380,7 +382,7 @@ public class FilterToOperationConverterTest {
 
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
-        filters[1] = new EqualTo(AccumuloStoreRelation.SRC_COL_NAME, "0");
+        filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
                 graph.getSchema(), filters);
         AbstractGetRDD<?> operation = converter.getOperation();
@@ -402,7 +404,7 @@ public class FilterToOperationConverterTest {
 
         filters = new Filter[3];
         filters[0] = new GreaterThan("property1", 5);
-        filters[1] = new EqualTo(AccumuloStoreRelation.SRC_COL_NAME, "0");
+        filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
         converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
         operation = converter.getOperation();

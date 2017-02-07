@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
+package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.ConversionException;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 
 /**
  * A {@link Converter} that converts a {@link HyperLogLogPlus} into a <code>long</code> so that it can be
