@@ -5,7 +5,7 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.named.operation.handler.AddNamedOperationHandler",
         "cache": {
-          "class": "uk.gov.gchq.gaffer.named.operation.cache.NamedOperationJCSCache"
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
         }
       }
     },
@@ -14,7 +14,7 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.named.operation.handler.NamedOperationHandler",
         "cache": {
-          "class": "uk.gov.gchq.gaffer.named.operation.cache.NamedOperationJCSCache"
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
         }
       }
     },
@@ -23,7 +23,7 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.named.operation.handler.DeleteNamedOperationHandler",
         "cache": {
-          "class": "uk.gov.gchq.gaffer.named.operation.cache.NamedOperationJCSCache"
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
         }
       }
     },
@@ -32,7 +32,7 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.named.operation.handler.GetAllNamedOperationsHandler",
         "cache": {
-          "class": "uk.gov.gchq.gaffer.named.operation.cache.NamedOperationJCSCache"
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
         }
       }
     }
