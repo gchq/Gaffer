@@ -1,0 +1,10 @@
+{
+  "types": {
+    "longs.sketch": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.function.aggregate.LongsSketchAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser"
+    }
+  }
+}

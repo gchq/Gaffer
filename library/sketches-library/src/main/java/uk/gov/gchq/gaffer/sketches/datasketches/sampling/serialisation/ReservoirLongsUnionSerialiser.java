@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * A <code>ReservoirLongsUnionSerialiser</code> serialises a {@link ReservoirLongsUnion} using its
  * <code>toByteArray()</code> method.
  */
-public class ReservoirLongsUnionSerialiser extends AbstractSerialisation<ReservoirLongsUnion> {
+public class ReservoirLongsUnionSerialiser implements Serialisation<ReservoirLongsUnion> {
     private static final long serialVersionUID = 2492278033004791488L;
 
     @Override

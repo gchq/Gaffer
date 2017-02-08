@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>0.6.0</version>
+        <version>0.6.1</version>
     </parent>
 
     <artifactId>spark</artifactId>
@@ -32,6 +32,6 @@
     </modules>
 
     <properties>
-        <spark.version>2.0.0</spark.version>
+        <spark.version>2.1.0</spark.version>
     </properties>
 </project>

@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.frequencies.LongsSketch;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * A <code>LongsSketchSerialiser</code> serialises a {@link LongsSketch} using its <code>toByteArray()</code>
  * method.
  */
-public class LongsSketchSerialiser extends AbstractSerialisation<LongsSketch> {
+public class LongsSketchSerialiser implements Serialisation<LongsSketch> {
     private static final long serialVersionUID = 4854333990248992270L;
 
     @Override

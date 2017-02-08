@@ -86,7 +86,7 @@ public class ViewIT {
         //Given
         final View view1 = loadView();
         final byte[] json1 = view1.toCompactJson();
-        final View view2 = View.fromJson(json1);
+        final View view2 = new View.Builder().json(json1).build();
 
         // When
         final byte[] json2 = view2.toCompactJson();
@@ -100,7 +100,7 @@ public class ViewIT {
         //Given
         final View view1 = loadView();
         final byte[] json1 = view1.toJson(true);
-        final View view2 = View.fromJson(json1);
+        final View view2 = new View.Builder().json(json1).build();
 
         // When
         final byte[] json2 = view2.toJson(true);
@@ -110,6 +110,6 @@ public class ViewIT {
     }
 
     private View loadView() throws IOException {
-        return View.fromJson(StreamUtil.view(getClass()));
+        return new View.Builder().json(StreamUtil.view(getClass())).build();
     }
 }

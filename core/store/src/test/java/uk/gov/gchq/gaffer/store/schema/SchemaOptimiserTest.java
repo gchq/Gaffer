@@ -76,10 +76,10 @@ public class SchemaOptimiserTest {
         final boolean isOrdered = true;
 
         // When
-        optimiser.optimise(schema, isOrdered);
+        final Schema optimisedSchema = optimiser.optimise(schema, isOrdered);
 
         // Then
-        assertEquals(2, schema.getTypes().size());
+        assertEquals(2, optimisedSchema.getTypes().size());
         assertEquals(stringType, schema.getType("string"));
         assertEquals(intType, schema.getType("int"));
     }
@@ -99,17 +99,21 @@ public class SchemaOptimiserTest {
         given(serialisationFactory.getSerialiser(Serializable.class, true)).willReturn(javaSerialiser);
         given(javaSerialiser.canHandle(Mockito.any(Class.class))).willReturn(true);
 
-        schema.addEntity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                .vertex(Serializable.class)
-                .build());
+        schema = new Schema.Builder()
+                .merge(schema)
+                .type("obj", Serializable.class)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex("obj")
+                        .build())
+                .build();
 
         // When
-        optimiser.optimise(schema, isOrdered);
+        final Schema optimisedSchema = optimiser.optimise(schema, isOrdered);
 
         // Then
-        assertSame(stringSerialiser, stringType.getSerialiser());
-        assertSame(intSerialiser, intType.getSerialiser());
-        assertSame(javaSerialiser, schema.getVertexSerialiser());
+        assertSame(stringSerialiser, optimisedSchema.getType("string").getSerialiser());
+        assertSame(intSerialiser, optimisedSchema.getType("int").getSerialiser());
+        assertSame(javaSerialiser, optimisedSchema.getVertexSerialiser());
         verify(serialisationFactory, never()).getSerialiser(String.class, false);
         verify(serialisationFactory, never()).getSerialiser(Serializable.class, false);
     }
@@ -121,9 +125,13 @@ public class SchemaOptimiserTest {
         final boolean isOrdered = true;
 
         // Add a new entity with vertex that can't be serialised
-        schema.addEntity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                .vertex(Object.class)
-                .build());
+        schema = new Schema.Builder()
+                .merge(schema)
+                .type("obj", Object.class)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex("obj")
+                        .build())
+                .build();
 
         // When / Then
         try {

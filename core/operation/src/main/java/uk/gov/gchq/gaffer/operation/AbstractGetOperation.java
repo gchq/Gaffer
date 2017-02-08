@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
@@ -78,6 +79,12 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
     @Override
     public CloseableIterable<SEED_TYPE> getInput() {
         return super.getInput();
+    }
+
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<SEED_TYPE> input) {
+        super.setInput(input);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

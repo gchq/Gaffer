@@ -20,13 +20,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -35,13 +33,12 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -339,7 +336,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new VisibilityITSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -366,47 +363,6 @@ public class VisibilityIT extends AbstractStoreIT {
                 .addSchema(createSchemaNoVisibility())
                 .addSchema(getStoreSchema())
                 .build();
-    }
-
-    public static final class VisibilityITSerialiser extends AbstractSerialisation<String> {
-
-        @Override
-        public boolean canHandle(final Class clazz) {
-            return String.class.equals(clazz);
-        }
-
-        @Override
-        public byte[] serialise(final String value) throws SerialisationException {
-            try {
-                return value.getBytes(CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                throw new SerialisationException(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public String deserialise(final byte[] bytes) throws SerialisationException {
-            try {
-                return new String(bytes, CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                throw new SerialisationException(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public byte[] serialiseNull() {
-            return new byte[]{};
-        }
-
-        @Override
-        public String deserialiseEmptyBytes() {
-            return "";
-        }
-
-        @Override
-        public boolean preservesObjectOrdering() {
-            return true;
-        }
     }
 
 }

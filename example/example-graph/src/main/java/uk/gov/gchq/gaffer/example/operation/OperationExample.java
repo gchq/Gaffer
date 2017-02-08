@@ -49,6 +49,21 @@ public abstract class OperationExample extends Example {
         return graph;
     }
 
+    protected void runExampleNoResult(final Operation<?, Void> operation) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printAsJson(operation);
+        printOperationClass(operation);
+
+        try {
+            getGraph().execute(operation, new User("user01"));
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
+
+        log(METHOD_DIVIDER);
+    }
+
     protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
@@ -106,7 +121,7 @@ public abstract class OperationExample extends Example {
 
     protected void printOperationClass(final Operation operation) {
         log("When used in a chain add the class as a property:");
-        log("\n```json");
+        log("\n\n```json");
         log("\"class\" : \"" + operation.getClass().getName() + "\"");
         log("```\n");
     }

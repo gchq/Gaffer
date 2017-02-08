@@ -1,0 +1,40 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.named.operation.AddNamedOperation",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.named.operation.handler.AddNamedOperationHandler",
+        "cache": {
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
+        }
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.named.operation.NamedOperation",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.named.operation.handler.NamedOperationHandler",
+        "cache": {
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
+        }
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.named.operation.handler.DeleteNamedOperationHandler",
+        "cache": {
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
+        }
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.named.operation.handler.GetAllNamedOperationsHandler",
+        "cache": {
+          "class": "uk.gov.gchq.gaffer.named.operation.jcs.cache.NamedOperationJCSCache"
+        }
+      }
+    }
+  ]
+}
