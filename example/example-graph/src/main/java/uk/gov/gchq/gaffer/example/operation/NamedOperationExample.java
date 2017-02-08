@@ -33,7 +33,7 @@ public class NamedOperationExample extends OperationExample {
     }
 
     public NamedOperationExample() {
-        super(AddNamedOperation.class);
+        super(NamedOperation.class);
     }
 
     @Override
