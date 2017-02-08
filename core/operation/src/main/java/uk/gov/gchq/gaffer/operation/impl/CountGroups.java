@@ -82,6 +82,12 @@ public class CountGroups extends AbstractOperation<CloseableIterable<Element>, G
         return super.getInput();
     }
 
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<Element> input) {
+        super.setInput(input);
+    }
+
     /**
      * @return the input {@link List} of {@link Element}s to be validated.
      */

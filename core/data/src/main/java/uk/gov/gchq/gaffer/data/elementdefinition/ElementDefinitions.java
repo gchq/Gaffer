@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +116,14 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     public Map<String, ENTITY_DEF> getEntities() {
         return entities;
+    }
+
+    protected void setEdges(final Map<String, EDGE_DEF> edges) {
+        this.edges = edges;
+    }
+
+    protected void setEntities(final Map<String, ENTITY_DEF> entities) {
+        this.entities = entities;
     }
 
     @Override

@@ -100,7 +100,13 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
         return super.getInput();
     }
 
-    public void setInput(final Iterable elements) {
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<OBJ> elements) {
+        super.setInput(elements);
+    }
+
+    public void setInput(final Iterable<OBJ> elements) {
         super.setInput(new WrappedCloseableIterable<OBJ>(elements));
     }
 

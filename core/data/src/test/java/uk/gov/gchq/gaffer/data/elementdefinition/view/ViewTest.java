@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
@@ -165,6 +166,24 @@ public class ViewTest {
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
         final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.SOURCE.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
@@ -188,21 +207,28 @@ public class ViewTest {
         // When
         byte[] json = view.toJson(true);
         final View deserialisedView = new View.Builder().json(json).build();
+        deserialisedView.expandGlobalDefinitions();
 
         // Then
         assertEquals(1, deserialisedView.getEntityGroups().size());
         final ViewElementDefinition entityDef = deserialisedView.getEntity(TestGroups.ENTITY);
         assertTrue(entityDef.getTransientProperties().isEmpty());
         assertNull(entityDef.getTransformer());
-        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().size());
+        assertEquals(2, entityDef.getPreAggregationFilter().getFunctions().size());
         assertTrue(entityDef.getPreAggregationFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
         assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0));
+        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(1).getSelection().get(0));
+        assertEquals(1, entityDef.getPostAggregationFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(IdentifierType.VERTEX.name(), entityDef.getPostAggregationFilter().getFunctions().get(0).getSelection().get(0));
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
         assertEquals(1, edgeDef.getTransientProperties().size());
         assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
-        assertNull(edgeDef.getPreAggregationFilter());
+        assertEquals(1, edgeDef.getPreAggregationFilter().getFunctions().size());
+        assertTrue(edgeDef.getPreAggregationFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0));
         assertEquals(1, edgeDef.getTransformer().getFunctions().size());
         assertTrue(edgeDef.getTransformer().getFunctions().get(0).getFunction() instanceof ExampleTransformFunction);
         assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().size());
@@ -214,6 +240,222 @@ public class ViewTest {
         assertTrue(edgeDef.getPostTransformFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().size());
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().get(0));
+        assertEquals(1, edgeDef.getPostAggregationFilter().getFunctions().get(0).getSelection().size());
+        assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getFunctions().get(0).getSelection().get(0));
+    }
+
+    @Test
+    public void shouldCreateViewWithGlobalDefinitions() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .transientProperty(TestPropertyNames.PROP_2, String.class)
+                        .build())
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groups(TestGroups.ENTITY, TestGroups.ENTITY_2)
+                        .build())
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.SOURCE.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groupBy()
+                        .groups(TestGroups.EDGE, TestGroups.EDGE_2)
+                        .build())
+                .entity(TestGroups.ENTITY_3, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.DATE)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groupBy(TestPropertyNames.DATE)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2)
+                .edge(TestGroups.EDGE_3)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        JsonUtil.assertEquals(String.format("{%n" +
+                "  \"edges\" : {%n" +
+                "    \"BasicEdge2\" : {%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"transientProperties\" : {%n" +
+                "        \"property2\" : \"java.lang.String\"%n" +
+                "      },%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ],%n" +
+                "      \"postTransformFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"SOURCE\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge\" : {%n" +
+                "      \"groupBy\" : [ ],%n" +
+                "      \"transientProperties\" : {%n" +
+                "        \"property2\" : \"java.lang.String\"%n" +
+                "      },%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ],%n" +
+                "      \"postTransformFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"SOURCE\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEdge3\" : {%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"transientProperties\" : {%n" +
+                "        \"property2\" : \"java.lang.String\"%n" +
+                "      },%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"entities\" : {%n" +
+                "    \"BasicEntity2\" : {%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"transientProperties\" : {%n" +
+                "        \"property2\" : \"java.lang.String\"%n" +
+                "      },%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ],%n" +
+                "      \"postAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"VERTEX\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEntity\" : {%n" +
+                "      \"groupBy\" : [ \"property1\" ],%n" +
+                "      \"transientProperties\" : {%n" +
+                "        \"property2\" : \"java.lang.String\"%n" +
+                "      },%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      } ],%n" +
+                "      \"postAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"VERTEX\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
+                "    \"BasicEntity3\" : {%n" +
+                "      \"groupBy\" : [ \"dateProperty\" ],%n" +
+                "      \"transientProperties\" : {%n" +
+                "        \"property2\" : \"java.lang.String\"%n" +
+                "      },%n" +
+                "      \"preAggregationFilterFunctions\" : [ {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
+                "      }, {%n" +
+                "        \"function\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\" : [ \"dateProperty\" ]%n" +
+                "      } ]%n" +
+                "    }%n" +
+                "  }%n" +
+                "}"), new String(view.toJson(true)));
+    }
+
+    @Test
+    public void test() {
+        String json = "{\n" +
+                "      \"edges\": {\n" +
+                "         \"edge\": {\n" +
+                "            \"transientProperties\": {},\n" +
+                "            \"preAggregationFilterFunctions\": [\n" +
+                "               {\n" +
+                "                  \"function\": {\n" +
+                "                     \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"\n" +
+                "                  },\n" +
+                "                  \"selection\": [\n" +
+                "                     \"count\"\n" +
+                "                  ]\n" +
+                "               }\n" +
+                "            ]\n" +
+                "         }\n" +
+                "      },\n" +
+                "      \"entities\": {\n" +
+                "         \"entity\": {\n" +
+                "            \"transientProperties\": {},\n" +
+                "            \"preAggregationFilterFunctions\": [\n" +
+                "               {\n" +
+                "                  \"function\": {\n" +
+                "                     \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"\n" +
+                "                  },\n" +
+                "                  \"selection\": [\n" +
+                "                     \"count\"\n" +
+                "                  ]\n" +
+                "               }\n" +
+                "            ]\n" +
+                "         }\n" +
+                "      },\n" +
+                "      \"globalElements\": [\n" +
+                "         {\n" +
+                "            \"groupBy\": [],\n" +
+                "            \"transientProperties\": {},\n" +
+                "\"preAggregationFilterFunctions\": [\n" +
+                "               {\n" +
+                "                \"function\":\n" +
+                "                {\n" +
+                "                     \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"\n" +
+                "                },\n" +
+                "                \"selection\": [\"count2\"]\n" +
+                "               }\n" +
+                "             ]\n" +
+                "         }\n" +
+                "      ]\n" +
+                "   }";
+
+        final View view = new View.Builder()
+                .json(json.getBytes())
+                .build();
+
+        view.expandGlobalDefinitions();
+
+        System.out.println(view);
+
+
     }
 
     @Test

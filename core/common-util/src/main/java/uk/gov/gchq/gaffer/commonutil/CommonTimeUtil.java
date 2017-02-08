@@ -16,10 +16,17 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTime.Property;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjuster;
 
-import static org.joda.time.DateTimeZone.UTC;
+import static java.time.temporal.ChronoField.DAY_OF_WEEK;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 
 /**
  * Utility methods for dates and times.
@@ -39,28 +46,28 @@ public final class CommonTimeUtil {
      * @return the value of the time bucket
      */
     public static long timeToBucket(final long time, final TimeBucket bucket) {
-        final DateTime dateTime = new DateTime(time, UTC);
+        final OffsetDateTime dateTime = Instant.ofEpochMilli(time).atOffset(ZoneOffset.UTC);
 
         final long timeBucket;
 
         switch (bucket) {
             case SECOND:
-                timeBucket = roundDown(dateTime.secondOfMinute());
+                timeBucket = dateTime.truncatedTo(SECONDS).toInstant().toEpochMilli();
                 break;
             case MINUTE:
-                timeBucket = roundDown(dateTime.minuteOfHour());
+                timeBucket = dateTime.truncatedTo(MINUTES).toInstant().toEpochMilli();
                 break;
             case HOUR:
-                timeBucket = roundDown(dateTime.hourOfDay());
+                timeBucket = dateTime.truncatedTo(HOURS).toInstant().toEpochMilli();
                 break;
             case DAY:
-                timeBucket = roundDown(dateTime.dayOfYear());
+                timeBucket = dateTime.truncatedTo(DAYS).toInstant().toEpochMilli();
                 break;
             case WEEK:
-                timeBucket = roundDown(dateTime.weekOfWeekyear());
+                timeBucket = dateTime.with(firstDayOfWeek()).truncatedTo(DAYS).toInstant().toEpochMilli();
                 break;
             case MONTH:
-                timeBucket = roundDown(dateTime.monthOfYear());
+                timeBucket = dateTime.with(firstDayOfMonth()).truncatedTo(DAYS).toInstant().toEpochMilli();
                 break;
             default:
                 timeBucket = time;
@@ -69,8 +76,14 @@ public final class CommonTimeUtil {
         return timeBucket;
     }
 
-    private static long roundDown(final Property property) {
-        return property.roundFloorCopy().getMillis();
+    /**
+     * {@link java.time.temporal.TemporalAdjuster} to select the first day of
+     * the week from a {@link java.time.OffsetDateTime} object.
+     *
+     * @return the first day of week adjuster
+     */
+    private static TemporalAdjuster firstDayOfWeek() {
+        return t -> t.with(DAY_OF_WEEK, 1);
     }
 
     /**
