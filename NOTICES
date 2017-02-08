@@ -40,6 +40,9 @@ Apache Commons Lang (commons-lang:commons-lang:2.6):
 
 - Apache License, Version 2.0
 
+Apache Commons JCS (org.apache.jcs:jcs:1.3):
+
+- Apache Licence, Version 2.0
 
 Apache Spark (org.apache.spark:spark-core:2.1.0, org.apache.spark:spark-sql:2.1.0, org.apache.spark:spark-catalyst:2.1.0)
 
