@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +73,8 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
     /**
      * Replaces all null views with the default view supplied to the NamedOperation. If a veiw exists in an operation
      * then the views are merged.
-     * @param view the default view of the NamedOperation
+     *
+     * @param view           the default view of the NamedOperation
      * @param operationChain the operations to later execute
      * @return the above operation chain with the views populated or merged
      */
@@ -86,7 +86,10 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
                     && operation.getView().getEdgeGroups().isEmpty()) {
                 // this allows users to create an empty view and setup summarisation,
                 // without having to specify all the element groups.
-                operation.getView().merge(view);
+                operation.setView(new View.Builder()
+                        .merge(operation.getView())
+                        .merge(view)
+                        .build());
             }
         }
         return operationChain;
@@ -95,11 +98,12 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
     /**
      * Injects the input of the NamedOperation into the first operation in the OperationChain. This is used when
      * chaining NamedOperations together.
-     * @param op the first operation in a chain
+     *
+     * @param op    the first operation in a chain
      * @param input the input of the NamedOperation
      */
     private void updateOperationInput(final Operation op,
-                                        final CloseableIterable<Object> input) {
+                                      final CloseableIterable<Object> input) {
         if (null != input && null == op.getInput()) {
             op.setInput(input);
         }

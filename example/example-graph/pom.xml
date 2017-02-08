@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>named-operations-library</artifactId>
+            <artifactId>named-operation-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
