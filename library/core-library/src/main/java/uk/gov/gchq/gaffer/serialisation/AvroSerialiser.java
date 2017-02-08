@@ -36,7 +36,7 @@ import java.io.InputStream;
 /**
  * This class is used to serialise and deserialise avro files
  */
-public class AvroSerialiser extends AbstractSerialisation<Object> {
+public class AvroSerialiser implements Serialisation<Object> {
 
     private static final long serialVersionUID = -6264923181170362212L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroSerialiser.class);

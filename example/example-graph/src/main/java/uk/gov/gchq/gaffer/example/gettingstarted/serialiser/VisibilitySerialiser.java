@@ -18,16 +18,17 @@ package uk.gov.gchq.gaffer.example.gettingstarted.serialiser;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
-public class VisibilitySerialiser extends AbstractSerialisation<String> {
+public class VisibilitySerialiser implements Serialisation<String> {
     private static final long serialVersionUID = -8830741085664334048L;
 
     public boolean canHandle(final Class clazz) {
         return String.class.equals(clazz);
     }
 
+    @Override
     public byte[] serialise(final String str) throws SerialisationException {
         String value = str;
         try {
@@ -40,6 +41,7 @@ public class VisibilitySerialiser extends AbstractSerialisation<String> {
         }
     }
 
+    @Override
     public String deserialise(final byte[] bytes) throws SerialisationException {
         try {
             String value = new String(bytes, CommonConstants.UTF_8);
