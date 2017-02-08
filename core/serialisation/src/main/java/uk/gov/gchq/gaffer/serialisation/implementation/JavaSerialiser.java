@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -32,7 +32,7 @@ import java.io.Serializable;
 /**
  * This class is used to serialise and deserialise objects in java.
  */
-public class JavaSerialiser extends AbstractSerialisation<Object> {
+public class JavaSerialiser implements Serialisation<Object> {
     private static final long serialVersionUID = 2073581763875104361L;
     private static final Class<Serializable> SERIALISABLE = Serializable.class;
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSerialiser.class);

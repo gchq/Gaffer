@@ -16,12 +16,12 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * This class is used to serialise and deserialise a boolean value
  */
-public class BooleanSerialiser extends AbstractSerialisation<Boolean> {
+public class BooleanSerialiser implements Serialisation<Boolean> {
 
     private static final long serialVersionUID = -3964992157560886710L;
     private static final byte FALSE = (byte) 0;
