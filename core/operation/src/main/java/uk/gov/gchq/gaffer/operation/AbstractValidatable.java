@@ -106,6 +106,12 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
         return super.getInput();
     }
 
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<Element> input) {
+        super.setInput(input);
+    }
+
     @JsonProperty(value = "elements")
     List<Element> getElementList() {
         final Iterable<Element> input = getInput();
