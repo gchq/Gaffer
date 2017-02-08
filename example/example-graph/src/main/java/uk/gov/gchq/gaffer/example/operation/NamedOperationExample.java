@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 
 public class NamedOperationExample extends OperationExample {
@@ -35,14 +34,6 @@ public class NamedOperationExample extends OperationExample {
 
     public NamedOperationExample() {
         super(AddNamedOperation.class);
-        try {
-            final DeleteNamedOperation operation = new DeleteNamedOperation.Builder()
-                    .name("2-hop")
-                    .build();
-            getGraph().execute(operation, new User("user01"));
-        } catch (final Exception e) {
-            // ignore errors - this is just incase the cache already contains the 2 hop named operation
-        }
     }
 
     @Override
@@ -69,6 +60,7 @@ public class NamedOperationExample extends OperationExample {
                 .name("2-hop")
                 .readAccessRoles("read-user")
                 .writeAccessRoles("write-user")
+                .overwrite()
                 .build();
         // ---------------------------------------------------------
 

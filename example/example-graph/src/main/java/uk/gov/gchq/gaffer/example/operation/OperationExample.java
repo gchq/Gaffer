@@ -51,7 +51,6 @@ public abstract class OperationExample extends Example {
 
     protected void runExampleNoResult(final Operation<?, Void> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
-        printGraph();
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
         printOperationClass(operation);
