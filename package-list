@@ -1,3 +1,6 @@
+gaffer.bitmap.serialisation
+gaffer.bitmap.serialisation.json
+gaffer.bitmap.serialisation.utils
 uk.gov.gchq.gaffer.accumulostore
 uk.gov.gchq.gaffer.accumulostore.inputformat
 uk.gov.gchq.gaffer.accumulostore.key
@@ -70,6 +73,11 @@ uk.gov.gchq.gaffer.hdfs.operation.mapper
 uk.gov.gchq.gaffer.hdfs.operation.mapper.generator
 uk.gov.gchq.gaffer.jsonserialisation
 uk.gov.gchq.gaffer.jsonserialisation.jackson
+uk.gov.gchq.gaffer.named.operation
+uk.gov.gchq.gaffer.named.operation.cache
+uk.gov.gchq.gaffer.named.operation.handler
+uk.gov.gchq.gaffer.named.operation.jcs.cache
+uk.gov.gchq.gaffer.named.operation.serialisation
 uk.gov.gchq.gaffer.operation
 uk.gov.gchq.gaffer.operation.data
 uk.gov.gchq.gaffer.operation.data.generator
