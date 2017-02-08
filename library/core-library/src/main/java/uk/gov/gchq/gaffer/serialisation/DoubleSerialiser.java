@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class DoubleSerialiser extends AbstractSerialisation<Double> {
+public class DoubleSerialiser implements Serialisation<Double> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override

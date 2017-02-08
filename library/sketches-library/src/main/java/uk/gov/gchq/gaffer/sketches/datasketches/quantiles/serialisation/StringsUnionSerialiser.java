@@ -20,7 +20,7 @@ import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * A <code>StringsUnionSerialiser</code> serialises an {@link ItemsUnion} of {@link String}s using its
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
  * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
  * <code>Comparator.naturalOrder()</code>.
  */
-public class StringsUnionSerialiser extends AbstractSerialisation<ItemsUnion<String>> {
+public class StringsUnionSerialiser implements Serialisation<ItemsUnion<String>> {
     private static final long serialVersionUID = 7091724743812159058L;
     private static final ArrayOfStringsSerDe SERIALISER = new ArrayOfStringsSerDe();
 

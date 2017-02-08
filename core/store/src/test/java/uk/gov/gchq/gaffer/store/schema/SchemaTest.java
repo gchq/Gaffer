@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.IsA;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import java.io.IOException;
@@ -823,7 +822,7 @@ public class SchemaTest {
         assertFalse(compactJson.contains(String.format("%n")));
     }
 
-    private class SerialisationImpl extends AbstractSerialisation<Object> {
+    private class SerialisationImpl implements Serialisation<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
 
         @Override
