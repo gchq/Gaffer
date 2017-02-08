@@ -106,7 +106,7 @@ public abstract class OperationExample extends Example {
 
     protected void printOperationClass(final Operation operation) {
         log("When used in a chain add the class as a property:");
-        log("\n```json");
+        log("\n\n```json");
         log("\"class\" : \"" + operation.getClass().getName() + "\"");
         log("```\n");
     }
