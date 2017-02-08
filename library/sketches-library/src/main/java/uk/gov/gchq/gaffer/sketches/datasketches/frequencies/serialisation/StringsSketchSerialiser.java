@@ -19,13 +19,13 @@ import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * A <code>StringsSketchSerialiser</code> serialises a {@link ItemsSketch} of {@link String}s using its
  * <code>toByteArray()</code> method.
  */
-public class StringsSketchSerialiser extends AbstractSerialisation<ItemsSketch<String>> {
+public class StringsSketchSerialiser implements Serialisation<ItemsSketch<String>> {
     private static final long serialVersionUID = 5678687223070030982L;
     private static final ArrayOfStringsSerDe SERIALISER = new ArrayOfStringsSerDe();
 
