@@ -33,15 +33,6 @@ public class AddNamedOperation extends AbstractOperation<Void, Void> {
     private List<String> writeAccessRoles = new ArrayList<>();
     private boolean overwriteFlag = false;
 
-    public AddNamedOperation() {
-        super();
-    }
-
-    public AddNamedOperation(final boolean overwrite) {
-        super();
-        this.overwriteFlag = overwrite;
-    }
-
     public boolean isOverwriteFlag() {
         return overwriteFlag;
     }

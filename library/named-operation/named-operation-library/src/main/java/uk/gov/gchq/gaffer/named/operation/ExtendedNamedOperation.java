@@ -17,18 +17,18 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
 public class ExtendedNamedOperation extends NamedOperation {
-
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = "UTF-8";
     private String creatorId;
@@ -37,8 +37,19 @@ public class ExtendedNamedOperation extends NamedOperation {
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
 
-    public ExtendedNamedOperation(@Nonnull final String operationName, final String description, final String userId, @Nonnull final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
+    public ExtendedNamedOperation() {
+        super();
+    }
+
+    private ExtendedNamedOperation(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
         super(operationName, description);
+        if (operations == null || null == operations.getOperations() || operations.getOperations().isEmpty()) {
+            throw new IllegalArgumentException("Operation Chain must not be empty");
+        }
+        if (operationName == null || operationName.isEmpty()) {
+            throw new IllegalArgumentException("Operation Name must not be empty");
+        }
+
         this.creatorId = userId;
         try {
             this.operations = new String(SERIALISER.serialise(operations), Charset.forName(CHARSET_NAME));
@@ -47,10 +58,6 @@ public class ExtendedNamedOperation extends NamedOperation {
         }
         this.readAccessRoles = readers;
         this.writeAccessRoles = writers;
-    }
-
-    public ExtendedNamedOperation() {
-        super();
     }
 
     public OperationChain<?> getOperationChain() {
@@ -69,32 +76,16 @@ public class ExtendedNamedOperation extends NamedOperation {
         return operations;
     }
 
-    public void setOperations(final String operations) {
-        this.operations = operations;
-    }
-
     public List<String> getReadAccessRoles() {
         return readAccessRoles;
-    }
-
-    public void setReadAccessRoles(final List<String> readAccessRoles) {
-        this.readAccessRoles = readAccessRoles;
     }
 
     public List<String> getWriteAccessRoles() {
         return writeAccessRoles;
     }
 
-    public void setWriteAccessRoles(final List<String> writeAccessRoles) {
-        this.writeAccessRoles = writeAccessRoles;
-    }
-
     public String getCreatorId() {
         return creatorId;
-    }
-
-    public void setCreatorId(final String creatorId) {
-        this.creatorId = creatorId;
     }
 
     @Override
@@ -102,57 +93,50 @@ public class ExtendedNamedOperation extends NamedOperation {
         if (this == o) {
             return true;
         }
+
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        ExtendedNamedOperation that = (ExtendedNamedOperation) o;
+        final ExtendedNamedOperation op = (ExtendedNamedOperation) o;
 
-        if (creatorId != null ? !creatorId.equals(that.creatorId) : that.creatorId != null) {
-            return false;
-        }
-        if (operations != null ? !operations.equals(that.operations) : that.operations != null) {
-            return false;
-        }
-        if (readAccessRoles != null ? !readAccessRoles.equals(that.readAccessRoles) : that.readAccessRoles != null) {
-            return false;
-        }
-        if (writeAccessRoles != null ? !writeAccessRoles.equals(that.writeAccessRoles) : that.writeAccessRoles != null) {
-            return false;
-        }
-        return super.equals(getBasic());
-
-
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(creatorId, op.creatorId)
+                .append(operations, op.operations)
+                .append(readAccessRoles, op.readAccessRoles)
+                .append(writeAccessRoles, op.writeAccessRoles)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = creatorId != null ? creatorId.hashCode() : 0;
-        result = 31 * result + (operations != null ? operations.hashCode() : 0);
-        result = 31 * result + (readAccessRoles != null ? readAccessRoles.hashCode() : 0);
-        result = 31 * result + (writeAccessRoles != null ? writeAccessRoles.hashCode() : 0);
-        result += super.hashCode();
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(creatorId)
+                .append(operations)
+                .append(readAccessRoles)
+                .append(writeAccessRoles)
+                .hashCode();
     }
 
     @Override
     public String toString() {
-        return "ExtendedNamedOperation{" +
-                "operationName='" + getOperationName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", creatorId=" + creatorId +
-                ", operations='" + operations + '\'' +
-                ", readAccessRoles=" + readAccessRoles +
-                ", writeAccessRoles=" + writeAccessRoles +
-                '}';
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("creatorId", creatorId)
+                .append("creatorId", operations)
+                .append("readAccessRoles", readAccessRoles)
+                .append("writeAccessRoles", writeAccessRoles)
+                .toString();
     }
 
-    public boolean hasReadAccess(@Nonnull final User user) {
+    public boolean hasReadAccess(final User user) {
         return hasAccess(user, readAccessRoles);
     }
 
-    private boolean hasAccess(@Nonnull final User user, final List<String> roles) {
-        for (final String role: roles) {
+    private boolean hasAccess(final User user, final List<String> roles) {
+        for (final String role : roles) {
             if (user.getOpAuths().contains(role)) {
                 return true;
             }
@@ -160,7 +144,7 @@ public class ExtendedNamedOperation extends NamedOperation {
         return user.getUserId().equals(creatorId);
     }
 
-    public boolean hasWriteAccess(@Nonnull final User user) {
+    public boolean hasWriteAccess(final User user) {
         return hasAccess(user, writeAccessRoles);
     }
 
@@ -203,12 +187,6 @@ public class ExtendedNamedOperation extends NamedOperation {
         }
 
         public ExtendedNamedOperation build() {
-            if (opChain == null || opChain.getOperations().isEmpty()) {
-                throw new IllegalArgumentException("Operation Chain must not be empty");
-            }
-            if (operationName == null || operationName.equals("")) {
-                throw new IllegalArgumentException("Operation Name must not be empty");
-            }
             return new ExtendedNamedOperation(operationName, description, creatorId, opChain, readers, writers);
         }
     }

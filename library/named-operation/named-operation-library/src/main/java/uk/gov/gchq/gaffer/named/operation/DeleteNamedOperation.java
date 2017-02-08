@@ -25,10 +25,6 @@ public class DeleteNamedOperation extends AbstractOperation<Void, Void> {
 
     private String operationName;
 
-    public DeleteNamedOperation() {
-        super();
-    }
-
     public String getOperationName() {
         return operationName;
     }

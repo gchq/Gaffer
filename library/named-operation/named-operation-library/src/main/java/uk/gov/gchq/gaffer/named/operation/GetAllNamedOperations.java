@@ -16,13 +16,17 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.named.operation.serialisation.NamedOperationTypeReference;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 
 public class GetAllNamedOperations extends AbstractGetIterableOperation<Void, NamedOperation> {
-    public GetAllNamedOperations() {
-        super();
+
+    @JsonIgnore
+    @Override
+    public boolean isDeduplicate() {
+        return deduplicate;
     }
 
     @Override

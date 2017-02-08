@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -77,24 +79,25 @@ public class NamedOperation extends AbstractGetOperation<Object, Object> impleme
         if (this == o) {
             return true;
         }
+
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        NamedOperation that = (NamedOperation) o;
+        final NamedOperation op = (NamedOperation) o;
 
-        if (operationName != null ? !operationName.equals(that.operationName) : that.operationName != null) {
-            return false;
-        }
-        return description != null ? description.equals(that.description) : that.description == null;
-
+        return new EqualsBuilder()
+                .append(operationName, op.operationName)
+                .append(description, op.description)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = operationName != null ? operationName.hashCode() : 0;
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .append(operationName)
+                .append(description)
+                .hashCode();
     }
 
     @Override

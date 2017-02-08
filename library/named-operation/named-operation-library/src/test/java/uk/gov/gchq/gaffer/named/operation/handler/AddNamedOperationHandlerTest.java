@@ -47,7 +47,9 @@ public class AddNamedOperationHandlerTest {
 
     private Store store = Mockito.mock(Store.class);
     private NamedOperation operation = new NamedOperation(OPERATION_NAME, "a named operation");
-    private AddNamedOperation addNamedOperation = new AddNamedOperation(false);
+    private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+            .overwrite(false)
+            .build();
 
     private static final String OPERATION_NAME = "test";
 
@@ -180,7 +182,7 @@ public class AddNamedOperationHandlerTest {
             addNamedOperation.setOperationChain(grandparent);
             addNamedOperation.setOperationName("grandparent");
             handler.doOperation(addNamedOperation, context, store);
-            assert(cacheContains("grandparent"));
+            assert (cacheContains("grandparent"));
 
 
         } catch (Exception e) {

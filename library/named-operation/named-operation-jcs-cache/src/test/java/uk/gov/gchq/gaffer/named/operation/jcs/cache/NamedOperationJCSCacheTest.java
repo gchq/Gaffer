@@ -144,13 +144,6 @@ public class NamedOperationJCSCacheTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfOperationChainIsEmpty() throws CacheOperationFailedException {
-        ExtendedNamedOperation operation = new ExtendedNamedOperation("name", "desc", "123", new OperationChain<>(), new ArrayList<String>(), new ArrayList<String>());
-        exception.expect(CacheOperationFailedException.class);
-        cache.addNamedOperation(operation, false, standardUser);
-    }
-
-    @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToReadOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
         exception.expect(CacheOperationFailedException.class);
@@ -267,6 +260,4 @@ public class NamedOperationJCSCacheTest {
         assert (actual.contains(alt));
         assert (actual.size() == 2);
     }
-
-
 }

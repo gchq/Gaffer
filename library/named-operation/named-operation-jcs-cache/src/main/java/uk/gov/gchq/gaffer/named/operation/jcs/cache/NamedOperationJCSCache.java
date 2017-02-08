@@ -64,9 +64,6 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
         if (name == null) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
-        if (namedOperation.getOperationChain().getOperations().isEmpty()) {
-            throw new CacheOperationFailedException("Operation Chain cannot be empty");
-        }
         try {
             if (!overwrite && cache.getFromGroup(name, CACHE_GROUP) != null) {
                 throw new CacheOperationFailedException("ExtendedNamedOperation with name " + name + " already exists");
