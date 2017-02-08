@@ -41,6 +41,9 @@ Apache Commons Lang (commons-lang:commons-lang:2.6):
 
 - Apache License, Version 2.0
 
+Apache Commons JCS (org.apache.jcs:jcs:1.3):
+
+- Apache Licence, Version 2.0
 
 Clearspring analytics (com.clearspring.analytics:stream:2.8.0):
 

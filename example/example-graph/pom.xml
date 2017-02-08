@@ -68,6 +68,16 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>named-operations-library</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>named-operation-jcs-cache</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>

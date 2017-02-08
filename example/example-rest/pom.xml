@@ -82,7 +82,7 @@
                         <version>${tomcat-maven-plugin.version}</version>
                         <configuration>
                             <path>/</path>
-                            <port>8080</port>
+                            <port>55555</port>
                             <webapps>
                                 <webapp>
                                     <contextPath>/rest</contextPath>

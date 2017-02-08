@@ -30,6 +30,7 @@
         <module>hdfs-library</module>
         <module>sketches-library</module>
         <module>spark</module>
+        <module>named-operation</module>
     </modules>
 
     <profiles>
@@ -43,6 +44,7 @@
                 <module>core-library</module>
                 <module>hdfs-library</module>
                 <module>sketches-library</module>
+                <module>named-operation</module>
             </modules>
         </profile>
     </profiles>
