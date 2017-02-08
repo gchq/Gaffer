@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.operation.cache;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.user.User;
@@ -36,15 +37,17 @@ public interface INamedOperationCache {
     /**
      * Adds or updates, depending on the overwrite flag, a {@link ExtendedNamedOperation} to a cache. This should be implemented
      * With appropriate methods, depending on the type of cache used and access restrictions applied.
+     *
      * @param operation The ExtendedNamedOperation to store.
      * @param overWrite Flag relating to whether to add or overwrite a ExtendedNamedOperation.
-     * @param user The user calling the operation. If overwrite is set, it should be used for checking permissions. Otherwise, it can be set to null.
+     * @param user      The user calling the operation. If overwrite is set, it should be used for checking permissions. Otherwise, it can be set to null.
      * @throws CacheOperationFailedException Exception thrown when the ExtendedNamedOperation is not added.
      */
     void addNamedOperation(final ExtendedNamedOperation operation, final boolean overWrite, final User user) throws CacheOperationFailedException;
 
     /**
      * Deletes a ExtendedNamedOperation from the cache.
+     *
      * @param name The name of the ExtendedNamedOperation a user would like to delete
      * @param user A {@link User} object that can optionally be used for checking permissions
      * @throws CacheOperationFailedException exception thrown when the ExtendedNamedOperation could not be deleted
@@ -53,6 +56,7 @@ public interface INamedOperationCache {
 
     /**
      * Gets a ExtendedNamedOperation from the cache.
+     *
      * @param name The name of the ExtendedNamedOperation held in the cache.
      * @param user The {@link User} object that can optionally be used for checking permissions.
      * @return A ExtendedNamedOperation corresponding to the name given if one exists in the Cache.
@@ -62,15 +66,17 @@ public interface INamedOperationCache {
 
     /**
      * Gets all the NamedOperations that a user has the permission to execute.
-     * @param user The user making the request
+     *
+     * @param user   The user making the request
      * @param simple flag relating to whether to return full NamedOperation details or just name and description.
      *               Ordinarily this should be set to true
-     * @return an iterable of NamedOperations that a given user can execute
+     * @return a closeable iterable of NamedOperations that a given user can execute
      */
-    Iterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple);
+    CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple);
 
     /**
      * Clears all keys and values from the Cache
+     *
      * @throws CacheOperationFailedException Exception thrown if the cache fails to clear
      */
     void clear() throws CacheOperationFailedException;

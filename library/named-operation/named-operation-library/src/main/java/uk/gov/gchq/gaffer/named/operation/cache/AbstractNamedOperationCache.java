@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.named.operation.cache;
 
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.user.User;
@@ -28,10 +29,11 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
      * However if the user is overwriting the named operation stored in the cache, then their opAuths must be checked
      * against the write roles associated with the {@link ExtendedNamedOperation}. If it turns out the user is overwriting a
      * non-existent ExtendedNamedOperation, then the users ExtendedNamedOperation will be added normally.
+     *
      * @param namedOperation The ExtendedNamedOperation that the user wants to store
-     * @param overwrite Flag relating to whether the user is adding (false) or updating/overwriting (true)
+     * @param overwrite      Flag relating to whether the user is adding (false) or updating/overwriting (true)
      * @throws CacheOperationFailedException thrown if the user doesn't have write access to the ExtendedNamedOperation requested,
-     * or if the add operation fails for some reason.
+     *                                       or if the add operation fails for some reason.
      */
     @Override
     public void addNamedOperation(final ExtendedNamedOperation namedOperation, final boolean overwrite, final User user) throws CacheOperationFailedException {
@@ -64,10 +66,11 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
     /**
      * Checks whether a {@link User} has write access to the cache. If they do then the ExtendedNamedOperation and name is
      * removed from the cache. If they don't or the ExtendedNamedOperation doesn't exist then an Exception is thrown.
+     *
      * @param name The name of the ExtendedNamedOperation a user would like to delete
      * @param user A {@link User} object that can optionally be used for checking permissions
      * @throws CacheOperationFailedException Thrown when the ExtendedNamedOperation doesn't exist or the User doesn't have
-     * write permission on the ExtendedNamedOperation.
+     *                                       write permission on the ExtendedNamedOperation.
      */
     @Override
     public void deleteNamedOperation(final String name, final User user) throws CacheOperationFailedException {
@@ -84,11 +87,12 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
      * First gets the ExtendedNamedOperation in question and checks whether the user has read access before returning the value.
      * If the ExtendedNamedOperation doesn't exist or the User doesn't have permission to read this ExtendedNamedOperation, then an
      * exception is thrown.
+     *
      * @param name The name of the ExtendedNamedOperation held in the cache.
      * @param user The {@link User} object that is used for checking read permissions.
      * @return ExtendedNamedOperation
      * @throws CacheOperationFailedException thrown if the ExtendedNamedOperation doesn't exist or the User doesn't have permission
-     * to read it.
+     *                                       to read it.
      */
     @Override
     public ExtendedNamedOperation getNamedOperation(final String name, final User user) throws CacheOperationFailedException {
@@ -102,7 +106,7 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
 
 
     @Override
-    public abstract Iterable<NamedOperation> getAllNamedOperations(User user, boolean simple);
+    public abstract CloseableIterable<NamedOperation> getAllNamedOperations(User user, boolean simple);
 
     @Override
     public abstract void clear() throws CacheOperationFailedException;

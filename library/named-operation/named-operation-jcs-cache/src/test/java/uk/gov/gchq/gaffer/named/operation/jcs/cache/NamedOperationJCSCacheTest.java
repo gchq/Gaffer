@@ -17,11 +17,14 @@
 package uk.gov.gchq.gaffer.named.operation.jcs.cache;
 
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.apache.jcs.access.exception.CacheException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
@@ -29,13 +32,13 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class NamedOperationJCSCacheTest {
 
@@ -191,7 +194,7 @@ public class NamedOperationJCSCacheTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfUnauthorisedUserTriesToOverwriteOperation() throws  CacheOperationFailedException {
+    public void shouldThrowExceptionIfUnauthorisedUserTriesToOverwriteOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(alternative, false, advancedUser);
         exception.expect(CacheOperationFailedException.class);
         cache.addNamedOperation(standard, true, standardUser);
@@ -214,8 +217,8 @@ public class NamedOperationJCSCacheTest {
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() {
-        Set<NamedOperation> ops = cache.getAllNamedOperations(standardUser, true);
-        assert(ops.size() == 0);
+        CloseableIterable<NamedOperation> ops = cache.getAllNamedOperations(standardUser, true);
+        assert (Iterables.size(ops) == 0);
     }
 
     @Test
@@ -225,11 +228,11 @@ public class NamedOperationJCSCacheTest {
         alt.setOperationName("alt");
         cache.addNamedOperation(alt, false, advancedUser);
 
-        Set<NamedOperation> actual = cache.getAllNamedOperations(standardUser, true);
+        Set<NamedOperation> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser, true));
 
-        assert(actual.contains(standard.getBasic()));
-        assert(actual.contains(alt.getBasic()));
-        assert(actual.size() == 2);
+        assert (actual.contains(standard.getBasic()));
+        assert (actual.contains(alt.getBasic()));
+        assert (actual.size() == 2);
     }
 
     @Test
@@ -246,10 +249,10 @@ public class NamedOperationJCSCacheTest {
                 .build();
         cache.addNamedOperation(noReadAccess, false, advancedUser);
 
-        Set<NamedOperation> actual = cache.getAllNamedOperations(standardUser, true);
+        Set<NamedOperation> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser, true));
 
-        assert(actual.contains(standard.getBasic()));
-        assert(actual.size() == 1);
+        assert (actual.contains(standard.getBasic()));
+        assert (actual.size() == 1);
     }
 
     @Test
@@ -259,10 +262,10 @@ public class NamedOperationJCSCacheTest {
         alt.setOperationName("alt");
         cache.addNamedOperation(alt, false, advancedUser);
 
-        Set<NamedOperation> actual = cache.getAllNamedOperations(standardUser, false);
-        assert(actual.contains(standard));
-        assert(actual.contains(alt));
-        assert(actual.size() == 2);
+        Set<NamedOperation> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser, false));
+        assert (actual.contains(standard));
+        assert (actual.contains(alt));
+        assert (actual.size() == 2);
     }
 
 

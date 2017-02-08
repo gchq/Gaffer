@@ -29,4 +29,18 @@ public class GetAllNamedOperations extends AbstractGetIterableOperation<Void, Na
     protected TypeReference createOutputTypeReference() {
         return new NamedOperationTypeReference.IterableNamedOperation();
     }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetIterableOperation.BaseBuilder<GetAllNamedOperations, Void, NamedOperation, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new GetAllNamedOperations());
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    }
 }

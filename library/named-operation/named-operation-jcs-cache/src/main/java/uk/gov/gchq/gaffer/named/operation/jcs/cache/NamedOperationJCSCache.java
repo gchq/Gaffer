@@ -20,12 +20,13 @@ import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.AbstractNamedOperationCache;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     /**
      * Default constructor which creates a new instance of a JCS object using the default configuration found in the
      * cache.ccf file
+     *
      * @throws CacheException thrown when the default profile is not available or the cache.ccf file is missing
      */
     public NamedOperationJCSCache() throws CacheException {
@@ -48,14 +50,14 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     }
 
 
-
     /**
      * Adds a ExtendedNamedOperation to the cache. If the name or ExtendedNamedOperation is null then a {@link CacheOperationFailedException}
      * will be thrown. If the function is called with the overwrite flag set to false then the operation will fail if
      * a ExtendedNamedOperation already exists with the given name.
-     * @param name The name/key to store the ExtendedNamedOperation against
+     *
+     * @param name           The name/key to store the ExtendedNamedOperation against
      * @param namedOperation The ExtendedNamedOperation to be stored
-     * @param overwrite Whether or not to overwrite an existing ExtendedNamedOperation
+     * @param overwrite      Whether or not to overwrite an existing ExtendedNamedOperation
      * @throws CacheOperationFailedException thrown if the operation fails
      */
     public void addToCache(final String name, final ExtendedNamedOperation namedOperation, final boolean overwrite) throws CacheOperationFailedException {
@@ -78,9 +80,9 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     }
 
 
-
     /**
      * Removes a key and value from the cache. If it fails then an exception is thrown
+     *
      * @param name The key to delete
      * @throws CacheOperationFailedException Thrown when the delete fails
      */
@@ -96,13 +98,14 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * Gets all the keys from the cache and iterates through each ExtendedNamedOperation stored in the cache. Assuming
      * the user has read permission (therefore can execute the NamedOperation) it either adds a NamedOperation or
      * ExtendedNamedOperation to a set, depending on the simple flag which would ordinarily be set to true.
-     * @param user The user making the request
+     *
+     * @param user   The user making the request
      * @param simple flag determining whether to return a set of NamedOperations with a basic name and description or
      *               the full ExtendedNamedOperation with details of the opChain, and access controls
      * @return a set of NamedOperations
      */
     @Override
-    public Set<NamedOperation> getAllNamedOperations(final User user, final boolean simple) {
+    public CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple) {
         Set keys = cache.getGroupKeys(CACHE_GROUP);
         Set<NamedOperation> executables = new HashSet<>();
         for (final Object key : keys) {
@@ -120,7 +123,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             }
 
         }
-        return executables;
+        return new WrappedCloseableIterable<>(executables);
     }
 
 
@@ -128,6 +131,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * Checks the supplied name is not null, an Object exists with this name in the cache, that Object is not null and
      * is an instance of ExtendedNamedOperation. If all these conditions are met, the ExtendedNamedOperation is returned, if any are not
      * met then an exception is thrown.
+     *
      * @param name the key stored in the cache
      * @return a ExtendedNamedOperation stored against the key
      * @throws CacheOperationFailedException thrown when the operation fails
@@ -147,6 +151,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
 
     /**
      * clears the cache of all keys and values
+     *
      * @throws CacheOperationFailedException thrown when the operation fails
      */
     @Override

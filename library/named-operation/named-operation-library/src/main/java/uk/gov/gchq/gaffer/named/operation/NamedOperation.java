@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-
 import java.io.Serializable;
 
 public class NamedOperation extends AbstractGetOperation<Object, Object> implements Serializable {
@@ -98,7 +98,34 @@ public class NamedOperation extends AbstractGetOperation<Object, Object> impleme
     }
 
     @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("operationName", operationName)
+                .append("description", description)
+                .toString();
+    }
+
+    @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.Object();
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractGetOperation.BaseBuilder<NamedOperation, Object, Object, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new NamedOperation());
+        }
+
+        public CHILD_CLASS name(final String name) {
+            getOp().setOperationName(name);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
     }
 }

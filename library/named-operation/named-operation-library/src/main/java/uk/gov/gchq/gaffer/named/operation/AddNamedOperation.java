@@ -21,8 +21,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AddNamedOperation extends AbstractOperation<Void, Void> {
@@ -95,4 +95,51 @@ public class AddNamedOperation extends AbstractOperation<Void, Void> {
         return new TypeReferenceImpl.Void();
     }
 
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<AddNamedOperation, Void, Void, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new AddNamedOperation());
+        }
+
+        public CHILD_CLASS operationChain(final OperationChain opChain) {
+            getOp().setOperationChain(opChain);
+            return self();
+        }
+
+        public CHILD_CLASS name(final String name) {
+            getOp().setOperationName(name);
+            return self();
+        }
+
+        public CHILD_CLASS description(final String description) {
+            getOp().setDescription(description);
+            return self();
+        }
+
+        public CHILD_CLASS readAccessRoles(final String... roles) {
+            Collections.addAll(getOp().getReadAccessRoles(), roles);
+            return self();
+        }
+
+        public CHILD_CLASS writeAccessRoles(final String... roles) {
+            Collections.addAll(getOp().getWriteAccessRoles(), roles);
+            return self();
+        }
+
+        public CHILD_CLASS overwrite(final boolean overwriteFlag) {
+            getOp().setOverwriteFlag(overwriteFlag);
+            return self();
+        }
+
+        public CHILD_CLASS overwrite() {
+            return overwrite(true);
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    }
 }

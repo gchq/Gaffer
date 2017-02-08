@@ -41,4 +41,23 @@ public class DeleteNamedOperation extends AbstractOperation<Void, Void> {
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.Void();
     }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends AbstractOperation.BaseBuilder<DeleteNamedOperation, Void, Void, CHILD_CLASS> {
+        public BaseBuilder() {
+            super(new DeleteNamedOperation());
+        }
+
+        public CHILD_CLASS name(final String name) {
+            getOp().setOperationName(name);
+            return self();
+        }
+    }
+
+    public static final class Builder extends BaseBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    }
 }
