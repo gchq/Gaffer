@@ -39,7 +39,7 @@ public class UnionConverter implements Converter {
     }
 
     @Override
-    public Object convert(final Object object) throws ConversionException {
+    public Double convert(final Object object) throws ConversionException {
         return ((Union) object).getResult().getEstimate();
     }
 }

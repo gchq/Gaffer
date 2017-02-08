@@ -39,7 +39,7 @@ public class HyperLogLogPlusConverter implements Converter {
     }
 
     @Override
-    public Object convert(final Object object) throws ConversionException {
+    public Long convert(final Object object) throws ConversionException {
         return ((HyperLogLogPlus) object).cardinality();
     }
 }

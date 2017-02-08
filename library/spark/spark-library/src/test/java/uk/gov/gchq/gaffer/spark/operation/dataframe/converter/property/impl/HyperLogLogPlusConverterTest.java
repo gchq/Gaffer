@@ -29,10 +29,10 @@ public class HyperLogLogPlusConverterTest {
         final HyperLogLogPlus hyperLogLogPlus = new HyperLogLogPlus(5, 5);
         hyperLogLogPlus.offer("A");
         hyperLogLogPlus.offer("B");
-        assertEquals(hyperLogLogPlus.cardinality(), HYPER_LOG_LOG_PLUS_CONVERTER.convert(hyperLogLogPlus));
+        assertEquals(hyperLogLogPlus.cardinality(), (long) HYPER_LOG_LOG_PLUS_CONVERTER.convert(hyperLogLogPlus));
 
         final HyperLogLogPlus emptyHyperLogLogPlus = new HyperLogLogPlus(5, 5);
-        assertEquals(emptyHyperLogLogPlus.cardinality(), HYPER_LOG_LOG_PLUS_CONVERTER.convert(emptyHyperLogLogPlus));
+        assertEquals(emptyHyperLogLogPlus.cardinality(), (long) HYPER_LOG_LOG_PLUS_CONVERTER.convert(emptyHyperLogLogPlus));
     }
 
     @Test

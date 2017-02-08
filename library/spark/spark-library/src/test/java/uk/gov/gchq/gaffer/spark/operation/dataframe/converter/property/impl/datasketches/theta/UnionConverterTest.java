@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class UnionConverterTest {
+    private static final double DELTA = 0.0000000001;
     private static final UnionConverter UNION_CONVERTER = new UnionConverter();
 
     @Test
@@ -33,10 +34,10 @@ public class UnionConverterTest {
         union.update(1.0D);
         union.update(2.0D);
         union.update(3.0D);
-        assertEquals(union.getResult().getEstimate(), UNION_CONVERTER.convert(union));
+        assertEquals(union.getResult().getEstimate(), UNION_CONVERTER.convert(union), DELTA);
 
         final Union emptyUnion = SetOperation.builder().buildUnion();
-        assertEquals(emptyUnion.getResult().getEstimate(), UNION_CONVERTER.convert(emptyUnion));
+        assertEquals(emptyUnion.getResult().getEstimate(), UNION_CONVERTER.convert(emptyUnion), DELTA);
     }
 
     @Test
