@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -49,8 +48,6 @@ import java.util.Set;
  * A <code>SchemaElementDefinition</code> is the representation of a single group in a
  * {@link Schema}.
  * Each element needs identifiers and can optionally have properties, an aggregator and a validator.
- *
- * @see SchemaElementDefinition.Builder
  */
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public abstract class SchemaElementDefinition implements ElementDefinition {
@@ -62,35 +59,31 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * Property map of property name to accepted type.
      */
-    private LinkedHashMap<String, String> properties;
+    protected Map<String, String> properties;
 
     /**
      * Identifier map of identifier type to accepted type.
      */
-    private LinkedHashMap<IdentifierType, String> identifiers;
+    protected Map<IdentifierType, String> identifiers;
 
-    private ElementFilter validator;
+    protected ElementFilter validator;
 
-    /**
-     * The <code>TypeDefinitions</code> provides the different element identifier value types and property value types.
-     *
-     * @see TypeDefinitions
-     */
-    private TypeDefinitions typesLookup;
+    protected Schema schemaReference;
 
     /**
      * A ordered set of property names that should be stored to allow
      * query time aggregation to group based on their values.
      */
-    private LinkedHashSet<String> groupBy;
-
-    private String description;
+    protected Set<String> groupBy;
+    protected Set<String> parents;
+    protected String description;
 
     public SchemaElementDefinition() {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
         properties = new LinkedHashMap<>();
         identifiers = new LinkedHashMap<>();
         groupBy = new LinkedHashSet<>();
+        schemaReference = new Schema();
     }
 
     /**
@@ -100,65 +93,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      */
     public boolean validate() {
         return elementDefValidator.validate(this);
-    }
-
-    @Override
-    public void merge(final ElementDefinition elementDef) {
-        if (elementDef instanceof SchemaElementDefinition) {
-            merge(((SchemaElementDefinition) elementDef));
-        } else {
-            throw new IllegalArgumentException("Cannot merge a schema element definition with a " + elementDef.getClass());
-        }
-    }
-
-    public void merge(final SchemaElementDefinition elementDef) {
-        for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-            final String newProp = entry.getKey();
-            final String newPropTypeName = entry.getValue();
-            if (!properties.containsKey(newProp)) {
-                properties.put(newProp, newPropTypeName);
-            } else {
-                final String typeName = properties.get(newProp);
-                if (!typeName.equals(newPropTypeName)) {
-                    throw new SchemaException("Unable to merge schemas. Conflict of types with property " + newProp
-                            + ". Type names are: " + typeName + " and " + newPropTypeName);
-                }
-            }
-        }
-
-        for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
-            final IdentifierType newId = entry.getKey();
-            final String newIdTypeName = entry.getValue();
-            if (!identifiers.containsKey(newId)) {
-                identifiers.put(newId, newIdTypeName);
-            } else {
-                final String typeName = identifiers.get(newId);
-                if (!typeName.equals(newIdTypeName)) {
-                    throw new SchemaException("Unable to merge schemas. Conflict of types with identifier " + newId
-                            + ". Type names are: " + typeName + " and " + newIdTypeName);
-                }
-            }
-        }
-
-        if (null == validator) {
-            validator = elementDef.validator;
-        } else if (null != elementDef.getOriginalValidateFunctions()) {
-            validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
-        }
-
-        if (typesLookup == null) {
-            typesLookup = elementDef.getTypesLookup();
-        } else if (typesLookup != elementDef.getTypesLookup()) {
-            typesLookup.merge(elementDef.getTypesLookup());
-        }
-
-        groupBy.addAll(elementDef.getGroupBy());
-
-        if (null == description) {
-            description = elementDef.getDescription();
-        } else if (null != elementDef.getDescription() && !description.contains(elementDef.getDescription())) {
-            description = description + " | " + elementDef.getDescription();
-        }
     }
 
     public Set<String> getProperties() {
@@ -173,11 +107,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonGetter("properties")
     public Map<String, String> getPropertyMap() {
         return Collections.unmodifiableMap(properties);
-    }
-
-    @JsonSetter("properties")
-    protected void setPropertyMap(final LinkedHashMap<String, String> properties) {
-        this.properties = properties;
     }
 
     @JsonIgnore
@@ -278,11 +207,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return fullValidator;
     }
 
-    @JsonSetter("validator")
-    private void setValidator(final ElementFilter validator) {
-        this.validator = validator;
-    }
-
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
     @JsonGetter("validateFunctions")
     public ConsumerFunctionContext<String, FilterFunction>[] getOriginalValidateFunctions() {
@@ -292,22 +216,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         return null;
-    }
-
-    @JsonSetter("validateFunctions")
-    public void addValidateFunctions(final ConsumerFunctionContext<String, FilterFunction>... functions) {
-        if (null == validator) {
-            validator = new ElementFilter();
-        }
-        validator.addFunctions(Arrays.asList(functions));
-    }
-
-    public void setTypesLookup(final TypeDefinitions newTypes) {
-        if (null != typesLookup && null != newTypes) {
-            newTypes.merge(typesLookup);
-        }
-
-        typesLookup = newTypes;
     }
 
     @JsonIgnore
@@ -343,33 +251,37 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
-    public LinkedHashSet<String> getGroupBy() {
+    public Set<String> getGroupBy() {
         return groupBy;
     }
 
-    public void setGroupBy(final LinkedHashSet<String> groupBy) {
-        if (null == groupBy) {
-            this.groupBy = new LinkedHashSet<>();
-        } else {
-            this.groupBy = groupBy;
+    protected Set<String> getParents() {
+        return parents;
+    }
+
+    /**
+     * For json serialisation if there are no parents then just return null
+     *
+     * @return parents
+     */
+    @JsonGetter("parents")
+    protected Set<String> getParentsOrNull() {
+        if (null == parents || parents.isEmpty()) {
+            return null;
         }
+
+        return parents;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
     @JsonIgnore
-    protected TypeDefinitions getTypesLookup() {
-        if (null == typesLookup) {
-            setTypesLookup(new TypeDefinitions());
-        }
+    public abstract SchemaElementDefinition getExpandedDefinition();
 
-        return typesLookup;
+    protected Schema getSchemaReference() {
+        return schemaReference;
     }
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
@@ -401,7 +313,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     private TypeDefinition getTypeDef(final String typeName) {
-        return getTypesLookup().getType(typeName);
+        return schemaReference.getType(typeName);
     }
 
     @Override
@@ -421,7 +333,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(properties, that.properties)
                 .append(identifiers, that.identifiers)
                 .append(validator, that.validator)
-                .append(typesLookup, that.typesLookup)
                 .append(groupBy, that.groupBy)
                 .append(description, that.description)
                 .isEquals();
@@ -434,7 +345,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append(properties)
                 .append(identifiers)
                 .append(validator)
-                .append(typesLookup)
                 .append(groupBy)
                 .append(description)
                 .toHashCode();
@@ -447,74 +357,133 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 .append("properties", properties)
                 .append("identifiers", identifiers)
                 .append("validator", validator)
-                .append("typesLookup", typesLookup)
                 .append("groupBy", groupBy)
                 .append("description", description)
                 .toString();
     }
 
-    protected static class Builder {
-        private final SchemaElementDefinition elDef;
+    @Override
+    public void lock() {
+        if (null != parents) {
+            parents = Collections.unmodifiableSet(parents);
+        }
+        groupBy = Collections.unmodifiableSet(groupBy);
+        properties = Collections.unmodifiableMap(properties);
+        identifiers = Collections.unmodifiableMap(identifiers);
+    }
 
-        protected Builder(final SchemaElementDefinition elDef) {
-            this.elDef = elDef;
+    protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
+            CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
+        protected ELEMENT_DEF elDef;
+
+        protected BaseBuilder(final ELEMENT_DEF elementDef) {
+            this.elDef = elementDef;
         }
 
-        protected Builder property(final String propertyName, final String typeName) {
+        public CHILD_CLASS property(final String propertyName, final String typeName) {
             elDef.properties.put(propertyName, typeName);
-            return this;
+            return self();
         }
 
-        protected Builder identifier(final IdentifierType identifierType, final String typeName) {
+        public CHILD_CLASS properties(final Map<String, String> properties) {
+            if (null == elDef.properties) {
+                elDef.properties = new LinkedHashMap<>(properties);
+            } else {
+                elDef.properties.putAll(properties);
+            }
+            return self();
+        }
+
+        public CHILD_CLASS identifier(final IdentifierType identifierType, final String typeName) {
             elDef.identifiers.put(identifierType, typeName);
-            return this;
+            return self();
         }
 
-        protected Builder validator(final ElementFilter validator) {
-            elDef.setValidator(validator);
-            return this;
+        public CHILD_CLASS identifiers(final Map<IdentifierType, String> identifiers) {
+            if (null == elDef.identifiers) {
+                elDef.identifiers = new LinkedHashMap<>(identifiers);
+            } else {
+                elDef.identifiers.putAll(identifiers);
+            }
+            return self();
         }
 
-        protected Builder property(final String propertyName, final Class<?> clazz) {
-            return property(propertyName, clazz.getName(), clazz);
+        public CHILD_CLASS validator(final ElementFilter validator) {
+            elDef.validator = validator;
+            return self();
         }
 
-        protected Builder property(final String propertyName, final String typeName, final TypeDefinition type) {
-            type(typeName, type);
-            return property(propertyName, typeName);
+        public CHILD_CLASS validateFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+            if (null == getElementDef().validator) {
+                getElementDef().validator = new ElementFilter();
+            }
+            getElementDef().validator.addFunctions(filterFunctions);
+            return self();
         }
 
-        protected Builder property(final String propertyName, final String typeName, final Class<?> typeClass) {
-            return property(propertyName, typeName, new TypeDefinition(typeClass));
+        public CHILD_CLASS groupBy(final String... propertyName) {
+            Collections.addAll(elDef.getGroupBy(), propertyName);
+            return self();
         }
 
-        protected Builder type(final String typeName, final TypeDefinition type) {
-            final TypeDefinitions types = getElementDef().getTypesLookup();
-            final TypeDefinition exisitingType = types.get(typeName);
-            if (null == exisitingType) {
-                types.put(typeName, type);
-            } else if (!exisitingType.equals(type)) {
-                throw new IllegalArgumentException("The type provided conflicts with an existing type with the same name");
+        public CHILD_CLASS parents(final String... parents) {
+            if (parents.length > 0) {
+                if (null == elDef.parents) {
+                    elDef.parents = new LinkedHashSet<>();
+                }
+
+                Collections.addAll(elDef.parents, parents);
+            }
+            return self();
+        }
+
+        public CHILD_CLASS description(final String description) {
+            elDef.description = description;
+            return self();
+        }
+
+        public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
+            if (getElementDef().properties.isEmpty()) {
+                getElementDef().properties.putAll(elementDef.getPropertyMap());
+            } else {
+                for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+                    if (null == getElementDef().getPropertyTypeName(entry.getKey())) {
+                        getElementDef().properties.put(entry.getKey(), entry.getValue());
+                    } else {
+                        throw new SchemaException("Unable to merge element definitions because the property exists in both definitions");
+                    }
+                }
             }
 
-            return this;
+            if (getElementDef().identifiers.isEmpty()) {
+                getElementDef().identifiers.putAll(elementDef.getIdentifierMap());
+            } else {
+                for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+                    getElementDef().identifiers.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            if (null == getElementDef().validator) {
+                getElementDef().validator = elementDef.validator;
+            } else if (null != elementDef.getOriginalValidateFunctions()) {
+                getElementDef().validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
+            }
+
+            getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);
+            getElementDef().parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
+            getElementDef().description = elementDef.description;
+
+            return self();
         }
 
-        protected Builder groupBy(final String... propertyName) {
-            elDef.getGroupBy().addAll(Arrays.asList(propertyName));
-            return this;
-        }
-
-        protected Builder description(final String description) {
-            elDef.setDescription(description);
-            return this;
-        }
-
-        protected SchemaElementDefinition build() {
+        public ELEMENT_DEF build() {
+            elDef.lock();
             return elDef;
         }
 
-        protected SchemaElementDefinition getElementDef() {
+        protected abstract CHILD_CLASS self();
+
+        protected ELEMENT_DEF getElementDef() {
             return elDef;
         }
     }

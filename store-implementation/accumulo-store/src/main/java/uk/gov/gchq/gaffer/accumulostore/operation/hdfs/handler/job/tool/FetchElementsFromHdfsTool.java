@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.AccumuloAddElementsFromHdfsJobFactory;
-import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -77,17 +76,5 @@ public class FetchElementsFromHdfsTool extends Configured implements Tool {
             fs.delete(outputPath, true);
         }
 
-        final Path failurePath = new Path(operation.getFailurePath());
-        LOGGER.info("Ensuring failure directory {} exists", failurePath);
-        if (fs.exists(failurePath)) {
-            if (fs.listFiles(failurePath, true).hasNext()) {
-                LOGGER.error("Failure directory exists and is not empty: {}", failurePath);
-                throw new IllegalArgumentException("Failure directory is not empty: " + failurePath);
-            }
-        } else {
-            LOGGER.info("Failure directory doesn't exist so creating: {}", failurePath);
-            fs.mkdirs(failurePath);
-        }
-        IngestUtils.setDirectoryPermsForAccumulo(fs, failurePath);
     }
 }

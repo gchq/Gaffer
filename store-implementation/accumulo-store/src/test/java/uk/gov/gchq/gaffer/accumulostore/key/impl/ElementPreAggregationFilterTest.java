@@ -184,9 +184,10 @@ public class ElementPreAggregationFilterTest {
 
     private Schema getSchema() throws UnsupportedEncodingException {
         return new Schema.Builder()
+                .type("string", String.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(String.class)
-                        .destination(String.class)
+                        .source("string")
+                        .destination("string")
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();

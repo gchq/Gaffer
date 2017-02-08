@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -81,6 +82,12 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
     @Override
     public CloseableIterable<SEED_TYPE> getInput() {
         return super.getInput();
+    }
+
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<SEED_TYPE> input) {
+        super.setInput(input);
     }
 
     @Override

@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "size": {
+      "vertex": "vertex.string",
+      "properties": {
+        "startDate": "date.earliest",
+        "endDate": "date.latest",
+        "size": "union"
+      },
+      "groupBy": [
+        "startDate",
+        "endDate"
+      ]
+    }
+  },
+  "edges": {
+    "red": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "startDate": "date.earliest",
+        "endDate": "date.latest",
+        "count": "long.count"
+      },
+      "groupBy": [
+        "startDate",
+        "endDate"
+      ]
+    }
+  }
+}

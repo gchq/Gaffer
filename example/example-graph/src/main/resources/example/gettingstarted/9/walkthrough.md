@@ -49,6 +49,7 @@ ${ALL_SUMMARISED_CARDINALITIES_RESULT}
 For large Graphs it is not recommended to use the 'Get All' methods as this could result in a full scan of the data and may return a lot of results. This next snippet shows you how you can query for a single cardinality value.
 ${GET_RED_EDGE_CARDINALITY_SNIPPET}
 As you can see the query just simply asks for an entities at vertex '1' and filters for only 'Cardinality' entities that have an edgeGroup property equal to 'red'. The result is:
+
 ```
 ${CARDINALITY_OF_1_RESULT}
 ```
