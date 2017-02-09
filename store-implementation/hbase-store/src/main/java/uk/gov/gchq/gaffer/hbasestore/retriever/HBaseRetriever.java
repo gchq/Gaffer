@@ -22,7 +22,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -39,27 +41,32 @@ import uk.gov.gchq.gaffer.hbasestore.filter.ElementPostAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.filter.ElementPreAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.filter.ValidatorFilter;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implements CloseableIterable<Element> {
-    private final FilterList filter;
-    private final CloseableIterable<?> seeds;
+    private final CloseableIterable<? extends ElementSeed> seeds;
     private final HBaseStore store;
     private final Authorizations authorisations;
     private final OP_TYPE operation;
     private final ElementSerialisation serialisation;
+    private final List<Filter> coreFilters;
+    private final RowRangeFactory rowRangeFactory;
     private CloseableIterator<Element> iterator;
 
-    public HBaseRetriever(final HBaseStore store, final OP_TYPE operation, final User user, final CloseableIterable<?> seeds)
+    public HBaseRetriever(final HBaseStore store, final OP_TYPE operation, final User user, final CloseableIterable<? extends ElementSeed> seeds)
             throws StoreException {
         this.store = store;
         this.serialisation = new ElementSerialisation(store.getSchema());
+        this.rowRangeFactory = new RowRangeFactory(store.getSchema());
         this.operation = operation;
         this.seeds = seeds;
 
@@ -70,11 +77,11 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
             this.authorisations = new Authorizations();
         }
 
-        this.filter = new FilterList(
+        coreFilters = Collections.unmodifiableList(Arrays.asList(
                 new ValidatorFilter(store.getSchema()),
                 new ElementPreAggregationFilter(store.getSchema(), operation.getView()),
                 new ElementPostAggregationFilter(store.getSchema(), operation.getView())
-        );
+        ));
     }
 
 
@@ -87,7 +94,9 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
 
     @Override
     public CloseableIterator<Element> iterator() {
+        // Only 1 iterator can be open at a time
         close();
+
         iterator = new HBaseRetrieverIterable(getScanner()).iterator();
         return iterator;
     }
@@ -95,7 +104,6 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
     private ResultScanner getScanner() {
         final Scan scan = new Scan();
         scan.setAuthorizations(authorisations);
-        scan.setFilter(filter);
 
         if (operation.isIncludeEntities()) {
             for (final String group : operation.getView().getEntityGroups()) {
@@ -108,62 +116,21 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
             }
         }
 
-        if (null != seeds) {
-            setupSeededScan(scan);
-        }
-
         try {
+            final List<Filter> filters = new ArrayList<>(coreFilters);
+            if (null != seeds) {
+                final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
+                for (final ElementSeed seed : seeds) {
+                    rowRanges.addAll(rowRangeFactory.getRowRange(seed, operation));
+                }
+                filters.add(new MultiRowRangeFilter(rowRanges));
+
+            }
+            scan.setFilter(new FilterList(filters));
+
             final Table table = store.getConnection().getTable(store.getProperties().getTable());
             return table.getScanner(scan);
         } catch (IOException | StoreException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setupSeededScan(final Scan scan) {
-        final CloseableIterator<?> seedsItr = seeds.iterator();
-        if (!seedsItr.hasNext()) {
-            throw new IllegalArgumentException("At least 1 seed is required");
-        }
-
-        final Object seed = seedsItr.next();
-        if (seedsItr.hasNext()) {
-            throw new UnsupportedOperationException("Multiple seed query is not yet implemented");
-        }
-
-        if (!(seed instanceof EntitySeed)) {
-            throw new UnsupportedOperationException("Only Entity Seeds are currently implemented");
-        }
-
-        // TODO should we use MultiRowRangeFilter?
-        final Object vertex = ((EntitySeed) seed).getVertex();
-
-        setupSeededScan(scan, vertex);
-    }
-
-    private void setupSeededScan(final Scan scan, final Object vertex) {
-        final boolean includeEntities = operation.isIncludeEntities() && !operation.getView().getEntityGroups().isEmpty();
-        final boolean includeEdges = !GetOperation.SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && operation.getIncludeEdges() != GetOperation.IncludeEdgeType.NONE && !operation.getView().getEdgeGroups().isEmpty();
-
-        try {
-            final byte[] vertexBytes = serialisation.serialiseVertex(vertex);
-            if (includeEntities) {
-                if (includeEdges) {
-                    scan.setStartRow(serialisation.getEntityKey(vertexBytes, false));
-                    scan.setStopRow(serialisation.getEdgeKey(vertexBytes, true));
-                } else {
-                    scan.setStartRow(serialisation.getEntityKey(vertexBytes, false));
-                    scan.setStopRow(serialisation.getEntityKey(vertexBytes, true));
-                }
-            } else if (includeEdges) {
-                final Pair<byte[]> startStopPair = serialisation.getEdgeOnlyKeys(vertexBytes);
-                scan.setStartRow(startStopPair.getFirst());
-                scan.setStopRow(startStopPair.getSecond());
-            } else {
-                throw new UnsupportedOperationException("You must query for entities, edges or both");
-            }
-
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

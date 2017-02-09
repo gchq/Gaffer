@@ -46,6 +46,8 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldGetAllElementsWithFilters() throws StoreException, OperationException {
+        LOGGER.info("shouldGetAllElementsWithFilters");
+
         final Graph graph = createPopulatedGraph();
 
         final User user = new User.Builder()
@@ -70,6 +72,8 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldGetEntity() throws StoreException, OperationException {
+        LOGGER.info("shouldGetEntity");
+
         final Graph graph = createPopulatedGraph();
 
         final User user = new User.Builder()
@@ -97,6 +101,8 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldGetEdge() throws StoreException, OperationException {
+        LOGGER.info("shouldGetEdge");
+
         final Graph graph = createPopulatedGraph();
 
         final User user = new User.Builder()
@@ -116,6 +122,8 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldGetElements() throws StoreException, OperationException {
+        LOGGER.info("shouldGetElements");
+
         final Graph graph = createPopulatedGraph();
 
         final User user = new User.Builder()
@@ -123,6 +131,7 @@ public class HBaseStoreTest {
                 .dataAuth("public")
                 .build();
         final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
+                .addSeed(new EntitySeed("vertex1"))
                 .addSeed(new EntitySeed("vertex2"))
                 .build(), user);
         for (Element element : elements) {
@@ -168,8 +177,8 @@ public class HBaseStoreTest {
                         new Entity.Builder()
                                 .vertex("vertex1")
                                 .group(TestGroups.ENTITY)
-                                .property("property1", 2)
-                                .property("columnQualifier", 20)
+                                .property("property1", 1)
+                                .property("columnQualifier", 10)
                                 .property("visibility", "public")
                                 .build(),
                         new Entity.Builder()
@@ -177,6 +186,13 @@ public class HBaseStoreTest {
                                 .group(TestGroups.ENTITY)
                                 .property("property1", 2)
                                 .property("columnQualifier", 20)
+                                .property("visibility", "public")
+                                .build(),
+                        new Entity.Builder()
+                                .vertex("vertex3")
+                                .group(TestGroups.ENTITY)
+                                .property("property1", 3)
+                                .property("columnQualifier", 30)
                                 .property("visibility", "public")
                                 .build())
                 .build(), new User());
