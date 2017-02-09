@@ -40,6 +40,10 @@
         <level value="ERROR"/>
     </logger>
 
+    <logger name="org.apache.jcs">
+        <level value="ERROR"/>
+    </logger>
+
     <root>
         <priority value="info"/>
         <appender-ref ref="console"/>
