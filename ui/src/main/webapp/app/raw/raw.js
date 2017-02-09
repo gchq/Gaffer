@@ -65,6 +65,7 @@ angular.module('app').factory('raw', ['$http', 'settings', function($http, setti
             },
             error: function(xhr, status, err) {
                 console.log(queryUrl, status, err);
+                alert("Error: " + xhr.statusCode().responseText);
                 raw.loading = false;
                 updateScope();
             }

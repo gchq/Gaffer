@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -27,10 +28,12 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.TransformFunction;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.function.context.ConsumerProducerFunctionContext;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +49,8 @@ import java.util.Set;
  * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}'s.
  */
 @JsonDeserialize(builder = ViewElementDefinition.Builder.class)
-public class ViewElementDefinition implements ElementDefinition {
+public class ViewElementDefinition implements ElementDefinition, Cloneable {
+    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     protected ElementTransformer transformer;
     protected ElementFilter preAggregationFilter;
     protected ElementFilter postAggregationFilter;
@@ -105,7 +109,7 @@ public class ViewElementDefinition implements ElementDefinition {
      */
     @JsonIgnore
     public Map<String, Class<?>> getTransientPropertyMap() {
-        return Collections.unmodifiableMap(transientProperties);
+        return transientProperties;
     }
 
     @JsonGetter("transientProperties")
@@ -156,6 +160,25 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonGetter("transformFunctions")
     public List<ConsumerProducerFunctionContext<String, TransformFunction>> getTransformFunctions() {
         return null != transformer ? transformer.getFunctions() : null;
+    }
+
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
+    @Override
+    public ViewElementDefinition clone() {
+        return new ViewElementDefinition.Builder().json(toJson(false)).build();
+    }
+
+    public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
+        try {
+            return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
+        } catch (SerialisationException e) {
+            throw new SchemaException(e.getMessage(), e);
+        }
+    }
+
+    public byte[] toCompactJson() throws SchemaException {
+        return toJson(false);
     }
 
     @Override
@@ -220,9 +243,8 @@ public class ViewElementDefinition implements ElementDefinition {
             this.elDef = new ViewElementDefinition();
         }
 
-        public BaseBuilder(final ViewElementDefinition elementDef) {
-            this();
-            merge(elementDef);
+        protected BaseBuilder(final ViewElementDefinition elementDef) {
+            this.elDef = elementDef;
         }
 
         public CHILD_CLASS transientProperty(final String propertyName, final Class<?> clazz) {
@@ -296,9 +318,24 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS groupBy(final String... groupBy) {
             if (null == getElementDef().getGroupBy()) {
-                getElementDef().setGroupBy(new LinkedHashSet<String>());
+                getElementDef().setGroupBy(new LinkedHashSet<>());
             }
             Collections.addAll(getElementDef().getGroupBy(), groupBy);
+            return self();
+        }
+
+        @JsonIgnore
+        public CHILD_CLASS json(final byte[] jsonBytes) throws SchemaException {
+            return json(jsonBytes, ViewElementDefinition.class);
+        }
+
+        @JsonIgnore
+        protected CHILD_CLASS json(final byte[] jsonBytes, final Class<? extends ViewElementDefinition> clazz) throws SchemaException {
+            try {
+                merge(JSON_SERIALISER.deserialise(jsonBytes, clazz));
+            } catch (SerialisationException e) {
+                throw new SchemaException("Unable to deserialise json", e);
+            }
             return self();
         }
 
@@ -341,9 +378,7 @@ public class ViewElementDefinition implements ElementDefinition {
                 getElementDef().transformer.addFunctions(elementDef.transformer.getFunctions());
             }
 
-            if (null != getElementDef().groupBy) {
-                getElementDef().groupBy.addAll(elementDef.getGroupBy());
-            } else if (null != elementDef.getGroupBy()) {
+            if (null != elementDef.getGroupBy()) {
                 getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
             }
 
@@ -351,6 +386,7 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public ViewElementDefinition build() {
+            elDef.lock();
             return elDef;
         }
 
@@ -367,7 +403,8 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public Builder(final ViewElementDefinition viewElementDef) {
-            super(viewElementDef);
+            this();
+            merge(viewElementDef);
         }
 
         @Override

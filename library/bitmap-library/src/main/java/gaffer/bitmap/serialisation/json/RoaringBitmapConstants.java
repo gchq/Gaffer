@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gaffer.bitmap.serialisation.json;
 
-package uk.gov.gchq.gaffer.serialisation;
+public final class RoaringBitmapConstants {
 
-/**
- * Abstract implementation of the {@link Serialisation} interface, providing default
- * implementations of the {@link Serialisation#serialiseNull()} method.
- */
-public abstract class AbstractSerialisation<T> implements Serialisation<T> {
+    public static final String BITMAP_WRAPPER_OBJECT_NAME = "roaringBitmap";
+    public static final String BITMAP_VALUE_FIELD_NAME = "value";
+    public static final String BITMAP_MODULE_NAME = "RoaringBitmapModule";
 
-    private static final byte[] EMPTY_BYTES = new byte[0];
+    private RoaringBitmapConstants() {
 
-    @Override
-    public byte[] serialiseNull() {
-        return EMPTY_BYTES;
     }
-
 }

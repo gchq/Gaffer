@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.util.Date;
 
 /**
@@ -25,7 +25,7 @@ import java.util.Date;
  * then serialise(date1) is less than serialise(date2)
  * where the byte arrays are compared one byte at a time starting with the first.
  */
-public class RawDateSerialiser extends AbstractSerialisation<Date> {
+public class RawDateSerialiser implements Serialisation<Date> {
     private static final long serialVersionUID = -1470994471883677977L;
 
     @Override

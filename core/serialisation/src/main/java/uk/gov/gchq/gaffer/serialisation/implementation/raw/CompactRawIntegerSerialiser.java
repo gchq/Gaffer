@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * Serialises integers using a variable-length scheme that means smaller integers get serialised into a smaller
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
  * equal to <code>Integer.MIN_VALUE</code>. This means that, in terms of serialised size, there is no benefit to
  * using an integer instead of a long.
  */
-public class CompactRawIntegerSerialiser extends AbstractSerialisation<Integer> {
+public class CompactRawIntegerSerialiser implements Serialisation<Integer> {
 
     private static final long serialVersionUID = -2874472098583724627L;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,6 +203,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<Schema, SchemaEntityDefinition, SchemaEdgeDefinition, CHILD_CLASS> {
         public BaseBuilder() {
             super(new Schema());
+        }
+
+        protected BaseBuilder(final Schema schema) {
+            super(schema);
         }
 
         @Override

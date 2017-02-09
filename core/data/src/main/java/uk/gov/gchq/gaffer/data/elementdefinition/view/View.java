@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +53,10 @@ import java.util.Set;
  */
 @JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
+    public List<GlobalViewElementDefinition> globalElements;
+    public List<GlobalViewElementDefinition> globalEntities;
+    public List<GlobalViewElementDefinition> globalEdges;
+
     public View() {
         super();
     }
@@ -89,6 +100,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return viewElementDef.getGroupBy();
     }
 
+    public List<GlobalViewElementDefinition> getGlobalElements() {
+        return globalElements;
+    }
+
+    public List<GlobalViewElementDefinition> getGlobalEntities() {
+        return globalEntities;
+    }
+
+    public List<GlobalViewElementDefinition> getGlobalEdges() {
+        return globalEdges;
+    }
+
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
@@ -96,9 +119,130 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return fromJson(toJson(false));
     }
 
+    @Override
+    protected void lock() {
+        super.lock();
+        if (null != globalElements) {
+            globalElements = Collections.unmodifiableList(globalElements);
+        }
+
+        if (null != globalEntities) {
+            globalEntities = Collections.unmodifiableList(globalEntities);
+        }
+
+        if (null != globalEdges) {
+            globalEdges = Collections.unmodifiableList(globalEdges);
+        }
+    }
+
+    /**
+     * Copies all the global element definitions into the individual element definitions.
+     * The global element definitions will then be set to null
+     */
+    public void expandGlobalDefinitions() {
+        if (null != globalEntities && !globalEntities.isEmpty()) {
+            setEntities(expandGlobalDefinitions(getEntities(), getEntityGroups(), globalEntities, false));
+            globalEntities = null;
+        }
+
+        if (null != globalEdges && !globalEdges.isEmpty()) {
+            setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalEdges, false));
+            globalEdges = null;
+        }
+
+        if (null != globalElements && !globalElements.isEmpty()) {
+            setEntities(expandGlobalDefinitions(getEntities(), getEntityGroups(), globalElements, true));
+            setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
+            globalElements = null;
+        }
+    }
+
+    private Map<String, ViewElementDefinition> expandGlobalDefinitions(
+            final Map<String, ViewElementDefinition> elements,
+            final Set<String> groups,
+            final List<GlobalViewElementDefinition> globalElements,
+            final boolean skipMissingGroups) {
+
+        final Map<String, ViewElementDefinition> newElements = new LinkedHashMap<>();
+        for (final GlobalViewElementDefinition globalElement : globalElements) {
+            final Set<String> globalGroups;
+            if (null != globalElement.groups) {
+                globalGroups = new HashSet<>(globalElement.groups);
+                final boolean hasMissingGroups = globalGroups.retainAll(groups);
+                if (hasMissingGroups) {
+                    if (!skipMissingGroups) {
+                        final Set<String> missingGroups = new HashSet<>(globalElement.groups);
+                        missingGroups.removeAll(groups);
+                        throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
+                    }
+                }
+            } else {
+                globalGroups = groups;
+            }
+            for (final String group : globalGroups) {
+                final ViewElementDefinition.Builder builder = new ViewElementDefinition.Builder();
+                if (newElements.containsKey(group)) {
+                    builder.merge(newElements.get(group));
+                }
+                builder.merge(globalElement.clone());
+                newElements.put(group, builder.build());
+            }
+        }
+
+        if (null != elements) {
+            for (final Map.Entry<String, ViewElementDefinition> entry : elements.entrySet()) {
+                final String group = entry.getKey();
+                if (newElements.containsKey(group)) {
+                    newElements.put(group, new ViewElementDefinition.Builder()
+                            .merge(newElements.get(group))
+                            .merge(entry.getValue())
+                            .build());
+                } else {
+                    newElements.put(group, entry.getValue());
+                }
+            }
+        }
+
+        return Collections.unmodifiableMap(newElements);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final View view = (View) o;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(view))
+                .append(globalElements, view.getGlobalElements())
+                .append(globalEntities, view.getGlobalEntities())
+                .append(globalEdges, view.getGlobalEdges())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(globalElements)
+                .append(globalEntities)
+                .append(globalEdges)
+                .toHashCode();
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<View, ViewElementDefinition, ViewElementDefinition, CHILD_CLASS> {
         public BaseBuilder() {
             super(new View());
+        }
+
+        protected BaseBuilder(final View view) {
+            super(view);
         }
 
         @Override
@@ -109,6 +253,36 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         public CHILD_CLASS edge(final String group) {
             return edge(group, new ViewElementDefinition());
+        }
+
+        public CHILD_CLASS globalElements(final GlobalViewElementDefinition... globalElements) {
+            if (globalElements.length > 0) {
+                if (null == getThisView().globalElements) {
+                    getThisView().globalElements = new ArrayList<>();
+                }
+                Collections.addAll(getThisView().globalElements, globalElements);
+            }
+            return self();
+        }
+
+        public CHILD_CLASS globalEntities(final GlobalViewElementDefinition... globalEntities) {
+            if (globalEntities.length > 0) {
+                if (null == getThisView().globalEntities) {
+                    getThisView().globalEntities = new ArrayList<>();
+                }
+                Collections.addAll(getThisView().globalEntities, globalEntities);
+            }
+            return self();
+        }
+
+        public CHILD_CLASS globalEdges(final GlobalViewElementDefinition... globalEdges) {
+            if (globalEdges.length > 0) {
+                if (null == getThisView().globalEdges) {
+                    getThisView().globalEdges = new ArrayList<>();
+                }
+                Collections.addAll(getThisView().globalEdges, globalEdges);
+            }
+            return self();
         }
 
         @JsonIgnore
@@ -161,7 +335,33 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 }
             }
 
+            if (null != view.globalElements) {
+                if (null == getThisView().globalElements) {
+                    getThisView().globalElements = new ArrayList<>();
+                }
+                getThisView().globalElements.addAll(view.globalElements);
+            }
+
+            if (null != view.globalEntities) {
+                if (null == getThisView().globalEntities) {
+                    getThisView().globalEntities = new ArrayList<>();
+                }
+                getThisView().globalEntities.addAll(view.globalEntities);
+            }
+
+            if (null != view.globalEdges) {
+                if (null == getThisView().globalEdges) {
+                    getThisView().globalEdges = new ArrayList<>();
+                }
+                getThisView().globalEdges.addAll(view.globalEdges);
+            }
+
             return self();
+        }
+
+        @Override
+        public View build() {
+            return super.build();
         }
 
         private View getThisView() {

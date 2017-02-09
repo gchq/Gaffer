@@ -98,6 +98,12 @@ public class Validate extends AbstractGetIterableOperation<Element, Element> {
         return super.getInput();
     }
 
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<Element> input) {
+        super.setInput(input);
+    }
+
     /**
      * @return the input {@link java.util.List} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be validated.
      */
