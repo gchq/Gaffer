@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
-import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualTo;
@@ -26,43 +25,42 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.apache.spark.sql.sources.LessThan;
 import org.apache.spark.sql.sources.Or;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.function.FilterFunction;
+import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
+import uk.gov.gchq.gaffer.function.filter.IsLessThan;
+import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
-import uk.gov.gchq.gaffer.user.User;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-/**
- * Contains unit tests for {@link FiltersToOperationConverter}. The operations that are returned are checked
- * directly (i.e. by consuming the RDD), rather than being tested through the <code>GetDataFrameOfElements</code>
- * operation as that will filter out invalid results itself in the Spark executors. Here we want to test that the
- * underlying RDD from which the Dataframe is derived has already has the correct filtering applied to it.
- */
 public class FilterToOperationConverterTest {
+    private static final String ENTITY_GROUP = "BasicEntity";
+    private static final String EDGE_GROUP = "BasicEdge";
+    private static final String EDGE_GROUP2 = "BasicEdge2";
+    private static final Set<String> EDGE_GROUPS = new HashSet<>(Arrays.asList(EDGE_GROUP, EDGE_GROUP2));
 
     @Test
     public void testIncompatibleGroups() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testIncompatibleGroups");
 
         final Filter[] filters = new Filter[2];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "A");
         filters[1] = new EqualTo(SchemaToStructTypeConverter.GROUP, "B");
         final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
-                new View.Builder().build(), graph.getSchema(), filters);
+                getViewFromSchema(schema), schema, filters);
 
         final AbstractGetRDD<?> operation = converter.getOperation();
         assertNull(operation);
@@ -72,41 +70,32 @@ public class FilterToOperationConverterTest {
 
     @Test
     public void testSingleGroup() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSingleGroup");
 
         final Filter[] filters = new Filter[1];
-        filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
+
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+                getViewFromSchema(schema), schema, filters);
 
         final AbstractGetRDD<?> operation = converter.getOperation();
-        final RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        final Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element.getGroup().equals(GetDataFrameOfElementsHandlerTest.ENTITY_GROUP)) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertTrue(operation instanceof GetRDDOfAllElements);
+        assertEquals(Collections.singleton(ENTITY_GROUP), operation.getView().getEntityGroups());
+        assertEquals(0, operation.getView().getEdgeGroups().size());
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
     public void testSingleGroupNotInSchema() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSingleGroupNotInSchema");
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "random");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+                getViewFromSchema(schema), schema, filters);
 
         final AbstractGetRDD<?> operation = converter.getOperation();
         assertNull(operation);
@@ -116,328 +105,358 @@ public class FilterToOperationConverterTest {
 
     @Test
     public void testTwoGroups() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testTwoGroups");
 
         final Filter[] filters = new Filter[1];
-        final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
-        final Filter right = new EqualTo(SchemaToStructTypeConverter.GROUP, GetDataFrameOfElementsHandlerTest.EDGE_GROUP2);
+        final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
+        final Filter right = new EqualTo(SchemaToStructTypeConverter.GROUP, EDGE_GROUP2);
         filters[0] = new Or(left, right);
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+                getViewFromSchema(schema), schema, filters);
 
         final AbstractGetRDD<?> operation = converter.getOperation();
-        final RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        final Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element.getGroup().equals(GetDataFrameOfElementsHandlerTest.ENTITY_GROUP)
-                    || element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP2)) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertTrue(operation instanceof GetRDDOfAllElements);
+        assertEquals(Collections.singleton(ENTITY_GROUP), operation.getView().getEntityGroups());
+        assertEquals(Collections.singleton(EDGE_GROUP2), operation.getView().getEdgeGroups());
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyVertex() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyVertex");
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+                getViewFromSchema(schema), schema, filters);
 
         final AbstractGetRDD<?> operation = converter.getOperation();
-        final RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        final Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(Collections.singleton(ENTITY_GROUP), operation.getView().getEntityGroups());
+        assertEquals(0, operation.getView().getEdgeGroups().size());
+        final Set<EntitySeed> seeds = new HashSet<>();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
         }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element instanceof Entity && ((Entity) element).getVertex().equals("0")) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
-    public void testSpecifySourceOrDestination() throws OperationException {
-        final Graph graph = getGraph();
-        final SQLContext sqlContext = getSqlContext("testSpecifySourceOrDestination");
+    public void testSpecifySource() throws OperationException {
+        final Schema schema = getSchema();
+        final SQLContext sqlContext = getSqlContext("testSpecifySource");
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+                schema, filters);
 
         AbstractGetRDD<?> operation = converter.getOperation();
-        RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(0, operation.getView().getEntityGroups().size());
+        assertEquals(EDGE_GROUPS, operation.getView().getEdgeGroups());
+        final Set<EntitySeed> seeds = new HashSet<>();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
         }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element instanceof Edge
-                    && (((Edge) element).getSource().equals("0")
-                    || ((Edge) element).getDestination().equals("0"))) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
-        filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
+        sqlContext.sparkContext().stop();
+    }
 
-        operation = converter.getOperation();
-        rdd = graph.execute(operation, new User());
-        results.clear();
-        returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+    @Test
+    public void testSpecifyDestination() throws OperationException {
+        final Schema schema = getSchema();
+        final SQLContext sqlContext = getSqlContext("testSpecifyDestination");
+
+        final Filter[] filters = new Filter[1];
+        filters[0] = new EqualTo(SchemaToStructTypeConverter.DST_COL_NAME, "0");
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+                getViewFromSchema(schema), schema, filters);
+
+        final AbstractGetRDD<?> operation = converter.getOperation();
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(0, operation.getView().getEntityGroups().size());
+        assertEquals(EDGE_GROUPS, operation.getView().getEdgeGroups());
+        final Set<EntitySeed> seeds = new HashSet<>();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
         }
-        expectedResults.clear();
-        for (final Element element : getElements()) {
-            if (element instanceof Edge
-                    && (((Edge) element).getSource().equals("0")
-                    || ((Edge) element).getDestination().equals("0"))) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyPropertyFilters() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyPropertyFilters");
         final Filter[] filters = new Filter[1];
 
         // GreaterThan
         filters[0] = new GreaterThan("property1", 5);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+                schema, filters);
         AbstractGetRDD<?> operation = converter.getOperation();
-        RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+
+        assertTrue(operation instanceof GetRDDOfAllElements);
+        View opView = operation.getView();
+        List<ConsumerFunctionContext<String, FilterFunction>> entityPostAggFilters = opView
+                .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
+        assertEquals(1, entityPostAggFilters.size());
+        assertEquals(new ArrayList<>(Collections.singleton("property1")), entityPostAggFilters.get(0).getSelection());
+        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getFunction());
+        for (final String edgeGroup : EDGE_GROUPS) {
+            final List<ConsumerFunctionContext<String, FilterFunction>> edgePostAggFilters = opView
+                    .getEdge(edgeGroup).getPostAggregationFilterFunctions();
+            assertEquals(1, edgePostAggFilters.size());
+            assertEquals(new ArrayList<>(Collections.singleton("property1")), edgePostAggFilters.get(0).getSelection());
+            assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getFunction());
         }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if ((Integer) element.getProperty("property1") > 5) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
 
         // LessThan
         filters[0] = new LessThan("property4", 8L);
-        converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
-        rdd = graph.execute(operation, new User());
-        results.clear();
-        returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        expectedResults.clear();
-        for (final Element element : getElements()) {
-            if (element.getProperties().containsKey("property4") && (Long) element.getProperty("property4") < 8L) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
+
+        assertTrue(operation instanceof GetRDDOfAllElements);
+        // Only groups ENTITY_GROUP and EDGE_GROUP should be in the view as only they have property4
+        opView = operation.getView();
+        entityPostAggFilters = opView
+                .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
+        assertEquals(1, entityPostAggFilters.size());
+        assertEquals(new ArrayList<>(Collections.singleton("property4")), entityPostAggFilters.get(0).getSelection());
+        assertEquals(new IsLessThan(8L, false), entityPostAggFilters.get(0).getFunction());
+        List<ConsumerFunctionContext<String, FilterFunction>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
+                .getPostAggregationFilterFunctions();
+        assertEquals(1, edgePostAggFilters.size());
+        assertEquals(new ArrayList<>(Collections.singleton("property4")), edgePostAggFilters.get(0).getSelection());
+        assertEquals(new IsLessThan(8L, false), edgePostAggFilters.get(0).getFunction());
 
         // And
         final Filter left = new GreaterThan("property1", 5);
         final Filter right = new GreaterThan("property4", 8L);
         filters[0] = new And(left, right);
-        converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
-        rdd = graph.execute(operation, new User());
-        results.clear();
-        returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        expectedResults.clear();
-        for (final Element element : getElements()) {
-            if (element.getProperties().containsKey("property1") && element.getProperties().containsKey("property4")) {
-                if ((Integer) element.getProperty("property1") > 5 && (Long) element.getProperty("property4") > 8L) {
-                    expectedResults.add(element);
-                }
-            }
-        }
-        assertEquals(expectedResults, results);
+
+        assertTrue(operation instanceof GetRDDOfAllElements);
+        // Only groups ENTITY_GROUP and EDGE_GROUP should be in the view as only they have property1 and property4
+        opView = operation.getView();
+        entityPostAggFilters = opView.getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
+        assertEquals(2, entityPostAggFilters.size());
+        final ArrayList<String> expectedProperties = new ArrayList<>();
+        expectedProperties.add("property1");
+        expectedProperties.add("property4");
+        assertEquals(1, entityPostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection().get(0));
+        assertEquals(1, entityPostAggFilters.get(1).getSelection().size());
+        assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection().get(0));
+        final ArrayList<FilterFunction> expectedFunctions = new ArrayList<>();
+        expectedFunctions.add(new IsMoreThan(5, false));
+        expectedFunctions.add(new IsMoreThan(8L, false));
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
+        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
+        edgePostAggFilters = opView.getEdge(EDGE_GROUP).getPostAggregationFilterFunctions();
+        assertEquals(2, edgePostAggFilters.size());
+        assertEquals(1, edgePostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), edgePostAggFilters.get(0).getSelection().get(0));
+        assertEquals(1, edgePostAggFilters.get(1).getSelection().size());
+        assertEquals(expectedProperties.get(1), edgePostAggFilters.get(1).getSelection().get(0));
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyMultiplePropertyFilters() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyMultiplePropertyFilters");
 
         final Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new LessThan("property4", 8L);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+                schema, filters);
         AbstractGetRDD<?> operation = converter.getOperation();
-        RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element.getProperties().containsKey("property1") && element.getProperties().containsKey("property4")) {
-                if ((Integer) element.getProperty("property1") > 5 && (Long) element.getProperty("property4") < 8L) {
-                    expectedResults.add(element);
-                }
-            }
-        }
-        assertEquals(expectedResults, results);
+
+        assertTrue(operation instanceof GetRDDOfAllElements);
+        // Only groups ENTITY_GROUP and EDGE_GROUP should be in the view as only they have property1 and property4
+        View opView = operation.getView();
+        List<ConsumerFunctionContext<String, FilterFunction>> entityPostAggFilters = opView.getEntity(ENTITY_GROUP)
+                .getPostAggregationFilterFunctions();
+        assertEquals(2, entityPostAggFilters.size());
+        final ArrayList<String> expectedProperties = new ArrayList<>();
+        expectedProperties.add("property1");
+        expectedProperties.add("property4");
+        assertEquals(1, entityPostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection().get(0));
+        assertEquals(1, entityPostAggFilters.get(1).getSelection().size());
+        assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection().get(0));
+        final ArrayList<FilterFunction> expectedFunctions = new ArrayList<>();
+        expectedFunctions.add(new IsMoreThan(5, false));
+        expectedFunctions.add(new IsLessThan(8L, false));
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
+        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
+        final List<ConsumerFunctionContext<String, FilterFunction>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
+                .getPostAggregationFilterFunctions();
+        assertEquals(2, edgePostAggFilters.size());
+        assertEquals(1, edgePostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), edgePostAggFilters.get(0).getSelection().get(0));
+        assertEquals(1, edgePostAggFilters.get(1).getSelection().size());
+        assertEquals(expectedProperties.get(1), edgePostAggFilters.get(1).getSelection().get(0));
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyVertexAndPropertyFilter() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyVertexAndPropertyFilter");
 
+        // Specify vertex and a filter on property1
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+                schema, filters);
         AbstractGetRDD<?> operation = converter.getOperation();
-        RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element instanceof Entity
-                    && ((Entity) element).getVertex().equals("0")
-                    && (Integer) element.getProperty("property1") > 5) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
 
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(1, operation.getView().getEntityGroups().size());
+        assertEquals(0, operation.getView().getEdgeGroups().size());
+        final Set<EntitySeed> seeds = new HashSet<>();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
+        }
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
+        View opView = operation.getView();
+        List<ConsumerFunctionContext<String, FilterFunction>> entityPostAggFilters = opView
+                .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
+        assertEquals(1, entityPostAggFilters.size());
+        final ArrayList<String> expectedProperties = new ArrayList<>();
+        expectedProperties.add("property1");
+        assertEquals(1, entityPostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection().get(0));
+        final ArrayList<FilterFunction> expectedFunctions = new ArrayList<>();
+        expectedFunctions.add(new IsMoreThan(5, false));
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
+
+        // Specify vertex and filters on properties property1 and property4
         filters = new Filter[3];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
-        rdd = graph.execute(operation, new User());
-        results.clear();
-        returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(1, operation.getView().getEntityGroups().size());
+        assertEquals(0, operation.getView().getEdgeGroups().size());
+        seeds.clear();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
         }
-        expectedResults.clear();
-        for (final Element element : getElements()) {
-            if (element.getProperties().containsKey("property1") && element.getProperties().containsKey("property4")) {
-                if ((Integer) element.getProperty("property1") > 5 && (Long) element.getProperty("property4") < 8) {
-                    if (element instanceof Entity && ((Entity) element).getVertex().equals("0")) {
-                        expectedResults.add(element);
-                    }
-                }
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
+        opView = operation.getView();
+        entityPostAggFilters = opView.getEntity(ENTITY_GROUP)
+                .getPostAggregationFilterFunctions();
+        assertEquals(2, entityPostAggFilters.size());
+        expectedProperties.clear();
+        expectedProperties.add("property1");
+        expectedProperties.add("property4");
+        assertEquals(1, entityPostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection().get(0));
+        assertEquals(1, entityPostAggFilters.get(1).getSelection().size());
+        assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection().get(0));
+
+        expectedFunctions.clear();
+        expectedFunctions.add(new IsMoreThan(5, false));
+        expectedFunctions.add(new IsLessThan(8, false));
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
+        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
 
         sqlContext.sparkContext().stop();
     }
 
     @Test
     public void testSpecifySourceOrDestinationAndPropertyFilter() throws OperationException {
-        final Graph graph = getGraph();
+        final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyVertexAndPropertyFilter");
 
+        // Specify src and a filter on property1
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, graph.getView(),
-                graph.getSchema(), filters);
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+                schema, filters);
         AbstractGetRDD<?> operation = converter.getOperation();
-        RDD<Element> rdd = graph.execute(operation, new User());
-        final Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Set<Element> expectedResults = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element instanceof Edge
-                    && ((Edge) element).getSource().equals("0")
-                    && (Integer) element.getProperty("property1") > 5) {
-                expectedResults.add(element);
-            }
-        }
-        assertEquals(expectedResults, results);
 
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(0, operation.getView().getEntityGroups().size());
+        assertEquals(2, operation.getView().getEdgeGroups().size());
+        final Set<EntitySeed> seeds = new HashSet<>();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
+        }
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
+        View opView = operation.getView();
+        for (final String edgeGroup : EDGE_GROUPS) {
+            final List<ConsumerFunctionContext<String, FilterFunction>> edgePostAggFilters = opView
+                    .getEdge(edgeGroup).getPostAggregationFilterFunctions();
+            assertEquals(1, edgePostAggFilters.size());
+            assertEquals(new ArrayList<>(Collections.singleton("property1")), edgePostAggFilters.get(0).getSelection());
+            assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getFunction());
+        }
+
+        // Specify src and filters on property1 and property4
         filters = new Filter[3];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sqlContext, graph.getView(), graph.getSchema(), filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
-        rdd = graph.execute(operation, new User());
-        results.clear();
-        returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+
+        assertTrue(operation instanceof GetRDDOfElements);
+        assertEquals(0, operation.getView().getEntityGroups().size());
+        assertEquals(1, operation.getView().getEdgeGroups().size());
+        seeds.clear();
+        for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
+            seeds.add((EntitySeed) seed);
         }
-        expectedResults.clear();
-        for (final Element element : getElements()) {
-            if (element.getProperties().containsKey("property1") && element.getProperties().containsKey("property4")) {
-                if ((Integer) element.getProperty("property1") > 5 && (Long) element.getProperty("property4") < 8) {
-                    if (element instanceof Edge && ((Edge) element).getSource().equals("0")) {
-                        expectedResults.add(element);
-                    }
-                }
-            }
-        }
-        assertEquals(expectedResults, results);
+        assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
+        opView = operation.getView();
+        final List<ConsumerFunctionContext<String, FilterFunction>> entityPostAggFilters = opView
+                .getEdge(EDGE_GROUP).getPostAggregationFilterFunctions();
+        assertEquals(2, entityPostAggFilters.size());
+        final List<String> expectedProperties = new ArrayList<>();
+        expectedProperties.add("property1");
+        expectedProperties.add("property4");
+        assertEquals(1, entityPostAggFilters.get(0).getSelection().size());
+        assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection().get(0));
+        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getFunction());
+        assertEquals(1, entityPostAggFilters.get(1).getSelection().size());
+        assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection().get(0));
+        assertEquals(new IsLessThan(8, false), entityPostAggFilters.get(1).getFunction());
 
         sqlContext.sparkContext().stop();
     }
 
-    private Graph getGraph() throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+    private Schema getSchema() {
+        return Schema.fromJson(
+                getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"),
+                getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"),
+                getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"));
+    }
+
+    private View getViewFromSchema(final Schema schema) {
+        return new View.Builder()
+                .entities(schema.getEntityGroups())
+                .edges(schema.getEdgeGroups())
                 .build();
-        graph.execute(new AddElements(getElements()), new User());
-        return graph;
     }
 
     private SQLContext getSqlContext(final String appName) {
@@ -448,53 +467,5 @@ public class FilterToOperationConverterTest {
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
         return new SQLContext(new SparkContext(sparkConf));
-    }
-
-    static List<Element> getElements() {
-        final List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
-            entity.setVertex("" + i);
-            entity.putProperty("columnQualifier", 1);
-            entity.putProperty("property1", i);
-            entity.putProperty("property2", 3.0F);
-            entity.putProperty("property3", 4.0D);
-            entity.putProperty("property4", i * 2L);
-            entity.putProperty("count", 6L);
-
-            final Edge edge1 = new Edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(true);
-            edge1.putProperty("columnQualifier", 1);
-            edge1.putProperty("property1", 2);
-            edge1.putProperty("property2", 3.0F);
-            edge1.putProperty("property3", 4.0D);
-            edge1.putProperty("property4", 5L);
-            edge1.putProperty("count", 100L);
-
-            final Edge edge2 = new Edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("columnQualifier", 6);
-            edge2.putProperty("property1", 7);
-            edge2.putProperty("property2", 8.0F);
-            edge2.putProperty("property3", 9.0D);
-            edge2.putProperty("property4", 10L);
-            edge2.putProperty("count", i * 200L);
-
-            final Edge edge3 = new Edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP2);
-            edge3.setSource("" + i);
-            edge3.setDestination("D");
-            edge3.setDirected(false);
-            edge3.putProperty("property1", 1000);
-
-            elements.add(edge1);
-            elements.add(edge2);
-            elements.add(edge3);
-            elements.add(entity);
-        }
-        return elements;
     }
 }
