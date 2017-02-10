@@ -25,8 +25,13 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.security.User;
+import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,6 +161,8 @@ public final class TableUtils {
         } catch (Throwable e) {
             throw new StoreException(e.getMessage(), e);
         }
+
+        ensureTableExists(store);
         //setLocalityGroups(store);
     }
 
@@ -210,11 +217,29 @@ public final class TableUtils {
         try {
             final Configuration conf = HBaseConfiguration.create();
             conf.set("hbase.zookeeper.quorum", zookeepers);
-            conf.set("hbase.client.instance.id", instanceName);
+            //conf.set("hbase.client.instance.id", instanceName);
             User user = null;
             // TODO: create connection with provide username and password.
             return ConnectionFactory.createConnection(conf);
         } catch (IOException e) {
+            throw new StoreException(e);
+        }
+    }
+
+    public static void clearTable(final HBaseStore store, final String... auths) throws StoreException {
+        final Connection connection = store.getConnection();
+        try {
+            if (connection.getAdmin().tableExists(store.getProperties().getTableName())) {
+                final Scan scan = new Scan();
+                scan.setAuthorizations(new Authorizations(auths));
+                final Table table = connection.getTable(store.getProperties().getTableName());
+                final ResultScanner scanner = table.getScanner(scan);
+                for (final Result result : scanner) {
+                    table.delete(new Delete(result.getRow()));
+                }
+            }
+
+        } catch (final IOException e) {
             throw new StoreException(e);
         }
     }
@@ -254,6 +279,38 @@ public final class TableUtils {
         }
 
         return schemaContainsAggregators;
+    }
+
+    public static void dropTable(final HBaseStore store) throws StoreException {
+        try {
+            final Connection connection = store.getConnection();
+            final Admin admin = connection.getAdmin();
+            final TableName tableName = store.getProperties().getTableName();
+            if (admin.tableExists(tableName)) {
+                if (admin.isTableEnabled(tableName)) {
+                    admin.disableTable(tableName);
+                }
+                admin.deleteTable(tableName);
+            }
+        } catch (final IOException e) {
+            throw new StoreException(e);
+        }
+    }
+
+    public static void dropAllTables(final Connection connection) throws StoreException {
+        try {
+            final Admin admin = connection.getAdmin();
+            for (final TableName tableName : admin.listTableNames()) {
+                if (connection.getAdmin().tableExists(tableName)) {
+                    if (connection.getAdmin().isTableEnabled(tableName)) {
+                        connection.getAdmin().disableTable(tableName);
+                    }
+                    connection.getAdmin().deleteTable(tableName);
+                }
+            }
+        } catch (final IOException e) {
+            throw new StoreException(e);
+        }
     }
 
 //    /**

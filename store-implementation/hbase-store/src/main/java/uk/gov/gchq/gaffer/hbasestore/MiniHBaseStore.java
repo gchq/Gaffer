@@ -20,18 +20,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos;
 import org.apache.hadoop.hbase.security.User;
-import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
 import org.apache.hadoop.hbase.security.visibility.SimpleScanLabelGenerator;
 import org.apache.hadoop.hbase.security.visibility.VisibilityClient;
@@ -79,51 +71,13 @@ public class MiniHBaseStore extends HBaseStore {
             }
         }
 
-        // Initialise is deliberately called both before and after the deletion/clearing of the table.
-        // The first call initialises the store
-        // The second call is used to re-create the table
         super.initialise(schema, properties);
 
         if (dropTable) {
-            dropTable();
+            TableUtils.dropTable(this);
             TableUtils.createTable(this);
         } else {
-            clearTable();
-        }
-    }
-
-    public static void dropTable() throws StoreException {
-        try {
-            final Connection connection = ConnectionFactory.createConnection(utility.getConfiguration());
-            final Admin admin = connection.getAdmin();
-            for (final TableName tableName : admin.listTableNames()) {
-                if (connection.getAdmin().tableExists(tableName)) {
-                    if (connection.getAdmin().isTableEnabled(tableName)) {
-                        connection.getAdmin().disableTable(tableName);
-                    }
-                    connection.getAdmin().deleteTable(tableName);
-                }
-            }
-        } catch (final IOException e) {
-            throw new StoreException(e);
-        }
-    }
-
-    public void clearTable() throws StoreException {
-        final Connection connection = getConnection();
-        try {
-            if (connection.getAdmin().tableExists(getProperties().getTableName())) {
-                final Scan scan = new Scan();
-                scan.setAuthorizations(new Authorizations(VISIBILITY_LABELS));
-                final Table table = connection.getTable(getProperties().getTableName());
-                final ResultScanner scanner = table.getScanner(scan);
-                for (final Result result : scanner) {
-                    table.delete(new Delete(result.getRow()));
-                }
-            }
-
-        } catch (final IOException e) {
-            throw new StoreException(e);
+            TableUtils.clearTable(this);
         }
     }
 

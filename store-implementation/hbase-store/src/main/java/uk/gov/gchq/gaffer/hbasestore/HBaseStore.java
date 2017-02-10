@@ -96,8 +96,12 @@ public class HBaseStore extends Store {
      */
     public Connection getConnection() throws StoreException {
         if (null == connection || connection.isClosed()) {
-            connection = TableUtils.getConnection(getProperties().getInstanceName(), getProperties().getZookeepers(),
-                    getProperties().getUserName(), getProperties().getPassword());
+            connection = TableUtils.getConnection(
+                    getProperties().getInstanceName(),
+                    getProperties().getZookeepers(),
+                    getProperties().getUserName(),
+                    getProperties().getPassword()
+            );
         }
         return connection;
     }
