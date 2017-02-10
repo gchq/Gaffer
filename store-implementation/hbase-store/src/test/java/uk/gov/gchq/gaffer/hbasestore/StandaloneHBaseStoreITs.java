@@ -15,10 +15,12 @@
  */
 package uk.gov.gchq.gaffer.hbasestore;
 
+import org.junit.Ignore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
+@Ignore("This requires a standalone instance of hbase running in localhost")
 public class StandaloneHBaseStoreITs extends AbstractStoreITs {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreITs.class, "standalone.store.properties"));
 
