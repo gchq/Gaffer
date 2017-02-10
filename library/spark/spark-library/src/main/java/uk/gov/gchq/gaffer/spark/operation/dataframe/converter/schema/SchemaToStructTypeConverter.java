@@ -68,7 +68,6 @@ public class SchemaToStructTypeConverter {
     public static final String DST_COL_NAME = "dst";
 
     private final Schema schema;
-    private final View view;
     private final List<Converter> converters = new ArrayList<>();
     private final LinkedHashSet<String> groups = new LinkedHashSet<>();
     private StructType structType;
@@ -80,7 +79,6 @@ public class SchemaToStructTypeConverter {
 
     public SchemaToStructTypeConverter(final Schema schema, final View view, final List<Converter> converters) {
         this.schema = schema;
-        this.view = view;
         this.converters.addAll(DEFAULT_CONVERTERS);
         if (converters != null) {
             this.converters.addAll(converters);
