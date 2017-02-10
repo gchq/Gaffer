@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.FreqMapConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.HyperLogLogPlusConverter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.datasketches.theta.UnionConverter;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -54,6 +55,7 @@ public class SchemaToStructTypeConverter {
     static {
         DEFAULT_CONVERTERS.add(new FreqMapConverter());
         DEFAULT_CONVERTERS.add(new HyperLogLogPlusConverter());
+        DEFAULT_CONVERTERS.add(new UnionConverter());
     }
 
     enum EntityOrEdge {
