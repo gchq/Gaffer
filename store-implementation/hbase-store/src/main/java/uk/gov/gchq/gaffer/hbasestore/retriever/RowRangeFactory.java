@@ -78,27 +78,6 @@ public class RowRangeFactory {
         }
     }
 
-    private <T extends GetElementsOperation<?, ?>> RowRange getRowRangeFromPair(final Pair<ElementSeed> pairRowRange, final T operation) throws SerialisationException {
-        final ArrayList<RowRange> ran = new ArrayList<>();
-        ran.addAll(getRowRange(pairRowRange.getFirst(), operation));
-        ran.addAll(getRowRange(pairRowRange.getSecond(), operation));
-        RowRange min = null;
-        RowRange max = null;
-        for (final RowRange range : ran) {
-            if (min == null) {
-                min = range;
-                max = range;
-            }
-            if (range.compareTo(min) < 0) {
-                min = range;
-            } else if (range.compareTo(max) > 0) {
-                max = range;
-            }
-        }
-        return new RowRange(min.getStartRow(), false, max.getStopRow(), false);
-    }
-
-
     private <T extends GetElementsOperation<?, ?>> byte[] getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
                                                                              final boolean endKey) throws SerialisationException {
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
@@ -165,7 +144,7 @@ public class RowRangeFactory {
                         return Collections.singletonList(new RowRange(getEntityKey(serialisedVertex, false), true,
                                 getDirectedEdgeKeySourceFirst(serialisedVertex, true), true));
                     } else {
-                        return Collections.singletonList(new RowRange(getEntityKey(serialisedVertex, false), false,
+                        return Collections.singletonList(new RowRange(getEntityKey(serialisedVertex, false), true,
                                 getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), false));
                     }
                 } else if (includeEdges == IncludeEdgeType.UNDIRECTED) {

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +34,23 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.function.transform.Concat;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.impl.GetElementsIT;
+import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+@Ignore
 public class HBaseStoreTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
 
@@ -121,6 +131,41 @@ public class HBaseStoreTest {
     }
 
     @Test
+    public void shouldGetSelfEdge() throws StoreException, OperationException {
+        LOGGER.info("shouldGetSelfEdge");
+
+        final Graph graph = createGraph();
+        graph.execute(new AddElements.Builder()
+                .elements(new Edge.Builder()
+                                .source("vertex1")
+                                .dest("vertex1")
+                                .group(TestGroups.EDGE)
+                                .property("property1", 5)
+                                .property("columnQualifier", 10)
+                                .property("visibility", "public")
+                                .build(),
+                        new Edge.Builder()
+                                .source("vertex2")
+                                .dest("vertex2")
+                                .group(TestGroups.EDGE)
+                                .property("property1", 5)
+                                .property("columnQualifier", 10)
+                                .property("visibility", "public")
+                                .build())
+                .build(), new User());
+
+        final User user = new User.Builder()
+                .userId("user")
+                .dataAuth("public")
+                .build();
+        final CloseableIterable<Element> elements = graph.execute(new GetAllElements.Builder<>()
+                .build(), user);
+        for (Element element : elements) {
+            LOGGER.info("Element: " + element);
+        }
+    }
+
+    @Test
     public void shouldGetElements() throws StoreException, OperationException {
         LOGGER.info("shouldGetElements");
 
@@ -139,12 +184,80 @@ public class HBaseStoreTest {
         }
     }
 
+    @Test
+    public void integrationTest() throws OperationException, IOException {
+        // Given
+        final Graph graph = createIntegrationTestGraph();
+
+        List<ElementSeed> seeds = new ArrayList<>();
+        for (Object seed : GetElementsIT.ALL_SEED_VERTICES) {
+            seeds.add(new EntitySeed(seed));
+        }
+
+        seeds.add(new EdgeSeed(GetElementsIT.SOURCE_DIR_2, GetElementsIT.DEST_DIR_2, true));
+        seeds.add(new EdgeSeed(GetElementsIT.SOURCE_DIR_1, GetElementsIT.DEST_DIR_1, true));
+        seeds.add(new EdgeSeed(GetElementsIT.SOURCE_DIR_3, GetElementsIT.DEST_DIR_3, true));
+
+        // When
+        try (final CloseableIterable<Element> elements = graph.execute(new GetElements.Builder<>()
+                .addSeed(new EntitySeed("source2"))
+                .includeEntities(true)
+                .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
+                .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
+                .build(), new User())) {
+
+            for (Element element : elements) {
+                LOGGER.info("element: " + element);
+            }
+        }
+    }
+
     private Graph createPopulatedGraph() throws OperationException {
-        final Graph graph = new Graph.Builder()
+        final Graph graph = createGraph();
+        addElements(graph);
+        return graph;
+    }
+
+    private Graph createGraph() {
+        return new Graph.Builder()
                 .addSchemas(StreamUtil.schemas(HBaseStoreTest.class))
                 .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
                 .build();
-        addElements(graph);
+    }
+
+    private Graph createIntegrationTestGraph() throws OperationException {
+        final Graph graph = new Graph.Builder()
+                .addSchemas(AbstractStoreIT.createDefaultSchema())
+                .storeProperties(StreamUtil.storeProps(HBaseStoreTest.class))
+                .build();
+
+        graph.execute(new AddElements.Builder()
+                .elements(new ArrayList<>(AbstractStoreIT.createDefaultEdges().values()))
+                .build(), new User());
+        graph.execute(new AddElements.Builder()
+                .elements(new ArrayList<>(AbstractStoreIT.createDefaultEntities().values()))
+                .build(), new User());
+//
+//        final List<Element> edges = new ArrayList<>();
+//        for (int i = 0; i <= 10; i++) {
+//            final Edge thirdEdge = new Edge(TestGroups.EDGE, AbstractStoreIT.DEST_DIR + i, AbstractStoreIT.SOURCE_DIR + (i + 1), true);
+//            thirdEdge.putProperty(TestPropertyNames.INT, 1);
+//            thirdEdge.putProperty(TestPropertyNames.COUNT, 1L);
+//            edges.add(thirdEdge);
+//        }
+//
+//        graph.execute(new AddElements.Builder()
+//                .elements(edges)
+//                .build(), new User());
+
+//        final Edge secondEdge = new Edge(TestGroups.EDGE, AbstractStoreIT.SOURCE_DIR_0, AbstractStoreIT.DEST_DIR_0, true);
+//        secondEdge.putProperty(TestPropertyNames.INT, 1);
+//        secondEdge.putProperty(TestPropertyNames.COUNT, 1L);
+//
+//        graph.execute(new AddElements.Builder()
+//                .elements(secondEdge)
+//                .build(), new User());
+
         return graph;
     }
 

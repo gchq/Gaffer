@@ -20,18 +20,25 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos;
 import org.apache.hadoop.hbase.security.User;
+import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
 import org.apache.hadoop.hbase.security.visibility.SimpleScanLabelGenerator;
 import org.apache.hadoop.hbase.security.visibility.VisibilityClient;
 import org.apache.hadoop.hbase.security.visibility.VisibilityConstants;
 import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
 import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -39,10 +46,17 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
 public class MiniHBaseStore extends HBaseStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
-
+    private static boolean dropTable = false;
     private static HBaseTestingUtility utility;
     private User superUser;
+    private Connection connection = null;
+
+    //TODO Should these labels come from properties?
+    private static final String[] VISIBILITY_LABELS = new String[]{"public", "private", "vis1", "vis2"};
+
+    public static void setDropTable(final boolean dropTable) {
+        MiniHBaseStore.dropTable = dropTable;
+    }
 
     @SuppressFBWarnings("DE_MIGHT_IGNORE")
     @Override
@@ -65,16 +79,52 @@ public class MiniHBaseStore extends HBaseStore {
             }
         }
 
-        // Initialise is deliberately called both before and after the deletion of the table.
-        // The first call sets up a connection to the HBase
+        // Initialise is deliberately called both before and after the deletion/clearing of the table.
+        // The first call initialises the store
         // The second call is used to re-create the table
         super.initialise(schema, properties);
-        try {
-            getConnection().getAdmin().deleteTable(getProperties().getTable());
-        } catch (Exception e) {
-            // no action required.
+
+        if (dropTable) {
+            dropTable();
+            TableUtils.createTable(this);
+        } else {
+            clearTable();
         }
-        super.initialise(schema, properties);
+    }
+
+    public static void dropTable() throws StoreException {
+        try {
+            final Connection connection = ConnectionFactory.createConnection(utility.getConfiguration());
+            final Admin admin = connection.getAdmin();
+            for (final TableName tableName : admin.listTableNames()) {
+                if (connection.getAdmin().tableExists(tableName)) {
+                    if (connection.getAdmin().isTableEnabled(tableName)) {
+                        connection.getAdmin().disableTable(tableName);
+                    }
+                    connection.getAdmin().deleteTable(tableName);
+                }
+            }
+        } catch (final IOException e) {
+            throw new StoreException(e);
+        }
+    }
+
+    public void clearTable() throws StoreException {
+        final Connection connection = getConnection();
+        try {
+            if (connection.getAdmin().tableExists(getProperties().getTableName())) {
+                final Scan scan = new Scan();
+                scan.setAuthorizations(new Authorizations(VISIBILITY_LABELS));
+                final Table table = connection.getTable(getProperties().getTableName());
+                final ResultScanner scanner = table.getScanner(scan);
+                for (final Result result : scanner) {
+                    table.delete(new Delete(result.getRow()));
+                }
+            }
+
+        } catch (final IOException e) {
+            throw new StoreException(e);
+        }
     }
 
     private Configuration setupConf() throws IOException {
@@ -90,11 +140,14 @@ public class MiniHBaseStore extends HBaseStore {
 
     @Override
     public Connection getConnection() throws StoreException {
-        try {
-            return ConnectionFactory.createConnection(utility.getConfiguration());
-        } catch (IOException e) {
-            throw new StoreException(e);
+        if (null == connection || connection.isClosed()) {
+            try {
+                connection = ConnectionFactory.createConnection(utility.getConfiguration());
+            } catch (IOException e) {
+                throw new StoreException(e);
+            }
         }
+        return connection;
     }
 
     @SuppressFBWarnings("SIC_INNER_SHOULD_BE_STATIC_ANON")
@@ -102,10 +155,8 @@ public class MiniHBaseStore extends HBaseStore {
         PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse> action =
                 new PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse>() {
                     public VisibilityLabelsProtos.VisibilityLabelsResponse run() throws Exception {
-                        //TODO Should these labels come from properties?
-                        String[] labels = {"public", "private", "vis1", "vis2"};
                         try (Connection conn = ConnectionFactory.createConnection(utility.getConfiguration())) {
-                            VisibilityClient.addLabels(conn, labels);
+                            VisibilityClient.addLabels(conn, VISIBILITY_LABELS);
                         } catch (Throwable t) {
                             throw new IOException(t);
                         }

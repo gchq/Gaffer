@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
@@ -130,7 +131,7 @@ public class HBaseStore extends Store {
 
     @Override
     protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
-        return null;
+        return new GetAdjacentEntitySeedsHandler();
     }
 
     @Override
@@ -145,7 +146,8 @@ public class HBaseStore extends Store {
 
     public void addElements(final Iterable<Element> elements) throws StoreException {
         int batchSize = getProperties().getMaxBufferSizeForBatchWriter();
-        try (final Table table = TableUtils.getTable(this)) {
+        final Table table = TableUtils.getTable(this);
+        try {
             final Iterator<Element> itr = elements.iterator();
             while (itr.hasNext()) {
                 final List<Put> puts = new ArrayList<>(batchSize);

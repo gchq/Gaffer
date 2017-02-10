@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.Collections;
 
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
@@ -36,6 +38,11 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
     }
 
     public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final User user, final HBaseStore store) throws OperationException {
+        if (null == operation.getSeeds()) {
+            // If null seeds no results are returned
+            return new WrappedCloseableIterable<>(Collections.emptyList());
+        }
+
         try {
             return new HBaseRetriever<>(store, operation, user, operation.getSeeds());
         } catch (StoreException e) {

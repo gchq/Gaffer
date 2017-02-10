@@ -157,7 +157,7 @@ public class HBaseProperties extends StoreProperties {
      *
      * @return The hbase table to use as set in the properties file
      */
-    public TableName getTable() {
+    public TableName getTableName() {
         return TableName.valueOf(get(TABLE));
     }
 

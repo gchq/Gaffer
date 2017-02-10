@@ -51,44 +51,44 @@ import static org.junit.Assert.assertTrue;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementSeed Seeds
-    protected static final List<ElementSeed> ENTITY_SEEDS_EXIST =
+    public static final List<ElementSeed> ENTITY_SEEDS_EXIST =
             Arrays.asList(
                     (ElementSeed) new EntitySeed(SOURCE_2),
                     new EntitySeed(DEST_3),
                     new EntitySeed(SOURCE_DIR_2),
                     new EntitySeed(DEST_DIR_3));
 
-    protected static final List<Element> ENTITIES_EXIST =
+    public static final List<Element> ENTITIES_EXIST =
             getElements(ENTITY_SEEDS_EXIST);
 
-    protected static final List<ElementSeed> EDGE_SEEDS_EXIST =
+    public static final List<ElementSeed> EDGE_SEEDS_EXIST =
             Collections.singletonList(
                     (ElementSeed) new EdgeSeed(SOURCE_1, DEST_1, false));
 
-    protected static final List<Element> EDGES_EXIST =
+    public static final List<Element> EDGES_EXIST =
             getElements(EDGE_SEEDS_EXIST);
 
-    protected static final List<ElementSeed> EDGE_DIR_SEEDS_EXIST =
+    public static final List<ElementSeed> EDGE_DIR_SEEDS_EXIST =
             Collections.singletonList(
                     (ElementSeed) new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true));
 
-    protected static final List<Element> EDGES_DIR_EXIST =
+    public static final List<Element> EDGES_DIR_EXIST =
             getElements(EDGE_DIR_SEEDS_EXIST);
 
-    protected static final List<ElementSeed> EDGE_SEEDS_DONT_EXIST =
+    public static final List<ElementSeed> EDGE_SEEDS_DONT_EXIST =
             Arrays.asList(
                     (ElementSeed) new EdgeSeed(SOURCE_1, "dest2DoesNotExist", false),
                     new EdgeSeed("source2DoesNotExist", DEST_1, false),
                     new EdgeSeed(SOURCE_1, DEST_1, true));// does not exist
 
-    protected static final List<ElementSeed> ENTITY_SEEDS_DONT_EXIST =
+    public static final List<ElementSeed> ENTITY_SEEDS_DONT_EXIST =
             Collections.singletonList(
                     (ElementSeed) new EntitySeed("idDoesNotExist"));
 
-    protected static final List<ElementSeed> ENTITY_SEEDS = getEntitySeeds();
-    protected static final List<ElementSeed> EDGE_SEEDS = getEdgeSeeds();
-    protected static final List<ElementSeed> ALL_SEEDS = getAllSeeds();
-    protected static final List<Object> ALL_SEED_VERTICES = getAllSeededVertices();
+    public static final List<ElementSeed> ENTITY_SEEDS = getEntitySeeds();
+    public static final List<ElementSeed> EDGE_SEEDS = getEdgeSeeds();
+    public static final List<ElementSeed> ALL_SEEDS = getAllSeeds();
+    public static final List<Object> ALL_SEED_VERTICES = getAllSeededVertices();
 
 
     @Override
@@ -267,7 +267,7 @@ public class GetElementsIT extends AbstractStoreIT {
             expectedElementsCopy.remove(result);
         }
 
-        assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy, expectedElements.size(),
+        assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy + ". Seeds: " + seeds, expectedElements.size(),
                 Lists.newArrayList(results).size());
     }
 

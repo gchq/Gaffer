@@ -43,7 +43,7 @@ public abstract class AbstractElementFilter extends FilterBase {
 
     @Override
     public ReturnCode filterKeyValue(final Cell cell) throws IOException {
-        final Element element = elementSerialisation.getElement(cell);
+        final Element element = elementSerialisation.getElement(cell, null);
         return validate(element);
     }
 

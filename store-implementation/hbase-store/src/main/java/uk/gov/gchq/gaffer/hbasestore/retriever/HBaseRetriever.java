@@ -29,6 +29,7 @@ import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.data.AlwaysValid;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.TransformOneToManyIterable;
@@ -41,6 +42,7 @@ import uk.gov.gchq.gaffer.hbasestore.filter.ElementPostAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.filter.ElementPreAggregationFilter;
 import uk.gov.gchq.gaffer.hbasestore.filter.ValidatorFilter;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -48,25 +50,24 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implements CloseableIterable<Element> {
+    private final ElementSerialisation serialisation;
+    private final RowRangeFactory rowRangeFactory;
     private final CloseableIterable<? extends ElementSeed> seeds;
     private final HBaseStore store;
     private final Authorizations authorisations;
     private final OP_TYPE operation;
-    private final ElementSerialisation serialisation;
     private final List<Filter> coreFilters;
-    private final RowRangeFactory rowRangeFactory;
     private CloseableIterator<Element> iterator;
 
-    public HBaseRetriever(final HBaseStore store, final OP_TYPE operation, final User user, final CloseableIterable<? extends ElementSeed> seeds)
+    public HBaseRetriever(final HBaseStore store, final OP_TYPE operation, final User user, final CloseableIterable<? extends ElementSeed> seeds, final Filter... extraFilters)
             throws StoreException {
-        this.store = store;
         this.serialisation = new ElementSerialisation(store.getSchema());
         this.rowRangeFactory = new RowRangeFactory(store.getSchema());
+        this.store = store;
         this.operation = operation;
         this.seeds = seeds;
 
@@ -77,11 +78,15 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
             this.authorisations = new Authorizations();
         }
 
-        coreFilters = Collections.unmodifiableList(Arrays.asList(
-                new ValidatorFilter(store.getSchema()),
-                new ElementPreAggregationFilter(store.getSchema(), operation.getView()),
-                new ElementPostAggregationFilter(store.getSchema(), operation.getView())
-        ));
+        coreFilters = new ArrayList<>();
+        coreFilters.add(new ValidatorFilter(store.getSchema()));
+        coreFilters.add(new ElementPreAggregationFilter(store.getSchema(), operation.getView()));
+        coreFilters.add(new ElementPostAggregationFilter(store.getSchema(), operation.getView()));
+        for (final Filter extraFilter : extraFilters) {
+            if (null != extraFilter) {
+                coreFilters.add(extraFilter);
+            }
+        }
     }
 
 
@@ -97,40 +102,58 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
         // Only 1 iterator can be open at a time
         close();
 
-        iterator = new HBaseRetrieverIterable(getScanner()).iterator();
+        final ResultScanner scanner = getScanner();
+        if (null != scanner) {
+            iterator = new HBaseRetrieverIterable(scanner).iterator();
+        } else {
+            iterator = new WrappedCloseableIterator<>(Collections.emptyIterator());
+        }
+
         return iterator;
     }
 
     private ResultScanner getScanner() {
-        final Scan scan = new Scan();
-        scan.setAuthorizations(authorisations);
-
-        if (operation.isIncludeEntities()) {
-            for (final String group : operation.getView().getEntityGroups()) {
-                scan.addFamily(Bytes.toBytes(group));
-            }
-        }
-        if (GetOperation.IncludeEdgeType.NONE != operation.getIncludeEdges()) {
-            for (final String group : operation.getView().getEdgeGroups()) {
-                scan.addFamily(Bytes.toBytes(group));
-            }
-        }
-
+        Table table = null;
         try {
-            final List<Filter> filters = new ArrayList<>(coreFilters);
+            final List<Filter> filters;
             if (null != seeds) {
                 final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
                 for (final ElementSeed seed : seeds) {
                     rowRanges.addAll(rowRangeFactory.getRowRange(seed, operation));
                 }
+
+                // At least 1 seed is required - otherwise no results are returned
+                if (rowRanges.isEmpty()) {
+                    return null;
+                }
+                filters = new ArrayList<>(coreFilters.size() + 1);
                 filters.add(new MultiRowRangeFilter(rowRanges));
-
+                filters.addAll(coreFilters);
+            } else {
+                filters = new ArrayList<>(coreFilters);
             }
-            scan.setFilter(new FilterList(filters));
 
-            final Table table = store.getConnection().getTable(store.getProperties().getTable());
+            final Scan scan = new Scan();
+            scan.setAuthorizations(authorisations);
+
+            if (operation.isIncludeEntities()) {
+                for (final String group : operation.getView().getEntityGroups()) {
+                    scan.addFamily(Bytes.toBytes(group));
+                }
+            }
+            if (GetOperation.IncludeEdgeType.NONE != operation.getIncludeEdges()) {
+                for (final String group : operation.getView().getEdgeGroups()) {
+                    scan.addFamily(Bytes.toBytes(group));
+                }
+            }
+
+            scan.setFilter(new FilterList(filters));
+            table = TableUtils.getTable(store);
             return table.getScanner(scan);
         } catch (IOException | StoreException e) {
+            if (null != table) {
+                IOUtils.closeQuietly(table);
+            }
             throw new RuntimeException(e);
         }
     }
@@ -169,7 +192,7 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
                 @Override
                 protected Element transform(final Cell cell) {
                     try {
-                        final Element element = serialisation.getElement(cell);
+                        final Element element = serialisation.getElement(cell, operation.getOptions());
                         doTransformation(element);
                         return element;
                     } catch (SerialisationException e) {

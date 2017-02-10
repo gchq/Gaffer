@@ -58,6 +58,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
+    @TraitRequirement(StoreTrait.AGGREGATION)
     @Test
     public void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
@@ -76,6 +77,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllElementsWithFilterWithoutSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
@@ -111,7 +113,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 (Element) edge1, edge2));
     }
 
-    @TraitRequirement(StoreTrait.AGGREGATION)
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.AGGREGATION})
     @Test
     public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
@@ -148,7 +150,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 
-    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()

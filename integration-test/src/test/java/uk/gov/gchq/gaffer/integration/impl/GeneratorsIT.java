@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
@@ -40,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +60,6 @@ public class GeneratorsIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.AGGREGATION)
     public void shouldConvertToDomainObjects() throws OperationException, UnsupportedEncodingException {
         // Given
         final OperationChain<CloseableIterable<DomainObject>> opChain = new OperationChain.Builder()
@@ -90,7 +87,6 @@ public class GeneratorsIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.AGGREGATION)
     public void shouldConvertFromDomainObjects() throws OperationException, UnsupportedEncodingException {
         // Given
         final OperationChain<Void> opChain = new OperationChain.Builder()

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -54,7 +55,7 @@ public final class TableUtils {
      */
     public static void ensureTableExists(final HBaseStore store) throws StoreException {
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getProperties().getTableName();
         try {
             final Admin admin = connection.getAdmin();
             if (!admin.tableExists(tableName)) {
@@ -67,11 +68,12 @@ public final class TableUtils {
     }
 
     public static Table getTable(final HBaseStore store) throws StoreException {
+        final TableName tableName = store.getProperties().getTableName();
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
         try {
             return connection.getTable(tableName);
         } catch (IOException e) {
+            IOUtils.closeQuietly(connection);
             throw new StoreException(e);
         }
     }
@@ -79,10 +81,9 @@ public final class TableUtils {
     public static synchronized void createTable(final HBaseStore store)
             throws StoreException {
         // Create table
-        final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getProperties().getTableName();
         try {
-            final Admin admin = connection.getAdmin();
+            final Admin admin = store.getConnection().getAdmin();
             if (admin.tableExists(tableName)) {
                 LOGGER.info("Table {} exists, not creating", tableName);
                 return;
@@ -90,12 +91,15 @@ public final class TableUtils {
             LOGGER.info("Creating table {} as user {}", tableName, store.getProperties().getUserName());
 
             HTableDescriptor htable = new HTableDescriptor(tableName);
+
+            // TODO: limit the use of column families to 1 or 2 - probably need to put the group in the column qualifier
             for (final String group : store.getSchema().getEntityGroups()) {
                 htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
             }
             for (final String group : store.getSchema().getEdgeGroups()) {
                 htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
             }
+
             // TODO add coprocessors:
             //htable.addCoprocessor(VisibilityController.class.getName());
             //            htable.addCoprocessor()
@@ -156,7 +160,7 @@ public final class TableUtils {
     }
 
 //    public static void setLocalityGroups(final HBaseStore store) throws StoreException {
-//        final String tableName = store.getProperties().getTable();
+//        final String tableName = store.getProperties().getTableName();
 //        Map<String, Set<Text>> localityGroups =
 //                new HashMap<>();
 //        for (final String entityGroup : store.getSchema().getEntityGroups()) {
@@ -187,7 +191,7 @@ public final class TableUtils {
 //     * @throws StoreException if the table could not be found or other table issues
 //     */
 //    public static BatchWriter createBatchWriter(final HBaseStore store) throws StoreException {
-//        return createBatchWriter(store, store.getProperties().getTable());
+//        return createBatchWriter(store, store.getProperties().getTableName());
 //    }
 
     /**
@@ -275,7 +279,7 @@ public final class TableUtils {
 //            return store.getConnection().createBatchWriter(tableName, batchConfig);
 //        } catch (final TableNotFoundException e) {
 //            throw new StoreException("Table not set up! Use table gaffer.hbasestore.utils to create the table"
-//                    + store.getProperties().getTable(), e);
+//                    + store.getProperties().getTableName(), e);
 //        }
 //    }
 }

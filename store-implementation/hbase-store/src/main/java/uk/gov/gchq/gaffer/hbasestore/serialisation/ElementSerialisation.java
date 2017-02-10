@@ -162,10 +162,6 @@ public class ElementSerialisation {
         return properties;
     }
 
-    public Element getElement(final Cell cell) throws SerialisationException {
-        return getElement(cell, null);
-    }
-
     public Element getElement(final Cell cell, final Map<String, String> options)
             throws SerialisationException {
         final boolean keyRepresentsEntity = doesKeyRepresentEntity(cell);
@@ -548,6 +544,10 @@ public class ElementSerialisation {
         System.arraycopy(destination, 0, rowKey1, source.length + 3, destination.length);
         rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[rowKey1.length - 1] = directionFlag1;
+        if (selfEdge(edge)) {
+            return new Pair<>(rowKey1, null);
+        }
+
         final byte[] rowKey2 = new byte[length];
         System.arraycopy(destination, 0, rowKey2, 0, destination.length);
         rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
@@ -556,9 +556,6 @@ public class ElementSerialisation {
         System.arraycopy(source, 0, rowKey2, destination.length + 3, source.length);
         rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey2[rowKey2.length - 1] = directionFlag2;
-        if (selfEdge(edge)) {
-            return new Pair<>(rowKey1, null);
-        }
         return new Pair<>(rowKey1, rowKey2);
     }
 
@@ -575,8 +572,8 @@ public class ElementSerialisation {
         }
     }
 
-    protected boolean getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
-                                              final Map<String, String> options) throws SerialisationException {
+    public boolean getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
+                                           final Map<String, String> options) throws SerialisationException {
         // Get element class, sourceValue, destinationValue and directed flag from row cell
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];

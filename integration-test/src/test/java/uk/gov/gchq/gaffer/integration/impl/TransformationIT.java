@@ -165,9 +165,8 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         assertNotNull(results);
-        assertEquals(1, results.size());
         for (final Edge result : results) {
-            assertEquals(SOURCE_1 + "," + 1, result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertEquals(SOURCE_1 + "," + result.getProperty(TestPropertyNames.INT), result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
 

@@ -56,7 +56,7 @@ public class StoreValidationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.TRANSFORMATION)
+    @TraitRequirement(StoreTrait.STORE_VALIDATION)
     public void shouldAgeOfDataBasedOnTimestampAndAgeOfFunctionInSchema() throws OperationException, InterruptedException {
         // Given
         final User user = new User();
@@ -96,7 +96,7 @@ public class StoreValidationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.TRANSFORMATION)
+    @TraitRequirement(StoreTrait.STORE_VALIDATION)
     public void shouldRemoveInvalidElements() throws OperationException, InterruptedException {
         // Given
         final User user = new User();
