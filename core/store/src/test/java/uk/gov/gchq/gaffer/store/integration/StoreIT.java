@@ -43,7 +43,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
@@ -74,7 +74,7 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(STORE_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
         public Set<StoreTrait> getTraits() {

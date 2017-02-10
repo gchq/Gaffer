@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -36,10 +37,12 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,7 +88,6 @@ public final class TableUtils {
 
     public static synchronized void createTable(final HBaseStore store)
             throws StoreException {
-        // Create table
         final TableName tableName = store.getProperties().getTableName();
         try {
             final Admin admin = store.getConnection().getAdmin();
@@ -95,34 +97,19 @@ public final class TableUtils {
             }
             LOGGER.info("Creating table {} as user {}", tableName, store.getProperties().getUserName());
 
-            HTableDescriptor htable = new HTableDescriptor(tableName);
+            final HTableDescriptor htable = new HTableDescriptor(tableName);
+            final HColumnDescriptor col = new HColumnDescriptor(HBaseStoreConstants.getColFam());
+            col.setMaxVersions(Integer.MAX_VALUE);  // TODO: disable versions
+            htable.addFamily(col);
 
-            // TODO: limit the use of column families to 1 or 2 - probably need to put the group in the column qualifier
-            for (final String group : store.getSchema().getEntityGroups()) {
-                htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
-            }
-            for (final String group : store.getSchema().getEdgeGroups()) {
-                htable.addFamily(new HColumnDescriptor(Bytes.toBytes(group)));
-            }
+            // TODO - need to properly escape commas
+            final String schemaJson = Bytes.toString(store.getSchema().toCompactJson()).replaceAll(",", ";;");
+            final Map<String, String> options = new HashMap<>(1);
+            options.put(HBaseStoreConstants.SCHEMA, schemaJson);
 
-            // TODO add coprocessors:
-            //htable.addCoprocessor(VisibilityController.class.getName());
-            //            htable.addCoprocessor()
-            //if (store.getProperties().getEnableValidatorIterator()) {
-            // Add validator iterator to table for all scopes
-            //LOGGER.info("Adding Validator iterator to table {}", tableName);
+            htable.addCoprocessor(GafferCoprocessor.class.getName(), null, Coprocessor.PRIORITY_USER, options);
 
-            // Replace commas as HBase do not allow them.
-            //final String schemaJson = Bytes.toString(store.getSchema().toCompactJson()).replaceAll(",", ";");
-
-            //final Map<String, String> settings = new HashMap<>(1);
-            //settings.put(HBaseStoreConstants.SCHEMA, schemaJson);
-            //   htable.addCoprocessor(ValidatorFilterCoprocessor.class.getName(), null, HBaseStoreConstants.VALIDATOR_ITERATOR_PRIORITY, settings);
-//            } else {
-//                LOGGER.info("Validator iterator has not been added to table {}", tableName);
-//            }
             admin.createTable(htable);
-
 
 //            final String repFactor = store.getProperties().getTableFileReplicationFactor();
 //            if (null != repFactor) {
@@ -141,23 +128,6 @@ public final class TableUtils {
 //            final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
 //            connection.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
-//            if (schemaContainsAggregators(store.getSchema())) {
-            // Add Combiner iterator to table for all scopes
-            //LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
-//                connection.tableOperations().attachIterator(tableName,
-//                        store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store));
-//            } else {
-            //LOGGER.info("Aggregator iterator has not been added to table {}", tableName);
-//            }
-
-//            if (store.getProperties().getEnableValidatorIterator()) {
-            // Add validator iterator to table for all scopes
-            //LOGGER.info("Adding Validator iterator to table {} for all scopes", tableName);
-//                connection.tableOperations().attachIterator(tableName,
-//                        store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
-//            } else {
-            // LOGGER.info("Validator iterator has not been added to table {}", tableName);
-//            }
         } catch (Throwable e) {
             throw new StoreException(e.getMessage(), e);
         }
@@ -165,41 +135,6 @@ public final class TableUtils {
         ensureTableExists(store);
         //setLocalityGroups(store);
     }
-
-//    public static void setLocalityGroups(final HBaseStore store) throws StoreException {
-//        final String tableName = store.getProperties().getTableName();
-//        Map<String, Set<Text>> localityGroups =
-//                new HashMap<>();
-//        for (final String entityGroup : store.getSchema().getEntityGroups()) {
-//            HashSet<Text> localityGroup = new HashSet<>();
-//            localityGroup.add(new Text(entityGroup));
-//            localityGroups.put(entityGroup, localityGroup);
-//        }
-//        for (final String edgeGroup : store.getSchema().getEdgeGroups()) {
-//            HashSet<Text> localityGroup = new HashSet<>();
-//            localityGroup.add(new Text(edgeGroup));
-//            localityGroups.put(edgeGroup, localityGroup);
-//        }
-//        LOGGER.info("Setting locality groups on table {}", tableName);
-//        try {
-//            store.getConnection().tableOperations().setLocalityGroups(tableName, localityGroups);
-//        } catch (HBaseException | HBaseSecurityException | TableNotFoundException e) {
-//            throw new StoreException(e.getMessage(), e);
-//        }
-//    }
-
-//    /**
-//     * Creates a {@link BatchWriter}
-//     * <p>
-//     *
-//     * @param store the hbase store
-//     * @return A new BatchWriter with the settings defined in the
-//     * gaffer.hbasestore properties
-//     * @throws StoreException if the table could not be found or other table issues
-//     */
-//    public static BatchWriter createBatchWriter(final HBaseStore store) throws StoreException {
-//        return createBatchWriter(store, store.getProperties().getTableName());
-//    }
 
     /**
      * Creates a connection to an hbase instance using the provided
@@ -230,55 +165,33 @@ public final class TableUtils {
         final Connection connection = store.getConnection();
         try {
             if (connection.getAdmin().tableExists(store.getProperties().getTableName())) {
-                final Scan scan = new Scan();
+                connection.getAdmin().flush(store.getProperties().getTableName());
+                Scan scan = new Scan();
                 scan.setAuthorizations(new Authorizations(auths));
                 final Table table = connection.getTable(store.getProperties().getTableName());
-                final ResultScanner scanner = table.getScanner(scan);
+                ResultScanner scanner = table.getScanner(scan);
+                final List<Delete> deletes = new ArrayList<>();
                 for (final Result result : scanner) {
-                    table.delete(new Delete(result.getRow()));
+                    deletes.add(new Delete(result.getRow()));
                 }
-            }
+                table.delete(deletes);
+                connection.getAdmin().flush(store.getProperties().getTableName());
+                scanner.close();
 
+                // TODO: work out a better way to clear a table
+                scan = new Scan();
+                scan.setAuthorizations(new Authorizations(auths));
+                scanner = table.getScanner(scan);
+                if (scanner.iterator().hasNext()) {
+                    LOGGER.debug("The table is not empty! It will be deleted instead.");
+                    dropTable(store);
+                    createTable(store);
+                }
+                scanner.close();
+            }
         } catch (final IOException e) {
             throw new StoreException(e);
         }
-    }
-
-//    /**
-//     * Returns the {@link org.apache.hbase.core.security.Authorizations} of
-//     * the current user
-//     *
-//     * @param connection the connection to an hbase instance
-//     * @return The hbase Authorisations of the current user specified in the properties file
-//     * @throws StoreException if the table could not be found or other table/security issues
-//     */
-//    public static Authorizations getCurrentAuthorizations(final Connection connection) throws StoreException {
-//        try {
-//            return connection.securityOperations().getUserAuthorizations(connection.whoami());
-//        } catch (HBaseException | HBaseSecurityException e) {
-//            throw new StoreException(e.getMessage(), e);
-//        }
-//    }
-
-    /**
-     * Checks the given {@link uk.gov.gchq.gaffer.store.schema.Schema} and determines
-     * whether the types specified by the schema contain aggregators.
-     *
-     * @param schema the schema
-     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
-     */
-    public static boolean schemaContainsAggregators(final Schema schema) {
-        boolean schemaContainsAggregators = false;
-
-        final Map<String, TypeDefinition> types = schema.getTypes();
-
-        for (final TypeDefinition type : types.values()) {
-            if (null != type.getAggregateFunction()) {
-                schemaContainsAggregators = true;
-            }
-        }
-
-        return schemaContainsAggregators;
     }
 
     public static void dropTable(final HBaseStore store) throws StoreException {
@@ -312,6 +225,58 @@ public final class TableUtils {
             throw new StoreException(e);
         }
     }
+
+    //    public static void setLocalityGroups(final HBaseStore store) throws StoreException {
+//        final String tableName = store.getProperties().getTableName();
+//        Map<String, Set<Text>> localityGroups =
+//                new HashMap<>();
+//        for (final String entityGroup : store.getSchema().getEntityGroups()) {
+//            HashSet<Text> localityGroup = new HashSet<>();
+//            localityGroup.add(new Text(entityGroup));
+//            localityGroups.put(entityGroup, localityGroup);
+//        }
+//        for (final String edgeGroup : store.getSchema().getEdgeGroups()) {
+//            HashSet<Text> localityGroup = new HashSet<>();
+//            localityGroup.add(new Text(edgeGroup));
+//            localityGroups.put(edgeGroup, localityGroup);
+//        }
+//        LOGGER.info("Setting locality groups on table {}", tableName);
+//        try {
+//            store.getConnection().tableOperations().setLocalityGroups(tableName, localityGroups);
+//        } catch (HBaseException | HBaseSecurityException | TableNotFoundException e) {
+//            throw new StoreException(e.getMessage(), e);
+//        }
+//    }
+
+    //    /**
+//     * Returns the {@link org.apache.hbase.core.security.Authorizations} of
+//     * the current user
+//     *
+//     * @param connection the connection to an hbase instance
+//     * @return The hbase Authorisations of the current user specified in the properties file
+//     * @throws StoreException if the table could not be found or other table/security issues
+//     */
+//    public static Authorizations getCurrentAuthorizations(final Connection connection) throws StoreException {
+//        try {
+//            return connection.securityOperations().getUserAuthorizations(connection.whoami());
+//        } catch (HBaseException | HBaseSecurityException e) {
+//            throw new StoreException(e.getMessage(), e);
+//        }
+//    }
+
+    //    /**
+//     * Creates a {@link BatchWriter}
+//     * <p>
+//     *
+//     * @param store the hbase store
+//     * @return A new BatchWriter with the settings defined in the
+//     * gaffer.hbasestore properties
+//     * @throws StoreException if the table could not be found or other table issues
+//     */
+//    public static BatchWriter createBatchWriter(final HBaseStore store) throws StoreException {
+//        return createBatchWriter(store, store.getProperties().getTableName());
+//    }
+
 
 //    /**
 //     * Creates a {@link org.apache.hbase.core.client.BatchWriter} for the

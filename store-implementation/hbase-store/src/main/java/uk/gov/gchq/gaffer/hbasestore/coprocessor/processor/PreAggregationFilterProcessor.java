@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-package uk.gov.gchq.gaffer.hbasestore.utils;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.store.ElementValidator;
 
-public final class ByteEntityPositions {
-    public static final byte ENTITY = (byte) 1;
-    public static final byte UNDIRECTED_EDGE = (byte) 4;
-    public static final byte CORRECT_WAY_DIRECTED_EDGE = (byte) 2;
-    public static final byte INCORRECT_WAY_DIRECTED_EDGE = (byte) 3;
+public class PreAggregationFilterProcessor extends FilterProcessor {
+    private final ElementValidator validator;
 
-    private ByteEntityPositions() {
-        // private constructor to prevent users instantiating this class
-        // as it only contains constants.
+    public PreAggregationFilterProcessor(final View view) {
+        validator = new ElementValidator(view);
+    }
+
+    @Override
+    protected boolean validate(final Element element) {
+        return validator.validateInput(element);
     }
 }

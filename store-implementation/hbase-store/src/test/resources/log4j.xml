@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!--
-  ~ Copyright 2016 Crown Copyright
+  ~ Copyright 2016-2017 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,15 +24,8 @@
         </layout>
     </appender>
 
-    <logger name="uk.gov.gchq.gaffer">
-        <level value="INFO"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.hbasestore.utils.TableUtils">
-        <level value="INFO"/>
-    </logger>
-
     <root>
-        <priority value="WARN"></priority>
+        <priority value="ERROR"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>

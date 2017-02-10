@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.security.visibility.CellVisibility;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
@@ -31,6 +29,7 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentEntitySeedsHan
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
+import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -58,10 +57,13 @@ import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.QUERY_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
-
 
 /**
  * An HBase Implementation of the Gaffer Framework
@@ -73,16 +75,17 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class HBaseStore extends Store {
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, VISIBILITY, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION)));
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
-    private Connection connection = null;
-    private ElementSerialisation elementSerialisation;
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, VISIBILITY, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_AGGREGATION, QUERY_AGGREGATION, STORE_VALIDATION)));
+    private Connection connection;
+
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "serialisation is initialised in the initialise method.")
+    private ElementSerialisation serialisation;
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         super.initialise(schema, properties);
-        elementSerialisation = new ElementSerialisation(getSchema());
+        serialisation = new ElementSerialisation(getSchema());
         TableUtils.ensureTableExists(this);
     }
 
@@ -106,6 +109,48 @@ public class HBaseStore extends Store {
         return connection;
     }
 
+    public void addElements(final Iterable<Element> elements) throws StoreException {
+        int batchSize = getProperties().getMaxBufferSizeForBatchWriter();
+        final Table table = TableUtils.getTable(this);
+        try {
+            final Iterator<Element> itr = elements.iterator();
+            while (itr.hasNext()) {
+                final List<Put> puts = new ArrayList<>(batchSize);
+                for (int i = 0; i < batchSize && itr.hasNext(); i++) {
+                    final Element element = itr.next();
+                    if (null == element) {
+                        i--;
+                        continue;
+                    }
+                    final Pair<byte[]> row = serialisation.getRowKeys(element);
+                    final byte[] cq = serialisation.buildColumnQualifier(element);
+                    final long ts = serialisation.buildTimestamp(element.getProperties());
+                    final byte[] value = serialisation.getValue(element);
+                    final String visibilityStr = Bytes.toString(serialisation.buildColumnVisibility(element));
+                    final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
+                    final Put put = new Put(row.getFirst());
+                    put.addColumn(HBaseStoreConstants.getColFam(), cq, ts, value);
+                    if (null != visibility) {
+                        put.setCellVisibility(visibility);
+                    }
+                    puts.add(put);
+
+                    if (null != row.getSecond()) {
+                        final Put put2 = new Put(row.getSecond());
+                        put2.addColumn(HBaseStoreConstants.getColFam(), cq, value);
+                        if (null != visibility) {
+                            put2.setCellVisibility(visibility);
+                        }
+                        puts.add(put2);
+                        i++;
+                    }
+                }
+                table.put(puts);
+            }
+        } catch (IOException e) {
+            throw new StoreException(e);
+        }
+    }
 
     @Override
     public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
@@ -146,50 +191,6 @@ public class HBaseStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
-    }
-
-    public void addElements(final Iterable<Element> elements) throws StoreException {
-        int batchSize = getProperties().getMaxBufferSizeForBatchWriter();
-        final Table table = TableUtils.getTable(this);
-        try {
-            final Iterator<Element> itr = elements.iterator();
-            while (itr.hasNext()) {
-                final List<Put> puts = new ArrayList<>(batchSize);
-                for (int i = 0; i < batchSize && itr.hasNext(); i++) {
-                    final Element element = itr.next();
-                    if (null == element) {
-                        i--;
-                        continue;
-                    }
-                    final Pair<byte[]> row = elementSerialisation.getRowKeys(element);
-                    final byte[] cf = Bytes.toBytes(element.getGroup());
-                    final byte[] cq = elementSerialisation.buildColumnQualifier(element);
-                    final long ts = elementSerialisation.buildTimestamp(element.getProperties());
-                    final byte[] value = elementSerialisation.getValue(element);
-                    final String visibilityStr = Bytes.toString(elementSerialisation.buildColumnVisibility(element));
-                    final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
-                    final Put put = new Put(row.getFirst());
-                    put.addColumn(cf, cq, ts, value);
-                    if (null != visibility) {
-                        put.setCellVisibility(visibility);
-                    }
-                    puts.add(put);
-
-                    if (null != row.getSecond()) {
-                        final Put put2 = new Put(row.getSecond());
-                        put2.addColumn(cf, cq, value);
-                        if (null != visibility) {
-                            put2.setCellVisibility(visibility);
-                        }
-                        puts.add(put2);
-                        i++;
-                    }
-                }
-                table.put(puts);
-            }
-        } catch (IOException e) {
-            throw new StoreException(e);
-        }
     }
 
     @Override

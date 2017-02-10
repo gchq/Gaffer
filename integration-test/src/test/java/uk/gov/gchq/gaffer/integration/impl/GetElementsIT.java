@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -269,6 +271,8 @@ public class GetElementsIT extends AbstractStoreIT {
 
         assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy + ". Seeds: " + seeds, expectedElements.size(),
                 Lists.newArrayList(results).size());
+
+        assertEquals(new HashSet<>(expectedElements), Sets.newHashSet(results));
     }
 
     private static List<Element> getElements(final List<ElementSeed> seeds) {

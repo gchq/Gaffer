@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.hbasestore.serialisation;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,7 +38,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -67,6 +68,8 @@ import java.util.Map;
  * And then serialising the entire map to bytes.
  */
 public class ElementSerialisation {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
+
     protected final Schema schema;
 
     public ElementSerialisation(final Schema schema) {
@@ -155,6 +158,8 @@ public class ElementSerialisation {
                             throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                         }
                     }
+                } else {
+                    LOGGER.warn("No serialiser found in schema for property " + propertyName + " in group " + group);
                 }
             }
         }
@@ -162,9 +167,21 @@ public class ElementSerialisation {
         return properties;
     }
 
+    public Element getPartialElement(final String group, final byte[] rowId) throws SerialisationException {
+        return getPartialElement(group, rowId, null);
+    }
+
+    public Element getPartialElement(final String group, final byte[] rowId, final Map<String, String> options) throws SerialisationException {
+        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), buildColumnQualifier(group, new Properties())), options);
+    }
+
+    public Element getElement(final Cell cell) throws SerialisationException {
+        return getElement(cell, null);
+    }
+
     public Element getElement(final Cell cell, final Map<String, String> options)
             throws SerialisationException {
-        final boolean keyRepresentsEntity = doesKeyRepresentEntity(cell);
+        final boolean keyRepresentsEntity = isEntity(cell);
         if (keyRepresentsEntity) {
             return getEntity(cell);
         }
@@ -243,6 +260,14 @@ public class ElementSerialisation {
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
+
+        try {
+            final byte[] groupBytes = Bytes.toBytes(group);
+            writeBytes(groupBytes, out);
+        } catch (IOException e) {
+            throw new SerialisationException("Failed to serialise group to ByteArrayOutputStream", e);
+        }
+
         final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
         while (propertyNames.hasNext()) {
             String propertyName = propertyNames.next();
@@ -281,9 +306,10 @@ public class ElementSerialisation {
             return properties;
         }
 
-        int lastDelimiter = 0;
+        int lastDelimiter = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]) + Bytes.toBytes(group).length;
         final int arrayLength = bytes.length;
         long currentPropLength;
+
         final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
@@ -321,10 +347,15 @@ public class ElementSerialisation {
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
+
+        final int firstDelimiter = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]) + Bytes.toBytes(group).length;
         if (numProps == elementDefinition.getProperties().size()) {
-            return bytes;
+            final int length = bytes.length - firstDelimiter;
+            final byte[] propertyBytes = new byte[length];
+            System.arraycopy(bytes, firstDelimiter, propertyBytes, 0, length);
+            return propertyBytes;
         }
-        int lastDelimiter = 0;
+        int lastDelimiter = firstDelimiter;
         final int arrayLength = bytes.length;
         long currentPropLength;
         int propIndex = 0;
@@ -346,9 +377,14 @@ public class ElementSerialisation {
             propIndex++;
         }
 
-        final byte[] propertyBytes = new byte[lastDelimiter];
-        System.arraycopy(bytes, 0, propertyBytes, 0, lastDelimiter);
+        final int length = lastDelimiter - firstDelimiter;
+        final byte[] propertyBytes = new byte[length];
+        System.arraycopy(bytes, firstDelimiter, propertyBytes, 0, length);
         return propertyBytes;
+    }
+
+    public long buildTimestamp(final Element element) throws SerialisationException {
+        return buildTimestamp(element.getProperties());
     }
 
     public long buildTimestamp(final Properties properties) throws SerialisationException {
@@ -412,7 +448,7 @@ public class ElementSerialisation {
     }
 
 
-    public boolean doesKeyRepresentEntity(final Cell cell) throws SerialisationException {
+    public boolean isEntity(final Cell cell) throws SerialisationException {
         final byte[] row = CellUtil.cloneRow(cell);
         return row[row.length - 1] == ByteEntityPositions.ENTITY;
     }
@@ -476,20 +512,27 @@ public class ElementSerialisation {
         }
     }
 
-    protected String getGroup(final Cell cell) throws SerialisationException {
-        return getGroup(CellUtil.cloneFamily(cell));
+    public String getGroup(final Cell cell) throws SerialisationException {
+        return getGroup(CellUtil.cloneQualifier(cell));
     }
 
-    public String getGroup(final byte[] columnFamily) throws SerialisationException {
+    public String getGroup(final byte[] columnQualifier) throws SerialisationException {
+        final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(columnQualifier[0]);
+        final byte[] length = new byte[numBytesForLength];
+        System.arraycopy(columnQualifier, 0, length, 0, numBytesForLength);
+        int currentPropLength;
         try {
-            return new String(columnFamily, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
+            currentPropLength = (int) CompactRawSerialisationUtils.readLong(length);
+        } catch (final SerialisationException e) {
+            throw new SerialisationException("Exception reading length of property");
         }
+
+        return Bytes.toString(Arrays.copyOfRange(columnQualifier, numBytesForLength, numBytesForLength + currentPropLength));
     }
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
+                // TODO visibility should not need to be stored in the value
                 //&& !propertyName.equals(schema.getVisibilityProperty())
                 && !propertyName.equals(schema.getTimestampProperty());
     }

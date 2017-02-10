@@ -4,13 +4,9 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.function.filter.AgeOff;
-import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -18,9 +14,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.List;
@@ -30,30 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 public class StoreValidationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
-    private static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
-
-    @Override
-    protected Schema createSchema() {
-        return new Schema.Builder()
-                .merge(super.createSchema())
-                .merge(new Schema.Builder()
-                        .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
-                                .validator(new ElementFilter.Builder()
-                                        .execute(new AgeOff(AGE_OFF_TIME))
-                                        .build())
-                                .build())
-                        .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                                .validator(new ElementFilter.Builder()
-                                        .execute(new IsLessThan(10))
-                                        .build())
-                                .build())
-                        .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                                .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
-                                .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
-                                .build())
-                        .build())
-                .build();
-    }
 
     @Test
     @TraitRequirement(StoreTrait.STORE_VALIDATION)

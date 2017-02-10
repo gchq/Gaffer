@@ -25,9 +25,12 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.function.aggregate.Max;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.function.aggregate.Sum;
+import uk.gov.gchq.gaffer.function.filter.AgeOff;
+import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -62,6 +65,7 @@ import static org.junit.Assume.assumeTrue;
  */
 public abstract class AbstractStoreIT {
     protected static final String USER_01 = "user01";
+    protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
     // Temporary folder location
     protected static final File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
@@ -204,6 +208,23 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
+                        .serialiser(new CompactRawLongSerialiser())
+                        .build())
+                .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Max())
+                        .serialiser(new CompactRawLongSerialiser())
+                        .validator(new ElementFilter.Builder()
+                                .execute(new AgeOff(AGE_OFF_TIME))
+                                .build())
+                        .build())
+                .type(TestTypes.PROP_INTEGER_2, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(new Max())
+                        .serialiser(new RawIntegerSerialiser())
+                        .validator(new ElementFilter.Builder()
+                                .execute(new IsLessThan(10))
+                                .build())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -217,6 +238,10 @@ public abstract class AbstractStoreIT {
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .groupBy(TestPropertyNames.INT)
+                        .build())
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
+                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();

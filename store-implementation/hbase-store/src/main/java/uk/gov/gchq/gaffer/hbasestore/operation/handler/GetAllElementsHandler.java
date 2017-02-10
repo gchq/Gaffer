@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.filter.ElementDeduplicationFilter;
-import uk.gov.gchq.gaffer.hbasestore.filter.ElementDeduplicationFilterProperties;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -39,7 +38,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
 
     public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final HBaseStore store) throws OperationException {
         final ElementDeduplicationFilter filter;
-        final ElementDeduplicationFilterProperties rangeFilterProps = new ElementDeduplicationFilterProperties(operation);
+        final ElementDeduplicationFilter.ElementDeduplicationFilterProperties rangeFilterProps = new ElementDeduplicationFilter.ElementDeduplicationFilterProperties(operation);
         if (rangeFilterProps.isSkipFilter()) {
             filter = null;
         } else {

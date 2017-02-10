@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.hbasestore;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class HBaseStoreITs extends AbstractStoreITs {
@@ -24,5 +26,10 @@ public class HBaseStoreITs extends AbstractStoreITs {
 
     public HBaseStoreITs() {
         super(STORE_PROPERTIES);
+        try {
+            TableUtils.dropAllTables(new MiniHBaseStore().getConnection());
+        } catch (StoreException e) {
+            // ignore any errors that occur when dropping test tables
+        }
     }
 }

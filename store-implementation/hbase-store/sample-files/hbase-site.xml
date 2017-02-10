@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>hbase.security.authorization</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>hfile.format.version</name>
+        <value>3</value>
+    </property>
+    <property>
+        <name>hbase.coprocessor.region.classes</name>
+        <value>org.apache.hadoop.hbase.security.access.AccessController,
+            org.apache.hadoop.hbase.security.token.TokenProvider,
+            org.apache.hadoop.hbase.security.visibility.VisibilityController
+        </value>
+    </property>
+    <property>
+        <name>hbase.coprocessor.master.classes</name>
+        <value>org.apache.hadoop.hbase.security.access.AccessController,
+            org.apache.hadoop.hbase.security.token.TokenProvider,
+            org.apache.hadoop.hbase.security.visibility.VisibilityController
+        </value>
+    </property>
+    <property>
+        <name>hbase.coprocessor.regionserver.classes</name>
+        <value>org.apache.hadoop.hbase.security.access.AccessController</value>
+    </property>
+    <property>
+        <name>hbase.security.exec.permission.checks</name>
+        <value>true</value>
+    </property>
+
+
+    <!-- Set these to your environment -->
+    <property>
+        <name>hbase.rootdir</name>
+        <value>file:///tmp/hbase</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.property.dataDir</name>
+        <value>file:///tmp/hase-data</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.quorum</name>
+        <value>localhost</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.property.clientPort</name>
+        <value>2181</value>
+    </property>
+</configuration>

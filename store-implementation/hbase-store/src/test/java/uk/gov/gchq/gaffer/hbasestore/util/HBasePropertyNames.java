@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.hbasestore.utils;
+package uk.gov.gchq.gaffer.hbasestore.util;
 
-public final class ByteEntityPositions {
-    public static final byte ENTITY = (byte) 1;
-    public static final byte UNDIRECTED_EDGE = (byte) 4;
-    public static final byte CORRECT_WAY_DIRECTED_EDGE = (byte) 2;
-    public static final byte INCORRECT_WAY_DIRECTED_EDGE = (byte) 3;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 
-    private ByteEntityPositions() {
-        // private constructor to prevent users instantiating this class
-        // as it only contains constants.
-    }
+public class HBasePropertyNames extends TestPropertyNames {
+    public static final String COLUMN_QUALIFIER = "columnQualifier";
+    public static final String COLUMN_QUALIFIER_2 = "columnQualifier2";
+    public static final String COLUMN_QUALIFIER_3 = "columnQualifier3";
+    public static final String COLUMN_QUALIFIER_4 = "columnQualifier4";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class MiniHBaseStore extends HBaseStore {
             TableUtils.dropTable(this);
             TableUtils.createTable(this);
         } else {
-            TableUtils.clearTable(this);
+            TableUtils.clearTable(this, VISIBILITY_LABELS);
         }
     }
 
@@ -94,6 +94,10 @@ public class MiniHBaseStore extends HBaseStore {
 
     @Override
     public Connection getConnection() throws StoreException {
+        if (null == utility) {
+            throw new StoreException("Store has not yet been initialised");
+        }
+
         if (null == connection || connection.isClosed()) {
             try {
                 connection = ConnectionFactory.createConnection(utility.getConfiguration());

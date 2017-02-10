@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,16 @@
 
 package uk.gov.gchq.gaffer.hbasestore.utils;
 
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.hbase.util.Bytes;
 
 public final class HBaseStoreConstants {
-    //Iterator names
-    public static final String VALIDATOR_ITERATOR_NAME = "Validator";
-    public static final String AGGREGATOR_ITERATOR_NAME = "Aggregator";
-    public static final String BLOOM_FILTER_ITERATOR_NAME = "Bloom_Filter";
-    public static final String ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME = "Element_Pre_Aggregation_Filter";
-    public static final String ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME = "Element_Post_Aggregation_Filter";
-
-    public static final String EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME = "Edge_Entity_Directed_Undirected_Incoming_Outgoing_Filter";
-    public static final String COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME = "Column_Qualifier_Aggregator";
-    public static final String ROW_ID_AGGREGATOR_ITERATOR_NAME = "Row_ID_Aggregator";
-    public static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME = "Range_Element_Property_Filter";
+    public static byte[] getColFam() {
+        return Bytes.toBytes("e"); // e - for Elements/Edges/Entities
+    }
 
     // Iterator options
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";
-    public static final String INCLUDE_ENTITIES = "Include_All_Entities";
-    public static final String INCLUDE_ALL_EDGES = "Include_All_Edges";
-    public static final String NO_EDGES = "No_Edges";
-    public static final String DIRECTED_EDGE_ONLY = "Directed_Edges_Only";
-    public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
-    public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";
-    public static final String OUTGOING_EDGE_ONLY = "Outgoing_Edges_Only";
-    public static final String DEDUPLICATE_UNDIRECTED_EDGES = "Deduplicate_Undirected_Edges";
-    public static final String BLOOM_FILTER = "Bloom_Filter";
-    public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
-    public static final String COLUMN_FAMILY = "columnFamily";
-
-    // Iterator priorities
-    // Applied during major compactions, minor compactions  and scans.
-    public static final int AGGREGATOR_ITERATOR_PRIORITY = 10;
-    // Applied during major compactions, minor compactions and scans.
-    public static final int VALIDATOR_ITERATOR_PRIORITY = 20;
-    // Applied only during scans.
-    public static final int BLOOM_FILTER_ITERATOR_PRIORITY = 31;
-    // Applied only during scans.
-    public static final int RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY = 32;
-    // Applied only during scans.
-    public static final int EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY = 33;
-    // Applied only during scans.
-    public static final int ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY = 34;
-    // Applied only during scans.
-    public static final int ROW_ID_AGGREGATOR_ITERATOR_PRIORITY = 35;
-    // Applied only during scans.
-    public static final int COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY = 36;
-    // Applied only during scans.
-    public static final int ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY = 37;
-    // Applied only during scans.
-    public static final int TRANSFORM_PRIORITY = 50;
 
     // Operations options
     public static final String OPERATION_HDFS_USE_HBASE_PARTITIONER = "hbasestore.operation.hdfs.use_hbase_partitioner";
@@ -76,11 +35,6 @@ public final class HBaseStoreConstants {
     public static final String OPERATION_BULK_IMPORT_MIN_REDUCERS = "hbasestore.operation.bulk_import.min_reducers";
     public static final String ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT = "hbasestore.operation.hdfs.skip_import";
     public static final String OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE = "hbasestore.operation.return_matched_id_as_edge_source";
-
-    // Store factory constants
-    public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
-    public static final Text SCHEMA_KEY = new Text("schema");
-    public static final Text KEY_PACKAGE_KEY = new Text("keyPackage");
 
     // General use constants
     public static final byte[] EMPTY_BYTES = new byte[0];

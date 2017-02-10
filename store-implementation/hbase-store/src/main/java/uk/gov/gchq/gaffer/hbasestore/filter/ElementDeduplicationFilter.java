@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
 import uk.gov.gchq.gaffer.hbasestore.utils.ByteUtils;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import java.io.IOException;
 
 public class ElementDeduplicationFilter extends FilterBase {
@@ -121,5 +124,97 @@ public class ElementDeduplicationFilter extends FilterBase {
             }
         }
         return true;
+    }
+
+    public static class ElementDeduplicationFilterProperties {
+        private boolean edges = false;
+        private boolean entities = false;
+        private boolean unDirectedEdges = false;
+        private boolean directedEdges = false;
+        private boolean incomingEdges = false;
+        private boolean outgoingEdges = false;
+        private boolean deduplicateUndirectedEdges = false;
+        private boolean skipFilter = false;
+
+        public ElementDeduplicationFilterProperties() {
+        }
+
+        public ElementDeduplicationFilterProperties(final GetElementsOperation<?, ?> operation) {
+            entities = operation.isIncludeEntities();
+            edges = GetOperation.IncludeEdgeType.NONE != operation.getIncludeEdges();
+            incomingEdges = GetOperation.IncludeIncomingOutgoingType.INCOMING == operation.getIncludeIncomingOutGoing();
+            outgoingEdges = GetOperation.IncludeIncomingOutgoingType.OUTGOING == operation.getIncludeIncomingOutGoing();
+            deduplicateUndirectedEdges = operation instanceof GetAllElements;
+            directedEdges = GetOperation.IncludeEdgeType.DIRECTED == operation.getIncludeEdges();
+            unDirectedEdges = GetOperation.IncludeEdgeType.UNDIRECTED == operation.getIncludeEdges();
+            skipFilter = operation.getIncludeEdges() == GetOperation.IncludeEdgeType.ALL
+                    && operation.getIncludeIncomingOutGoing() == GetOperation.IncludeIncomingOutgoingType.BOTH
+                    && entities
+                    && !deduplicateUndirectedEdges;
+        }
+
+        public boolean isEdges() {
+            return edges;
+        }
+
+        public void setEdges(final boolean edges) {
+            this.edges = edges;
+        }
+
+        public boolean isEntities() {
+            return entities;
+        }
+
+        public void setEntities(final boolean entities) {
+            this.entities = entities;
+        }
+
+        public boolean isUnDirectedEdges() {
+            return unDirectedEdges;
+        }
+
+        public void setUnDirectedEdges(final boolean unDirectedEdges) {
+            this.unDirectedEdges = unDirectedEdges;
+        }
+
+        public boolean isDirectedEdges() {
+            return directedEdges;
+        }
+
+        public void setDirectedEdges(final boolean directedEdges) {
+            this.directedEdges = directedEdges;
+        }
+
+        public boolean isIncomingEdges() {
+            return incomingEdges;
+        }
+
+        public void setIncomingEdges(final boolean incomingEdges) {
+            this.incomingEdges = incomingEdges;
+        }
+
+        public boolean isOutgoingEdges() {
+            return outgoingEdges;
+        }
+
+        public void setOutgoingEdges(final boolean outgoingEdges) {
+            this.outgoingEdges = outgoingEdges;
+        }
+
+        public boolean isDeduplicateUndirectedEdges() {
+            return deduplicateUndirectedEdges;
+        }
+
+        public void setDeduplicateUndirectedEdges(final boolean deduplicateUndirectedEdges) {
+            this.deduplicateUndirectedEdges = deduplicateUndirectedEdges;
+        }
+
+        public boolean isSkipFilter() {
+            return skipFilter;
+        }
+
+        public void setSkipFilter(final boolean skipFilter) {
+            this.skipFilter = skipFilter;
+        }
     }
 }
