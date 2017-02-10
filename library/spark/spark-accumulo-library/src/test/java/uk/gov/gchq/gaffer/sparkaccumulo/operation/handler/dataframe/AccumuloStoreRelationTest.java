@@ -43,6 +43,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -57,42 +59,22 @@ public class AccumuloStoreRelationTest {
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        for (final Element element : getElements()) {
-            expectedRows.add(elementConverter.apply(element));
-        }
-        testBuildScanWithView("testBuildScanFullView", view, expectedRows);
+        testBuildScanWithView("testBuildScanFullView", view, e -> true);
     }
 
     @Test
     public void testBuildScanRestrictViewToOneGroup() throws OperationException, StoreException {
-        final Schema schema = getSchema();
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
                 .build();
 
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)) {
-                expectedRows.add(elementConverter.apply(element));
-            }
-        }
-        testBuildScanWithView("testBuildScanRestrictViewToOneGroup", view, expectedRows);
+        final Predicate<Element> returnElement = (Element element) ->
+                element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
+        testBuildScanWithView("testBuildScanRestrictViewToOneGroup", view, returnElement);
     }
 
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
-        final Schema schema = getSchema();
         final List<ConsumerFunctionContext<String, FilterFunction>> filters = new ArrayList<>();
         filters.add(new ConsumerFunctionContext<>(new IsMoreThan(5, false), new ArrayList<>(Arrays.asList("property1"))));
         final View view = new View.Builder()
@@ -101,22 +83,13 @@ public class AccumuloStoreRelationTest {
                         .build())
                 .build();
 
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
-                    && ((Integer) element.getProperty("property1")) > 5) {
-                expectedRows.add(elementConverter.apply(element));
-            }
-        }
-        testBuildScanWithView("testBuildScanRestrictViewByProperty", view, expectedRows);
+        final Predicate<Element> returnElement = (Element element) ->
+                element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
+                && ((Integer) element.getProperty("property1")) > 5;
+        testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
     }
 
-    private void testBuildScanWithView(final String name, final View view, final Set<Row> expectedRows)
+    private void testBuildScanWithView(final String name, final View view, final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
         final SQLContext sqlContext = getSqlContext(name);
@@ -134,10 +107,21 @@ public class AccumuloStoreRelationTest {
         final Row[] returnedElements = (Row[]) rdd.collect();
 
         // Then
+        //  - Actual results are:
         final Set<Row> results = new HashSet<>();
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
         }
+        //  - Expected results are:
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                new ArrayList<>());
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
+                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+        final Set<Row> expectedRows = new HashSet<>();
+        StreamSupport.stream(getElements().spliterator(), false)
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
@@ -148,24 +132,12 @@ public class AccumuloStoreRelationTest {
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
-        usedProperties.add("property1");
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(usedProperties,
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        for (final Element element : getElements()) {
-            expectedRows.add(elementConverter.apply(element));
-        }
-        final String[] requiredColumns = new String[1];
-        requiredColumns[0] = "property1";
-        testBuildScanSpecifyColumnsWithView("testBuildScanSpecifyColumnsFullView", view, requiredColumns, expectedRows);
+        final String[] requiredColumns = new String[]{"property1"};
+        testBuildScanSpecifyColumnsWithView("testBuildScanSpecifyColumnsFullView", view, requiredColumns, e -> true);
     }
 
     private void testBuildScanSpecifyColumnsWithView(final String name, final View view, final String[] requiredColumns,
-                                                     final Set<Row> expectedRows)
+                                                     final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
         final SQLContext sqlContext = getSqlContext(name);
@@ -183,10 +155,21 @@ public class AccumuloStoreRelationTest {
         final Row[] returnedElements = (Row[]) rdd.collect();
 
         // Then
+        //  - Actual results are:
         final Set<Row> results = new HashSet<>();
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
         }
+        //  - Expected results are:
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                new ArrayList<>());
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+        final Set<Row> expectedRows = new HashSet<>();
+        StreamSupport.stream(getElements().spliterator(), false)
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
@@ -197,30 +180,18 @@ public class AccumuloStoreRelationTest {
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final LinkedHashSet<String> usedProperties = new LinkedHashSet<>();
-        usedProperties.add("property1");
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(usedProperties,
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        for (final Element element : getElements()) {
-            if (((Integer) element.getProperty("property1")) > 4) {
-                expectedRows.add(elementConverter.apply(element));
-            }
-        }
         final String[] requiredColumns = new String[1];
         requiredColumns[0] = "property1";
         final Filter[] filters = new Filter[1];
         filters[0] = new GreaterThan("property1", 4);
+        final Predicate<Element> returnElement = (Element element) -> ((Integer) element.getProperty("property1")) > 4;
         testBuildScanSpecifyColumnsAndFiltersWithView("testBuildScanSpecifyColumnsAndFiltersFullView", view,
-                requiredColumns, filters, expectedRows);
+                requiredColumns, filters, returnElement);
     }
 
     private void testBuildScanSpecifyColumnsAndFiltersWithView(final String name, final View view,
                                                                final String[] requiredColumns, final Filter[] filters,
-                                                               final Set<Row> expectedRows)
+                                                               final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
         final SQLContext sqlContext = getSqlContext(name);
@@ -238,10 +209,21 @@ public class AccumuloStoreRelationTest {
         final Row[] returnedElements = (Row[]) rdd.collect();
 
         // Then
+        //  - Actual results are:
         final Set<Row> results = new HashSet<>();
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
         }
+        //  - Expected results are:
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                new ArrayList<>());
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+        final Set<Row> expectedRows = new HashSet<>();
+        StreamSupport.stream(getElements().spliterator(), false)
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
