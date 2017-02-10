@@ -44,7 +44,7 @@ public class FreqMapConverterTest {
     }
 
     @Test
-    public void testCanHandleUnion() {
+    public void testCanHandleFreqMap() {
         assertTrue(FREQ_MAP_CONVERTER.canHandle(FreqMap.class));
         assertFalse(FREQ_MAP_CONVERTER.canHandle(String.class));
     }

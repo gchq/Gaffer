@@ -36,7 +36,7 @@ public class HyperLogLogPlusConverterTest {
     }
 
     @Test
-    public void testCanHandleUnion() {
+    public void testCanHandleHyperLogLogPlus() {
         assertTrue(HYPER_LOG_LOG_PLUS_CONVERTER.canHandle(HyperLogLogPlus.class));
         assertFalse(HYPER_LOG_LOG_PLUS_CONVERTER.canHandle(String.class));
     }
