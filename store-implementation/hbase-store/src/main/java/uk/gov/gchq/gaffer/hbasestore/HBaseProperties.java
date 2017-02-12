@@ -28,11 +28,11 @@ import java.nio.file.Path;
  * a file when first used.
  */
 public class HBaseProperties extends StoreProperties {
-    public static final String INSTANCE_NAME = "hbase.instance";
     public static final String ZOOKEEPERS = "hbase.zookeepers";
     public static final String TABLE = "hbase.table";
-    public static final String USER = "hbase.user";
-    public static final String PASSWORD = "hbase.password";
+    public static final String WRITE_BUFFER_SIZE = "hbase.writeBufferSize";
+
+    public static final int WRITE_BUFFER_SIZE_DEFAULT = 1000000;
 
     public HBaseProperties() {
         super();
@@ -70,24 +70,6 @@ public class HBaseProperties extends StoreProperties {
     }
 
     /**
-     * Get the HBase instance name.
-     *
-     * @return Return the instance name of hbase set in the properties file
-     */
-    public String getInstanceName() {
-        return get(INSTANCE_NAME);
-    }
-
-    /**
-     * Set the HBase instance name.
-     *
-     * @param instanceName the HBase instance name
-     */
-    public void setInstanceName(final String instanceName) {
-        set(INSTANCE_NAME, instanceName);
-    }
-
-    /**
      * Get the particular table name.
      *
      * @return The hbase table to use as set in the properties file
@@ -105,39 +87,16 @@ public class HBaseProperties extends StoreProperties {
         set(TABLE, tableName);
     }
 
-    /**
-     * Get the configured HBase user.
-     *
-     * @return Get the configured hbase user
-     */
-    public String getUserName() {
-        return get(USER);
+    public int getWriteBufferSize() {
+        final String bufferSize = get(WRITE_BUFFER_SIZE, null);
+        if (null == bufferSize) {
+            return WRITE_BUFFER_SIZE_DEFAULT;
+        }
+
+        return Integer.parseInt(bufferSize);
     }
 
-    /**
-     * Set the configured HBase user.
-     *
-     * @param userName the configured HBase user
-     */
-    public void setUserName(final String userName) {
-        set(USER, userName);
-    }
-
-    /**
-     * Get the password for the HBase user.
-     *
-     * @return the password for the configured hbase user
-     */
-    public String getPassword() {
-        return get(PASSWORD);
-    }
-
-    /**
-     * Set the password to use for the HBase user.
-     *
-     * @param password the password to use for the HBase user
-     */
-    public void setPassword(final String password) {
-        set(PASSWORD, password);
+    public void setWriteBufferSize(final int size) {
+        set(WRITE_BUFFER_SIZE, String.valueOf(size));
     }
 }

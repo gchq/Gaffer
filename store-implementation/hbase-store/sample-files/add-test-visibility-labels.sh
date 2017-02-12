@@ -13,7 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-gaffer.store.class=uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore
-gaffer.store.properties.class=uk.gov.gchq.gaffer.hbasestore.HBaseProperties
-hbase.zookeepers=localhost:2181
-hbase.table=table1
+add_labels ['public', 'private', 'vis1', 'vis2']
+set_auths <USER>,['public', 'private', 'vis1', 'vis2']

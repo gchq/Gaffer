@@ -14,4 +14,6 @@ limitations under the License.
 
 # HBase Store
 
-This is work in progress and does not work yet.
+Work in progress - has had very little testing.
+
+It needs testing at scale to see how it performs.

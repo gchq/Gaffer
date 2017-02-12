@@ -31,11 +31,11 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -95,7 +95,7 @@ public final class TableUtils {
                 LOGGER.info("Table {} exists, not creating", tableName);
                 return;
             }
-            LOGGER.info("Creating table {} as user {}", tableName, store.getProperties().getUserName());
+            LOGGER.info("Creating table {}", tableName);
 
             final HTableDescriptor htable = new HTableDescriptor(tableName);
             final HColumnDescriptor col = new HColumnDescriptor(HBaseStoreConstants.getColFam());
@@ -140,21 +140,14 @@ public final class TableUtils {
      * Creates a connection to an hbase instance using the provided
      * parameters
      *
-     * @param instanceName the instance name
-     * @param zookeepers   the zoo keepers
-     * @param userName     the user name
-     * @param password     the password
+     * @param zookeepers the zoo keepers
      * @return A connection to an hbase instance
      * @throws StoreException failure to create an hbase connection
      */
-    public static Connection getConnection(final String instanceName, final String zookeepers, final String userName,
-                                           final String password) throws StoreException {
+    public static Connection getConnection(final String zookeepers) throws StoreException {
         try {
             final Configuration conf = HBaseConfiguration.create();
             conf.set("hbase.zookeeper.quorum", zookeepers);
-            //conf.set("hbase.client.instance.id", instanceName);
-            User user = null;
-            // TODO: create connection with provide username and password.
             return ConnectionFactory.createConnection(conf);
         } catch (IOException e) {
             throw new StoreException(e);
@@ -195,10 +188,13 @@ public final class TableUtils {
     }
 
     public static void dropTable(final HBaseStore store) throws StoreException {
+        dropTable(store.getConnection(), store.getProperties());
+    }
+
+    public static void dropTable(final Connection connection, final HBaseProperties properties) throws StoreException {
         try {
-            final Connection connection = store.getConnection();
             final Admin admin = connection.getAdmin();
-            final TableName tableName = store.getProperties().getTableName();
+            final TableName tableName = properties.getTableName();
             if (admin.tableExists(tableName)) {
                 if (admin.isTableEnabled(tableName)) {
                     admin.disableTable(tableName);

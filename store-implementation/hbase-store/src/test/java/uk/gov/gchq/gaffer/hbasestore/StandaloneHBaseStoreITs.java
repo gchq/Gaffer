@@ -15,16 +15,31 @@
  */
 package uk.gov.gchq.gaffer.hbasestore;
 
+import org.apache.hadoop.hbase.client.Connection;
 import org.junit.Ignore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.integration.impl.VisibilityIT;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-@Ignore("This requires a standalone instance of hbase running in localhost")
+@Ignore("This requires a standalone instance of hbase running on localhost:2181")
 public class StandaloneHBaseStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreITs.class, "standalone.store.properties"));
+    private static final HBaseProperties STORE_PROPERTIES = (HBaseProperties) StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreITs.class, "standalone.store.properties"));
 
     public StandaloneHBaseStoreITs() {
         super(STORE_PROPERTIES);
+        skipTest(VisibilityIT.class, "Configuration of visibility labels on the standalone cluster is required for this to work.");
+        dropExistingTable();
+    }
+
+    private void dropExistingTable() {
+        try {
+            final Connection connection = TableUtils.getConnection(STORE_PROPERTIES.getZookeepers());
+            TableUtils.dropTable(connection, STORE_PROPERTIES);
+        } catch (StoreException e) {
+            throw new RuntimeException("Failed to drop existing table prior to running tests", e);
+        }
     }
 }

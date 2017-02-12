@@ -99,18 +99,13 @@ public class HBaseStore extends Store {
      */
     public Connection getConnection() throws StoreException {
         if (null == connection || connection.isClosed()) {
-            connection = TableUtils.getConnection(
-                    getProperties().getInstanceName(),
-                    getProperties().getZookeepers(),
-                    getProperties().getUserName(),
-                    getProperties().getPassword()
-            );
+            connection = TableUtils.getConnection(getProperties().getZookeepers());
         }
         return connection;
     }
 
     public void addElements(final Iterable<Element> elements) throws StoreException {
-        int batchSize = getProperties().getMaxBufferSizeForBatchWriter();
+        int batchSize = getProperties().getWriteBufferSize();
         final Table table = TableUtils.getTable(this);
         try {
             final Iterator<Element> itr = elements.iterator();
