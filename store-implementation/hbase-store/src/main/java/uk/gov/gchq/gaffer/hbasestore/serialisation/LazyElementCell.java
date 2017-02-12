@@ -20,22 +20,24 @@ import org.apache.hadoop.hbase.CellUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-public class ElementCell {
+public class LazyElementCell {
     private final ElementSerialisation serialisation;
     private Cell cell;
     private Element element;
+    private String group;
 
-    public ElementCell(final Cell cell,
-                       final ElementSerialisation serialisation) {
-        this(cell, serialisation, null);
-    }
-
-    public ElementCell(final Cell cell,
-                       final ElementSerialisation serialisation,
-                       final Element element) {
+    public LazyElementCell(final Cell cell,
+                           final ElementSerialisation serialisation) {
         this.cell = cell;
         this.serialisation = serialisation;
-        this.element = element;
+    }
+
+    public LazyElementCell(final Cell cell,
+                           final ElementSerialisation serialisation,
+                           final Element element) {
+        this.cell = cell;
+        this.serialisation = serialisation;
+        setElement(element);
     }
 
     public Cell getCell() {
@@ -44,6 +46,7 @@ public class ElementCell {
 
     public void setCell(final Cell cell) {
         this.cell = cell;
+        group = null;
     }
 
     public boolean isElementLoaded() {
@@ -56,7 +59,7 @@ public class ElementCell {
                 throw new IllegalStateException("Element has been marked for deletion it should not be used");
             }
             try {
-                element = serialisation.getElement(cell);
+                setElement(serialisation.getElement(cell));
             } catch (SerialisationException e) {
                 throw new RuntimeException(e);
             }
@@ -67,6 +70,7 @@ public class ElementCell {
 
     public void setElement(final Element element) {
         this.element = element;
+        group = null != element ? element.getGroup() : null;
     }
 
     public ElementSerialisation getSerialisation() {
@@ -75,5 +79,19 @@ public class ElementCell {
 
     public boolean isDeleted() {
         return CellUtil.isDelete(cell);
+    }
+
+    public String getGroup() {
+        if (null == group) {
+            if (!isDeleted()) {
+                try {
+                    group = serialisation.getGroup(cell);
+                } catch (SerialisationException e) {
+                    throw new RuntimeException("Unable to deserialise group", e);
+                }
+            }
+        }
+
+        return group;
     }
 }

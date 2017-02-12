@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class FilterProcessor implements GafferScannerProcessor {
-    protected abstract boolean validate(final Element element);
+public class GroupFilterProcessor implements GafferScannerProcessor {
+    private final View view;
+
+    public GroupFilterProcessor(final View view) {
+        this.view = view;
+    }
 
     @Override
     public List<LazyElementCell> process(final List<LazyElementCell> elementCells) {
@@ -30,8 +33,8 @@ public abstract class FilterProcessor implements GafferScannerProcessor {
         while (itr.hasNext()) {
             final LazyElementCell elementCell = itr.next();
             if (!elementCell.isDeleted()) {
-                final Element element = elementCell.getElement();
-                if (!validate(element)) {
+                final String group = elementCell.getGroup();
+                if (!view.isEntity(group) && !view.isEdge(group)) {
                     itr.remove();
                 }
             }

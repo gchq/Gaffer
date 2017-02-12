@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.hbasestore;
+package uk.gov.gchq.gaffer.hbasestore.integration;
 
 import org.apache.hadoop.hbase.client.Connection;
 import org.junit.Ignore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.VisibilityIT;
@@ -28,18 +29,14 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 public class StandaloneHBaseStoreITs extends AbstractStoreITs {
     private static final HBaseProperties STORE_PROPERTIES = (HBaseProperties) StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreITs.class, "standalone.store.properties"));
 
-    public StandaloneHBaseStoreITs() {
+    public StandaloneHBaseStoreITs() throws StoreException {
         super(STORE_PROPERTIES);
         skipTest(VisibilityIT.class, "Configuration of visibility labels on the standalone cluster is required for this to work.");
         dropExistingTable();
     }
 
-    private void dropExistingTable() {
-        try {
-            final Connection connection = TableUtils.getConnection(STORE_PROPERTIES.getZookeepers());
-            TableUtils.dropTable(connection, STORE_PROPERTIES);
-        } catch (StoreException e) {
-            throw new RuntimeException("Failed to drop existing table prior to running tests", e);
-        }
+    private void dropExistingTable() throws StoreException {
+        final Connection connection = TableUtils.getConnection(STORE_PROPERTIES.getZookeepers());
+        TableUtils.dropTable(connection, STORE_PROPERTIES);
     }
 }

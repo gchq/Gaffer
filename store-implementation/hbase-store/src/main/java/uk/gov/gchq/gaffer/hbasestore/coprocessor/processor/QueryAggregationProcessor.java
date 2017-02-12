@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementCell;
+import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.ByteUtils;
 import uk.gov.gchq.gaffer.hbasestore.utils.GroupComparatorUtils;
@@ -45,17 +45,17 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
     }
 
     @Override
-    public List<ElementCell> process(final List<ElementCell> elementCells) {
+    public List<LazyElementCell> process(final List<LazyElementCell> elementCells) {
         if (elementCells.size() <= 1) {
             return elementCells;
         }
 
         try {
-            final List<ElementCell> output = new ArrayList<>();
+            final List<LazyElementCell> output = new ArrayList<>();
             ElementAggregator aggregator = null;
             String group = null;
-            ElementCell firstElementCell = null;
-            for (final ElementCell elementCell : elementCells) {
+            LazyElementCell firstElementCell = null;
+            for (final LazyElementCell elementCell : elementCells) {
                 if (elementCell.isDeleted()) {
                     continue;
                 }
@@ -63,11 +63,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                 if (null == firstElementCell) {
                     firstElementCell = elementCell;
                 } else {
-                    if (elementCell.isElementLoaded()) {
-                        group = elementCell.getElement().getGroup();
-                    } else {
-                        group = serialisation.getGroup(elementCell.getCell());
-                    }
+                    group = elementCell.getGroup();
                     final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
                     final Set<String> groupBy = view.getElementGroupBy(group);
                     if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {
@@ -95,7 +91,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         }
     }
 
-    private void completeAggregator(final ElementCell elementCell, final String group, final ElementAggregator aggregator, final List<ElementCell> output) {
+    private void completeAggregator(final LazyElementCell elementCell, final String group, final ElementAggregator aggregator, final List<LazyElementCell> output) {
         if (null == aggregator) {
             if (null != elementCell) {
                 output.add(elementCell);

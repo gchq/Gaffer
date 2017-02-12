@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementCell;
+import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.GroupComparatorUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -39,17 +39,17 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
     }
 
     @Override
-    public List<ElementCell> process(final List<ElementCell> elementCells) {
+    public List<LazyElementCell> process(final List<LazyElementCell> elementCells) {
         if (elementCells.size() <= 1) {
             return elementCells;
         }
 
         try {
-            final List<ElementCell> output = new ArrayList<>();
+            final List<LazyElementCell> output = new ArrayList<>();
             ElementAggregator aggregator = null;
             String group = null;
-            ElementCell firstElementCell = null;
-            for (final ElementCell elementCell : elementCells) {
+            LazyElementCell firstElementCell = null;
+            for (final LazyElementCell elementCell : elementCells) {
                 if (elementCell.isDeleted()) {
                     continue;
                 }
@@ -62,7 +62,7 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
                     aggregator = null;
                 } else {
                     if (null == aggregator) {
-                        group = serialisation.getGroup(firstElementCell.getCell());
+                        group = firstElementCell.getGroup();
                         aggregator = schema.getElement(group).getAggregator();
 
                         final Properties properties = firstElementCell.getElement().getProperties();
@@ -81,7 +81,7 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
         }
     }
 
-    private void completeAggregator(final ElementCell elementCell, final ElementAggregator aggregator, final List<ElementCell> output) {
+    private void completeAggregator(final LazyElementCell elementCell, final ElementAggregator aggregator, final List<LazyElementCell> output) {
         if (null == aggregator) {
             if (null != elementCell) {
                 output.add(elementCell);

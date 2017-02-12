@@ -22,6 +22,7 @@ import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
+import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GroupFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.PostAggregationFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.PreAggregationFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.QueryAggregationProcessor;
@@ -38,23 +39,36 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
     public QueryScanner(final RegionScanner scanner,
                         final Scan scan,
                         final Schema schema, final ElementSerialisation serialisation) {
-        super(scanner, serialisation, createProcessors(scan, schema, serialisation));
+        super(scanner, serialisation, createProcessors(getView(scan), schema, serialisation));
     }
 
-    private static List<GafferScannerProcessor> createProcessors(final Scan scan, final Schema schema, final ElementSerialisation serialisation) {
+    private static List<GafferScannerProcessor> createProcessors(final View view, final Schema schema, final ElementSerialisation serialisation) {
         final List<GafferScannerProcessor> processors = new ArrayList<>();
+        if (null != view) {
+            processors.add(new GroupFilterProcessor(view));
+        }
+
         processors.add(new StoreAggregationProcessor(serialisation, schema));
         processors.add(new ValidationProcessor(schema));
 
-        final byte[] viewJson = scan.getAttribute(HBaseStoreConstants.VIEW);
-        if (null != viewJson) {
-            final View view = View.fromJson(viewJson);
+        if (null != view) {
             processors.add(new PreAggregationFilterProcessor(view));
             processors.add(new QueryAggregationProcessor(serialisation, schema, view));
             processors.add(new PostAggregationFilterProcessor(view));
         }
 
         return processors;
+    }
+
+    private static View getView(final Scan scan) {
+        final byte[] viewJson = scan.getAttribute(HBaseStoreConstants.VIEW);
+        final View view;
+        if (null == viewJson) {
+            view = null;
+        } else {
+            view = View.fromJson(viewJson);
+        }
+        return view;
     }
 
     protected RegionScanner getScanner() {

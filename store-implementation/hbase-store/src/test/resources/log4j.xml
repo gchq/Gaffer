@@ -24,6 +24,10 @@
         </layout>
     </appender>
 
+    <logger name="uk.gov.gchq.gaffer">
+        <level value="INFO"/>
+    </logger>
+
     <root>
         <priority value="ERROR"></priority>
         <appender-ref ref="console"></appender-ref>

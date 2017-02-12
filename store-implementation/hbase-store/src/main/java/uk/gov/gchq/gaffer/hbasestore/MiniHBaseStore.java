@@ -40,8 +40,8 @@ import java.security.PrivilegedExceptionAction;
 public class MiniHBaseStore extends HBaseStore {
     private static boolean dropTable = false;
     private static HBaseTestingUtility utility;
+    private static Connection connection;
     private User superUser;
-    private Connection connection = null;
 
     //TODO Should these labels come from properties?
     private static final String[] VISIBILITY_LABELS = new String[]{"public", "private", "vis1", "vis2"};

@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
-import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementCell;
+import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,16 +46,16 @@ public abstract class GafferScanner implements InternalScanner {
     }
 
     protected void _next(final List<Cell> input, final List<Cell> output) throws IOException {
-        List<ElementCell> elementCells = new ArrayList<>(input.size());
+        List<LazyElementCell> elementCells = new ArrayList<>(input.size());
         for (final Cell cell : input) {
-            elementCells.add(new ElementCell(cell, serialisation));
+            elementCells.add(new LazyElementCell(cell, serialisation));
         }
 
         for (final GafferScannerProcessor processor : processors) {
             elementCells = processor.process(elementCells);
         }
 
-        for (final ElementCell elementCell : elementCells) {
+        for (final LazyElementCell elementCell : elementCells) {
             output.add(elementCell.getCell());
         }
     }
