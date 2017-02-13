@@ -17,21 +17,23 @@
 package uk.gov.gchq.gaffer.hbasestore;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.security.visibility.CellVisibility;
-import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
+import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -89,6 +91,12 @@ public class HBaseStore extends Store {
         TableUtils.ensureTableExists(this);
     }
 
+    public Configuration getConfiguration() throws StoreException {
+        final Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", getProperties().getZookeepers());
+        return conf;
+    }
+
     /**
      * Creates an HBase {@link Connection}
      * using the properties found in properties file associated with the
@@ -99,7 +107,11 @@ public class HBaseStore extends Store {
      */
     public Connection getConnection() throws StoreException {
         if (null == connection || connection.isClosed()) {
-            connection = TableUtils.getConnection(getProperties().getZookeepers());
+            try {
+                connection = ConnectionFactory.createConnection(getConfiguration());
+            } catch (IOException e) {
+                throw new StoreException(e);
+            }
         }
         return connection;
     }
@@ -117,26 +129,11 @@ public class HBaseStore extends Store {
                         i--;
                         continue;
                     }
-                    final Pair<byte[]> row = serialisation.getRowKeys(element);
-                    final byte[] cq = serialisation.buildColumnQualifier(element);
-                    final long ts = serialisation.buildTimestamp(element.getProperties());
-                    final byte[] value = serialisation.getValue(element);
-                    final String visibilityStr = Bytes.toString(serialisation.buildColumnVisibility(element));
-                    final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
-                    final Put put = new Put(row.getFirst());
-                    put.addColumn(HBaseStoreConstants.getColFam(), cq, ts, value);
-                    if (null != visibility) {
-                        put.setCellVisibility(visibility);
-                    }
-                    puts.add(put);
 
-                    if (null != row.getSecond()) {
-                        final Put put2 = new Put(row.getSecond());
-                        put2.addColumn(HBaseStoreConstants.getColFam(), cq, value);
-                        if (null != visibility) {
-                            put2.setCellVisibility(visibility);
-                        }
-                        puts.add(put2);
+                    final Pair<Put> putPair = serialisation.getPuts(element);
+                    puts.add(putPair.getFirst());
+                    if (null != putPair.getSecond()) {
+                        puts.add(putPair.getSecond());
                         i++;
                     }
                 }
@@ -160,7 +157,7 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        // none
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
     }
 
     @Override

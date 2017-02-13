@@ -74,17 +74,17 @@ public class HBaseProperties extends StoreProperties {
      *
      * @return The hbase table to use as set in the properties file
      */
-    public TableName getTableName() {
+    public TableName getTable() {
         return TableName.valueOf(get(TABLE));
     }
 
     /**
      * Set the table name.
      *
-     * @param tableName the table name
+     * @param table the table name
      */
-    public void setTable(final String tableName) {
-        set(TABLE, tableName);
+    public void setTable(final String table) {
+        set(TABLE, table);
     }
 
     public int getWriteBufferSize() {

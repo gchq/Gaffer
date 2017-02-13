@@ -17,15 +17,12 @@
 package uk.gov.gchq.gaffer.hbasestore.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Coprocessor;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -63,20 +60,20 @@ public final class TableUtils {
      */
     public static void ensureTableExists(final HBaseStore store) throws StoreException {
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTableName();
+        final TableName tableName = store.getProperties().getTable();
         try {
             final Admin admin = connection.getAdmin();
             if (!admin.tableExists(tableName)) {
                 TableUtils.createTable(store);
             }
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
             // Someone else got there first, never mind...
         }
     }
 
     public static Table getTable(final HBaseStore store) throws StoreException {
-        final TableName tableName = store.getProperties().getTableName();
+        final TableName tableName = store.getProperties().getTable();
         final Connection connection = store.getConnection();
         try {
             return connection.getTable(tableName);
@@ -88,7 +85,7 @@ public final class TableUtils {
 
     public static synchronized void createTable(final HBaseStore store)
             throws StoreException {
-        final TableName tableName = store.getProperties().getTableName();
+        final TableName tableName = store.getProperties().getTable();
         try {
             final Admin admin = store.getConnection().getAdmin();
             if (admin.tableExists(tableName)) {
@@ -136,39 +133,21 @@ public final class TableUtils {
         //setLocalityGroups(store);
     }
 
-    /**
-     * Creates a connection to an hbase instance using the provided
-     * parameters
-     *
-     * @param zookeepers the zoo keepers
-     * @return A connection to an hbase instance
-     * @throws StoreException failure to create an hbase connection
-     */
-    public static Connection getConnection(final String zookeepers) throws StoreException {
-        try {
-            final Configuration conf = HBaseConfiguration.create();
-            conf.set("hbase.zookeeper.quorum", zookeepers);
-            return ConnectionFactory.createConnection(conf);
-        } catch (IOException e) {
-            throw new StoreException(e);
-        }
-    }
-
     public static void clearTable(final HBaseStore store, final String... auths) throws StoreException {
         final Connection connection = store.getConnection();
         try {
-            if (connection.getAdmin().tableExists(store.getProperties().getTableName())) {
-                connection.getAdmin().flush(store.getProperties().getTableName());
+            if (connection.getAdmin().tableExists(store.getProperties().getTable())) {
+                connection.getAdmin().flush(store.getProperties().getTable());
                 Scan scan = new Scan();
                 scan.setAuthorizations(new Authorizations(auths));
-                final Table table = connection.getTable(store.getProperties().getTableName());
+                final Table table = connection.getTable(store.getProperties().getTable());
                 ResultScanner scanner = table.getScanner(scan);
                 final List<Delete> deletes = new ArrayList<>();
                 for (final Result result : scanner) {
                     deletes.add(new Delete(result.getRow()));
                 }
                 table.delete(deletes);
-                connection.getAdmin().flush(store.getProperties().getTableName());
+                connection.getAdmin().flush(store.getProperties().getTable());
                 scanner.close();
 
                 // TODO: work out a better way to clear a table
@@ -192,10 +171,14 @@ public final class TableUtils {
     }
 
     public static void dropTable(final Connection connection, final HBaseProperties properties) throws StoreException {
+        dropTable(connection, properties.getTable());
+    }
+
+    public static void dropTable(final Connection connection, final TableName tableName) throws StoreException {
         try {
             final Admin admin = connection.getAdmin();
-            final TableName tableName = properties.getTableName();
             if (admin.tableExists(tableName)) {
+                LOGGER.info("Dropping table: " + tableName.getNameAsString());
                 if (admin.isTableEnabled(tableName)) {
                     admin.disableTable(tableName);
                 }
@@ -210,12 +193,7 @@ public final class TableUtils {
         try {
             final Admin admin = connection.getAdmin();
             for (final TableName tableName : admin.listTableNames()) {
-                if (connection.getAdmin().tableExists(tableName)) {
-                    if (connection.getAdmin().isTableEnabled(tableName)) {
-                        connection.getAdmin().disableTable(tableName);
-                    }
-                    connection.getAdmin().deleteTable(tableName);
-                }
+                dropTable(connection, tableName);
             }
         } catch (final IOException e) {
             throw new StoreException(e);
@@ -223,7 +201,7 @@ public final class TableUtils {
     }
 
     //    public static void setLocalityGroups(final HBaseStore store) throws StoreException {
-//        final String tableName = store.getProperties().getTableName();
+//        final String tableName = store.getProperties().getTable();
 //        Map<String, Set<Text>> localityGroups =
 //                new HashMap<>();
 //        for (final String entityGroup : store.getSchema().getEntityGroups()) {
@@ -270,7 +248,7 @@ public final class TableUtils {
 //     * @throws StoreException if the table could not be found or other table issues
 //     */
 //    public static BatchWriter createBatchWriter(final HBaseStore store) throws StoreException {
-//        return createBatchWriter(store, store.getProperties().getTableName());
+//        return createBatchWriter(store, store.getProperties().getTable());
 //    }
 
 
@@ -297,7 +275,7 @@ public final class TableUtils {
 //            return store.getConnection().createBatchWriter(tableName, batchConfig);
 //        } catch (final TableNotFoundException e) {
 //            throw new StoreException("Table not set up! Use table gaffer.hbasestore.utils to create the table"
-//                    + store.getProperties().getTableName(), e);
+//                    + store.getProperties().getTable(), e);
 //        }
 //    }
 }

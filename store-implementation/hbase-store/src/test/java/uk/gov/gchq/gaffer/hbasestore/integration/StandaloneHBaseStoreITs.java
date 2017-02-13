@@ -15,7 +15,10 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.junit.Ignore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
@@ -24,6 +27,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.VisibilityIT;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import java.io.IOException;
 
 @Ignore("This requires a standalone instance of hbase running on localhost:2181")
 public class StandaloneHBaseStoreITs extends AbstractStoreITs {
@@ -36,7 +40,16 @@ public class StandaloneHBaseStoreITs extends AbstractStoreITs {
     }
 
     private void dropExistingTable() throws StoreException {
-        final Connection connection = TableUtils.getConnection(STORE_PROPERTIES.getZookeepers());
+        final Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", STORE_PROPERTIES.getZookeepers());
+
+        final Connection connection;
+        try {
+            connection = ConnectionFactory.createConnection(conf);
+        } catch (IOException e) {
+            throw new StoreException("Unable to create connection", e);
+        }
+        
         TableUtils.dropTable(connection, STORE_PROPERTIES);
     }
 }

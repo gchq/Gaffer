@@ -28,11 +28,7 @@ public final class HBaseStoreConstants {
     public static final String SCHEMA = "Schema";
 
     // Operations options
-    public static final String OPERATION_HDFS_USE_HBASE_PARTITIONER = "hbasestore.operation.hdfs.use_hbase_partitioner";
-    public static final String OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE = "hbasestore.operation.hdfs.use_provided_splits_file";
-    public static final String OPERATION_HDFS_SPLITS_FILE_PATH = "hbasestore.operation.hdfs.splits.file_path";
-    public static final String OPERATION_BULK_IMPORT_MAX_REDUCERS = "hbasestore.operation.bulk_import.max_reducers";
-    public static final String OPERATION_BULK_IMPORT_MIN_REDUCERS = "hbasestore.operation.bulk_import.min_reducers";
+    public static final String OPERATION_HDFS_STAGING_PATH = "hbasestore.operation.hdfs.staging.path";
     public static final String ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT = "hbasestore.operation.hdfs.skip_import";
     public static final String OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE = "hbasestore.operation.return_matched_id_as_edge_source";
 

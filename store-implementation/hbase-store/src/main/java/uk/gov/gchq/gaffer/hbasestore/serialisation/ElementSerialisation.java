@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.hbasestore.serialisation;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.security.visibility.CellVisibility;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -600,6 +602,32 @@ public class ElementSerialisation {
         rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey2[rowKey2.length - 1] = directionFlag2;
         return new Pair<>(rowKey1, rowKey2);
+    }
+
+    public Pair<Put> getPuts(final Element element) throws SerialisationException {
+        final Pair<byte[]> row = getRowKeys(element);
+        final byte[] cq = buildColumnQualifier(element);
+        final long ts = buildTimestamp(element.getProperties());
+        final byte[] value = getValue(element);
+        final String visibilityStr = Bytes.toString(buildColumnVisibility(element));
+        final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
+        final Put put = new Put(row.getFirst());
+        put.addColumn(HBaseStoreConstants.getColFam(), cq, ts, value);
+        if (null != visibility) {
+            put.setCellVisibility(visibility);
+        }
+
+        final Pair<Put> puts = new Pair<>(put);
+        if (null != row.getSecond()) {
+            final Put put2 = new Put(row.getSecond());
+            put2.addColumn(HBaseStoreConstants.getColFam(), cq, value);
+            if (null != visibility) {
+                put2.setCellVisibility(visibility);
+            }
+            puts.setSecond(put2);
+        }
+
+        return puts;
     }
 
     protected Entity getEntity(final Cell cell) throws SerialisationException {

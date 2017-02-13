@@ -41,7 +41,6 @@ public class MiniHBaseStore extends HBaseStore {
     private static boolean dropTable = false;
     private static HBaseTestingUtility utility;
     private static Connection connection;
-    private User superUser;
 
     //TODO Should these labels come from properties?
     private static final String[] VISIBILITY_LABELS = new String[]{"public", "private", "vis1", "vis2"};
@@ -50,7 +49,8 @@ public class MiniHBaseStore extends HBaseStore {
         MiniHBaseStore.dropTable = dropTable;
     }
 
-    @SuppressFBWarnings("DE_MIGHT_IGNORE")
+
+    @SuppressFBWarnings({"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
@@ -64,7 +64,7 @@ public class MiniHBaseStore extends HBaseStore {
                 utility = new HBaseTestingUtility(conf);
                 utility.startMiniCluster();
                 utility.waitTableEnabled(VisibilityConstants.LABELS_TABLE_NAME.getName(), 50000);
-
+                conf.set("fs.defaultFS", "file:///");
                 addLabels();
             } catch (Throwable e) {
                 throw new StoreException(e);
@@ -86,12 +86,21 @@ public class MiniHBaseStore extends HBaseStore {
         VisibilityTestUtil.enableVisiblityLabels(conf);
         conf.set("hbase.superuser", "admin");
         conf.setInt("hfile.format.version", 3);
+        conf.set("mapreduce.jobtracker.address", "local");
         conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS, SimpleScanLabelGenerator.class,
                 ScanLabelGenerator.class);
-        superUser = User.createUserForTesting(conf, "admin", new String[]{"supergroup"});
         return conf;
     }
 
+    @Override
+    public Configuration getConfiguration() throws StoreException {
+        if (null == utility) {
+            throw new StoreException("Store has not yet been initialised");
+        }
+        return utility.getConfiguration();
+    }
+
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     @Override
     public Connection getConnection() throws StoreException {
         if (null == utility) {
@@ -121,6 +130,8 @@ public class MiniHBaseStore extends HBaseStore {
                         return null;
                     }
                 };
+
+        final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[]{"supergroup"});
         superUser.runAs(action);
     }
 }
