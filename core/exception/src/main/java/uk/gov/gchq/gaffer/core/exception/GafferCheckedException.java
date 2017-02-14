@@ -19,14 +19,8 @@ import javax.ws.rs.core.Response.StatusType;
 
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
-/**
- *
- */
 public class GafferCheckedException extends Exception {
 
-    /**
-     *
-     */
     private StatusType status = INTERNAL_SERVER_ERROR;
 
     public GafferCheckedException(final Throwable cause, final StatusType status) {
@@ -34,19 +28,11 @@ public class GafferCheckedException extends Exception {
         this.status = status;
     }
 
-    /**
-     * @param status
-     */
     public GafferCheckedException(final String message, final StatusType status) {
         super(message);
         this.status = status;
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param status
-     */
     public GafferCheckedException(final String message, final Throwable cause, final StatusType status) {
         super(message, cause);
         this.status = status;
@@ -54,30 +40,16 @@ public class GafferCheckedException extends Exception {
 
     public GafferCheckedException(final Throwable cause) {
         super(cause);
-        this.status = status;
     }
 
-    /**
-     * @param status
-     */
     public GafferCheckedException(final String message) {
         super(message);
-        this.status = status;
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param status
-     */
     public GafferCheckedException(final String message, final Throwable cause) {
         super(message, cause);
-        this.status = status;
     }
 
-    /**
-     * @return
-     */
     public StatusType getStatus() {
         return status;
     }

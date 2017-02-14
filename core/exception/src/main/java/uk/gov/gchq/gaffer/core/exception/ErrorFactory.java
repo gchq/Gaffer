@@ -19,13 +19,11 @@ package uk.gov.gchq.gaffer.core.exception;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-
 /**
- * Static utility class to standardise the instantiation of {@link Error}
+ * Static utility class to standardise the instantiation of {@link uk.gov.gchq.gaffer.core.exception.Error}
  * objects.
  */
-public class ErrorFactory {
+public final class ErrorFactory {
 
     /**
      * Empty, private constructor to prevent instantiation.
@@ -35,11 +33,11 @@ public class ErrorFactory {
     }
 
     /**
-     * Create an {@link uk.gov.gchq.gaffer.rest.exception.Error} object from a
-     * {@link Throwable}.
+     * Create an {@link uk.gov.gchq.gaffer.core.exception.Error} object from a
+     * {@link uk.gov.gchq.gaffer.core.exception.GafferCheckedException}.
      *
-     * @param gex
-     * @return
+     * @param gex the exception object
+     * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final GafferCheckedException gex) {
         return new ErrorBuilder().status(gex.getStatus())
@@ -49,11 +47,11 @@ public class ErrorFactory {
     }
 
     /**
-     * Create an {@link uk.gov.gchq.gaffer.rest.exception.Error} object from a
-     * {@link Throwable}.
+     * Create an {@link uk.gov.gchq.gaffer.core.exception.Error} object from a
+     * {@link uk.gov.gchq.gaffer.core.exception.GafferRuntimeException}.
      *
-     * @param gex
-     * @return
+     * @param gex the exception object
+     * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final GafferRuntimeException gex) {
         return new ErrorBuilder().status(gex.getStatus())

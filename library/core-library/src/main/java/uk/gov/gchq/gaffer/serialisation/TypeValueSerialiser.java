@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-public class TypeValueSerialiser extends AbstractSerialisation<TypeValue> {
+public class TypeValueSerialiser implements Serialisation<TypeValue> {
 
     private static final long serialVersionUID = 8675867261911636738L;
 

@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.function.aggregate;
 
 import com.yahoo.sketches.frequencies.ItemsSketch;
-import com.yahoo.sketches.frequencies.LongsSketch;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -25,7 +24,10 @@ import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
 import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class StringsSketchAggregatorTest extends AggregateFunctionTest {
     private ItemsSketch<String> sketch1;

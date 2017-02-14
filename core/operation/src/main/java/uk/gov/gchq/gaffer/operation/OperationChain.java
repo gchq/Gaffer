@@ -196,13 +196,13 @@ public class OperationChain<OUT> {
 
 
         public TypelessBuilder then(final UpdateExport op) {
-            getOps().add(op);
-            return new TypelessBuilder(getOps());
+            ops.add(op);
+            return new TypelessBuilder(ops);
         }
 
         public TypelessBuilder then(final InitialiseExport op) {
-            getOps().add(op);
-            return new TypelessBuilder(getOps());
+            ops.add(op);
+            return new TypelessBuilder(ops);
         }
 
         public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {
@@ -222,10 +222,6 @@ public class OperationChain<OUT> {
 
         public OperationChain<OUT> build() {
             return new OperationChain<>(ops);
-        }
-
-        protected List<Operation> getOps() {
-            return ops;
         }
     }
 }

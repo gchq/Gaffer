@@ -28,6 +28,7 @@ public class TestPropertyNames {
     public static final String PROP_2 = "property2";
     public static final String PROP_3 = "property3";
     public static final String PROP_4 = "property4";
+    public static final String PROP_5 = "property5";
 
     public static final String TRANSIENT_1 = "transientProperty1";
 }

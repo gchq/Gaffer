@@ -1,0 +1,27 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
+    },
+    "doubles.union": {
+      "class": "com.yahoo.sketches.quantiles.DoublesUnion"
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -30,12 +30,12 @@ import javax.ws.rs.core.Response.StatusType;
 
 /**
  * Simple serialisable POJO for containing details of REST errors.
- * An {@link uk.gov.gchq.gaffer.rest.exception.Error} object is typically
+ * An {@link uk.gov.gchq.gaffer.core.exception.Error} object is typically
  * created automatically by a Jersey {@link javax.ws.rs.ext.ExceptionMapper} and
  * should not be created manually.
  */
 @JsonDeserialize(builder = ErrorBuilder.class)
-public class Error {
+public final class Error {
 
     private final int statusCode;
     private final StatusType status;
@@ -68,9 +68,13 @@ public class Error {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final Error error = (Error) o;
 
@@ -97,7 +101,7 @@ public class Error {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
-    public final static class ErrorBuilder {
+    public static final class ErrorBuilder {
         private int statusCode;
         private StatusType status;
         private String simpleMessage;

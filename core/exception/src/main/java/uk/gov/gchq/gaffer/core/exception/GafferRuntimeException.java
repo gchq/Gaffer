@@ -19,29 +19,15 @@ import javax.ws.rs.core.Response.StatusType;
 
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
-/**
- *
- */
 public class GafferRuntimeException extends RuntimeException {
 
-    /**
-     *
-     */
     private StatusType status = INTERNAL_SERVER_ERROR;
 
-    /**
-     * @param status
-     */
     public GafferRuntimeException(final String message, final StatusType status) {
         super(message);
         this.status = status;
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param status
-     */
     public GafferRuntimeException(final String message, final Throwable cause, final StatusType status) {
         super(message, cause);
         this.status = status;

@@ -42,13 +42,15 @@ import static org.junit.Assert.assertEquals;
 
 public class ByteEntityRangeElementPropertyFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()
+            .type("string", String.class)
+            .type("type", Boolean.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                    .source(String.class)
-                    .destination(String.class)
-                    .directed(Boolean.class)
+                    .source("string")
+                    .destination("string")
+                    .directed("true")
                     .build())
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                    .vertex(String.class)
+                    .vertex("string")
                     .build())
             .vertexSerialiser(new StringSerialiser())
             .build();

@@ -100,6 +100,12 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ> extends Abstract
         return super.getInput();
     }
 
+    @JsonProperty
+    @Override
+    public void setInput(final CloseableIterable<ELEMENT_TYPE> input) {
+        super.setInput(input);
+    }
+
     public void setInput(final Iterable<ELEMENT_TYPE> elements) {
         super.setInput(new WrappedCloseableIterable<>(elements));
     }

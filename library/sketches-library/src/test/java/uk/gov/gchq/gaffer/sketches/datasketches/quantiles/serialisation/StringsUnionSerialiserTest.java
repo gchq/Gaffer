@@ -20,7 +20,10 @@ import com.yahoo.sketches.quantiles.ItemsUnion;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with

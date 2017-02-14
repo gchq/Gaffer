@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.data.elementdefinition.exception;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 /**
  * An <code>SchemaException</code> is thrown when a schema is found to be invalid.

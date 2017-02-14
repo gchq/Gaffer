@@ -47,15 +47,17 @@ public class ExamplesServiceTest {
     @Before
     public void setup() {
         schema = new Schema.Builder()
+                .type("string", String.class)
+                .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property("entityProperties", String.class)
-                        .vertex(String.class)
+                        .property("entityProperties", "string")
+                        .vertex("string")
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property("edgeProperties", String.class)
-                        .source(String.class)
-                        .destination(String.class)
-                        .directed(Boolean.class)
+                        .property("edgeProperties", "string")
+                        .source("string")
+                        .destination("string")
+                        .directed("true")
                         .build())
                 .build();
 

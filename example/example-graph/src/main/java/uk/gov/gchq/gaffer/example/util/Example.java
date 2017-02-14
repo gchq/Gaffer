@@ -84,21 +84,21 @@ public abstract class Example {
 
     protected void printJava(final String java) {
         log("As Java:");
-        log("\n```java");
+        log("\n\n```java");
         log(java);
         log("```\n");
     }
 
     protected void printScala(final String scala) {
         log("As Scala:");
-        log("\n```scala");
+        log("\n\n```scala");
         log(scala);
         log("```\n");
     }
 
     protected void printJson(final String json) {
         log("As JSON:");
-        log("\n```json");
+        log("\n\n```json");
         log(json);
         log("```\n");
     }

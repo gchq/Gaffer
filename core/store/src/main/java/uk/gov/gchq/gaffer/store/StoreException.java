@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.store;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-
 /**
  * A <code>StoreException</code> is a fairly generic exception for a wide range of issues occurred in a
  * {@link uk.gov.gchq.gaffer.store.Store}.

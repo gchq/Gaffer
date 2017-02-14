@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.graph;
 
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -53,6 +55,8 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
+
     /**
      * The instance of the store.
      */
@@ -71,18 +75,22 @@ public final class Graph {
      */
     private List<GraphHook> graphHooks;
 
+    private Schema schema;
+
     /**
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param store      a {@link Store} used to store the elements and handle operations.
+     * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final Store store, final Schema schema, final View view, final List<GraphHook> graphHooks) {
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
+        this.schema = schema;
     }
 
     /**
@@ -114,14 +122,22 @@ public final class Graph {
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         // Update the view
         for (final Operation operation : operationChain.getOperations()) {
+            final View opView;
             if (null == operation.getView()) {
-                operation.setView(view);
+                opView = view;
             } else if (operation.getView().getEntityGroups().isEmpty()
                     && operation.getView().getEdgeGroups().isEmpty()) {
-                // this allows users to create an empty view and setup summarisation,
-                // without having to specify all the element groups.
-                operation.getView().merge(view);
+                opView = new View.Builder()
+                        .merge(view)
+                        .merge(operation.getView())
+                        .build();
+
+            } else {
+                opView = operation.getView();
             }
+
+            opView.expandGlobalDefinitions();
+            operation.setView(opView);
         }
 
         for (final GraphHook graphHook : graphHooks) {
@@ -165,7 +181,7 @@ public final class Graph {
      * @return the schema.
      */
     public Schema getSchema() {
-        return store.getSchema();
+        return schema;
     }
 
     /**
@@ -202,15 +218,15 @@ public final class Graph {
         }
 
         public Builder view(final Path view) {
-            return view(View.fromJson(view));
+            return view(new View.Builder().json(view).build());
         }
 
         public Builder view(final InputStream view) {
-            return view(View.fromJson(view));
+            return view(new View.Builder().json(view).build());
         }
 
         public Builder view(final byte[] jsonBytes) {
-            return view(View.fromJson(jsonBytes));
+            return view(new View.Builder().json(jsonBytes).build());
         }
 
         public Builder storeProperties(final StoreProperties properties) {
@@ -274,9 +290,12 @@ public final class Graph {
 
         public Builder addSchema(final Schema schemaModule) {
             if (null != schema) {
-                schema.merge(schemaModule);
+                schema = new Schema.Builder()
+                        .merge(schema)
+                        .merge(schemaModule)
+                        .build();
             } else {
-                this.schema = schemaModule;
+                schema = schemaModule;
             }
 
             return this;
@@ -328,7 +347,7 @@ public final class Graph {
             updateStore();
             updateView();
 
-            return new Graph(store, view, graphHooks);
+            return new Graph(store, schema, view, graphHooks);
         }
 
         private void updateSchema() {
@@ -338,29 +357,25 @@ public final class Graph {
                 }
 
                 final Class<? extends Schema> schemaClass = properties.getSchemaClass();
-                final Schema newSchema = Schema.fromJson(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]));
-                if (null != schema) {
-                    schema.merge(newSchema);
-                } else {
-                    schema = newSchema;
-                }
+                final Schema newSchema = new Schema.Builder()
+                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
+                        .build();
+                addSchema(newSchema);
             }
         }
 
         private void updateStore() {
             if (null == store) {
-                store = createStore(properties, schema);
+                store = createStore(properties, cloneSchema(schema));
             } else if (null != properties || null != schema) {
-                if (null == properties || null == schema) {
-                    throw new IllegalArgumentException("To initialise a provided store both a schema and store properties are required");
-                }
                 try {
-                    store.initialise(schema, properties);
+                    store.initialise(cloneSchema(schema), properties);
                 } catch (StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties");
+                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
                 }
             } else {
-                store.optimiseSchemas();
+                schema = store.getSchema();
+                store.optimiseSchema();
                 store.validateSchemas();
             }
         }
@@ -397,6 +412,10 @@ public final class Graph {
                         .edges(store.getSchema().getEdgeGroups())
                         .build();
             }
+        }
+
+        private Schema cloneSchema(final Schema schema) {
+            return null != schema ? schema.clone() : null;
         }
     }
 }

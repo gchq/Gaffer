@@ -67,7 +67,7 @@ public class RestApiIT {
         final Map<String, String> statusMessage = response.readEntity(Map.class);
 
         // Then
-        assertEquals("The system is not working normally.", statusMessage.get("description"));
+        assertEquals("The system is working normally.", statusMessage.get("description"));
     }
 
     @Test
