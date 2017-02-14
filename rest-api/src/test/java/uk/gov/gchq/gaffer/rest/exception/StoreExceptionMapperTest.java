@@ -1,9 +1,13 @@
 /*
+<<<<<<< HEAD
 <<<<<<< Updated upstream:rest-api/src/test/java/uk/gov/gchq/gaffer/rest/exception/StoreExceptionMapperTest.java
  * Copyright 2017 Crown Copyright
 =======
  * Copyright 2016 Crown Copyright
 >>>>>>> Stashed changes:integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/RestApiIT.java
+=======
+ * Copyright 2017 Crown Copyright
+>>>>>>> a33d279593b875ccb53cc8ae0350e20797c11d4e
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +22,10 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream:rest-api/src/test/java/uk/gov/gchq/gaffer/rest/exception/StoreExceptionMapperTest.java
+=======
+>>>>>>> a33d279593b875ccb53cc8ae0350e20797c11d4e
 package uk.gov.gchq.gaffer.rest.exception;
 
 import org.junit.Test;
@@ -28,6 +35,7 @@ public class StoreExceptionMapperTest {
     @Test
     public void storeExceptionShouldResultInInternalServerError() {
 
+<<<<<<< HEAD
 =======
 package uk.gov.gchq.gaffer.integration.impl;
 
@@ -170,6 +178,8 @@ public class RestApiIT extends AbstractStoreIT {
                       .elements((Iterable) getEdges().values())
                       .build()));
 >>>>>>> Stashed changes:integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/RestApiIT.java
+=======
+>>>>>>> a33d279593b875ccb53cc8ae0350e20797c11d4e
     }
 
 }
