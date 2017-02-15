@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation;
+package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
-/**
- * Abstract implementation of the {@link Serialisation} interface, providing default
- * implementations of the {@link Serialisation#serialiseNull()} method.
- */
-public abstract class AbstractSerialisation<T> implements Serialisation<T> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
-    private static final byte[] EMPTY_BYTES = new byte[0];
+import static org.junit.Assert.assertNotNull;
 
-    @Override
-    public byte[] serialiseNull() {
-        return EMPTY_BYTES;
+public class LoadAndQuery14Test {
+    @Test
+    public void shouldLoadSchema() throws OperationException {
+        // Given
+        final LoadAndQuery14 query = new LoadAndQuery14();
+
+        // When
+        final Schema schema = query.run();
+
+        // Then
+        assertNotNull(schema);
     }
-
 }

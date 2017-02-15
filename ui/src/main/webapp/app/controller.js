@@ -181,10 +181,16 @@ angular.module('app').controller('AppController',
 
     createBuildQueryOperation = function() {
         var operation = createOperation();
+        var jsonVertex;
         for(var vertex in $scope.selectedEntities) {
+            try {
+               jsonVertex = JSON.parse(vertex);
+            } catch(err) {
+               jsonVertex = vertex;
+            }
             operation.seeds.push({
                       "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
-                      "vertex": vertex
+                      "vertex": jsonVertex
                    });
         }
 

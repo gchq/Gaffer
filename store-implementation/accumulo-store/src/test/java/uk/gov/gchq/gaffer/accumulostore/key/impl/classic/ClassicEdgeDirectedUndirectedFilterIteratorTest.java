@@ -41,10 +41,12 @@ import static org.junit.Assert.assertTrue;
 
 public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()
+            .type("string", String.class)
+            .type("true", Boolean.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                    .source(String.class)
-                    .destination(String.class)
-                    .directed(Boolean.class)
+                    .source("string")
+                    .destination("string")
+                    .directed("true")
                     .build())
             .vertexSerialiser(new StringSerialiser())
             .build();

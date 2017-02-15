@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class SchemaOptimiser {
@@ -39,12 +41,32 @@ public class SchemaOptimiser {
         this.serialisationFactory = serialisationFactory;
     }
 
-    public void optimise(final Schema schema, final boolean isStoreOrdered) {
-        removeUnusedTypes(schema);
-        addDefaultSerialisers(schema, isStoreOrdered);
+    public Schema optimise(final Schema schema, final boolean isStoreOrdered) {
+        if (null != schema.getTypes()) {
+            return new Schema.Builder()
+                    .merge(schema)
+                    .types(getOptimisedTypes(schema, isStoreOrdered))
+                    .vertexSerialiser(getDefaultVertexSerialiser(schema, isStoreOrdered))
+                    .build();
+        }
+
+        return schema;
     }
 
-    private void removeUnusedTypes(final Schema schema) {
+    private Map<String, TypeDefinition> getOptimisedTypes(final Schema schema, final boolean isStoreOrdered) {
+        Map<String, TypeDefinition> types = null;
+        if (null != schema.getTypes()) {
+            types = new LinkedHashMap<>(schema.getTypes());
+
+            // Remove unused types
+            removeUnusedTypes(schema, types);
+            addDefaultSerialisers(schema, types, isStoreOrdered);
+        }
+
+        return types;
+    }
+
+    private void removeUnusedTypes(final Schema schema, final Map<String, TypeDefinition> types) {
         final Iterable<SchemaElementDefinition> schemaElements =
                 new ChainedIterable<>(schema.getEntities().values(), schema.getEdges().values());
 
@@ -53,107 +75,107 @@ public class SchemaOptimiser {
             usedTypeNames.addAll(elDef.getIdentifierTypeNames());
             usedTypeNames.addAll(elDef.getPropertyTypeNames());
         }
-
-        final TypeDefinitions types = schema.getTypes();
-        if (null != types) {
-            for (final String typeName : new HashSet<>(types.keySet())) {
-                if (!usedTypeNames.contains(typeName)) {
-                    types.remove(typeName);
-                }
+        for (final String typeName : new HashSet<>(types.keySet())) {
+            if (!usedTypeNames.contains(typeName)) {
+                types.remove(typeName);
             }
         }
     }
 
-    private void addDefaultSerialisers(final Schema schema, final boolean isStoreOrdered) {
-        addDefaultPropertySerialisers(schema, isStoreOrdered);
-        addDefaultVertexSerialiser(schema, isStoreOrdered);
-    }
-
-    private void addDefaultPropertySerialisers(final Schema schema, final boolean isStoreOrdered) {
+    private void addDefaultSerialisers(final Schema schema, final Map<String, TypeDefinition> types, final boolean isStoreOrdered) {
         final Iterable<SchemaElementDefinition> schemaElements =
                 new ChainedIterable<>(schema.getEntities().values(), schema.getEdges().values());
 
         // Separate type definitions into 2 sets: types that are used in 'group by' properties; other types.
-        final Set<TypeDefinition> groupByTypeDefs = new HashSet<>();
-        final Set<TypeDefinition> otherTypeDefs = new HashSet<>();
+        final Set<String> groupByTypes = new HashSet<>();
+        final Set<String> otherTypes = new HashSet<>();
         for (final SchemaElementDefinition elDef : schemaElements) {
             for (final String property : elDef.getProperties()) {
-                final TypeDefinition typeDef = elDef.getPropertyTypeDef(property);
                 if (elDef.getGroupBy().contains(property)) {
-                    groupByTypeDefs.add(typeDef);
+                    groupByTypes.add(elDef.getPropertyTypeName(property));
                 } else {
-                    otherTypeDefs.add(typeDef);
+                    otherTypes.add(elDef.getPropertyTypeName(property));
                 }
             }
         }
-        otherTypeDefs.removeAll(groupByTypeDefs);
+        otherTypes.removeAll(groupByTypes);
 
         // Add the default serialisers for the types.
         // If the store is ordered then the group by type defs need to have
         // serialisers that preserves the ordering of bytes.
-        for (final TypeDefinition typeDef : groupByTypeDefs) {
-            if (null == typeDef.getSerialiser()) {
-                typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), isStoreOrdered));
-            } else if (isStoreOrdered && !typeDef.getSerialiser().preservesObjectOrdering()) {
-                LOGGER.warn(typeDef.getSerialiser().getClass().getName() + " serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes.");
-            }
+        for (final String typeName : groupByTypes) {
+            final TypeDefinition typeDef = types.get(typeName);
+            if (null != typeDef) {
+                if (null == typeDef.getSerialiser()) {
+                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), isStoreOrdered));
+                } else if (isStoreOrdered && !typeDef.getSerialiser().preservesObjectOrdering()) {
+                    LOGGER.warn(typeDef.getSerialiser().getClass().getName() + " serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes.");
+                }
 
-            if (typeDef.getSerialiser() instanceof JavaSerialiser) {
-                LOGGER.warn("Java serialisation is not recommended for serialisation of 'group by' properties - it may cause aggregation to fail. Please implement your own serialiser or change the properties that are included in the grouped by.");
+                if (typeDef.getSerialiser() instanceof JavaSerialiser) {
+                    LOGGER.warn("Java serialisation is not recommended for serialisation of 'group by' properties - it may cause aggregation to fail. Please implement your own serialiser or change the properties that are included in the grouped by.");
+                }
             }
         }
-        for (final TypeDefinition typeDef : otherTypeDefs) {
-            if (null == typeDef.getSerialiser()) {
-                typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false));
+        for (final String typeName : otherTypes) {
+            final TypeDefinition typeDef = types.get(typeName);
+            if (null != typeDef) {
+                if (null == typeDef.getSerialiser()) {
+                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false));
+                }
             }
         }
     }
 
-    private void addDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
-        if (null == schema.getVertexSerialiser()) {
-            final Set<Class<?>> vertexClasses = new HashSet<>();
-            for (final SchemaEntityDefinition definition : schema.getEntities().values()) {
-                vertexClasses.add(definition.getIdentifierClass(IdentifierType.VERTEX));
-            }
-            for (final SchemaEdgeDefinition definition : schema.getEdges().values()) {
-                vertexClasses.add(definition.getIdentifierClass(IdentifierType.SOURCE));
-                vertexClasses.add(definition.getIdentifierClass(IdentifierType.DESTINATION));
-            }
-            vertexClasses.remove(null);
+    private Serialisation getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
+        if (null != schema.getVertexSerialiser()) {
+            return schema.getVertexSerialiser();
+        }
 
-            if (!vertexClasses.isEmpty()) {
-                Serialisation serialiser = null;
+        final Set<Class<?>> vertexClasses = new HashSet<>();
+        for (final SchemaEntityDefinition definition : schema.getEntities().values()) {
+            vertexClasses.add(definition.getIdentifierClass(IdentifierType.VERTEX));
+        }
+        for (final SchemaEdgeDefinition definition : schema.getEdges().values()) {
+            vertexClasses.add(definition.getIdentifierClass(IdentifierType.SOURCE));
+            vertexClasses.add(definition.getIdentifierClass(IdentifierType.DESTINATION));
+        }
+        vertexClasses.remove(null);
 
-                if (vertexClasses.size() == 1) {
-                    serialiser = serialisationFactory.getSerialiser(vertexClasses.iterator().next(), isStoreOrdered);
-                } else {
-                    for (final Class<?> clazz : vertexClasses) {
-                        serialiser = serialisationFactory.getSerialiser(clazz, isStoreOrdered);
-                        boolean canHandlerAll = true;
-                        for (final Class<?> clazz2 : vertexClasses) {
-                            if (!serialiser.canHandle(clazz2)) {
-                                canHandlerAll = false;
-                                serialiser = null;
-                                break;
-                            }
-                        }
+        if (!vertexClasses.isEmpty()) {
+            Serialisation serialiser = null;
 
-                        if (canHandlerAll) {
+            if (vertexClasses.size() == 1) {
+                serialiser = serialisationFactory.getSerialiser(vertexClasses.iterator().next(), isStoreOrdered);
+            } else {
+                for (final Class<?> clazz : vertexClasses) {
+                    serialiser = serialisationFactory.getSerialiser(clazz, isStoreOrdered);
+                    boolean canHandlerAll = true;
+                    for (final Class<?> clazz2 : vertexClasses) {
+                        if (!serialiser.canHandle(clazz2)) {
+                            canHandlerAll = false;
+                            serialiser = null;
                             break;
                         }
                     }
-                }
 
-                if (null == serialiser) {
-                    throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types " + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
+                    if (canHandlerAll) {
+                        break;
+                    }
                 }
-
-                if (serialiser instanceof JavaSerialiser) {
-                    LOGGER.warn("Java serialisation is not recommended for vertex serialisation - it may cause aggregation to fail. Please implement your own or change your vertex class types.");
-                }
-
-                schema.setVertexSerialiser(serialiser);
             }
+
+            if (null == serialiser) {
+                throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types " + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
+            }
+
+            if (serialiser instanceof JavaSerialiser) {
+                LOGGER.warn("Java serialisation is not recommended for vertex serialisation - it may cause aggregation to fail. Please implement your own or change your vertex class types.");
+            }
+
+            return serialiser;
         }
+
+        return null;
     }
 }

@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.data.elementdefinition;
 
 /**
  * An <code>ElementDefinition</code> defines information about an element.
- * This interface requires element definitions to able to be merged.
+ * This interface requires element definitions to able to be locked.
  */
-public interface ElementDefinition {
-    void merge(ElementDefinition elDef);
+public interface ElementDefinition extends Cloneable {
+    /**
+     * Locks the fields so only read access is allowed.
+     */
+    void lock();
 }

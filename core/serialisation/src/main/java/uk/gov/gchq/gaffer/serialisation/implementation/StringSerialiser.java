@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.io.UnsupportedEncodingException;
 
-public class StringSerialiser extends AbstractSerialisation<String> {
+public class StringSerialiser implements Serialisation<String> {
 
     private static final long serialVersionUID = 5647756843689779437L;
 

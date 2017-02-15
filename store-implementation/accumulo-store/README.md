@@ -34,6 +34,7 @@ Ensure that the Accumulo user specified by the `accumulo.user` property has the 
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 
 Run the integration tests:
+
 ```
 mvn verify
 ```
