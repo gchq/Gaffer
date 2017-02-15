@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ public class ImportKeyValuePairRDDToAccumulo extends AbstractOperation<RDD<Tuple
 
     private String outputPath;
 
+    private String failurePath;
+
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.Void();
     }
@@ -38,6 +40,14 @@ public class ImportKeyValuePairRDDToAccumulo extends AbstractOperation<RDD<Tuple
 
     public void setOutputPath(final String outputPath) {
         this.outputPath = outputPath;
+    }
+
+    public void setFailurePath(final String failurePath) {
+        this.failurePath = failurePath;
+    }
+
+    public String getFailurePath() {
+        return failurePath;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
@@ -51,6 +61,10 @@ public class ImportKeyValuePairRDDToAccumulo extends AbstractOperation<RDD<Tuple
             return self();
         }
 
+        public CHILD_CLASS failurePath(final String failurePath) {
+            op.setFailurePath(failurePath);
+            return self();
+        }
     }
 
     public static final class Builder extends BaseBuilder<Builder> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,23 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
-import scala.collection.TraversableOnce;
-import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
-import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-import java.io.Serializable;
-
-
 public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements, Void> {
 
     private static final String OUTPUT_PATH = "outputPath";
+    private static final String FAILURE_PATH = "failurePath";
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
+    private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
 
     @Override
     public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store) throws OperationException {
@@ -50,40 +44,18 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     }
 
     public void doOperation(final ImportRDDOfElements operation, final Context context, final AccumuloStore store) throws OperationException {
-        ElementConverterFunction func = new ElementConverterFunction(store.getKeyPackage().getKeyConverter());
+        String outputPath = operation.getOption(OUTPUT_PATH);
+        if (null == outputPath || outputPath.isEmpty()) {
+            throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
+        }
+        String failurePath = operation.getOption(FAILURE_PATH);
+        if (null == failurePath || failurePath.isEmpty()) {
+            throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
+        }
+        ElementConverterFunction func = new ElementConverterFunction(operation.getSparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
-        ImportKeyValuePairRDDToAccumulo op = new ImportKeyValuePairRDDToAccumulo.Builder().input(rdd).outputPath(OUTPUT_PATH).build();
+        ImportKeyValuePairRDDToAccumulo op = new ImportKeyValuePairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
         store.execute(op, context.getUser());
-    }
-
-    private class ElementConverterFunction extends AbstractFunction1<Element, TraversableOnce<Tuple2<Key, Value>>> implements Serializable {
-
-        protected ElementConverterFunction(final AccumuloElementConverter converter) {
-            this.converter = converter;
-        }
-
-        private AccumuloElementConverter converter;
-
-        @Override
-        public TraversableOnce<Tuple2<Key, Value>> apply(final Element element) {
-            ArrayBuffer<Tuple2<Key, Value>> buf = new ArrayBuffer<>();
-            Pair<Key> keys = new Pair<>();
-            Value value = null;
-            try {
-                keys = converter.getKeysFromElement(element);
-                value = converter.getValueFromElement(element);
-            } catch (AccumuloElementConversionException e) {
-            }
-            Key first = keys.getFirst();
-            if (first != null) {
-                buf.$plus$eq(new Tuple2<>(first, value));
-            }
-            Key second = keys.getSecond();
-            if (second != null) {
-                buf.$plus$eq(new Tuple2<>(second, value));
-            }
-            return buf;
-        }
     }
 
 }

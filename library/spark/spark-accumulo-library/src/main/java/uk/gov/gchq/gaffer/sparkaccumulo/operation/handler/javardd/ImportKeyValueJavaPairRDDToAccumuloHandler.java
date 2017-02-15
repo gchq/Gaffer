@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaPairRDD;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -39,19 +40,17 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandler implements OperationHand
 
     @Override
     public Void doOperation(final ImportKeyValueJavaPairRDDToAccumulo operation, final Context context, final Store store) throws OperationException {
-        doOperation(operation, (AccumuloStore) store);
+        doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
-    public void doOperation(final ImportKeyValueJavaPairRDDToAccumulo operation, final AccumuloStore store) throws OperationException {
-        importRdd(operation, store);
-    }
-
-    private void importRdd(final ImportKeyValueJavaPairRDDToAccumulo operation, final AccumuloStore store) throws OperationException {
-        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(store.getProperties());
+    public void doOperation(final ImportKeyValueJavaPairRDDToAccumulo operation, final Context context, final AccumuloStore store) throws OperationException {
+        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(AccumuloKeyRangePartitioner.getSplits(store));
         JavaPairRDD<Key, Value> rdd = operation.getInput();
         rdd = rdd.repartitionAndSortWithinPartitions(partitioner);
         rdd.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
+        ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(operation.getOutputPath()).failurePath(operation.getFailurePath()).build();
+        store.execute(importAccumuloKeyValueFiles, context.getUser());
     }
 
     protected Configuration getConfiguration(final Operation operation) throws OperationException {

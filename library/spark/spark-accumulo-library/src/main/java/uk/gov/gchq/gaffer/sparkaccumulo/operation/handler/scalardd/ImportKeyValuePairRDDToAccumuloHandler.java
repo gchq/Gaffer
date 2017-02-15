@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import scala.math.Ordering;
 import scala.math.Ordering$;
 import scala.reflect.ClassTag;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -49,19 +50,25 @@ public class ImportKeyValuePairRDDToAccumuloHandler implements OperationHandler<
 
     @Override
     public Void doOperation(final ImportKeyValuePairRDDToAccumulo operation, final Context context, final Store store) throws OperationException {
-        doOperation(operation, (AccumuloStore) store);
+        String outputPath = operation.getOutputPath();
+        if (null == outputPath || outputPath.isEmpty()) {
+            throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
+        }
+        String failurePath = operation.getFailurePath();
+        if (null == failurePath || failurePath.isEmpty()) {
+            throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
+        }
+        doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
-    public void doOperation(final ImportKeyValuePairRDDToAccumulo operation, final AccumuloStore store) throws OperationException {
-        importRdd(operation, store);
-    }
-
-    private void importRdd(final ImportKeyValuePairRDDToAccumulo operation, final AccumuloStore store) throws OperationException {
-        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(store.getProperties());
+    private void doOperation(final ImportKeyValuePairRDDToAccumulo operation, final Context context, final AccumuloStore store) throws OperationException {
+        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(AccumuloKeyRangePartitioner.getSplits(store));
         OrderedRDDFunctions orderedRDDFunctions = new OrderedRDDFunctions(operation.getInput(), ORDERING_CLASS_TAG, KEY_CLASS_TAG, VALUE_CLASS_TAG, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
         PairRDDFunctions pairRDDFunctions = new PairRDDFunctions(orderedRDDFunctions.repartitionAndSortWithinPartitions(partitioner), KEY_CLASS_TAG, VALUE_CLASS_TAG, ORDERING_CLASS_TAG);
         pairRDDFunctions.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
+        ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(operation.getOutputPath()).failurePath(operation.getFailurePath()).build();
+        store.execute(importAccumuloKeyValueFiles, context.getUser());
     }
 
     protected Configuration getConfiguration(final Operation operation) throws OperationException {
@@ -77,5 +84,4 @@ public class ImportKeyValuePairRDDToAccumuloHandler implements OperationHandler<
         }
         return conf;
     }
-
 }

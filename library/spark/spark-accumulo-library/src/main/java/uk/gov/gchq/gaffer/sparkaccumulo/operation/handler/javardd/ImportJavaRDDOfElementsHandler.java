@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,21 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
-import scala.Tuple2;
+import org.apache.spark.broadcast.Broadcast;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements, Void> {
 
     private static final String OUTPUT_PATH = "outputPath";
+    private static final String FAILURE_PATH = "failurePath";
 
     @Override
     public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final Store store) throws OperationException {
@@ -47,36 +41,20 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
     }
 
     public void doOperation(final ImportJavaRDDOfElements operation, final Context context, final AccumuloStore store) throws OperationException {
-        ElementConverterPairFlatMapFunction func = new ElementConverterPairFlatMapFunction(store.getKeyPackage().getKeyConverter());
+        String outputPath = operation.getOption(OUTPUT_PATH);
+        if (null == outputPath || outputPath.isEmpty()) {
+            throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
+        }
+        String failurePath = operation.getOption(FAILURE_PATH);
+        if (null == failurePath || failurePath.isEmpty()) {
+            throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
+        }
+        Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
+        ElementConverterFunction func = new ElementConverterFunction(broadcast);
         JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
-        ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().input(rdd).outputPath(OUTPUT_PATH).build();
+        ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
         store.execute(op, context.getUser());
     }
-
-    private class ElementConverterPairFlatMapFunction implements PairFlatMapFunction<Element, Key, Value>, Serializable {
-
-        protected ElementConverterPairFlatMapFunction(final AccumuloElementConverter converter) {
-            this.converter = converter;
-        }
-
-        private List<Tuple2<Key, Value>> tuples = new ArrayList<>(2);
-        AccumuloElementConverter converter;
-
-        @Override
-        public Iterator<Tuple2<Key, Value>> call(final Element e) throws Exception {
-            Pair<Key> keys = converter.getKeysFromElement(e);
-            Value value = converter.getValueFromElement(e);
-            tuples.add(new Tuple2<>(keys.getFirst(), value));
-            Key second = keys.getSecond();
-            if (second != null) {
-                tuples.add(new Tuple2<>(second, value));
-            }
-            Iterator iter = tuples.listIterator();
-            tuples.clear();
-            return iter;
-        }
-    };
-
 }
 
 

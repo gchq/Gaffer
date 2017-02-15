@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,18 @@ public class ImportKeyValueJavaPairRDDToAccumulo extends AbstractOperation<JavaP
 
     private String outputPath;
 
+    private String failurePath;
+
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.Void();
+    }
+
+    public String getFailurePath() {
+        return failurePath;
+    }
+
+    public void setFailurePath(final String failurePath) {
+        this.failurePath = failurePath;
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
@@ -47,6 +57,11 @@ public class ImportKeyValueJavaPairRDDToAccumulo extends AbstractOperation<JavaP
 
         public CHILD_CLASS outputPath(final String outputPath) {
             op.setOutputPath(outputPath);
+            return self();
+        }
+
+        public CHILD_CLASS failurePath(final String failurePath) {
+            op.setFailurePath(failurePath);
             return self();
         }
 

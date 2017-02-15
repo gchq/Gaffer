@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.utils;
 
-
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -23,8 +22,7 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.Partitioner;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
 
@@ -36,15 +34,11 @@ import java.util.Collection;
  */
 public class AccumuloKeyRangePartitioner extends Partitioner {
 
-    private final AccumuloProperties properties;
-    private Text[] splits;
+    private volatile Text[] splits;
     private int numSubBins = 0;
 
-    public AccumuloKeyRangePartitioner(final AccumuloProperties properties) throws OperationException {
-        this.properties = properties;
-        Collection<Text> splits = getSplits(properties);
-        Text[] textArr = new Text[splits.size()];
-        this.splits = splits.toArray(textArr);
+    public AccumuloKeyRangePartitioner(final Text[] splits) throws OperationException {
+        this.splits = splits;
     }
 
     private synchronized int getNumSubBins() {
@@ -55,7 +49,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
         return numSubBins;
     }
 
-    private synchronized void setNumSubBins(final int numSubBins) {
+    public synchronized void setNumSubBins(final int numSubBins) {
         this.numSubBins = numSubBins;
     }
 
@@ -82,23 +76,29 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
         return (key.toString().hashCode() & Integer.MAX_VALUE) % numSubBins + index * numSubBins;
     }
 
-    public void updateSplits() throws OperationException {
-        Collection<Text> splits = getSplits(properties);
-        Text[] textArr = new Text[splits.size()];
-        this.splits = splits.toArray(textArr);
+    public synchronized void updateSplits(final Text[] splits) throws OperationException {
+        this.splits = splits;
     }
 
-    private static Collection<Text> getSplits(final AccumuloProperties properties) throws OperationException {
+    public synchronized void updateSplits(final AccumuloStore store) throws OperationException {
+        this.splits = getSplits(store);
+    }
+
+    public static Text[] getSplits(final AccumuloStore store) throws OperationException {
         Connector connector = null;
         try {
-            connector = TableUtils.getConnector(properties.getInstanceName(), properties.getZookeepers(), properties.getUserName(), properties.getPassword());
+            connector = store.getConnection();
         } catch (StoreException e) {
             throw new OperationException("Failed to create accumulo connection", e);
         }
+        String table = store.getProperties().getTable();
         try {
-            return connector.tableOperations().listSplits(properties.getTable());
+            Collection<Text> splits = connector.tableOperations().listSplits(table);
+            Text[] textArr = new Text[splits.size()];
+            return splits.toArray(textArr);
         } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
-            throw new OperationException("Failed to get accumulo split points from table " + properties.getTable(), e);
+            throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }
+
     }
 }
