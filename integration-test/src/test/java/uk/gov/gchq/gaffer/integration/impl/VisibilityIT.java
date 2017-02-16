@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -330,9 +331,7 @@ public class VisibilityIT extends AbstractStoreIT {
     @Override
     protected Schema createSchema() {
         return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .merge(super.createSchema())
                 .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
@@ -340,7 +339,9 @@ public class VisibilityIT extends AbstractStoreIT {
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
                         .property(TestTypes.VISIBILITY, TestTypes.VISIBILITY)
+                        .groupBy(TestPropertyNames.INT)
                         .build())
                 .visibilityProperty(TestTypes.VISIBILITY)
                 .build();
