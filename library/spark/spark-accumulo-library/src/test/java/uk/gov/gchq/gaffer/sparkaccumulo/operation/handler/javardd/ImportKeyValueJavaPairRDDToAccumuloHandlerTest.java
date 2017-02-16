@@ -58,6 +58,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/storeSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();

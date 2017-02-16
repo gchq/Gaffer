@@ -63,6 +63,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/storeSchema.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
