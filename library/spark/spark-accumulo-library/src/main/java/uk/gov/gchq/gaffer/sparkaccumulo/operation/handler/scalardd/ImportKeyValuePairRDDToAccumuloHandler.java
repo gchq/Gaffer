@@ -47,7 +47,6 @@ public class ImportKeyValuePairRDDToAccumuloHandler implements OperationHandler<
     private static final ClassTag<Value> VALUE_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Value.class);
     private static final Ordering<Key> ORDERING_CLASS_TAG = Ordering$.MODULE$.comparatorToOrdering(Comparator.<Key>naturalOrder());
 
-
     @Override
     public Void doOperation(final ImportKeyValuePairRDDToAccumulo operation, final Context context, final Store store) throws OperationException {
         String outputPath = operation.getOutputPath();
@@ -63,7 +62,7 @@ public class ImportKeyValuePairRDDToAccumuloHandler implements OperationHandler<
     }
 
     private void doOperation(final ImportKeyValuePairRDDToAccumulo operation, final Context context, final AccumuloStore store) throws OperationException {
-        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(AccumuloKeyRangePartitioner.getSplits(store));
+        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(store);
         OrderedRDDFunctions orderedRDDFunctions = new OrderedRDDFunctions(operation.getInput(), ORDERING_CLASS_TAG, KEY_CLASS_TAG, VALUE_CLASS_TAG, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
         PairRDDFunctions pairRDDFunctions = new PairRDDFunctions(orderedRDDFunctions.repartitionAndSortWithinPartitions(partitioner), KEY_CLASS_TAG, VALUE_CLASS_TAG, ORDERING_CLASS_TAG);
         pairRDDFunctions.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));

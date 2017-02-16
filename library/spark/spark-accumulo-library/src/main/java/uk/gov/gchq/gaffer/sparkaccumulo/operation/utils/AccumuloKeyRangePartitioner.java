@@ -28,17 +28,19 @@ import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * This is a spark compatible implementation of the accumulo RangePartitioner ( @link org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner }
  */
 public class AccumuloKeyRangePartitioner extends Partitioner {
 
-    private volatile Text[] splits;
+    private static final long serialVersionUID = -5616778533667038166L;
+    private String[] splits;
     private int numSubBins = 0;
 
-    public AccumuloKeyRangePartitioner(final Text[] splits) throws OperationException {
-        this.splits = splits;
+    public AccumuloKeyRangePartitioner(final AccumuloStore store) throws OperationException {
+        this.splits = getSplits(store);
     }
 
     private synchronized int getNumSubBins() {
@@ -65,7 +67,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
 
     private int findPartition(final Text key, final int numSubBins) {
         // find the bin for the range, and guarantee it is positive
-        int index = Arrays.binarySearch(splits, key);
+        int index = Arrays.binarySearch(splits, key.toString());
         index = index < 0 ? (index + 1) * -1 : index;
 
         // both conditions work with numSubBins == 1, but this check is to avoid
@@ -76,15 +78,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
         return (key.toString().hashCode() & Integer.MAX_VALUE) % numSubBins + index * numSubBins;
     }
 
-    public synchronized void updateSplits(final Text[] splits) throws OperationException {
-        this.splits = splits;
-    }
-
-    public synchronized void updateSplits(final AccumuloStore store) throws OperationException {
-        this.splits = getSplits(store);
-    }
-
-    public static Text[] getSplits(final AccumuloStore store) throws OperationException {
+    public static synchronized String[] getSplits(final AccumuloStore store) throws OperationException {
         Connector connector = null;
         try {
             connector = store.getConnection();
@@ -94,8 +88,8 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
         String table = store.getProperties().getTable();
         try {
             Collection<Text> splits = connector.tableOperations().listSplits(table);
-            Text[] textArr = new Text[splits.size()];
-            return splits.toArray(textArr);
+            String[] arr = new String[splits.size()];
+            return splits.parallelStream().map(text -> text.toString()).collect(Collectors.toList()).toArray(arr);
         } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }

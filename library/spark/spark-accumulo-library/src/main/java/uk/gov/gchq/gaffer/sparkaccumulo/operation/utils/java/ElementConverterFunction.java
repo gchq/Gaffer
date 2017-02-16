@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ElementConverterFunction implements PairFlatMapFunction<Element, Key, Value>, Serializable {
+    private static final long serialVersionUID = -3259752069724639102L;
+
     private final Broadcast<AccumuloElementConverter> converterBroadcast;
 
     public ElementConverterFunction(final Broadcast<AccumuloElementConverter> converterBroadcast) {

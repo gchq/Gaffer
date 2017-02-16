@@ -45,7 +45,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandler implements OperationHand
     }
 
     public void doOperation(final ImportKeyValueJavaPairRDDToAccumulo operation, final Context context, final AccumuloStore store) throws OperationException {
-        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(AccumuloKeyRangePartitioner.getSplits(store));
+        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(store);
         JavaPairRDD<Key, Value> rdd = operation.getInput();
         rdd = rdd.repartitionAndSortWithinPartitions(partitioner);
         rdd.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
