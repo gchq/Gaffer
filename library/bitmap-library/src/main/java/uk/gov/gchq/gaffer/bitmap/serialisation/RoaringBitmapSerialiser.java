@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gaffer.bitmap.serialisation;
+package uk.gov.gchq.gaffer.bitmap.serialisation;
 
-import gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
+
 import org.roaringbitmap.RoaringBitmap;
+
+import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
