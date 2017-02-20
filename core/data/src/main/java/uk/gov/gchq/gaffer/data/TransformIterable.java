@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -32,6 +34,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
     private final Iterable<INPUT> input;
     private final Validator<INPUT> validator;
     private final boolean skipInvalid;
+    private final boolean autoClose;
 
     /**
      * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable} and no validation.
@@ -62,10 +65,24 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      * @param skipInvalid if true invalid items should be skipped
      */
     public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid) {
+        this(input, validator, skipInvalid, false);
+    }
+
+    /**
+     * Constructs an <code>TransformIterable</code> with the given parameters
+     *
+     * @param input       the input {@link java.lang.Iterable}
+     * @param validator   the {@link uk.gov.gchq.gaffer.data.Validator}
+     * @param skipInvalid if true invalid items should be skipped
+     * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
+     */
+    public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
+        this.autoClose = autoClose;
     }
+
 
     /**
      * @return an {@link java.util.Iterator} that lazy transforms the INPUT items to OUTPUT items
@@ -74,7 +91,9 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
         return new CloseableIterator<OUTPUT>() {
             @Override
             public void close() {
-
+                if (inputItr instanceof Closeable) {
+                    IOUtils.closeQuietly(((Closeable) inputItr));
+                }
             }
 
             private final Iterator<INPUT> inputItr = input.iterator();
@@ -101,7 +120,12 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
                     nextElement = null;
                 }
 
-                return Boolean.TRUE.equals(hasNext);
+                final boolean hasNextResult = Boolean.TRUE.equals(hasNext);
+                if (autoClose && !hasNextResult) {
+                    close();
+                }
+
+                return hasNextResult;
             }
 
             @Override
@@ -126,12 +150,11 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
         };
     }
 
-    /**
-     * Should be overridden and to close any resources used in the creation of the transform iterable.
-     * This can include the input.
-     */
+    @Override
     public void close() {
-
+        if (input instanceof Closeable) {
+            IOUtils.closeQuietly(((Closeable) input));
+        }
     }
 
     /**

@@ -58,6 +58,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
+    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     @Test
     public void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
@@ -76,6 +77,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllElementsWithFilterWithoutSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
@@ -111,44 +113,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 (Element) edge1, edge2));
     }
 
-    @TraitRequirement(StoreTrait.AGGREGATION)
-    @Test
-    public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
-        final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
-        edge1.putProperty(TestPropertyNames.INT, 100);
-        edge1.putProperty(TestPropertyNames.COUNT, 1L);
-
-        final Edge edge2 = edge1.emptyClone();
-        edge2.putProperty(TestPropertyNames.INT, 101);
-        edge2.putProperty(TestPropertyNames.COUNT, 1L);
-
-        graph.execute(new AddElements.Builder()
-                .elements(Arrays.asList((Element) edge1, edge2))
-                .build(), getUser());
-
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .groupBy()
-                                .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.INT)
-                                        .execute(new IsIn(Arrays.asList((Object) 100, 101)))
-                                        .build())
-                                .build())
-                        .build())
-                .build();
-
-        // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
-
-        // Then
-        final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        // aggregation is 'Max'
-        assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
-    }
-
-    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements<Element> op = new GetAllElements.Builder<>()
