@@ -132,7 +132,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
             fail("No RDD returned");
         }
         final Set<Element> results = new HashSet<>();
-        final Element[] returnedElements = rdd.collect();
+        final Element[] returnedElements = (Element[]) rdd.collect();
         Collections.addAll(results, returnedElements);
         assertEquals(elements.size(), results.size());
         sparkContext.stop();
