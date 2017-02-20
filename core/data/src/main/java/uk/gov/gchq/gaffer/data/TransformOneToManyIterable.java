@@ -76,7 +76,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
      * @param input       the input {@link Iterable}
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
-     * @param autoClose   if true then the iterable will be closed when any iterators reach the end of the iterator.
+     * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
     public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
         this.input = input;
