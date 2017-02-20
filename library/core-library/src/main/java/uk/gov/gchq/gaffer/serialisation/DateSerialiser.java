@@ -26,7 +26,7 @@ import java.util.Date;
  * instead.
  */
 @Deprecated
-public class DateSerialiser extends AbstractSerialisation<Date> {
+public class DateSerialiser implements Serialisation<Date> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override

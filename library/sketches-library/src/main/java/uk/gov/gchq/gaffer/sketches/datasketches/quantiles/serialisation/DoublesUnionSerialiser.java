@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.AbstractSerialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 
 /**
  * A <code>DoublesUnionSerialiser</code> serialises a {@link DoublesUnion} using its <code>toByteArray()</code>
  * method.
  */
-public class DoublesUnionSerialiser extends AbstractSerialisation<DoublesUnion> {
+public class DoublesUnionSerialiser implements Serialisation<DoublesUnion> {
     private static final long serialVersionUID = 7855827433100904609L;
 
     @Override

@@ -27,6 +27,17 @@ import java.io.Serializable;
  */
 public interface Serialisation<T> extends Serializable {
 
+    byte[] EMPTY_BYTES = new byte[0];
+
+    /**
+     * Handle an incoming null value and generate an appropriate byte array representation.
+     *
+     * @return byte[] the serialised bytes
+     */
+    default byte[] serialiseNull() {
+        return EMPTY_BYTES;
+    }
+
     /**
      * Check whether the serialiser can serialise a particular class.
      *
@@ -52,13 +63,6 @@ public interface Serialisation<T> extends Serializable {
      * @throws SerialisationException if the object fails to deserialise
      */
     T deserialise(final byte[] bytes) throws SerialisationException;
-
-    /**
-     * Handle an incoming null value and generate an appropriate byte array representation.
-     *
-     * @return byte[] the serialised bytes
-     */
-    byte[] serialiseNull();
 
     /**
      * Handle an empty byte array and reconstruct an appropriate representation in Object form.

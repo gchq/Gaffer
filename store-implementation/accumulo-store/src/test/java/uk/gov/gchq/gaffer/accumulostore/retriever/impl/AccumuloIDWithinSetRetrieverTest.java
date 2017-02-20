@@ -203,7 +203,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     /**
      * Tests that the directed edges only and undirected edges only options are respected.
      *
-     * @throws gaffer.store.StoreException
+     * @throws uk.gov.gchq.gaffer.store.StoreException
      */
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryByteEntityStore() throws StoreException {
@@ -254,8 +254,8 @@ public class AccumuloIDWithinSetRetrieverTest {
      * that matches the Bloom filter but that wasn't put into the filter) and adding that to the data, and then
      * checking that isn't returned.
      *
-     * @throws gaffer.store.StoreException
-     * @throws gaffer.accumulostore.key.exception.AccumuloElementConversionException
+     * @throws uk.gov.gchq.gaffer.store.StoreException
+     * @throws uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException
      */
     @Test
     public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException, AccumuloElementConversionException {
@@ -338,7 +338,7 @@ public class AccumuloIDWithinSetRetrieverTest {
      * Tests that standard filtering (e.g. by summary type, or by time window, or to only receive entities) is still
      * applied.
      *
-     * @throws gaffer.store.StoreException
+     * @throws uk.gov.gchq.gaffer.store.StoreException
      */
     @Test
     public void shouldStillApplyOtherFilterByteEntityStoreInMemoryEntities() throws StoreException {
