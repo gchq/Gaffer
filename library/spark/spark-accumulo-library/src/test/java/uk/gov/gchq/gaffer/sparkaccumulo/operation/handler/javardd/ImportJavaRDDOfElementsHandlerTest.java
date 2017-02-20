@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -92,13 +92,14 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
-        File file = new File(outputPath);
-        if(file.exists()) {
+        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
+        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final File file = new File(outputPath);
+        if (file.exists()) {
             FileUtils.forceDelete(file);
         }
-        JavaRDD<Element> elementJavaRDD = sparkContext.parallelize(elements);
+
+        final JavaRDD<Element> elementJavaRDD = sparkContext.parallelize(elements);
         final ImportJavaRDDOfElements addRdd = new ImportJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
                 .input(elementJavaRDD)

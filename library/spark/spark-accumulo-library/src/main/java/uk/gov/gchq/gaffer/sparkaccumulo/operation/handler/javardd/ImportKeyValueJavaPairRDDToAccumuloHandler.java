@@ -18,53 +18,26 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaPairRDD;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractImportKeyValuePairRDDToAccumuloHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
-public class ImportKeyValueJavaPairRDDToAccumuloHandler implements OperationHandler<ImportKeyValueJavaPairRDDToAccumulo, Void> {
+public class ImportKeyValueJavaPairRDDToAccumuloHandler extends AbstractImportKeyValuePairRDDToAccumuloHandler<ImportKeyValueJavaPairRDDToAccumulo> {
+    @Override
+    protected void prepareKeyValues(final ImportKeyValueJavaPairRDDToAccumulo operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException {
+        final JavaPairRDD<Key, Value> rdd = operation.getInput().repartitionAndSortWithinPartitions(partitioner);
+        rdd.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
+    }
 
     @Override
-    public Void doOperation(final ImportKeyValueJavaPairRDDToAccumulo operation, final Context context, final Store store) throws OperationException {
-        doOperation(operation, context, (AccumuloStore) store);
-        return null;
+    protected String getFailurePath(final ImportKeyValueJavaPairRDDToAccumulo operation) {
+        return operation.getFailurePath();
     }
 
-    public void doOperation(final ImportKeyValueJavaPairRDDToAccumulo operation, final Context context, final AccumuloStore store) throws OperationException {
-        AccumuloKeyRangePartitioner partitioner = new AccumuloKeyRangePartitioner(store);
-        JavaPairRDD<Key, Value> rdd = operation.getInput();
-        rdd = rdd.repartitionAndSortWithinPartitions(partitioner);
-        rdd.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
-        ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(operation.getOutputPath()).failurePath(operation.getFailurePath()).build();
-        store.execute(importAccumuloKeyValueFiles, context.getUser());
+    @Override
+    protected String getOutputPath(final ImportKeyValueJavaPairRDDToAccumulo operation) {
+        return operation.getOutputPath();
     }
-
-    protected Configuration getConfiguration(final Operation operation) throws OperationException {
-        final Configuration conf = new Configuration();
-        final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
-        if (serialisedConf != null) {
-            try {
-                final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(CommonConstants.UTF_8));
-                conf.readFields(new DataInputStream(bais));
-            } catch (final IOException e) {
-                throw new OperationException("Exception decoding Configuration from options", e);
-            }
-        }
-        return conf;
-    }
-
 }

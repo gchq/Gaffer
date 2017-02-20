@@ -35,11 +35,10 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -99,13 +98,15 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";        File file = new File(outputPath);
-        if(file.exists()) {
+        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
+        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final File file = new File(outputPath);
+        if (file.exists()) {
             FileUtils.forceDelete(file);
         }
-        ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
-        JavaPairRDD<Key, Value> elementJavaRDD = sparkContext.parallelize(elements).flatMapToPair(func);
+
+        final ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
+        final JavaPairRDD<Key, Value> elementJavaRDD = sparkContext.parallelize(elements).flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo addRdd = new ImportKeyValueJavaPairRDDToAccumulo.Builder()
                 .input(elementJavaRDD)
                 .outputPath(outputPath)

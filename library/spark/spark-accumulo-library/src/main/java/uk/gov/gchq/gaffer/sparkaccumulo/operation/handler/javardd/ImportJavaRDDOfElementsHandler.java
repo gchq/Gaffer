@@ -41,18 +41,19 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
     }
 
     public void doOperation(final ImportJavaRDDOfElements operation, final Context context, final AccumuloStore store) throws OperationException {
-        String outputPath = operation.getOption(OUTPUT_PATH);
+        final String outputPath = operation.getOption(OUTPUT_PATH);
         if (null == outputPath || outputPath.isEmpty()) {
             throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
         }
-        String failurePath = operation.getOption(FAILURE_PATH);
+        final String failurePath = operation.getOption(FAILURE_PATH);
         if (null == failurePath || failurePath.isEmpty()) {
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
-        Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
-        ElementConverterFunction func = new ElementConverterFunction(broadcast);
-        JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
-        ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
+
+        final Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
+        final ElementConverterFunction func = new ElementConverterFunction(broadcast);
+        final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
+        final ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
         store.execute(op, context.getUser());
     }
 }

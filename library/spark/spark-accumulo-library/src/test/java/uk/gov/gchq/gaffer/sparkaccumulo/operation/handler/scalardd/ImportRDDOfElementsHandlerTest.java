@@ -22,8 +22,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -36,13 +34,16 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ImportRDDOfElementsHandlerTest {
 
@@ -93,13 +94,14 @@ public class ImportRDDOfElementsHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        String failurePath =this.getClass().getResource("/").getPath().toString() + "failure";
-        File file = new File(outputPath);
-        if(file.exists()) {
+        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
+        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final File file = new File(outputPath);
+        if (file.exists()) {
             FileUtils.forceDelete(file);
         }
-        RDD<Element> elementRDD = sparkContext.parallelize(elements, 8, ELEMENT_CLASS_TAG);
+
+        final RDD<Element> elementRDD = sparkContext.parallelize(elements, 8, ELEMENT_CLASS_TAG);
         final ImportRDDOfElements addRdd = new ImportRDDOfElements.Builder()
                 .sparkContext(sparkContext)
                 .input(elementRDD)
@@ -119,8 +121,9 @@ public class ImportRDDOfElementsHandlerTest {
         if (rdd == null) {
             fail("No RDD returned");
         }
-        Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
+
+        final Set<Element> results = new HashSet<>();
+        final Element[] returnedElements = (Element[]) rdd.collect();
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
         }

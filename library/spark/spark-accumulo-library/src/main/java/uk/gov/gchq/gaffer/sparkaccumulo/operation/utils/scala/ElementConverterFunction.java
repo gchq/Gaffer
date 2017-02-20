@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-
 import java.io.Serializable;
 
 public class ElementConverterFunction extends AbstractFunction1<Element, TraversableOnce<Tuple2<Key, Value>>> implements Serializable {
@@ -41,20 +40,20 @@ public class ElementConverterFunction extends AbstractFunction1<Element, Travers
 
     @Override
     public TraversableOnce<Tuple2<Key, Value>> apply(final Element element) {
-        ArrayBuffer<Tuple2<Key, Value>> buf = new ArrayBuffer<>();
+        final ArrayBuffer<Tuple2<Key, Value>> buf = new ArrayBuffer<>();
         Pair<Key> keys = new Pair<>();
         Value value = null;
         try {
             keys = converterBroadcast.value().getKeysFromElement(element);
             value = converterBroadcast.value().getValueFromElement(element);
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             LOGGER.error(e.getMessage(), e);
         }
-        Key first = keys.getFirst();
+        final Key first = keys.getFirst();
         if (first != null) {
             buf.$plus$eq(new Tuple2<>(first, value));
         }
-        Key second = keys.getSecond();
+        final Key second = keys.getSecond();
         if (second != null) {
             buf.$plus$eq(new Tuple2<>(second, value));
         }

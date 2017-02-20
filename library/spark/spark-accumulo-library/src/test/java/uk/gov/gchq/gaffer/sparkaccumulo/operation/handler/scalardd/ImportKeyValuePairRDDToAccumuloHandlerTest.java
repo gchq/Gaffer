@@ -38,13 +38,14 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -103,14 +104,15 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
-        File file = new File(outputPath);
-        if(file.exists()) {
+        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
+        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final File file = new File(outputPath);
+        if (file.exists()) {
             FileUtils.forceDelete(file);
         }
-        ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
-        RDD<Tuple2<Key, Value>> elementRDD = sparkContext.parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
+
+        final ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final RDD<Tuple2<Key, Value>> elementRDD = sparkContext.parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo addRdd = new ImportKeyValuePairRDDToAccumulo.Builder()
                 .input(elementRDD)
                 .outputPath(outputPath)
@@ -129,11 +131,9 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         if (rdd == null) {
             fail("No RDD returned");
         }
-        Set<Element> results = new HashSet<>();
-        Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
+        final Set<Element> results = new HashSet<>();
+        final Element[] returnedElements = rdd.collect();
+        Collections.addAll(results, returnedElements);
         assertEquals(elements.size(), results.size());
         sparkContext.stop();
     }

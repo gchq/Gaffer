@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements, Void> {
-
     private static final String OUTPUT_PATH = "outputPath";
     private static final String FAILURE_PATH = "failurePath";
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
@@ -44,19 +43,23 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     }
 
     public void doOperation(final ImportRDDOfElements operation, final Context context, final AccumuloStore store) throws OperationException {
-        String outputPath = operation.getOption(OUTPUT_PATH);
+        final String outputPath = operation.getOption(OUTPUT_PATH);
         if (null == outputPath || outputPath.isEmpty()) {
             throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
         }
-        String failurePath = operation.getOption(FAILURE_PATH);
+        final String failurePath = operation.getOption(FAILURE_PATH);
         if (null == failurePath || failurePath.isEmpty()) {
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
-        ElementConverterFunction func = new ElementConverterFunction(operation.getSparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
-        RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
-        ImportKeyValuePairRDDToAccumulo op = new ImportKeyValuePairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
+        final ElementConverterFunction func = new ElementConverterFunction(operation.getSparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
+        final ImportKeyValuePairRDDToAccumulo op =
+                new ImportKeyValuePairRDDToAccumulo.Builder()
+                        .input(rdd)
+                        .failurePath(failurePath)
+                        .outputPath(outputPath)
+                        .build();
         store.execute(op, context.getUser());
     }
-
 }
 

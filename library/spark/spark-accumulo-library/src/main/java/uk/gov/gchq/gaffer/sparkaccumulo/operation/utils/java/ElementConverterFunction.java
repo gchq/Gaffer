@@ -23,7 +23,6 @@ import scala.Tuple2;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,20 +34,19 @@ public class ElementConverterFunction implements PairFlatMapFunction<Element, Ke
     private final Broadcast<AccumuloElementConverter> converterBroadcast;
 
     public ElementConverterFunction(final Broadcast<AccumuloElementConverter> converterBroadcast) {
-       this.converterBroadcast = converterBroadcast;
+        this.converterBroadcast = converterBroadcast;
     }
 
     @Override
     public Iterator<Tuple2<Key, Value>> call(final Element e) throws Exception {
-        List<Tuple2<Key, Value>> tuples = new ArrayList<>(2);
-        Pair<Key> keys = converterBroadcast.value().getKeysFromElement(e);
-        Value value = converterBroadcast.value().getValueFromElement(e);
+        final List<Tuple2<Key, Value>> tuples = new ArrayList<>(2);
+        final Pair<Key> keys = converterBroadcast.value().getKeysFromElement(e);
+        final Value value = converterBroadcast.value().getValueFromElement(e);
         tuples.add(new Tuple2<>(keys.getFirst(), value));
-        Key second = keys.getSecond();
+        final Key second = keys.getSecond();
         if (second != null) {
             tuples.add(new Tuple2<>(second, value));
         }
-        Iterator iter = tuples.listIterator();
-        return iter;
+        return tuples.listIterator();
     }
 }

@@ -25,7 +25,6 @@ import org.apache.spark.Partitioner;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -79,20 +78,20 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
     }
 
     public static synchronized String[] getSplits(final AccumuloStore store) throws OperationException {
-        Connector connector = null;
+        final Connector connector;
         try {
             connector = store.getConnection();
         } catch (StoreException e) {
             throw new OperationException("Failed to create accumulo connection", e);
         }
-        String table = store.getProperties().getTable();
+
+        final String table = store.getProperties().getTable();
         try {
-            Collection<Text> splits = connector.tableOperations().listSplits(table);
-            String[] arr = new String[splits.size()];
+            final Collection<Text> splits = connector.tableOperations().listSplits(table);
+            final String[] arr = new String[splits.size()];
             return splits.parallelStream().map(text -> text.toString()).collect(Collectors.toList()).toArray(arr);
         } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }
-
     }
 }
