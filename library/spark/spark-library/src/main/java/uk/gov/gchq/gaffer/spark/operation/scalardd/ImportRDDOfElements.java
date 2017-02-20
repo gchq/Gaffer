@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.VoidOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class ImportRDDOfElements extends AbstractOperation<RDD<Element>, Void> implements VoidOutput<RDD<Element>> {
-
     private SparkContext sparkContext;
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 
@@ -48,12 +47,10 @@ public class ImportRDDOfElements extends AbstractOperation<RDD<Element>, Void> i
             super(new ImportRDDOfElements());
         }
 
-
         public CHILD_CLASS sparkContext(final SparkContext sparkContext) {
             op.setSparkContext(sparkContext);
             return self();
         }
-
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
