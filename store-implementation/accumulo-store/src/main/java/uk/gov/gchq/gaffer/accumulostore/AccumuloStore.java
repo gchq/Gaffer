@@ -87,11 +87,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.QUERY_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
@@ -107,7 +108,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class AccumuloStore extends Store {
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY)));
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(STORE_AGGREGATION, QUERY_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY)));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;

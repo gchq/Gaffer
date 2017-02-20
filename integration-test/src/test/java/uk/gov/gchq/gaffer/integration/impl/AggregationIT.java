@@ -21,19 +21,27 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.function.filter.IsIn;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,7 +80,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.AGGREGATION)
+    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
         final GetElements<ElementSeed, Element> getElements = new GetElements.Builder<>()
@@ -109,7 +117,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.AGGREGATION)
+    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
         final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
@@ -126,5 +134,43 @@ public class AggregationIT extends AbstractStoreIT {
                 getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
                 new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)
         ));
+    }
+
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
+    @Test
+    public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
+        final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
+        edge1.putProperty(TestPropertyNames.INT, 100);
+        edge1.putProperty(TestPropertyNames.COUNT, 1L);
+
+        final Edge edge2 = edge1.emptyClone();
+        edge2.putProperty(TestPropertyNames.INT, 101);
+        edge2.putProperty(TestPropertyNames.COUNT, 1L);
+
+        graph.execute(new AddElements.Builder()
+                .elements(Arrays.asList((Element) edge1, edge2))
+                .build(), getUser());
+
+        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .groupBy()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.INT)
+                                        .execute(new IsIn(Arrays.asList((Object) 100, 101)))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        final List<Element> resultList = Lists.newArrayList(results);
+
+        assertEquals(1, resultList.size());
+        // aggregation is 'Max'
+        assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 }

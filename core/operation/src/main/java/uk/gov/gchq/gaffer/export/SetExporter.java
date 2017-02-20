@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.export;
 
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
@@ -58,5 +59,11 @@ public class SetExporter extends Exporter<Object> {
         } else {
             this.export = export;
         }
+    }
+
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append(export)
+                .toString();
     }
 }

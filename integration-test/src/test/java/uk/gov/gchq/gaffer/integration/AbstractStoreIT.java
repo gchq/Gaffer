@@ -25,9 +25,12 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.function.aggregate.Max;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.function.aggregate.Sum;
+import uk.gov.gchq.gaffer.function.filter.AgeOff;
+import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -62,45 +65,48 @@ import static org.junit.Assume.assumeTrue;
  */
 public abstract class AbstractStoreIT {
     protected static final String USER_01 = "user01";
+    protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
     // Temporary folder location
     protected static final File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
 
     // Identifier prefixes
-    protected static final String SOURCE = "source";
-    protected static final String DEST = "dest";
-    protected static final String SOURCE_DIR = "sourceDir";
-    protected static final String DEST_DIR = "destDir";
-    protected static final String A = "A";
-    protected static final String B = "B";
-    protected static final String C = "C";
-    protected static final String D = "D";
-    protected static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
+    public static final String SOURCE = "source";
+    public static final String DEST = "dest";
+    public static final String SOURCE_DIR = "sourceDir";
+    public static final String DEST_DIR = "destDir";
+    public static final String A = "A";
+    public static final String B = "B";
+    public static final String C = "C";
+    public static final String D = "D";
+    public static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     // Identifiers
-    protected static final String SOURCE_1 = SOURCE + 1;
-    protected static final String DEST_1 = DEST + 1;
+    public static final String SOURCE_1 = SOURCE + 1;
+    public static final String DEST_1 = DEST + 1;
 
-    protected static final String SOURCE_2 = SOURCE + 2;
-    protected static final String DEST_2 = DEST + 2;
+    public static final String SOURCE_2 = SOURCE + 2;
+    public static final String DEST_2 = DEST + 2;
 
-    protected static final String SOURCE_3 = SOURCE + 3;
-    protected static final String DEST_3 = DEST + 3;
+    public static final String SOURCE_3 = SOURCE + 3;
+    public static final String DEST_3 = DEST + 3;
 
-    protected static final String SOURCE_DIR_0 = SOURCE_DIR + 0;
+    public static final String SOURCE_DIR_0 = SOURCE_DIR + 0;
+    public static final String DEST_DIR_0 = DEST_DIR + 0;
 
-    protected static final String SOURCE_DIR_1 = SOURCE_DIR + 1;
-    protected static final String DEST_DIR_1 = DEST_DIR + 1;
+    public static final String SOURCE_DIR_1 = SOURCE_DIR + 1;
+    public static final String DEST_DIR_1 = DEST_DIR + 1;
 
-    protected static final String SOURCE_DIR_2 = SOURCE_DIR + 2;
-    protected static final String DEST_DIR_2 = DEST_DIR + 2;
+    public static final String SOURCE_DIR_2 = SOURCE_DIR + 2;
+    public static final String DEST_DIR_2 = DEST_DIR + 2;
 
-    protected static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
-    protected static final String DEST_DIR_3 = DEST_DIR + 3;
+    public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
+    public static final String DEST_DIR_3 = DEST_DIR + 3;
 
     protected static Graph graph;
     private static Schema storeSchema = new Schema();
     private static StoreProperties storeProperties;
+    private static String singleTestMethod;
 
     private final Map<EntitySeed, Entity> entities = createEntities();
     private final Map<EdgeSeed, Edge> edges = createEdges();
@@ -130,6 +136,10 @@ public abstract class AbstractStoreIT {
         AbstractStoreIT.skippedTests = skippedTests;
     }
 
+    public static void setSingleTestMethod(final String singleTestMethod) {
+        AbstractStoreIT.singleTestMethod = singleTestMethod;
+    }
+
     /**
      * Setup the Parameterised Graph for each type of Store.
      * Excludes tests where the graph's Store doesn't implement the required StoreTraits.
@@ -140,15 +150,12 @@ public abstract class AbstractStoreIT {
     public void setup() throws Exception {
         assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
 
-        graph = new Graph.Builder()
-                .storeProperties(storeProperties)
-                .addSchema(createSchema())
-                .addSchema(storeSchema)
-                .build();
-
         final String originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
                 : name.getMethodName();
+
+        assumeTrue("Skipping test as only " + singleTestMethod + " is being run.", null == singleTestMethod || singleTestMethod.equals(originalMethodName));
+
         final Method testMethod = this.getClass().getMethod(originalMethodName);
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
 
@@ -158,15 +165,24 @@ public abstract class AbstractStoreIT {
                 requiredTraits.addAll(Arrays.asList(traitRequirement.value()));
             }
         }
+        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
+
+        graph = new Graph.Builder()
+                .storeProperties(storeProperties)
+                .addSchema(createSchema())
+                .addSchema(storeSchema)
+                .build();
 
         for (final StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
-
-        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
     }
 
     protected Schema createSchema() {
+        return createDefaultSchema();
+    }
+
+    public static Schema createDefaultSchema() {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -192,6 +208,23 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
+                        .serialiser(new CompactRawLongSerialiser())
+                        .build())
+                .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Max())
+                        .serialiser(new CompactRawLongSerialiser())
+                        .validator(new ElementFilter.Builder()
+                                .execute(new AgeOff(AGE_OFF_TIME))
+                                .build())
+                        .build())
+                .type(TestTypes.PROP_INTEGER_2, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(new Max())
+                        .serialiser(new RawIntegerSerialiser())
+                        .validator(new ElementFilter.Builder()
+                                .execute(new IsLessThan(10))
+                                .build())
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -205,6 +238,10 @@ public abstract class AbstractStoreIT {
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .groupBy(TestPropertyNames.INT)
+                        .build())
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
+                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();
@@ -242,6 +279,10 @@ public abstract class AbstractStoreIT {
     }
 
     protected Map<EdgeSeed, Edge> createEdges() {
+        return createDefaultEdges();
+    }
+
+    public static Map<EdgeSeed, Edge> createDefaultEdges() {
         final Map<EdgeSeed, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
@@ -266,6 +307,10 @@ public abstract class AbstractStoreIT {
     }
 
     protected Map<EntitySeed, Entity> createEntities() {
+        return createDefaultEntities();
+    }
+
+    public static Map<EntitySeed, Entity> createDefaultEntities() {
         final Map<EntitySeed, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
@@ -294,11 +339,11 @@ public abstract class AbstractStoreIT {
         return entities;
     }
 
-    protected void addToMap(final Edge element, final Map<EdgeSeed, Edge> edges) {
+    protected static void addToMap(final Edge element, final Map<EdgeSeed, Edge> edges) {
         edges.put(ElementSeed.createSeed(element), element);
     }
 
-    protected void addToMap(final Entity element, final Map<EntitySeed, Entity> entities) {
+    protected static void addToMap(final Entity element, final Map<EntitySeed, Entity> entities) {
         entities.put(ElementSeed.createSeed(element), element);
     }
 
