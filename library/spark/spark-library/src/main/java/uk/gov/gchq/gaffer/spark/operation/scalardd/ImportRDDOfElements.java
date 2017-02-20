@@ -42,7 +42,6 @@ public class ImportRDDOfElements extends AbstractOperation<RDD<Element>, Void> i
 
     protected abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
             extends AbstractOperation.BaseBuilder<ImportRDDOfElements, RDD<Element>, Void, CHILD_CLASS> {
-
         public BaseBuilder() {
             super(new ImportRDDOfElements());
         }
