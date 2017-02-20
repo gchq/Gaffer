@@ -117,7 +117,7 @@ public class StoreProperties implements Cloneable {
      * This is an optional feature, so if the property does not exist then this function
      * will return an empty object.
      *
-     * @return  The Operation Definitions to load dynamically
+     * @return The Operation Definitions to load dynamically
      */
     public OperationDeclarations getOperationDeclarations() {
         OperationDeclarations declarations = null;
@@ -256,7 +256,9 @@ public class StoreProperties implements Cloneable {
     }
 
     private void readProperties() {
-        if (null != propFileLocation) {
+        if (null == propFileLocation) {
+            props = new Properties();
+        } else {
             try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
                 props = new Properties();
                 props.load(accIs);
