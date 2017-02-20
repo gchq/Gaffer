@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.commonutil;
 
 public class TestTypes {
     public static final String TIMESTAMP = "timestamp";
+    public static final String TIMESTAMP_2 = "timestamp2";
     public static final String VISIBILITY = "visibility";
     public static final String ID_STRING = "id.string";
     public static final String DIRECTED_EITHER = "directed.either";
     public static final String DIRECTED_TRUE = "directed.true";
     public static final String PROP_STRING = "prop.string";
     public static final String PROP_INTEGER = "prop.integer";
+    public static final String PROP_INTEGER_2 = "prop.integer.2";
     public static final String PROP_COUNT = "prop.count";
 }

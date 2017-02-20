@@ -16,19 +16,17 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +34,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransformIterableTest {
@@ -183,6 +184,42 @@ public class TransformIterableTest {
         assertEquals("[\"ITEM 1\",\"ITEM 2\"]", json);
     }
 
+    @Test
+    public void shouldAutoCloseIterator() {
+        // Given
+        final boolean autoClose = true;
+        final CloseableIterable<String> items = mock(CloseableIterable.class);
+        final CloseableIterator<String> itemsIterator = mock(CloseableIterator.class);
+        given(items.iterator()).willReturn(itemsIterator);
+        given(itemsIterator.hasNext()).willReturn(false);
+
+        final TransformIterableImpl iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose);
+
+        // When
+        Lists.newArrayList(iterable);
+
+        // Then
+        verify(itemsIterator, times(1)).close();
+    }
+
+    @Test
+    public void shouldNotAutoCloseIterator() {
+        // Given
+        final boolean autoClose = false;
+        final CloseableIterable<String> items = mock(CloseableIterable.class);
+        final CloseableIterator<String> itemsIterator = mock(CloseableIterator.class);
+        given(items.iterator()).willReturn(itemsIterator);
+        given(itemsIterator.hasNext()).willReturn(false);
+
+        final TransformIterableImpl iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose);
+
+        // When
+        Lists.newArrayList(iterable);
+
+        // Then
+        verify(itemsIterator, never()).close();
+    }
+
     private class TransformIterableImpl extends TransformIterable<String, String> {
         public TransformIterableImpl() {
             super(null);
@@ -198,6 +235,10 @@ public class TransformIterableTest {
 
         public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
             super(input, validator, skipInvalid);
+        }
+
+        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid, final boolean autoClose) {
+            super(input, validator, skipInvalid, autoClose);
         }
 
         @Override
