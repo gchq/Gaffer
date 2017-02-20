@@ -55,8 +55,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-;
-
 public class AccumuloIDBetweenSetsRetrieverTest {
 
     private static View defaultView;
@@ -245,7 +243,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      * that matches the Bloom filter but that wasn't put into the filter) and adding that to the data, and then
      * checking that isn't returned.
      *
-     * @throws gaffer.store.StoreException
+     * @throws uk.gov.gchq.gaffer.store.StoreException
      * @throws AccumuloElementConversionException
      */
     @Test
@@ -335,7 +333,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      * Tests that standard filtering (e.g. by summary type, or to only receive entities) is still
      * applied.
      *
-     * @throws gaffer.store.StoreException
+     * @throws uk.gov.gchq.gaffer.store.StoreException
      */
     @Test
     public void shouldOtherFilteringStillAppliedByteEntityStoreInMemoryEntities() throws StoreException {
@@ -466,7 +464,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final AbstractAccumuloTwoSetSeededOperation operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
-        final AccumuloRetriever<?> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory);
+        final AccumuloRetriever<?> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory, store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
         final Set<Element> results = new HashSet<>();
 
         for (final Element elm : retriever) {
