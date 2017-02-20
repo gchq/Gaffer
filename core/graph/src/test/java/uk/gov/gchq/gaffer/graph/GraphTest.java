@@ -416,6 +416,18 @@ public class GraphTest {
         verify(operation, Mockito.never()).setView(view);
     }
 
+    @Test
+    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException {
+        try {
+            new Graph.Builder()
+                    .addSchema(new Schema())
+                    .storeProperties(new StoreProperties())
+                    .build();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS, e.getMessage());
+        }
+    }
+
     static class StoreImpl extends Store {
 
         @Override
