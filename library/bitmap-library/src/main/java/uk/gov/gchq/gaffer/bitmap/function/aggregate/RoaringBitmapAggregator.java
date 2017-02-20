@@ -28,7 +28,7 @@ public class RoaringBitmapAggregator extends SimpleAggregateFunction<RoaringBitm
             return;
         }
         if (null == result) {
-            result = input;
+            result = input.clone();
             return;
         }
         result.or(input);

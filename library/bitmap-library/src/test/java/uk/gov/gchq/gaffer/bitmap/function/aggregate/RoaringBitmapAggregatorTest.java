@@ -19,11 +19,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.roaringbitmap.RoaringBitmap;
-
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class RoaringBitmapAggregatorTest {
 
@@ -102,9 +105,27 @@ public class RoaringBitmapAggregatorTest {
         int outPutBitmapSize = result.getCardinality();
         assertEquals(6, outPutBitmapSize);
         int i = 0;
-        for(Integer value : result) {
+        for (Integer value : result) {
             assertEquals((Integer) inputs[i], value);
             i++;
         }
+    }
+
+    @Test
+    public void shouldCloneInputBitmapWhenAggregating() {
+        // Given
+        final RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
+        roaringBitmapAggregator.init();
+
+        final RoaringBitmap bitmap = mock(RoaringBitmap.class);
+        final RoaringBitmap clonedBitmap = mock(RoaringBitmap.class);
+        given(bitmap.clone()).willReturn(clonedBitmap);
+
+        // When
+        roaringBitmapAggregator._aggregate(bitmap);
+
+        // Then
+        assertSame(clonedBitmap, roaringBitmapAggregator.state()[0]);
+        assertNotSame(bitmap, roaringBitmapAggregator.state()[0]);
     }
 }
