@@ -350,7 +350,7 @@ public class GraphTest {
 
 
         // When
-        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.AGGREGATION, StoreTrait.TRANSFORMATION));
+        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.STORE_AGGREGATION, StoreTrait.TRANSFORMATION));
         given(store.getTraits()).willReturn(storeTraits);
         final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
 
@@ -414,6 +414,18 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain, user);
         verify(operation, Mockito.never()).setView(view);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException {
+        try {
+            new Graph.Builder()
+                    .addSchema(new Schema())
+                    .storeProperties(new StoreProperties())
+                    .build();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS, e.getMessage());
+        }
     }
 
     static class StoreImpl extends Store {

@@ -386,7 +386,7 @@ public final class Graph {
 
             final String storeClass = storeProperties.getStoreClass();
             if (null == storeClass) {
-                throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_PROPERTIES_CLASS);
+                throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
             }
 
             final Store newStore;
