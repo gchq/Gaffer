@@ -16,10 +16,43 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>function</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.roaringbitmap</groupId>
             <artifactId>RoaringBitmap</artifactId>
             <version>0.5.11</version>
         </dependency>
     </dependencies>
-
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${shade.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>deploy
+                            </shadedClassifierName>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.roaringbitmap:RoaringBitmap
+                                    </include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
