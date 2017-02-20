@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Runs the full suite of gaffer store integration tests. To run the tests against
@@ -42,6 +43,8 @@ public abstract class AbstractStoreITs {
     private final Schema schema;
     private final Collection<Class<? extends AbstractStoreIT>> extraTests;
     private final Map<Class<? extends AbstractStoreIT>, String> skipTests = new HashMap<>();
+    private Class<? extends AbstractStoreIT> singleTestClass;
+    private String singleTestMethod;
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
         this.schema = schema;
@@ -59,6 +62,15 @@ public abstract class AbstractStoreITs {
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
         this(storeProperties, new Schema());
+    }
+
+    public void singleTest(final Class<? extends AbstractStoreIT> testClass) {
+        singleTest(testClass, null);
+    }
+
+    public void singleTest(final Class<? extends AbstractStoreIT> testClass, final String testMethod) {
+        this.singleTestClass = testClass;
+        this.singleTestMethod = testMethod;
     }
 
     public Schema getStoreSchema() {
@@ -86,6 +98,8 @@ public abstract class AbstractStoreITs {
     }
 
     public static class StoreTestSuite extends Suite {
+        private Consumer<String> cleanUpFunction;
+
         public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
             super(builder, clazz, getTestClasses(clazz));
 
@@ -98,16 +112,19 @@ public abstract class AbstractStoreITs {
             AbstractStoreIT.setStoreSchema(storeSchema);
             AbstractStoreIT.setStoreProperties(runner.getStoreProperties());
             AbstractStoreIT.setSkipTests(runner.getSkipTests());
+            AbstractStoreIT.setSingleTestMethod(runner.singleTestMethod);
         }
 
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
-            final Set<Class<? extends AbstractStoreIT>> classes = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
-            keepPublicConcreteClasses(classes);
-
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
-            classes.addAll((Collection<? extends Class<? extends AbstractStoreIT>>) runner.getExtraTests());
+            if (null == runner.singleTestClass) {
+                final Set<Class<? extends AbstractStoreIT>> classes = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
+                keepPublicConcreteClasses(classes);
+                classes.addAll((Collection<? extends Class<? extends AbstractStoreIT>>) runner.getExtraTests());
+                return classes.toArray(new Class[classes.size()]);
+            }
 
-            return classes.toArray(new Class[classes.size()]);
+            return new Class[]{runner.singleTestClass};
         }
 
         private static void keepPublicConcreteClasses(final Set<Class<? extends AbstractStoreIT>> classes) {

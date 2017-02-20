@@ -21,9 +21,14 @@ package uk.gov.gchq.gaffer.store;
  */
 public enum StoreTrait {
     /**
-     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together.
+     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the schema.
      */
-    AGGREGATION,
+    STORE_AGGREGATION,
+
+    /**
+     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the view.
+     */
+    QUERY_AGGREGATION,
 
     /**
      * Most stores should have this trait if they deal with Aggregation as if you use Operation.validatePreAggregationFilter(Element) in you handlers,

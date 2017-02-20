@@ -37,7 +37,9 @@ public class ElementValidator implements Validator<Element> {
     private final View view;
     private final boolean includeIsA;
 
-    public enum FilterType { PRE_AGGREGATION_FILTER, POST_AGGREGATION_FILTER, POST_TRANSFORM_FILTER };
+    public enum FilterType {
+        PRE_AGGREGATION_FILTER, POST_AGGREGATION_FILTER, POST_TRANSFORM_FILTER
+    }
 
     /**
      * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
@@ -121,7 +123,7 @@ public class ElementValidator implements Validator<Element> {
         return validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER) && validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
     }
 
-    private boolean validateWithSchema(final Element element) {
+    public boolean validateWithSchema(final Element element) {
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
         if (null == elementDef) {
             LOGGER.warn("No element definition found for : " + element.getGroup());

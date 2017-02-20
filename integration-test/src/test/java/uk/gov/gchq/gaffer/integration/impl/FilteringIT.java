@@ -208,7 +208,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
+    @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
     public void testPostAggregationFilteringIdentifiers() throws OperationException {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
@@ -258,7 +258,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
+    @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
     public void testPostAggregationFilteringProperties() throws OperationException {
         // Given
         final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
