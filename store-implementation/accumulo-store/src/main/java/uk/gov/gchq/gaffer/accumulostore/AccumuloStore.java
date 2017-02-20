@@ -170,7 +170,7 @@ public class AccumuloStore extends Store {
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
             // Add iterators that depend on the view
-            if (!view.getEntityGroups().isEmpty() || !view.getEdgeGroups().isEmpty()) {
+            if (view.hasGroups()) {
                 IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPreAggregationFilterIteratorSetting(view, this);

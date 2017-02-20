@@ -99,12 +99,7 @@ public class SchemaToStructTypeConverter {
     }
 
     private void addGroups(final View view) {
-        for (final String group : view.getEntityGroups()) {
-            groups.add(group);
-        }
-        for (final String group : view.getEdgeGroups()) {
-            groups.add(group);
-        }
+        groups.addAll(view.getGroups());
     }
 
     private void buildSchema() {
