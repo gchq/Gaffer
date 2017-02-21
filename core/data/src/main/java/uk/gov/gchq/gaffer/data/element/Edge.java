@@ -91,7 +91,6 @@ public class Edge extends Element {
             case DIRECTED:
                 return isDirected();
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
                 return null;
         }
     }
