@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.function.processor.Filter;
 /**
  * Element Filter - for filtering {@link uk.gov.gchq.gaffer.data.element.Element}s.
  * <p>
- * Use {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator.Builder} to build an ElementFilter.
+ * Use {@link ElementFilter.Builder} to build an ElementFilter.
  *
  * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter.Builder
  * @see uk.gov.gchq.gaffer.function.processor.Filter
