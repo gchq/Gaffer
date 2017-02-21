@@ -20,7 +20,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.export.ExportOperation;
+import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.util.ExportUtil;
 
@@ -29,7 +31,7 @@ import uk.gov.gchq.gaffer.util.ExportUtil;
  * pagination.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-public abstract class Exporter<CONFIG> {
+public abstract class Exporter<CONFIG, INITIALISE_EXPORT extends InitialiseExport> {
     public static final String SEPARATOR = "_";
     private User user;
     private String plainTextUserId;
@@ -40,16 +42,16 @@ public abstract class Exporter<CONFIG> {
      * Initialises the export. This base method just stores the current user.
      * Override this method (and call super) to add further initialisation.
      *
-     * @param key    export key
-     * @param config configuration for the export (This will be an instance of a gaffer Store)
-     * @param user   the user who initiated the export
+     * @param initialiseExport the initialise export operation
+     * @param config           configuration for the export (This will be an instance of a gaffer Store)
+     * @param user             the user who initiated the export
      */
-    public void initialise(final String key, final CONFIG config, final User user) {
-        setKey(key);
+    public void initialise(final INITIALISE_EXPORT initialiseExport, final CONFIG config, final User user) {
+        setKey(initialiseExport.getKey());
         setUser(user);
     }
 
-    public final void add(final Iterable<?> values, final User user) {
+    public final void add(final Iterable<?> values, final User user) throws OperationException {
         validateSameUser(user);
         _add(values, user);
     }
@@ -87,7 +89,7 @@ public abstract class Exporter<CONFIG> {
         return plainTextUserId + SEPARATOR + timestamp + SEPARATOR + key;
     }
 
-    protected abstract void _add(final Iterable<?> values, final User user);
+    protected abstract void _add(final Iterable<?> values, final User user) throws OperationException;
 
     protected abstract CloseableIterable<?> _get(final User user, final int start, final int end);
 

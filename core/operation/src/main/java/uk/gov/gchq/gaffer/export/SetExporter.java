@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.export;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.reflections.Store;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
+import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,12 +32,12 @@ import java.util.Set;
  * The values are stored in a {@link LinkedHashSet} in order to ensure there is
  * a predictable iteration order.
  */
-public class SetExporter extends Exporter<Object> {
+public class SetExporter extends Exporter<Store, InitialiseSetExport> {
     private Set<Object> export = new LinkedHashSet<>();
 
     @Override
-    public void initialise(final String key, final Object config, final User user) {
-        super.initialise(key, config, user);
+    public void initialise(final InitialiseSetExport initialiseExport, final Store config, final User user) {
+        super.initialise(initialiseExport, config, user);
         export = new LinkedHashSet<>();
     }
 

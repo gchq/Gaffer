@@ -29,7 +29,7 @@ public class InitialiseExportHandler implements OperationHandler<InitialiseExpor
                               final Context context, final Store store)
             throws OperationException {
         final Exporter exporter = operation.getExporter();
-        exporter.initialise(operation.getKey(), store, context.getUser());
+        exporter.initialise(operation, store, context.getUser());
         context.addExporter(exporter);
         return operation.getInput();
     }
