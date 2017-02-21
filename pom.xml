@@ -903,5 +903,35 @@
                 <jackson.version>${jackson.min.version}</jackson.version>
             </properties>
         </profile>
+        <profile>
+            <id>accumulo-1.8</id>
+            <properties>
+                <accumulo.version>1.8.0</accumulo.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${compiler.plugin.verson}</version>
+                        <configuration>
+                            <testExcludes>
+                                <exclude>**/BloomFilterIT.java</exclude>
+                            </testExcludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.plugin.version}</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/BloomFilterIT.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
