@@ -53,7 +53,8 @@ public class SparkOperationDeclarationsTest {
         final JSONSerialiser jsonSerialiser = new JSONSerialiser();
 
         // When
-        final OperationDeclarations deserialised = jsonSerialiser.deserialise(StreamUtil.openStream(getClass(), ACCUMULO_OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
+        final OperationDeclarations deserialised = jsonSerialiser
+                .deserialise(StreamUtil.openStream(getClass(), ACCUMULO_OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
 
         // Then
         assertEquals(9, deserialised.getOperations().size());

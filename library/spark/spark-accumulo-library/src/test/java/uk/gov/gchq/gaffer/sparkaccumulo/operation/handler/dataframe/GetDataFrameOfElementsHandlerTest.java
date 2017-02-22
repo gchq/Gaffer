@@ -38,8 +38,8 @@ import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.ConversionException;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
@@ -53,6 +53,12 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+/**
+ * These tests test that the handler for {@link GetDataFrameOfElements} operate correctly. Note however that
+ * Spark will filter out results that don't match the supplied predicates itself. The unit tests of
+ * {@link AccumuloStoreRelation} ensure that the RDD that is returned has already had the correct filtering
+ * applied in Accumulo.
+ */
 public class GetDataFrameOfElementsHandlerTest {
 
     final static String ENTITY_GROUP = "BasicEntity";
