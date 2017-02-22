@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
+package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
@@ -102,8 +102,7 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
         return conf;
     }
 
-    static class FirstElement extends AbstractFunction1<Tuple2<Element, NullWritable>, Element> implements Serializable {
-
+    public static class FirstElement extends AbstractFunction1<Tuple2<Element, NullWritable>, Element> implements Serializable {
         private static final long serialVersionUID = -5693778654823431294L;
 
         @Override
@@ -111,5 +110,4 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
             return tuple._1();
         }
     }
-
 }
