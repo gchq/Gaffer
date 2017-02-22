@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A <code>Context</code> contains operation chain execution information, such
@@ -27,6 +28,7 @@ import java.util.Map;
  */
 public class Context {
     private final User user;
+    private final String executionId;
     private final Map<String, Exporter> exporters = new HashMap<>();
 
     public Context() {
@@ -34,11 +36,20 @@ public class Context {
     }
 
     public Context(final User user) {
+        this(user, createExecutionId(user));
+    }
+
+    public Context(final User user, final String executionId) {
         this.user = user;
+        this.executionId = executionId;
     }
 
     public User getUser() {
         return user;
+    }
+
+    public String getExecutionId() {
+        return executionId;
     }
 
     public Map<String, Exporter> getExporters() {
@@ -51,5 +62,10 @@ public class Context {
 
     public Exporter getExporter(final String key) {
         return exporters.get(key);
+    }
+
+    public static String createExecutionId(final User user) {
+        final String userId = null != user.getUserId() ? user.getUserId() : "";
+        return userId + "|" + System.currentTimeMillis() + "|" + UUID.randomUUID();
     }
 }

@@ -85,9 +85,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
@@ -216,7 +216,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        store.execute(addElements, user);
+        store.execute(addElements, context);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -240,7 +240,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(addElements, user);
+            store.execute(addElements, context);
             fail("Exception expected");
         } catch (final SchemaException e) {
             verify(viewValidator).validate(view, schema, true);
@@ -259,7 +259,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        store.execute(operation, user);
+        store.execute(operation, context);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -311,7 +311,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final CloseableIterable<Element> result = store.execute(opChain, user);
+        final CloseableIterable<Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(getElementsResult, result);
@@ -493,11 +493,6 @@ public class StoreTest {
 
         public void setValidationRequired(final boolean validationRequired) {
             this.validationRequired = validationRequired;
-        }
-
-        @Override
-        protected Context createContext(final User user) {
-            return context;
         }
 
         @Override

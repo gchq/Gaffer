@@ -58,7 +58,7 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
  * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.GraphFactory}.
- * All operations are simple delegated to the graph.
+ * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
  * <p>
@@ -82,7 +82,7 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public Object execute(final OperationChain opChain) {
-        return execute(opChain, false);
+        return _execute(opChain);
     }
 
     @SuppressFBWarnings
@@ -95,7 +95,7 @@ public class SimpleOperationService implements IOperationService {
         new Thread() {
             public void run() {
                 try {
-                    final Object result = execute(opChain);
+                    final Object result = _execute(opChain);
                     chunkResult(result, output);
                 } finally {
                     IOUtils.closeQuietly(output);
@@ -108,82 +108,82 @@ public class SimpleOperationService implements IOperationService {
 
     @Override
     public CloseableIterable<Object> generateObjects(final GenerateObjects<Element, Object> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Entity> getAllEntities(final GetAllEntities operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Entity> getEntities(final GetEntities<ElementSeed> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public CloseableIterable<Edge> getEdges(final GetEdges<ElementSeed> operation) {
-        return execute(operation);
+        return _execute(operation);
     }
 
     @Override
     public void addElements(final AddElements operation) {
-        execute(operation);
+        _execute(operation);
     }
 
     /**
@@ -196,7 +196,6 @@ public class SimpleOperationService implements IOperationService {
      *
      * @return the user querying Gaffer.
      */
-
     protected User createUser() {
         return new User();
     }
@@ -213,36 +212,20 @@ public class SimpleOperationService implements IOperationService {
         return graphFactory.getGraph();
     }
 
-    protected <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation) {
-        return execute(new OperationChain<>(operation), false);
+    protected <OUTPUT> OUTPUT _execute(final Operation<?, OUTPUT> operation) {
+        return _execute(new OperationChain<>(operation));
     }
 
-    protected <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> opChain, final boolean async) {
+    protected <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> opChain) {
         final User user = createUser();
         preOperationHook(opChain, user);
 
-        if (async) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        graphFactory.getGraph().execute(opChain, user);
-                    } catch (OperationException e) {
-                        LOGGER.error("Error executing opChain", e);
-                    } finally {
-                        postOperationHook(opChain, user);
-                    }
-                }
-            }).start();
-            return null;
-        } else {
-            try {
-                return graphFactory.getGraph().execute(opChain, user);
-            } catch (OperationException e) {
-                throw new RuntimeException("Error executing opChain", e);
-            } finally {
-                postOperationHook(opChain, user);
-            }
+        try {
+            return graphFactory.getGraph().execute(opChain, user);
+        } catch (OperationException e) {
+            throw new RuntimeException("Error executing opChain", e);
+        } finally {
+            postOperationHook(opChain, user);
         }
     }
 

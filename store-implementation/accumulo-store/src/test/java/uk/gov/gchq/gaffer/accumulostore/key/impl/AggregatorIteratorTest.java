@@ -37,9 +37,9 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -133,8 +133,8 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
         edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-        final User user = new User();
-        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
+        final Context context = new Context();
+        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), context);
 
         final GetEdges<EntitySeed> get = new GetEdges.Builder<EntitySeed>()
                 .view(defaultView)
@@ -142,7 +142,7 @@ public class AggregatorIteratorTest {
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(store.execute(get, user));
+        final List<Edge> results = Lists.newArrayList(store.execute(get, context));
 
         // Then
         assertEquals(1, results.size());

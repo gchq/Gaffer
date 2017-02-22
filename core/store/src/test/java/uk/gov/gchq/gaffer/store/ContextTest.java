@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -28,15 +29,34 @@ import static org.mockito.Mockito.mock;
 
 public class ContextTest {
     @Test
-    public void shouldConstructContextWithUser() {
+    public void shouldConstructContextsWithTheSameUserAndGenerateDifferentExecutionIds() {
         // Given
         final User user = new User();
 
         // When
-        final Context context = new Context(user);
+        final Context context1 = new Context(user);
+        final Context context2 = new Context(user);
+
+        // Then
+        assertEquals(user, context1.getUser());
+        assertTrue(context1.getExecutionId().startsWith(user.getUserId()));
+        assertTrue(context2.getExecutionId().startsWith(user.getUserId()));
+        assertNotEquals(context1.getExecutionId(), context2.getExecutionId());
+        assertTrue(context1.getExporters().isEmpty());
+    }
+
+    @Test
+    public void shouldConstructContextWithUserAndExecutionId() {
+        // Given
+        final User user = new User();
+        final String randomId = "randomId";
+
+        // When
+        final Context context = new Context(user, randomId);
 
         // Then
         assertEquals(user, context.getUser());
+        assertEquals(randomId, context.getExecutionId());
         assertTrue(context.getExporters().isEmpty());
     }
 
