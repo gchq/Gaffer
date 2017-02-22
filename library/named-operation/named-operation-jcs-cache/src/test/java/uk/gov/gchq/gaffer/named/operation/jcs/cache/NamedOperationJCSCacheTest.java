@@ -20,6 +20,7 @@ package uk.gov.gchq.gaffer.named.operation.jcs.cache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.jcs.access.exception.CacheException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -86,6 +87,11 @@ public class NamedOperationJCSCacheTest {
 
     @Before
     public void setUp() throws CacheOperationFailedException {
+        cache.clear();
+    }
+
+    @After
+    public void teardown() throws CacheOperationFailedException {
         cache.clear();
     }
 

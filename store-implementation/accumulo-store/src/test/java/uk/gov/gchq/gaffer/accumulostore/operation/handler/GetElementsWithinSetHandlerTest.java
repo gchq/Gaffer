@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -311,7 +312,7 @@ public class GetElementsWithinSetHandlerTest {
 
     private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements(data), user);
+            store.execute(new AddElements(data), new Context(user));
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

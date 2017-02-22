@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -83,7 +83,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private final LinkedHashSet<String> groups;
     private final View view;
     private final AccumuloStore store;
-    private final User user;
+    private final Context context;
     private final LinkedHashSet<String> usedProperties;
     private final Map<String, Boolean> propertyNeedsConversion;
     private final Map<String, Converter> converterByProperty;
@@ -94,11 +94,11 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                                  final List<Converter> converters,
                                  final View view,
                                  final AccumuloStore store,
-                                 final User user) {
+                                 final Context context) {
         this.sqlContext = sqlContext;
         this.view = view;
         this.store = store;
-        this.user = user;
+        this.context = context;
         this.schemaConverter = new SchemaToStructTypeConverter(store.getSchema(), view, converters);
         this.groups = this.schemaConverter.getGroups();
         this.structType = this.schemaConverter.getStructType();
@@ -128,7 +128,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(usedProperties, propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
@@ -154,7 +154,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
@@ -192,7 +192,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             return sqlContext.emptyDataFrame().rdd();
         }
         try {
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);

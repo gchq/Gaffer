@@ -74,7 +74,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
-import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,34 +150,34 @@ public abstract class Store {
      *
      * @param operation   the operation to execute.
      * @param <OPERATION> the operation type
-     * @param user        the user executing the operation
+     * @param context     the user context
      * @param <OUTPUT>    the output type.
      * @return the result from the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(
-            final OPERATION operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
+            final OPERATION operation, final Context context) throws OperationException {
+        return execute(new OperationChain<>(operation), context);
     }
 
     /**
      * Executes a given operation chain and returns the result.
      *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the operation chain
      * @param <OUTPUT>       the output type of the operation.
+     * @param operationChain the operation chain to execute.
+     * @param context        the user context
      * @return the result of executing the operation.
      * @throws OperationException thrown by an operation handler if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        validateOperationChain(operationChain, user);
+    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final Context context) throws OperationException {
+        validateOperationChain(operationChain, context);
 
         OperationChain<OUTPUT> optimisedOperationChain = operationChain;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
 
-        return handleOperationChain(optimisedOperationChain, createContext(user));
+        return handleOperationChain(optimisedOperationChain, context);
     }
 
     /**
@@ -269,7 +268,7 @@ public abstract class Store {
     }
 
     protected void validateOperationChain(
-            final OperationChain<?> operationChain, final User user) {
+            final OperationChain<?> operationChain, final Context context) {
         if (operationChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
@@ -293,10 +292,6 @@ public abstract class Store {
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
-    }
-
-    protected Context createContext(final User user) {
-        return new Context(user);
     }
 
     /**

@@ -23,9 +23,13 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -69,6 +73,8 @@ public final class Graph {
      */
     private final View view;
 
+    private final JobTracker jobTracker;
+
     /**
      * List of {@link GraphHook}s to be triggered before and after operations are
      * executed on the graph.
@@ -84,13 +90,15 @@ public final class Graph {
      * @param store      a {@link Store} used to store the elements and handle operations.
      * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
      * @param view       a {@link View} defining the view of the data for the graph.
+     * @param jobTracker the job tracker
      * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final Schema schema, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final Store store, final Schema schema, final View view, final JobTracker jobTracker, final List<GraphHook> graphHooks) {
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
         this.schema = schema;
+        this.jobTracker = jobTracker;
     }
 
     /**
@@ -109,7 +117,42 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation on the store.
+     * Performs the given operation chain on the store asynchronously.
+     * If the operation does not have a view then the graph view is used.
+     * NOTE the operationChain may be modified/optimised by the store.
+     *
+     * @param operationChain the operation chain to be executed.
+     * @param user           the user executing the operation chain.
+     * @return the unique job id
+     * @throws OperationException thrown if asychronous operations are not configured.
+     */
+    public JobDetail executeAsync(final OperationChain<?> operationChain, final User user) throws OperationException {
+        if (null == jobTracker) {
+            throw new OperationException("Running operations asychronously has not configured.");
+        }
+
+        final String userId = null != user.getUserId() ? user.getUserId() : "";
+        final Context context = new Context(user);
+        final String jobId = context.getExecutionId();
+        final JobDetail initialJobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.RUNNING, null);
+        jobTracker.addOrUpdateJob(initialJobDetail, user);
+        new Thread(() -> {
+            try {
+                _execute(operationChain, context);
+                final JobDetail jobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.FINISHED, null);
+                jobTracker.addOrUpdateJob(jobDetail, user);
+            } catch (final OperationException e) {
+                LOGGER.warn("Operation chain failed to execute asynchronously", e);
+                final JobDetail jobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.FAILED, e.getMessage());
+                jobTracker.addOrUpdateJob(jobDetail, user);
+            }
+        }).start();
+
+        return initialJobDetail;
+    }
+
+    /**
+     * Performs the given operation chain on the store.
      * If the operation does not have a view then the graph view is used.
      * NOTE the operationChain may be modified/optimised by the store.
      *
@@ -120,6 +163,14 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
+        return _execute(operationChain, new Context(user));
+    }
+
+    public JobDetail getAsyncStatus(final String jobId, final User user) {
+        return jobTracker.getJob(jobId, user);
+    }
+
+    private <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> operationChain, final Context context) throws OperationException {
         // Update the view
         for (final Operation operation : operationChain.getOperations()) {
             final View opView;
@@ -141,13 +192,13 @@ public final class Graph {
         }
 
         for (final GraphHook graphHook : graphHooks) {
-            graphHook.preExecute(operationChain, user);
+            graphHook.preExecute(operationChain, context.getUser());
         }
 
-        OUTPUT result = store.execute(operationChain, user);
+        OUTPUT result = store.execute(operationChain, context);
 
         for (final GraphHook graphHook : graphHooks) {
-            result = graphHook.postExecute(result, operationChain, user);
+            result = graphHook.postExecute(result, operationChain, context.getUser());
         }
 
         return result;
@@ -208,6 +259,7 @@ public final class Graph {
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
         private StoreProperties properties;
+        private JobTracker jobTracker;
         private Schema schema;
         private View view;
         private List<GraphHook> graphHooks = new ArrayList<>();
@@ -240,6 +292,21 @@ public final class Graph {
 
         public Builder storeProperties(final InputStream propertiesStream) {
             return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+        }
+
+        public Builder jobTracker(final JobTracker jobTracker) {
+            this.jobTracker = jobTracker;
+            return this;
+        }
+
+        public Builder jobTracker(final String jobTrackerClass) {
+            try {
+                jobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
+            }
+
+            return this;
         }
 
         public Builder addSchemas(final Schema... schemaModules) {
@@ -347,7 +414,7 @@ public final class Graph {
             updateStore();
             updateView();
 
-            return new Graph(store, schema, view, graphHooks);
+            return new Graph(store, schema, view, jobTracker, graphHooks);
         }
 
         private void updateSchema() {

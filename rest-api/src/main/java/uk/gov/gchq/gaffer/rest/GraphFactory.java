@@ -82,6 +82,11 @@ public class GraphFactory {
             builder.addSchema(path);
         }
 
+        final String jobTracker = System.getProperty(SystemProperty.JOB_TRACKER_CLASS, null);
+        if (null != jobTracker) {
+            builder.jobTracker(jobTracker);
+        }
+
         final OperationAuthoriser opAuthoriser = createOpAuthoriser();
         if (null != opAuthoriser) {
             builder.addHook(opAuthoriser);

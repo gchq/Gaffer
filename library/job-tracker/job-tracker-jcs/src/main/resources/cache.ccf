@@ -4,7 +4,6 @@ jcs.default.cacheattributes.MaxObjects=100
 jcs.default.cacheattributes.MemoryCacheName=org.apache.jcs.engine.memory.lru.LRUMemoryCache
 jcs.default.cacheattributes.DiskUsagePatternName=UPDATE
 
-
 # Indexed Disk Cache
 jcs.auxiliary.DC=org.apache.jcs.auxiliary.disk.indexed.IndexedDiskCacheFactory
 jcs.auxiliary.DC.attributes=org.apache.jcs.auxiliary.disk.indexed.IndexedDiskCacheAttributes
@@ -14,3 +13,9 @@ jcs.auxiliary.DC.attributes.MaxKeySize=10000
 jcs.auxiliary.DC.attributes.OptimizeAtRemoveCount=300000
 jcs.auxiliary.DC.attributes.OptimizeOnShutdown=true
 jcs.auxiliary.DC.attributes.DiskLimitType=COUNT
+
+# Region for aging off after 1 week
+jcs.region.oneWeek=DC
+jcs.region.oneWeek.cacheattributes.UseMemoryShrinker=true
+jcs.region.oneWeek.elementattributes.IsEternal=false
+jcs.region.oneWeek.elementattributes.MaxLifeSeconds=604800
