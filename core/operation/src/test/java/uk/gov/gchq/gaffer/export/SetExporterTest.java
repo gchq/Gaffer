@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -69,7 +70,7 @@ public class SetExporterTest {
         final Set<Object> export = exporter.getExport();
 
         // When
-        exporter.initialise("key", null, new User());
+        exporter.initialise(new InitialiseSetExport("key"), null, new User(), "exportName");
 
         // Then
         assertNotSame(export, exporter.getExport());

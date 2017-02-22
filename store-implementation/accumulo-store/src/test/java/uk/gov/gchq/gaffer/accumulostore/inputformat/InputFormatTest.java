@@ -141,11 +141,11 @@ public class InputFormatTest {
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
                 properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
-                properties.setInstanceName(instanceName + "_BYTE_ENTITY");
+                properties.setInstance(instanceName + "_BYTE_ENTITY");
                 break;
             case CLASSIC_KEY_PACKAGE:
                 properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
-                properties.setInstanceName(instanceName + "_CLASSIC");
+                properties.setInstance(instanceName + "_CLASSIC");
         }
         try {
             store.initialise(schema, properties);

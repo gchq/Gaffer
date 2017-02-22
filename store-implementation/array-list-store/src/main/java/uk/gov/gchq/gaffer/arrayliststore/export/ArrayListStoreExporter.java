@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.arrayliststore.export;
 
+import uk.gov.gchq.gaffer.arrayliststore.operation.handler.InitialiseArrayListStoreExport;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.export.GafferExporter;
@@ -23,7 +24,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Map;
 
-public class ArrayListStoreExporter extends GafferExporter {
+public class ArrayListStoreExporter extends GafferExporter<InitialiseArrayListStoreExport> {
     @Override
     public Map<String, Graph> getGraphExports() {
         return super.getGraphExports();

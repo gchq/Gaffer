@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.util.ExportUtil;
 public abstract class InitialiseExport extends AbstractOperation<Object, Object> {
     private final Exporter exporter;
     private String key;
+    private String exportName;
 
     public InitialiseExport(final Exporter exporter) {
         this(exporter, ExportOperation.DEFAULT_KEY);
@@ -69,6 +70,14 @@ public abstract class InitialiseExport extends AbstractOperation<Object, Object>
         exporter.setTimestamp(timestamp);
     }
 
+    public String getExportName() {
+        return exportName;
+    }
+
+    public void setExportName(final String exportName) {
+        this.exportName = exportName;
+    }
+
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.Object();
@@ -89,6 +98,11 @@ public abstract class InitialiseExport extends AbstractOperation<Object, Object>
             getOp().setKey(key);
             return self();
         }
+
+        public CHILD_CLASS exportName(final String exportName) {
+            getOp().setExportName(exportName);
+            return self();
+        }
     }
 
     public static final class Builder<OP_TYPE extends InitialiseExport> extends BaseBuilder<OP_TYPE, Builder<OP_TYPE>> {
@@ -97,7 +111,7 @@ public abstract class InitialiseExport extends AbstractOperation<Object, Object>
         }
 
         @Override
-        protected Builder self() {
+        protected Builder<OP_TYPE> self() {
             return this;
         }
     }

@@ -427,15 +427,12 @@ public abstract class Store {
     }
 
     private void addConfiguredOperationHandlers() {
-        this.getProperties().whenReady(new Runnable() {
-            @Override
-            public void run() {
-                final OperationDeclarations declarations = Store.this.getProperties().getOperationDeclarations();
+        this.getProperties().whenReady(() -> {
+            final OperationDeclarations declarations = Store.this.getProperties().getOperationDeclarations();
 
-                if (null != declarations) {
-                    for (final OperationDeclaration definition : declarations.getOperations()) {
-                        addOperationHandler(definition.getOperation(), definition.getHandler());
-                    }
+            if (null != declarations) {
+                for (final OperationDeclaration definition : declarations.getOperations()) {
+                    addOperationHandler(definition.getOperation(), definition.getHandler());
                 }
             }
         });

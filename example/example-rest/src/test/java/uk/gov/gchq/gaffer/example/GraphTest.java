@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.integration;
 
+package uk.gov.gchq.gaffer.example;
+
+import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.ExportIT;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.graph.Graph;
 
-public class AccumuloStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+public class GraphTest {
+    @Test
+    public void shouldReturnExpectedEntities() {
+        // When
+        new Graph.Builder()
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
+                .addSchema(StreamUtil.openStream(getClass(), "example-schema.json"))
+                .build();
 
-    public AccumuloStoreITs() {
-        super(STORE_PROPERTIES);
-        singleTest(ExportIT.class, "shouldExportMultipleJsonResultsAndFetchResultsInSeparateQueries");
+        // Then - no exceptions thrown
     }
 }

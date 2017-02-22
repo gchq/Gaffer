@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,19 +62,26 @@ public class OperationDeclarations {
         }
     }
 
-    public static OperationDeclarations fromJson(final Path filePath) {
-        final OperationDeclarations definitions;
+    public static OperationDeclarations fromJson(final String paths) {
+        final OperationDeclarations allDefinitions = new OperationDeclarations.Builder().build();
 
         try {
-            if (filePath.toFile().exists()) {
-                definitions = JSON_SERIALISER.deserialise(Files.readAllBytes(filePath), OperationDeclarations.class);
-            } else {
-                definitions = JSON_SERIALISER.deserialise(StreamUtil.openStream(OperationDeclarations.class, filePath.toString()), OperationDeclarations.class);
+            for (String pathStr : paths.split(",")) {
+                final OperationDeclarations definitions;
+                final Path path = Paths.get(pathStr);
+                if (path.toFile().exists()) {
+                    definitions = JSON_SERIALISER.deserialise(Files.readAllBytes(path), OperationDeclarations.class);
+                } else {
+                    definitions = JSON_SERIALISER.deserialise(StreamUtil.openStream(OperationDeclarations.class, pathStr), OperationDeclarations.class);
+                }
+                if (null != definitions && null != definitions.getOperations()) {
+                    allDefinitions.getOperations().addAll(definitions.getOperations());
+                }
             }
         } catch (IOException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
         }
 
-        return definitions;
+        return allDefinitions;
     }
 }

@@ -137,8 +137,8 @@ public class AccumuloStore extends Store {
      */
     public Connector getConnection() throws StoreException {
         if (null == connection) {
-            connection = TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
-                    getProperties().getUserName(), getProperties().getPassword());
+            connection = TableUtils.getConnector(getProperties().getInstance(), getProperties().getZookeepers(),
+                    getProperties().getUser(), getProperties().getPassword());
         }
         return connection;
     }
@@ -190,7 +190,7 @@ public class AccumuloStore extends Store {
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
-                getProperties().getUserName(),
+                getProperties().getUser(),
                 new PasswordToken(getProperties().getPassword()));
     }
 
@@ -198,7 +198,7 @@ public class AccumuloStore extends Store {
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
                 new ClientConfiguration()
-                        .withInstance(getProperties().getInstanceName())
+                        .withInstance(getProperties().getInstance())
                         .withZkHosts(getProperties().getZookeepers()));
     }
 

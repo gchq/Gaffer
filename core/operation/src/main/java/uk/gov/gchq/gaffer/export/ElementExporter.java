@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.export;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
 import uk.gov.gchq.gaffer.user.User;
 
-public abstract class ElementExporter<CONFIG> extends Exporter<CONFIG> {
+public abstract class ElementExporter<CONFIG, INITIALISE_EXPORT extends InitialiseExport> extends Exporter<CONFIG, INITIALISE_EXPORT> {
     @Override
     protected void _add(final Iterable<?> values, final User user) {
         addElements((Iterable<Element>) values, user);

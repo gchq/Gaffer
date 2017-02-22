@@ -60,7 +60,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<T extends V
                         .inputPath(outputPath)
                         .failurePath(failurePath)
                         .build();
-        store.execute(importAccumuloKeyValueFiles, context.getUser());
+        store.execute(importAccumuloKeyValueFiles, context);
     }
 
     protected Configuration getConfiguration(final T operation) throws OperationException {

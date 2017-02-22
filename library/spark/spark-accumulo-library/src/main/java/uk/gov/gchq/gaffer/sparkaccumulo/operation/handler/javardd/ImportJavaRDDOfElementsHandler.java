@@ -54,7 +54,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
         final ElementConverterFunction func = new ElementConverterFunction(broadcast);
         final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
-        store.execute(op, context.getUser());
+        store.execute(op, context);
     }
 }
 

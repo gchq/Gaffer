@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.export.ElementExporter;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -31,7 +32,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class GafferExporter extends ElementExporter<Store> {
+public abstract class GafferExporter<INITIALISE_EXPORT extends InitialiseExport> extends ElementExporter<Store, INITIALISE_EXPORT> {
     private final Map<String, Graph> graphExports = new HashMap<>();
     private Schema schema;
     private StoreProperties storeProperties;
@@ -40,8 +41,8 @@ public abstract class GafferExporter extends ElementExporter<Store> {
     }
 
     @Override
-    public void initialise(final String key, final Store store, final User user) {
-        super.initialise(key, store, user);
+    public void initialise(final INITIALISE_EXPORT initialiseExport, final Store store, final User user, final String executionId) {
+        super.initialise(initialiseExport, store, user, executionId);
 
         // clone the schema
         schema = store.getSchema().clone();

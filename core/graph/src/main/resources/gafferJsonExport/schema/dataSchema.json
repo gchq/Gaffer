@@ -1,0 +1,18 @@
+{
+  "edges": {
+    "result": {
+      "source": "executionId",
+      "destination": "exportKey",
+      "directed": "true",
+      "properties": {
+        "userId": "string",
+        "timestamp": "timestamp",
+        "deletionTimestamp": "timestamp",
+        "result": "json",
+        "visibility": "visibility"
+      }
+    }
+  },
+  "visibilityProperty": "visibility",
+  "timestampProperty": "timestamp"
+}

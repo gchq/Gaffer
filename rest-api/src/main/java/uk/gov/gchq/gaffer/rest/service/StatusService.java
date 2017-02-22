@@ -54,7 +54,11 @@ public class StatusService {
                 return new SystemStatus("The system is working normally.");
             }
         } catch (final Exception e) {
-            return new SystemStatus("Unable to create graph. Error: " + e.getMessage());
+            String msg = e.getMessage();
+            if (null == msg) {
+                msg = e.getClass().getSimpleName();
+            }
+            return new SystemStatus("Unable to create graph. Error: " + msg);
         }
 
         return new SystemStatus("Unable to create graph.");

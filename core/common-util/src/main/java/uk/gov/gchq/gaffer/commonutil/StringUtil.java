@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.util;
+package uk.gov.gchq.gaffer.commonutil;
 
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import java.util.regex.Pattern;
 
-public final class ExportUtil {
+public final class StringUtil {
     public static final String NON_PLAIN_TEXT = "[^a-zA-Z0-9]";
-    public static final Pattern KEY_REGEX = Pattern.compile("[a-zA-Z0-9]*");
+    public static final Pattern PLAIN_TEXT_REGEX = Pattern.compile("[a-zA-Z0-9]*");
 
-    private ExportUtil() {
+    private StringUtil() {
         // Utility class with static methods, so it should not be constructed
     }
 
-    public static void validateKey(final String key) {
-        if (!StringUtil.validateKey(key)) {
-            throw new IllegalArgumentException("The export key '" + key + "' is invalid. Only letters 'a to z' and 'A to Z' are allowed.");
-        }
+    public static boolean validateKey(final String text) {
+        return PLAIN_TEXT_REGEX.matcher(text).matches();
+    }
+
+    public static String getPlainText(final String text) {
+        return text.replaceAll(NON_PLAIN_TEXT, "");
     }
 }

@@ -19,18 +19,22 @@ package uk.gov.gchq.gaffer.export;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 
 public class ExporterTest {
 
     @Test
-    public void shouldThrowExceptionWhenAddIfExporterNotInitialisedWithUser() {
+    public void shouldThrowExceptionWhenAddIfExporterNotInitialisedWithUser() throws OperationException {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user = new User();
@@ -38,7 +42,7 @@ public class ExporterTest {
 
         // When / Then
         try {
-            exporter.add(values, user);
+            exporter.add(values, user, "executionId");
             fail("NotImplementedException expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -46,16 +50,18 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddIfUserIsNull() {
+    public void shouldThrowExceptionWhenAddIfUserIsNull() throws OperationException {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user = new User();
         final ExporterImpl exporter = new ExporterImpl();
-        exporter.initialise("key", null, user);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user, "exportName");
 
         // When / Then
         try {
-            exporter.add(values, null);
+            exporter.add(values, null, "executionId");
             fail("NotImplementedException expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -63,17 +69,19 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddIfDifferentUsers() {
+    public void shouldThrowExceptionWhenAddIfDifferentUsers() throws OperationException {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user1 = new User("user1");
         final User user2 = new User("user2");
         final ExporterImpl exporter = new ExporterImpl();
-        exporter.initialise("key", null, user1);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user1, "exportName");
 
         // When / Then
         try {
-            exporter.add(values, user2);
+            exporter.add(values, user2, "executionId");
             fail("NotImplementedException expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -81,16 +89,18 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldDelegateToInternalAdd() {
+    public void shouldDelegateToInternalAdd() throws OperationException {
         // Given
         final Iterable<?> values = Arrays.asList("item1", "item2");
         final User user = new User();
         final ExporterImpl exporter = new ExporterImpl();
-        exporter.initialise("key", null, user);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user, "exportName");
 
         // When / Then
         try {
-            exporter.add(values, user);
+            exporter.add(values, user, "executionId");
             fail("NotImplementedException expected");
         } catch (final NotImplementedException e) {
             assertEquals("_add(" + values + "," + user + ")", e.getMessage());
@@ -99,7 +109,7 @@ public class ExporterTest {
 
 
     @Test
-    public void shouldThrowExceptionWhenGetIfExporterNotInitialisedWithUser() {
+    public void shouldThrowExceptionWhenGetIfExporterNotInitialisedWithUser() throws OperationException {
         // Given
         final User user = new User();
         final int start = 0;
@@ -116,13 +126,15 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGetIfUserIsNull() {
+    public void shouldThrowExceptionWhenGetIfUserIsNull() throws OperationException {
         // Given
         final User user = new User();
         final int start = 0;
         final int end = 10;
         final ExporterImpl exporter = new ExporterImpl();
-        exporter.initialise("key", null, user);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user, "exportName");
 
         // When / Then
         try {
@@ -134,14 +146,16 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGetIfDifferentUsers() {
+    public void shouldThrowExceptionWhenGetIfDifferentUsers() throws OperationException {
         // Given
         final User user1 = new User("user1");
         final User user2 = new User("user2");
         final int start = 0;
         final int end = 10;
         final ExporterImpl exporter = new ExporterImpl();
-        exporter.initialise("key", null, user1);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user1, "exportName");
 
         // When / Then
         try {
@@ -153,13 +167,15 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldDelegateToInternalGet() {
+    public void shouldDelegateToInternalGet() throws OperationException {
         // Given
         final User user = new User();
         final int start = 0;
         final int end = 10;
         final ExporterImpl exporter = new ExporterImpl();
-        exporter.initialise("key", null, user);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user, "exportName");
 
         // When / Then
         try {
@@ -202,7 +218,9 @@ public class ExporterTest {
         final String userId = "user01";
         final User user01 = new User(userId);
         final String key = "key";
-        exporter.initialise(key, null, user01);
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn("key");
+        exporter.initialise(initialiseExport, null, user01, "exportName");
         exporter.setTimestamp(timestamp);
 
 
@@ -213,7 +231,7 @@ public class ExporterTest {
         assertEquals(userId + "_" + timestamp + "_" + key, name);
     }
 
-    private static final class ExporterImpl extends Exporter<Object> {
+    private static final class ExporterImpl extends Exporter<Object, InitialiseExport> {
         @Override
         protected void _add(final Iterable<?> values, final User user) {
             throw new NotImplementedException("_add(" + values + "," + user + ")");

@@ -20,20 +20,12 @@
                      debug="false">
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
+            <param name="ConversionPattern" value="%m%n"/>
         </layout>
     </appender>
 
-    <logger name="org.reflections.Reflections">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="server.handler.ContextHandler">
-        <level value="WARN"/>
-    </logger>
-
     <root>
-        <priority value="INFO"></priority>
-        <appender-ref ref="console"></appender-ref>
+        <priority value="INFO"/>
+        <appender-ref ref="console"/>
     </root>
 </log4j:configuration>

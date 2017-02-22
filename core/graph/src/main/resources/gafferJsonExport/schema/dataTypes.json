@@ -1,0 +1,51 @@
+{
+  "types": {
+    "executionId": {
+      "class": "java.lang.String"
+    },
+    "exportKey": {
+      "class": "java.lang.String"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+          }
+        }
+      ]
+    },
+    "timestamp": {
+      "class": "java.lang.Long",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.AgeOff",
+            "ageOffDays": 1
+          }
+        }
+      ]
+    },
+    "removalTimestamp": {
+      "class": "java.lang.Long",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.AgeOff",
+            "ageOffDays": 0
+          }
+        }
+      ]
+    },
+    "json": {
+      "class": "[B"
+    },
+    "string": {
+      "class": "java.lang.String"
+    },
+    "visibility": {
+      "class": "java.lang.String"
+    }
+  }
+}

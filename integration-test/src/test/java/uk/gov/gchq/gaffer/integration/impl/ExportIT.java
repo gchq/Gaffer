@@ -24,7 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.export.Exporter;
 import uk.gov.gchq.gaffer.export.SetExporter;
+import uk.gov.gchq.gaffer.graph.export.InitialiseGafferJsonExport;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -95,6 +97,93 @@ public class ExportIT extends AbstractStoreIT {
         // Then
         assertEquals(2, export.getExport().size());
     }
+
+    @Test
+    public void shouldExportJsonResultsAndFetchResultsInSeparateQueries() throws OperationException, IOException {
+        // Given
+        // When
+        final Exporter exporter = graph.execute(new Builder()
+                .first(new InitialiseGafferJsonExport())
+                .then(new GetEdges.Builder<>()
+                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .build())
+                .then(new UpdateExport())
+                .then(new FetchExporter())
+                .build(), getUser());
+
+        final CloseableIterable<?> results = graph.execute(new OperationChain.Builder()
+                .first(new InitialiseGafferJsonExport.Builder()
+                        .exportName(exporter.getExportName())
+                        .build())
+                .then(new FetchExport())
+                .build(), getUser());
+
+        // Then
+        for (Object result : results) {
+            System.out.println("result = " + result);
+        }
+    }
+
+    @Test
+    public void shouldExportMultipleJsonResultsAndFetchResultsInSeparateQueries() throws OperationException, IOException {
+        // Given
+        // When
+        final Map<String, Exporter> exporters = graph.execute(new Builder()
+                .first(new InitialiseGafferJsonExport("1"))
+                .then(new InitialiseGafferJsonExport("2"))
+                .then(new GetEdges.Builder<>()
+                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .build())
+                .then(new UpdateExport("1"))
+                .then(new GetEdges.Builder<>()
+                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .build())
+                .then(new UpdateExport("2"))
+                .then(new FetchExporters())
+                .build(), getUser());
+
+        final CloseableIterable<?> results = graph.execute(new OperationChain.Builder()
+                .first(new InitialiseGafferJsonExport.Builder()
+                        .key("1")
+                        .exportName(exporters.get("1").getExportName())
+                        .build())
+                .then(new FetchExport("1"))
+                .build(), getUser());
+
+        // Then
+        for (Object result : results) {
+            System.out.println("result = " + result);
+        }
+    }
+
+    @Test
+    public void shouldExportJsonResultsAsynchronouslyAndFetchResults() throws Exception {
+        // Given
+        // When
+        final JobDetail jobDetail = graph.executeAsync(new Builder()
+                .first(new InitialiseGafferJsonExport())
+                .then(new GetEdges.Builder<>()
+                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .build())
+                .then(new UpdateExport())
+                .build(), getUser());
+
+        Thread.sleep(2000);
+
+        final CloseableIterable<?> results = graph.execute(new OperationChain.Builder()
+                .first(new InitialiseGafferJsonExport.Builder()
+                        .exportName(jobDetail.getJobId())
+                        .build())
+                .then(new FetchExport.Builder()
+                        .build())
+                .build(), getUser());
+
+        // Then
+        for (Object result : results) {
+            System.out.println("result = " + result);
+        }
+    }
+
 
     @Test
     public void shouldExportResultsInToTwoSet() throws OperationException, IOException {

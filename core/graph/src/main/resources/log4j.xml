@@ -28,6 +28,10 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="uk.gov.gchq.gaffer.accumulostore.utils.TableUtils">
+        <level value="WARN"/>
+    </logger>
+
     <logger name="server.handler.ContextHandler">
         <level value="WARN"/>
     </logger>

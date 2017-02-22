@@ -20,6 +20,7 @@ package uk.gov.gchq.gaffer.graph;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -131,7 +132,7 @@ public final class Graph {
             throw new OperationException("Running operations asychronously has not configured.");
         }
 
-        final String userId = null != user.getUserId() ? user.getUserId() : "";
+        final String userId = StringUtil.getPlainText(user.getUserId());
         final Context context = new Context(user);
         final String jobId = context.getExecutionId();
         final JobDetail initialJobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.RUNNING, null);

@@ -55,7 +55,7 @@ public class MockAccumuloStore extends AccumuloStore {
         if (!(properties instanceof AccumuloProperties)) {
             throw new StoreException("Store must be initialised with AccumuloProperties");
         }
-        mockAccumulo = new MockInstance(((AccumuloProperties) properties).getInstanceName());
+        mockAccumulo = new MockInstance(((AccumuloProperties) properties).getInstance());
         super.initialise(schema, properties);
     }
 
@@ -71,7 +71,7 @@ public class MockAccumuloStore extends AccumuloStore {
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setMockInstance(AccumuloInputFormat.class,
                 conf,
-                getProperties().getInstanceName());
+                getProperties().getInstance());
     }
 
     public MockInstance getMockAccumulo() {

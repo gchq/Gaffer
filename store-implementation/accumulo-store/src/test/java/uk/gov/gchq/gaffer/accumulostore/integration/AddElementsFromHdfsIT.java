@@ -205,7 +205,7 @@ public class AddElementsFromHdfsIT {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());
-        properties.setInstanceName("instance_" + keyPackageClass.getName());
+        properties.setInstance("instance_" + keyPackageClass.getName());
 
         final AccumuloStore store = new MockAccumuloStore();
         store.initialise(schema, properties);

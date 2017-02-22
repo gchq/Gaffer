@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
 public class SerialisationFactory {
     private static final Serialisation[] SERIALISERS = new Serialisation[]{
             new StringSerialiser(),
+            new BytesSerialiser(),
             new CompactRawIntegerSerialiser(),
             new RawIntegerSerialiser(),
             new CompactRawLongSerialiser(),

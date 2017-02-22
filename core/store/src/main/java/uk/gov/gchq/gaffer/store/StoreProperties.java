@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.Properties;
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
@@ -123,10 +125,9 @@ public class StoreProperties implements Cloneable {
         OperationDeclarations declarations = null;
 
         if (null != this.props) {
-            final String declarationsFilename = get(StoreProperties.OPERATION_DECLARATIONS);
-            if (null != declarationsFilename) {
-                final Path declarationsPath = Paths.get(declarationsFilename);
-                declarations = OperationDeclarations.fromJson(declarationsPath);
+            final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
+            if (null != declarationsPaths) {
+                declarations = OperationDeclarations.fromJson(declarationsPaths);
             }
         }
 
@@ -160,12 +161,9 @@ public class StoreProperties implements Cloneable {
         return schemaClass;
     }
 
+    @JsonSetter
     public void setSchemaClass(final String schemaClass) {
         set(SCHEMA_CLASS, schemaClass);
-    }
-
-    public void setSchemaClassName(final String schemaClassName) {
-        set(SCHEMA_CLASS, schemaClassName);
     }
 
     public void setSchemaClass(final Class<? extends Schema> schemaClass) {

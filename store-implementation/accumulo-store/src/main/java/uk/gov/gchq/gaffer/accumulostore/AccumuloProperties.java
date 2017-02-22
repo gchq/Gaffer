@@ -139,17 +139,17 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return Return the instance name of accumulo set in the properties file
      */
-    public String getInstanceName() {
+    public String getInstance() {
         return get(INSTANCE_NAME);
     }
 
     /**
      * Set the Accumulo instance name.
      *
-     * @param instanceName the Accumulo instance name
+     * @param instance the Accumulo instance name
      */
-    public void setInstanceName(final String instanceName) {
-        set(INSTANCE_NAME, instanceName);
+    public void setInstance(final String instance) {
+        set(INSTANCE_NAME, instance);
     }
 
     /**
@@ -175,17 +175,17 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return Get the configured accumulo user
      */
-    public String getUserName() {
+    public String getUser() {
         return get(USER);
     }
 
     /**
      * Set the configured Accumulo user.
      *
-     * @param userName the configured Accumulo user
+     * @param user the configured Accumulo user
      */
-    public void setUserName(final String userName) {
-        set(USER, userName);
+    public void setUser(final String user) {
+        set(USER, user);
     }
 
     /**
