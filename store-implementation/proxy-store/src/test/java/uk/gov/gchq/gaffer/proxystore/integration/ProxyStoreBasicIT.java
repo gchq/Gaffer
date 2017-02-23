@@ -34,6 +34,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -132,6 +135,35 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When
+        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .addSeed(new EntitySeed("1"))
+                .build();
+        CloseableIterable<Element> results = graph.execute(getElements, USER);
+
+        // Then
+        assertEquals(2, Iterables.size(results));
+        assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat(results, hasItem(DEFAULT_ELEMENTS[2]));
+    }
+
+    @Test
+    public void shouldAddElementsAsynchronously() throws Exception {
+        // Add elements
+        final AddElements add = new AddElements.Builder()
+                .elements(DEFAULT_ELEMENTS)
+                .build();
+        JobDetail jobDetail = graph.executeAsync(new OperationChain<>(add), USER);
+
+        // Wait until the job status is not RUNNING
+        while (JobStatus.RUNNING.equals(jobDetail.getStatus())) {
+            jobDetail = graph.getAsyncStatus(jobDetail.getJobId(), USER);
+            Thread.sleep(100);
+        }
+
+        // Get elements
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)

@@ -52,7 +52,7 @@ public class JcsJobTrackerTest {
         final JobDetail job = new JobDetail("jobId1", "userId1", opChain, JobStatus.RUNNING, "description");
 
         // When
-        jobTracker.addOrUpdateJob(job, user);
+        jobTracker.updateJob(job, user);
         final JobDetail resultJob = jobTracker.getJob(job.getJobId(), user);
 
         // Then
@@ -70,8 +70,8 @@ public class JcsJobTrackerTest {
         final JobDetail job2 = new JobDetail(jobId, "userId1", opChain, JobStatus.FINISHED, "description2");
 
         // When
-        jobTracker.addOrUpdateJob(job1, user);
-        jobTracker.addOrUpdateJob(job2, user);
+        jobTracker.updateJob(job1, user);
+        jobTracker.updateJob(job2, user);
 
         // Then
         final JobDetail resultJob = jobTracker.getJob(jobId, user);
@@ -86,7 +86,7 @@ public class JcsJobTrackerTest {
 
         // When / Then
         try {
-            jobTracker.addOrUpdateJob(job, user);
+            jobTracker.updateJob(job, user);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -103,7 +103,7 @@ public class JcsJobTrackerTest {
 
         // When / Then
         try {
-            jobTracker.addOrUpdateJob(job, user);
+            jobTracker.updateJob(job, user);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());

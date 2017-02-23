@@ -26,4 +26,7 @@ public class TypeReferenceStoreImpl {
 
     public static class StoreTraits extends TypeReference<Set<StoreTrait>> {
     }
+
+    public static class JobDetail extends TypeReference<uk.gov.gchq.gaffer.jobtracker.JobDetail> {
+    }
 }

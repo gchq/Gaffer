@@ -56,7 +56,11 @@ public class SimpleAsyncService implements IAsyncService {
 
     @Override
     public JobDetail status(final String id) {
-        return getGraph().getAsyncStatus(id, createUser());
+        try {
+            return getGraph().getAsyncStatus(id, createUser());
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

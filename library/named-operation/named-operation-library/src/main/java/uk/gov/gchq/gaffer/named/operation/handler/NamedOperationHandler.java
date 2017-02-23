@@ -61,7 +61,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
             updateOperationInput(operationChain.getOperations().get(0), operation.getSeeds());
             operationChain = updateView(operation.getView(), operationChain);
-            return store.execute(operationChain, context);
+            return store.execute(operationChain, context.getUser());
         } catch (CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (ClassCastException e) {

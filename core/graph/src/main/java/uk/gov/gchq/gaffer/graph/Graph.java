@@ -156,7 +156,7 @@ public final class Graph {
         return result;
     }
 
-    public JobDetail getAsyncStatus(final String jobId, final User user) {
+    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
         return store.getAsyncStatus(jobId, user);
     }
 

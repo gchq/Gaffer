@@ -225,23 +225,23 @@ public abstract class Store {
         final Context context = new Context(user);
         final String jobId = context.getExecutionId();
         final JobDetail initialJobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.RUNNING, null);
-        jobTracker.addOrUpdateJob(initialJobDetail, user);
+        jobTracker.addJob(initialJobDetail, user);
         new Thread(() -> {
             try {
                 handleOperationChain(fullyOptimisedOperationChain, context);
                 final JobDetail jobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.FINISHED, null);
-                jobTracker.addOrUpdateJob(jobDetail, user);
+                jobTracker.updateJob(jobDetail, user);
             } catch (final OperationException e) {
                 LOGGER.warn("Operation chain failed to execute asynchronously", e);
                 final JobDetail jobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.FAILED, e.getMessage());
-                jobTracker.addOrUpdateJob(jobDetail, user);
+                jobTracker.updateJob(jobDetail, user);
             }
         }).start();
 
         return initialJobDetail;
     }
 
-    public JobDetail getAsyncStatus(final String jobId, final User user) {
+    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
         return jobTracker.getJob(jobId, user);
     }
 

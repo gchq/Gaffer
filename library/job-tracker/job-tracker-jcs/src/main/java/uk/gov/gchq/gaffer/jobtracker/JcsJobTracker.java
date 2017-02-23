@@ -39,7 +39,22 @@ public class JcsJobTracker implements JobTracker {
     }
 
     @Override
-    public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
+    public void addJob(final JobDetail jobDetail, final User user) {
+        validateJobDetail(jobDetail);
+
+        try {
+            final JobDetail existingJobDetail = getJob(jobDetail.getJobId(), user);
+            if (null != existingJobDetail) {
+                throw new IllegalArgumentException("JobDetail already exists: " + existingJobDetail);
+            }
+            cache.putInGroup(jobDetail.getJobId(), CACHE_GROUP, jobDetail);
+        } catch (CacheException e) {
+            throw new RuntimeException("Failed to add job to job tracker: " + jobDetail, e);
+        }
+    }
+
+    @Override
+    public void updateJob(final JobDetail jobDetail, final User user) {
         validateJobDetail(jobDetail);
 
         try {
