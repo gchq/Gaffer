@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -73,20 +75,24 @@ public class ProxyStore extends Store {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
 
         client = createClient(proxyProps);
-        fetchSchema(proxyProps);
-        fetchTraits(proxyProps);
-        fetchOperations(proxyProps);
+        schema = fetchSchema(proxyProps);
+        traits = fetchTraits(proxyProps);
+        supportedOperations = fetchOperations(proxyProps);
 
         super.initialise(schema, proxyProps);
 
+        checkDelegateStoreStatus(proxyProps);
+    }
+
+    protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("status");
-        final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map());
+        final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
         LOGGER.info("Delegate REST API status: " + status.get("description"));
     }
 
-    private void fetchOperations(final ProxyProperties proxyProps) throws StoreException {
+    protected Set<Class<? extends Operation>> fetchOperations(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/operations");
-        supportedOperations = (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations()));
+        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations(), null));
     }
 
     @Override
@@ -99,21 +105,42 @@ public class ProxyStore extends Store {
         return supportedOperations.contains(operationClass);
     }
 
-    protected void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
+    protected Set<StoreTrait> fetchTraits(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/storeTraits");
-        traits = doGet(url, new TypeReferenceStoreImpl.StoreTraits());
-        if (null == traits) {
-            traits = new HashSet<>(0);
+        Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
+        if (null == newTraits) {
+            newTraits = new HashSet<>(0);
         } else {
             // This proxy store cannot handle visibility due to the simple rest api using a default user.
-            traits.remove(StoreTrait.VISIBILITY);
+            newTraits.remove(StoreTrait.VISIBILITY);
+        }
+        return newTraits;
+    }
+
+    protected Schema fetchSchema(final ProxyProperties proxyProps) throws
+            StoreException {
+        final URL url = proxyProps.getGafferUrl("graph/schema");
+        return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
+    }
+
+    @Override
+    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
+        final URL url = getProperties().getGafferUrl("graph/async/status/" + jobId);
+        try {
+            return doGet(url, new TypeReferenceStoreImpl.JobDetail(), new Context(user));
+        } catch (final StoreException e) {
+            throw new OperationException(e.getMessage(), e);
         }
     }
 
-    protected void fetchSchema(final ProxyProperties proxyProps) throws
-            StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/schema");
-        schema = doGet(url, new TypeReferenceStoreImpl.Schema());
+    @Override
+    public JobDetail executeAsync(final OperationChain<?> operationChain, final User user) throws OperationException {
+        final URL url = getProperties().getGafferUrl("graph/async/doOperation");
+        try {
+            return doPost(url, operationChain, new TypeReferenceStoreImpl.JobDetail(), new Context(user));
+        } catch (final StoreException e) {
+            throw new OperationException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -139,11 +166,6 @@ public class ProxyStore extends Store {
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
-    }
-
-    protected <OUTPUT> OUTPUT doPost(final URL url, final Object body,
-                                     final TypeReference<OUTPUT> outputType) throws StoreException {
-        return doPost(url, body, outputType, null);
     }
 
     protected <OUTPUT> OUTPUT doPost(final URL url, final Object body,
@@ -174,9 +196,9 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT doGet(final URL url,
-                                    final TypeReference<OUTPUT> outputTypeReference)
+                                    final TypeReference<OUTPUT> outputTypeReference, final Context context)
             throws StoreException {
-        final Invocation.Builder request = createRequest(null, url, null);
+        final Invocation.Builder request = createRequest(null, url, context);
         final Response response;
         try {
             response = request.get();
@@ -194,7 +216,7 @@ public class ProxyStore extends Store {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
         if (200 != response.getStatus() && 204 != response.getStatus()) {
             LOGGER.warn("Gaffer bad status " + response.getStatus());
-            LOGGER.warn("Detail: " + response.readEntity(String.class));
+            LOGGER.warn("Detail: " + outputJson);
             throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
         }
 

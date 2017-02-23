@@ -31,10 +31,14 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -70,20 +74,11 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
 
-    enum EntityOrEdge {
-        ENTITY, EDGE
-    }
-
-    public static final String GROUP = "group";
-    public static final String VERTEX_COL_NAME = "vertex";
-    public static final String SRC_COL_NAME = "src";
-    public static final String DST_COL_NAME = "dst";
-
     private final SQLContext sqlContext;
     private final LinkedHashSet<String> groups;
     private final View view;
     private final AccumuloStore store;
-    private final Context context;
+    private final User user;
     private final LinkedHashSet<String> usedProperties;
     private final Map<String, Boolean> propertyNeedsConversion;
     private final Map<String, Converter> converterByProperty;
@@ -94,11 +89,11 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                                  final List<Converter> converters,
                                  final View view,
                                  final AccumuloStore store,
-                                 final Context context) {
+                                 final User user) {
         this.sqlContext = sqlContext;
         this.view = view;
         this.store = store;
-        this.context = context;
+        this.user = user;
         this.schemaConverter = new SchemaToStructTypeConverter(store.getSchema(), view, converters);
         this.groups = this.schemaConverter.getGroups();
         this.structType = this.schemaConverter.getStructType();
@@ -128,7 +123,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, context);
+            final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ConvertElementToRow(usedProperties, propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
@@ -154,7 +149,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
             final GetRDDOfAllElements operation = new GetRDDOfAllElements(sqlContext.sparkContext());
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, context);
+            final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
@@ -192,7 +187,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             return sqlContext.emptyDataFrame().rdd();
         }
         try {
-            final RDD<Element> rdd = store.execute(operation, context);
+            final RDD<Element> rdd = store.execute(operation, user);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);

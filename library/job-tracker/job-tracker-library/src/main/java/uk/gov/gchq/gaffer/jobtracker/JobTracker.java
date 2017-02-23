@@ -21,12 +21,20 @@ import uk.gov.gchq.gaffer.user.User;
 
 public interface JobTracker {
     /**
-     * Adds or updates the given job.
+     * Adds the given job.
      *
      * @param jobDetail the job to add or update
      * @param user      the user running the job
      */
-    void addOrUpdateJob(final JobDetail jobDetail, final User user);
+    void addJob(final JobDetail jobDetail, final User user);
+
+    /**
+     * Updates the given job.
+     *
+     * @param jobDetail the job to add or update
+     * @param user      the user running the job
+     */
+    void updateJob(final JobDetail jobDetail, final User user);
 
     /**
      * Gets the job with the given ID.

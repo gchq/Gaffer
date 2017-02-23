@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
+package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.sql.SQLContext;
@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
@@ -156,7 +157,7 @@ public class FiltersToOperationConverter {
             if (filter instanceof EqualTo) {
                 final EqualTo equalTo = (EqualTo) filter;
                 final String attribute = equalTo.attribute();
-                if (attribute.equals(AccumuloStoreRelation.VERTEX_COL_NAME)) {
+                if (attribute.equals(SchemaToStructTypeConverter.VERTEX_COL_NAME)) {
                     // Only entities are relevant, so remove any edge groups from the view
                     LOGGER.info("Found EqualTo filter with attribute {}, setting views to only contain entity groups",
                             attribute);
@@ -169,8 +170,8 @@ public class FiltersToOperationConverter {
                     operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
                     operation.setView(clonedView);
                     break;
-                } else if (attribute.equals(AccumuloStoreRelation.SRC_COL_NAME)
-                        || attribute.equals(AccumuloStoreRelation.DST_COL_NAME)) {
+                } else if (attribute.equals(SchemaToStructTypeConverter.SRC_COL_NAME)
+                        || attribute.equals(SchemaToStructTypeConverter.DST_COL_NAME)) {
                     // Only edges are relevant, so remove any entity groups from the view
                     LOGGER.info("Found EqualTo filter with attribute {}, setting views to only contain edge groups",
                             attribute);
@@ -533,8 +534,8 @@ public class FiltersToOperationConverter {
     private Set<String> checkForGroups(final Filter filter) {
         if (filter instanceof EqualTo) {
             final EqualTo equalTo = (EqualTo) filter;
-            if (equalTo.attribute().equals(AccumuloStoreRelation.GROUP)) {
-                LOGGER.info("Filter {} specifies that {} should be {}", filter, AccumuloStoreRelation.GROUP,
+            if (equalTo.attribute().equals(SchemaToStructTypeConverter.GROUP)) {
+                LOGGER.info("Filter {} specifies that {} should be {}", filter, SchemaToStructTypeConverter.GROUP,
                         equalTo.value());
                 return Collections.singleton((String) equalTo.value());
             }
@@ -542,23 +543,23 @@ public class FiltersToOperationConverter {
             final Or or = (Or) filter;
             if (or.left() instanceof EqualTo
                     && or.right() instanceof EqualTo
-                    && ((EqualTo) or.left()).attribute().equals(AccumuloStoreRelation.GROUP)
-                    && ((EqualTo) or.right()).attribute().equals(AccumuloStoreRelation.GROUP)) {
+                    && ((EqualTo) or.left()).attribute().equals(SchemaToStructTypeConverter.GROUP)
+                    && ((EqualTo) or.right()).attribute().equals(SchemaToStructTypeConverter.GROUP)) {
                 final Set<String> groups = new HashSet<>();
                 groups.add((String) ((EqualTo) or.left()).value());
                 groups.add((String) ((EqualTo) or.right()).value());
-                LOGGER.info("Filter {} specifies that {} should be {} or {}", filter, AccumuloStoreRelation.GROUP,
+                LOGGER.info("Filter {} specifies that {} should be {} or {}", filter, SchemaToStructTypeConverter.GROUP,
                         ((EqualTo) or.left()).value(), ((EqualTo) or.right()).value());
                 return groups;
             }
         } else if (filter instanceof In) {
             final In in = (In) filter;
-            if (in.attribute().equals(AccumuloStoreRelation.GROUP)) {
+            if (in.attribute().equals(SchemaToStructTypeConverter.GROUP)) {
                 final Set<String> groups = new HashSet<>();
                 for (final Object o : in.values()) {
                     groups.add((String) o);
                 }
-                LOGGER.info("Filter {} specifies that {} should be in {}", filter, AccumuloStoreRelation.GROUP,
+                LOGGER.info("Filter {} specifies that {} should be in {}", filter, SchemaToStructTypeConverter.GROUP,
                         StringUtils.join(in.values(), ','));
                 return groups;
             }

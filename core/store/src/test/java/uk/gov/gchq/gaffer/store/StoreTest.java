@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.store;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -27,6 +29,8 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -71,10 +75,12 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -102,6 +108,7 @@ public class StoreTest {
     private OperationHandler<Validate, CloseableIterable<Element>> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
+    private JobTracker jobTracker;
 
     @Before
     public void setup() {
@@ -113,7 +120,7 @@ public class StoreTest {
         getAdjacentEntitySeedsHandler = mock(OperationHandler.class);
         validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
-
+        jobTracker = mock(JobTracker.class);
         schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
@@ -216,7 +223,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        store.execute(addElements, context);
+        store.execute(addElements, user);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -240,7 +247,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(addElements, context);
+            store.execute(addElements, user);
             fail("Exception expected");
         } catch (final SchemaException e) {
             verify(viewValidator).validate(view, schema, true);
@@ -259,7 +266,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        store.execute(operation, context);
+        store.execute(operation, user);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -311,7 +318,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final CloseableIterable<Element> result = store.execute(opChain, context);
+        final CloseableIterable<Element> result = store.execute(opChain, user);
 
         // Then
         assertSame(getElementsResult, result);
@@ -413,6 +420,51 @@ public class StoreTest {
         assertFalse(supported);
     }
 
+    @Test
+    public void shouldExecuteOperationChainAsynchronously() throws OperationException, ExecutionException, InterruptedException, StoreException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain<?> opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+        store.initialise(schema, properties);
+        final User user = mock(User.class);
+
+        // When
+        final JobDetail resultJobDetail = store.executeAsync(opChain, user);
+
+        // Then
+        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
+        verify(jobTracker).addJob(jobDetail.capture(), Mockito.eq(user));
+        assertEquals(jobDetail.getValue(), resultJobDetail);
+        Thread.sleep(1000);
+
+        verify(jobTracker).updateJob(Mockito.any(JobDetail.class), Mockito.eq(user));
+    }
+
+    @Test
+    public void shouldGetAsyncJobDetails() throws OperationException, ExecutionException, InterruptedException, StoreException {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+        store.initialise(schema, properties);
+        final User user = mock(User.class);
+        final String jobId = "jobId1";
+        final JobDetail jobDetail = mock(JobDetail.class);
+        given(jobTracker.getJob(jobId, user)).willReturn(jobDetail);
+
+        // When
+        final JobDetail resultJobDetail = store.getAsyncStatus(jobId, user);
+
+        // Then
+        assertEquals(jobDetail, resultJobDetail);
+    }
+
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(true);
@@ -496,8 +548,22 @@ public class StoreTest {
         }
 
         @Override
+        protected Context createContext(final User user) {
+            return context;
+        }
+
+        @Override
         public void optimiseSchema() {
             schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        }
+
+        @Override
+        protected JobTracker createJobTracker(final StoreProperties properties) {
+            if ("jobTrackerClass".equals(properties.getJobTrackerClass())) {
+                return jobTracker;
+            }
+
+            return null;
         }
     }
 }

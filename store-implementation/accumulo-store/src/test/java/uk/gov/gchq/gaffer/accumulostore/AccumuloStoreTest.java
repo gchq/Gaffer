@@ -58,13 +58,13 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -133,12 +133,12 @@ public class AccumuloStoreTest {
         e.putProperty(TestPropertyNames.PROP_4, 4);
         e.putProperty(TestPropertyNames.COUNT, 1);
 
-        final Context context = new Context();
+        final User user = new User();
         elements.add(e);
         final AddElements add = new AddElements.Builder()
                 .elements(elements)
                 .build();
-        store.execute(add, context);
+        store.execute(add, user);
 
         final EntitySeed entitySeed1 = new EntitySeed("1");
 
@@ -148,7 +148,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        final CloseableIterable<Element> results = store.execute(getBySeed, context);
+        final CloseableIterable<Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
@@ -159,7 +159,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        CloseableIterable<Element> relatedResults = store.execute(getRelated, context);
+        CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
 
@@ -178,7 +178,7 @@ public class AccumuloStoreTest {
                         .build())
                 .addSeed(entitySeed1)
                 .build();
-        relatedResults = store.execute(getRelatedWithPostAggregationFilter, context);
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));
     }
 

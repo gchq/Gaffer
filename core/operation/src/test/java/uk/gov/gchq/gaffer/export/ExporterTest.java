@@ -211,7 +211,7 @@ public class ExporterTest {
     }
 
     @Test
-    public void shouldGetExportName() {
+    public void shouldSetExportNameToExportNameInInitialiseExport() {
         // Given
         final ExporterImpl exporter = new ExporterImpl();
         final long timestamp = 1000L;
@@ -219,8 +219,11 @@ public class ExporterTest {
         final User user01 = new User(userId);
         final String key = "key";
         final InitialiseExport initialiseExport = mock(InitialiseExport.class);
-        given(initialiseExport.getKey()).willReturn("key");
-        exporter.initialise(initialiseExport, null, user01, "exportName");
+        given(initialiseExport.getKey()).willReturn(key);
+        final String exportName = "export name";
+        final String executionId = "executionId";
+        given(initialiseExport.getExportName()).willReturn(exportName);
+        exporter.initialise(initialiseExport, null, user01, executionId);
         exporter.setTimestamp(timestamp);
 
 
@@ -228,7 +231,30 @@ public class ExporterTest {
         final String name = exporter.getExportName();
 
         // Then
-        assertEquals(userId + "_" + timestamp + "_" + key, name);
+        assertEquals(exportName, name);
+    }
+
+
+    @Test
+    public void shouldSetExportNameToExecutionIdWithNull() {
+        // Given
+        final ExporterImpl exporter = new ExporterImpl();
+        final long timestamp = 1000L;
+        final String userId = "user01";
+        final User user01 = new User(userId);
+        final String key = "key";
+        final InitialiseExport initialiseExport = mock(InitialiseExport.class);
+        given(initialiseExport.getKey()).willReturn(key);
+        final String executionId = "executionId";
+        exporter.initialise(initialiseExport, null, user01, executionId);
+        exporter.setTimestamp(timestamp);
+
+
+        // When
+        final String name = exporter.getExportName();
+
+        // Then
+        assertEquals(executionId, name);
     }
 
     private static final class ExporterImpl extends Exporter<Object, InitialiseExport> {

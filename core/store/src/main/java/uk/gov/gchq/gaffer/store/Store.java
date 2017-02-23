@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -74,6 +77,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
+import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +110,8 @@ public abstract class Store {
     private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
 
+    private JobTracker jobTracker;
+
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
         this.viewValidator = new ViewValidator();
@@ -118,6 +124,21 @@ public abstract class Store {
         addOpHandlers();
         optimiseSchema();
         validateSchemas();
+
+        this.jobTracker = createJobTracker(properties);
+    }
+
+    protected JobTracker createJobTracker(final StoreProperties properties) {
+        final String jobTrackerClass = properties.getJobTrackerClass();
+        if (null != jobTrackerClass) {
+            try {
+                return Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -150,35 +171,79 @@ public abstract class Store {
      *
      * @param operation   the operation to execute.
      * @param <OPERATION> the operation type
-     * @param context     the user context
+     * @param user        the user executing the operation
      * @param <OUTPUT>    the output type.
      * @return the result from the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT execute(
-            final OPERATION operation, final Context context) throws OperationException {
-        return execute(new OperationChain<>(operation), context);
+            final OPERATION operation, final User user) throws OperationException {
+        return execute(new OperationChain<>(operation), user);
     }
 
     /**
      * Executes a given operation chain and returns the result.
      *
-     * @param <OUTPUT>       the output type of the operation.
      * @param operationChain the operation chain to execute.
-     * @param context        the user context
+     * @param user           the user executing the operation chain
+     * @param <OUTPUT>       the output type of the operation.
      * @return the result of executing the operation.
      * @throws OperationException thrown by an operation handler if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final Context context) throws OperationException {
-        validateOperationChain(operationChain, context);
+    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
+        validateOperationChain(operationChain, user);
 
         OperationChain<OUTPUT> optimisedOperationChain = operationChain;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
 
-        return handleOperationChain(optimisedOperationChain, context);
+        return handleOperationChain(optimisedOperationChain, createContext(user));
     }
+
+    /**
+     * Executes a given operation chain and returns the result.
+     *
+     * @param operationChain the operation chain to execute.
+     * @param user           the user executing the operation chain
+     * @return the unique job id
+     * @throws OperationException thrown if asychronous operations are not configured.
+     */
+    public JobDetail executeAsync(final OperationChain<?> operationChain, final User user) throws OperationException {
+        if (null == jobTracker) {
+            throw new OperationException("Running operations asychronously has not configured.");
+        }
+
+        validateOperationChain(operationChain, user);
+        OperationChain<?> optimisedOperationChain = operationChain;
+        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
+            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
+        }
+
+        final OperationChain<?> fullyOptimisedOperationChain = optimisedOperationChain;
+        final Context context = new Context(user);
+        final String jobId = context.getExecutionId();
+        final JobDetail initialJobDetail = new JobDetail(jobId, user.getUserId(), operationChain, JobStatus.RUNNING, null);
+        jobTracker.addJob(initialJobDetail, user);
+        new Thread(() -> {
+            try {
+                handleOperationChain(fullyOptimisedOperationChain, context);
+                final JobDetail jobDetail = new JobDetail(jobId, user.getUserId(), operationChain, JobStatus.FINISHED, null);
+                jobTracker.updateJob(jobDetail, user);
+            } catch (final OperationException e) {
+                LOGGER.warn("Operation chain failed to execute asynchronously", e);
+                final JobDetail jobDetail = new JobDetail(jobId, user.getUserId(), operationChain, JobStatus.FAILED, e.getMessage());
+                jobTracker.updateJob(jobDetail, user);
+            }
+        }).start();
+
+        return initialJobDetail;
+    }
+
+    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
+        return jobTracker.getJob(jobId, user);
+    }
+
 
     /**
      * @param operationClass the operation class to check
@@ -268,7 +333,7 @@ public abstract class Store {
     }
 
     protected void validateOperationChain(
-            final OperationChain<?> operationChain, final Context context) {
+            final OperationChain<?> operationChain, final User user) {
         if (operationChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("Operation chain contains no operations");
         }
@@ -292,6 +357,10 @@ public abstract class Store {
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
+    }
+
+    protected Context createContext(final User user) {
+        return new Context(user);
     }
 
     /**

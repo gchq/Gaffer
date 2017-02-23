@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -118,7 +117,7 @@ public class AccumuloRangeIDRetrieverTest {
         }
         try {
             final User user = new User();
-            store.execute(new AddElements(elements), new Context(user));
+            store.execute(new AddElements(elements), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

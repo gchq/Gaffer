@@ -30,9 +30,9 @@ import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -144,7 +144,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitTable splitTable = new SplitTable.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context());
+        store.execute(splitTable, new User());
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -208,7 +208,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitTable splitTable = new SplitTable.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context());
+        store.execute(splitTable, new User());
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -272,7 +272,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitTable splitTable = new SplitTable.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context());
+        store.execute(splitTable, new User());
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 

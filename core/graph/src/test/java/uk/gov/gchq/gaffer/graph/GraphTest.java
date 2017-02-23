@@ -35,8 +35,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
-import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -66,7 +64,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -223,7 +220,6 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
         final User user = mock(User.class);
-        final ArgumentCaptor<Context> context = ArgumentCaptor.forClass(Context.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
@@ -245,7 +241,7 @@ public class GraphTest {
                 .build();
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.execute(captor.capture(), context.capture())).willReturn(result1);
+        given(store.execute(captor.capture(), Mockito.eq(user))).willReturn(result1);
 
         // When
         final Object actualResult = graph.execute(opChain, user);
@@ -264,7 +260,6 @@ public class GraphTest {
     public void shouldCallAllGraphHooksAfterOperationChainExecuted() throws OperationException {
         // Given
         final User user = mock(User.class);
-        final ArgumentCaptor<Context> context = ArgumentCaptor.forClass(Context.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
@@ -287,7 +282,7 @@ public class GraphTest {
                 .build();
 
         given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
-        given(store.execute(Mockito.eq(opChain), context.capture())).willReturn(result1);
+        given(store.execute(opChain, user)).willReturn(result1);
 
         // When
         final Object actualResult = graph.execute(opChain, user);
@@ -297,37 +292,6 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, opChain, user);
         inOrder.verify(hook2).postExecute(result2, opChain, user);
         assertSame(actualResult, result3);
-    }
-
-    @Test
-    public void shouldExecuteOperationChainAsynchronously() throws OperationException, ExecutionException, InterruptedException {
-        // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain<?> opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
-        final Store store = mock(Store.class);
-        final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
-        final User user = mock(User.class);
-        final JobTracker jobTracker = mock(JobTracker.class);
-        final Graph graph = new Graph.Builder()
-                .store(store)
-                .jobTracker(jobTracker)
-                .build();
-
-        // When
-        final JobDetail resultJobDetail = graph.executeAsync(opChain, user);
-
-
-        // Then
-        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
-        verify(jobTracker).addOrUpdateJob(jobDetail.capture(), Mockito.eq(user));
-        assertEquals(jobDetail.getValue(), resultJobDetail);
-        Thread.sleep(1000);
-
-        final ArgumentCaptor<Context> context = ArgumentCaptor.forClass(Context.class);
-        verify(store).execute(Mockito.eq(opChain), context.capture());
-        assertEquals(user, context.getValue().getUser());
     }
 
     @Test
@@ -406,21 +370,20 @@ public class GraphTest {
                 .view(view)
                 .build();
         final User user = new User();
-        final ArgumentCaptor<Context> context = ArgumentCaptor.forClass(Context.class);
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
         given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
-        given(store.execute(Mockito.eq(opChain), context.capture())).willReturn(expectedResult);
+        given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
         int result = graph.execute(opChain, user);
 
         // Then
         assertEquals(expectedResult, result);
-        assertEquals(user, context.getValue().getUser());
+        verify(store).execute(opChain, user);
         verify(operation).setView(view);
     }
 
@@ -436,21 +399,20 @@ public class GraphTest {
                 .view(view)
                 .build();
         final User user = new User();
-        final ArgumentCaptor<Context> context = ArgumentCaptor.forClass(Context.class);
         final int expectedResult = 5;
         final Operation<?, Integer> operation = mock(Operation.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
         given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
-        given(store.execute(Mockito.eq(opChain), context.capture())).willReturn(expectedResult);
+        given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
         int result = graph.execute(opChain, user);
 
         // Then
         assertEquals(expectedResult, result);
-        assertEquals(user, context.getValue().getUser());
+        verify(store).execute(opChain, user);
         verify(operation, Mockito.never()).setView(view);
     }
 

@@ -113,6 +113,10 @@ public class ProxyProperties extends StoreProperties {
     }
 
     public URL getGafferUrl(final String suffix) {
+        return getGafferUrl("http", suffix);
+    }
+
+    public URL getGafferUrl(final String protocol, final String suffix) {
         final String urlSuffix;
         if (StringUtils.isNotEmpty(suffix)) {
             urlSuffix = prepend("/", suffix);
@@ -123,7 +127,7 @@ public class ProxyProperties extends StoreProperties {
         try {
             String contextRoot = prepend("/", getGafferContextRoot());
             contextRoot = removeSuffix("/", contextRoot);
-            return new URL("http", getGafferHost(), getGafferPort(),
+            return new URL(protocol, getGafferHost(), getGafferPort(),
                     contextRoot + urlSuffix);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Could not create Gaffer URL from host (" + getGafferHost()
@@ -132,7 +136,7 @@ public class ProxyProperties extends StoreProperties {
         }
     }
 
-    private String removeSuffix(final String suffix, final String string) {
+    protected String removeSuffix(final String suffix, final String string) {
         if (string.endsWith(suffix)) {
             return string.substring(0, string.length() - suffix.length() - 1);
         }
@@ -140,7 +144,7 @@ public class ProxyProperties extends StoreProperties {
         return string;
     }
 
-    private String prepend(final String prefix, final String string) {
+    protected String prepend(final String prefix, final String string) {
         if (!string.startsWith(prefix)) {
             return prefix + string;
         }

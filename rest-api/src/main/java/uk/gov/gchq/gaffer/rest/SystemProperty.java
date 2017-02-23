@@ -23,7 +23,6 @@ public abstract class SystemProperty {
     // KEYS
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
-    public static final String JOB_TRACKER_CLASS = "gaffer.jobTrackerClass";
     public static final String BASE_URL = "gaffer.rest-api.basePath";
     public static final String VERSION = "gaffer.rest-api.version";
     public static final String GRAPH_FACTORY_CLASS = "gaffer.graph.factory.class";
