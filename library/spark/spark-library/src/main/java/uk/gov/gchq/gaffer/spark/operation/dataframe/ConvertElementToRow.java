@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
+package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
@@ -22,8 +22,10 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.ConversionException;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
+
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -49,24 +51,24 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
         final MutableList<Object> fields = new MutableList<>();
         for (final String property : properties) {
             switch (property) {
-                case AccumuloStoreRelation.GROUP:
+                case SchemaToStructTypeConverter.GROUP:
                     fields.appendElem(element.getGroup());
                     break;
-                case AccumuloStoreRelation.SRC_COL_NAME:
+                case SchemaToStructTypeConverter.SRC_COL_NAME:
                     if (element instanceof Edge) {
                         fields.appendElem(((Edge) element).getSource());
                     } else {
                         fields.appendElem(null);
                     }
                     break;
-                case AccumuloStoreRelation.DST_COL_NAME:
+                case SchemaToStructTypeConverter.DST_COL_NAME:
                     if (element instanceof Edge) {
                         fields.appendElem(((Edge) element).getDestination());
                     } else {
                         fields.appendElem(null);
                     }
                     break;
-                case AccumuloStoreRelation.VERTEX_COL_NAME:
+                case SchemaToStructTypeConverter.VERTEX_COL_NAME:
                     if (element instanceof Entity) {
                         fields.appendElem(((Entity) element).getVertex());
                     } else {

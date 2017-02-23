@@ -216,7 +216,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        store.execute(addElements, context);
+        store.execute(addElements, user);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -240,7 +240,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(addElements, context);
+            store.execute(addElements, user);
             fail("Exception expected");
         } catch (final SchemaException e) {
             verify(viewValidator).validate(view, schema, true);
@@ -259,7 +259,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        store.execute(operation, context);
+        store.execute(operation, user);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -311,7 +311,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final CloseableIterable<Element> result = store.execute(opChain, context);
+        final CloseableIterable<Element> result = store.execute(opChain, user);
 
         // Then
         assertSame(getElementsResult, result);
@@ -493,6 +493,11 @@ public class StoreTest {
 
         public void setValidationRequired(final boolean validationRequired) {
             this.validationRequired = validationRequired;
+        }
+
+        @Override
+        protected Context createContext(final User user) {
+            return context;
         }
 
         @Override

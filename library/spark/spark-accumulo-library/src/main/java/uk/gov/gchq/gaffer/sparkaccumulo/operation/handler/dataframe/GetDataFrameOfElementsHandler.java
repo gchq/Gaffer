@@ -41,7 +41,7 @@ public class GetDataFrameOfElementsHandler implements
                 operation.getConverters(),
                 operation.getView(),
                 store,
-                context);
+                context.getUser());
         return sqlContext.baseRelationToDataFrame(relation);
     }
 
