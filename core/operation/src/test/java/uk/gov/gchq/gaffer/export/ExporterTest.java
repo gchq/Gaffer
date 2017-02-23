@@ -42,7 +42,7 @@ public class ExporterTest {
 
         // When / Then
         try {
-            exporter.add(values, user, "executionId");
+            exporter.add(values, user, "jobId");
             fail("NotImplementedException expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -61,7 +61,7 @@ public class ExporterTest {
 
         // When / Then
         try {
-            exporter.add(values, null, "executionId");
+            exporter.add(values, null, "jobId");
             fail("NotImplementedException expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -81,7 +81,7 @@ public class ExporterTest {
 
         // When / Then
         try {
-            exporter.add(values, user2, "executionId");
+            exporter.add(values, user2, "jobId");
             fail("NotImplementedException expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -100,7 +100,7 @@ public class ExporterTest {
 
         // When / Then
         try {
-            exporter.add(values, user, "executionId");
+            exporter.add(values, user, "jobId");
             fail("NotImplementedException expected");
         } catch (final NotImplementedException e) {
             assertEquals("_add(" + values + "," + user + ")", e.getMessage());
@@ -221,9 +221,9 @@ public class ExporterTest {
         final InitialiseExport initialiseExport = mock(InitialiseExport.class);
         given(initialiseExport.getKey()).willReturn(key);
         final String exportName = "export name";
-        final String executionId = "executionId";
+        final String jobId = "jobId";
         given(initialiseExport.getExportName()).willReturn(exportName);
-        exporter.initialise(initialiseExport, null, user01, executionId);
+        exporter.initialise(initialiseExport, null, user01, jobId);
         exporter.setTimestamp(timestamp);
 
 
@@ -236,7 +236,7 @@ public class ExporterTest {
 
 
     @Test
-    public void shouldSetExportNameToExecutionIdWithNull() {
+    public void shouldSetExportNameToJobIdWithNull() {
         // Given
         final ExporterImpl exporter = new ExporterImpl();
         final long timestamp = 1000L;
@@ -245,8 +245,8 @@ public class ExporterTest {
         final String key = "key";
         final InitialiseExport initialiseExport = mock(InitialiseExport.class);
         given(initialiseExport.getKey()).willReturn(key);
-        final String executionId = "executionId";
-        exporter.initialise(initialiseExport, null, user01, executionId);
+        final String jobId = "jobId";
+        exporter.initialise(initialiseExport, null, user01, jobId);
         exporter.setTimestamp(timestamp);
 
 
@@ -254,7 +254,7 @@ public class ExporterTest {
         final String name = exporter.getExportName();
 
         // Then
-        assertEquals(executionId, name);
+        assertEquals(jobId, name);
     }
 
     private static final class ExporterImpl extends Exporter<Object, InitialiseExport> {

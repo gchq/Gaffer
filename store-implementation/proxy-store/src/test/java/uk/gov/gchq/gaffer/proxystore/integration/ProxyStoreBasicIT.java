@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.HashSet;
@@ -150,16 +151,18 @@ public class ProxyStoreBasicIT {
     }
 
     @Test
-    public void shouldAddElementsAsynchronously() throws Exception {
+    public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
         final AddElements add = new AddElements.Builder()
                 .elements(DEFAULT_ELEMENTS)
                 .build();
-        JobDetail jobDetail = graph.executeAsync(new OperationChain<>(add), USER);
+        JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
 
         // Wait until the job status is not RUNNING
         while (JobStatus.RUNNING.equals(jobDetail.getStatus())) {
-            jobDetail = graph.getAsyncStatus(jobDetail.getJobId(), USER);
+            jobDetail = graph.execute(new GetJobStatus.Builder()
+                    .jobId(jobDetail.getJobId())
+                    .build(), USER);
             Thread.sleep(100);
         }
 

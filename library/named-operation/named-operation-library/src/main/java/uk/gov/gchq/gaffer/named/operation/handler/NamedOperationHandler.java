@@ -61,7 +61,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
             updateOperationInput(operationChain.getOperations().get(0), operation.getSeeds());
             operationChain = updateView(operation.getView(), operationChain);
-            return store.execute(operationChain, context.getUser());
+            return store._execute(operationChain, context);
         } catch (CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (ClassCastException e) {
@@ -82,8 +82,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
         for (final Operation operation : operationChain.getOperations()) {
             if (null == operation.getView()) {
                 operation.setView(view);
-            } else if (operation.getView().getEntityGroups().isEmpty()
-                    && operation.getView().getEdgeGroups().isEmpty()) {
+            } else if (!operation.getView().hasGroups()) {
                 // this allows users to create an empty view and setup summarisation,
                 // without having to specify all the element groups.
                 operation.setView(new View.Builder()

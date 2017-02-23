@@ -15,11 +15,11 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.walkthrough;
 
+import org.apache.commons.io.IOUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.example.gettingstarted.analytic.LoadAndQuery;
@@ -61,7 +61,7 @@ public class WalkthroughRunner {
     private void printIntro() {
         final String intro;
         try (final InputStream stream = StreamUtil.openStream(getClass(), "/example/gettingstarted/intro.md")) {
-            intro = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
+            intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

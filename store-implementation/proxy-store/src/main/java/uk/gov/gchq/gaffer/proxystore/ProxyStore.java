@@ -124,18 +124,8 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/async/status/" + jobId);
-        try {
-            return doGet(url, new TypeReferenceStoreImpl.JobDetail(), new Context(user));
-        } catch (final StoreException e) {
-            throw new OperationException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public JobDetail executeAsync(final OperationChain<?> operationChain, final User user) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/async/doOperation");
+    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        final URL url = getProperties().getGafferUrl("graph/job/doOperation");
         try {
             return doPost(url, operationChain, new TypeReferenceStoreImpl.JobDetail(), new Context(user));
         } catch (final StoreException e) {

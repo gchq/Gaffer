@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.VoidOutput;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
@@ -60,7 +61,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<T extends V
                         .inputPath(outputPath)
                         .failurePath(failurePath)
                         .build();
-        store.execute(importAccumuloKeyValueFiles, context);
+        store._execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
     }
 
     protected Configuration getConfiguration(final T operation) throws OperationException {

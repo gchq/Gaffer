@@ -157,10 +157,10 @@ public class ExportIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldExportJsonResultsAsynchronouslyAndFetchResults() throws Exception {
+    public void shouldExportJsonResultsAsJobAndFetchResults() throws Exception {
         // Given
         // When
-        final JobDetail jobDetail = graph.executeAsync(new Builder()
+        final JobDetail jobDetail = graph.executeJob(new Builder()
                 .first(new InitialiseGafferJsonExport())
                 .then(new GetEdges.Builder<>()
                         .addSeed(new EntitySeed(SOURCE_DIR_0))

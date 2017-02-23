@@ -38,7 +38,7 @@ public class UpdateExportHandler implements OperationHandler<UpdateExport, Close
             throw new IllegalArgumentException("No exporter was found for export key: " + updateExport.getKey());
         }
 
-        exporter.add(updateExport.getInput(), context.getUser(), context.getExecutionId());
+        exporter.add(updateExport.getInput(), context.getUser(), context.getJobId());
         return updateExport.getInput();
     }
 }

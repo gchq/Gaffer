@@ -17,24 +17,17 @@
 package uk.gov.gchq.gaffer.jobtracker;
 
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
 
 public interface JobTracker {
     /**
-     * Adds the given job.
+     * Adds or updates the given job.
      *
      * @param jobDetail the job to add or update
      * @param user      the user running the job
      */
-    void addJob(final JobDetail jobDetail, final User user);
-
-    /**
-     * Updates the given job.
-     *
-     * @param jobDetail the job to add or update
-     * @param user      the user running the job
-     */
-    void updateJob(final JobDetail jobDetail, final User user);
+    void addOrUpdateJob(final JobDetail jobDetail, final User user);
 
     /**
      * Gets the job with the given ID.
@@ -44,6 +37,14 @@ public interface JobTracker {
      * @return the job details for the given job id
      */
     JobDetail getJob(String jobId, User user);
+
+    /**
+     * Gets all the job details.
+     *
+     * @param user the user requesting the job details
+     * @return the job details for the given job id
+     */
+    CloseableIterable<JobDetail> getAllJobs(User user);
 
     /**
      * Clears the cache.

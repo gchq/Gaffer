@@ -41,8 +41,8 @@ public abstract class GafferExporter<INITIALISE_EXPORT extends InitialiseExport>
     }
 
     @Override
-    public void initialise(final INITIALISE_EXPORT initialiseExport, final Store store, final User user, final String executionId) {
-        super.initialise(initialiseExport, store, user, executionId);
+    public void initialise(final INITIALISE_EXPORT initialiseExport, final Store store, final User user, final String jobId) {
+        super.initialise(initialiseExport, store, user, jobId);
 
         // clone the schema
         schema = store.getSchema().clone();

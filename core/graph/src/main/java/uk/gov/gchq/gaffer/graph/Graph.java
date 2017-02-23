@@ -110,22 +110,22 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation chain on the store asynchronously.
+     * Performs the given operation chain job on the store.
      * If the operation does not have a view then the graph view is used.
      * NOTE the operationChain may be modified/optimised by the store.
      *
      * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the operation chain.
-     * @return the unique job id
-     * @throws OperationException thrown if asychronous operations are not configured.
+     * @param user           the user executing the job.
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
      */
-    public JobDetail executeAsync(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         updateOperationChainView(operationChain);
         for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChain, user);
         }
 
-        return store.executeAsync(operationChain, user);
+        return store.executeJob(operationChain, user);
     }
 
     /**
@@ -155,17 +155,12 @@ public final class Graph {
         return result;
     }
 
-    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
-        return store.getAsyncStatus(jobId, user);
-    }
-
     private <OUTPUT> void updateOperationChainView(final OperationChain<OUTPUT> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
             final View opView;
             if (null == operation.getView()) {
                 opView = view;
-            } else if (operation.getView().getEntityGroups().isEmpty()
-                    && operation.getView().getEdgeGroups().isEmpty()) {
+            } else if (!operation.getView().hasGroups()) {
                 opView = new View.Builder()
                         .merge(view)
                         .merge(operation.getView())

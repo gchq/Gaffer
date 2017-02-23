@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.jobtracker;
 
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -39,22 +41,7 @@ public class JcsJobTracker implements JobTracker {
     }
 
     @Override
-    public void addJob(final JobDetail jobDetail, final User user) {
-        validateJobDetail(jobDetail);
-
-        try {
-            final JobDetail existingJobDetail = getJob(jobDetail.getJobId(), user);
-            if (null != existingJobDetail) {
-                throw new IllegalArgumentException("JobDetail already exists: " + existingJobDetail);
-            }
-            cache.putInGroup(jobDetail.getJobId(), CACHE_GROUP, jobDetail);
-        } catch (CacheException e) {
-            throw new RuntimeException("Failed to add job to job tracker: " + jobDetail, e);
-        }
-    }
-
-    @Override
-    public void updateJob(final JobDetail jobDetail, final User user) {
+    public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
         validateJobDetail(jobDetail);
 
         try {
@@ -67,6 +54,16 @@ public class JcsJobTracker implements JobTracker {
     @Override
     public JobDetail getJob(final String jobId, final User user) {
         return (JobDetail) cache.getFromGroup(jobId, CACHE_GROUP);
+    }
+
+    @Override
+    public CloseableIterable<JobDetail> getAllJobs(final User user) {
+        return new TransformIterable<String, JobDetail>(cache.getGroupKeys(CACHE_GROUP)) {
+            @Override
+            protected JobDetail transform(final String jobId) {
+                return getJob(jobId, user);
+            }
+        };
     }
 
     @Override

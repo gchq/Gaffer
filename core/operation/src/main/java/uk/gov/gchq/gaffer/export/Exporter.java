@@ -47,15 +47,15 @@ public abstract class Exporter<CONFIG, INITIALISE_EXPORT extends InitialiseExpor
      * @param initialiseExport the initialise export operation
      * @param config           configuration for the export (This will be an instance of a gaffer Store)
      * @param user             the user who initiated the export
-     * @param executionId      the execution id
+     * @param jobId      the execution id
      */
-    public void initialise(final INITIALISE_EXPORT initialiseExport, final CONFIG config, final User user, final String executionId) {
+    public void initialise(final INITIALISE_EXPORT initialiseExport, final CONFIG config, final User user, final String jobId) {
         setKey(initialiseExport.getKey());
         setUser(user);
-        this.exportName = null != initialiseExport.getExportName() ? initialiseExport.getExportName() : executionId;
+        this.exportName = null != initialiseExport.getExportName() ? initialiseExport.getExportName() : jobId;
     }
 
-    public final void add(final Iterable<?> values, final User user, final String executionId) throws OperationException {
+    public final void add(final Iterable<?> values, final User user, final String jobId) throws OperationException {
         validateSameUser(user);
         _add(values, user);
     }

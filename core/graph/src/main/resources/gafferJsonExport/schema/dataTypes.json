@@ -1,6 +1,6 @@
 {
   "types": {
-    "executionId": {
+    "jobId": {
       "class": "java.lang.String"
     },
     "exportKey": {

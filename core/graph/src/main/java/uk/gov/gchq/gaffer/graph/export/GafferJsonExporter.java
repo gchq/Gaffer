@@ -47,8 +47,8 @@ public class GafferJsonExporter extends Exporter<Store, InitialiseGafferJsonExpo
     public GafferJsonExporter() {
     }
 
-    public void initialise(final Graph graph, final InitialiseGafferJsonExport initialiseExport, final Store store, final User user, final String executionId) {
-        super.initialise(initialiseExport, store, user, executionId);
+    public void initialise(final Graph graph, final InitialiseGafferJsonExport initialiseExport, final Store store, final User user, final String jobId) {
+        super.initialise(initialiseExport, store, user, jobId);
         this.graph = graph;
         timeToLive = initialiseExport.getTimeToLive();
         if (null == timeToLive) {

@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public class Context {
     private final User user;
-    private final String executionId;
+    private final String jobId;
     private final Map<String, Exporter> exporters = new HashMap<>();
 
     public Context() {
@@ -36,20 +36,20 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, createExecutionId(user));
+        this(user, createJobId());
     }
 
-    public Context(final User user, final String executionId) {
+    public Context(final User user, final String jobId) {
         this.user = user;
-        this.executionId = executionId;
+        this.jobId = jobId;
     }
 
     public User getUser() {
         return user;
     }
 
-    public String getExecutionId() {
-        return executionId;
+    public String getJobId() {
+        return jobId;
     }
 
     public Map<String, Exporter> getExporters() {
@@ -64,8 +64,7 @@ public class Context {
         return exporters.get(key);
     }
 
-    public static String createExecutionId(final User user) {
-        final String userId = null != user.getUserId() ? user.getUserId() : "";
-        return userId + "|" + System.currentTimeMillis() + "|" + UUID.randomUUID();
+    public static String createJobId() {
+        return UUID.randomUUID().toString();
     }
 }

@@ -1,7 +1,7 @@
 {
   "edges": {
     "result": {
-      "source": "executionId",
+      "source": "jobId",
       "destination": "exportKey",
       "directed": "true",
       "properties": {

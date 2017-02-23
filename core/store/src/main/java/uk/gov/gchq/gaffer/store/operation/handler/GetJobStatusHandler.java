@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler.export;
+package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.export.Exporter;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 
-public class InitialiseExportHandler implements OperationHandler<InitialiseExport, Object> {
+public class GetJobStatusHandler implements OperationHandler<GetJobStatus, JobDetail> {
     @Override
-    public Object doOperation(final InitialiseExport operation,
-                              final Context context, final Store store)
-            throws OperationException {
-        final Exporter exporter = operation.getExporter();
-        exporter.initialise(operation, store, context.getUser(), context.getJobId());
-        context.addExporter(exporter);
-        return operation.getInput();
+    public JobDetail doOperation(final GetJobStatus operation, final Context context, final Store store) throws OperationException {
+        if (null == store.getJobTracker()) {
+            throw new OperationException("The Job Tracker has not been configured");
+        }
+
+        return store.getJobTracker().getJob(operation.getJobId(), context.getUser());
     }
 }

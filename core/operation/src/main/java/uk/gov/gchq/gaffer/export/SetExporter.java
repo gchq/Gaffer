@@ -35,8 +35,8 @@ public class SetExporter extends Exporter<Object, InitialiseSetExport> {
     private Set<Object> export = new LinkedHashSet<>();
 
     @Override
-    public void initialise(final InitialiseSetExport initialiseExport, final Object config, final User user, final String executionId) {
-        super.initialise(initialiseExport, config, user, executionId);
+    public void initialise(final InitialiseSetExport initialiseExport, final Object config, final User user, final String jobId) {
+        super.initialise(initialiseExport, config, user, jobId);
         export = new LinkedHashSet<>();
     }
 

@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.walkthrough;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
-import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -228,7 +228,7 @@ public abstract class WalkthroughStrSubstitutor {
             if (null == stream) {
                 resource = "";
             } else {
-                resource = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
+                resource = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
             }
         } catch (final IOException e) {
             throw new RuntimeException(e);

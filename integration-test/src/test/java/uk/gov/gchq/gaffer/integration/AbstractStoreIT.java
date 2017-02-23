@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.function.aggregate.Sum;
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.jobtracker.JcsJobTracker;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -172,7 +171,6 @@ public abstract class AbstractStoreIT {
                 .storeProperties(storeProperties)
                 .addSchema(createSchema())
                 .addSchema(storeSchema)
-                .jobTracker(new JcsJobTracker())
                 .build();
 
         for (final StoreTrait requiredTrait : requiredTraits) {

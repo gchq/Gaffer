@@ -43,7 +43,7 @@ public class InitialiseGafferJsonExportHandler implements OperationHandler<Initi
                               final Context context, final Store store)
             throws OperationException {
         final GafferJsonExporter exporter = operation.getExporter();
-        exporter.initialise(createGraph(), operation, store, context.getUser(), context.getExecutionId());
+        exporter.initialise(createGraph(), operation, store, context.getUser(), context.getJobId());
         context.addExporter(exporter);
         return operation.getInput();
     }
