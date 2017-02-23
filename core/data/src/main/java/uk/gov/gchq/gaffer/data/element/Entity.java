@@ -66,7 +66,6 @@ public class Entity extends Element {
             case VERTEX:
                 return getVertex();
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
                 return null;
         }
     }
