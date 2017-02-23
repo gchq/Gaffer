@@ -97,9 +97,6 @@
                                 <gaffer.storeProperties>
                                     ${project.build.outputDirectory}/mockaccumulostore.properties
                                 </gaffer.storeProperties>
-                                <gaffer.jobTrackerClass>
-                                    uk.gov.gchq.gaffer.jobtracker.JcsJobTracker
-                                </gaffer.jobTrackerClass>
                             </systemProperties>
                         </configuration>
                         <dependencies>
