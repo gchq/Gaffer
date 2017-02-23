@@ -85,6 +85,19 @@ angular.module('app').controller('AppController',
         };
 
         $scope.addSeedAdd = function() {
+          try {
+             JSON.parse($scope.addSeedVertex);
+          } catch(err) {
+             // Try adding quotes
+             $scope.addSeedVertex = "\"" + $scope.addSeedVertex + "\"";
+
+             try {
+               JSON.parse($scope.addSeedVertex);
+             } catch(err) {
+               alert("Error: vertex is not valid - " + $scope.addSeedVertex);
+             }
+          }
+
           var seed = {vertexType: $scope.addSeedVertexType, vertex: $scope.addSeedVertex};
            $scope.addSeedVertexType = '';
            $scope.addSeedVertex = '';
@@ -257,10 +270,22 @@ angular.module('app').controller('AppController',
         graph.update($scope.graphData);
     }
 
+    var parseVertex = function(vertex) {
+        try {
+             JSON.parse(vertex);
+        } catch(err) {
+             // Try adding quotes
+             vertex = "\"" + vertex + "\"";
+        }
+
+        return vertex;
+    }
+
     var updateGraphData = function(results) {
         $scope.graphData = {entities: {}, edges: {}};
         for (var i in results.entities) {
             var entity = clone(results.entities[i]);
+            entity.vertex = parseVertex(entity.vertex);
             var id = entity.vertex;
             entity.vertexType = getVertexTypeFromEntityGroup(entity.group);
             if(id in $scope.graphData.entities) {
@@ -274,6 +299,9 @@ angular.module('app').controller('AppController',
 
         for (var i in results.edges) {
             var edge = clone(results.edges[i]);
+            edge.source = parseVertex(edge.source);
+            edge.destination = parseVertex(edge.destination);
+
             var vertexTypes = getVertexTypesFromEdgeGroup(edge.group);
             edge.sourceType = vertexTypes[0];
             edge.destinationType = vertexTypes[1];
