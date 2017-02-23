@@ -21,17 +21,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.commons.lang3.text.WordUtils;
-import javax.ws.rs.core.Response.StatusType;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import java.io.IOException;
 
 /**
  * Custom serialiser to format the HTTP status string when displaying error
  * messages to users.
  */
-public class StatusTypeSerialiser extends JsonSerializer<StatusType> {
+public class StatusSerialiser extends JsonSerializer<Status> {
 
     @Override
-    public void serialize(final StatusType statusType, final JsonGenerator generator,
+    public void serialize(final Status statusType, final JsonGenerator generator,
             final SerializerProvider provider) throws IOException, JsonProcessingException {
         final String statusStr = statusType.toString().replace('_', ' ');
 

@@ -22,19 +22,18 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.StatusType;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import java.io.IOException;
 
 /**
- * Custom deserialiser for handling formatted {@link javax.ws.rs.core.Response.StatusType}
+ * Custom deserialiser for handling formatted {@link uk.gov.gchq.gaffer.core.exception.Status}
  * representations.
  */
-public class StatusTypeDeserialiser extends JsonDeserializer<StatusType> {
+public class StatusDeserialiser extends JsonDeserializer<Status> {
 
     @SuppressFBWarnings("DM_CONVERT_CASE")
     @Override
-    public StatusType deserialize(final JsonParser jsonParser,
+    public Status deserialize(final JsonParser jsonParser,
             final DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
 
         final ObjectCodec codec = jsonParser.getCodec();

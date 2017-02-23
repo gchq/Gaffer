@@ -23,22 +23,21 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
-import uk.gov.gchq.gaffer.core.exception.serialisation.StatusTypeDeserialiser;
-import uk.gov.gchq.gaffer.core.exception.serialisation.StatusTypeSerialiser;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.StatusType;
+import uk.gov.gchq.gaffer.core.exception.serialisation.StatusDeserialiser;
+import uk.gov.gchq.gaffer.core.exception.serialisation.StatusSerialiser;
 
 /**
  * Simple serialisable POJO for containing details of REST errors.
+ *
  * An {@link uk.gov.gchq.gaffer.core.exception.Error} object is typically
- * created automatically by a Jersey {@link javax.ws.rs.ext.ExceptionMapper} and
- * should not be created manually.
+ * created automatically by a Jersey ExceptionMapper and should not be created
+ * manually.
  */
 @JsonDeserialize(builder = ErrorBuilder.class)
 public final class Error {
 
     private final int statusCode;
-    private final StatusType status;
+    private final Status status;
     private final String simpleMessage;
     private final String detailMessage;
 
@@ -53,8 +52,8 @@ public final class Error {
         return statusCode;
     }
 
-    @JsonSerialize(using = StatusTypeSerialiser.class)
-    public StatusType getStatus() {
+    @JsonSerialize(using = StatusSerialiser.class)
+    public Status getStatus() {
         return status;
     }
 
@@ -67,16 +66,16 @@ public final class Error {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final Error error = (Error) o;
+        final Error error = (Error) obj;
 
         return new EqualsBuilder()
                 .append(statusCode, error.statusCode)
@@ -103,7 +102,7 @@ public final class Error {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class ErrorBuilder {
         private int statusCode;
-        private StatusType status;
+        private Status status;
         private String simpleMessage;
         private String detailMessage;
 
@@ -113,12 +112,12 @@ public final class Error {
 
         public ErrorBuilder statusCode(final int statusCode) {
             this.statusCode = statusCode;
-            this.status = Response.Status.fromStatusCode(statusCode);
+            this.status = Status.fromStatusCode(statusCode);
             return this;
         }
 
-        @JsonDeserialize(using = StatusTypeDeserialiser.class)
-        public ErrorBuilder status(final StatusType status) {
+        @JsonDeserialize(using = StatusDeserialiser.class)
+        public ErrorBuilder status(final Status status) {
             this.status = status;
             this.statusCode = status.getStatusCode();
             return this;

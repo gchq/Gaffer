@@ -15,25 +15,23 @@
  */
 package uk.gov.gchq.gaffer.core.exception;
 
-import javax.ws.rs.core.Response.StatusType;
-
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
 
 public class GafferCheckedException extends Exception {
 
-    private StatusType status = INTERNAL_SERVER_ERROR;
+    private Status status = INTERNAL_SERVER_ERROR;
 
-    public GafferCheckedException(final Throwable cause, final StatusType status) {
+    public GafferCheckedException(final Throwable cause, final Status status) {
         super(cause);
         this.status = status;
     }
 
-    public GafferCheckedException(final String message, final StatusType status) {
+    public GafferCheckedException(final String message, final Status status) {
         super(message);
         this.status = status;
     }
 
-    public GafferCheckedException(final String message, final Throwable cause, final StatusType status) {
+    public GafferCheckedException(final String message, final Throwable cause, final Status status) {
         super(message, cause);
         this.status = status;
     }
@@ -50,11 +48,11 @@ public class GafferCheckedException extends Exception {
         super(message, cause);
     }
 
-    public StatusType getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(final StatusType status) {
+    public void setStatus(final Status status) {
         this.status = status;
     }
 }

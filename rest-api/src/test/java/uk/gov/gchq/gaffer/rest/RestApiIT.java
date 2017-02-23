@@ -1,5 +1,5 @@
-package uk.gov.gchq.gaffer.rest;/*
- * Copyright 2016 Crown Copyright
+/*
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@ package uk.gov.gchq.gaffer.rest;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.rest;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.rest.application.ApplicationResourceConfig;
+import uk.gov.gchq.gaffer.rest.application.ApplicationConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.client.Client;
@@ -42,17 +44,15 @@ public class RestApiIT {
     @BeforeClass
     public static void beforeClass() throws IOException, InterruptedException, StoreException {
         // start REST
-        server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8080/rest/v1"), new ApplicationResourceConfig());
+        server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8080/rest/v1"), new ApplicationConfig());
 
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "/home/user/projects/gaffer/rest-api/src/test/resources/mockaccumulostore.properties");
         System.setProperty(SystemProperty.SCHEMA_PATHS, "/home/user/projects/gaffer/rest-api/src/test/resources/example-schema.json");
+    }
 
-        Logger l = Logger.getLogger("org.glassfish.grizzly.http.server.HttpHandler");
-        l.setLevel(Level.FINE);
-        l.setUseParentHandlers(false);
-        ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.ALL);
-        l.addHandler(ch);
+    @AfterClass
+    public static void afterClass() {
+        server.shutdownNow();
     }
 
     @Test

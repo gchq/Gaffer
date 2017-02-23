@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
 
 /**
  * An <code>OperationException</code> is thrown when an operation fails.

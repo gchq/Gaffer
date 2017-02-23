@@ -60,4 +60,17 @@ public final class ErrorFactory {
                                  .build();
     }
 
+    /**
+     * Create an {@link uk.gov.gchq.gaffer.core.exception.Error} object from an
+     * {@link java.lang.Exception}.
+     *
+     * @param ex the exception object
+     * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
+     */
+    public static Error from(final Exception ex) {
+        return new ErrorBuilder().status(Status.INTERNAL_SERVER_ERROR)
+                                 .simpleMessage(ex.getMessage())
+                                 .detailMessage(ExceptionUtils.getStackTrace(ex))
+                                 .build();
+    }
 }

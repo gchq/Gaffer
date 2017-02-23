@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.rest.mapper;
 
-package uk.gov.gchq.gaffer.core.exception.mapper;
-
-import uk.gov.gchq.gaffer.core.exception.Error;
-import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
-import javax.ws.rs.client.Entity;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
+
 /**
- * Jersey {@link javax.ws.rs.ext.ExceptionMapper} to be used when no specific
- * exception mapper instance exists.
+ * Jersey {@link javax.ws.rs.ext.ExceptionMapper} used to handle internal
+ * {@link javax.ws.rs.ProcessingException}s thrown by the Jersey framework.
  */
 @Provider
-public class GafferRuntimeExceptionMapper implements ExceptionMapper<GafferCheckedException> {
+public class ProcessingExceptionMapper implements ExceptionMapper<ProcessingException> {
 
     @Override
-    public Response toResponse(final GafferCheckedException gce) {
-        final Error error = ErrorFactory.from(gce);
-
-        return Response.status(error.getStatusCode())
-                       .entity(Entity.json(error))
-                       .build();
+    public Response toResponse(final ProcessingException pe) {
+        throw new GafferRuntimeException("Rethrown ProcessingException", pe, INTERNAL_SERVER_ERROR);
     }
 }

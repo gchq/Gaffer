@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.core.exception.mapper;
+package uk.gov.gchq.gaffer.rest.mapper;
 
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Jersey {@link javax.ws.rs.ext.ExceptionMapper} to be used when no specific
- * exception mapper instance exists.
+ * Jersey {@link javax.ws.rs.ext.ExceptionMapper} to be used to handle
+ * {@link uk.gov.gchq.gaffer.core.exception.GafferRuntimeException}s.
  */
 @Provider
-public class GafferCheckedExceptionMapper implements ExceptionMapper<GafferCheckedException> {
+public class GafferRuntimeExceptionMapper implements ExceptionMapper<GafferRuntimeException> {
 
     @Override
-    public Response toResponse(final GafferCheckedException gce) {
-        final Error error = ErrorFactory.from(gce);
+    public Response toResponse(final GafferRuntimeException gre) {
+        final Error error = ErrorFactory.from(gre);
 
         return Response.status(error.getStatusCode())
-                       .entity(Entity.json(error))
+                       .entity(error)
                        .build();
     }
 }

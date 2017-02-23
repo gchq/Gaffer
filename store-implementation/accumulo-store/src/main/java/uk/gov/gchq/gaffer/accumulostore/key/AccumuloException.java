@@ -17,19 +17,17 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-
 public class AccumuloException extends GafferCheckedException {
 
     public AccumuloException(final Throwable cause) {
-        super(cause, INTERNAL_SERVER_ERROR);
+        super(cause);
     }
 
     public AccumuloException(final String message) {
-        super(message, INTERNAL_SERVER_ERROR);
+        super(message);
     }
 
     public AccumuloException(final String message, final Throwable cause) {
-        super(message, cause, INTERNAL_SERVER_ERROR);
+        super(message, cause);
     }
 }
