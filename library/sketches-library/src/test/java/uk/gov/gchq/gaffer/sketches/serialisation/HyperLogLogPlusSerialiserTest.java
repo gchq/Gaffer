@@ -34,7 +34,6 @@ public class HyperLogLogPlusSerialiserTest {
         hyperLogLogPlus1.offer("A");
         hyperLogLogPlus1.offer("B");
 
-
         long hyperLogLogPlus1PreSerialisationCardinality = hyperLogLogPlus1.cardinality();
         final byte[] hyperLogLogPlus1Serialised;
         try {
