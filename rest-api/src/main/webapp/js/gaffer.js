@@ -33,7 +33,7 @@ function log() {
     }
 }
 
-function init(){
+function init(onSwaggerComplete){
       window.swaggerUi = new SwaggerUi({
       url: getVersion() + "/swagger.json",
       dom_id:"swagger-ui-container",
@@ -42,6 +42,9 @@ function init(){
         log("Loaded swagger");
         $('pre code').each(function(i,e){hljs.highlightBlock(e)});
         addExampleButtons();
+        if(onSwaggerComplete) {
+            onSwaggerComplete();
+        }
       },
       onFailure: function(data){
       log("Unable to load SwaggerUI");
