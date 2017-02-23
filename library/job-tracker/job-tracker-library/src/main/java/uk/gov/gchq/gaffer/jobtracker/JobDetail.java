@@ -26,18 +26,34 @@ public class JobDetail implements Serializable {
     private String jobId;
     private String userId;
     private JobStatus status;
-    private Long timestamp;
+    private Long startTime;
+    private Long endTime;
     private String opChain;
     private String description;
 
     public JobDetail() {
     }
 
+    public JobDetail(final JobDetail oldJobDetail, final JobDetail newJobDetail) {
+        this.jobId = getNewOrOld(oldJobDetail.jobId, newJobDetail.jobId);
+        this.userId = getNewOrOld(oldJobDetail.userId, newJobDetail.userId);
+        this.opChain = getNewOrOld(oldJobDetail.opChain, newJobDetail.opChain);
+        this.description = getNewOrOld(oldJobDetail.description, newJobDetail.description);
+        this.status = getNewOrOld(oldJobDetail.status, newJobDetail.status);
+
+        if (null == oldJobDetail.startTime) {
+            this.startTime = System.currentTimeMillis();
+        } else {
+            this.startTime = oldJobDetail.startTime;
+            this.endTime = System.currentTimeMillis();
+        }
+    }
+
     public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
         final String opChainString = null != opChain ? opChain.toString() : "";
         this.jobId = jobId;
         this.userId = userId;
-        this.timestamp = System.currentTimeMillis();
+        this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
         this.opChain = opChainString;
         this.description = description;
@@ -67,12 +83,20 @@ public class JobDetail implements Serializable {
         this.status = status;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
+    public Long getStartTime() {
+        return startTime;
     }
 
-    public void setTimestamp(final Long timestamp) {
-        this.timestamp = timestamp;
+    public void setStartTime(final Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(final Long endTime) {
+        this.endTime = endTime;
     }
 
     public String getOpChain() {
@@ -104,7 +128,8 @@ public class JobDetail implements Serializable {
                 .append(jobId, jobDetail.jobId)
                 .append(userId, jobDetail.userId)
                 .append(opChain, jobDetail.opChain)
-                .append(timestamp, jobDetail.timestamp)
+                .append(startTime, jobDetail.startTime)
+                .append(endTime, jobDetail.endTime)
                 .append(status, jobDetail.status)
                 .append(description, jobDetail.description)
                 .isEquals();
@@ -115,7 +140,8 @@ public class JobDetail implements Serializable {
                 .append(jobId)
                 .append(userId)
                 .append(opChain)
-                .append(timestamp)
+                .append(startTime)
+                .append(endTime)
                 .append(status)
                 .append(description)
                 .toHashCode();
@@ -126,9 +152,14 @@ public class JobDetail implements Serializable {
                 .append("jobId", jobId)
                 .append("userId", userId)
                 .append("status", status)
-                .append("timestamp", timestamp)
+                .append("startTime", startTime)
+                .append("endTime", endTime)
                 .append("opChain", opChain)
                 .append("description", description)
                 .toString();
+    }
+
+    private <T> T getNewOrOld(final T oldValue, final T newValue) {
+        return null == newValue ? oldValue : newValue;
     }
 }

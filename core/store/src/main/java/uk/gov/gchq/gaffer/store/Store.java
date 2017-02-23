@@ -196,13 +196,13 @@ public abstract class Store {
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         final Context context = createContext(user);
-        updateJob(operationChain, context, null, JobStatus.RUNNING);
+        addOrUpdateJobStatus(operationChain, context, null, JobStatus.RUNNING);
         try {
             final OUTPUT result = _execute(operationChain, context);
-            updateJob(operationChain, context, null, JobStatus.FINISHED);
+            addOrUpdateJobStatus(operationChain, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
-            updateJob(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            addOrUpdateJobStatus(operationChain, context, t.getMessage(), JobStatus.FAILED);
             throw t;
         }
     }
@@ -221,14 +221,14 @@ public abstract class Store {
         }
 
         final Context context = createContext(user);
-        final JobDetail initialJobDetail = updateJob(operationChain, context, null, JobStatus.RUNNING);
+        final JobDetail initialJobDetail = addOrUpdateJobStatus(operationChain, context, null, JobStatus.RUNNING);
         new Thread(() -> {
             try {
                 _execute(operationChain, context);
-                updateJob(operationChain, context, null, JobStatus.FINISHED);
+                addOrUpdateJobStatus(operationChain, context, null, JobStatus.FINISHED);
             } catch (final Throwable t) {
                 LOGGER.warn("Operation chain job failed to execute", t);
-                updateJob(operationChain, context, t.getMessage(), JobStatus.FAILED);
+                addOrUpdateJobStatus(operationChain, context, t.getMessage(), JobStatus.FAILED);
             }
         }).start();
 
@@ -436,15 +436,21 @@ public abstract class Store {
         return (OUTPUT) result;
     }
 
-    private JobDetail updateJob(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail jobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+    private JobDetail addOrUpdateJobStatus(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
-            jobTracker.addOrUpdateJob(jobDetail, context.getUser());
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
+            if (null == oldJobDetail) {
+                jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
+            } else {
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
+            }
         }
-        return jobDetail;
+        return newJobDetail;
     }
 
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws OperationException {
+    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws
+            OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         OUTPUT result;
         if (null != handler) {
