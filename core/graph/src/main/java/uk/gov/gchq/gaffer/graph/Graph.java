@@ -161,8 +161,7 @@ public final class Graph {
             final View opView;
             if (null == operation.getView()) {
                 opView = view;
-            } else if (operation.getView().getEntityGroups().isEmpty()
-                    && operation.getView().getEdgeGroups().isEmpty()) {
+            } else if (!operation.getView().hasGroups()) {
                 opView = new View.Builder()
                         .merge(view)
                         .merge(operation.getView())

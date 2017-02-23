@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import sun.misc.IOUtils;
+import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
@@ -185,7 +185,7 @@ public class JSONSerialiser {
      */
     public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
         try (final InputStream stream2 = stream) {
-            final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
+            final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, clazz);
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
@@ -216,7 +216,7 @@ public class JSONSerialiser {
      */
     public <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
         try (final InputStream stream2 = stream) {
-            final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
+            final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, type);
         } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
