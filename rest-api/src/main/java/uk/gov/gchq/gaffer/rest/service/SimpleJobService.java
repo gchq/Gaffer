@@ -18,15 +18,18 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
+import uk.gov.gchq.gaffer.store.operation.GetAllJobStatuses;
+import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
- * An implementation of {@link IAsyncService}. By default it will use a singleton
+ * An implementation of {@link IJobService}. By default it will use a singleton
  * {@link Graph} generated using the {@link GraphFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
@@ -37,27 +40,51 @@ import uk.gov.gchq.gaffer.user.User;
  * be created from the http request.
  * </p>
  */
-public class SimpleAsyncService implements IAsyncService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAsyncService.class);
+public class SimpleJobService implements IJobService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleJobService.class);
     private final GraphFactory graphFactory;
 
-    public SimpleAsyncService() {
+    public SimpleJobService() {
         this(GraphFactory.createGraphFactory());
     }
 
-    public SimpleAsyncService(final GraphFactory graphFactory) {
+    public SimpleJobService(final GraphFactory graphFactory) {
         this.graphFactory = graphFactory;
     }
 
     @Override
-    public JobDetail executeAsync(final OperationChain opChain) {
-        return _executeAsync(opChain);
+    public JobDetail executeJob(final OperationChain opChain) {
+        final User user = createUser();
+        preOperationHook(opChain, user);
+
+        try {
+            final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, user);
+            LOGGER.info("Job started = " + jobDetail);
+            return jobDetail;
+        } catch (OperationException e) {
+            throw new RuntimeException("Error executing opChain", e);
+        } finally {
+            postOperationHook(opChain, user);
+        }
+    }
+
+    @Override
+    public CloseableIterable<JobDetail> status() {
+        try {
+            return getGraph().execute(new GetAllJobStatuses(), createUser());
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public JobDetail status(final String id) {
         try {
-            return getGraph().getAsyncStatus(id, createUser());
+            return getGraph().execute(
+                    new GetJobStatus.Builder()
+                            .jobId(id)
+                            .build(),
+                    createUser());
         } catch (OperationException e) {
             throw new RuntimeException(e);
         }
@@ -87,20 +114,5 @@ public class SimpleAsyncService implements IAsyncService {
 
     protected Graph getGraph() {
         return graphFactory.getGraph();
-    }
-
-    protected JobDetail _executeAsync(final OperationChain<?> opChain) {
-        final User user = createUser();
-        preOperationHook(opChain, user);
-
-        try {
-            final JobDetail jobDetail = graphFactory.getGraph().executeAsync(opChain, user);
-            LOGGER.info("Job started = " + jobDetail);
-            return jobDetail;
-        } catch (OperationException e) {
-            throw new RuntimeException("Error executing opChain", e);
-        } finally {
-            postOperationHook(opChain, user);
-        }
     }
 }

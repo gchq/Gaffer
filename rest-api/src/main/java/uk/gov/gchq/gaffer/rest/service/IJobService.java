@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.service;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import javax.ws.rs.Consumes;
@@ -28,24 +29,30 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 /**
- * An <code>IAsyncService</code> has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s asynchronously on the
- * {@link uk.gov.gchq.gaffer.graph.Graph}.
+ * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
+ * statuses.
  */
-@Path("/graph/async")
-@Api(value = "async", description = "Allows async operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
+@Path("/graph/job")
+@Api(value = "job", description = "Allows jobs to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface IAsyncService {
+public interface IJobService {
 
     @POST
     @Path("/doOperation")
-    @ApiOperation(value = "Performs the given operation chain on the graph asynchronously", response = String.class)
-    JobDetail executeAsync(final OperationChain opChain);
+    @ApiOperation(value = "Performs the given operation chain job on the graph", response = String.class)
+    JobDetail executeJob(final OperationChain opChain);
+
+    @GET
+    @Path("/status")
+    @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List")
+    CloseableIterable<JobDetail> status();
 
     @GET
     @Path("/status/{id}")
-    @ApiOperation(value = "Get an asynchronous job status for the given asynchronous job id", response = JobDetail.class)
+    @ApiOperation(value = "Get the details of a job", response = JobDetail.class)
     JobDetail status(@ApiParam(value = "a job id") @PathParam("id") final String id);
 }

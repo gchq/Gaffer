@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 
 public class ContextTest {
     @Test
-    public void shouldConstructContextsWithTheSameUserAndGenerateDifferentExecutionIds() {
+    public void shouldConstructContextsWithTheSameUserAndGenerateDifferentJobIds() {
         // Given
         final User user = new User();
 
@@ -39,14 +39,14 @@ public class ContextTest {
 
         // Then
         assertEquals(user, context1.getUser());
-        assertTrue(context1.getExecutionId().startsWith(user.getUserId()));
-        assertTrue(context2.getExecutionId().startsWith(user.getUserId()));
-        assertNotEquals(context1.getExecutionId(), context2.getExecutionId());
+        assertEquals(user, context2.getUser());
+        assertNotEquals(context1.getJobId(), context2.getJobId());
         assertTrue(context1.getExporters().isEmpty());
+        assertTrue(context2.getExporters().isEmpty());
     }
 
     @Test
-    public void shouldConstructContextWithUserAndExecutionId() {
+    public void shouldConstructContextWithUserAndJobId() {
         // Given
         final User user = new User();
         final String randomId = "randomId";
@@ -56,7 +56,7 @@ public class ContextTest {
 
         // Then
         assertEquals(user, context.getUser());
-        assertEquals(randomId, context.getExecutionId());
+        assertEquals(randomId, context.getJobId());
         assertTrue(context.getExporters().isEmpty());
     }
 

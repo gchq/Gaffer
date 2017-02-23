@@ -22,9 +22,9 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
-import uk.gov.gchq.gaffer.rest.service.SimpleAsyncService;
 import uk.gov.gchq.gaffer.rest.service.SimpleExamplesService;
 import uk.gov.gchq.gaffer.rest.service.SimpleGraphConfigurationService;
+import uk.gov.gchq.gaffer.rest.service.SimpleJobService;
 import uk.gov.gchq.gaffer.rest.service.SimpleOperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
 import java.util.HashSet;
@@ -58,7 +58,7 @@ public class ApplicationConfig extends ResourceConfig {
     protected void addServices() {
         resources.add(StatusService.class);
         resources.add(SimpleOperationService.class);
-        resources.add(SimpleAsyncService.class);
+        resources.add(SimpleJobService.class);
         resources.add(SimpleGraphConfigurationService.class);
         resources.add(SimpleExamplesService.class);
     }

@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -90,6 +91,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -421,7 +423,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationChainAsynchronously() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
         final OperationChain<?> opChain = mock(OperationChain.class);
@@ -431,38 +433,32 @@ public class StoreTest {
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
-        final User user = mock(User.class);
+        final User user = new User();
 
         // When
-        final JobDetail resultJobDetail = store.executeAsync(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, user);
 
         // Then
-        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
-        verify(jobTracker).addJob(jobDetail.capture(), Mockito.eq(user));
-        assertEquals(jobDetail.getValue(), resultJobDetail);
         Thread.sleep(1000);
-
-        verify(jobTracker).updateJob(Mockito.any(JobDetail.class), Mockito.eq(user));
+        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
+        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), Mockito.eq(user));
+        assertEquals(jobDetail.getAllValues().get(0), resultJobDetail);
+        assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
     }
 
     @Test
-    public void shouldGetAsyncJobDetails() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldGetJobTracker() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
-        final User user = mock(User.class);
-        final String jobId = "jobId1";
-        final JobDetail jobDetail = mock(JobDetail.class);
-        given(jobTracker.getJob(jobId, user)).willReturn(jobDetail);
-
         // When
-        final JobDetail resultJobDetail = store.getAsyncStatus(jobId, user);
+        final JobTracker resultJobTracker = store.getJobTracker();
 
         // Then
-        assertEquals(jobDetail, resultJobDetail);
+        assertSame(jobTracker, resultJobTracker);
     }
 
     private Schema createSchemaMock() {

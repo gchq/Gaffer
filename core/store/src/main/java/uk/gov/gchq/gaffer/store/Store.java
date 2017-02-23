@@ -57,8 +57,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.store.operation.GetAllJobStatuses;
+import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetAllJobStatusesHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetJobStatusHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
@@ -121,11 +125,11 @@ public abstract class Store {
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        this.jobTracker = createJobTracker(properties);
+
         addOpHandlers();
         optimiseSchema();
         validateSchemas();
-
-        this.jobTracker = createJobTracker(properties);
     }
 
     protected JobTracker createJobTracker(final StoreProperties properties) {
@@ -191,60 +195,54 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        validateOperationChain(operationChain, user);
-
-        OperationChain<OUTPUT> optimisedOperationChain = operationChain;
-        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
-            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
+        final Context context = createContext(user);
+        updateJob(operationChain, context, null, JobStatus.RUNNING);
+        try {
+            final OUTPUT result = _execute(operationChain, context);
+            updateJob(operationChain, context, null, JobStatus.FINISHED);
+            return result;
+        } catch (final Throwable t) {
+            updateJob(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            throw t;
         }
-
-        return handleOperationChain(optimisedOperationChain, createContext(user));
     }
 
     /**
-     * Executes a given operation chain and returns the result.
+     * Executes a given operation chain job and returns the job detail.
      *
      * @param operationChain the operation chain to execute.
-     * @param user           the user executing the operation chain
-     * @return the unique job id
-     * @throws OperationException thrown if asychronous operations are not configured.
+     * @param user           the user executing the job
+     * @return the job detail
+     * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeAsync(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         if (null == jobTracker) {
-            throw new OperationException("Running operations asychronously has not configured.");
+            throw new OperationException("Running jobs has not configured.");
         }
 
-        validateOperationChain(operationChain, user);
-        OperationChain<?> optimisedOperationChain = operationChain;
-        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
-            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
-        }
-
-        final OperationChain<?> fullyOptimisedOperationChain = optimisedOperationChain;
-        final String userId = null != user.getUserId() ? user.getUserId() : "";
-        final Context context = new Context(user);
-        final String jobId = context.getExecutionId();
-        final JobDetail initialJobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.RUNNING, null);
-        jobTracker.addJob(initialJobDetail, user);
+        final Context context = createContext(user);
+        final JobDetail initialJobDetail = updateJob(operationChain, context, null, JobStatus.RUNNING);
         new Thread(() -> {
             try {
-                handleOperationChain(fullyOptimisedOperationChain, context);
-                final JobDetail jobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.FINISHED, null);
-                jobTracker.updateJob(jobDetail, user);
-            } catch (final OperationException e) {
-                LOGGER.warn("Operation chain failed to execute asynchronously", e);
-                final JobDetail jobDetail = new JobDetail(jobId, userId, operationChain, JobStatus.FAILED, e.getMessage());
-                jobTracker.updateJob(jobDetail, user);
+                _execute(operationChain, context);
+                updateJob(operationChain, context, null, JobStatus.FINISHED);
+            } catch (final Throwable t) {
+                LOGGER.warn("Operation chain job failed to execute", t);
+                updateJob(operationChain, context, t.getMessage(), JobStatus.FAILED);
             }
         }).start();
 
         return initialJobDetail;
     }
 
-    public JobDetail getAsyncStatus(final String jobId, final User user) throws OperationException {
-        return jobTracker.getJob(jobId, user);
+    public <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> operationChain, final Context context) throws OperationException {
+        final OperationChain<OUTPUT> optimisedOperationChain = prepareOperationChain(operationChain, context);
+        return handleOperationChain(optimisedOperationChain, context);
     }
 
+    public JobTracker getJobTracker() {
+        return jobTracker;
+    }
 
     /**
      * @param operationClass the operation class to check
@@ -331,6 +329,16 @@ public abstract class Store {
         if (!valid) {
             throw new SchemaException("Schema is not valid. Check the logs for more information.");
         }
+    }
+
+    protected <OUTPUT> OperationChain<OUTPUT> prepareOperationChain(final OperationChain<OUTPUT> operationChain, final Context context) {
+        validateOperationChain(operationChain, context.getUser());
+
+        OperationChain<OUTPUT> optimisedOperationChain = operationChain;
+        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
+            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
+        }
+        return optimisedOperationChain;
     }
 
     protected void validateOperationChain(
@@ -428,6 +436,14 @@ public abstract class Store {
         return (OUTPUT) result;
     }
 
+    private JobDetail updateJob(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
+        final JobDetail jobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        if (null != jobTracker) {
+            jobTracker.addOrUpdateJob(jobDetail, context.getUser());
+        }
+        return jobDetail;
+    }
+
     protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         OUTPUT result;
@@ -486,6 +502,12 @@ public abstract class Store {
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
+
+        // Jobs
+        if (null != jobTracker) {
+            addOperationHandler(GetJobStatus.class, new GetJobStatusHandler());
+            addOperationHandler(GetAllJobStatuses.class, new GetAllJobStatusesHandler());
+        }
 
         // Deprecated Get operations
         addOperationHandler(GetEdgesBySeed.class, (OperationHandler) getGetElementsHandler());
