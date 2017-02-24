@@ -42,8 +42,10 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -820,6 +822,20 @@ public class SchemaTest {
         // Then - no description fields or new lines
         assertFalse(compactJson.contains("description"));
         assertFalse(compactJson.contains(String.format("%n")));
+    }
+
+    @Test
+    public void shouldGetAllGroups() {
+        // Given - schema loaded from file
+
+        // When
+        final Set<String> groups = schema.getGroups();
+
+        // Then
+        final Set<String> allGroups = new HashSet<>(schema.getEntityGroups());
+        allGroups.addAll(schema.getEdgeGroups());
+
+        assertEquals(allGroups, groups);
     }
 
     private class SerialisationImpl implements Serialisation<Object> {
