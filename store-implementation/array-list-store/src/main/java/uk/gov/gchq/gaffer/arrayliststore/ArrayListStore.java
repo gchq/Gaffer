@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetElementsHandler;
-import uk.gov.gchq.gaffer.arrayliststore.operation.handler.InitialiseArrayListStoreExport;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,7 +35,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.InitialiseExportHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -93,7 +91,6 @@ public class ArrayListStore extends Store {
      */
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(InitialiseArrayListStoreExport.class, new InitialiseExportHandler());
     }
 
     @Override

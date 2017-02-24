@@ -17,14 +17,13 @@
 package uk.gov.gchq.gaffer.store;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.export.Exporter;
+import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ContextTest {
@@ -71,17 +70,17 @@ public class ContextTest {
     }
 
     @Test
-    public void shouldAddAndGetExporterWithKey() {
+    public void shouldAddAndGetExporter() {
         // Given
         final Exporter exporter = mock(Exporter.class);
         final Context context = new Context();
-        final String key = "key";
-        given(exporter.getKey()).willReturn(key);
 
         // When
         context.addExporter(exporter);
 
         // Then
-        assertSame(exporter, context.getExporter(key));
+        assertSame(exporter, context.getExporter());
+        assertSame(exporter, context.getExporter(null));
+        assertSame(exporter, context.getExporter(exporter.getClass()));
     }
 }

@@ -43,11 +43,8 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporter;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporters;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -60,11 +57,8 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExporterHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportersHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.InitialiseExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.UpdateExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -203,11 +197,8 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(CountGroups.class) instanceof CountGroupsHandler);
         assertTrue(store.getOperationHandlerExposed(Deduplicate.class) instanceof DeduplicateHandler);
 
-        assertTrue(store.getOperationHandlerExposed(InitialiseSetExport.class) instanceof InitialiseExportHandler);
-        assertTrue(store.getOperationHandlerExposed(UpdateExport.class) instanceof UpdateExportHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchExport.class) instanceof FetchExportHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchExporter.class) instanceof FetchExporterHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchExporters.class) instanceof FetchExportersHandler);
+        assertTrue(store.getOperationHandlerExposed(ExportToSet.class) instanceof ExportToSetHandler);
+        assertTrue(store.getOperationHandlerExposed(GetSetExport.class) instanceof GetSetExportHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
@@ -335,7 +326,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 29; // this includes the deprecated Get operations
+        final int expectedNumberOfOperations = 28; // this includes the deprecated Get operations
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);

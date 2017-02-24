@@ -27,7 +27,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>job-tracker-library</module>
         <module>job-tracker-jcs</module>
     </modules>
 

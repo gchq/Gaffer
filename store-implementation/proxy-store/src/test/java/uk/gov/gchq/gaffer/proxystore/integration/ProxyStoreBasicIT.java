@@ -42,9 +42,9 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.HashSet;
@@ -129,7 +129,6 @@ public class ProxyStoreBasicIT {
         assertThat(results, hasItems(DEFAULT_ELEMENTS));
     }
 
-
     @Test
     public void shouldAddElementsAndGetRelatedElements() throws Exception {
         // Given
@@ -160,7 +159,7 @@ public class ProxyStoreBasicIT {
 
         // Wait until the job status is not RUNNING
         while (JobStatus.RUNNING.equals(jobDetail.getStatus())) {
-            jobDetail = graph.execute(new GetJobStatus.Builder()
+            jobDetail = graph.execute(new GetJobDetails.Builder()
                     .jobId(jobDetail.getJobId())
                     .build(), USER);
             Thread.sleep(100);

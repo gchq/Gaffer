@@ -33,9 +33,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
@@ -109,28 +108,26 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // ---------------------------------------------------------
 
         // [get] Create a sub graph
-        // Start the operation chain by initialising the export to use a set.
-        // Then do a get related edges with the given seeds.
+        // Start getting related edges with the given seeds.
         // Then update the export with the results
         // Between each hop we need to extract the destination vertices of the
         // previous edges.
         // Finally finish off by returning all the edges in the export.
         // ---------------------------------------------------------
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new InitialiseSetExport())
-                .then(new GetEdges.Builder<EntitySeed>()
+                .first(new GetEdges.Builder<EntitySeed>()
                         .seeds(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
-                .then(new UpdateExport())
+                .then(new ExportToSet())
                 .then(new GenerateObjects<Edge, EntitySeed>(destVerticesExtractor))
                 .then(new GetEdges.Builder<EntitySeed>()
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
-                .then(new UpdateExport())
-                .then(new FetchExport())
+                .then(new ExportToSet())
+                .then(new GetSetExport())
                 .build();
 
         final Iterable<Edge> subGraph = (Iterable<Edge>) graph.execute(opChain, user);

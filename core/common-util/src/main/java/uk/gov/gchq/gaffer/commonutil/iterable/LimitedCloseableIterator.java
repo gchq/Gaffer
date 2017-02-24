@@ -21,15 +21,15 @@ import java.util.NoSuchElementException;
 
 public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
     private final CloseableIterator<T> iterator;
-    private final int end;
+    private final Integer end;
     private int index = 0;
 
-    public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final int end) {
+    public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final Integer end) {
         this(new WrappedCloseableIterator<>(iterator), start, end);
     }
 
-    public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final int end) {
-        if (start > end) {
+    public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final Integer end) {
+        if (null != end && start > end) {
             throw new IllegalArgumentException("start should be less than end");
         }
 
@@ -52,7 +52,7 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
 
     @Override
     public boolean hasNext() {
-        boolean hasNext = index < end && iterator.hasNext();
+        boolean hasNext = (null == end || index < end) && iterator.hasNext();
         if (!hasNext) {
             close();
         }

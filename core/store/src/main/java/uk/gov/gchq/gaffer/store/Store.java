@@ -36,11 +36,10 @@ import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporter;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporters;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
+import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -56,23 +55,21 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import uk.gov.gchq.gaffer.store.operation.GetAllJobStatuses;
-import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetAllJobStatusesHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetJobStatusHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExporterHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportersHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.InitialiseExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.UpdateExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.CoreOperationChainOptimiser;
@@ -84,6 +81,7 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -109,7 +107,7 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
+    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
@@ -196,13 +194,13 @@ public abstract class Store {
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
         final Context context = createContext(user);
-        addOrUpdateJobStatus(operationChain, context, null, JobStatus.RUNNING);
+        addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         try {
             final OUTPUT result = _execute(operationChain, context);
-            addOrUpdateJobStatus(operationChain, context, null, JobStatus.FINISHED);
+            addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
-            addOrUpdateJobStatus(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
             throw t;
         }
     }
@@ -221,14 +219,28 @@ public abstract class Store {
         }
 
         final Context context = createContext(user);
-        final JobDetail initialJobDetail = addOrUpdateJobStatus(operationChain, context, null, JobStatus.RUNNING);
+
+        if (isSupported(ExportToGafferResultCache.class)) {
+            boolean hasExport = false;
+            for (final Operation operation : operationChain.getOperations()) {
+                if (operation instanceof ExportToGafferResultCache) {
+                    hasExport = true;
+                    break;
+                }
+            }
+            if (!hasExport) {
+                operationChain.getOperations().add(new ExportToGafferResultCache());
+            }
+        }
+
+        final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         new Thread(() -> {
             try {
                 _execute(operationChain, context);
-                addOrUpdateJobStatus(operationChain, context, null, JobStatus.FINISHED);
+                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             } catch (final Throwable t) {
                 LOGGER.warn("Operation chain job failed to execute", t);
-                addOrUpdateJobStatus(operationChain, context, t.getMessage(), JobStatus.FAILED);
+                addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
             }
         }).start();
 
@@ -436,7 +448,7 @@ public abstract class Store {
         return (OUTPUT) result;
     }
 
-    private JobDetail addOrUpdateJobStatus(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
+    private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
@@ -481,20 +493,6 @@ public abstract class Store {
     }
 
     private void addCoreOpHandlers() {
-        addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
-        addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
-        addOperationHandler(Validate.class, new ValidateHandler());
-        addOperationHandler(Deduplicate.class, new DeduplicateHandler());
-        addOperationHandler(CountGroups.class, new CountGroupsHandler());
-        addOperationHandler(Limit.class, new LimitHandler());
-
-        // Export
-        addOperationHandler(InitialiseSetExport.class, new InitialiseExportHandler());
-        addOperationHandler(UpdateExport.class, new UpdateExportHandler());
-        addOperationHandler(FetchExport.class, new FetchExportHandler());
-        addOperationHandler(FetchExporter.class, new FetchExporterHandler());
-        addOperationHandler(FetchExporters.class, new FetchExportersHandler());
-
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());
 
@@ -503,17 +501,13 @@ public abstract class Store {
         addOperationHandler(GetEntities.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetEdges.class, (OperationHandler) getGetElementsHandler());
 
+        // Get Adjacent
         addOperationHandler(GetAdjacentEntitySeeds.class, (OperationHandler) getAdjacentEntitySeedsHandler());
 
+        // Get All Elements
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
-
-        // Jobs
-        if (null != jobTracker) {
-            addOperationHandler(GetJobStatus.class, new GetJobStatusHandler());
-            addOperationHandler(GetAllJobStatuses.class, new GetAllJobStatusesHandler());
-        }
 
         // Deprecated Get operations
         addOperationHandler(GetEdgesBySeed.class, (OperationHandler) getGetElementsHandler());
@@ -522,6 +516,25 @@ public abstract class Store {
         addOperationHandler(GetRelatedEdges.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetRelatedElements.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetRelatedEntities.class, (OperationHandler) getGetElementsHandler());
+
+        // Export
+        addOperationHandler(ExportToSet.class, new ExportToSetHandler());
+        addOperationHandler(GetSetExport.class, new GetSetExportHandler());
+        addOperationHandler(GetExports.class, new GetExportsHandler());
+
+        // Jobs
+        addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
+        if (null != jobTracker) {
+            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+        }
+
+        // Other
+        addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
+        addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
+        addOperationHandler(Validate.class, new ValidateHandler());
+        addOperationHandler(Deduplicate.class, new DeduplicateHandler());
+        addOperationHandler(CountGroups.class, new CountGroupsHandler());
+        addOperationHandler(Limit.class, new LimitHandler());
     }
 
     private void addConfiguredOperationHandlers() {

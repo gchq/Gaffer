@@ -55,15 +55,21 @@ public class TypeReferenceImpl {
             TypeReference<CloseableIterable<EntitySeed>> {
     }
 
-    public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.export.Exporter> {
+    public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.impl.export.Exporter> {
     }
 
-    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.export.Exporter>> {
+    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.operation.impl.export.Exporter>> {
     }
 
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
     }
 
+    public static class MapStringSet extends TypeReference<java.util.LinkedHashMap<String, Set<Object>>> {
+    }
+
     public static class Operations extends TypeReference<Set<Class<Operation>>> {
+    }
+
+    public static class JobDetail extends TypeReference<uk.gov.gchq.gaffer.jobtracker.JobDetail> {
     }
 }

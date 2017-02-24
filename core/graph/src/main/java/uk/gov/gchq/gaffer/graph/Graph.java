@@ -400,6 +400,10 @@ public final class Graph {
                 store.optimiseSchema();
                 store.validateSchemas();
             }
+
+            if (null == schema) {
+                schema = store.getSchema();
+            }
         }
 
         private Store createStore(final StoreProperties storeProperties, final Schema schema) {
@@ -430,8 +434,8 @@ public final class Graph {
         private void updateView() {
             if (null == view) {
                 this.view = new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
+                        .entities(schema.getEntityGroups())
+                        .edges(schema.getEdgeGroups())
                         .build();
             }
         }

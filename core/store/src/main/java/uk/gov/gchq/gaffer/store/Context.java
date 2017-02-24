@@ -15,8 +15,9 @@
  */
 package uk.gov.gchq.gaffer.store;
 
-import uk.gov.gchq.gaffer.export.Exporter;
+import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,11 @@ import java.util.UUID;
 public class Context {
     private final User user;
     private final String jobId;
-    private final Map<String, Exporter> exporters = new HashMap<>();
+
+    /**
+     * Map of exporter simple class name to exporter
+     */
+    private final Map<Class<? extends Exporter>, Exporter> exporters = new HashMap<>();
 
     public Context() {
         this(new User());
@@ -52,17 +57,37 @@ public class Context {
         return jobId;
     }
 
-    public Map<String, Exporter> getExporters() {
-        return Collections.unmodifiableMap(exporters);
+    public Collection<Exporter> getExporters() {
+        return Collections.unmodifiableCollection(exporters.values());
     }
 
     public void addExporter(final Exporter exporter) {
-        exporters.put(exporter.getKey(), exporter);
+        if (exporters.containsKey(exporter.getClass())) {
+            throw new IllegalArgumentException("Exporter of type " + exporter.getClass() + " has already been registered");
+        }
+        exporters.put(exporter.getClass(), exporter);
     }
 
-    public Exporter getExporter(final String key) {
-        return exporters.get(key);
+    public <E> E getExporter(final Class<? extends E> exporterClass) {
+        if (null == exporterClass) {
+            return (E) getExporter();
+        }
+
+        return (E) exporters.get(exporterClass);
     }
+
+    public Exporter getExporter() {
+        if (exporters.isEmpty()) {
+            return null;
+        }
+
+        if (exporters.size() == 1) {
+            return exporters.values().iterator().next();
+        }
+
+        throw new IllegalArgumentException("Exporter class is required when more than 1 exporter is registered");
+    }
+
 
     public static String createJobId() {
         return UUID.randomUUID().toString();

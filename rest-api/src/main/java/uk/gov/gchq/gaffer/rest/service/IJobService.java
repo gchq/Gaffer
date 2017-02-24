@@ -42,16 +42,21 @@ public interface IJobService {
 
     @POST
     @Path("/doOperation")
-    @ApiOperation(value = "Performs the given operation chain job on the graph", response = String.class)
+    @ApiOperation(value = "Performs the given operation chain job on the graph", response = JobDetail.class)
     JobDetail executeJob(final OperationChain opChain);
 
     @GET
-    @Path("/status")
+    @Path("/details")
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List")
-    CloseableIterable<JobDetail> status();
+    CloseableIterable<JobDetail> details();
 
     @GET
-    @Path("/status/{id}")
+    @Path("/details/{id}")
     @ApiOperation(value = "Get the details of a job", response = JobDetail.class)
-    JobDetail status(@ApiParam(value = "a job id") @PathParam("id") final String id);
+    JobDetail details(@ApiParam(value = "a job id") @PathParam("id") final String id);
+
+    @GET
+    @Path("/results/{id}")
+    @ApiOperation(value = "Get the results of a job", response = Object.class, responseContainer = "List")
+    CloseableIterable results(@ApiParam(value = "a job id") @PathParam("id") final String id);
 }

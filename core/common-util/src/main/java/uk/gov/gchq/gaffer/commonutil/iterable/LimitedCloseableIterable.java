@@ -21,14 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
     private final CloseableIterable<T> iterable;
     private final int start;
-    private final int end;
+    private final Integer end;
 
-    public LimitedCloseableIterable(final Iterable<T> iterable, final int start, final int end) {
+    public LimitedCloseableIterable(final Iterable<T> iterable, final int start, final Integer end) {
         this(new WrappedCloseableIterable<>(iterable), start, end);
     }
 
-    public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final int end) {
-        if (start > end) {
+    public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final Integer end) {
+        if (null != end && start > end) {
             throw new IllegalArgumentException("start should be less than end");
         }
 
@@ -48,7 +48,7 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
     }
 
     @JsonIgnore
-    public int getEnd() {
+    public Integer getEnd() {
         return end;
     }
 

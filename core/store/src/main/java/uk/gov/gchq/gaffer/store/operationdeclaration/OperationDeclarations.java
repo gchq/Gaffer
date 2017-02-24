@@ -49,7 +49,7 @@ public class OperationDeclarations {
 
         public Builder() {
             this.instance = new OperationDeclarations();
-            this.instance.setOperations(new ArrayList<OperationDeclaration>());
+            this.instance.setOperations(new ArrayList<>());
         }
 
         public Builder declaration(final OperationDeclaration declaration) {
@@ -66,7 +66,7 @@ public class OperationDeclarations {
         final OperationDeclarations allDefinitions = new OperationDeclarations.Builder().build();
 
         try {
-            for (String pathStr : paths.split(",")) {
+            for (final String pathStr : paths.split(",")) {
                 final OperationDeclarations definitions;
                 final Path path = Paths.get(pathStr);
                 if (path.toFile().exists()) {

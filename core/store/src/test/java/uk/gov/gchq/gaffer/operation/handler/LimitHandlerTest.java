@@ -36,7 +36,7 @@ public class LimitHandlerTest {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
         final List<Integer> expectedResult = Arrays.asList(1, 2, 3);
-        final int resultLimit = expectedResult.size();
+        final Integer resultLimit = expectedResult.size();
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
                 .limitResults(resultLimit)

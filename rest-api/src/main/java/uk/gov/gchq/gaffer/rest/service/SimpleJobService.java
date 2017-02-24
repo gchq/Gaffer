@@ -23,9 +23,10 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
-import uk.gov.gchq.gaffer.store.operation.GetAllJobStatuses;
-import uk.gov.gchq.gaffer.store.operation.GetJobStatus;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -69,19 +70,32 @@ public class SimpleJobService implements IJobService {
     }
 
     @Override
-    public CloseableIterable<JobDetail> status() {
+    public CloseableIterable<JobDetail> details() {
         try {
-            return getGraph().execute(new GetAllJobStatuses(), createUser());
+            return getGraph().execute(new GetAllJobDetails(), createUser());
         } catch (OperationException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public JobDetail status(final String id) {
+    public JobDetail details(final String id) {
         try {
             return getGraph().execute(
-                    new GetJobStatus.Builder()
+                    new GetJobDetails.Builder()
+                            .jobId(id)
+                            .build(),
+                    createUser());
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public CloseableIterable results(final String id) {
+        try {
+            return getGraph().execute(
+                    new GetGafferResultCacheExport.Builder()
                             .jobId(id)
                             .build(),
                     createUser());
