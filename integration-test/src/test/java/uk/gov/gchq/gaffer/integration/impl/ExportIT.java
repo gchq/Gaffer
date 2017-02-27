@@ -88,6 +88,7 @@ public class ExportIT extends AbstractStoreIT {
         assertEquals(2, Lists.newArrayList(export).size());
     }
 
+    //TODO: fix these
 //    @Test
 //    public void shouldExportJsonResultsAndFetchResultsInSeparateQueries() throws OperationException, IOException {
 //        // Given

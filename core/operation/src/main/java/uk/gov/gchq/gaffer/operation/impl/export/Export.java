@@ -21,11 +21,8 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * A <code>Export</code> allows the results of a previous operation in an
- * {@link uk.gov.gchq.gaffer.operation.OperationChain} to be added to a export, keyed on
+ * {@link uk.gov.gchq.gaffer.operation.OperationChain} to be exported, keyed on
  * an optional key. If a key is not provided the default key is 'ALL'.
- * The export is maintained per single {@link uk.gov.gchq.gaffer.operation.OperationChain} only.
- * It cannot be used across multiple separate operation requests.
- * So, it must be updated and fetched inside a single operation chain.
  */
 public abstract class Export extends ExportOperation<Object, Object> {
     @Override

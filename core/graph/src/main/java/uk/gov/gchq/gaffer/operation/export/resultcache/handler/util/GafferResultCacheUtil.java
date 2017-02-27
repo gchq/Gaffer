@@ -37,7 +37,7 @@ public final class GafferResultCacheUtil {
 
     public static Graph createGraph(final StoreProperties cacheStoreProperties, final Long timeToLive) {
         if (null == cacheStoreProperties) {
-            throw new IllegalArgumentException("Store properties have not been set on the initialise export operation");
+            throw new IllegalArgumentException("Gaffer result cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()

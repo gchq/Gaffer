@@ -27,6 +27,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -178,5 +180,29 @@ public class JSONSerialiserTest {
 
         // Then
         assertTrue(json.contains("x"));
+    }
+
+    @Test
+    public void shouldDeserialiseFromJson() throws Exception {
+        // Given
+        final JSONSerialiser jsonSerialiser = new JSONSerialiser();
+        final List<JSONSerialiser.SerialiserComponent> serialisers = Collections.singletonList(
+                new JSONSerialiser.SerialiserComponent(String.class, StringJsonSerialiser.class, StringJsonDeserialiser.class));
+        jsonSerialiser.setSerialisers(serialisers);
+
+        final byte[] json = serialiser.serialise(jsonSerialiser, true);
+
+        // When
+        final JSONSerialiser deserialisedJsonSerialiser = serialiser.deserialise(json, JSONSerialiser.class);
+
+        // Then
+        JsonUtil.assertEquals(String.format("{%n" +
+                "  \"serialisers\" : [ {%n" +
+                "    \"objectClass\" : \"java.lang.String\",%n" +
+                "    \"serialiserClass\" : \"uk.gov.gchq.gaffer.jsonSerialisation.StringJsonSerialiser\",%n" +
+                "    \"deserialiserClass\" : \"uk.gov.gchq.gaffer.jsonSerialisation.StringJsonDeserialiser\"%n" +
+                "  } ]%n" +
+                "}"), new String(json));
+        assertEquals(serialisers, deserialisedJsonSerialiser.getSerialisers());
     }
 }

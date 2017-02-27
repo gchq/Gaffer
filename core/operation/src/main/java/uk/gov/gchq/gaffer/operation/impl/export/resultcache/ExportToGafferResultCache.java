@@ -20,6 +20,11 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.impl.export.Export;
 import java.util.Set;
 
+/**
+ * An <code>ExportToGafferResultCache</code> Export operation exports results into
+ * a cache. The cache is backed by a simple Gaffer graph that can be configured.
+ * The results can be of any type - as long as they are json serialisable.
+ */
 public class ExportToGafferResultCache extends Export {
     private Set<String> opAuths;
 

@@ -24,9 +24,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.util.Arrays;
 import java.util.Collections;
 
-/**
- * An <code>UpdateExportHandler</code> handles {@link Export} operations.
- */
 public abstract class ExportHandler<EXPORT extends Export, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER, Object> {
     @Override
     public Object doOperation(final EXPORT export,

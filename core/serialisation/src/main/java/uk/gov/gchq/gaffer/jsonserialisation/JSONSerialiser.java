@@ -17,12 +17,16 @@
 package uk.gov.gchq.gaffer.jsonserialisation;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -32,11 +36,16 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A <code>JSONSerialiser</code> provides the ability to serialise and deserialise to/from JSON.
@@ -47,6 +56,7 @@ public class JSONSerialiser {
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     private final ObjectMapper mapper;
+    private final List<SerialiserComponent> customSerialisers = new ArrayList<>();
 
     /**
      * Constructs a <code>JSONSerialiser</code> that skips nulls and default values.
@@ -65,6 +75,24 @@ public class JSONSerialiser {
      */
     public JSONSerialiser(final ObjectMapper mapper) {
         this.mapper = mapper;
+    }
+
+    public List<SerialiserComponent> getSerialisers() {
+        return customSerialisers;
+    }
+
+    public void setSerialisers(final List<SerialiserComponent> serialisers) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        customSerialisers.addAll(serialisers);
+        final SimpleModule module = new SimpleModule("CustomSerialisers", new Version(1, 0, 0, null));
+        for (final SerialiserComponent serialiser : serialisers) {
+            if (null != serialiser.serialiserClass) {
+                module.addSerializer(Class.forName(serialiser.objectClass), Class.forName(serialiser.serialiserClass).asSubclass(JsonSerializer.class).newInstance());
+            }
+            if (null != serialiser.deserialiserClass) {
+                module.addDeserializer(Class.forName(serialiser.objectClass), Class.forName(serialiser.deserialiserClass).asSubclass(JsonDeserializer.class).newInstance());
+            }
+        }
+        mapper.registerModule(module);
     }
 
     public static ObjectMapper createDefaultMapper() {
@@ -223,7 +251,59 @@ public class JSONSerialiser {
         }
     }
 
+    @JsonIgnore
     public ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public static class SerialiserComponent {
+        public String objectClass;
+        public String serialiserClass;
+        public String deserialiserClass;
+
+        public SerialiserComponent() {
+        }
+
+        public SerialiserComponent(final Class<?> objectClass, final Class<?> serialiserClass, final Class<?> deserialiserClass) {
+            this.objectClass = objectClass.getName();
+            this.serialiserClass = serialiserClass.getName();
+            this.deserialiserClass = deserialiserClass.getName();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(objectClass)
+                    .append(serialiserClass)
+                    .append(deserialiserClass)
+                    .toHashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final SerialiserComponent that = (SerialiserComponent) o;
+            return new EqualsBuilder()
+                    .append(objectClass, that.objectClass)
+                    .append(serialiserClass, that.serialiserClass)
+                    .append(deserialiserClass, that.deserialiserClass)
+                    .isEquals();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("objectClass", objectClass)
+                    .append("serialiserClass", serialiserClass)
+                    .append("deserialiserClass", deserialiserClass)
+                    .toString();
+        }
     }
 }

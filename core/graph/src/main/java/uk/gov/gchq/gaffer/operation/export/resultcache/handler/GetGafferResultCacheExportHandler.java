@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
@@ -36,6 +37,8 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
 
     private StoreProperties storeProperties;
 
+    private JSONSerialiser jsonSerialiser = new JSONSerialiser();
+
     @Override
     protected Class<GafferResultCacheExporter> getExporterClass() {
         return GafferResultCacheExporter.class;
@@ -45,7 +48,8 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     protected GafferResultCacheExporter createExporter(final GetGafferResultCacheExport export, final Context context, final Store store) {
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
-                context.getUser(), jobId, createGraph(store), visibility, null);
+                context.getUser(), jobId, createGraph(store),
+                jsonSerialiser, visibility, null);
     }
 
     protected Graph createGraph(final Store store) {
@@ -78,5 +82,17 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
 
     public void setStorePropertiesPath(final String path) {
         setStoreProperties(StoreProperties.loadStoreProperties(Paths.get(path)));
+    }
+
+    public JSONSerialiser getJsonSerialiser() {
+        return jsonSerialiser;
+    }
+
+    public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
+        if (null == jsonSerialiser) {
+            this.jsonSerialiser = new JSONSerialiser();
+        } else {
+            this.jsonSerialiser = jsonSerialiser;
+        }
     }
 }

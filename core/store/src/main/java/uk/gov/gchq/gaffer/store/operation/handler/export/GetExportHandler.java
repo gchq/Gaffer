@@ -23,12 +23,6 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-/**
- * An <code>FetchExportHandler</code> handles {@link GetExport} operations.
- * Returns the exported objects with the provided export key.
- * Only a single page of the export objects are returned. This is controlled
- * with the start and end positions provided in the fetch export operation.
- */
 public abstract class GetExportHandler<EXPORT extends GetExport, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER, CloseableIterable<?>> {
     @Override
     public CloseableIterable<?> doOperation(final EXPORT export,

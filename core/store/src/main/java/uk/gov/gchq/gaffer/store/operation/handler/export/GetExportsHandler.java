@@ -31,9 +31,9 @@ public class GetExportsHandler implements OperationHandler<GetExports, Map<Strin
     @Override
     public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
         final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();
-        for (final GetExport getExport : getExports.getGetExport()) {
+        for (final GetExport getExport : getExports.getGetExports()) {
             final CloseableIterable<?> export = store._execute(new OperationChain<>(getExport), context);
-            exports.put(getExport.getKey(), export);
+            exports.put(getExport.getClass().getName() + ": " + getExport.getKey(), export);
         }
 
         return exports;

@@ -18,6 +18,12 @@ package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import uk.gov.gchq.gaffer.operation.impl.export.Export;
 
+/**
+ * An <code>ExportToSet</code> Export operation exports results to a Set.
+ * This Set export is maintained per single Job or {@link uk.gov.gchq.gaffer.operation.OperationChain} only.
+ * It cannot be used across multiple separate operation requests.
+ * So ExportToSet and GetSetExport must be used inside a single operation chain.
+ */
 public class ExportToSet extends Export {
     public abstract static class BaseBuilder<EXPORT extends ExportToSet, CHILD_CLASS extends BaseBuilder<EXPORT, CHILD_CLASS>>
             extends Export.BaseBuilder<ExportToSet, CHILD_CLASS> {

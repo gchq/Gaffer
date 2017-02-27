@@ -45,10 +45,10 @@ import java.util.TreeSet;
 
 public class GafferResultCacheExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
-    protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private final String jobId;
     private final User user;
     private final Graph resultCache;
+    private final JSONSerialiser jsonSerialiser;
     private final String visibility;
     private final TreeSet<String> requiredOpAuths;
     private final Set<String> userOpAuths;
@@ -56,11 +56,13 @@ public class GafferResultCacheExporter implements Exporter {
     public GafferResultCacheExporter(final User user,
                                      final String jobId,
                                      final Graph resultCache,
+                                     final JSONSerialiser jsonSerialiser,
                                      final String visibility,
                                      final Set<String> requiredOpAuths) {
         this.user = user;
         this.jobId = jobId;
         this.resultCache = resultCache;
+        this.jsonSerialiser = jsonSerialiser;
         this.visibility = visibility;
         if (null == requiredOpAuths) {
             this.requiredOpAuths = CollectionUtil.treeSet(user.getUserId());
@@ -85,7 +87,7 @@ public class GafferResultCacheExporter implements Exporter {
                         valueJson = null;
                     } else {
                         valueClass = value.getClass();
-                        valueJson = JSON_SERIALISER.serialise(value);
+                        valueJson = jsonSerialiser.serialise(value);
                     }
 
                     return new Edge.Builder()
@@ -124,12 +126,14 @@ public class GafferResultCacheExporter implements Exporter {
                 .build();
 
         final CloseableIterable<Edge> edges = resultCache.execute(getEdges, user);
-        return new TransformJsonResult(edges);
+        return new TransformJsonResult(edges, jsonSerialiser);
     }
 
     private static class TransformJsonResult extends TransformIterable<Edge, Object> {
-        TransformJsonResult(final Iterable<Edge> input) {
+        private final JSONSerialiser jsonSerialiser;
+        TransformJsonResult(final Iterable<Edge> input, final JSONSerialiser jsonSerialiser) {
             super(input, new AlwaysValid<>(), false, true);
+            this.jsonSerialiser = jsonSerialiser;
         }
 
         @Override
@@ -149,7 +153,7 @@ public class GafferResultCacheExporter implements Exporter {
             }
 
             try {
-                return JSON_SERIALISER.deserialise(resultBytes, resultClass);
+                return jsonSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
                 try {
                     LOGGER.error("Unable to deserialise result: " + new String(resultBytes, CommonConstants.UTF_8), e);

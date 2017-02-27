@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
- * A <code>FetchExport</code> fetches an export {@link Iterable} for a
- * provided key. If a key is not provided the default key is 'ALL'.
+ * A <code>GetExport</code> fetches an export {@link Iterable} for a
+ * provided jobId and key. If a key is not provided the default key is 'ALL'.
  */
 public abstract class GetExport extends ExportOperation<Void, CloseableIterable<?>> implements VoidInput<CloseableIterable<?>> {
     private String jobId;

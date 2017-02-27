@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
@@ -25,18 +27,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class GetExports extends ExportOperation<Void, Map<String, CloseableIterable<?>>> implements VoidInput<Map<String, CloseableIterable<?>>> {
-    private List<GetExport> getExport = new ArrayList<>();
+/**
+ * A <code>GetExports</code> operation gets multiple exports and returns then
+ * in a Map.
+ * The keys in the map are: "[ExportOperationClassName]: [key]"
+ * The values in the map are the exported values.
+ */
+public class GetExports extends AbstractOperation<Void, Map<String, CloseableIterable<?>>> implements VoidInput<Map<String, CloseableIterable<?>>> {
+    private List<GetExport> getExports = new ArrayList<>();
 
-    public List<GetExport> getGetExport() {
-        return getExport;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+    public List<GetExport> getGetExports() {
+        return getExports;
     }
 
-    public void setGetExport(final List<GetExport> getExport) {
-        if (null == getExport) {
-            this.getExport = new ArrayList<>();
+    public void setGetExports(final List<GetExport> getExports) {
+        if (null == getExports) {
+            this.getExports = new ArrayList<>();
         } else {
-            this.getExport = getExport;
+            this.getExports = getExports;
         }
     }
 
@@ -46,19 +55,19 @@ public class GetExports extends ExportOperation<Void, Map<String, CloseableItera
     }
 
     public abstract static class BaseBuilder<EXPORT extends GetExports, CHILD_CLASS extends BaseBuilder<EXPORT, CHILD_CLASS>>
-            extends ExportOperation.BaseBuilder<GetExports, Void, Map<String, CloseableIterable<?>>, CHILD_CLASS> {
+            extends AbstractOperation.BaseBuilder<GetExports, Void, Map<String, CloseableIterable<?>>, CHILD_CLASS> {
         public BaseBuilder(final GetExports export) {
             super(export);
         }
 
-        public CHILD_CLASS setExports(final List<GetExport> getSetExports) {
-            getOp().setGetExport(getSetExports);
+        public CHILD_CLASS exports(final List<GetExport> exports) {
+            getOp().setGetExports(exports);
             return self();
         }
 
-        public CHILD_CLASS setExports(final GetExport... getSetExports) {
-            getOp().getGetExport().clear();
-            Collections.addAll(getOp().getGetExport(), getSetExports);
+        public CHILD_CLASS exports(final GetExport... exports) {
+            getOp().getGetExports().clear();
+            Collections.addAll(getOp().getGetExports(), exports);
             return self();
         }
     }

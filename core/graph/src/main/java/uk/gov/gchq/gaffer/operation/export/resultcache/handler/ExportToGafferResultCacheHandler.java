@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
@@ -36,6 +37,8 @@ public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGaff
 
     private StoreProperties storeProperties;
 
+    private JSONSerialiser jsonSerialiser = new JSONSerialiser();
+
     @Override
     protected Class<GafferResultCacheExporter> getExporterClass() {
         return GafferResultCacheExporter.class;
@@ -44,7 +47,8 @@ public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGaff
     @Override
     protected GafferResultCacheExporter createExporter(final ExportToGafferResultCache export, final Context context, final Store store) {
         return new GafferResultCacheExporter(
-                context.getUser(), context.getJobId(), createGraph(store), visibility, export.getOpAuths());
+                context.getUser(), context.getJobId(), createGraph(store),
+                jsonSerialiser, visibility, export.getOpAuths());
     }
 
     protected Graph createGraph(final Store store) {
@@ -77,5 +81,17 @@ public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGaff
 
     public void setStorePropertiesPath(final String path) {
         setStoreProperties(StoreProperties.loadStoreProperties(Paths.get(path)));
+    }
+
+    public JSONSerialiser getJsonSerialiser() {
+        return jsonSerialiser;
+    }
+
+    public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
+        if (null == jsonSerialiser) {
+            this.jsonSerialiser = new JSONSerialiser();
+        } else {
+            this.jsonSerialiser = jsonSerialiser;
+        }
     }
 }
