@@ -5,11 +5,11 @@
       "destination": "exportKey",
       "directed": "true",
       "properties": {
-        "opAuths": "stringSet",
+        "visibility": "visibility",
         "timestamp": "timestamp",
+        "opAuths": "stringSet",
         "resultClass": "string",
-        "result": "json",
-        "visibility": "visibility"
+        "result": "json"
       }
     }
   },
