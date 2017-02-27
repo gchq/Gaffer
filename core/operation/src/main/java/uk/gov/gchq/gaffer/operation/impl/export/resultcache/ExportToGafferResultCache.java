@@ -16,13 +16,35 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
+import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import java.util.Set;
 
 public class ExportToGafferResultCache extends Export {
+    private Set<String> opAuths;
+
+    public Set<String> getOpAuths() {
+        return opAuths;
+    }
+
+    public void setOpAuths(final Set<String> opAuths) {
+        this.opAuths = opAuths;
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
             extends Export.BaseBuilder<ExportToGafferResultCache, CHILD_CLASS> {
         public BaseBuilder() {
             super(new ExportToGafferResultCache());
+        }
+
+        public CHILD_CLASS opAuths(final Set<String> opAuths) {
+            getOp().setOpAuths(opAuths);
+            return self();
+        }
+
+        public CHILD_CLASS opAuths(final String... opAuths) {
+            getOp().setOpAuths(Sets.newHashSet(opAuths));
+            return self();
         }
     }
 

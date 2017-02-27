@@ -5,7 +5,7 @@
       "destination": "exportKey",
       "directed": "true",
       "properties": {
-        "userId": "string",
+        "opAuths": "stringSet",
         "timestamp": "timestamp",
         "resultClass": "string",
         "result": "json",

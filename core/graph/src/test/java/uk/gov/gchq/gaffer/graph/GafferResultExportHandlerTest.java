@@ -17,10 +17,10 @@
 package uk.gov.gchq.gaffer.graph;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
-import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -38,9 +38,10 @@ public class GafferResultExportHandlerTest {
                 .source("jobId")
                 .dest("exportId")
                 .directed(true)
+                .property("opAuths", CollectionUtil.treeSet("user01"))
                 .property("timestamp", System.currentTimeMillis())
-                .property("deletionTimestamp", System.currentTimeMillis() + GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE)
-                .property("visibility", "")
+                .property("visibility", "private")
+                .property("resultClass", String.class.getName())
                 .property("result", "test".getBytes())
                 .build();
 

@@ -25,6 +25,9 @@
     "string": {
       "class": "java.lang.String"
     },
+    "stringSet": {
+      "class": "java.util.TreeSet"
+    },
     "visibility": {
       "class": "java.lang.String"
     }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.resultcache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.AlwaysValid;
@@ -28,7 +29,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
+import uk.gov.gchq.gaffer.function.filter.AreIn;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -38,23 +39,37 @@ import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class GafferResultCacheExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private final String jobId;
     private final User user;
-    private Graph resultCache;
-    private String visibility;
+    private final Graph resultCache;
+    private final String visibility;
+    private final TreeSet<String> requiredOpAuths;
+    private final Set<String> userOpAuths;
 
     public GafferResultCacheExporter(final User user,
                                      final String jobId,
                                      final Graph resultCache,
-                                     final String visibility) {
+                                     final String visibility,
+                                     final Set<String> requiredOpAuths) {
         this.user = user;
         this.jobId = jobId;
         this.resultCache = resultCache;
         this.visibility = visibility;
+        if (null == requiredOpAuths) {
+            this.requiredOpAuths = CollectionUtil.treeSet(user.getUserId());
+        } else {
+            this.requiredOpAuths = new TreeSet<>(requiredOpAuths);
+        }
+
+        userOpAuths = new HashSet<>(user.getOpAuths());
+        userOpAuths.add(user.getUserId());
     }
 
     public void add(final Iterable<?> values, final String key) throws OperationException {
@@ -78,7 +93,7 @@ public class GafferResultCacheExporter implements Exporter {
                             .source(jobId)
                             .dest(key)
                             .directed(true)
-                            .property("userId", user.getUserId())
+                            .property("opAuths", requiredOpAuths)
                             .property("timestamp", timestamp)
                             .property("visibility", visibility)
                             .property("resultClass", valueClass.getName())
@@ -93,7 +108,6 @@ public class GafferResultCacheExporter implements Exporter {
         resultCache.execute(new AddElements.Builder()
                 .elements(elements)
                 .build(), user);
-
     }
 
     public CloseableIterable<?> get(final String key) throws OperationException {
@@ -102,8 +116,8 @@ public class GafferResultCacheExporter implements Exporter {
                 .view(new View.Builder()
                         .edge("result", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select("userId")
-                                        .execute(new IsEqual(user.getUserId()))
+                                        .select("opAuths")
+                                        .execute(new AreIn(userOpAuths))
                                         .build())
                                 .build())
                         .build())
