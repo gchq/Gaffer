@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.graph;
 
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -56,8 +54,6 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
-
     /**
      * The instance of the store.
      */
@@ -121,11 +117,18 @@ public final class Graph {
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         updateOperationChainView(operationChain);
+
         for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChain, user);
         }
 
-        return store.executeJob(operationChain, user);
+        JobDetail result = store.executeJob(operationChain, user);
+
+        for (final GraphHook graphHook : graphHooks) {
+            result = graphHook.postExecute(result, operationChain, user);
+        }
+
+        return result;
     }
 
     /**

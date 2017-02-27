@@ -102,7 +102,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // ---------------------------------------------------------
         final EntitySeedExtractor destVerticesExtractor = new EntitySeedExtractor(
                 new IsEdgeValidator(),
-                new AlwaysValid<EntitySeed>(),
+                new AlwaysValid<>(),
                 true,
                 IdentifierType.DESTINATION);
         // ---------------------------------------------------------
