@@ -21,6 +21,14 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
 
 public interface JobTracker {
+
+    /**
+     * Initialises the job tracker with the provided config path.
+     *
+     * @param configPath the path to the job tracker configuration
+     */
+    void initialise(final String configPath);
+
     /**
      * Adds or updates the given job.
      *

@@ -12,13 +12,20 @@
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>job-tracker-library</artifactId>
+            <artifactId>operation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jcs</groupId>
             <artifactId>jcs</artifactId>
             <version>1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

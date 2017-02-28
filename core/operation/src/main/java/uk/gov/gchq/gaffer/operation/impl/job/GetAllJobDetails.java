@@ -29,6 +29,11 @@ public class GetAllJobDetails extends AbstractOperation<Void, CloseableIterable<
         return new TypeReferenceImpl.JobDetail();
     }
 
+    @Override
+    public void setInput(final Void input) {
+        // Ignore the input
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends AbstractOperation.BaseBuilder<GetAllJobDetails, Void, CloseableIterable<JobDetail>, CHILD_CLASS> {
 
         public BaseBuilder() {

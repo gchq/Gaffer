@@ -394,7 +394,13 @@ public final class Graph {
                 store = createStore(properties, cloneSchema(schema));
             } else if (null != properties || null != schema) {
                 try {
-                    store.initialise(cloneSchema(schema), properties);
+                    if (null == properties) {
+                        store.initialise(cloneSchema(schema), store.getProperties());
+                    } else if (null == schema) {
+                        store.initialise(store.getSchema(), properties);
+                    } else {
+                        store.initialise(cloneSchema(schema), properties);
+                    }
                 } catch (StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
                 }

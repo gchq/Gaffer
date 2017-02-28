@@ -17,11 +17,14 @@
 package uk.gov.gchq.gaffer.jobtracker;
 
 
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,6 +38,7 @@ public class JcsJobTrackerTest {
     @Before
     public void setUp() throws Exception {
         jobTracker = new JcsJobTracker();
+        jobTracker.initialise(null);
         jobTracker.clear();
     }
 
@@ -57,6 +61,28 @@ public class JcsJobTrackerTest {
 
         // Then
         assertEquals(job, resultJob);
+    }
+
+    @Test
+    public void shouldGetAllJobs() {
+        // Given
+        final User user = mock(User.class);
+        final OperationChain<?> opChain = mock(OperationChain.class);
+        given(opChain.toString()).willReturn("op chain to string");
+        final JobDetail job1 = new JobDetail("jobId1", "userId1", opChain, JobStatus.RUNNING, "description");
+        final JobDetail job2 = new JobDetail("jobId2", "userId2", opChain, JobStatus.RUNNING, "description");
+
+        // When
+        jobTracker.addOrUpdateJob(job1, user);
+        jobTracker.addOrUpdateJob(job2, user);
+        final List<JobDetail> jobDetails = Lists.newArrayList(jobTracker.getAllJobs(user));
+
+        // Then
+        final List<JobDetail> expectedJobDetails = Lists.newArrayList(job1, job2);
+        final Comparator<JobDetail> jobDetailComparator = (o1, o2) -> o1.hashCode() - o2.hashCode();
+        jobDetails.sort(jobDetailComparator);
+        expectedJobDetails.sort(jobDetailComparator);
+        assertEquals(expectedJobDetails, jobDetails);
     }
 
     @Test

@@ -44,7 +44,9 @@ public class StoreProperties implements Cloneable {
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
+
     public static final String JOB_TRACKER_CLASS = "gaffer.store.job.tracker.class";
+    public static final String JOB_TRACKER_CONFIG_PATH = "gaffer.store.job.tracker.config.path";
 
     private Path propFileLocation;
     private Properties props;
@@ -153,6 +155,14 @@ public class StoreProperties implements Cloneable {
 
     public void setJobTrackerClass(final String jobTrackerClass) {
         set(JOB_TRACKER_CLASS, jobTrackerClass);
+    }
+
+    public String getJobTrackerConfigPath() {
+        return get(JOB_TRACKER_CONFIG_PATH);
+    }
+
+    public void setJobTrackerConfigPath(final String jobTrackerConfigPath) {
+        set(JOB_TRACKER_CONFIG_PATH, jobTrackerConfigPath);
     }
 
     public String getSchemaClassName() {

@@ -23,7 +23,7 @@
         <version>0.6.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>job-tracker</artifactId>
+    <artifactId>job-tracker-library</artifactId>
     <packaging>pom</packaging>
 
     <modules>

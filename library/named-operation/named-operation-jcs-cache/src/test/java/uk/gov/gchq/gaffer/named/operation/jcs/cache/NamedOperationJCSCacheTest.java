@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.named.operation.jcs.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.apache.jcs.access.exception.CacheException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +38,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class NamedOperationJCSCacheTest {
 
@@ -54,15 +52,7 @@ public class NamedOperationJCSCacheTest {
             first(new GetEntities.Builder<>().build())
             .build();
     private static final String OPERATION_NAME = "New operation";
-    private NamedOperationJCSCache cache;
-
-    {
-        try {
-            cache = new NamedOperationJCSCache();
-        } catch (CacheException e) {
-            e.printStackTrace();
-        }
-    }
+    private NamedOperationJCSCache cache = new NamedOperationJCSCache();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -93,17 +83,6 @@ public class NamedOperationJCSCacheTest {
     @After
     public void teardown() throws CacheOperationFailedException {
         cache.clear();
-    }
-
-    @Test
-    public void shouldNotThrowExceptionOnInstantiation() {
-        try {
-            NamedOperationJCSCache cache = new NamedOperationJCSCache();
-        } catch (CacheException e) {
-            e.printStackTrace();
-            fail("Did not expect exception:");
-        }
-
     }
 
     @Test

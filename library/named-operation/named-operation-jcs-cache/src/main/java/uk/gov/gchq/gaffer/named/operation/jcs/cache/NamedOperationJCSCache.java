@@ -38,17 +38,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     private static final String CACHE_GROUP = "NamedOperations";
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationJCSCache.class);
     private JCS cache;
-
-    /**
-     * Default constructor which creates a new instance of a JCS object using the default configuration found in the
-     * cache.ccf file
-     *
-     * @throws CacheException thrown when the default profile is not available or the cache.ccf file is missing
-     */
-    public NamedOperationJCSCache() throws CacheException {
-        cache = JCS.getInstance("default");
-    }
-
+    private String configPath;
 
     /**
      * Adds a ExtendedNamedOperation to the cache. If the name or ExtendedNamedOperation is null then a {@link CacheOperationFailedException}
@@ -65,10 +55,10 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
         try {
-            if (!overwrite && cache.getFromGroup(name, CACHE_GROUP) != null) {
+            if (!overwrite && getCache().getFromGroup(name, CACHE_GROUP) != null) {
                 throw new CacheOperationFailedException("ExtendedNamedOperation with name " + name + " already exists");
             }
-            cache.putInGroup(name, CACHE_GROUP, namedOperation);
+            getCache().putInGroup(name, CACHE_GROUP, namedOperation);
 
         } catch (CacheException e) {
             LOGGER.error("Failed to add named Operation " + name + " with operation " + namedOperation.getOperationChain().toString(), e.getMessage());
@@ -84,8 +74,8 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * @throws CacheOperationFailedException Thrown when the delete fails
      */
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
-        cache.remove(name, CACHE_GROUP);
-        if (cache.getFromGroup(name, CACHE_GROUP) != null) {
+        getCache().remove(name, CACHE_GROUP);
+        if (getCache().getFromGroup(name, CACHE_GROUP) != null) {
             throw new CacheOperationFailedException("Failed to remove " + name + " from the cache");
         }
     }
@@ -103,7 +93,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      */
     @Override
     public CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple) {
-        Set keys = cache.getGroupKeys(CACHE_GROUP);
+        Set keys = getCache().getGroupKeys(CACHE_GROUP);
         Set<NamedOperation> executables = new HashSet<>();
         for (final Object key : keys) {
             try {
@@ -138,7 +128,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             throw new CacheOperationFailedException("Operation name cannot be null");
         }
         ExtendedNamedOperation namedOperation;
-        Object obj = cache.getFromGroup(name, CACHE_GROUP);
+        Object obj = getCache().getFromGroup(name, CACHE_GROUP);
         if (obj != null && obj.getClass().equals(ExtendedNamedOperation.class)) {
             namedOperation = (ExtendedNamedOperation) obj;
             return namedOperation;
@@ -154,9 +144,32 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     @Override
     public void clear() throws CacheOperationFailedException {
         try {
-            cache.clear();
+            getCache().clear();
         } catch (CacheException e) {
             throw new CacheOperationFailedException(e.getMessage(), e);
         }
+    }
+
+    public JCS getCache() {
+        if (null == cache) {
+            if (null != configPath) {
+                JCS.setConfigFilename(configPath);
+            }
+            try {
+                cache = JCS.getInstance("default");
+            } catch (CacheException e) {
+                throw new RuntimeException("Failed to create cache", e);
+            }
+        }
+
+        return cache;
+    }
+
+    public String getConfigPath() {
+        return configPath;
+    }
+
+    public void setConfigPath(final String configPath) {
+        this.configPath = configPath;
     }
 }

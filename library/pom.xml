@@ -31,7 +31,7 @@
         <module>sketches-library</module>
         <module>spark</module>
         <module>named-operation</module>
-        <module>job-tracker</module>
+        <module>job-tracker-library</module>
         <module>bitmap-library</module>
     </modules>
 

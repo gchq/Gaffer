@@ -22,7 +22,11 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +171,16 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(ops);
         }
 
+        public TypedBuilder<JobDetail> then(final GetJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
+
+        public TypedBuilder<CloseableIterable<JobDetail>> then(final GetAllJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
+
         public TypelessBuilder then(final VoidOutput<?> op) {
             ops.add(op);
             return new TypelessBuilder(ops);
@@ -193,6 +207,16 @@ public class OperationChain<OUT> {
         public TypelessBuilder then(final Export op) {
             ops.add(op);
             return new TypelessBuilder(ops);
+        }
+
+        public TypedBuilder<JobDetail> then(final GetJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
+
+        public TypedBuilder<CloseableIterable<JobDetail>> then(final GetAllJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
         }
 
         public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {

@@ -30,14 +30,17 @@ public class JcsJobTracker implements JobTracker {
     private static final String CACHE_GROUP = "JobTracker";
     private JCS cache;
 
-    /**
-     * Default constructor which creates a new instance of a JCS object using the default configuration found in the
-     * cache.ccf file
-     *
-     * @throws CacheException thrown when the default profile is not available or the cache.ccf file is missing
-     */
-    public JcsJobTracker() throws CacheException {
-        cache = JCS.getInstance(REGION);
+    @Override
+    public void initialise(final String configPath) {
+        if (null != configPath) {
+            JCS.setConfigFilename(configPath);
+        }
+
+        try {
+            cache = JCS.getInstance(REGION);
+        } catch (final CacheException e) {
+            throw new RuntimeException("Unable to initialised the job tracker cache with config file: " + configPath, e);
+        }
     }
 
     @Override
