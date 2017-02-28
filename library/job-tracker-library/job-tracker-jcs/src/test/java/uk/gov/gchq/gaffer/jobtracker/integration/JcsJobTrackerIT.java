@@ -63,10 +63,18 @@ public class JcsJobTrackerIT {
         final User user = new User("user01");
 
         // When
-        final JobDetail jobDetails = graph.executeJob(opChain, user);
+        JobDetail jobDetails = graph.executeJob(opChain, user);
         final String jobId = jobDetails.getJobId();
         final JobDetail expectedJobDetail = new JobDetail(jobId, user.getUserId(), opChain, JobStatus.FINISHED, null);
         expectedJobDetail.setStartTime(jobDetails.getStartTime());
+
+        int count = 0;
+        while (JobStatus.RUNNING == jobDetails.getStatus() && ++count < 20) {
+            Thread.sleep(100);
+            jobDetails = graph.execute(new GetJobDetails.Builder()
+                    .jobId(jobId)
+                    .build(), user);
+        }
         expectedJobDetail.setEndTime(jobDetails.getEndTime());
 
         // Then
@@ -83,18 +91,10 @@ public class JcsJobTrackerIT {
         final User user = new User("user01");
 
         // When
-        JobDetail jobDetails = graph.execute(opChain, user);
+        final JobDetail jobDetails = graph.execute(opChain, user);
         final String jobId = jobDetails.getJobId();
-        final JobDetail expectedJobDetail = new JobDetail(jobId, user.getUserId(), opChain, JobStatus.FINISHED, null);
+        final JobDetail expectedJobDetail = new JobDetail(jobId, user.getUserId(), opChain, JobStatus.RUNNING, null);
         expectedJobDetail.setStartTime(jobDetails.getStartTime());
-
-        int count = 0;
-        while (JobStatus.RUNNING == jobDetails.getStatus() && ++count < 20) {
-            Thread.sleep(100);
-            jobDetails = graph.execute(new GetJobDetails.Builder()
-                    .jobId(jobId)
-                    .build(), user);
-        }
         expectedJobDetail.setEndTime(jobDetails.getEndTime());
 
         // Then
