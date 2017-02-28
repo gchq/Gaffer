@@ -69,18 +69,11 @@ public class ProxyStore extends Store {
     private Schema schema;
     private Set<Class<? extends Operation>> supportedOperations;
 
-    public ProxyStore() {
-        this(new JSONSerialiser());
-    }
-
-    protected ProxyStore(final JSONSerialiser jsonSerialiser) {
-        this.jsonSerialiser = jsonSerialiser;
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
+        jsonSerialiser = proxyProps.getJsonSerialiser();
 
         client = createClient(proxyProps);
         schema = fetchSchema(proxyProps);
@@ -88,12 +81,7 @@ public class ProxyStore extends Store {
         supportedOperations = fetchOperations(proxyProps);
 
         super.initialise(schema, proxyProps);
-
         checkDelegateStoreStatus(proxyProps);
-    }
-
-    public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
-        this.jsonSerialiser = jsonSerialiser;
     }
 
     protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {

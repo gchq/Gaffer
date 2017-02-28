@@ -48,6 +48,25 @@ public class SetExporterTest {
     }
 
     @Test
+    public void shouldAddIterablesToDifferentSets() {
+        // Given
+        final List<String> valuesA = Arrays.asList("1", "2", "3");
+        final List<String> valuesB = Arrays.asList("4", "5", "6");
+        final SetExporter exporter = new SetExporter();
+
+        // When
+        exporter.add(valuesA, "key1");
+        exporter.add(valuesB, "key2");
+
+        // Then
+        final CloseableIterable<?> export1 = exporter.get("key1");
+        assertEquals(valuesA, Lists.newArrayList(export1));
+
+        final CloseableIterable<?> export2 = exporter.get("key2");
+        assertEquals(valuesB, Lists.newArrayList(export2));
+    }
+
+    @Test
     public void shouldGetSubsetOfValuesFromMap() {
         // Given
         final List<Integer> values1 = Arrays.asList(1, 2, 3, 4, 5);

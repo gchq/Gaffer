@@ -70,24 +70,23 @@ public class Context {
 
     public <E> E getExporter(final Class<? extends E> exporterClass) {
         if (null == exporterClass) {
-            return (E) getExporter();
+            throw new IllegalArgumentException("Exporter class is required.");
         }
 
-        return (E) exporters.get(exporterClass);
+        final E exporter = (E) exporters.get(exporterClass);
+        if (null != exporter) {
+            return exporter;
+        }
+
+        // Check to see if the class is a subclass of an exporter
+        for (final Map.Entry<Class<? extends Exporter>, Exporter> entry : exporters.entrySet()) {
+            if (exporterClass.isAssignableFrom(entry.getKey())) {
+                return (E) entry.getValue();
+            }
+        }
+
+        return null;
     }
-
-    public Exporter getExporter() {
-        if (exporters.isEmpty()) {
-            return null;
-        }
-
-        if (exporters.size() == 1) {
-            return exporters.values().iterator().next();
-        }
-
-        throw new IllegalArgumentException("Exporter class is required when more than 1 exporter is registered");
-    }
-
 
     public static String createJobId() {
         return UUID.randomUUID().toString();

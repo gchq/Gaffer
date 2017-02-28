@@ -35,7 +35,7 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
 
     private String visibility;
 
-    private StoreProperties storeProperties;
+    private StoreProperties cacheStoreProperties;
 
     private JSONSerialiser jsonSerialiser = new JSONSerialiser();
 
@@ -53,7 +53,7 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     }
 
     protected Graph createGraph(final Store store) {
-        return GafferResultCacheUtil.createGraph(storeProperties, timeToLive);
+        return GafferResultCacheUtil.createGraph(cacheStoreProperties, timeToLive);
     }
 
     public Long getTimeToLive() {
@@ -73,26 +73,26 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     }
 
     public StoreProperties getStoreProperties() {
-        return storeProperties;
+        return cacheStoreProperties;
     }
 
     public void setStoreProperties(final StoreProperties storeProperties) {
-        this.storeProperties = storeProperties;
+        this.cacheStoreProperties = storeProperties;
     }
 
     public void setStorePropertiesPath(final String path) {
         setStoreProperties(StoreProperties.loadStoreProperties(Paths.get(path)));
     }
 
-    public JSONSerialiser getJsonSerialiser() {
-        return jsonSerialiser;
+    public String getJsonSerialiserClass() {
+        return null != jsonSerialiser ? jsonSerialiser.getClass().getName() : JSONSerialiser.class.getName();
     }
 
     public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
-        if (null == jsonSerialiser) {
-            this.jsonSerialiser = new JSONSerialiser();
-        } else {
-            this.jsonSerialiser = jsonSerialiser;
-        }
+        this.jsonSerialiser = jsonSerialiser;
+    }
+
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        this.jsonSerialiser = JSONSerialiser.fromClass(jsonSerialiserClass);
     }
 }

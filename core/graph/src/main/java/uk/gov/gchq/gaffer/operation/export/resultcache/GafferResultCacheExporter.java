@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.AlwaysValid;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -75,6 +77,10 @@ public class GafferResultCacheExporter implements Exporter {
     }
 
     public void add(final Iterable<?> values, final String key) throws OperationException {
+        if (null == values) {
+            return;
+        }
+
         final long timestamp = System.currentTimeMillis();
         final Iterable<Element> elements = new TransformIterable<Object, Element>((Iterable) values) {
             @Override
@@ -126,11 +132,15 @@ public class GafferResultCacheExporter implements Exporter {
                 .build();
 
         final CloseableIterable<Edge> edges = resultCache.execute(getEdges, user);
+        if (null == edges) {
+            return new WrappedCloseableIterable<>(Collections.emptyList());
+        }
         return new TransformJsonResult(edges, jsonSerialiser);
     }
 
     private static class TransformJsonResult extends TransformIterable<Edge, Object> {
         private final JSONSerialiser jsonSerialiser;
+
         TransformJsonResult(final Iterable<Edge> input, final JSONSerialiser jsonSerialiser) {
             super(input, new AlwaysValid<>(), false, true);
             this.jsonSerialiser = jsonSerialiser;
@@ -163,5 +173,33 @@ public class GafferResultCacheExporter implements Exporter {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    protected String getJobId() {
+        return jobId;
+    }
+
+    protected User getUser() {
+        return user;
+    }
+
+    protected Graph getResultCache() {
+        return resultCache;
+    }
+
+    protected JSONSerialiser getJsonSerialiser() {
+        return jsonSerialiser;
+    }
+
+    protected String getVisibility() {
+        return visibility;
+    }
+
+    protected TreeSet<String> getRequiredOpAuths() {
+        return requiredOpAuths;
+    }
+
+    protected Set<String> getUserOpAuths() {
+        return userOpAuths;
     }
 }

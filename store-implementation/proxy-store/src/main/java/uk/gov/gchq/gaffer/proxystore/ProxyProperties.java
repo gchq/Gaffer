@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import org.apache.commons.lang.StringUtils;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.net.MalformedURLException;
@@ -31,12 +32,14 @@ public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_CONTEXT_ROOT = "gaffer.context-root";
     public static final String CONNECT_TIMEOUT = "gaffer.connect-timeout";
     public static final String READ_TIMEOUT = "gaffer.read-timeout";
+    public static final String JSON_SERIALISER_CLASS = "gaffer.jsonserialiser.class";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
     public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v1";
     public static final int DEFAULT_GAFFER_PORT = 8080;
     public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
     public static final int DEFAULT_READ_TIMEOUT = 10000;
+    public static final String DEFAULT_JSON_SERIALISER_CLASS = JSONSerialiser.class.getName();
 
     public ProxyProperties() {
     }
@@ -106,6 +109,18 @@ public class ProxyProperties extends StoreProperties {
 
     public void setGafferContextRoot(final String gafferContextRoot) {
         set(GAFFER_CONTEXT_ROOT, gafferContextRoot);
+    }
+
+    public JSONSerialiser getJsonSerialiser() {
+        return JSONSerialiser.fromClass(getJsonSerialiserClass());
+    }
+
+    public String getJsonSerialiserClass() {
+        return get(JSON_SERIALISER_CLASS, DEFAULT_JSON_SERIALISER_CLASS);
+    }
+
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
     }
 
     public URL getGafferUrl() {

@@ -79,8 +79,7 @@ public class ContextTest {
         context.addExporter(exporter);
 
         // Then
-        assertSame(exporter, context.getExporter());
-        assertSame(exporter, context.getExporter(null));
         assertSame(exporter, context.getExporter(exporter.getClass()));
+        assertSame(exporter, context.getExporter(Exporter.class));
     }
 }

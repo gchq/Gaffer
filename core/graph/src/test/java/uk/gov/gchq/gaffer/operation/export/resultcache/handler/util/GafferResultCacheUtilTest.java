@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph.export.handler.util;
+package uk.gov.gchq.gaffer.operation.export.resultcache.handler.util;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;

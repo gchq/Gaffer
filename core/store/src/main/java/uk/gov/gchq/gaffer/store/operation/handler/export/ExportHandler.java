@@ -37,6 +37,10 @@ public abstract class ExportHandler<EXPORT extends Export, EXPORTER extends Expo
     }
 
     private Iterable<?> wrapInIterable(final Object input) {
+        if (null == input) {
+            return null;
+        }
+
         final Iterable inputItr;
         if (input instanceof Iterable) {
             inputItr = (Iterable) input;

@@ -42,10 +42,22 @@ public final class GafferResultCacheUtil {
 
         final Graph.Builder graphBuilder = new Graph.Builder()
                 .storeProperties(cacheStoreProperties)
-                .addSchemas(Schema.fromJson(StreamUtil.openStreams(GafferResultCacheUtil.class, "gafferResultCache/schema")));
+                .addSchema(createSchema(timeToLive));
+
+        final Graph graph = graphBuilder.build();
+        if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
+            LOGGER.warn("Gaffer JSON export graph does not have " + StoreTrait.STORE_VALIDATION.name() + " trait so results may not be aged off.");
+        }
+
+        return graph;
+    }
+
+    public static Schema createSchema(final Long timeToLive) {
+        final Schema.Builder builder = new Schema.Builder()
+                .json(StreamUtil.openStreams(GafferResultCacheUtil.class, "gafferResultCache/schema"));
 
         if (null != timeToLive) {
-            graphBuilder.addSchema(new Schema.Builder()
+            builder.merge(new Schema.Builder()
                     .type("timestamp", new TypeDefinition.Builder()
                             .validator(new ElementFilter.Builder()
                                     .execute(new AgeOff(timeToLive))
@@ -54,11 +66,6 @@ public final class GafferResultCacheUtil {
                     .build());
         }
 
-        final Graph graph = graphBuilder.build();
-        if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
-            LOGGER.warn("Gaffer JSON export graph does not have " + StoreTrait.STORE_VALIDATION.name() + " trait so results may not be aged off.");
-        }
-
-        return graph;
+        return builder.build();
     }
 }

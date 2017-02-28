@@ -42,7 +42,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      * @param input the input {@link java.lang.Iterable}
      */
     public TransformIterable(final Iterable<INPUT> input) {
-        this(input, new AlwaysValid<INPUT>(), false);
+        this(input, new AlwaysValid<>(), false);
     }
 
     /**
@@ -77,6 +77,9 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
     public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
+        if (null == input) {
+            throw new IllegalArgumentException("Input iterable is required");
+        }
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
