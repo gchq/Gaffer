@@ -38,15 +38,16 @@ public class GetRDDOfAllElementsHandler
                                     final Context context,
                                     final Store store)
             throws OperationException {
-        return doOperation(operation, (AccumuloStore) store);
+        return doOperation(operation, context, (AccumuloStore) store);
     }
 
     private RDD<Element> doOperation(final GetRDDOfAllElements operation,
+                                     final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
         final SparkContext sparkContext = operation.getSparkContext();
         final Configuration conf = getConfiguration(operation);
-        addIterators(accumuloStore, conf, operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,

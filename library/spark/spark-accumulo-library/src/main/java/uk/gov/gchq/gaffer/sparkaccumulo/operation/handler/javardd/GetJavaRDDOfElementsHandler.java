@@ -51,7 +51,7 @@ public class GetJavaRDDOfElementsHandler<SEED_TYPE extends ElementSeed>
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
         InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
-        addIterators(accumuloStore, conf, operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         addRanges(accumuloStore, conf, operation);
         final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,

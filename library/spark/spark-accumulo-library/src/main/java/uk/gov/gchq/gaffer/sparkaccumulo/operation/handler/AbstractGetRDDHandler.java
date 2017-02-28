@@ -35,6 +35,8 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.GetSparkRDDOperation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.user.User;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -49,10 +51,11 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
 
     public void addIterators(final AccumuloStore accumuloStore,
                              final Configuration conf,
+                             final User user,
                              final GetElementsOperation<?, ?> operation) throws OperationException {
         try {
             // Update configuration with instance name, table name, zookeepers, and with view
-            accumuloStore.updateConfiguration(conf, operation.getView());
+            accumuloStore.updateConfiguration(conf, operation.getView(), user);
             // Add iterators based on operation-specific (i.e. not view related) options
             final IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
