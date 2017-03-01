@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.example.util.ExamplesRunner;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
- * This runner will run all operation examples.
+ * This runner will run all spark operation examples.
  */
 public class SparkOperationExamplesRunner extends ExamplesRunner {
     public static void main(final String[] args) throws Exception {
