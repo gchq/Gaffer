@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class GetRDDOfElementsHandler<SEED_TYPE extends ElementSeed>
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
         InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
-        addIterators(accumuloStore, conf, operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         addRanges(accumuloStore, conf, operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,

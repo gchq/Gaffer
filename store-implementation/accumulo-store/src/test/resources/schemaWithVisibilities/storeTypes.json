@@ -12,7 +12,7 @@
       },
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
     },
-    "string": {
+    "visibility.string": {
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.function.aggregate.StringConcat"
       }
