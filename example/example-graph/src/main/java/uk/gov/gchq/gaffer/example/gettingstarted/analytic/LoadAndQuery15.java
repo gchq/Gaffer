@@ -22,13 +22,11 @@ import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -74,11 +72,9 @@ public class LoadAndQuery15 extends LoadAndQuery {
         // [job] create an operation chain to be executed as a job
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Edge>> job = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds.Builder()
+                .first(new GetEdges.Builder<EntitySeed>()
                         .addSeed(new EntitySeed("1"))
-                        .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
                         .build())
-                .then(new GetEdges<>())
                 .build();
         // ---------------------------------------------------------
 
