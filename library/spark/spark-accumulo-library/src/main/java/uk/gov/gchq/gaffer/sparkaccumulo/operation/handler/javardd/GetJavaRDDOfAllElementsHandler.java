@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,14 +38,15 @@ public class GetJavaRDDOfAllElementsHandler
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                         final Context context,
                                         final Store store) throws OperationException {
-        return doOperation(operation, (AccumuloStore) store);
+        return doOperation(operation, context, (AccumuloStore) store);
     }
 
     private JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
+                                         final Context context,
                                          final AccumuloStore accumuloStore) throws OperationException {
         final JavaSparkContext sparkContext = operation.getJavaSparkContext();
         final Configuration conf = getConfiguration(operation);
-        addIterators(accumuloStore, conf, operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,
