@@ -15,49 +15,51 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
+import uk.gov.gchq.gaffer.user.User;
 
-public class GetJobDetailsExample extends OperationExample {
+public class GetJobResultsExample extends OperationExample {
     private String jobId;
 
     public static void main(final String[] args) throws OperationException {
-        new GetJobDetailsExample().run();
+        new GetJobResultsExample().run();
     }
 
-    public GetJobDetailsExample() {
+    public GetJobResultsExample() {
         super(GetJobDetails.class);
     }
 
     @Override
     public void runExamples() {
-        getJobDetailsInOperationChain();
-        getJobDetails();
+        try {
+            final OperationChain<JobDetail> opChain = new OperationChain.Builder()
+                    .first(new GetAllEdges())
+                    .then(new ExportToGafferResultCache())
+                    .then(new GetJobDetails())
+                    .build();
+            final JobDetail jobDetails = getGraph().execute(opChain, new User("user01"));
+            jobId = jobDetails.getJobId();
+        } catch (final OperationException e) {
+            throw new RuntimeException(e);
+        }
+
+        getJobResults();
     }
 
-    public JobDetail getJobDetails() {
+    public CloseableIterable<?> getJobResults() {
         // ---------------------------------------------------------
-        final GetJobDetails getJobDetails = new GetJobDetails.Builder()
+        final GetJobResults getJobResults = new GetJobResults.Builder()
                 .jobId(jobId)
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(getJobDetails);
-    }
-
-    public JobDetail getJobDetailsInOperationChain() {
-        // ---------------------------------------------------------
-        final OperationChain<JobDetail> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new GetJobDetails())
-                .build();
-        // ---------------------------------------------------------
-
-        final JobDetail jobDetail = runExample(opChain);
-        jobId = jobDetail.getJobId();
-        return jobDetail;
+        return runExample(getJobResults);
     }
 }

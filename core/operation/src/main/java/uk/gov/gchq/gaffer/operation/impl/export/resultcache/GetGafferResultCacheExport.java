@@ -19,14 +19,18 @@ package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
 
 public class GetGafferResultCacheExport extends GetExport {
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends GetExport.BaseBuilder<GetGafferResultCacheExport, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new GetGafferResultCacheExport());
+    public abstract static class BaseBuilder<OP extends GetGafferResultCacheExport, CHILD_CLASS extends BaseBuilder<OP, ?>>
+            extends GetExport.BaseBuilder<OP, CHILD_CLASS> {
+        protected BaseBuilder(final OP export) {
+            super(export);
         }
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
+    public static final class Builder extends BaseBuilder<GetGafferResultCacheExport, Builder> {
+        public Builder() {
+            super(new GetGafferResultCacheExport());
+        }
+
         @Override
         protected Builder self() {
             return this;

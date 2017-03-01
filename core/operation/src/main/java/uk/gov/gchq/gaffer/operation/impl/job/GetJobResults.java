@@ -16,13 +16,41 @@
 
 package uk.gov.gchq.gaffer.operation.impl.job;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import uk.gov.gchq.gaffer.operation.impl.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 
 public class GetJobResults extends GetGafferResultCacheExport {
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends GetGafferResultCacheExport.BaseBuilder<CHILD_CLASS> {
+
+    @JsonIgnore
+    @Override
+    public String getKey() {
+        return null;
+    }
+
+    @Override
+    public void setKey(final String key) {
+        if (null != key && !Export.DEFAULT_KEY.equals(key)) {
+            throw new IllegalArgumentException("Keys cannot be used with this operation");
+        }
+    }
+
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
+            extends GetGafferResultCacheExport.BaseBuilder<GetJobResults, CHILD_CLASS> {
+        protected BaseBuilder() {
+            super(new GetJobResults());
+        }
+
+        protected BaseBuilder(final GetJobResults export) {
+            super(export);
+        }
     }
 
     public static final class Builder extends BaseBuilder<Builder> {
+        public Builder() {
+            super(new GetJobResults());
+        }
+
         @Override
         protected Builder self() {
             return this;

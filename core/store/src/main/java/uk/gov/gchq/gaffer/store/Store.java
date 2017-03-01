@@ -486,6 +486,9 @@ public abstract class Store {
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
                         + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
+            } catch (final IllegalArgumentException e) {
+                // this is due to get all element operations not allowing seeds.
+                // skip the error and just don't set the seeds
             }
         }
     }

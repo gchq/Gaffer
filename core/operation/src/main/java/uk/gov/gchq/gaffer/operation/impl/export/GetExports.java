@@ -36,7 +36,7 @@ import java.util.Map;
 public class GetExports extends AbstractOperation<Void, Map<String, CloseableIterable<?>>> implements VoidInput<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public List<GetExport> getGetExports() {
         return getExports;
     }
