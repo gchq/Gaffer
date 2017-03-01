@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -81,6 +82,8 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,7 +99,6 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
-
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -150,9 +152,10 @@ public class AccumuloStore extends Store {
      *
      * @param conf A {@link Configuration} to be updated.
      * @param view The {@link View} to be applied.
+     * @param user The {@link User} to be used.
      * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
      */
-    public void updateConfiguration(final Configuration conf, final View view) throws StoreException {
+    public void updateConfiguration(final Configuration conf, final View view, final User user) throws StoreException {
         try {
             // Table name
             InputConfigurator.setInputTableName(AccumuloInputFormat.class,
@@ -161,9 +164,15 @@ public class AccumuloStore extends Store {
             // User
             addUserToConfiguration(conf);
             // Authorizations
+            Authorizations authorisations;
+            if (null != user && null != user.getDataAuths()) {
+                authorisations = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+            } else {
+                authorisations = new Authorizations();
+            }
             InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class,
                     conf,
-                    TableUtils.getCurrentAuthorizations(getConnection()));
+                    authorisations);
             // Zookeeper
             addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
@@ -181,7 +190,6 @@ public class AccumuloStore extends Store {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
             }
-
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }

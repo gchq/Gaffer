@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ public class InputFormatTest {
 
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
+    private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity(TestGroups.ENTITY);
@@ -90,6 +91,30 @@ public class InputFormatTest {
             DATA.add(edge2);
             DATA.add(entity);
         }
+        for (int i = 0; i < NUM_ENTRIES; i++) {
+            final Entity entity = new Entity(TestGroups.ENTITY);
+            entity.setVertex("" + i);
+            entity.putProperty("property1", 1);
+            entity.putProperty("visibility", "public");
+
+            final Edge edge = new Edge(TestGroups.EDGE);
+            edge.setSource("" + i);
+            edge.setDestination("B");
+            edge.setDirected(true);
+            edge.putProperty("property1", 2);
+            edge.putProperty("visibility", "private");
+
+            final Edge edge2 = new Edge(TestGroups.EDGE);
+            edge2.setSource("" + i);
+            edge2.setDestination("C");
+            edge2.setDirected(true);
+            edge2.putProperty("property2", 3);
+            edge2.putProperty("visibility", "public");
+
+            DATA_WITH_VISIBILITIES.add(edge);
+            DATA_WITH_VISIBILITIES.add(edge2);
+            DATA_WITH_VISIBILITIES.add(entity);
+        }
     }
 
     @Rule
@@ -102,18 +127,25 @@ public class InputFormatTest {
         for (final Element element : DATA) {
             expectedResults.add(element.toString());
         }
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(getSchema(),
+                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+                DATA,
                 view,
+                new User(),
                 "instance1",
                 expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(getSchema(),
+                KeyPackage.CLASSIC_KEY_PACKAGE,
+                DATA,
                 view,
+                new User(),
                 "instance2",
                 expectedResults);
     }
 
     @Test
     public void shouldReturnCorrectDataToMapReduceJobWithView() throws Exception {
+        final Schema schema = getSchema();
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
@@ -121,21 +153,81 @@ public class InputFormatTest {
                 expectedResults.add(element.toString());
             }
         }
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(schema,
+                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+                DATA,
                 view,
+                new User(),
                 "instance3",
                 expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(KeyPackage.CLASSIC_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(schema,
+                KeyPackage.CLASSIC_KEY_PACKAGE,
+                DATA,
                 view,
+                new User(),
                 "instance4",
                 expectedResults);
     }
 
-    private void shouldReturnCorrectDataToMapReduceJob(final KeyPackage kp, final View view,
-                                                       final String instanceName, final Set<String> expectedResults)
+    @Test
+    public void shouldReturnCorrectDataToMapReduceJobRespectingAuthorizations() throws Exception {
+        final Schema schema = getSchemaWithVisibilities();
+        final View view = new View.Builder().build();
+        final Set<String> expectedResultsPublicNotPrivate = new HashSet<>();
+        final Set<String> expectedResultsPrivate = new HashSet<>();
+        for (final Element element : DATA_WITH_VISIBILITIES) {
+            expectedResultsPrivate.add(element.toString());
+            if (element.getProperty("visibility").equals("public")) {
+                expectedResultsPublicNotPrivate.add(element.toString());
+            }
+        }
+        final Set<String> privateAuth = new HashSet<>();
+        privateAuth.add("public");
+        privateAuth.add("private");
+        final Set<String> publicNotPrivate = new HashSet<>();
+        publicNotPrivate.add("public");
+        final User userWithPrivate = new User("user1", privateAuth);
+        final User userWithPublicNotPrivate = new User("user1", publicNotPrivate);
+
+        shouldReturnCorrectDataToMapReduceJob(schema,
+                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+                DATA_WITH_VISIBILITIES,
+                view,
+                userWithPublicNotPrivate,
+                "instance5",
+                expectedResultsPublicNotPrivate);
+        shouldReturnCorrectDataToMapReduceJob(schema,
+                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+                DATA_WITH_VISIBILITIES,
+                view,
+                userWithPrivate,
+                "instance6",
+                expectedResultsPrivate);
+        shouldReturnCorrectDataToMapReduceJob(schema,
+                KeyPackage.CLASSIC_KEY_PACKAGE,
+                DATA_WITH_VISIBILITIES,
+                view,
+                userWithPublicNotPrivate,
+                "instance7",
+                expectedResultsPublicNotPrivate);
+        shouldReturnCorrectDataToMapReduceJob(schema,
+                KeyPackage.CLASSIC_KEY_PACKAGE,
+                DATA_WITH_VISIBILITIES,
+                view,
+                userWithPrivate,
+                "instance8",
+                expectedResultsPrivate);
+    }
+
+    private void shouldReturnCorrectDataToMapReduceJob(final Schema schema,
+                                                       final KeyPackage kp,
+                                                       final List<Element> data,
+                                                       final View view,
+                                                       final User user,
+                                                       final String instanceName,
+                                                       final Set<String> expectedResults)
             throws Exception {
         final AccumuloStore store = new MockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
@@ -151,7 +243,7 @@ public class InputFormatTest {
         } catch (StoreException e) {
             fail("StoreException thrown: " + e);
         }
-        setupGraph(store);
+        setupGraph(store, data);
 
         // Set up local conf
         final JobConf conf = new JobConf();
@@ -160,7 +252,7 @@ public class InputFormatTest {
         final FileSystem fs = FileSystem.getLocal(conf);
 
         // Update configuration with instance, table name, etc.
-        store.updateConfiguration(conf, view);
+        store.updateConfiguration(conf, view, user);
 
         // Run Driver
         final File outputFolder = testFolder.newFolder();
@@ -181,12 +273,30 @@ public class InputFormatTest {
         FileUtils.deleteDirectory(outputFolder);
     }
 
-    private void setupGraph(final AccumuloStore store) {
+    private void setupGraph(final AccumuloStore store, final List<Element> data) {
         try {
-            store.execute(new AddElements(DATA), new User());
-        } catch (OperationException e) {
+            store.execute(new AddElements(data), new User());
+        } catch (final OperationException e) {
             fail("Couldn't add elements: " + e);
         }
+    }
+
+    private Schema getSchema() {
+        final Schema schema = Schema.fromJson(
+                this.getClass().getResourceAsStream("/schema/dataSchema.json"),
+                this.getClass().getResourceAsStream("/schema/dataTypes.json"),
+                this.getClass().getResourceAsStream("/schema/storeSchema.json"),
+                this.getClass().getResourceAsStream("/schema/storeTypes.json"));
+        return schema;
+    }
+
+    private Schema getSchemaWithVisibilities() {
+        final Schema schema = Schema.fromJson(
+                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
+                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
+                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
+                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
+        return schema;
     }
 
     private class Driver extends Configured implements Tool {
